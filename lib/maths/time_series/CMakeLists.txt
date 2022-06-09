@@ -12,34 +12,34 @@
 project("ML Maths Time Series")
 
 set(ML_DEPENDENCIES eigen)
-set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlMathsCommon
-    MlCore)
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES}
+  MlMathsCommon
+  MlCore)
 
 ml_add_library(MlMathsTimeSeries SHARED
-    CAdaptiveBucketing.cc 
-    CCalendarComponent.cc 
-    CCalendarComponentAdaptiveBucketing.cc 
-    CCalendarCyclicTest.cc 
-    CCalendarFeature.cc 
-    CCountMinSketch.cc 
-    CDecayRateController.cc 
-    CDecompositionComponent.cc 
-    CExpandingWindow.cc 
-    CModelStateSerialiser.cc 
-    CSeasonalComponent.cc 
-    CSeasonalComponentAdaptiveBucketing.cc 
-    CSeasonalTime.cc 
-    CSignal.cc 
-    CTimeSeriesDecomposition.cc 
-    CTimeSeriesDecompositionDetail.cc 
-    CTimeSeriesDecompositionStateSerialiser.cc 
-    CTimeSeriesDecompositionStub.cc 
-    CTimeSeriesModel.cc 
-    CTimeSeriesMultibucketFeatureSerialiser.cc 
-    CTimeSeriesSegmentation.cc 
-    CTimeSeriesTestForChange.cc 
-    CTimeSeriesTestForSeasonality.cc 
-    CTrendComponent.cc 
-)
+  CAdaptiveBucketing.cc
+  CCalendarComponent.cc
+  CCalendarComponentAdaptiveBucketing.cc
+  CCalendarCyclicTest.cc
+  CCalendarFeature.cc
+  CCountMinSketch.cc
+  CDecayRateController.cc
+  CDecompositionComponent.cc
+  CExpandingWindow.cc
+  CModelStateSerialiser.cc
+  CSeasonalComponent.cc
+  CSeasonalComponentAdaptiveBucketing.cc
+  CSeasonalTime.cc
+  CSignal.cc
+  CTimeSeriesDecomposition.cc
+  CTimeSeriesDecompositionDetail.cc
+  CTimeSeriesDecompositionStateSerialiser.cc
+  CTimeSeriesDecompositionStub.cc
+  CTimeSeriesModel.cc
+  CTimeSeriesMultibucketFeatureSerialiser.cc
+  CTimeSeriesSegmentation.cc
+  CTimeSeriesTestForChange.cc
+  CTimeSeriesTestForSeasonality.cc
+  CTrendComponent.cc
+  )

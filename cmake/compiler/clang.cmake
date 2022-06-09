@@ -20,14 +20,14 @@ if(DEFINED ENV{CPP_CROSS_COMPILE} AND NOT "$ENV{CPP_CROSS_COMPILE}" STREQUAL "")
   # which compilers to use for C and C++
   set(CMAKE_C_COMPILER   "clang-8")
   set(CMAKE_CXX_COMPILER "clang++-8")
-  
+
   set(CMAKE_AR  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ar")
   set(CMAKE_RANLIB  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ranlib")
   set(CMAKE_STRIP  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-strip")
   set(CMAKE_LD  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ld")
-  
+
   set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
-  
+
   # where is the target environment located
   set(CMAKE_FIND_ROOT_PATH  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
 else()
@@ -36,41 +36,41 @@ else()
   set(CMAKE_AR  "ar")
   set(CMAKE_RANLIB  "ranlib")
   set(CMAKE_STRIP  "strip")
-  
+
   #set(Boost_COMPILER "-clang-darwin13")
 endif()
 
 
 list(APPEND ML_C_FLAGS 
-    "-g"
-    ${CROSS_FLAGS}
-    ${OPTCFLAGS}
-    ${ARCHCFLAGS}
-    "-fstack-protector"
-    "-Weverything"
-    "-Werror-switch"
-    "-Wno-deprecated"
-    "-Wno-disabled-macro-expansion"
-    "-Wno-documentation-deprecated-sync"
-    "-Wno-documentation-unknown-command"
-    "-Wno-extra-semi-stmt"
-    "-Wno-float-equal"
-    "-Wno-missing-prototypes"
-    "-Wno-padded"
-    "-Wno-poison-system-directories"
-    "-Wno-sign-conversion"
-    "-Wno-unknown-warning-option"
-    "-Wno-unreachable-code"
-    "-Wno-used-but-marked-unused"
-    ${ML_COVERAGE})
+  "-g"
+  ${CROSS_FLAGS}
+  ${OPTCFLAGS}
+  ${ARCHCFLAGS}
+  "-fstack-protector"
+  "-Weverything"
+  "-Werror-switch"
+  "-Wno-deprecated"
+  "-Wno-disabled-macro-expansion"
+  "-Wno-documentation-deprecated-sync"
+  "-Wno-documentation-unknown-command"
+  "-Wno-extra-semi-stmt"
+  "-Wno-float-equal"
+  "-Wno-missing-prototypes"
+  "-Wno-padded"
+  "-Wno-poison-system-directories"
+  "-Wno-sign-conversion"
+  "-Wno-unknown-warning-option"
+  "-Wno-unreachable-code"
+  "-Wno-used-but-marked-unused"
+  ${ML_COVERAGE})
 
 list(APPEND ML_CXX_FLAGS 
-    ${ML_C_FLAGS}
-    "-Wno-c++98-compat"
-    "-Wno-c++98-compat-pedantic"
-    "-Wno-exit-time-destructors"
-    "-Wno-global-constructors"
-    "-Wno-return-std-move-in-c++11"
-    "-Wno-unused-member-function"
-    "-Wno-weak-vtables")
+  ${ML_C_FLAGS}
+  "-Wno-c++98-compat"
+  "-Wno-c++98-compat-pedantic"
+  "-Wno-exit-time-destructors"
+  "-Wno-global-constructors"
+  "-Wno-return-std-move-in-c++11"
+  "-Wno-unused-member-function"
+  "-Wno-weak-vtables")
 

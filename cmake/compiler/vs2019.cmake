@@ -10,16 +10,16 @@
 #
 
 if (DEFINED VS2019_VARIABLES_)
-    return ()
+  return ()
 else()
-    set (VS2019_VARIABLES_ 1)
+  set (VS2019_VARIABLES_ 1)
 endif()
 
 set(ROOT "/c")
 if(DEFINED ENV{ROOT})
   set(ROOT $ENV{ROOT})
 endif()
-  
+
 execute_process(COMMAND bash -c "cygpath -m -s \"${ROOT}/Program Files (x86)/Microsoft Visual Studio/2019/Professional\"" OUTPUT_VARIABLE VCBASE OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND bash -c "cygpath -m -s \"${ROOT}/Program Files (x86)/Windows Kits\"" OUTPUT_VARIABLE WINSDKBASE OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND bash -c "cygpath -m -s \"${ROOT}/Program Files (x86)\"" OUTPUT_VARIABLE PFX86_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)

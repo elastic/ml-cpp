@@ -12,18 +12,18 @@
 project("ML PyTorch Inference")
 
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlApi
-    MlSeccomp
-    MlVer
-    ${TORCH_LIB}
-    ${C10_LIB}
-)
+  ${Boost_LIBRARIES}
+  MlCore
+  MlApi
+  MlSeccomp
+  MlVer
+  ${TORCH_LIB}
+  ${C10_LIB}
+  )
 
 ml_add_executable(pytorch_inference
-    CBufferedIStreamAdapter.cc
-    CCmdLineParser.cc
-    CCommandParser.cc
-    CThreadSettings.cc
-)
+  CBufferedIStreamAdapter.cc
+  CCmdLineParser.cc
+  CCommandParser.cc
+  CThreadSettings.cc
+  )

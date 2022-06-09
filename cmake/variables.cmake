@@ -19,11 +19,11 @@ set(SNAPSHOT yes)
 set(ML_APP_NAME controller)
 
 execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}"
-    $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM OUTPUT_STRIP_TRAILING_WHITESPACE)
+  $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM OUTPUT_STRIP_TRAILING_WHITESPACE)
 message(STATUS "ML_VERSION_NUM ${ML_VERSION_NUM}")
 
 message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
-STRING(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" CMAKE_CXX_COMPILER_VERSION_REGEX_MATCH  ${CMAKE_CXX_COMPILER_VERSION})
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" CMAKE_CXX_COMPILER_VERSION_REGEX_MATCH  ${CMAKE_CXX_COMPILER_VERSION})
 set(CMAKE_CXX_COMPILER_VERSION_MAJOR ${CMAKE_MATCH_1})
 set(CMAKE_CXX_COMPILER_VERSION_MINOR ${CMAKE_MATCH_2})
 set(CMAKE_CXX_COMPILER_VERSION_PATCH ${CMAKE_MATCH_3})
@@ -41,7 +41,7 @@ else()
   set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
 endif()
 
-  
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
     set(ML_BOOST_COMPILER_VER "-clang-darwin11")
@@ -123,11 +123,11 @@ else ()
 endif()
 
 list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES
-    ${TORCH_INC}
-    ${CMAKE_SOURCE_DIR}/3rd_party/include
-    ${CMAKE_SOURCE_DIR}/3rd_party/eigen
-    ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
-)
+  ${TORCH_INC}
+  ${CMAKE_SOURCE_DIR}/3rd_party/include
+  ${CMAKE_SOURCE_DIR}/3rd_party/eigen
+  ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+  )
 
 set(IMPORT_LIB_DIR lib)
 if (WIN32)
@@ -149,7 +149,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(UNIX AND ENV{ML_DEBUG} AND ENV{ML_COVERAGE})
-    set(ML_COVERAGE "--coverage")
+  set(ML_COVERAGE "--coverage")
 endif()
 
 if(NOT ENV{ML_DEBUG})
@@ -157,14 +157,14 @@ if(NOT ENV{ML_DEBUG})
   if(UNIX)
     list(APPEND OPTCFLAGS "-O3")
     if (NOT APPLE)
-        list(APPEND OPTCFLAGS "-Wdisabled-optimization")
-        list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2" "_REENTRANT")
+      list(APPEND OPTCFLAGS "-Wdisabled-optimization")
+      list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2" "_REENTRANT")
     endif()
   else()
-      set(OPTCFLAGS "-O2" "-Qfast_transcendentals" "-Qvec-report:1")
+    set(OPTCFLAGS "-O2" "-Qfast_transcendentals" "-Qvec-report:1")
   endif()
 endif()
-  
+
 list(APPEND ML_CXX_FLAGS ${OPTCFLAGS})
 list(APPEND ML_COMPILE_DEFINITIONS EIGEN_MPL2_ONLY EIGEN_MAX_ALIGN_BYTES=32)
 
@@ -180,7 +180,7 @@ set(Boost_COMPILER "${ML_BOOST_COMPILER_VER}")
 
 find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework)
 if(Boost_FOUND)
-    list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
+  list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
 endif()
 
 set(Boost_LIBRARIES_WITH_UNIT_TEST ${Boost_LIBRARIES})

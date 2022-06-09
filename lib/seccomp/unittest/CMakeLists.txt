@@ -12,16 +12,16 @@
 project("ML Seccomp unit tests")
 
 set (SRCS
-    Main.cc 
-    CSystemCallFilterTest.cc 
-)
+  Main.cc
+  CSystemCallFilterTest.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    ${LIBXML2_LIBRARIES}
-    MlCore
-    MlSeccomp
-    MlTest
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  ${LIBXML2_LIBRARIES}
+  MlCore
+  MlSeccomp
+  MlTest
+  )
 
 ml_add_test_executable(seccomp ${SRCS})

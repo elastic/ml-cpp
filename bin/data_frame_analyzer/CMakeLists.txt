@@ -12,16 +12,16 @@
 project("ML DataFrame Analyzer")
 
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlMathsCommon
-    MlMathsAnalytics
-    MlModel
-    MlApi
-    MlSeccomp
-    MlVer
-)
+  ${Boost_LIBRARIES}
+  MlCore
+  MlMathsCommon
+  MlMathsAnalytics
+  MlModel
+  MlApi
+  MlSeccomp
+  MlVer
+  )
 
 ml_add_executable(data_frame_analyzer
-    CCmdLineParser.cc
-)
+  CCmdLineParser.cc
+  )

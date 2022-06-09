@@ -12,25 +12,25 @@
 project("ML Maths Analytics unit tests")
 
 set (SRCS
-    Main.cc 
-    CBoostedTreeLeafNodeStatisticsTest.cc 
-    CBoostedTreeLossTest.cc 
-    CBoostedTreeTest.cc 
-    CDataFrameCategoryEncoderTest.cc 
-    CDataFrameUtilsTest.cc 
-    CMicTest.cc 
-    COutliersTest.cc 
-    CTreeShapFeatureImportanceTest.cc 
-    TestUtils.cc 
-)
+  Main.cc
+  CBoostedTreeLeafNodeStatisticsTest.cc
+  CBoostedTreeLossTest.cc
+  CBoostedTreeTest.cc
+  CDataFrameCategoryEncoderTest.cc
+  CDataFrameUtilsTest.cc
+  CMicTest.cc
+  COutliersTest.cc
+  CTreeShapFeatureImportanceTest.cc
+  TestUtils.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    ${LIBXML2_LIBRARIES}
-    MlCore
-    MlMathsCommon
-    MlMathsAnalytics
-    MlTest
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  ${LIBXML2_LIBRARIES}
+  MlCore
+  MlMathsCommon
+  MlMathsAnalytics
+  MlTest
+  )
 
 ml_add_test_executable(maths_analytics ${SRCS})

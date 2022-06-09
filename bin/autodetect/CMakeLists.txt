@@ -12,16 +12,16 @@
 project("ML Autodetect")
 
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlMathsCommon
-    MlMathsTimeSeries
-    MlModel
-    MlApi
-    MlSeccomp
-    MlVer
-)
+  ${Boost_LIBRARIES}
+  MlCore
+  MlMathsCommon
+  MlMathsTimeSeries
+  MlModel
+  MlApi
+  MlSeccomp
+  MlVer
+  )
 
 ml_add_executable(autodetect
-    CCmdLineParser.cc
-)
+  CCmdLineParser.cc
+  )

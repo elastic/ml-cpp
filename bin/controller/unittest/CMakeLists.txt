@@ -12,18 +12,18 @@
 project("ML controller unit tests")
 
 set (SRCS
-    Main.cc
-    CBlockingCallCancellingStreamMonitorTest.cc
-    CCommandProcessorTest.cc
-    CResponseJsonWriterTest.cc
-)
+  Main.cc
+  CBlockingCallCancellingStreamMonitorTest.cc
+  CCommandProcessorTest.cc
+  CResponseJsonWriterTest.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    ${LIBXML2_LIBRARIES}
-    MlCore
-    MlTest
-    MlVer
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  ${LIBXML2_LIBRARIES}
+  MlCore
+  MlTest
+  MlVer
+  )
 
 ml_add_test_executable(controller ${SRCS})

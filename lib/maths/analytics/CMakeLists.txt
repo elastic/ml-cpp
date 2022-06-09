@@ -12,24 +12,24 @@
 project("ML Maths Analytics")
 
 set(ML_DEPENDENCIES eigen)
-set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlMathsCommon
-    MlCore)
+set(ML_LINK_LIBRARIES
+  ${Boost_LIBRARIES}
+  MlMathsCommon
+  MlCore)
 
 ml_add_library(MlMathsAnalytics SHARED
-    CBoostedTree.cc
-    CBoostedTreeFactory.cc
-    CBoostedTreeHyperparameters.cc
-    CBoostedTreeImpl.cc
-    CBoostedTreeLeafNodeStatistics.cc
-    CBoostedTreeLeafNodeStatisticsThreading.cc
-    CBoostedTreeLoss.cc
-    CBoostedTreeUtils.cc
-    CDataFrameCategoryEncoder.cc
-    CDataFramePredictiveModel.cc
-    CDataFrameUtils.cc
-    CMic.cc
-    COutliers.cc
-    CTreeShapFeatureImportance.cc
-)
+  CBoostedTree.cc
+  CBoostedTreeFactory.cc
+  CBoostedTreeHyperparameters.cc
+  CBoostedTreeImpl.cc
+  CBoostedTreeLeafNodeStatistics.cc
+  CBoostedTreeLeafNodeStatisticsThreading.cc
+  CBoostedTreeLoss.cc
+  CBoostedTreeUtils.cc
+  CDataFrameCategoryEncoder.cc
+  CDataFramePredictiveModel.cc
+  CDataFrameUtils.cc
+  CMic.cc
+  COutliers.cc
+  CTreeShapFeatureImportance.cc
+  )

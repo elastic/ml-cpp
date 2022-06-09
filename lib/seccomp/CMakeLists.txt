@@ -12,7 +12,7 @@
 project("ML Seccomp")
 
 set(SRCS
-    CSystemCallFilter.cc
-)
+  CSystemCallFilter.cc
+  )
 
 ml_add_library(MlSeccomp STATIC ${SRCS})

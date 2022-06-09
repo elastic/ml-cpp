@@ -188,13 +188,11 @@ function(ml_add_test_executable _target)
     # Also, as some unittests make assumptions about the directory that the test
     # executable resides in we copy the test executable up a level in the binary
     # source directory.
-    message(STATUS "Current Binary Dir = ${CMAKE_CURRENT_BINARY_DIR}")
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
       COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
         ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
-      COMMAND ${CMAKE_COMMAND} -E echo ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
@@ -213,11 +211,7 @@ endfunction()
 # _target: Name of the unittest target, e.g. maths_common
 #
 function(ml_add_test _directory _target)
-  if(MSVC)
-    add_subdirectory(../${_directory} ${_directory}/Release)
-  else()
-    add_subdirectory(../${_directory} ${_directory})
-  endif()
+  add_subdirectory(../${_directory} ${_directory})
   list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
   list(APPEND ML_TEST_DEPENDS test_${_target})
   set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)

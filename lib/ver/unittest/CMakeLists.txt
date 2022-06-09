@@ -12,16 +12,16 @@
 project("ML Ver unit tests")
 
 set (SRCS
-    Main.cc 
-    CBuildInfoTest.cc
-)
+  Main.cc
+  CBuildInfoTest.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    ${LIBXML2_LIBRARIES}
-    MlCore
-    MlVer
-    MlTest
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  ${LIBXML2_LIBRARIES}
+  MlCore
+  MlVer
+  MlTest
+  )
 
 ml_add_test_executable(ver ${SRCS})

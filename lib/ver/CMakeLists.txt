@@ -14,28 +14,28 @@ project("ML Ver")
 # Prepare values to substitute into the template
 execute_process(COMMAND date "+%Y" OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}"
-    $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE PRODUCT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+  $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE PRODUCT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(${VERSION_QUALIFIER})
-    set(PRODUCT_VERSION "${PRODUCT_VERSION}-${VERSION_QUALIFIER}")
+  set(PRODUCT_VERSION "${PRODUCT_VERSION}-${VERSION_QUALIFIER}")
 endif()
 
 if(SNAPSHOT STREQUAL "yes")
-    set(PRODUCT_VERSION "${PRODUCT_VERSION}-SNAPSHOT")
+  set(PRODUCT_VERSION "${PRODUCT_VERSION}-SNAPSHOT")
 endif()
 execute_process(COMMAND shell git rev-parse --short=14 HEAD OUTPUT_VARIABLE=ML_BUILD_NUM)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null  COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null  COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
 else()
-    execute_process(COMMAND git update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null COMMAND git diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null COMMAND git diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
 endif()
 
 # Decide which build to perform based on whether there are uncommitted changes
 if(UNCOMMITTED_CHANGES)
-    add_compile_definitions(DEV_BUILD)
+  add_compile_definitions(DEV_BUILD)
 endif()
 
 set(TEMPLATE "template")
@@ -46,11 +46,11 @@ set(user.name "${USER_NAME}")
 set(version.number "${PRODUCT_VERSION}")
 set(build.number "${ML_BUILD_NUM}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CBuildInfo.cc.${TEMPLATE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/CBuildInfo.cc
-    )
+  ${CMAKE_CURRENT_SOURCE_DIR}/CBuildInfo.cc
+  )
 
 set(SRCS
-CBuildInfo.cc
-)
+  CBuildInfo.cc
+  )
 
 ml_add_library(MlVer STATIC ${SRCS})

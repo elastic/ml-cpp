@@ -12,13 +12,13 @@
 project("ML DCump State")
 
 set(SRCS
-)
+  )
 
 set(ML_LINK_LIBRARIES ${Boost_LIBRARIES}
   MlCore
   MlApi
   MlSeccomp
   MlVer
-)
+  )
 
 ml_add_executable(dump_state ${SRCS})

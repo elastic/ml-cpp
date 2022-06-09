@@ -15,7 +15,7 @@ project("ML")
 set (CMAKE_BASE_ROOT_DIR ${CMAKE_SOURCE_DIR})
 list (FIND CMAKE_MODULE_PATH "${CMAKE_BASE_ROOT_DIR}/cmake" _index)
 if (${_index} EQUAL -1)
-    list (APPEND CMAKE_MODULE_PATH "${CMAKE_BASE_ROOT_DIR}/cmake")
+  list (APPEND CMAKE_MODULE_PATH "${CMAKE_BASE_ROOT_DIR}/cmake")
 endif()
 
 message ("cmake_module_path: ${CMAKE_MODULE_PATH}")
@@ -24,11 +24,11 @@ include(variables)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   add_custom_target(
-      plist ALL
-      DEPENDS $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh 
-      DEPENDS $ENV{CPP_SRC_HOME}/gradle.properties
-      COMMAND $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh "${ML_APP_NAME}" false > Info.plist
-  )
+    plist ALL
+    DEPENDS $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh
+    DEPENDS $ENV{CPP_SRC_HOME}/gradle.properties
+    COMMAND $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh "${ML_APP_NAME}" false > Info.plist
+    )
   install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 

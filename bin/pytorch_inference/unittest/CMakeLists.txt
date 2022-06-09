@@ -12,23 +12,23 @@
 project("ML pytorch_inference unit tests")
 
 set (SRCS
-    Main.cc
-    CCommandParserTest.cc
-    CThreadSettingsTest.cc
-)
+  Main.cc
+  CCommandParserTest.cc
+  CThreadSettingsTest.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    ${LIBXML2_LIBRARIES}
-    MlCore
-    MlMathsCommon
-    MlMathsAnalytics
-    MlModel
-    MlApi
-    MlTest
-    MlVer
-    ${TORCH_LIB}
-    ${C10_LIB}
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  ${LIBXML2_LIBRARIES}
+  MlCore
+  MlMathsCommon
+  MlMathsAnalytics
+  MlModel
+  MlApi
+  MlTest
+  MlVer
+  ${TORCH_LIB}
+  ${C10_LIB}
+  )
 
 ml_add_test_executable(pytorch_inference ${SRCS})

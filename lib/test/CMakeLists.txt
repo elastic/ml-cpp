@@ -13,25 +13,25 @@ project("ML Test")
 
 set(ML_DEPENDENCIES eigen)
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    MlApi
-    MlCore
-    MlMathsAnalytics
-    MlMathsCommon
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  MlApi
+  MlCore
+  MlMathsAnalytics
+  MlMathsCommon
+  )
 
 ml_add_library(MlTest SHARED
-    CBoostTestXmlOutput.cc
-    CDataFrameAnalysisSpecificationFactory.cc
-    CDataFrameAnalyzerTrainingFactory.cc
-    CMultiFileDataAdder.cc
-    CMultiFileSearcher.cc
-    CProgramCounterClearingFixture.cc
-    CRandomNumbers.cc
-    CShellCmdEscape.cc
-    CTestObserver.cc
-    CTestTmpDir.cc
-    CThreadDataReader.cc
-    CThreadDataWriter.cc
-    CTimeSeriesTestData.cc
-)
+  CBoostTestXmlOutput.cc
+  CDataFrameAnalysisSpecificationFactory.cc
+  CDataFrameAnalyzerTrainingFactory.cc
+  CMultiFileDataAdder.cc
+  CMultiFileSearcher.cc
+  CProgramCounterClearingFixture.cc
+  CRandomNumbers.cc
+  CShellCmdEscape.cc
+  CTestObserver.cc
+  CTestTmpDir.cc
+  CThreadDataReader.cc
+  CThreadDataWriter.cc
+  CTimeSeriesTestData.cc
+  )

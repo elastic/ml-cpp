@@ -12,37 +12,37 @@
 project("ML Maths Time Series unit tests")
 
 set (SRCS
-    Main.cc 
-    CAdaptiveBucketingTest.cc 
-    CCalendarComponentAdaptiveBucketingTest.cc 
-    CCalendarComponentTest.cc 
-    CCalendarCyclicTestTest.cc 
-    CCalendarFeatureTest.cc 
-    CCountMinSketchTest.cc 
-    CDecayRateControllerTest.cc 
-    CExpandingWindowTest.cc 
-    CForecastTest.cc 
-    CMathsMemoryTest.cc 
-    CSeasonalComponentAdaptiveBucketingTest.cc 
-    CSeasonalComponentTest.cc 
-    CSeasonalTimeTest.cc 
-    CSignalTest.cc 
-    CTimeSeriesDecompositionTest.cc 
-    CTimeSeriesModelTest.cc 
-    CTimeSeriesMultibucketFeaturesTest.cc 
-    CTimeSeriesSegmentationTest.cc 
-    CTimeSeriesTestForChangeTest.cc 
-    CTimeSeriesTestForSeasonalityTest.cc 
-    CTrendComponentTest.cc 
-    TestUtils.cc
-)
+  Main.cc
+  CAdaptiveBucketingTest.cc
+  CCalendarComponentAdaptiveBucketingTest.cc
+  CCalendarComponentTest.cc
+  CCalendarCyclicTestTest.cc
+  CCalendarFeatureTest.cc
+  CCountMinSketchTest.cc
+  CDecayRateControllerTest.cc
+  CExpandingWindowTest.cc
+  CForecastTest.cc
+  CMathsMemoryTest.cc
+  CSeasonalComponentAdaptiveBucketingTest.cc
+  CSeasonalComponentTest.cc
+  CSeasonalTimeTest.cc
+  CSignalTest.cc
+  CTimeSeriesDecompositionTest.cc
+  CTimeSeriesModelTest.cc
+  CTimeSeriesMultibucketFeaturesTest.cc
+  CTimeSeriesSegmentationTest.cc
+  CTimeSeriesTestForChangeTest.cc
+  CTimeSeriesTestForSeasonalityTest.cc
+  CTrendComponentTest.cc
+  TestUtils.cc
+  )
 
 set(ML_LINK_LIBRARIES
-    ${Boost_LIBRARIES_WITH_UNIT_TEST}
-    MlCore
-    MlMathsCommon
-    MlMathsTimeSeries
-    MlTest
-)
+  ${Boost_LIBRARIES_WITH_UNIT_TEST}
+  MlCore
+  MlMathsCommon
+  MlMathsTimeSeries
+  MlTest
+  )
 
 ml_add_test_executable(maths_time_series ${SRCS})

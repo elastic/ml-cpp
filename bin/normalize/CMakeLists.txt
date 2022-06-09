@@ -12,14 +12,14 @@
 project("ML Normalize")
 
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlModel
-    MlApi
-    MlSeccomp
-    MlVer
-)
+  ${Boost_LIBRARIES}
+  MlCore
+  MlModel
+  MlApi
+  MlSeccomp
+  MlVer
+  )
 
 ml_add_executable(normalize
-    CCmdLineParser.cc
-)
+  CCmdLineParser.cc
+  )

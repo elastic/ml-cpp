@@ -13,7 +13,7 @@
 if(CROSS_TARGET_PLATFORM  STREQUAL "aarch64-linux-gnu")
   set(CMAKE_C_COMPILER   "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-gcc")
   set(CMAKE_CXX_COMPILER "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-g++")
-  
+
   set(CMAKE_SYSTEM_PROCESSOR "aarch64")
   set(CMAKE_AR       "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-ar")
   set(CMAKE_RANLIB   "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-ranlib")
@@ -28,7 +28,7 @@ if(CROSS_TARGET_PLATFORM  STREQUAL "aarch64-linux-gnu")
 else()
   set(CMAKE_C_COMPILER   "/usr/local/gcc103/bin/gcc")
   set(CMAKE_CXX_COMPILER "/usr/local/gcc103/bin/g++")
-  
+
   set(CMAKE_SYSTEM_PROCESSOR "x86_64")
   set(CMAKE_AR       "/usr/local/gcc103/bin/ar")
   set(CMAKE_RANLIB   "/usr/local/gcc103/bin/ranlib")
@@ -55,7 +55,7 @@ list(APPEND ML_C_FLAGS
   "-Wpointer-arith"
   "-Wswitch-enum"
   ${ML_COVERAGE}
-)
+  )
 
 list(APPEND ML_CXX_FLAGS
   ${ML_C_FLAGS}
@@ -63,6 +63,6 @@ list(APPEND ML_CXX_FLAGS
   "-Wno-deprecated-declarations"
   "-Wold-style-cast"
   "-fvisibility-inlines-hidden"
-)
+  )
 
 

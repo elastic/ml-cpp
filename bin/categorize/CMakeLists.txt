@@ -12,15 +12,15 @@
 project("ML Categorize")
 
 set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlMathsCommon
-    MlModel
-    MlApi
-    MlSeccomp
-    MlVer
-)
+  ${Boost_LIBRARIES}
+  MlCore
+  MlMathsCommon
+  MlModel
+  MlApi
+  MlSeccomp
+  MlVer
+  )
 
 ml_add_executable(categorize
-    CCmdLineParser.cc
-)
+  CCmdLineParser.cc
+  )
