@@ -849,7 +849,8 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         BOOST_REQUIRE_CLOSE(samplingRowsMask.manhattan(),
                             numberDistributionSourceRows[0], 1);
 
-        auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(1, *frame, samplingRowsMask, {0})[0];
+        auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(
+            1, *frame, samplingRowsMask, {0})[0];
 
         LOG_TRACE(<< "Expected category count "
                   << core::CContainerPrinter::print(expectedCategoryCounts));

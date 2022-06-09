@@ -2558,15 +2558,14 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
             allTrainingDataRowMask, allTrainingDataRowMask)};
         return rowMask;
     }
-    // For classification we preserve the class distribution of the data summarization sample.
+    // For classification, we preserve the class distribution of either the data summarization sample
+    // or the training dataset, depending on which of the two has a lower class imbalance.
     auto classImbalance = [&](const core::CPackedBitVector& rowMask) {
         auto categoryCounts = CDataFrameUtils::categoryCounts(
             m_NumberThreads, frame, rowMask, {m_DependentVariable})[m_DependentVariable];
-        double maxClassCount{
-            *(std::max_element(categoryCounts.begin(), categoryCounts.end()))};
-        double minClassCount{
-            *(std::min_element(categoryCounts.begin(), categoryCounts.end()))};
-        return maxClassCount / minClassCount;
+        auto const[minClassCount, maxClassCount] =
+            std::minmax_element(categoryCounts.begin(), categoryCounts.end());
+        return *maxClassCount / *minClassCount;
     };
 
     const auto& distributionSourceRowMask =
