@@ -320,13 +320,40 @@ public:
     //! target quantiles for regression.
     //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
     static core::CPackedBitVector
-    stratifiedSamplingRowMasks(std::size_t numberThreads,
-                               const core::CDataFrame& frame,
-                               std::size_t targetColumn,
-                               common::CPRNG::CXorOShiro128Plus rng,
-                               std::size_t desiredNumberSamples,
-                               std::size_t numberBuckets,
-                               const core::CPackedBitVector& allTrainingRowsMask);
+    stratifiedSamplingRowMask(std::size_t numberThreads,
+                              const core::CDataFrame& frame,
+                              std::size_t targetColumn,
+                              common::CPRNG::CXorOShiro128Plus rng,
+                              std::size_t desiredNumberSamples,
+                              std::size_t numberBuckets,
+                              const core::CPackedBitVector& allTrainingRowsMask);
+
+    //! Compute sampling on the \p frame that preserves the distribution on \p distributionSourceRowsMask.
+    //!
+    //! For categorical \p targetColumn, a subset of  \p allTrainingRowsMask will be selected which
+    //! preserves the proportion of categories in \p distributionSourceRowsMask for \p targetColumn.
+    //! For numerical \p targetColumn,  a subset of  \p allTrainingRowsMask will be selected which
+    //! preserves the distribution quantiles of \p distributionSourceRowsMask for \p targetColumn.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the row masks.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] desiredNumberSamples The number of samples.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying by
+    //! target quantiles for regression.
+    //! \param[in] distributionSourceRowsMask The source of the distribution of target values
+    //! that has to be preserved.
+    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    static core::CPackedBitVector
+    distributionPreservingSamplingRowMask(std::size_t numberThreads,
+                                          const core::CDataFrame& frame,
+                                          std::size_t targetColumn,
+                                          common::CPRNG::CXorOShiro128Plus rng,
+                                          std::size_t desiredNumberSamples,
+                                          std::size_t numberBuckets,
+                                          const core::CPackedBitVector& distributionSourceRowsMask,
+                                          const core::CPackedBitVector& allTrainingRowsMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!
@@ -340,6 +367,19 @@ public:
                                              const core::CDataFrame& frame,
                                              const core::CPackedBitVector& rowMask,
                                              TSizeVec columnMask);
+
+    //! Get the number of items of each category in \p frame.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute category counts.
+    //! \param[in] rowMask A mask of the rows from which to compute category counts.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \return The number of items of each category. The collection is indexed by column
+    //! and then category identifier.
+    static TDoubleVecVec categoryCounts(std::size_t numberThreads,
+                                        const core::CDataFrame& frame,
+                                        const core::CPackedBitVector& rowMask,
+                                        TSizeVec columnMask);
 
     //! Compute the mean value of \p target on the restriction to the rows labelled
     //! by each distinct category of the categorical columns.

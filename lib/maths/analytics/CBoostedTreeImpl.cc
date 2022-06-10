@@ -2531,12 +2531,55 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         return allTrainingRowsMask;
     }
 
-    std::size_t sampleSize{std::max(
-        static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
-        static_cast<std::size_t>(2))};
-    core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
-        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10, allTrainingRowsMask)};
+    if (m_Hyperparameters.incrementalTraining() == false) {
+        // Use stratified sampling after initial training.
+        std::size_t sampleSize{std::max(
+            static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
+            static_cast<std::size_t>(2))};
+        core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMask(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingRowsMask)};
+        return rowMask;
+    }
+    auto dataSummarizationRowMask{this->allTrainingRowsMask() & ~this->newTrainingRowMask()};
+    std::size_t sampleSize{static_cast<std::size_t>(dataSummarizationRowMask.manhattan())};
 
+    // Add dataSummarizationFraction amount of new data to the old data to sample from.
+    std::size_t newDataSubsampleSize{static_cast<std::size_t>(std::ceil(
+        m_DataSummarizationFraction * this->allTrainingRowsMask().manhattan()))};
+    auto newDataSampleRowMask =
+        this->newTrainingRowMask().manhattan() > 0
+            ? CDataFrameUtils::stratifiedSamplingRowMask(
+                  m_NumberThreads, frame, m_DependentVariable, m_Rng,
+                  newDataSubsampleSize, 10, this->newTrainingRowMask())
+            : core::CPackedBitVector(this->allTrainingRowsMask().size(), false);
+    auto allTrainingDataRowMask{dataSummarizationRowMask | newDataSampleRowMask};
+
+    if (m_Loss->isRegression()) {
+        // For regression we preserve the quantile distribution of the complete training sample.
+        core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingDataRowMask, allTrainingDataRowMask)};
+        return rowMask;
+    }
+    // For classification, we preserve the class distribution of either the data summarization sample
+    // or the training dataset, depending on which of the two has a lower class imbalance.
+    auto classImbalance = [&](const core::CPackedBitVector& rowMask) {
+        auto categoryCounts = CDataFrameUtils::categoryCounts(
+            m_NumberThreads, frame, rowMask, {m_DependentVariable})[m_DependentVariable];
+        auto const[minClassCount, maxClassCount] =
+            std::minmax_element(categoryCounts.begin(), categoryCounts.end());
+        return *maxClassCount / *minClassCount;
+    };
+
+    const auto& distributionSourceRowMask =
+        classImbalance(dataSummarizationRowMask) < classImbalance(allTrainingRowsMask)
+            ? dataSummarizationRowMask
+            : allTrainingDataRowMask;
+
+    core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+        distributionSourceRowMask, allTrainingDataRowMask)};
     return rowMask;
 }
 

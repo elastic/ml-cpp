@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         }
 
         core::CPackedBitVector samplingRowMask;
-        samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMasks(
+        samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMask(
             1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
 
         // Count should be very nearly the expected value.
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
 
         core::CPackedBitVector allTrainingRowsMask{numberRows, true};
         core::CPackedBitVector samplingRowMask;
-        samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMasks(
+        samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMask(
             1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
 
         // Count should be very nearly the expected value.
@@ -786,6 +786,126 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         for (std::size_t i = 0; i < numberRows; ++i) {
             expectedQuantiles.add(value[i]);
             if (samplingRowMask[i]) {
+                actualQuantiles.add(value[i]);
+            }
+        }
+
+        double percentageStep{1.0 / numberBins * 100.0};
+        double expected;
+        double actual;
+        for (double percentage = percentageStep; percentage < 100.0;
+             percentage += percentageStep) {
+            expectedQuantiles.quantile(percentage, expected);
+            actualQuantiles.quantile(percentage, actual);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.05);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
+    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
+    test::CRandomNumbers testRng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
+
+    TSizeVec numberDistributionSourceRows(1);
+    std::size_t numberAdditionalRows{1000};
+    std::size_t numberCols{1};
+
+    // Test that for categorical data the count of individual classes remains the same.
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+        testRng.generateUniformSamples(500, 750, 1, numberDistributionSourceRows);
+        TDoubleVec categories;
+        testRng.generateNormalSamples(0.0, 3.0, numberDistributionSourceRows[0], categories);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{true});
+        for (std::size_t i = 0; i < numberDistributionSourceRows[0]; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *column = std::floor(std::fabs(categories[i]));
+            });
+        }
+        for (std::size_t i = 0; i < numberAdditionalRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                                std::int32_t&) { *column = 0; });
+        }
+        frame->finishWritingRows();
+        core::CPackedBitVector distributionSourceRowsMask{
+            numberDistributionSourceRows[0], true};
+        distributionSourceRowsMask.extend(false, numberAdditionalRows);
+
+        core::CPackedBitVector allRowsMask{distributionSourceRowsMask.size(), true};
+
+        TDoubleDoubleUMap expectedCategoryCounts;
+        for (auto i = distributionSourceRowsMask.beginOneBits();
+             i != distributionSourceRowsMask.endOneBits(); ++i) {
+            expectedCategoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
+        }
+
+        auto samplingRowsMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
+            1, *frame, 0, rng, numberDistributionSourceRows[0], 10,
+            distributionSourceRowsMask, allRowsMask);
+
+        BOOST_REQUIRE_EQUAL(samplingRowsMask.size(), allRowsMask.size());
+        BOOST_REQUIRE_CLOSE(samplingRowsMask.manhattan(),
+                            numberDistributionSourceRows[0], 1);
+
+        auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(
+            1, *frame, samplingRowsMask, {0})[0];
+
+        LOG_TRACE(<< "Expected category count "
+                  << core::CContainerPrinter::print(expectedCategoryCounts));
+        LOG_TRACE(<< "Actual category count "
+                  << core::CContainerPrinter::print(actualCategoryCounts));
+
+        BOOST_REQUIRE_EQUAL(actualCategoryCounts.size(), expectedCategoryCounts.size());
+        for (std::size_t i = 0; i < expectedCategoryCounts.size(); ++i) {
+            BOOST_REQUIRE_EQUAL(actualCategoryCounts[i], expectedCategoryCounts[i]);
+        }
+    }
+
+    // Test for regression data that quantiles fit to the new data. This part of the test
+    // resembles the test for testStratifiedSamplingRowMasks. This is on purpose, since the
+    // behaviour should be similar.
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+
+        testRng.generateUniformSamples(500, 750, 1, numberDistributionSourceRows);
+        TDoubleVec value;
+        auto numberRows = numberDistributionSourceRows[0] + numberAdditionalRows;
+        std::size_t numberBins{10};
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, value);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{false});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                                std::int32_t&) { *column = value[i]; });
+        }
+        frame->finishWritingRows();
+        core::CPackedBitVector distributionSourceRowsMask{
+            numberDistributionSourceRows[0], true};
+        distributionSourceRowsMask.extend(false, numberAdditionalRows);
+
+        core::CPackedBitVector allRowsMask{distributionSourceRowsMask.size(), true};
+        auto samplingRowsMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
+            1, *frame, 0, rng, numberDistributionSourceRows[0], numberBins,
+            distributionSourceRowsMask, allRowsMask);
+
+        // Count should be very nearly the expected value.
+        BOOST_REQUIRE_EQUAL(samplingRowsMask.size(), allRowsMask.size());
+        BOOST_REQUIRE_CLOSE(static_cast<double>(numberDistributionSourceRows[0]),
+                            samplingRowsMask.manhattan(), 1.0);
+
+        // Ensure that the target's distribution is similar.
+        maths::common::CQuantileSketch expectedQuantiles(
+            maths::common::CQuantileSketch::E_Linear, numberRows);
+        maths::common::CQuantileSketch actualQuantiles(
+            maths::common::CQuantileSketch::E_Linear,
+            static_cast<std::size_t>(samplingRowsMask.manhattan()));
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            if (distributionSourceRowsMask[i]) {
+                expectedQuantiles.add(value[i]);
+            }
+            if (samplingRowsMask[i]) {
                 actualQuantiles.add(value[i]);
             }
         }
