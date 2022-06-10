@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
         std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
-    for (std::size_t i = 0; i < std::size(nonZeroCounts); ++i) {
+    for (std::size_t i = 0; i < boost::size(nonZeroCounts); ++i) {
         LOG_DEBUG(<< "non-zero count = " << nonZeroCounts[i]);
 
         TDoubleVec samples(500, 0.0);
