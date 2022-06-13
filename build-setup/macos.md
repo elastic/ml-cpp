@@ -25,19 +25,6 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 
 Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get when you open a new Terminal window) - it reads `~/.bash_profile` or `~/.profile` so you should probably also create a `.bash_profile` file in your home directory which sources `.bashrc`.
 
-The build system uses CMake. To build (once the following dependencies have been installed) either call `cmake` directly from the top level of the source tree, e.g.
-```
-cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake
-cmake --build cmake_build -v -j`nproc`
-```
-
-or, more simply, use Gradle
-```
-./gradlew :compile
-```
-
-Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols. This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively)
-
 ### General settings for building the tools
 
 Some tools may be built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on macOS, set the following environment variables:

@@ -35,19 +35,6 @@ export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
 export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin/cmake"
 ```
 
-The build system uses CMake. To build (once the following dependencies have been installed) either call `cmake` directly from the top level of the source tree, e.g.
-```
-cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake
-cmake --build cmake_build --config Release -v -j`nproc`
-```
-
-or, more simply, use Gradle
-```
-./gradlew :compile
-```
-
-Note that we configure the build to be of type `Release`, and specify the compiler flag `/Zi` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols. This is preferable to say, using the `RelWithDebInfo` configuration as `RelWithDebInfo` has some undesirable side effects (such as disabling inlining) 
-
 ### Operating system
 
 64 bit Windows is required.

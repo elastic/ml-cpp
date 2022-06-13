@@ -65,6 +65,20 @@ Please adhere to the general guideline that you should never force push to a pub
 1.  Write a test, unit tests are located under `lib/{module}/unittest`
 1.  Test your changes (`make test`)
 
+The build system uses CMake. To build  either call `cmake` directly from the top level of the source tree, e.g.
+```
+cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake
+cmake --build cmake_build -v -j`nproc`
+```
+
+or, more simply, use Gradle
+```
+./gradlew :compile
+```
+
+Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols (for Windows builds using Visual Studio the equivalent is using the /Zi flag to generate PDB files). This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively) and on Windows RelWithDebInfo omits inlining which is undesirable.
+
+
 If you need to test C++ changes in this repo in conjunction with Elasticsearch changes then use
 Gradle's `--include-build` option to tell your Elasticsearch build to build the C++ locally
 instead of downloading the latest pre-built bundle. For example, if `elasticsearch` and `ml-cpp`

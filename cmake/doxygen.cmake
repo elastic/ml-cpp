@@ -9,7 +9,7 @@ function(ml_doxygen output)
 
   set(DOXYGEN_GENERATE_HTML          YES)
   set(DOXYGEN_HTML_OUTPUT            ${output})
-  set(DOXYGEN_PROJECT_NAME           "Ml C++")
+  set(DOXYGEN_PROJECT_NAME           "ML C++")
   set(DOXYGEN_PROJECT_NUMBER         ${ML_VERSION_NUM})
   set(DOXYGEN_PROJECT_LOGO           mk/ml.ico)
   set(DOXYGEN_OUTPUT_DIRECTORY       ${CMAKE_SOURCE_DIR}/build/doxygen)

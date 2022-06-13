@@ -22,20 +22,6 @@ export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/local/cmake/bin:/usr/bin:/
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
-The build system uses CMake. To build (once the following dependencies have been installed) either call `cmake` directly from the top level of the source tree, e.g.
-```
-cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake
-cmake --build cmake_build -v -j`nproc`
-```
-
-or, more simply, use Gradle
-```
-./gradlew :compile
-```
-
-Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols. This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively)
-
-
 ### OS Packages
 
 You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
