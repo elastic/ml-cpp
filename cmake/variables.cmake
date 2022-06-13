@@ -161,7 +161,7 @@ if(NOT ENV{ML_DEBUG})
       list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2" "_REENTRANT")
     endif()
   else()
-    set(OPTCFLAGS "-O2" "-Qfast_transcendentals" "-Qvec-report:1")
+    set(OPTCFLAGS "/O2" "/Qfast_transcendentals" "/Qvec-report:1")
   endif()
 endif()
 
