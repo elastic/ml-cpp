@@ -11,7 +11,7 @@
 
 
 if(NOT CRT_OPT)
-  set(CRT_OPT -MD)
+  set(CRT_OPT /MD)
 endif()
 
 set(VCINCLUDES ${VCBASE}/VC/Tools/MSVC/${VCVER}/include)
@@ -25,35 +25,36 @@ list(APPEND ML_COMPILE_DEFINITIONS
   WIN32_LEAN_AND_MEAN
   NOMINMAX
   NTDDI_VERSION=0x06010000
-  _WIN32_WINNT=0x0601 Windows)
+  _WIN32_WINNT=0x0601
+  Windows)
 
 list(APPEND ML_C_FLAGS
-  "-X"
-  "-nologo"
+  "/X"
+  "/nologo"
   ${OPTCFLAGS}
-  "-W4"
+  "/W4"
   ${CRT_OPT}
-  "-EHsc"
-  "-Zi"
-  "-Gw"
-  "-FS"
-  "-Zc:inline"
-  "-diagnostics:caret"
-  "-utf-8")
+  "/EHsc"
+  "/Zi"
+  "/Gw"
+  "/FS"
+  "/Zc:inline"
+  "/diagnostics:caret"
+  "/utf-8")
 
 list(APPEND ML_CXX_FLAGS
   ${ML_C_FLAGS}
-  "-TP"
-  "-Zc:rvalueCast"
-  "-Zc:strictStrings"
-  "-wd4127"
-  "-we4150"
-  "-wd4201"
-  "-wd4231"
-  "-wd4251"
-  "-wd4355"
-  "-wd4512"
-  "-wd4702"
-  "-bigobj"
+  "/TP"
+  "/Zc:rvalueCast"
+  "/Zc:strictStrings"
+  "/wd4127"
+  "/we4150"
+  "/wd4201"
+  "/wd4231"
+  "/wd4251"
+  "/wd4355"
+  "/wd4512"
+  "/wd4702"
+  "/bigobj"
   "${OPTCPPFLAGS}")
 

@@ -18,7 +18,8 @@ if (${_index} EQUAL -1)
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_BASE_ROOT_DIR}/cmake")
 endif()
 
-message ("cmake_module_path: ${CMAKE_MODULE_PATH}")
+message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
 include(variables)
 

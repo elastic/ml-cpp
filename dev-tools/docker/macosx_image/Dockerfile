@@ -50,7 +50,7 @@ RUN \
   rm -rf cctools-port
 
 # Install CMake
-# v3.5 minimum is required
+# v3.9 minimum is required
 RUN \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh && \
   mkdir -p /usr/local/gcc103 && \

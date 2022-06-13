@@ -111,7 +111,7 @@ RUN \
   /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
-# v3.5 minimum is required
+# v3.9 minimum is required
 RUN \
   cd ${build_dir} && \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-aarch64.sh && \

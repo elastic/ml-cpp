@@ -78,7 +78,7 @@ if (isWindows) {
   artifactClassifier = 'linux-' + osArch
 }
 
-String cmakeFlags = '-D CMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
+String cmakeFlags = '--no-warn-unused-cli -D CMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
 
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"

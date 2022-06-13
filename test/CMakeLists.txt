@@ -20,9 +20,6 @@ ml_add_test(lib/seccomp/unittest seccomp)
 ml_add_test(bin/controller/unittest controller)
 ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
 
-message(STATUS "ML_BUILD_TEST_DEPENDS = ${ML_BUILD_TEST_DEPENDS}")
-message(STATUS "ML_TEST_DEPENDS = ${ML_TEST_DEPENDS}")
-
 add_custom_target(build_tests
     DEPENDS ${ML_BUILD_TEST_DEPENDS}
 )
