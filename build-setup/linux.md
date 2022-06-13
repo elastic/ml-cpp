@@ -18,9 +18,23 @@ umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
 export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
+
+The build system uses CMake. To build (once the following dependencies have been installed) either call `cmake` directly from the top level of the source tree, e.g.
+```
+cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake
+cmake --build cmake_build -v -j`nproc`
+```
+
+or, more simply, use Gradle
+```
+./gradlew :compile
+```
+
+Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols. This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively)
+
 
 ### OS Packages
 
@@ -239,7 +253,7 @@ to complete the build.
 
 ### CMake
 
-CMake version 3.5 is the minimum required to build PyTorch. Download version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh> and install:
+CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch). Download version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh> and install:
 
 ```
 chmod +x cmake-3.19.3-Linux-x86_64.sh

@@ -8,7 +8,9 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-cmake_minimum_required(VERSION 3.9)
+
+# CMake 3.19.2 is the minimum version required to support Apple Silicon
+cmake_minimum_required(VERSION 3.19.2)
 
 project("ML")
 

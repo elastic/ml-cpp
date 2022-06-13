@@ -19,11 +19,24 @@ umask 0002
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
 export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7
 export PATH=$JAVA_HOME/bin:$PYTHONHOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
 Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get when you open a new Terminal window) - it reads `~/.bash_profile` or `~/.profile` so you should probably also create a `.bash_profile` file in your home directory which sources `.bashrc`.
+
+The build system uses CMake. To build (once the following dependencies have been installed) either call `cmake` directly from the top level of the source tree, e.g.
+```
+cmake -B cmake_build -DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake
+cmake --build cmake_build -v -j`nproc`
+```
+
+or, more simply, use Gradle
+```
+./gradlew :compile
+```
+
+Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols. This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively)
 
 ### General settings for building the tools
 
@@ -109,7 +122,7 @@ to install the Boost headers and libraries.
 
 ### CMake
 
-CMake is required to build PyTorch.  Download the graphical installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-macos-universal.dmg> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch).  Download the graphical installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-macos-universal.dmg> (or get a more recent version).
 
 Open the `.dmg` and install the application it by dragging it to the `Applications` folder.
 
