@@ -56,6 +56,9 @@ namespace compressed_lfu_cache_detail {
 //!      unless commented otherwise,
 //!   -# No internal member functions take any locks,
 //!   -# No member functions calls a public member function.
+//!
+//! \tparam KEY The key type which must support conversion to CCompressedDictionary::CWord.
+//! \tparam VALUE The value type which should implement memory estimation support.
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS>
 class CCompressedLfuCache {
 public:
@@ -96,10 +99,16 @@ public:
     //! \param[in] computeValue Computes the value in the case of a cache miss.
     //! \param[in] readValue Processes the value.
     //! \return True if there was a cache hit.
-    //! \note For thread safe implementations we support timing out waiting for a
-    //! lock since we can make progress even we skip reading or writing from the
-    //! cache. This allows the caller to control the maximum latency on top of
-    //! \p computeValue.
+    //! \note For thread safe implementations we support timing out waiting for
+    //! a lock since we can make progress even we skip reading or writing from
+    //! the cache. This allows the caller to control the maximum latency on top
+    //! of \p computeValue.
+    //! \note Reading the result takes place under a lock so cut the work done
+    //! in \p readValue to the minimum possible.
+    //! \warning The value reference is only guaranteed to survive for the duration
+    //! of \p readValue.
+    //! \warning \p key is passed by value so don't forget to move it into this
+    //! function if possible.
     //! \warning \p computeValue and \p readValue must not call functions on the
     //! cache.
     bool lookup(KEY key,
@@ -160,6 +169,24 @@ public:
         std::size_t result;
         this->guardRead(DONT_TIME_OUT, [&] {
             result = m_ItemCache.size();
+            return true;
+        });
+        return result;
+    }
+
+    //! Get the stats for item with \p key.
+    //!
+    //! \return (memory usage, hit count).
+    //! \note Returns (0, 0) if the item is not in the cache.
+    std::pair<std::size_t, std::uint64_t> stats(const KEY& key) const {
+        std::pair<std::size_t, std::uint64_t> result{0, 0};
+        auto compressedKey = m_CompressKey(m_Dictionary, key);
+        this->guardRead(DONT_TIME_OUT, [&] {
+            auto item = m_ItemCache.find(compressedKey);
+            if (item != m_ItemCache.end()) {
+                result = std::make_pair(item->second.stats()->memoryUsage(),
+                                        item->second.stats()->count());
+            }
             return true;
         });
         return result;
@@ -378,7 +405,6 @@ private:
                 // The only way we can actually reclaim memory is to copy
                 // the contents of the cache into a new map.
                 TCompressedKeyCacheItemUMap copy{*shrunk - 1};
-                LOG_DEBUG(<< copy.bucket_count());
                 for (auto & [ compressedKey, value ] : m_ItemCache) {
                     copy.emplace(compressedKey, std::move(value));
                 }
@@ -470,7 +496,7 @@ private:
             }
         }
 
-        LOG_DEBUG(<< "bucket sequence = "
+        LOG_TRACE(<< "bucket sequence = "
                   << core::CContainerPrinter::print(m_BucketCountSequence));
     }
 
@@ -532,6 +558,29 @@ const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CAtomicL
 //! zero for reasonably sized caches (for more details see CCompressedDictionary).
 //! For this reason, no safe guards are provided in the case of a hash collision.
 //!
+//! Example usage caching the result of expensive operation and writing to stdout:
+//! \code{.cpp}
+//! double myExpensiveOperation(std::vector<double> input);
+//! ...
+//! core::CConcurrentCompressedLfuCache<std::vector<double>, double> cache{
+//!     64 * 1024,
+//!     [](const auto& dictionary, const auto& key) {
+//!         auto translator = dictionary.translator();
+//!         translator.add(key);
+//!         return translator.word();
+//!     }};
+//! for (auto input : inputs) {
+//!    core::async(
+//!        core::defaultAsyncExecutor(), 
+//!        [&] {
+//!            cache.lookup(
+//!                std::move(input),
+//!                [](auto input_) { return myExpensiveOperation(std::move(input_)); },
+//!                [](const auto& result) { std::cout << result << std::endl; });
+//!        });
+//! }
+//! \endcode
+//!
 //! IMPLEMENTATION:\n
 //! \see compressed_lfu_cache_detail::CCompressedLfuCache.
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS = 128>
@@ -539,6 +588,7 @@ class CConcurrentCompressedLfuCache final
     : public compressed_lfu_cache_detail::CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS> {
 public:
     using TBase = compressed_lfu_cache_detail::CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>;
+    using TDictionary = typename TBase::TDictionary;
     using TCompressKey = typename TBase::TCompressKey;
 
 public:
@@ -582,6 +632,25 @@ private:
 //! mutexes if it is known that the cache is only called from a single thread.
 //! Otherwise, its behaviour is identical to CConcurrentCompressedLfuCache.
 //!
+//! Example usage caching the result of expensive operation and writing to stdout:
+//! \code{.cpp}
+//! double myExpensiveOperation(std::vector<double> input);
+//! ...
+//! CCompressedLfuCache<std::vector<double>, double> cache{
+//!     64 * 1024,
+//!     [](const auto& dictionary, const auto& key) {
+//!         auto translator = dictionary.translator();
+//!         translator.add(key);
+//!         return translator.word();
+//!     }};
+//! for (auto input : inputs) {
+//!    cache.lookup(
+//!        std::move(input),
+//!        [](auto input_) { return myExpensiveOperation(std::move(input_)); },
+//!        [](const auto& result) { std::cout << result << std::endl; });
+//! }
+//! \endcode
+//!
 //! IMPLEMETATION:
 //! \see compressed_lfu_cache_detail::CCompressedLfuCache.
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS = 128>
@@ -589,6 +658,7 @@ class CCompressedLfuCache final
     : public compressed_lfu_cache_detail::CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS> {
 public:
     using TBase = compressed_lfu_cache_detail::CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>;
+    using TDictionary = typename TBase::TDictionary;
     using TCompressKey = typename TBase::TCompressKey;
 
 public:
