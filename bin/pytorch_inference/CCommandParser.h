@@ -14,8 +14,11 @@
 
 #include <rapidjson/document.h>
 
+#include <core/CCompressedLfuCache.h>
+
 #include <functional>
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -59,12 +62,60 @@ public:
     using TUint64Vec = std::vector<std::uint64_t>;
     using TUint64VecVec = std::vector<TUint64Vec>;
     using TDoubleVec = std::vector<double>;
+    struct SRequest;
+
+    class CRequestCacheInterface {
+    public:
+        using TComputeResponse = std::function<std::string(SRequest)>;
+        using TReadResponse = std::function<void(const std::string&)>;
+
+    public:
+        virtual ~CRequestCacheInterface() = default;
+        virtual void resize(std::size_t maximumMemory) = 0;
+        virtual bool lookup(SRequest request,
+                            const TComputeResponse& computeResponse,
+                            const TReadResponse& readResponse) = 0;
+    };
+
+    class CRequestCache : public CRequestCacheInterface {
+    public:
+        explicit CRequestCache(std::size_t maximumMemory);
+
+        void resize(std::size_t maximumMemory) override {
+            m_Impl.resize(maximumMemory);
+        }
+        bool lookup(SRequest request,
+                    const TComputeResponse& computeResponse,
+                    const TReadResponse& readResponse) override {
+            return m_Impl.lookup(std::move(request), computeResponse, readResponse);
+        }
+
+    private:
+        using TConcurrentLfuCache = core::CConcurrentCompressedLfuCache<SRequest, std::string>;
+
+    private:
+        TConcurrentLfuCache m_Impl;
+    };
+
+    class CRequestCacheStub : public CRequestCacheInterface {
+    public:
+        void resize(std::size_t) override {}
+        bool lookup(SRequest request,
+                    const TComputeResponse& computeResponse,
+                    const TReadResponse& readResponse) override {
+            readResponse(computeResponse(std::move(request)));
+            return false;
+        }
+    };
+
+    using TRequestCachePtr = std::unique_ptr<CRequestCacheInterface>;
 
     enum EMessageType {
         E_InferenceRequest,
         E_ControlMessage,
         E_MalformedMessage
     };
+    enum EControlMessageType { E_NumberOfAllocations, E_Unknown };
 
     //! The incoming JSON requests contain a 2D array of tokens representing
     //! a batch of inference calls. To avoid copying, the input tensor
@@ -78,27 +129,22 @@ public:
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;
-
-        void reset();
     };
 
+    //! Controls the process behaviour.
     struct SControlMessage {
-        enum EControlMessageType { E_NumberOfAllocations, E_Unknown };
-
         EControlMessageType s_MessageType;
         std::int32_t s_NumAllocations;
         std::string s_RequestId;
-
-        void reset();
     };
 
-    using TControlHandlerFunc = std::function<void(SControlMessage&)>;
-    using TRequestHandlerFunc = std::function<bool(SRequest&)>;
+    using TControlHandlerFunc = std::function<void(const SControlMessage&)>;
+    using TRequestHandlerFunc = std::function<bool(CRequestCacheInterface&, SRequest)>;
     using TErrorHandlerFunc =
         std::function<void(const std::string& requestId, const std::string& message)>;
 
 public:
-    explicit CCommandParser(std::istream& strmIn);
+    CCommandParser(std::istream& strmIn, std::size_t maximumCacheMemory);
 
     //! Pass input to the processor until it's consumed as much as it can.
     //! Parsed requests are passed to the requestHandler, control messages
@@ -120,13 +166,13 @@ private:
                                                    const TErrorHandlerFunc& errorHandler);
     static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
     static bool checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr);
-    void jsonToInferenceRequest(const rapidjson::Document& doc);
-    void jsonToControlMessage(const rapidjson::Document& doc);
+    static SRequest jsonToInferenceRequest(const rapidjson::Document& doc);
+    static SControlMessage jsonToControlMessage(const rapidjson::Document& doc);
 
 private:
     std::istream& m_StrmIn;
-    SRequest m_Request;
-    SControlMessage m_ControlMessage;
+    std::mutex m_Mutex;
+    TRequestCachePtr m_RequestCache;
 };
 }
 }

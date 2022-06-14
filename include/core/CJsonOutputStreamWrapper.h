@@ -74,12 +74,16 @@ public:
     //! side-effect: the writer as well as the buffer are altered
     void flushBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer);
 
-    //! flush the wrapped outputstream
-    //! note: this is still async
+    //! Flush the wrapped outputstream.
+    //!
+    //! \note This is still async
     void flush();
 
-    //! a sync flush, that blocks until flush has actually happened
+    //! A sync flush that blocks until flush has actually happened.
     void syncFlush();
+
+    //! Write preformatted JSON.
+    void writeJson(std::string json);
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -106,4 +110,4 @@ private:
 }
 }
 
-#endif /* INCLUDED_ml_core_CJsonOutputStreamWrapper_h */
+#endif // INCLUDED_ml_core_CJsonOutputStreamWrapper_h

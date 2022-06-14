@@ -25,6 +25,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <type_traits>
 
 namespace ml {
 namespace core {
@@ -47,7 +48,6 @@ template<std::size_t N>
 class CCompressedDictionary {
 public:
     using TUInt64Array = std::array<std::uint64_t, N>;
-    using TStrCPtr = const std::string*;
 
     //! \brief A hash representation of a string in the dictionary
     //! with low probability of collision even for relatively large
@@ -85,8 +85,8 @@ public:
         static const char DELIMITER;
 
     public:
-        CWord() { std::fill(m_Hash.begin(), m_Hash.end(), 0); }
-        CWord(const TUInt64Array& hash) : m_Hash(hash) {}
+        CWord() = default;
+        explicit CWord(const TUInt64Array& hash) : m_Hash(hash) {}
 
         bool operator==(const CWord& other) const {
             return m_Hash == other.m_Hash;
@@ -94,17 +94,19 @@ public:
 
         bool operator<(const CWord& rhs) const { return m_Hash < rhs.m_Hash; }
 
-        bool fromDelimited(const std::string& str) {
-            // expect N strings, separated by commas
-            std::size_t n = 0;
-            std::size_t pos = 0;
-            std::size_t comma = 0;
-            while ((comma = str.find(DELIMITER, pos)) != std::string::npos && n < N) {
-                CStringUtils::stringToType(str.substr(pos, comma - pos), m_Hash[n++]);
+        bool fromDelimited(const std::string& delimited) {
+            // Expect N strings separated by commas.
+            std::size_t n{0};
+            std::size_t pos{0};
+            std::size_t comma{0};
+            while ((comma = delimited.find(DELIMITER, pos)) != std::string::npos && n < N) {
+                CStringUtils::stringToType(delimited.substr(pos, comma - pos),
+                                           m_Hash[n++]);
                 pos = comma + 1;
             }
             if (n < N) {
-                CStringUtils::stringToType(str.substr(pos, comma - pos), m_Hash[n++]);
+                CStringUtils::stringToType(delimited.substr(pos, comma - pos),
+                                           m_Hash[n++]);
             }
             return n == N;
         }
@@ -125,7 +127,50 @@ public:
         std::string print() const { return CContainerPrinter::print(m_Hash); }
 
     private:
-        TUInt64Array m_Hash;
+        TUInt64Array m_Hash{};
+    };
+
+    //! \brief Translates supported data types to dictionary words.
+    //!
+    //! DESCRIPTION:\n
+    //! We support creating dictionary words for strings, arithmetic types,
+    //! enums and vectors of them.
+    class CTranslator {
+    public:
+        explicit CTranslator(const TUInt64Array& seeds) : m_Hashes{seeds} {}
+
+        void add(const std::string& value) {
+            for (auto& hash : m_Hashes) {
+                hash = CHashing::safeMurmurHash64(
+                    value.c_str(), static_cast<int>(value.size()), hash);
+            }
+        }
+
+        template<typename T>
+        void add(const T& value) {
+            // We don't support POD types because the initialisation
+            // of padding bytes is undefined.
+            static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
+                          "Unsupported type");
+            for (auto& hash : m_Hashes) {
+                hash = CHashing::safeMurmurHash64(&value, static_cast<int>(sizeof(T)), hash);
+            }
+        }
+
+        template<typename T>
+        void add(const std::vector<T>& value) {
+            static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
+                          "Unsupported type");
+            for (auto& hash : m_Hashes) {
+                hash = CHashing::safeMurmurHash64(value.data(),
+                                                  static_cast<int>(sizeof(T) * value.size()), hash);
+            }
+        }
+
+        CWord word() const { return CWord{m_Hashes}; }
+
+    private:
+        TUInt64Array m_Hashes;
     };
 
     //! \brief A fast hash of a dictionary word.
@@ -160,56 +205,49 @@ public:
         // platforms, even with the same random number generator seed.
         m_Seeds[0] = 472882027;
         for (std::size_t i = 1; i < N; ++i) {
-            m_Seeds[i] = m_Seeds[i - 1] * 982451653ull;
+            m_Seeds[i] = m_Seeds[i - 1] * 982451653ULL;
         }
     }
 
-    //! Extract the dictionary word corresponding to \p word.
+    //! Translate \p word to a dictionary word.
     CWord word(const std::string& word) const {
-        TUInt64Array hash;
-        for (std::size_t i = 0; i < N; ++i) {
-            hash[i] = CHashing::safeMurmurHash64(
-                word.c_str(), static_cast<int>(word.size()), m_Seeds[i]);
-        }
-        return CWord(hash);
+        CTranslator translator{m_Seeds};
+        translator.add(word);
+        return translator.word();
     }
 
-    //! Extract the dictionary word corresponding to (\p word1, \p word2).
+    //! Translate (\p word1, \p word2) to a dictionary word.
     CWord word(const std::string& word1, const std::string& word2) const {
-        TStrCPtr words[] = {&word1, &word2};
-        return this->word(words);
+        CTranslator translator{m_Seeds};
+        translator.add(word1);
+        translator.add(word2);
+        return translator.word();
     }
 
-    //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3).
+    //! Translate (\p word1, \p word2, \p word3) to a dictionary word.
     CWord word(const std::string& word1, const std::string& word2, const std::string& word3) const {
-        TStrCPtr words[] = {&word1, &word2, &word3};
-        return this->word(words);
+        CTranslator translator{m_Seeds};
+        translator.add(word1);
+        translator.add(word2);
+        translator.add(word3);
+        return translator.word();
     }
 
-    //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3, \p word4).
+    //! Translate (\p word1, \p word2, \p word3, \p word4) to a dictionary word.
     CWord word(const std::string& word1,
                const std::string& word2,
                const std::string& word3,
                const std::string& word4) const {
-        TStrCPtr words[] = {&word1, &word2, &word3, &word4};
-        return this->word(words);
+        CTranslator translator{m_Seeds};
+        translator.add(word1);
+        translator.add(word2);
+        translator.add(word3);
+        translator.add(word4);
+        return translator.word();
     }
 
-private:
-    template<std::size_t NUMBER_OF_WORDS>
-    CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
-        TUInt64Array hashes;
-        for (std::size_t i = 0; i < N; ++i) {
-            std::uint64_t& hash = hashes[i];
-            for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
-                const std::string& word = *words[wordIndex];
-                hash = CHashing::safeMurmurHash64(word.c_str(),
-                                                  static_cast<int>(word.size()),
-                                                  (wordIndex) == 0 ? m_Seeds[i] : hash);
-            }
-        }
-        return CWord(hashes);
-    }
+    //! Get a translator for the dictionary.
+    CTranslator translator() const { return CTranslator{m_Seeds}; }
 
 private:
     TUInt64Array m_Seeds;

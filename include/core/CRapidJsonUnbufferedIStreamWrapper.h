@@ -68,7 +68,7 @@ public:
     using Ch = char;
 
 public:
-    CRapidJsonUnbufferedIStreamWrapper(std::istream& strm);
+    explicit CRapidJsonUnbufferedIStreamWrapper(std::istream& strm);
 
     //! No default constructor.
     CRapidJsonUnbufferedIStreamWrapper() = delete;

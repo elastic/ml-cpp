@@ -113,6 +113,17 @@ void CJsonOutputStreamWrapper::syncFlush() {
     c.wait(lock);
 }
 
+void CJsonOutputStreamWrapper::writeJson(std::string json) {
+    m_ConcurrentOutputStream([ this, json_ = std::move(json) ](std::ostream & o) {
+        if (m_FirstObject) {
+            m_FirstObject = false;
+        } else {
+            o.put(JSON_ARRAY_DELIMITER);
+        }
+        o << json_;
+    });
+}
+
 void CJsonOutputStreamWrapper::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     std::size_t bufferSize = 0;
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {

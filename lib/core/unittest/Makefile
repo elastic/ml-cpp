@@ -36,6 +36,7 @@ CAllocationStrategyTest.cc \
 CBase64FilterTest.cc \
 CBlockingCallCancellingTimerTest.cc \
 CCompressedDictionaryTest.cc \
+CCompressedLfuCacheTest.cc \
 CCompressUtilsTest.cc \
 CConcurrencyTest.cc \
 CConcurrentWrapperTest.cc \
