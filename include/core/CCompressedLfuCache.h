@@ -242,7 +242,7 @@ protected:
     }
 
 private:
-    //! \brief A cache item frequency and memory usage.
+    //! \brief A cache item hit frequency and memory usage.
     class CCacheItemStats {
     public:
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -301,8 +301,6 @@ private:
         //! Instead we estimate memory usage for each item we add and remove from
         //! the cache and maintain a running total.
         static bool dynamicSizeAlwaysZero() { return true; }
-        //! Used to tell CPersistUtils how to restore this type.
-        void hasRestoreConstructor(CStateRestoreTraverser&) {}
 
     public:
         CCacheItem() = default;
