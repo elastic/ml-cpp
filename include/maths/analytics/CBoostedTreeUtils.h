@@ -123,7 +123,7 @@ inline TSizeVec extraColumnTagsForIncrementalTrain() {
 
 //! Get the extra columns needed by incremental training.
 inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned}};
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // previous prediction
 }
 
 //! Get the extra columns needed for prediction.

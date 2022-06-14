@@ -202,18 +202,33 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
-    //! Estimate the maximum booking memory that training a boosted tree on a data
-    //! frame with \p numberRows row and \p numberColumns columns will use.
+    //! Estimate the maximum booking memory used computing encodings for a
+    //! frame with \p numberRows, \p numberColumns and \p numberCategoricalColumns.
+    std::size_t estimateMemoryUsageForEncode(std::size_t numberRows,
+                                             std::size_t numberColumns,
+                                             std::size_t numberCategoricalColumns) const;
+    //! Estimate the maximum booking memory used training a model on a data frame
+    //! with \p numberRows and \p numberColumns.
     std::size_t estimateMemoryUsageForTrain(std::size_t numberRows,
                                             std::size_t numberColumns) const;
-    //! Estimate the maximum booking memory that incrementally training a boosted
-    //! tree on a data frame with \p numberRows row and \p numberColumns columns
-    //! will use.
+    //! Estimate the maximum booking memory used incrementally training a model
+    //! on a data frame with \p numberRows and \p numberColumns.
     std::size_t estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
                                                        std::size_t numberColumns) const;
+    //! Estimate the maximum booking memory used when predicting a model on a data
+    //! frame with \p numberRows and \p numberColumns.
+    std::size_t estimateMemoryUsageForPredict(std::size_t numberRows,
+                                              std::size_t numberColumns) const;
+    //! Estimate the number of columns computing encodings will add to the data frame.
+    static std::size_t estimateExtraColumnsForEncode();
     //! Estimate the number of columns training the model will add to the data frame.
     static std::size_t estimateExtraColumnsForTrain(std::size_t numberColumns,
                                                     std::size_t numberLossParameters);
+    //! Estimate the number of columns updating the model will add to the data frame.
+    static std::size_t estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
+                                                               std::size_t numberLossParameters);
+    //! Estimate the number of columns predicting the model will add to the data frame.
+    static std::size_t estimateExtraColumnsForPredict(std::size_t numberLossParameters);
 
     //! Build a boosted tree object for encoding on \p frame.
     TBoostedTreeUPtr buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable);

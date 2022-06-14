@@ -344,6 +344,14 @@ public:
     //! Make the encoding.
     virtual TEncodingUPtrVec makeEncodings();
 
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Estimate the memory that selecting encoding will require.
+    static std::size_t estimateMemoryUsage(std::size_t numberRows,
+                                           std::size_t numberColumns,
+                                           std::size_t numberCategoricalColumns);
+
     //! \name Test Methods
     //@{
     //! Get the encoding offset in feature vector of \p index.
@@ -369,6 +377,7 @@ private:
     using TSizeUSetVec = std::vector<TSizeUSet>;
 
 private:
+    CMakeDataFrameCategoryEncoder() = default;
     TEncodingUPtrVec readEncodings() const;
     TSizeDoublePrVecVec mics(const CDataFrameUtils::CColumnValue& target,
                              const TSizeVec& metricColumnMask,
@@ -384,12 +393,12 @@ private:
 
 private:
     // Begin parameters
-    std::size_t m_MinimumRowsPerFeature = MINIMUM_ROWS_PER_FEATURE;
-    double m_MinimumFrequencyToOneHotEncode = MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE;
-    double m_MinimumRelativeMicToSelectFeature = MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE;
-    double m_RedundancyWeight = REDUNDANCY_WEIGHT;
-    std::size_t m_NumberThreads;
-    const core::CDataFrame* m_Frame;
+    std::size_t m_MinimumRowsPerFeature{MINIMUM_ROWS_PER_FEATURE};
+    double m_MinimumFrequencyToOneHotEncode{MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE};
+    double m_MinimumRelativeMicToSelectFeature{MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE};
+    double m_RedundancyWeight{REDUNDANCY_WEIGHT};
+    std::size_t m_NumberThreads{1};
+    const core::CDataFrame* m_Frame{nullptr};
     core::CPackedBitVector m_RowMask;
     TSizeVec m_ColumnMask;
     std::size_t m_TargetColumn;
