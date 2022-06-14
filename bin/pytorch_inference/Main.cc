@@ -199,13 +199,15 @@ void writePrediction(const torch::Tensor& prediction,
 rapidjson::Document updateRequestId(const std::string& responseJson,
                                     const std::string& requestId) {
     rapidjson::Document response;
-    reponse.Parse(responseJson.c_str());
-    if (doc.HasMember(RESULT)) {
-        doc[RESULT][ml::torch::CCommandParser::REQUEST_ID] = requestId.c_str();
+    response.Parse(responseJson.c_str());
+    if (response.HasMember(RESULT)) {
+        auto& id = response[RESULT][ml::torch::CCommandParser::REQUEST_ID];
+        id.SetString(requestId.c_str(), static_cast<unsigned int>(requestId.size()));
         return response;
     }
-    if (doc.HasMember(ERROR)) {
-        response[ERROR][ml::torch::CCommandParser::REQUEST_ID] = requestId.c_str();
+    if (response.HasMember(ERROR)) {
+        auto& id = response[ERROR][ml::torch::CCommandParser::REQUEST_ID];
+        id.SetString(requestId.c_str(), static_cast<unsigned int>(requestId.size()));
         return response;
     }
     return response;
@@ -213,7 +215,7 @@ rapidjson::Document updateRequestId(const std::string& responseJson,
 
 void inferAndWriteResult(ml::torch::CCommandParser::SRequest& request,
                          torch::jit::script::Module& module_,
-                         ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
+                         TRapidJsonLineWriter& jsonWriter) {
     try {
         ml::core::CStopWatch stopWatch(true);
         torch::Tensor results = infer(module_, request);
@@ -242,7 +244,7 @@ void inferAndWriteResult(ml::torch::CCommandParser::SRequest& request,
     jsonWriter.Flush();
 }
 
-bool handleRequest(ml::torch::CCommandParser::TRequestCache& cache,
+bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                    ml::torch::CCommandParser::SRequest request,
                    torch::jit::script::Module& module_,
                    ml::core::CJsonOutputStreamWrapper& wrappedOutputStream) {
@@ -250,17 +252,17 @@ bool handleRequest(ml::torch::CCommandParser::TRequestCache& cache,
     ml::core::async(ml::core::defaultAsyncExecutor(), [
         &cache, capturedRequest = std::move(request), &module_, &wrappedOutputStream
     ]() mutable {
-        std::string requestId{request.s_RequestId};
+        std::string requestId{capturedRequest.s_RequestId};
         std::string responseJson;
         if (cache.lookup(std::move(capturedRequest),
-                         [&](ml::torch::CCommandParser::TRequestCache request_) -> std::string {
+                         [&](auto request_) -> std::string {
                              rapidjson::StringBuffer stringBuffer;
                              TRapidJsonLineWriter jsonWriter;
                              jsonWriter.Reset(stringBuffer);
                              inferAndWriteResult(request_, module_, jsonWriter);
                              return stringBuffer.GetString();
                          },
-                         [&](const std::string& responseJson_) {
+                         [&](const auto& responseJson_) {
                              responseJson = responseJson_;
                          })) {
             rapidjson::Document response{updateRequestId(responseJson, requestId)};
@@ -298,14 +300,14 @@ int main(int argc, char** argv) {
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::int32_t numThreadsPerAllocation{1};
     std::int32_t numAllocations{1};
+    std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
-    // TODO cache size.
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
-            numAllocations, validElasticLicenseKeyConfirmed) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            logFileName, logProperties, numThreadsPerAllocation, numAllocations,
+            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -404,7 +406,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
+    ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
     // Starting the executor with 1 thread will use an extra thread that isn't necessary
     // so we only start it when more than 1 threads are set.
@@ -415,7 +417,7 @@ int main(int argc, char** argv) {
     }
 
     commandParser.ioLoop(
-        [&module_, &wrappedOutputStream](ml::torch::CCommandParser::TRequestCache& cache,
+        [&module_, &wrappedOutputStream](ml::torch::CCommandParser::CRequestCacheInterface& cache,
                                          ml::torch::CCommandParser::SRequest request) {
             return handleRequest(cache, std::move(request), module_, wrappedOutputStream);
         },

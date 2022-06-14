@@ -34,7 +34,7 @@ namespace torch {
 //! IMPLEMENTATION DECISIONS:\n
 //! Validation exists to prevent memory violations from malicious input,
 //! but no more. The caller is responsible for sending input that will
-//! not result in errors from libTorch and will produce meaningful results.
+//! not result in errors from LibTorch and will produce meaningful results.
 //!
 //! RapidJSON will natively parse a stream of rootless JSON documents
 //! given the correct parse flags. The documents may be separated by
@@ -51,19 +51,11 @@ namespace torch {
 //!
 class CCommandParser {
 public:
-    static const std::string CONTROL;
-    static const std::string NUM_ALLOCATIONS;
-    static const std::string RESERVED_REQUEST_ID;
-    static const std::string REQUEST_ID;
-    static const std::string TOKENS;
-    static const std::string VAR_ARG_PREFIX;
-    static const std::string UNKNOWN_ID;
-
     using TUint64Vec = std::vector<std::uint64_t>;
     using TUint64VecVec = std::vector<TUint64Vec>;
-    using TDoubleVec = std::vector<double>;
     struct SRequest;
 
+    //! \brief Inference request cache interface.
     class CRequestCacheInterface {
     public:
         using TComputeResponse = std::function<std::string(SRequest)>;
@@ -71,18 +63,19 @@ public:
 
     public:
         virtual ~CRequestCacheInterface() = default;
-        virtual void resize(std::size_t maximumMemory) = 0;
+        virtual void resize(std::size_t memoryLimitBytes) = 0;
         virtual bool lookup(SRequest request,
                             const TComputeResponse& computeResponse,
                             const TReadResponse& readResponse) = 0;
     };
 
+    //! \brief Memory limited inference request LFU cache.
     class CRequestCache : public CRequestCacheInterface {
     public:
-        explicit CRequestCache(std::size_t maximumMemory);
+        explicit CRequestCache(std::size_t memoryLimitBytes);
 
-        void resize(std::size_t maximumMemory) override {
-            m_Impl.resize(maximumMemory);
+        void resize(std::size_t memoryLimitBytes) override {
+            m_Impl.resize(memoryLimitBytes);
         }
         bool lookup(SRequest request,
                     const TComputeResponse& computeResponse,
@@ -97,6 +90,7 @@ public:
         TConcurrentLfuCache m_Impl;
     };
 
+    //! \brief Stub cache.
     class CRequestCacheStub : public CRequestCacheInterface {
     public:
         void resize(std::size_t) override {}
@@ -144,7 +138,11 @@ public:
         std::function<void(const std::string& requestId, const std::string& message)>;
 
 public:
-    CCommandParser(std::istream& strmIn, std::size_t maximumCacheMemory);
+    static const std::string REQUEST_ID;
+    static const std::string RESERVED_REQUEST_ID;
+
+public:
+    CCommandParser(std::istream& strmIn, std::size_t cacheMemoryLimitBytes);
 
     //! Pass input to the processor until it's consumed as much as it can.
     //! Parsed requests are passed to the requestHandler, control messages
@@ -156,6 +154,13 @@ public:
 
     CCommandParser(const CCommandParser&) = delete;
     CCommandParser& operator=(const CCommandParser&) = delete;
+
+private:
+    static const std::string CONTROL;
+    static const std::string NUM_ALLOCATIONS;
+    static const std::string TOKENS;
+    static const std::string VAR_ARG_PREFIX;
+    static const std::string UNKNOWN_ID;
 
 private:
     static EMessageType validateJson(const rapidjson::Document& doc,
@@ -171,7 +176,6 @@ private:
 
 private:
     std::istream& m_StrmIn;
-    std::mutex m_Mutex;
     TRequestCachePtr m_RequestCache;
 };
 }

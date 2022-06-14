@@ -36,6 +36,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logProperties,
                            std::int32_t& numThreadsPerAllocation,
                            std::int32_t& numAllocations,
+                           std::size_t& cacheMemorylimitBytes,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -45,6 +46,8 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("modelid", boost::program_options::value<std::string>(),
                         "The TorchScript model this process is associated with")
+            ("cacheMemorylimitBytes", boost::program_options::value<std::size_t>(),
+                        "Optional memory usage in bytes that the inference cache can use - default is 0 which disables caching")
             ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
                         "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),

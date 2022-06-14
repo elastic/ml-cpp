@@ -11,6 +11,7 @@
 
 #include "CCommandParser.h"
 
+#include <core/CCompressedLfuCache.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
@@ -18,6 +19,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+#include <chrono>
 #include <istream>
 #include <sstream>
 #include <string>
@@ -56,10 +58,10 @@ const std::string CCommandParser::TOKENS{"tokens"};
 const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
 const std::string CCommandParser::UNKNOWN_ID;
 
-CCommandParser::CCommandParser(std::istream& strmIn, std::size_t maximumCacheMemory)
+CCommandParser::CCommandParser(std::istream& strmIn, std::size_t cacheMemoryLimitBytes)
     : m_StrmIn{strmIn} {
-    if (maximumCacheMemory > 0) {
-        m_RequestCache = std::make_unique<CRequestCache>(maximumCacheMemory);
+    if (cacheMemoryLimitBytes > 0) {
+        m_RequestCache = std::make_unique<CRequestCache>(cacheMemoryLimitBytes);
     } else {
         m_RequestCache = std::make_unique<CRequestCacheStub>();
     }
@@ -284,13 +286,16 @@ CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
             doc[NUM_ALLOCATIONS].GetInt(), doc[REQUEST_ID].GetString()};
 }
 
-CCommandParser::CRequestCache::CRequestCache(std::size_t maximumMemory)
-    : m_Impl{maximumMemory, [](const auto& dictionary, const auto& request) {
+CCommandParser::CRequestCache::CRequestCache(std::size_t memoryLimitBytes)
+    : m_Impl{memoryLimitBytes, std::chrono::milliseconds{100},
+             [](const auto& dictionary, const auto& request) {
                  auto translator = dictionary.translator();
                  translator.add(request.s_NumberInputTokens);
                  translator.add(request.s_NumberInferences);
                  translator.add(request.s_Tokens);
-                 translator.add(request.s_SecondaryArguments);
+                 for (const auto& argument : request.s_SecondaryArguments) {
+                     translator.add(argument);
+                 }
                  return translator.word();
              }} {
 }
