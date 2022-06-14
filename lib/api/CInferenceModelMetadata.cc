@@ -25,9 +25,9 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    LOG_DEBUG(<< "Nuber data summarization rows " << m_NumDataSummarizationRows);
+    LOG_DEBUG(<< "Number data summarization rows " << m_NumDataSummarizationRows);
     if (m_NumDataSummarizationRows > 0) {
-        // only output if data summarization fraction was specified.
+        // Only output if data summarization fraction was specified.
         this->writeTrainProperties(writer);
         this->writeDataSummarization(writer);
     }

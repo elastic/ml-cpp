@@ -228,7 +228,7 @@ private:
     bool m_AnalysisStatsInitialized{false};
     std::string m_LossType;
     TLossVec m_LossValues;
-    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::EDataFrameTrainBoostedTreeTask::E_Train};
+    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
     SHyperparameters m_Hyperparameters;
 };
 }
