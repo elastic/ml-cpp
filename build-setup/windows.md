@@ -6,7 +6,7 @@ For subsequent machines, the setup can be simplified by copying components from 
 
 On Windows, the build system runs within Git for Windows. This provides a bash shell that enables our Unix build system to work on Windows without alteration.
 
-The build system assumes Windows itself is installed on the `/C` drive. If this is not the case on your machine, set the `ROOT` environment variable to the appropriate drive.
+The build system assumes Windows itself is installed on the `C:` drive. If this is not the case on your machine, set the `ROOT` environment variable to the appropriate drive.
 
 If you use Gradle to build Machine Learning you do not need to work in Git Bash, as Gradle tasks will run it when necessary.  In order to develop interactively on Windows, you must work in Git Bash.  You will need the following environment variables to be defined:
 
