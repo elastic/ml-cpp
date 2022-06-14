@@ -11,16 +11,19 @@
 
 #include <core/CCompressedLfuCache.h>
 #include <core/CContainerPrinter.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CStaticThreadPool.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
 #include <string>
+#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -34,9 +37,7 @@ using TDoubleVec = std::vector<double>;
 class CTestValue {
 public:
     CTestValue() = default;
-    explicit CTestValue(std::size_t size) {
-        m_Buffer.reserve(size);
-    }
+    explicit CTestValue(std::size_t size) { m_Buffer.reserve(size); }
 
     std::size_t memoryUsage() const {
         return core::CMemory::dynamicSize(m_Buffer);
@@ -292,7 +293,6 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
     // Make sure the cache is full.
     LOG_DEBUG(<< "size = " << cache.size());
     BOOST_TEST_REQUIRE(cache.size() < 5000);
-    
 
     for (std::size_t i = 0; i < 10; ++i) {
         std::size_t count;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
     TStrTestValueCache cache{
         32 * 1024, [](const TStrStrCache::TDictionary& dictionary,
                       const std::string& key) { return dictionary.word(key); }};
-    
+
     for (std::size_t i = 0; i < 200; ++i) {
         if (i < 100) {
             cache.lookup("large_key_" + std::to_string(i),
@@ -346,6 +346,52 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
+
+    // Check that persist and restore is idempotent.
+
+    TStrStrCache origCache{
+        32 * 1024, [](const TStrStrCache::TDictionary& dictionary,
+                      const std::string& key) { return dictionary.word(key); }};
+
+    for (std::size_t i = 0; i < 500; ++i) {
+        origCache.lookup("key_" + std::to_string(i),
+                         [](std::string key_) { return key_; },
+                         [&](const std::string&) {});
+    }
+
+    std::stringstream origJsonStream;
+    {
+        core::CJsonStatePersistInserter inserter{origJsonStream};
+        origCache.acceptPersistInserter(inserter);
+        origJsonStream.flush();
+    }
+
+    LOG_TRACE(<< "JSON representation is: " << origJsonStream.str());
+
+    origJsonStream.seekg(0);
+    core::CJsonStateRestoreTraverser traverser{origJsonStream};
+
+    TStrStrCache restoredCache{
+        32 * 1024, [](const TStrStrCache::TDictionary& dictionary,
+                      const std::string& key) { return dictionary.word(key); }};
+    BOOST_TEST_REQUIRE(restoredCache.acceptRestoreTraverser(traverser));
+
+    for (std::size_t i = 0; i < 500; ++i) {
+        auto origStats = origCache.stats("key_" + std::to_string(i));
+        auto restoredStats = origCache.stats("key_" + std::to_string(i));
+        BOOST_REQUIRE_EQUAL(origStats.first, restoredStats.first);
+        BOOST_REQUIRE_EQUAL(origStats.second, restoredStats.second);
+    }
+
+
+    std::stringstream restoredJsonStream;
+    {
+        core::CJsonStatePersistInserter inserter{restoredJsonStream};
+        origCache.acceptPersistInserter(inserter);
+        restoredJsonStream.flush();
+    }
+
+    BOOST_REQUIRE_EQUAL(origJsonStream.str(), restoredJsonStream.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
