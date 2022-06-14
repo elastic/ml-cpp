@@ -50,5 +50,4 @@ add_subdirectory(test)
 
 # Add a target to build Doxygen generated documentation
 # if the doxygen executable can be found
-include(doxygen)
 ml_doxygen(${CMAKE_SOURCE_DIR}/build/doxygen)
