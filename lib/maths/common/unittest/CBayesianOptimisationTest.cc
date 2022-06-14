@@ -25,6 +25,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <limits>
+#include <tuple>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CBayesianOptimisationTest)
@@ -528,7 +529,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 BOOST_AUTO_TEST_CASE(testEvaluate) {
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     for (auto scale : {1.0, 0.5, 2.0}) {
-        maths::common::CBayesianOptimisation bopt{{{0.0, scale}, {0.0, scale}}};
+        maths::common::CBayesianOptimisation bopt{maths::common::CBayesianOptimisation::TDoubleDoublePrVec(
+            {{0.0, scale}, {0.0, scale}})};
         for (std::size_t i = 0; i < 3; ++i) {
             for (std::size_t j = 0; j < 3; ++j) {
                 TVector x{vector({scale * coordinates[i], scale * coordinates[j]})};
@@ -729,6 +731,46 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
                        totalCoefficientOfVariationResults[0]);
     BOOST_REQUIRE_CLOSE(totalCoefficientOfVariationResults[2],
                         totalCoefficientOfVariationResults[0], 1e-3);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaOutOfBoundaries) {
+    // Ensure that ANOVA integrates correctly within given boundaries even if some
+    // observations are outside of the boundaries.
+    std::size_t dim{1};
+    std::size_t numSamples{30};
+
+    test::CRandomNumbers rng;
+    auto calculateAnovaValues = [&](double totalMin, double boundaryMin, double boundaryMax,
+                                    double totalMax) -> std::tuple<double, double, double> {
+        TDoubleVec trainSamples(numSamples * dim);
+        rng.generateUniformSamples(totalMin, totalMax, trainSamples.size(), trainSamples);
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec boundaries;
+        boundaries.reserve(dim);
+        for (std::size_t d = 0; d < dim; ++d) {
+            boundaries.emplace_back(boundaryMin, boundaryMax);
+        }
+        maths::common::CBayesianOptimisation bopt{boundaries};
+        for (std::size_t i = 0; i < numSamples; ++i) {
+            TVector x{vector({trainSamples[i]})};
+            bopt.add(x, x.norm(), (boundaryMax - boundaryMin) * 1e-3);
+            // bopt.maximumLikelihoodKernel();
+        }
+
+        TDoubleVec kernelParameters(dim + 1, 0.5);
+        kernelParameters[0] = 0.7;
+        bopt.kernelParameters(vector(kernelParameters));
+        double f0{bopt.anovaConstantFactor()};
+        double totalVariance{bopt.anovaTotalVariance()};
+        double totalCoefficientOfVariation{bopt.anovaTotalCoefficientOfVariation()};
+        return {f0, totalVariance, totalCoefficientOfVariation};
+    };
+
+    auto[expectedConst, expectedTV, expectedCoV] = calculateAnovaValues(1.0, 1.0, 2.0, 2.0);
+    auto[actualConst, actualTV, actualCoV] = calculateAnovaValues(0.0, 1.0, 2.0, 3.0);
+    BOOST_REQUIRE_CLOSE(expectedConst, actualConst, 1);
+    BOOST_REQUIRE_CLOSE(expectedTV, actualTV, 1);
+    // TODO Activate this test once #2259 is backported into the feature brunch
+    // BOOST_REQUIRE_CLOSE(expectedCoV, actualCoV, 27);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
