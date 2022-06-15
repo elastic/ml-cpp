@@ -140,6 +140,7 @@ public:
 public:
     static const std::string REQUEST_ID;
     static const std::string RESERVED_REQUEST_ID;
+    static const std::string UNKNOWN_ID;
 
 public:
     CCommandParser(std::istream& strmIn, std::size_t cacheMemoryLimitBytes);
@@ -160,7 +161,6 @@ private:
     static const std::string NUM_ALLOCATIONS;
     static const std::string TOKENS;
     static const std::string VAR_ARG_PREFIX;
-    static const std::string UNKNOWN_ID;
 
 private:
     static EMessageType validateJson(const rapidjson::Document& doc,

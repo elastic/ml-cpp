@@ -73,7 +73,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
 
     core::CRapidJsonUnbufferedIStreamWrapper isw{m_StrmIn};
 
-    for (;;) {
+    while (true) {
         rapidjson::Document doc;
         rapidjson::ParseResult parseResult{
             doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw)};

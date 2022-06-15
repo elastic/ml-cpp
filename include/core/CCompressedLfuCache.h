@@ -202,6 +202,53 @@ public:
         return result;
     }
 
+    //! Check cache invariants.
+    //!
+    //! \return True if all cache invariants hold.
+    bool checkInvariants() const {
+
+        bool result{true};
+
+        this->guardRead(DONT_TIME_OUT, [&] {
+            if (m_ItemCache.size() != m_ItemStats.size()) {
+                LOG_ERROR(<< "Size mismatch " << m_ItemCache.size() << " vs "
+                          << m_ItemStats.size() << ".");
+                result = false;
+            }
+
+            std::size_t itemsMemoryUsage{0};
+            std::uint64_t totalCount{0};
+
+            for (auto stats = m_ItemStats.begin(); stats != m_ItemStats.end(); ++stats) {
+                auto item = m_ItemCache.find(stats->key());
+                if (item == m_ItemCache.end()) {
+                    LOG_ERROR(<< "Missing item '" << stats->key().print() << "'.");
+                    result = false;
+                } else if (stats != item->second.stats()) {
+                    LOG_ERROR(<< "Link mismatch for '" << stats->key().print() << "'.");
+                    result = false;
+                }
+                itemsMemoryUsage += stats->memoryUsage();
+                totalCount += stats->count();
+            }
+
+            if (itemsMemoryUsage != m_ItemsMemoryUsage) {
+                LOG_ERROR(<< "Memory mismatch " << itemsMemoryUsage << " vs "
+                          << m_ItemsMemoryUsage << ".");
+                result = false;
+            }
+            if (this->updatesCanTimeOut() == false && // We may be missing counts
+                m_NumberHits.overflowedUInt64() == false && // stats counts may have overflowed
+                m_NumberHits == totalCount) {
+                LOG_ERROR(<< "Count mismatch.");
+                result = false;
+            }
+            return true;
+        });
+
+        return result;
+    }
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(CStatePersistInserter& inserter) const {
         this->guardRead(DONT_TIME_OUT, [&] {
@@ -229,11 +276,19 @@ public:
             RESTORE_WITH_UTILS(NUMBER_HITS_TAG, m_NumberHits)
             RESTORE_WITH_UTILS(NUMBER_LOOKUPS_TAG, m_NumberLookups)
         } while (traverser.next());
+
         for (auto stats = m_ItemStats.begin(); stats != m_ItemStats.end(); ++stats) {
             m_ItemCache[stats->key()].stats(stats);
         }
+
+        this->checkRestoredInvariants();
+
         return true;
     }
+
+protected:
+    using TReadFunc = std::function<bool()>;
+    using TWriteFunc = std::function<void()>;
 
 protected:
     CCompressedLfuCache(std::size_t maximumMemory, TCompressKey compressKey)
@@ -293,7 +348,7 @@ private:
     using TCacheItemStatsSet = std::multiset<CCacheItemStats>;
     using TCacheItemStatsSetItr = typename TCacheItemStatsSet::iterator;
 
-    //! \brief A cache item wrapper which hold a reference to its stats.
+    //! \brief A cache item wrapper which holds a reference to its stats.
     class CCacheItem {
     public:
         //! We purposely disable direct memory estimation for cache items because
@@ -336,6 +391,9 @@ private:
         CAtomicLargeCounter() = default;
         explicit CAtomicLargeCounter(std::uint64_t lower) : m_Lower{lower} {}
 
+        bool operator==(std::uint64_t rhs) const {
+            return m_Upper.load() == 0 && m_Lower.load() == rhs;
+        }
         const CAtomicLargeCounter& operator++() {
             auto lower = ++m_Lower;
             if (lower == 0) {
@@ -348,6 +406,8 @@ private:
                        static_cast<double>(std::numeric_limits<std::uint64_t>::max()) +
                    static_cast<double>(m_Lower.load());
         }
+        bool overflowedUInt64() const { return m_Upper.load() > 0; }
+
         void acceptPersistInserter(CStatePersistInserter& inserter) const {
             CPersistUtils::persist(LOWER_TAG, m_Lower.load(), inserter);
             CPersistUtils::persist(UPPER_TAG, m_Upper.load(), inserter);
@@ -387,8 +447,9 @@ private:
     static constexpr bool DONT_TIME_OUT{false};
 
 private:
-    virtual bool guardRead(bool timeOut, std::function<bool()> func) const = 0;
-    virtual void guardWrite(bool timeOut, std::function<void()> func) = 0;
+    virtual bool guardRead(bool timeOut, TReadFunc func) const = 0;
+    virtual void guardWrite(bool timeOut, TWriteFunc func) = 0;
+    virtual bool updatesCanTimeOut() const = 0;
 
     void maybeReallocateCache() {
         auto shrunk = std::lower_bound(m_BucketCountSequence.begin(),
@@ -498,6 +559,19 @@ private:
                   << core::CContainerPrinter::print(m_BucketCountSequence));
     }
 
+    void checkRestoredInvariants() const {
+        VIOLATES_INVARIANT(m_ItemCache.size(), !=, m_ItemStats.size());
+        for (const auto & [ key, item ] : m_ItemCache) {
+            VIOLATES_INVARIANT_NO_EVALUATION(item.stats(), ==, m_ItemStats.end());
+            VIOLATES_INVARIANT_NO_EVALUATION(item.stats(), ==, TCacheItemStatsSetItr{});
+            VIOLATES_INVARIANT_NO_EVALUATION(key, !=, item.stats()->key());
+        }
+        for (const auto& stats : m_ItemStats) {
+            VIOLATES_INVARIANT_NO_EVALUATION(m_ItemCache.find(stats.key()), ==,
+                                             m_ItemCache.end());
+        }
+    }
+
 private:
     static const std::string BUCKET_COUNT_SEQUENCE_TAG;
     static const std::string ITEM_CACHE_TAG;
@@ -569,7 +643,7 @@ const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CAtomicL
 //!     }};
 //! for (auto input : inputs) {
 //!    core::async(
-//!        core::defaultAsyncExecutor(), 
+//!        core::defaultAsyncExecutor(),
 //!        [&] {
 //!            cache.lookup(
 //!                std::move(input),
@@ -600,7 +674,11 @@ public:
         : TBase{maximumMemory, compressKey}, m_MaximumWait{maximumWait} {}
 
 private:
-    bool guardRead(bool timeOut, std::function<bool()> func) const override {
+    using TReadFunc = typename TBase::TReadFunc;
+    using TWriteFunc = typename TBase::TWriteFunc;
+
+private:
+    bool guardRead(bool timeOut, TReadFunc func) const override {
         if (timeOut) {
             std::shared_lock<std::shared_timed_mutex> lock{m_Mutex, m_MaximumWait};
             return func();
@@ -609,7 +687,7 @@ private:
         return func();
     }
 
-    void guardWrite(bool timeOut, std::function<void()> func) override {
+    void guardWrite(bool timeOut, TWriteFunc func) override {
         if (timeOut) {
             std::unique_lock<std::shared_timed_mutex> lock{m_Mutex, m_MaximumWait};
             func();
@@ -617,6 +695,8 @@ private:
         std::unique_lock<std::shared_timed_mutex> lock{m_Mutex};
         func();
     }
+
+    bool updatesCanTimeOut() const override { return true; }
 
 private:
     std::chrono::milliseconds m_MaximumWait;
@@ -666,10 +746,13 @@ public:
         : TBase{maximumMemory, compressKey} {}
 
 private:
-    bool guardRead(bool, std::function<bool()> func) const override {
-        return func();
-    }
-    void guardWrite(bool, std::function<void()> func) override { func(); }
+    using TReadFunc = typename TBase::TReadFunc;
+    using TWriteFunc = typename TBase::TWriteFunc;
+
+private:
+    bool guardRead(bool, TReadFunc func) const override { return func(); }
+    void guardWrite(bool, TWriteFunc func) override { func(); }
+    bool updatesCanTimeOut() const override { return false; }
 };
 }
 }

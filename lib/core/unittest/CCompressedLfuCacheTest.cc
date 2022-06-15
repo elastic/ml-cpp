@@ -15,6 +15,7 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CStaticThreadPool.h>
+#include <core/CStopWatch.h>
 #include <core/Constants.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -85,6 +86,8 @@ BOOST_AUTO_TEST_CASE(testLookup) {
                             }));
     BOOST_REQUIRE_EQUAL(2, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
@@ -115,6 +118,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     }
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
                        static_cast<std::size_t>(0.98 * 32 * core::constants::BYTES_IN_KILOBYTES));
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testResize) {
@@ -182,6 +187,8 @@ BOOST_AUTO_TEST_CASE(testResize) {
     BOOST_TEST_REQUIRE(cache.memoryUsage() < 32 * core::constants::BYTES_IN_KILOBYTES);
     BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(0.95 * size32KB));
     BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(1.05 * size32KB));
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
@@ -261,6 +268,8 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
     BOOST_REQUIRE_EQUAL(0, errorCount.load());
     // This should be around 20% but the value depends on timing so don't assert.
     LOG_DEBUG(<< "hit fraction = " << cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
@@ -308,6 +317,8 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
         // Counts should be around 100 if items never churned.
         BOOST_REQUIRE_CLOSE_ABSOLUTE(std::size_t{100}, count, std::size_t{20});
     }
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
@@ -348,10 +359,65 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
 
     LOG_DEBUG(<< "largeHits = " << largeHits << ", smallHits = " << smallHits);
 
-    // Check we have mainly evicted large keys. The way we count hits means we don't
-    // immediately only evict large keys.
+    // Check we have mainly evicted large keys. The way we count hits means we
+    // don't immediately only evict large keys.
     BOOST_TEST_REQUIRE(largeHits < 30);
     BOOST_REQUIRE_EQUAL(100, smallHits);
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+}
+
+BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
+
+    TStrStrCache cache{128 * core::constants::BYTES_IN_KILOBYTES,
+                       [](const TStrStrCache::TDictionary& dictionary, const std::string& key) {
+                           return dictionary.word(key);
+                       }};
+
+    TConcurrentStrStrCache concurrentCache{
+        128 * core::constants::BYTES_IN_KILOBYTES, std::chrono::milliseconds{50},
+        [](const TStrStrCache::TDictionary& dictionary,
+           const std::string& key) { return dictionary.word(key); }};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec u01;
+    rng.generateUniformSamples(0.0, 1.0, 50000, u01);
+
+    core::CStopWatch watch{true};
+
+    for (std::size_t i = 0; i < u01.size(); ++i) {
+        if (u01[i] < 0.2) {
+            cache.lookup("key_" + std::to_string(i % 10),
+                         [](std::string key_) { return key_; },
+                         [&](const std::string&) {});
+        } else {
+            cache.lookup("key_" + std::to_string(i),
+                         [](std::string key_) { return key_; },
+                         [&](const std::string&) {});
+        }
+    }
+
+    std::uint64_t durationMs{watch.lap()};
+
+    for (std::size_t i = 0; i < u01.size(); ++i) {
+        if (u01[i] < 0.2) {
+            concurrentCache.lookup("key_" + std::to_string(i % 10),
+                                   [](std::string key_) { return key_; },
+                                   [&](const std::string&) {});
+        } else {
+            concurrentCache.lookup("key_" + std::to_string(i),
+                                   [](std::string key_) { return key_; },
+                                   [&](const std::string&) {});
+        }
+    }
+
+    std::uint64_t durationConcurrentMs{watch.stop() - durationMs};
+
+    // No asserts because we don't want to depend on timing but this was about
+    // 30% faster on bare metal (32 ms vs 44 ms).
+    LOG_DEBUG(<< "duration ms = " << durationMs);
+    LOG_DEBUG(<< "duration concurrent ms = " << durationConcurrentMs);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -402,6 +468,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     BOOST_REQUIRE_EQUAL(origJsonStream.str(), restoredJsonStream.str());
+
+    BOOST_TEST_REQUIRE(origCache.checkInvariants());
+    BOOST_TEST_REQUIRE(restoredCache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
