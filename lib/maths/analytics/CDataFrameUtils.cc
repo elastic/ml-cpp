@@ -757,7 +757,6 @@ CDataFrameUtils::categoryCounts(std::size_t numberThreads,
                                 const core::CDataFrame& frame,
                                 const core::CPackedBitVector& rowMask,
                                 TSizeVec columnMask) {
-    TDoubleVecVec result;
     removeMetricColumns(frame, columnMask);
     if (frame.numberRows() == 0 || columnMask.empty()) {
         return TDoubleVecVec(frame.numberColumns());
@@ -789,6 +788,7 @@ CDataFrameUtils::categoryCounts(std::size_t numberThreads,
         }
     };
 
+    TDoubleVecVec result;
     try {
         doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                                 readCategoryCounts, &rowMask),

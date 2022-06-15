@@ -120,7 +120,7 @@ std::size_t CBoostedTreeHyperparameters::numberToTune() const {
 void CBoostedTreeHyperparameters::resetFineTuneSearch() {
     m_CurrentRound = 0;
     m_StopHyperparameterOptimizationEarly = false;
-    m_BestForestTestLoss = boosted_tree_detail::INF;
+    m_BestForestTestLoss = INF;
     m_BestForestNumberKeptNodes = 0;
     m_BestForestNumberNewNodes = 0;
     m_MeanForestSizeAccumulator = TMeanAccumulator{};
@@ -540,15 +540,17 @@ double CBoostedTreeHyperparameters::modelSizePenalty(double numberKeptNodes,
 CBoostedTreeHyperparameters::THyperparameterImportanceVec
 CBoostedTreeHyperparameters::importances() const {
     THyperparameterImportanceVec importances;
-    importances.reserve(m_TunableHyperparameters.size());
+    importances.reserve(NUMBER_HYPERPARAMETERS);
+
     auto anovaMainEffects = m_BayesianOptimization->anovaMainEffects();
+
     for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
-        double absoluteImportance{0.0};
-        double relativeImportance{0.0};
+        auto hyperparameter = static_cast<EHyperparameter>(i);
+
         double hyperparameterValue;
-        SHyperparameterImportance::EType hyperparameterType{
-            boosted_tree_detail::SHyperparameterImportance::E_Double};
-        switch (static_cast<EHyperparameter>(i)) {
+        SHyperparameterImportance::EType hyperparameterType{SHyperparameterImportance::E_Double};
+        bool skip{false};
+        switch (hyperparameter) {
         case E_Alpha:
             hyperparameterValue = m_DepthPenaltyMultiplier.value();
             break;
@@ -564,15 +566,15 @@ CBoostedTreeHyperparameters::importances() const {
         case E_FeatureBagFraction:
             hyperparameterValue = m_FeatureBagFraction.value();
             break;
-        case E_MaximumNumberTrees:
-            hyperparameterValue = static_cast<double>(m_MaximumNumberTrees.value());
-            hyperparameterType = boosted_tree_detail::SHyperparameterImportance::E_Uint64;
-            break;
         case E_Gamma:
             hyperparameterValue = m_TreeSizePenaltyMultiplier.value();
             break;
         case E_Lambda:
             hyperparameterValue = m_LeafWeightPenaltyMultiplier.value();
+            break;
+        case E_MaximumNumberTrees:
+            hyperparameterValue = static_cast<double>(m_MaximumNumberTrees.value());
+            hyperparameterType = SHyperparameterImportance::E_Uint64;
             break;
         case E_SoftTreeDepthLimit:
             hyperparameterValue = m_SoftTreeDepthLimit.value();
@@ -580,16 +582,27 @@ CBoostedTreeHyperparameters::importances() const {
         case E_SoftTreeDepthTolerance:
             hyperparameterValue = m_SoftTreeDepthTolerance.value();
             break;
+        // Incremental training.
         case E_PredictionChangeCost:
             hyperparameterValue = m_PredictionChangeCost.value();
+            skip = (m_IncrementalTraining == false);
             break;
         case E_RetrainedTreeEta:
             hyperparameterValue = m_RetrainedTreeEta.value();
+            skip = (m_IncrementalTraining == false);
             break;
         case E_TreeTopologyChangePenalty:
             hyperparameterValue = m_TreeTopologyChangePenalty.value();
+            skip = (m_IncrementalTraining == false);
             break;
         }
+
+        if (skip) {
+            continue;
+        }
+
+        double absoluteImportance{0.0};
+        double relativeImportance{0.0};
         bool supplied{true};
         auto tunableIndex = std::distance(m_TunableHyperparameters.begin(),
                                           std::find(m_TunableHyperparameters.begin(),
@@ -598,7 +611,7 @@ CBoostedTreeHyperparameters::importances() const {
             supplied = false;
             std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
         }
-        importances.push_back({static_cast<EHyperparameter>(i), hyperparameterValue, absoluteImportance,
+        importances.push_back({hyperparameter, hyperparameterValue, absoluteImportance,
                                relativeImportance, supplied, hyperparameterType});
     }
     return importances;

@@ -328,15 +328,15 @@ CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode();
-    case E_Train:
+    case api_t::E_Train:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
             this->spec().numberColumns(), m_NumberLossParameters);
-    case E_Update:
+    case api_t::E_Update:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
             this->spec().numberColumns(), m_NumberLossParameters);
-    case E_Predict:
+    case api_t::E_Predict:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
             m_NumberLossParameters);
     }
@@ -574,18 +574,18 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberTrainingRows{static_cast<std::size_t>(
         static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5)};
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         return m_BoostedTreeFactory->estimateMemoryUsageForEncode(
             numberTrainingRows, numberColumns,
             this->spec().categoricalFieldNames().size());
-    case E_Train:
+    case api_t::E_Train:
         return m_BoostedTreeFactory->estimateMemoryUsageForTrain(numberTrainingRows,
                                                                  numberColumns);
-    case E_Update:
+    case api_t::E_Update:
         return m_TrainedModelMemoryUsage +
                m_BoostedTreeFactory->estimateMemoryUsageForTrainIncremental(
                    numberTrainingRows, numberColumns);
-    case E_Predict:
+    case api_t::E_Predict:
         return m_TrainedModelMemoryUsage + m_BoostedTreeFactory->estimateMemoryUsageForPredict(
                                                numberTrainingRows, numberColumns);
     }
