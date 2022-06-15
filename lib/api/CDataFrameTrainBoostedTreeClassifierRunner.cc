@@ -14,6 +14,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>
@@ -354,6 +355,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
         this->boostedTree().dataSummarization().manhattan()));
+    m_InferenceModelMetadata.trainedModelMemoryUsage(
+        core::CMemory::dynamicSize(this->boostedTree().trainedModel()));
     return m_InferenceModelMetadata;
 }
 

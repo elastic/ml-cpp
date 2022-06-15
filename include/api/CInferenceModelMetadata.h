@@ -57,6 +57,7 @@ public:
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
     static const std::string JSON_TRAIN_PROPERTIES_TAG;
+    static const std::string JSON_TRAINED_MODEL_MEMORY_USAGE_TAG;
 
 public:
     using TVector = maths::common::CDenseVector<double>;
@@ -87,6 +88,8 @@ public:
     void lossGap(double lossGap);
     //! Set the number of rows in the training data summarization.
     void numDataSummarizationRows(std::size_t numRows);
+    //! Set the trained model memory usage.
+    void trainedModelMemoryUsage(std::size_t memoryUsage);
     //! Set the task.
     void task(api_t::EDataFrameTrainBoostedTreeTask task);
 
@@ -130,6 +133,7 @@ private:
     std::size_t m_NumTrainRows{0};
     double m_LossGap{0.0};
     std::size_t m_NumDataSummarizationRows{0};
+    std::size_t m_TrainedModelMemoryUsage{0};
     api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
 };
 }

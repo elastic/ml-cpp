@@ -60,6 +60,7 @@ public:
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string PREDICTION_CHANGE_COST;
     static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
+    static const std::string TRAINED_MODEL_MEMORY_USAGE;
     static const std::string NUM_FOLDS;
     static const std::string TRAIN_FRACTION_PER_FOLD;
     static const std::string NUM_HOLDOUT_ROWS;
@@ -173,6 +174,7 @@ private:
     std::string m_PredictionFieldName;
     double m_TrainingPercent;
     std::size_t m_NumberLossParameters{0};
+    std::size_t m_TrainedModelMemoryUsage{0};
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;

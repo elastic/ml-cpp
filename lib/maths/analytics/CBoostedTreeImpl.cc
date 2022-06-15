@@ -260,7 +260,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             1.0 /*single node used to centre the data*/, 1 /*single tree*/);
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-    } else if (m_Hyperparameters.searchNotFinished() || m_BestForest.empty()) {
+    } else if (m_Hyperparameters.fineTuneSearchNotFinished() || m_BestForest.empty()) {
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
@@ -270,7 +270,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->initializePerFoldTestLosses();
 
-        for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+        for (m_Hyperparameters.startFineTuneSearch();
+             m_Hyperparameters.fineTuneSearchNotFinished();
+             /**/) {
 
             LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
             m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -298,9 +300,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                              this->betweenFoldTestLossVariance()) == false) {
-                LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                         << m_Hyperparameters.currentRound() << " out of "
-                         << m_Hyperparameters.numberRounds() << ".");
+                LOG_DEBUG(<< "Stopping fine tune hyperparameters on round "
+                          << m_Hyperparameters.currentRound() << " out of "
+                          << m_Hyperparameters.numberRounds());
                 break;
             }
 
@@ -310,7 +312,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             // We need to update the current round before we persist so we don't
             // perform an extra round when we fail over.
-            m_Hyperparameters.startNextSearchRound();
+            m_Hyperparameters.startNextRound();
 
             // Store the training state after each hyperparameter search step.
             LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
@@ -450,7 +452,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
-    for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+    for (m_Hyperparameters.startFineTuneSearch();
+         m_Hyperparameters.fineTuneSearchNotFinished();
+         /**/) {
 
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
         m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -478,9 +482,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                          this->betweenFoldTestLossVariance()) == false) {
-            LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                     << m_Hyperparameters.currentRound() << " out of "
-                     << m_Hyperparameters.numberRounds() << ".");
+            LOG_DEBUG(<< "Stopping fine tune hyperparameters on round "
+                      << m_Hyperparameters.currentRound() << " out of "
+                      << m_Hyperparameters.numberRounds());
             break;
         }
 
@@ -490,7 +494,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         // We need to update the current round before we persist so we don't
         // perform an extra round when we fail over.
-        m_Hyperparameters.startNextSearchRound();
+        m_Hyperparameters.startNextRound();
 
         LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording started");
         this->recordState(recordTrainStateCallback);
@@ -587,21 +591,40 @@ void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
     }
 }
 
-std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
-                                                       std::size_t numberColumns) const {
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForTrain(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
+    return this->estimateMemoryUsageForTraining(
+        numberRows, numberColumns, m_Hyperparameters.maximumNumberTrees().value());
+}
+
+std::size_t
+CBoostedTreeImpl::estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
+                                                         std::size_t numberColumns) const {
+
+    return this->estimateMemoryUsageForTraining(
+        numberRows, numberColumns,
+        static_cast<std::size_t>(
+            static_cast<double>(m_Hyperparameters.maximumNumberTrees().value()) * m_RetrainFraction + 0.5) +
+            m_MaximumNumberNewTrees);
+}
+
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberRows,
+                                                             std::size_t numberColumns,
+                                                             std::size_t numberTrees) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
     std::size_t maximumNumberFeatures{
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
-    std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage()};
+    std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage() -
+                                           sizeof(CBoostedTreeHyperparameters)};
     std::size_t forestMemoryUsage{
-        m_Hyperparameters.maximumNumberTrees().value() *
+        numberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
-    std::size_t foldRoundLossMemoryUsage{
-        m_NumberFolds.value() * m_Hyperparameters.numberRounds() * sizeof(TOptionalDouble)};
+    std::size_t foldRoundLossMemoryUsage{core::CMemory::dynamicSize(TOptionalDoubleVecVec(
+        m_NumberFolds.value(), TOptionalDoubleVec(m_Hyperparameters.numberRounds())))};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -621,13 +644,18 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
                                      maximumNumberFeatures, m_NumberSplitsPerFeature,
                                      m_Loss->numberParameters()) /
                                  2};
-    std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
-    std::size_t featureSampleProbabilitiesMemoryUsage{maximumNumberFeatures * sizeof(double)};
-    std::size_t fixedCandidateSplitsMemoryUsage{maximumNumberFeatures * sizeof(TFloatVec)};
+    std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
+    std::size_t dataTypeMemoryUsage{
+        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+    std::size_t featureSampleProbabilitiesMemoryUsage{
+        core::CMemory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
+    std::size_t fixedCandidateSplitsMemoryUsage{
+        core::CMemory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
+    std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
         2 * m_NumberFolds.value() *
         static_cast<std::size_t>(std::ceil(std::min(m_TrainFractionPerFold.value(),
@@ -636,22 +664,29 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
 
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
-        featureSampleProbabilitiesMemoryUsage + fixedCandidateSplitsMemoryUsage +
-        missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage};
+        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage + categoryEncoderMemoryUsage +
+        dataTypeMemoryUsage + featureSampleProbabilitiesMemoryUsage +
+        fixedCandidateSplitsMemoryUsage + missingFeatureMaskMemoryUsage +
+        newTrainingRowMaskMemoryUsage + trainTestMaskMemoryUsage};
 
-    return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
+    return CBoostedTreeImpl::correctedMemoryUsageForTraining(
+        static_cast<double>(worstCaseMemoryUsage));
 }
 
-std::size_t
-CBoostedTreeImpl::estimateMemoryUsageTrainIncremental(std::size_t /*numberRows*/,
-                                                      std::size_t /*numberColumns*/) const {
-
-    // TODO https://github.com/elastic/ml-cpp/issues/1790.
-    return 0;
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForPredict(std::size_t numberRows,
+                                                            std::size_t numberColumns) const {
+    std::size_t maximumNumberFeatures{
+        std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
+    std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
+    std::size_t dataTypeMemoryUsage{
+        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
+    std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
+    return sizeof(*this) + categoryEncoderMemoryUsage + dataTypeMemoryUsage +
+           missingFeatureMaskMemoryUsage + newTrainingRowMaskMemoryUsage;
 }
 
-std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
+std::size_t CBoostedTreeImpl::correctedMemoryUsageForTraining(double memoryUsageBytes) {
     // We use a piecewise linear function of the estimated memory usage to compute
     // the corrected value. The values are selected in a way to reduce over-estimation
     // and to improve the behaviour on the trial nodes in the cloud. The high level strategy
@@ -2529,12 +2564,55 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         return allTrainingRowsMask;
     }
 
-    std::size_t sampleSize{std::max(
-        static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
-        static_cast<std::size_t>(2))};
-    core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
-        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10, allTrainingRowsMask)};
+    if (m_Hyperparameters.incrementalTraining() == false) {
+        // Use stratified sampling after initial training.
+        std::size_t sampleSize{std::max(
+            static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
+            static_cast<std::size_t>(2))};
+        core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMask(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingRowsMask)};
+        return rowMask;
+    }
+    auto dataSummarizationRowMask{this->allTrainingRowsMask() & ~this->newTrainingRowMask()};
+    std::size_t sampleSize{static_cast<std::size_t>(dataSummarizationRowMask.manhattan())};
 
+    // Add dataSummarizationFraction amount of new data to the old data to sample from.
+    std::size_t newDataSubsampleSize{static_cast<std::size_t>(std::ceil(
+        m_DataSummarizationFraction * this->allTrainingRowsMask().manhattan()))};
+    auto newDataSampleRowMask =
+        this->newTrainingRowMask().manhattan() > 0
+            ? CDataFrameUtils::stratifiedSamplingRowMask(
+                  m_NumberThreads, frame, m_DependentVariable, m_Rng,
+                  newDataSubsampleSize, 10, this->newTrainingRowMask())
+            : core::CPackedBitVector(this->allTrainingRowsMask().size(), false);
+    auto allTrainingDataRowMask{dataSummarizationRowMask | newDataSampleRowMask};
+
+    if (m_Loss->isRegression()) {
+        // For regression we preserve the quantile distribution of the complete training sample.
+        core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingDataRowMask, allTrainingDataRowMask)};
+        return rowMask;
+    }
+    // For classification, we preserve the class distribution of either the data summarization sample
+    // or the training dataset, depending on which of the two has a lower class imbalance.
+    auto classImbalance = [&](const core::CPackedBitVector& rowMask) {
+        auto categoryCounts = CDataFrameUtils::categoryCounts(
+            m_NumberThreads, frame, rowMask, {m_DependentVariable})[m_DependentVariable];
+        auto const[minClassCount, maxClassCount] =
+            std::minmax_element(categoryCounts.begin(), categoryCounts.end());
+        return *maxClassCount / *minClassCount;
+    };
+
+    const auto& distributionSourceRowMask =
+        classImbalance(dataSummarizationRowMask) < classImbalance(allTrainingRowsMask)
+            ? dataSummarizationRowMask
+            : allTrainingDataRowMask;
+
+    core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+        distributionSourceRowMask, allTrainingDataRowMask)};
     return rowMask;
 }
 
