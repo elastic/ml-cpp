@@ -162,8 +162,8 @@ public:
             static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
                           "Unsupported type");
             for (auto& hash : m_Hashes) {
-                hash = CHashing::safeMurmurHash64(value.data(),
-                                                  static_cast<int>(sizeof(T) * value.size()), hash);
+                hash = CHashing::safeMurmurHash64(
+                    value.data(), static_cast<int>(sizeof(T) * value.size()), hash);
             }
         }
 
