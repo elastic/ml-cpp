@@ -534,7 +534,7 @@ private:
     //! \name Incremental Train
     //@{
     bool m_ForceAcceptIncrementalTraining{false};
-    double m_DataSummarizationFraction{0.1};
+    double m_DataSummarizationFraction{0.0};
     double m_RetrainFraction{0.1};
     double m_PreviousTrainLossGap{0.0};
     std::size_t m_PreviousTrainNumberRows{0};

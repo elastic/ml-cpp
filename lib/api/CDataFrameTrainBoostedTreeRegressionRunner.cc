@@ -169,11 +169,11 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     }
 
     switch (this->task()) {
-    case E_Encode:
-    case E_Predict:
+    case api_t::E_Encode:
+    case api_t::E_Predict:
         break;
-    case E_Train:
-    case E_Update:
+    case api_t::E_Train:
+    case api_t::E_Update:
         m_InferenceModelMetadata.hyperparameterImportance(
             this->boostedTree().hyperparameterImportance());
         break;

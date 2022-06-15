@@ -970,6 +970,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
+            .dataSummarizationFraction(0.1)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
     };
@@ -1038,6 +1039,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .maximumNumberTrees(maximumNumberTrees)
+                          .dataSummarizationFraction(0.1)
                           .buildForTrain(*frame, weights.size());
     regression->train();
     regression->predict();
@@ -1373,6 +1375,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .dataSummarizationFraction(0.1)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                             dependentVariable, &frameAndDirectory);
@@ -1443,6 +1446,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
             .maximumNumberTrees(maximumNumberTrees)
+            .dataSummarizationFraction(0.1)
             .buildForTrain(*frame, weights.size());
     classification->train();
     classification->predict();
@@ -1575,6 +1579,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .dataSummarizationFraction(0.1)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                             dependentVariable, &frameAndDirectory);
@@ -1646,6 +1651,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
             .maximumNumberTrees(maximumNumberTrees)
+            .dataSummarizationFraction(0.1)
             .buildForTrain(*frame, weights.size());
     classification->train();
     classification->predict();

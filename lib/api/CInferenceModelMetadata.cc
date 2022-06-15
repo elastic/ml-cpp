@@ -10,6 +10,7 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <api/ApiTypes.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <maths/analytics/CBoostedTreeUtils.h>
@@ -24,8 +25,12 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    this->writeTrainProperties(writer);
-    this->writeDataSummarization(writer);
+    LOG_DEBUG(<< "Number data summarization rows " << m_NumDataSummarizationRows);
+    if (m_NumDataSummarizationRows > 0) {
+        // Only output if data summarization fraction was specified.
+        this->writeTrainProperties(writer);
+        this->writeDataSummarization(writer);
+    }
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -245,7 +250,7 @@ void CInferenceModelMetadata::hyperparameterImportance(
     for (const auto& item : hyperparameterImportance) {
         std::string hyperparameterName;
         switch (item.s_Hyperparameter) {
-        // Train hyperparameters.
+        // Train + (maybe incremental train) hyperparameters.
         case maths::analytics::boosted_tree_detail::E_Alpha:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ALPHA;
             break;
@@ -273,19 +278,21 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::analytics::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
+
+        // Not tuned via Bayesian Optimisation.
+        case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
+            break;
+
+        // Incremental train hyperparameters.
         case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
             break;
-        // Incremental train hyperparameters.
         case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
             break;
         case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
-            break;
-        // Not tuned directly.
-        case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
-            hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)

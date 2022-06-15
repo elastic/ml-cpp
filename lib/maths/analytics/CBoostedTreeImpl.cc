@@ -2555,9 +2555,11 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
     // summary after having trained by query. When we come to implement train by
     // query it will be behind a new API which can ensure the data summarization
     // fraction is set appropriately.)
+    if (m_DataSummarizationFraction == 0.0) {
+        return {frame.numberRows(), false};
+    }
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
-
     if (m_DataSummarizationFraction >= 1.0) {
         return allTrainingRowsMask;
     }

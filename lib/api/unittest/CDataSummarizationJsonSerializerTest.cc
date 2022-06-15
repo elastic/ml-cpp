@@ -73,7 +73,7 @@ void testSchema(TLossFunctionType lossType) {
     };
 
     test::CDataFrameAnalysisSpecificationFactory specFactory;
-    specFactory.rows(numberExamples).columns(cols).memoryLimit(30000000);
+    specFactory.rows(numberExamples).columns(cols).memoryLimit(30000000).dataSummarizationFraction(0.1);
     std::string analysisType;
     if (lossType == ml::maths::analytics::boosted_tree::E_BinaryClassification) {
         specFactory.predictionCategoricalFieldNames({"categorical_col", "target_col"});
@@ -95,6 +95,7 @@ void testSchema(TLossFunctionType lossType) {
     auto analysisRunner = analyzer.runner();
 
     auto dataSummarization = analysisRunner->dataSummarization();
+    BOOST_TEST_REQUIRE(dataSummarization.get() != nullptr);
 
     // Verify compressed definition.
     {

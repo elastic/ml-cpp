@@ -18,6 +18,7 @@
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/common/CBasicStatistics.h>
 
+#include <api/ApiTypes.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
@@ -199,6 +200,8 @@ public:
     void lossType(const std::string& lossType) override;
     //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
+    //! Set the analysis task.
+    void task(api_t::EDataFrameTrainBoostedTreeTask task);
     //! \return A writable object containing the training hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
@@ -225,6 +228,7 @@ private:
     bool m_AnalysisStatsInitialized{false};
     std::string m_LossType;
     TLossVec m_LossValues;
+    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
     SHyperparameters m_Hyperparameters;
 };
 }

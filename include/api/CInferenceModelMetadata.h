@@ -16,6 +16,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 
+#include <api/ApiTypes.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 

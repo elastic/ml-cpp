@@ -104,11 +104,12 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-                               {{TASK_ENCODE, int{ETask::E_Encode}},
-                                {TASK_TRAIN, int{ETask::E_Train}},
-                                {TASK_UPDATE, int{ETask::E_Update}},
-                                {TASK_PREDICT, int{ETask::E_Predict}}});
+        theReader.addParameter(
+            TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+            {{TASK_ENCODE, int{api_t::EDataFrameTrainBoostedTreeTask::E_Encode}},
+             {TASK_TRAIN, int{api_t::EDataFrameTrainBoostedTreeTask::E_Train}},
+             {TASK_UPDATE, int{api_t::EDataFrameTrainBoostedTreeTask::E_Update}},
+             {TASK_PREDICT, int{api_t::EDataFrameTrainBoostedTreeTask::E_Predict}}});
         theReader.addParameter(PREVIOUS_TRAIN_LOSS_GAP,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
@@ -142,7 +143,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
-    m_Task = parameters[TASK].fallback(E_Train);
+    m_Task = parameters[TASK].fallback(api_t::E_Train);
     m_TrainedModelMemoryUsage =
         parameters[TRAINED_MODEL_MEMORY_USAGE].fallback(std::size_t{0});
 
@@ -258,6 +259,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                      << DEPENDENT_VARIABLE_NAME << "'.");
     }
 
+    m_Instrumentation.task(m_Task);
+
     this->computeAndSaveExecutionStrategy();
 
     m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
@@ -325,15 +328,15 @@ CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode();
-    case E_Train:
+    case api_t::E_Train:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
             this->spec().numberColumns(), m_NumberLossParameters);
-    case E_Update:
+    case api_t::E_Update:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
             this->spec().numberColumns(), m_NumberLossParameters);
-    case E_Predict:
+    case api_t::E_Predict:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
             m_NumberLossParameters);
     }
@@ -361,12 +364,12 @@ std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
 core::CPackedBitVector
 CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         return {frame.numberRows(), false};
-    case E_Train:
+    case api_t::E_Train:
         return {frame.numberRows(), true};
-    case E_Predict:
-    case E_Update:
+    case api_t::E_Predict:
+    case api_t::E_Update:
         return m_BoostedTree->newTrainingRowMask();
     }
 }
@@ -453,10 +456,10 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     this->validate(frame, dependentVariableColumn);
 
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         m_BoostedTree = m_BoostedTreeFactory->buildForEncode(frame, dependentVariableColumn);
         break;
-    case E_Train:
+    case api_t::E_Train:
         m_BoostedTree = [&] {
             auto boostedTree = this->restoreBoostedTree(
                 frame, dependentVariableColumn, this->spec().restoreSearcher());
@@ -467,12 +470,12 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         m_BoostedTree->train();
         m_BoostedTree->predict();
         break;
-    case E_Update:
+    case api_t::E_Update:
         m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();
         m_BoostedTree->predict(true /*new data only*/);
         break;
-    case E_Predict:
+    case api_t::E_Predict:
         m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
         // Prediction occurs in buildForPredict.
         // m_BoostedTree->predict(true /*new data only*/);
@@ -486,11 +489,11 @@ CDataFrameTrainBoostedTreeRunner::TBoostedTreeFactoryUPtr
 CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     switch (m_Task) {
-    case E_Encode:
-    case E_Train:
+    case api_t::E_Encode:
+    case api_t::E_Train:
         break;
-    case E_Update:
-    case E_Predict:
+    case api_t::E_Update:
+    case api_t::E_Predict:
         if (frameAndDirectory != nullptr) {
             // This will be null if we're just computing memory usage.
             auto restoreSearcher = this->spec().restoreSearcher();
@@ -571,18 +574,18 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberTrainingRows{static_cast<std::size_t>(
         static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5)};
     switch (m_Task) {
-    case E_Encode:
+    case api_t::E_Encode:
         return m_BoostedTreeFactory->estimateMemoryUsageForEncode(
             numberTrainingRows, numberColumns,
             this->spec().categoricalFieldNames().size());
-    case E_Train:
+    case api_t::E_Train:
         return m_BoostedTreeFactory->estimateMemoryUsageForTrain(numberTrainingRows,
                                                                  numberColumns);
-    case E_Update:
+    case api_t::E_Update:
         return m_TrainedModelMemoryUsage +
                m_BoostedTreeFactory->estimateMemoryUsageForTrainIncremental(
                    numberTrainingRows, numberColumns);
-    case E_Predict:
+    case api_t::E_Predict:
         return m_TrainedModelMemoryUsage + m_BoostedTreeFactory->estimateMemoryUsageForPredict(
                                                numberTrainingRows, numberColumns);
     }

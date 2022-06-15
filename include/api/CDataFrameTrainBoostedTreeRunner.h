@@ -14,6 +14,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 
+#include <api/ApiTypes.h>
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -41,8 +42,6 @@ class CBoostedTreeInferenceModelBuilder;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
-    enum ETask { E_Encode = 0, E_Train, E_Update, E_Predict };
-
     static const std::string RANDOM_NUMBER_GENERATOR_SEED;
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
@@ -142,7 +141,7 @@ protected:
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
     //! Get the task to perform.
-    ETask task() const { return m_Task; }
+    api_t::EDataFrameTrainBoostedTreeTask task() const { return m_Task; }
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::analytics::CBoostedTreeFactory>;
@@ -169,7 +168,7 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
-    ETask m_Task{E_Train};
+    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
     rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
