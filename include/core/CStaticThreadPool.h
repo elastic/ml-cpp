@@ -46,6 +46,9 @@ public:
     CStaticThreadPool& operator=(const CStaticThreadPool&) = delete;
     CStaticThreadPool& operator=(CStaticThreadPool&&) = delete;
 
+    //! Get the number of threads in use.
+    std::size_t numberThreadsInUse() const;
+
     //! Adjust the number of threads which are being used by the pool.
     //!
     //! \note \p threads should be in the range [1, pool size].
