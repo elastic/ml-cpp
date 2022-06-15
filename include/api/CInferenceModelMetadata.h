@@ -90,8 +90,6 @@ public:
     void numDataSummarizationRows(std::size_t numRows);
     //! Set the trained model memory usage.
     void trainedModelMemoryUsage(std::size_t memoryUsage);
-    //! Set the task.
-    void task(api_t::EDataFrameTrainBoostedTreeTask task);
 
 private:
     struct SHyperparameterImportance {
@@ -134,7 +132,6 @@ private:
     double m_LossGap{0.0};
     std::size_t m_NumDataSummarizationRows{0};
     std::size_t m_TrainedModelMemoryUsage{0};
-    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
 };
 }
 }

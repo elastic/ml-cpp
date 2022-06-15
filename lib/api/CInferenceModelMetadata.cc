@@ -250,7 +250,7 @@ void CInferenceModelMetadata::hyperparameterImportance(
     for (const auto& item : hyperparameterImportance) {
         std::string hyperparameterName;
         switch (item.s_Hyperparameter) {
-        // Train hyperparameters.
+        // Train + (maybe incremental train) hyperparameters.
         case maths::analytics::boosted_tree_detail::E_Alpha:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ALPHA;
             break;
@@ -278,28 +278,20 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::analytics::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
-        // Not tuned directly.
+
+        // Not tuned via Bayesian Optimisation.
         case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
 
         // Incremental train hyperparameters.
         case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
-            if (m_Task != api_t::E_Update) {
-                continue;
-            }
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
             break;
         case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
-            if (m_Task != api_t::E_Update) {
-                continue;
-            }
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
             break;
         case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
-            if (m_Task != api_t::E_Update) {
-                continue;
-            }
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
             break;
         }
@@ -333,10 +325,6 @@ void CInferenceModelMetadata::numDataSummarizationRows(std::size_t numRows) {
 
 void CInferenceModelMetadata::trainedModelMemoryUsage(std::size_t memoryUsage) {
     m_TrainedModelMemoryUsage = memoryUsage;
-}
-
-void CInferenceModelMetadata::task(api_t::EDataFrameTrainBoostedTreeTask task) {
-    m_Task = task;
 }
 
 // clang-format off
