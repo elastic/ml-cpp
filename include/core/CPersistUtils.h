@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <string>
 #include <type_traits>
@@ -210,7 +211,7 @@ public:
     //! \brief Converts a built in type to a string using CStringUtils functions.
     class CORE_EXPORT CBuiltinToString {
     public:
-        CBuiltinToString(const char pairDelimiter)
+        explicit CBuiltinToString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         std::string operator()(double value) const {
@@ -254,6 +255,11 @@ public:
                    this->operator()(value.second);
         }
 
+        template<typename T>
+        std::string operator()(const std::atomic<T>& value) const {
+            return this->operator()(value.load());
+        }
+
     private:
         char m_PairDelimiter;
     };
@@ -261,7 +267,7 @@ public:
     //! \brief Converts a string to a built in type using CStringUtils functions.
     class CORE_EXPORT CBuiltinFromString {
     public:
-        CBuiltinFromString(const char pairDelimiter)
+        explicit CBuiltinFromString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         template<typename T>
@@ -332,6 +338,14 @@ public:
             }
             m_Token.assign(token, delimPos + 1, token.length() - delimPos);
             return this->operator()(m_Token, value.second);
+        }
+
+        template<typename T>
+        bool operator()(const std::string& token, std::atomic<T>& value) const {
+            T value_;
+            bool result{CStringUtils::stringToType(token, value_)};
+            value.store(value_);
+            return result;
         }
 
     private:

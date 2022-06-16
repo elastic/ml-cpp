@@ -87,6 +87,7 @@ public:
             // Ensure the cache is consuming no more than the current memory limit.
             while (this->memoryUsage() > m_MaximumMemory) {
                 auto itemToEvict = m_ItemStats.begin();
+                m_RemovedCount += itemToEvict->count();
                 this->removeFromCache(itemToEvict);
                 this->maybeReallocateCache();
             }
@@ -161,7 +162,9 @@ public:
 
     //! Get the proportion of requests which result in a hit.
     double hitFraction() const {
-        return m_NumberHits.toDouble() / m_NumberLookups.toDouble();
+        return std::min(static_cast<double>(m_NumberHits.load()) /
+                            static_cast<double>(m_NumberLookups.load()),
+                        1.0);
     }
 
     //! Get the number of items currently stored in the cache.
@@ -217,7 +220,7 @@ public:
             }
 
             std::size_t itemsMemoryUsage{0};
-            std::uint64_t totalCount{0};
+            std::uint64_t totalCount{m_RemovedCount};
 
             for (auto stats = m_ItemStats.begin(); stats != m_ItemStats.end(); ++stats) {
                 auto item = m_ItemCache.find(stats->key());
@@ -238,9 +241,9 @@ public:
                 result = false;
             }
             if (this->updatesCanTimeOut() == false && // We may be missing counts
-                m_NumberHits.overflowedUInt64() == false && // stats counts may have overflowed
-                m_NumberHits == totalCount) {
-                LOG_ERROR(<< "Count mismatch.");
+                m_NumberLookups != totalCount) {
+                LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load()
+                          << " vs " << totalCount << ".");
                 result = false;
             }
             return true;
@@ -385,60 +388,6 @@ private:
         TCacheItemStatsSetItr m_Stats;
     };
 
-    //! \brief An atomic 128 bit counter.
-    class CAtomicLargeCounter {
-    public:
-        CAtomicLargeCounter() = default;
-        explicit CAtomicLargeCounter(std::uint64_t lower) : m_Lower{lower} {}
-
-        bool operator==(std::uint64_t rhs) const {
-            return m_Upper.load() == 0 && m_Lower.load() == rhs;
-        }
-        const CAtomicLargeCounter& operator++() {
-            auto lower = ++m_Lower;
-            if (lower == 0) {
-                ++m_Upper;
-            }
-            return *this;
-        }
-        double toDouble() const {
-            return m_Upper.load() *
-                       static_cast<double>(std::numeric_limits<std::uint64_t>::max()) +
-                   static_cast<double>(m_Lower.load());
-        }
-        bool overflowedUInt64() const { return m_Upper.load() > 0; }
-
-        void acceptPersistInserter(CStatePersistInserter& inserter) const {
-            CPersistUtils::persist(LOWER_TAG, m_Lower.load(), inserter);
-            CPersistUtils::persist(UPPER_TAG, m_Upper.load(), inserter);
-        }
-
-        bool acceptRestoreTraverser(CStateRestoreTraverser& traverser) {
-            do {
-                const std::string& name{traverser.name()};
-                RESTORE_SETUP_TEARDOWN(LOWER_TAG, std::uint64_t value{0},
-                                       CPersistUtils::restore(LOWER_TAG, value, traverser),
-                                       m_Lower.store(value))
-                RESTORE_SETUP_TEARDOWN(UPPER_TAG, std::uint64_t value{0},
-                                       CPersistUtils::restore(UPPER_TAG, value, traverser),
-                                       m_Upper.store(value))
-            } while (traverser.next());
-            return true;
-        }
-
-    private:
-        static const std::string LOWER_TAG;
-        static const std::string UPPER_TAG;
-
-    private:
-        //! Align the lower bits to prevent false sharing with other members. Note we
-        //! don't bother to align both counters because m_Upper is so rarely touched.
-        //! This should switch to std::hardware_destructive_interference_size when
-        //! it's fully supported.
-        alignas(64) std::atomic<std::uint64_t> m_Lower{0};
-        std::atomic<std::uint64_t> m_Upper{0};
-    };
-
     using TSizeVec = std::vector<std::size_t>;
     using TCompressedKeyCacheItemUMap = typename TDictionary::template TWordTUMap<CCacheItem>;
     using TCompressedKeyCacheItemUMapCItr = typename TCompressedKeyCacheItemUMap::const_iterator;
@@ -581,9 +530,13 @@ private:
     static const std::string NUMBER_LOOKUPS_TAG;
 
 private:
-    CAtomicLargeCounter m_NumberLookups{0};
-    CAtomicLargeCounter m_NumberHits{0};
-    std::size_t m_MaximumMemory;
+    // Align the lower bits to prevent false sharing with other members. This
+    // should switch to std::hardware_destructive_interference_size when it's
+    // fully supported.
+    alignas(64) std::atomic<std::uint64_t> m_NumberLookups{0};
+    alignas(64) std::atomic<std::uint64_t> m_NumberHits{0};
+    std::uint64_t m_RemovedCount{0};
+    std::size_t m_MaximumMemory{0};
     std::size_t m_ItemsMemoryUsage{0};
     TCompressKey m_CompressKey;
     TDictionary m_Dictionary;
@@ -613,10 +566,6 @@ template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS>
 const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CCacheItemStats::KEY_TAG{"key"};
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS>
 const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CCacheItemStats::MEMORY_USAGE_TAG{"memory_usage"};
-template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS>
-const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CAtomicLargeCounter::LOWER_TAG{"lower"};
-template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS>
-const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CAtomicLargeCounter::UPPER_TAG{"upper"};
 // clang-format on
 }
 
