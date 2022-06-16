@@ -19,7 +19,6 @@
 #include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
-#include <rapidjson/document.h>
 #include <seccomp/CSystemCallFilter.h>
 
 #include <ver/CBuildInfo.h>
@@ -32,6 +31,7 @@
 #include "CThreadSettings.h"
 
 #include <ATen/Parallel.h>
+#include <rapidjson/document.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
