@@ -4,9 +4,9 @@ These instructions are for setting up a Windows build machine from scratch.
 
 For subsequent machines, the setup can be simplified by copying components from the first machine - see [windows_simple.md](windows_simple.md).
 
-The build system assumes Windows itself is installed on the `C:` drive. If this is not the case on your machine, the Makefiles will not work.
-
 On Windows, the build system runs within Git for Windows. This provides a bash shell that enables our Unix build system to work on Windows without alteration.
+
+The build system assumes Windows itself is installed on the `C:` drive. If this is not the case on your machine, set the `ROOT` environment variable to the appropriate drive.
 
 If you use Gradle to build Machine Learning you do not need to work in Git Bash, as Gradle tasks will run it when necessary.  In order to develop interactively on Windows, you must work in Git Bash.  You will need the following environment variables to be defined:
 
@@ -21,10 +21,9 @@ You will also need to add several directories to your `PATH` environment variabl
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64`
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1`
 - `/c/PROGRA~1/Java/jdk1.8.0_121/bin`
+- `/c/PROGRA~1/CMake/bin/cmake`
 - `/c/usr/local/bin`
 - `/c/usr/local/lib`
-
-Finally, you need to create an alias `make` for `gnumake`.
 
 For example, you might create a `.bashrc` file in your home directory containing this:
 
@@ -33,8 +32,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
-export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows"
-alias make=gnumake
+export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin/cmake"
 ```
 
 ### Operating system
@@ -193,7 +191,7 @@ copy strptime.lib C:\usr\local\lib
 
 ### CMake
 
-CMake is required to build PyTorch.  Download the MSI installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-win64-x64.msi> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch). Download the MSI installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-win64-x64.msi> (or get a more recent version).
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 

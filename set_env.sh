@@ -103,7 +103,7 @@ case $SIMPLE_PLATFORM in
         ;;
 
     windows)
-        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows
+        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows:$ROOT/PROGRA~1/CMake/bin
         PATH=$ROOT/usr/local/bin:$ROOT/usr/local/sbin:$PATH
         ;;
 
@@ -173,10 +173,7 @@ unset CPPFLAGS
 unset CFLAGS
 unset CXXFLAGS
 unset LDFLAGS
-if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
-    unset INCLUDE
-    unset LIBPATH
-else
+if [ "$SIMPLE_PLATFORM" != "windows" ] ; then
     unset CPATH
     unset C_INCLUDE_PATH
     unset CPLUS_INCLUDE_PATH

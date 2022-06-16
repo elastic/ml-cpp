@@ -19,9 +19,9 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/linux_builder/Dockerfile.
 
-if [ `uname -m` != aarch64 ] ; then
+if [ `uname -m` != aarch64 -a `uname -m` != arm64 ] ; then
     echo "Native build images must be built on the correct hardware architecture"
-    echo "Required: aarch64, Current:" `uname -m`
+    echo "Required: aarch64 or arm64, Current:" `uname -m`
     exit 1
 fi
 
@@ -34,7 +34,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-native-build
-VERSION=8
+VERSION=cmake2
 
 set -e
 

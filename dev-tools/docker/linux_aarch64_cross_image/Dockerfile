@@ -83,3 +83,12 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.13.20210805.a949ff2
 
+# Install CMake
+# v3.19.2 minimum is required
+RUN \
+  cd ${build_dir} && \
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh && \
+  chmod +x cmake-3.19.3-Linux-x86_64.sh && \
+  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/gcc103 && \
+  rm -f cmake-3.19.3-Linux-x86_64.sh
+
