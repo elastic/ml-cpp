@@ -12,6 +12,8 @@
 # the name of the target operating system
 message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
+set(CPP_PLATFORM_HOME $ENV{CPP_SRC_HOME}/build/distribution/platform/darwin-aarch64)
+
 if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
   set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
   set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})

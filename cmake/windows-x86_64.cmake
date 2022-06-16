@@ -10,6 +10,9 @@
 #
 
 message(STATUS "In windows-x86_64.cmake")
+
+set(CPP_PLATFORM_HOME $ENV{CPP_SRC_HOME}/build/distribution/platform/windows-x86_64)
+
 # this must be first
 include ("${CMAKE_CURRENT_LIST_DIR}/functions.cmake")
 

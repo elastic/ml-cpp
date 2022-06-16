@@ -32,9 +32,9 @@ list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_DYN_LINK BOOST_MATH_NO_LONG_DOUBLE_
 
 if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME}/controller.app/Contents/)
+    set(CMAKE_INSTALL_PREFIX ${CPP_PLATFORM_HOME}/controller.app/Contents/)
   else()
-    set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME})
+    set(CMAKE_INSTALL_PREFIX ${CPP_PLATFORM_HOME})
     message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
   endif()
 else()
@@ -176,7 +176,6 @@ set(Boost_USE_RELEASE_LIBS ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 set(Boost_COMPILER "${ML_BOOST_COMPILER_VER}")
-
 
 find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework)
 if(Boost_FOUND)
