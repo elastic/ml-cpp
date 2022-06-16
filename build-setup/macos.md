@@ -109,7 +109,7 @@ to install the Boost headers and libraries.
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch).  Download the graphical installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-macos-universal.dmg> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp.  Download the graphical installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-macos-universal.dmg> (or get a more recent version).
 
 Open the `.dmg` and install the application it by dragging it to the `Applications` folder.
 
