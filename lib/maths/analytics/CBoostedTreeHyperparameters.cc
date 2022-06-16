@@ -273,11 +273,11 @@ CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoubleDoubleSizeTupleVec testLosses) const {
-    auto minPair = std::min_element(testLosses.begin(), testLosses.end(),
+    auto minLoss = std::min_element(testLosses.begin(), testLosses.end(),
                                     [](const auto& lhs, const auto& rhs) {
                                         return std::get<1>(lhs) < std::get<1>(rhs);
                                     });
-    double minValue{std::get<0>(*minPair)};
+    double minValue{std::get<0>(*minLoss)};
     common::CLowess<2>::TDoubleDoublePrVec testLossCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec lossGapCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec forestSizeCurveValues;
