@@ -46,8 +46,6 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("modelid", boost::program_options::value<std::string>(),
                         "The TorchScript model this process is associated with")
-            ("cacheMemorylimitBytes", boost::program_options::value<std::size_t>(),
-                        "Optional memory usage in bytes that the inference cache can use - default is 0 which disables caching")
             ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
                         "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
@@ -66,8 +64,10 @@ bool CCmdLineParser::parse(int argc,
                         "Optionaly set number of threads used per inference request - default is 1")
             ("numAllocations", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of allocations to parallelize model forwarding - default is 1")
+            ("cacheMemorylimitBytes", boost::program_options::value<std::size_t>(),
+                        "Optional memory in bytes that the inference cache can use - default is 0 which disables caching")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
-             "Confirmation that a valid Elastic license key is in use.")
+                        "Confirmation that a valid Elastic license key is in use.")
             ;
         // clang-format on
 
@@ -121,6 +121,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("numAllocations") > 0) {
             numAllocations = vm["numAllocations"].as<std::int32_t>();
+        }
+        if (vm.count("cacheMemorylimitBytes") > 0) {
+            cacheMemorylimitBytes = vm["cacheMemorylimitBytes"].as<std::size_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =

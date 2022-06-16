@@ -640,6 +640,7 @@ private:
         if (timeOut) {
             std::unique_lock<std::shared_timed_mutex> lock{m_Mutex, m_MaximumWait};
             func();
+            return;
         }
         std::unique_lock<std::shared_timed_mutex> lock{m_Mutex};
         func();

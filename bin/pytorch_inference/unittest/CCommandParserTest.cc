@@ -459,4 +459,34 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testResponseCache) {
+    std::vector<std::string> parsedInferenceRequests;
+
+    std::string command{R"({"request_id": "foo", "tokens": [[1, 2, 3]]} 
+                        {"request_id": "bar", "tokens": [[1, 2, 3]]})"};
+
+    std::istringstream commandStream{command};
+
+    ml::torch::CCommandParser processor{commandStream, 1024};
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        [&parsedInferenceRequests](ml::torch::CCommandParser::CRequestCacheInterface& cache,
+                                   ml::torch::CCommandParser::SRequest request) {
+            cache.lookup(std::move(request),
+                         [](ml::torch::CCommandParser::SRequest request_) {
+                             return request_.s_RequestId +
+                                    ml::core::CContainerPrinter::print(request_.s_Tokens) +
+                                    ml::core::CContainerPrinter::print(request_.s_SecondaryArguments);
+                         },
+                         [&](const std::string& response) {
+                             parsedInferenceRequests.push_back(response);
+                         });
+            return true;
+        },
+        unexpectedControlMessage, unexpectedError));
+
+    BOOST_REQUIRE_EQUAL(2, parsedInferenceRequests.size());
+    BOOST_REQUIRE_EQUAL("foo[1, 2, 3][]", parsedInferenceRequests[0]);
+    BOOST_REQUIRE_EQUAL("foo[1, 2, 3][]", parsedInferenceRequests[1]);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

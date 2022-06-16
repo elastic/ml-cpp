@@ -369,6 +369,8 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
 
 BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
 
+    // Test the relative performance of the concurrent cache.
+
     TStrStrCache cache{128 * core::constants::BYTES_IN_KILOBYTES,
                        [](const TStrStrCache::TDictionary& dictionary, const std::string& key) {
                            return dictionary.word(key);
@@ -418,6 +420,58 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
     // 30% faster on bare metal (32 ms vs 44 ms).
     LOG_DEBUG(<< "duration ms = " << durationMs);
     LOG_DEBUG(<< "duration concurrent ms = " << durationConcurrentMs);
+}
+
+BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
+
+    // Test we get the number of calls to the compute and read we get.
+
+    std::atomic<std::size_t> numberComputes{0};
+    std::atomic<std::size_t> numberReads{0};
+
+    {
+        TStrStrCache cache{
+            32 * core::constants::BYTES_IN_KILOBYTES,
+            [](const TStrStrCache::TDictionary& dictionary,
+               const std::string& key) { return dictionary.word(key); }};
+
+        for (std::size_t i = 0; i < 100; ++i) {
+            cache.lookup("key_" + std::to_string(i),
+                         [&](std::string key) {
+                             ++numberComputes;
+                             return key;
+                         },
+                         [&](const std::string&) { ++numberReads; });
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(100, numberComputes.load());
+    BOOST_REQUIRE_EQUAL(100, numberReads.load());
+
+    numberComputes.store(0);
+    numberReads.store(0);
+
+    {
+        TConcurrentStrStrCache cache{
+            32 * core::constants::BYTES_IN_KILOBYTES, std::chrono::milliseconds{100},
+            [](const TStrStrCache::TDictionary& dictionary,
+               const std::string& key) { return dictionary.word(key); }};
+
+        core::CStaticThreadPool pool{4};
+        for (std::size_t i = 0; i < 100; ++i) {
+            pool.schedule([&, i] {
+                cache.lookup("key_" + std::to_string(i),
+                             [&](std::string key) {
+                                 ++numberComputes;
+                                 return key;
+                             },
+                             [&](const std::string&) { ++numberReads; });
+            });
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(100, numberComputes.load());
+    BOOST_REQUIRE_EQUAL(100, numberReads.load());
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
