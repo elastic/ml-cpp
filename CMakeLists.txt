@@ -12,8 +12,6 @@
 # CMake 3.19.2 is the minimum version required to support Apple Silicon
 cmake_minimum_required(VERSION 3.19.2)
 
-project("ML")
-
 set (CMAKE_BASE_ROOT_DIR ${CMAKE_SOURCE_DIR})
 list (FIND CMAKE_MODULE_PATH "${CMAKE_BASE_ROOT_DIR}/cmake" _index)
 if (${_index} EQUAL -1)
@@ -22,6 +20,35 @@ endif()
 
 message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
+
+# Our CI build scripts explicitly specify the toolchain file
+# on the command line. To simplify developer builds allow
+# the toolchain to be obtained from an environment variable
+# failing that the toolchain is determined from host processor
+# and platform
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  if(DEFINED ENV{CMAKE_TOOLCHAIN_FILE})
+    set(CMAKE_TOOLCHAIN_FILE $ENV{CMAKE_TOOLCHAIN_FILE})
+  else()
+    # Determine which toolchain to use based on host platform and architecture
+    string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} HOST_SYSTEM_NAME)
+    message(STATUS "HOST_SYSTEM_NAME=${HOST_SYSTEM_NAME}")
+
+    if (${HOST_SYSTEM_NAME} STREQUAL "windows")
+      # We only support x86_64
+      set(HOST_SYSTEM_PROCESSOR "x86_64")
+    else()
+      execute_process(COMMAND uname -m OUTPUT_VARIABLE HOST_SYSTEM_PROCESSOR OUTPUT_STRIP_TRAILING_WHITESPACE)
+      string(REPLACE arm aarch HOST_SYSTEM_PROCESSOR ${HOST_SYSTEM_PROCESSOR})
+    endif()
+    message(STATUS "HOST_SYSTEM_PROCESSOR=${HOST_SYSTEM_PROCESSOR}")
+    set(CMAKE_TOOLCHAIN_FILE "cmake/${HOST_SYSTEM_NAME}-${HOST_SYSTEM_PROCESSOR}.cmake")
+  endif()
+endif()
+
+
+project("ML")
+
 
 include(variables)
 

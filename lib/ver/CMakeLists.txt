@@ -25,7 +25,7 @@ endif()
 if(SNAPSHOT STREQUAL "yes")
   set(PRODUCT_VERSION "${PRODUCT_VERSION}-SNAPSHOT")
 endif()
-execute_process(COMMAND shell git rev-parse --short=14 HEAD OUTPUT_VARIABLE=ML_BUILD_NUM)
+execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_NUM OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null  COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
