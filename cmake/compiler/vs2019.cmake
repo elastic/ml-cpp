@@ -15,7 +15,8 @@ else()
   set (VS2019_VARIABLES_ 1)
 endif()
 
-set(ROOT "c:")
+# TODO: when everything else that needs to be consistent is ready, set this to the current drive instead of hard coding C:
+set(ROOT "C:")
 if(DEFINED ENV{ROOT})
   set(ROOT $ENV{ROOT})
 endif()
