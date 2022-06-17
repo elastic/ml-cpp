@@ -200,7 +200,7 @@ function(ml_add_test_executable _target)
   else()
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target} 2>&1 | tee ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.log
+      COMMAND ${CMAKE_COMMAND} -DTEST_EXEC=${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )

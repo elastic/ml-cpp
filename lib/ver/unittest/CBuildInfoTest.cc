@@ -33,6 +33,9 @@ BOOST_AUTO_TEST_CASE(testFullInfo) {
     BOOST_TEST_REQUIRE(fullInfo.find("Copyright") != std::string::npos);
     BOOST_TEST_REQUIRE(fullInfo.find("Elasticsearch BV") != std::string::npos);
     BOOST_TEST_REQUIRE(fullInfo.find(currentYear) != std::string::npos);
+
+    // TODO: Remove this deliberate test failure once happy with changes to test runner
+    BOOST_TEST_REQUIRE(false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
