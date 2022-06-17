@@ -194,12 +194,14 @@ function(ml_add_test_executable _target)
         ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
         ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
       COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
+      COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
   else()
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
+      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target} 2>&1 | tee ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.log
+      COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
   endif()
