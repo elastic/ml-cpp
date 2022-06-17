@@ -14,8 +14,7 @@
 # If updating this script ensure the license information is correct in the
 # licenses sub-directory.
 
-# This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this files location
-#cd `dirname "$BASH_SOURCE"`
+# This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this file's location
 
 # This is the file where Eigen stores its version
 set(VERSION_FILE "eigen/Eigen/src/Core/util/Macros.h")
