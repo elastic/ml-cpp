@@ -63,6 +63,12 @@ Do not change the suggested default autocrlf setting (true), as Unix line ending
 
 As well as providing a Git implementation, Git for Windows comes with Windows ports of a variety of common Unix commands, e.g. `grep`, `sed`, `awk`, `find`, and many others.
 
+### CMake
+
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-win64-x64.msi> (or get a more recent version).
+
+Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
+
 ### GNU make
 
 Download `make-4.2.1.tar.bz2` (or a more recent version) from <http://ftp.gnu.org/gnu/make/> . Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
@@ -188,12 +194,6 @@ cl -c -nologo -O2 -MD -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0601 -DNDEBUG strpt
 lib -NOLOGO strptime.obj
 copy strptime.lib C:\usr\local\lib
 ```
-
-### CMake
-
-CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch). Download the MSI installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-win64-x64.msi> (or get a more recent version).
-
-Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
 ### Python 3.7
 

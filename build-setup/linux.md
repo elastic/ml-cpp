@@ -239,12 +239,12 @@ to complete the build.
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp (with 3.5 the minimum required to build PyTorch). Download version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh> and install:
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh> and install:
 
 ```
-chmod +x cmake-3.19.3-Linux-x86_64.sh
+chmod +x cmake-3.23.2-Linux-x86_64.sh
 sudo mkdir /usr/local/cmake
-sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
+sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 ```
 
 Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
