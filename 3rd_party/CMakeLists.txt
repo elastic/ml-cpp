@@ -28,7 +28,7 @@ add_custom_target(
     eigen
     DEPENDS 3rd_party.sh pull-eigen.sh
     COMMAND bash -c "./3rd_party.sh --add ${INSTALL_DIR}"
-    COMMAND bash -c "./pull-eigen.sh"
+    COMMAND ${CMAKE_COMMAND} -P "./pull-eigen.cmake"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

@@ -21,8 +21,8 @@ ml_add_test(bin/controller/unittest controller)
 ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
 
 add_custom_target(build_tests
-    DEPENDS ${ML_BUILD_TEST_DEPENDS}
-)
+  DEPENDS ${ML_BUILD_TEST_DEPENDS}
+  )
 add_custom_target(test
-    DEPENDS ${ML_TEST_DEPENDS}
-)
+  DEPENDS ${ML_TEST_DEPENDS}
+  )

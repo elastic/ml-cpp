@@ -12,14 +12,21 @@
 project("ML Ver")
 
 # Prepare values to substitute into the template
-execute_process(COMMAND date "+%Y" OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}"
-  $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE PRODUCT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(TIMESTAMP BUILD_YEAR "%Y")
 
-if(${VERSION_QUALIFIER})
-  set(PRODUCT_VERSION "${PRODUCT_VERSION}-${VERSION_QUALIFIER}")
+if(MSVC)
+  set(USER_NAME $ENV{USERNAME})
+else()
+  set(USER_NAME $ENV{USER})
+endif()
+set(PRODUCT_VERSION "${ML_VERSION_NUM}")
+
+message(STATUS "PRODUCT_VERSION ${PRODUCT_VERSION}")
+message(STATUS "USER_NAME ${USER_NAME}")
+message(STATUS "BUILD_YEAR ${BUILD_YEAR}")
+
+if($ENV{VERSION_QUALIFIER})
+  set(PRODUCT_VERSION "${PRODUCT_VERSION}-$ENV{VERSION_QUALIFIER}")
 endif()
 
 if(SNAPSHOT STREQUAL "yes")
