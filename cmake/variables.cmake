@@ -19,7 +19,7 @@ set(SNAPSHOT yes)
 set(ML_APP_NAME controller)
 
 file(READ ${CMAKE_SOURCE_DIR}/gradle.properties GRADLE_PROPERTIES)
-if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9\.]+)\n")
+if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9\.]+)")
   set(ML_VERSION_NUM "${CMAKE_MATCH_1}")
 endif()
 

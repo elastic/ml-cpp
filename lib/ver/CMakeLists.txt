@@ -14,10 +14,11 @@ project("ML Ver")
 # Prepare values to substitute into the template
 string(TIMESTAMP BUILD_YEAR "%Y")
 
-if(MSVC)
+if(WIN32)
   set(USER_NAME $ENV{USERNAME})
 else()
-  set(USER_NAME $ENV{USER})
+  execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 set(PRODUCT_VERSION "${ML_VERSION_NUM}")
 
