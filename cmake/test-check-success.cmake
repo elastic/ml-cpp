@@ -9,8 +9,13 @@
 # limitation.
 #
 
-execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
-if (NOT TEST_SUCCESS EQUAL 0)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${TEST_DIR}/${TEST_NAME}.out)
-  file(WRITE "${TEST_DIR}/${TEST_NAME}.failed" "")
+file(GLOB_RECURSE TEST_RESULTS "${TEST_DIR}/*.failed" )
+if (TEST_RESULTS)
+  foreach(TEST_RESULT ${TEST_RESULTS})
+    if(${TEST_RESULT} MATCHES "/([^/]+).failed")
+      list(APPEND FAILED_TESTS ${CMAKE_MATCH_1})
+    endif()
+  endforeach()
+  list(JOIN FAILED_TESTS ", " FAILURE_STRING)
+  message(FATAL_ERROR "Test failures: ${FAILURE_STRING}")
 endif()

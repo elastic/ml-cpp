@@ -193,14 +193,14 @@ function(ml_add_test_executable _target)
       COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
         ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
-      COMMAND ${CMAKE_COMMAND} -DTEST_EXEC=${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
+        COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
   else()
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_COMMAND} -DTEST_EXEC=${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
+      COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
