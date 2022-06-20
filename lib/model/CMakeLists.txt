@@ -11,7 +11,7 @@
 
 project("ML Model")
 
-set(ML_DEPENDENCIES eigen)
+set(ML_DEPENDENCIES third_party)
 set(ML_LINK_LIBRARIES 
   ${Boost_LIBRARIES}
   MlCore

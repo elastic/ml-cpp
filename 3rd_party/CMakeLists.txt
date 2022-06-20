@@ -12,24 +12,24 @@
 set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${DYNAMIC_LIB_DIR})
 set(LICENSE_DIR ${CPP_PLATFORM_HOME}/../licenses)
 
-# For now we want to co-exist with static Makefiles
-# so expect to be built out-of-source, hence the need
-# to change the working directory upon execution
 add_custom_target(licenses ALL
   COMMAND ${CMAKE_COMMAND} -E make_directory ${CPP_PLATFORM_HOME}
   COMMAND ${CMAKE_COMMAND} -E copy_directory licenses ${LICENSE_DIR}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# For now we want to co-exist with static Makefiles
-# so expect to be built out-of-source, hence the need
-# to change the working directory upon execution
 add_custom_target(
-    eigen
-    DEPENDS 3rd_party.sh pull-eigen.sh
+    third_party
+    DEPENDS eigen 3rd_party.sh
     COMMAND bash -c "./3rd_party.sh --add ${INSTALL_DIR}"
-    COMMAND ${CMAKE_COMMAND} -P "./pull-eigen.cmake"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Pull the Eigen repo as part of the configuration step
+# thus avoiding any race conditions with parallel builds
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -P "./pull-eigen.cmake"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_SOURCE_DIR}/3rd_party/eigen)
