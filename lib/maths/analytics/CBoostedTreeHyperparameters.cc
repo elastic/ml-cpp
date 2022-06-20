@@ -364,7 +364,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTre
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
-    this->checkIfCanSkipFineTuneSearch(numberTrees);
+    this->checkIfCanSkipFineTuneSearch(relevantParameters, numberTrees);
 }
 
 void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& relevantParameters,
