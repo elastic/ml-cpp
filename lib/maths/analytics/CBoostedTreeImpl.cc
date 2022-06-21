@@ -241,8 +241,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
-    core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
-    core::CPackedBitVector noRowsMask{allTrainingRowsMask.size(), false};
+    core::CPackedBitVector allTrainingRowMask{this->allTrainingRowMask()};
+    core::CPackedBitVector noRowsMask{allTrainingRowMask.size(), false};
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
@@ -252,9 +252,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->startProgressMonitoringFinalTrain();
         m_BestForest.assign(1, this->initializePredictionsAndLossDerivatives(
-                                   frame, allTrainingRowsMask, noRowsMask));
+                                   frame, allTrainingRowMask, noRowsMask));
         TMeanVarAccumulator testLossMoments;
-        testLossMoments.add(this->meanLoss(frame, allTrainingRowsMask));
+        testLossMoments.add(this->meanLoss(frame, allTrainingRowMask));
         m_Hyperparameters.captureBest(
             testLossMoments, 0.0 /*no loss gap*/, 0.0 /*no kept nodes*/,
             1.0 /*single node used to centre the data*/, 1 /*single tree*/);
@@ -338,14 +338,14 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
             m_Hyperparameters.captureScale();
             this->startProgressMonitoringFinalTrain();
-            this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+            this->scaleRegularizationMultipliers(allTrainingRowMask.manhattan() /
                                                  this->meanNumberTrainingRowsPerFold());
 
             // Reinitialize random number generator for reproducible results.
             m_Rng.seed(m_Seed);
 
-            m_BestForest = this->trainForest(frame, allTrainingRowsMask,
-                                             allTrainingRowsMask, m_TrainingProgress)
+            m_BestForest = this->trainForest(frame, allTrainingRowMask,
+                                             allTrainingRowMask, m_TrainingProgress)
                                .s_Forest;
 
             this->recordState(recordTrainStateCallback);
@@ -412,9 +412,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     // Make sure that our predictions are correctly initialised before computing
     // the initial loss.
-    auto allTrainingRowsMask = this->allTrainingRowsMask();
-    auto noRowsMask = core::CPackedBitVector{allTrainingRowsMask.size(), false};
-    this->initializePredictionsAndLossDerivatives(frame, allTrainingRowsMask, noRowsMask);
+    auto allTrainingRowMask = this->allTrainingRowMask();
+    auto noRowsMask = core::CPackedBitVector{allTrainingRowMask.size(), false};
+    this->initializePredictionsAndLossDerivatives(frame, allTrainingRowMask, noRowsMask);
 
     // When we decide whether to accept the results of incremental training below
     // we compare the loss calculated for the best candidate forest with the loss
@@ -427,7 +427,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     // on the old training data in train and add it on to the threshold to accept
     // adjusting for the proportion of old training data we have.
     double numberNewTrainingRows{m_NewTrainingRowMask.manhattan()};
-    double numberOldTrainingRows{allTrainingRowsMask.manhattan() - numberNewTrainingRows};
+    double numberOldTrainingRows{allTrainingRowMask.manhattan() - numberNewTrainingRows};
     double initialLoss{
         CBoostedTreeHyperparameters::lossAtNSigma(
             1.0,
@@ -526,14 +526,14 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Hyperparameters.captureScale();
 
         if (retrainedTrees.empty()) {
-            this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+            this->scaleRegularizationMultipliers(allTrainingRowMask.manhattan() /
                                                  this->meanNumberTrainingRowsPerFold());
 
             // Reinitialize random number generator for reproducible results.
             m_Rng.seed(m_Seed);
 
-            retrainedTrees = this->updateForest(frame, allTrainingRowsMask,
-                                                allTrainingRowsMask, m_TrainingProgress)
+            retrainedTrees = this->updateForest(frame, allTrainingRowMask,
+                                                allTrainingRowMask, m_TrainingProgress)
                                  .s_Forest;
         }
 
@@ -782,7 +782,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
             break;
         case CBoostedTree::E_MinimumRecall:
             m_ClassificationWeights = CDataFrameUtils::maximumMinimumRecallClassWeights(
-                m_NumberThreads, frame, this->allTrainingRowsMask(),
+                m_NumberThreads, frame, this->allTrainingRowMask(),
                 numberClasses, m_DependentVariable,
                 [storage, numberClasses, this](const TRowRef& row) mutable {
                     if (m_Loss->type() == E_BinaryClassification) {
@@ -851,7 +851,7 @@ void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
 
     TDoubleVec probabilities{retrainTreeSelectionProbabilities(
         m_NumberThreads, frame, m_ExtraColumns, m_DependentVariable, *m_Encoder,
-        this->allTrainingRowsMask(), *m_Loss, m_BestForest)};
+        this->allTrainingRowMask(), *m_Loss, m_BestForest)};
 
     std::size_t numberToRetrain{static_cast<std::size_t>(
         std::max(m_RetrainFraction * static_cast<double>(m_BestForest.size()), 1.0) + 0.5)};
@@ -1322,7 +1322,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
                    features.end());
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
-    auto allTrainingRowsMask = this->allTrainingRowsMask();
+    auto allTrainingRowMask = this->allTrainingRowMask();
     auto result = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
@@ -1339,7 +1339,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
                 }
             },
             TDoubleUSetVec(features.size())),
-        &allTrainingRowsMask);
+        &allTrainingRowMask);
     auto sets = result.first;
 
     TDoubleUSetVec uniques{std::move(sets[0].s_FunctionState)};
@@ -1370,8 +1370,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
         featuresToRefresh[i] = (m_FixedCandidateSplits[i].empty() == false);
     }
 
-    this->refreshSplitsCache(frame, m_FixedCandidateSplits, featuresToRefresh,
-                             allTrainingRowsMask);
+    this->refreshSplitsCache(frame, m_FixedCandidateSplits, featuresToRefresh, allTrainingRowMask);
 }
 
 CBoostedTreeImpl::TFloatVecVec
@@ -2560,44 +2559,44 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         return {frame.numberRows(), false};
     }
 
-    core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
+    core::CPackedBitVector allTrainingRowMask{this->allTrainingRowMask()};
 
     if (m_DataSummarizationFraction >= 1.0) {
-        return allTrainingRowsMask;
+        return allTrainingRowMask;
     }
 
     if (m_Hyperparameters.incrementalTraining() == false) {
         // Use stratified sampling after initial training.
         std::size_t sampleSize{std::max(
-            static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
+            static_cast<std::size_t>(allTrainingRowMask.manhattan() * m_DataSummarizationFraction),
             static_cast<std::size_t>(2))};
         return CDataFrameUtils::stratifiedSamplingRowMask(
             m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
-            allTrainingRowsMask);
+            allTrainingRowMask);
     }
 
-    auto oldTrainingRowsMask = allTrainingRowsMask & ~this->newTrainingRowMask();
-    std::size_t sampleSize{static_cast<std::size_t>(oldTrainingRowsMask.manhattan())};
+    auto oldTrainingRowMask = allTrainingRowMask & ~this->newTrainingRowMask();
+    std::size_t sampleSize{static_cast<std::size_t>(oldTrainingRowMask.manhattan())};
 
     // Add m_DataSummarizationFraction amount of new data to the old data to
     // sample from. The rationale for downsampling the new data is we expect
     // to have downsampled the old data with the same summarisation factor.
     std::size_t newDataSubsampleSize{static_cast<std::size_t>(
-        std::ceil(m_DataSummarizationFraction * allTrainingRowsMask.manhattan()))};
+        std::ceil(m_DataSummarizationFraction * allTrainingRowMask.manhattan()))};
     auto newDataSampleRowMask =
         this->newTrainingRowMask().manhattan() > 0
             ? CDataFrameUtils::stratifiedSamplingRowMask(
                   m_NumberThreads, frame, m_DependentVariable, m_Rng,
                   newDataSubsampleSize, 10, this->newTrainingRowMask())
-            : core::CPackedBitVector(allTrainingRowsMask.size(), false);
-    auto candidateRowsMask = oldTrainingRowsMask | newDataSampleRowMask;
+            : core::CPackedBitVector(allTrainingRowMask.size(), false);
+    auto candidateRowMask = oldTrainingRowMask | newDataSampleRowMask;
 
     if (m_Loss->isRegression()) {
         // For regression we preserve the quantile distribution of the complete
         // training sample.
         return CDataFrameUtils::distributionPreservingSamplingRowMask(
             m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize,
-            10 /*number of quantile buckets*/, candidateRowsMask, candidateRowsMask);
+            10 /*number of quantile buckets*/, candidateRowMask, candidateRowMask);
     }
 
     // For classification, we preserve the class distribution of either the data
@@ -2611,14 +2610,14 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         return *maxClassCount / *minClassCount;
     };
 
-    const auto& distributionReferenceRowsMask =
-        classImbalance(oldTrainingRowsMask) < classImbalance(allTrainingRowsMask)
-            ? oldTrainingRowsMask
-            : allTrainingRowsMask;
+    const auto& distributionReferenceRowMask =
+        classImbalance(oldTrainingRowMask) < classImbalance(allTrainingRowMask)
+            ? oldTrainingRowMask
+            : allTrainingRowMask;
 
     return CDataFrameUtils::distributionPreservingSamplingRowMask(
         m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
-        distributionReferenceRowsMask, candidateRowsMask);
+        distributionReferenceRowMask, candidateRowMask);
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
@@ -2661,7 +2660,7 @@ const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const
     return m_ClassificationWeights;
 }
 
-core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
+core::CPackedBitVector CBoostedTreeImpl::allTrainingRowMask() const {
     return ~m_MissingFeatureRowMasks[m_DependentVariable];
 }
 

@@ -294,7 +294,7 @@ public:
     //! \param[in] trainFractionPerFold The fraction of train data to use per fold.
     //! \param[in] numberBuckets The number of buckets to use when stratifying
     //! by target quantiles for regression.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
     //! \warning This fails if the target is not categorical.
     static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
     stratifiedCrossValidationRowMasks(std::size_t numberThreads,
@@ -304,7 +304,7 @@ public:
                                       std::size_t numberFolds,
                                       double trainFractionPerFold,
                                       std::size_t numberBuckets,
-                                      const core::CPackedBitVector& allTrainingRowsMask);
+                                      const core::CPackedBitVector& allTrainingRowMask);
 
     //! Compute stratified sampling on the \p frame.
     //!
@@ -318,7 +318,7 @@ public:
     //! \param[in] desiredNumberSamples The number of samples.
     //! \param[in] numberBuckets The number of buckets to use when stratifying by
     //! target quantiles for regression.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
     static core::CPackedBitVector
     stratifiedSamplingRowMask(std::size_t numberThreads,
                               const core::CDataFrame& frame,
@@ -326,14 +326,14 @@ public:
                               common::CPRNG::CXorOShiro128Plus rng,
                               std::size_t desiredNumberSamples,
                               std::size_t numberBuckets,
-                              const core::CPackedBitVector& allTrainingRowsMask);
+                              const core::CPackedBitVector& allTrainingRowMask);
 
-    //! Compute sampling on the \p frame that preserves the distribution on \p distributionSourceRowsMask.
+    //! Compute sampling on the \p frame that preserves the distribution on \p distributionSourceRowMask.
     //!
-    //! For categorical \p targetColumn, a subset of  \p allTrainingRowsMask will be selected which
-    //! preserves the proportion of categories in \p distributionSourceRowsMask for \p targetColumn.
-    //! For numerical \p targetColumn,  a subset of  \p allTrainingRowsMask will be selected which
-    //! preserves the distribution quantiles of \p distributionSourceRowsMask for \p targetColumn.
+    //! For categorical \p targetColumn, a subset of  \p allTrainingRowMask will be selected which
+    //! preserves the proportion of categories in \p distributionSourceRowMask for \p targetColumn.
+    //! For numerical \p targetColumn,  a subset of  \p allTrainingRowMask will be selected which
+    //! preserves the distribution quantiles of \p distributionSourceRowMask for \p targetColumn.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the row masks.
@@ -342,9 +342,9 @@ public:
     //! \param[in] desiredNumberSamples The number of samples.
     //! \param[in] numberBuckets The number of buckets to use when stratifying by
     //! target quantiles for regression.
-    //! \param[in] distributionSourceRowsMask The source of the distribution of target values
+    //! \param[in] distributionSourceRowMask The source of the distribution of target values
     //! that has to be preserved.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
     static core::CPackedBitVector
     distributionPreservingSamplingRowMask(std::size_t numberThreads,
                                           const core::CDataFrame& frame,
@@ -352,8 +352,8 @@ public:
                                           common::CPRNG::CXorOShiro128Plus rng,
                                           std::size_t desiredNumberSamples,
                                           std::size_t numberBuckets,
-                                          const core::CPackedBitVector& distributionSourceRowsMask,
-                                          const core::CPackedBitVector& allTrainingRowsMask);
+                                          const core::CPackedBitVector& distributionSourceRowMask,
+                                          const core::CPackedBitVector& allTrainingRowMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!

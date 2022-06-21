@@ -171,7 +171,7 @@ public:
 
     //! \return The full training set data mask, i.e. all rows which aren't missing
     //! the dependent variable.
-    core::CPackedBitVector allTrainingRowsMask() const;
+    core::CPackedBitVector allTrainingRowMask() const;
 
     //! Get the mean number of training examples which are used in each fold.
     double meanNumberTrainingRowsPerFold() const;

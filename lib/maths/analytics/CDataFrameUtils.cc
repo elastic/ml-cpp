@@ -507,7 +507,7 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(columnMask.size(), std::move(estimateQuantiles)));
+        TQuantileSketchVec(columnMask.size(), estimateQuantiles));
     auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         result = std::move(quantiles);
     };
@@ -535,9 +535,9 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t numberFolds,
                                                    double trainFractionPerFold,
                                                    std::size_t numberBuckets,
-                                                   const core::CPackedBitVector& allTrainingRowsMask) {
+                                                   const core::CPackedBitVector& allTrainingRowMask) {
 
-    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    double numberTrainingRows{allTrainingRowMask.manhattan()};
     if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
         HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {{}, {}, {}};
@@ -570,9 +570,9 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
         return result;
     };
 
-    auto excessSampler = makeSampler(excessSampleSize, allTrainingRowsMask);
+    auto excessSampler = makeSampler(excessSampleSize, allTrainingRowMask);
 
-    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
+    LOG_TRACE(<< "number training rows = " << allTrainingRowMask.manhattan());
 
     TPackedBitVectorVec testingRowMasks(numberFolds);
 
@@ -599,26 +599,26 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
         return result;
     };
 
-    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
+    core::CPackedBitVector candidateTestingRowMask{allTrainingRowMask};
     for (auto& testingRowMask : testingRowMasks) {
-        if (static_cast<std::size_t>(candidateTestingRowsMask.manhattan()) <= sampleSize) {
-            testingRowMask = std::move(candidateTestingRowsMask);
-            candidateTestingRowsMask = core::CPackedBitVector{testingRowMask.size(), false};
+        if (static_cast<std::size_t>(candidateTestingRowMask.manhattan()) <= sampleSize) {
+            testingRowMask = std::move(candidateTestingRowMask);
+            candidateTestingRowMask = core::CPackedBitVector{testingRowMask.size(), false};
         } else {
-            auto sampler = makeSampler(sampleSize, candidateTestingRowsMask);
+            auto sampler = makeSampler(sampleSize, candidateTestingRowMask);
             if (sampler == nullptr) {
                 HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
                 return {{}, {}, {}};
             }
-            testingRowMask = sample(sampler, candidateTestingRowsMask);
-            candidateTestingRowsMask ^= testingRowMask;
+            testingRowMask = sample(sampler, candidateTestingRowMask);
+            candidateTestingRowMask ^= testingRowMask;
         }
         if (excessSampler != nullptr) {
-            testingRowMask |= sample(excessSampler, allTrainingRowsMask ^ testingRowMask);
+            testingRowMask |= sample(excessSampler, allTrainingRowMask ^ testingRowMask);
         }
     }
 
-    TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
+    TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowMask)};
 
     if (trainFractionPerFold < 0.5) {
         std::swap(trainingRowMasks, testingRowMasks);
@@ -634,12 +634,12 @@ CDataFrameUtils::stratifiedSamplingRowMask(std::size_t numberThreads,
                                            common::CPRNG::CXorOShiro128Plus rng,
                                            std::size_t desiredNumberSamples,
                                            std::size_t numberBuckets,
-                                           const core::CPackedBitVector& allTrainingRowsMask) {
+                                           const core::CPackedBitVector& allTrainingRowMask) {
     TDoubleVec frequencies;
     TStratifiedSamplerUPtr sampler;
     core::CPackedBitVector samplesRowMask;
 
-    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    double numberTrainingRows{allTrainingRowMask.manhattan()};
     if (numberTrainingRows < 2.0) {
         HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {};
@@ -647,24 +647,24 @@ CDataFrameUtils::stratifiedSamplingRowMask(std::size_t numberThreads,
 
     if (frame.columnIsCategorical()[targetColumn]) {
         std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
-            numberThreads, frame, targetColumn, rng, desiredNumberSamples, allTrainingRowsMask);
+            numberThreads, frame, targetColumn, rng, desiredNumberSamples, allTrainingRowMask);
     } else {
         sampler = regressionStratifiedCrossValidationRowSampler(
             numberThreads, frame, targetColumn, rng, desiredNumberSamples,
-            numberBuckets, allTrainingRowsMask);
+            numberBuckets, allTrainingRowMask);
     }
 
-    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
+    LOG_TRACE(<< "number training rows = " << allTrainingRowMask.manhattan());
 
     TSizeVec rowIndices;
-    core::CPackedBitVector candidateSamplesRowsMask{allTrainingRowsMask};
+    core::CPackedBitVector candidateSamplesRowMask{allTrainingRowMask};
     frame.readRows(1, 0, frame.numberRows(),
                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
                        for (auto row = beginRows; row != endRows; ++row) {
                            sampler->sample(*row);
                        }
                    },
-                   &candidateSamplesRowsMask);
+                   &candidateSamplesRowMask);
     sampler->finishSampling(rng, rowIndices);
     std::sort(rowIndices.begin(), rowIndices.end());
     LOG_TRACE(<< "# row indices = " << rowIndices.size());
@@ -673,11 +673,11 @@ CDataFrameUtils::stratifiedSamplingRowMask(std::size_t numberThreads,
         samplesRowMask.extend(false, row - samplesRowMask.size());
         samplesRowMask.extend(true);
     }
-    samplesRowMask.extend(false, allTrainingRowsMask.size() - samplesRowMask.size());
+    samplesRowMask.extend(false, allTrainingRowMask.size() - samplesRowMask.size());
 
     // We exclusive or here to remove the rows we've selected for the current
     //test fold. This is equivalent to samplng without replacement
-    candidateSamplesRowsMask ^= samplesRowMask;
+    candidateSamplesRowMask ^= samplesRowMask;
 
     LOG_TRACE(<< "# selected rows = " << samplesRowMask.manhattan());
     return samplesRowMask;
@@ -690,12 +690,12 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
     common::CPRNG::CXorOShiro128Plus rng,
     std::size_t desiredNumberSamples,
     std::size_t numberBuckets,
-    const core::CPackedBitVector& distributionSourceRowsMask,
-    const core::CPackedBitVector& allTrainingRowsMask) {
+    const core::CPackedBitVector& distributionSourceRowMask,
+    const core::CPackedBitVector& allTrainingRowMask) {
     TStratifiedSamplerUPtr sampler;
     core::CPackedBitVector samplesRowMask;
 
-    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    double numberTrainingRows{allTrainingRowMask.manhattan()};
     if (numberTrainingRows < 2.0) {
         HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {};
@@ -703,14 +703,14 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
 
     if (frame.columnIsCategorical()[targetColumn]) {
         sampler = classifierDistributionPreservingRowSampler(
-            numberThreads, frame, targetColumn, rng, distributionSourceRowsMask);
+            numberThreads, frame, targetColumn, rng, distributionSourceRowMask);
     } else {
         sampler = regressionStratifiedCrossValidationRowSampler(
             numberThreads, frame, targetColumn, rng, desiredNumberSamples,
-            numberBuckets, distributionSourceRowsMask);
+            numberBuckets, distributionSourceRowMask);
     }
 
-    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
+    LOG_TRACE(<< "number training rows = " << allTrainingRowMask.manhattan());
 
     TSizeVec rowIndices;
     frame.readRows(1, 0, frame.numberRows(),
@@ -719,7 +719,7 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
                            sampler->sample(*row);
                        }
                    },
-                   &allTrainingRowsMask);
+                   &allTrainingRowMask);
     sampler->finishSampling(rng, rowIndices);
     std::sort(rowIndices.begin(), rowIndices.end());
     LOG_TRACE(<< "# row indices = " << rowIndices.size());
@@ -728,7 +728,7 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
         samplesRowMask.extend(false, row - samplesRowMask.size());
         samplesRowMask.extend(true);
     }
-    samplesRowMask.extend(false, allTrainingRowsMask.size() - samplesRowMask.size());
+    samplesRowMask.extend(false, allTrainingRowMask.size() - samplesRowMask.size());
 
     LOG_TRACE(<< "# selected rows = " << samplesRowMask.manhattan());
     return samplesRowMask;

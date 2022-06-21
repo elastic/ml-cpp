@@ -378,7 +378,7 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         m_TreeImpl->m_NumberFolds.fixTo(1);
         m_TreeImpl->m_TrainFractionPerFold.fixTo(
             1.0 - static_cast<double>(m_NumberHoldoutRows) /
-                      m_TreeImpl->allTrainingRowsMask().manhattan());
+                      m_TreeImpl->allTrainingRowMask().manhattan());
     } else {
         auto result = frame.readRows(
             m_NumberThreads,
@@ -549,7 +549,7 @@ void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) co
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
-    core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
+    core::CPackedBitVector allTrainingRowMask{m_TreeImpl->allTrainingRowMask()};
 
     if (m_NumberHoldoutRows > 0) {
         if (m_NumberHoldoutRows > frame.numberRows()) {
@@ -562,8 +562,8 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
 
         m_TreeImpl->m_TrainingRowMasks.clear();
         m_TreeImpl->m_TestingRowMasks.clear();
-        m_TreeImpl->m_TrainingRowMasks.push_back(allTrainingRowsMask & ~holdoutRowMask);
-        m_TreeImpl->m_TestingRowMasks.push_back(allTrainingRowsMask & holdoutRowMask);
+        m_TreeImpl->m_TrainingRowMasks.push_back(allTrainingRowMask & ~holdoutRowMask);
+        m_TreeImpl->m_TestingRowMasks.push_back(allTrainingRowMask & holdoutRowMask);
         m_TreeImpl->m_StopCrossValidationEarly = false;
 
     } else {
@@ -579,7 +579,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
                      m_TreeImpl->m_TestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
                     numberThreads, frame, dependentVariable, rng, numberFolds,
-                    trainFractionPerFold, numberBuckets, allTrainingRowsMask);
+                    trainFractionPerFold, numberBuckets, allTrainingRowMask);
         } else {
 
             // Use separate stratified samples on old and new training data to ensure
@@ -591,7 +591,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
                      m_TreeImpl->m_TestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
                     numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
-                    numberBuckets, allTrainingRowsMask & ~newTrainingRowMask);
+                    numberBuckets, allTrainingRowMask & ~newTrainingRowMask);
 
             if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
                 TPackedBitVectorVec newTrainingRowMasks;
@@ -600,7 +600,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
                     CDataFrameUtils::stratifiedCrossValidationRowMasks(
                         numberThreads, frame, dependentVariable, rng,
                         numberFolds, trainFractionPerFold, numberBuckets,
-                        allTrainingRowsMask & newTrainingRowMask);
+                        allTrainingRowMask & newTrainingRowMask);
                 for (std::size_t i = 0; i < numberFolds; ++i) {
                     m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
                     m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
@@ -623,7 +623,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
         regressors.erase(weightColumn);
     }
     std::size_t numberTrainingRows{
-        static_cast<std::size_t>(m_TreeImpl->allTrainingRowsMask().manhattan())};
+        static_cast<std::size_t>(m_TreeImpl->allTrainingRowMask().manhattan())};
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
@@ -631,7 +631,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
                                       m_TreeImpl->m_DependentVariable}
             .minimumRowsPerFeature(m_TreeImpl->rowsPerFeature(numberTrainingRows))
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
-            .rowMask(m_TreeImpl->allTrainingRowsMask())
+            .rowMask(m_TreeImpl->allTrainingRowMask())
             .columnMask(std::move(regressors))
             .progressCallback(m_TreeImpl->m_Instrumentation->progressCallback()));
 }
@@ -660,7 +660,7 @@ void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& fram
                      columnMask.end());
 
     m_TreeImpl->m_FeatureDataTypes = CDataFrameUtils::columnDataTypes(
-        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
+        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowMask(),
         columnMask, m_TreeImpl->m_Encoder.get());
 }
 
@@ -1333,7 +1333,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     hyperparameters.featureBagFraction().captureScale().fix();
     hyperparameters.resetFineTuneSearch();
     result.m_TreeImpl->m_PreviousTrainNumberRows = static_cast<std::size_t>(
-        result.m_TreeImpl->allTrainingRowsMask().manhattan() + 0.5);
+        result.m_TreeImpl->allTrainingRowMask().manhattan() + 0.5);
     result.m_TreeImpl->m_PreviousTrainLossGap = hyperparameters.bestForestLossGap();
     result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;

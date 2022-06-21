@@ -44,6 +44,7 @@ using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
+using TDoubleDoubleUMap = boost::unordered_map<double, double>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
@@ -483,8 +484,6 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
     //   6) Test we get the correct size masks if we are using more or less
     //      training data than implied by k-fold cross-validation.
 
-    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
-
     test::CRandomNumbers testRng;
     maths::common::CPRNG::CXorOShiro128Plus rng;
 
@@ -508,11 +507,11 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         }
         frame->finishWritingRows();
 
-        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+        core::CPackedBitVector allTrainingRowMask{generateRandomRowMask(testRng, numberRows)};
 
         TDoubleDoubleUMap categoryCounts;
-        for (auto i = allTrainingRowsMask.beginOneBits();
-             i != allTrainingRowsMask.endOneBits(); ++i) {
+        for (auto i = allTrainingRowMask.beginOneBits();
+             i != allTrainingRowMask.endOneBits(); ++i) {
             categoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
         }
 
@@ -522,25 +521,25 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
             maths::analytics::CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 1, *frame, 0, rng, numberFolds[0],
                 1.0 - 1.0 / static_cast<double>(numberFolds[0]), numberBins,
-                allTrainingRowsMask);
+                allTrainingRowMask);
 
         BOOST_REQUIRE_EQUAL(numberFolds[0], trainingRowMasks.size());
         BOOST_REQUIRE_EQUAL(numberFolds[0], testingRowMasks.size());
 
-        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+        core::CPackedBitVector allTestingRowMask{numberRows, false};
         for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
             // Count should be very nearly the expected value.
-            double expectedTestRowCount{allTrainingRowsMask.manhattan() /
+            double expectedTestRowCount{allTrainingRowMask.manhattan() /
                                         static_cast<double>(numberFolds[0])};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTestRowCount,
                                          testingRowMasks[fold].manhattan(), 10.0);
-            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowsMask));
+            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowMask));
             BOOST_REQUIRE_EQUAL(0.0, trainingRowMasks[fold].inner(testingRowMasks[fold]));
             BOOST_REQUIRE_EQUAL(trainingRowMasks[fold].manhattan(),
-                                trainingRowMasks[fold].inner(allTrainingRowsMask));
+                                trainingRowMasks[fold].inner(allTrainingRowMask));
             BOOST_REQUIRE_EQUAL(testingRowMasks[fold].manhattan(),
-                                testingRowMasks[fold].inner(allTrainingRowsMask));
-            allTestingRowsMask |= testingRowMasks[fold];
+                                testingRowMasks[fold].inner(allTrainingRowMask));
+            allTestingRowMask |= testingRowMasks[fold];
 
             TDoubleDoubleUMap testingCategoryCounts;
             frame->readRows(1, 0, frame->numberRows(),
@@ -574,28 +573,28 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         }
         frame->finishWritingRows();
 
-        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+        core::CPackedBitVector allTrainingRowMask{generateRandomRowMask(testRng, numberRows)};
 
         maths::analytics::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(std::ignore, testingRowMasks, std::ignore) =
             maths::analytics::CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 1, *frame, 0, rng, numberFolds[0],
                 1.0 - 1.0 / static_cast<double>(numberFolds[0]), numberBins,
-                allTrainingRowsMask);
+                allTrainingRowMask);
 
         TDoubleVecVec targetDecile(numberFolds[0], TDoubleVec(numberBins));
 
-        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+        core::CPackedBitVector allTestingRowMask{numberRows, false};
         for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
             // Count should be very nearly the expected value.
-            double expectedTestRowCount{allTrainingRowsMask.manhattan() /
+            double expectedTestRowCount{allTrainingRowMask.manhattan() /
                                         static_cast<double>(numberFolds[0])};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTestRowCount,
                                          testingRowMasks[fold].manhattan(), 10.0);
-            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowsMask));
+            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowMask));
             BOOST_REQUIRE_EQUAL(testingRowMasks[fold].manhattan(),
-                                testingRowMasks[fold].inner(allTrainingRowsMask));
-            allTestingRowsMask |= testingRowMasks[fold];
+                                testingRowMasks[fold].inner(allTrainingRowMask));
+            allTestingRowMask |= testingRowMasks[fold];
 
             TDoubleVec values;
             frame->readRows(1, 0, frame->numberRows(),
@@ -637,13 +636,13 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         }
         frame->finishWritingRows();
 
-        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+        core::CPackedBitVector allTrainingRowMask{numberRows, true};
 
         maths::analytics::CDataFrameUtils::TPackedBitVectorVec trainingRowMasks;
         maths::analytics::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(trainingRowMasks, testingRowMasks, std::ignore) =
             maths::analytics::CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                1, *frame, 0, rng, 3, fraction, numberBins, allTrainingRowsMask);
+                1, *frame, 0, rng, 3, fraction, numberBins, allTrainingRowMask);
 
         BOOST_REQUIRE_EQUAL(trainingRowMasks.size(), testingRowMasks.size());
         for (std::size_t i = 0; i < trainingRowMasks.size(); ++i) {
@@ -683,17 +682,15 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasksRareCategories) {
             1, *frame, 0, rng, numberFolds, 1.0 - 1.0 / static_cast<double>(numberFolds),
             numberBins, core::CPackedBitVector{categories.size(), true});
 
-    core::CPackedBitVector allTestingRowsMask(categories.size(), false);
+    core::CPackedBitVector allTestingRowMask(categories.size(), false);
     for (const auto& testingRowMask : testingRowMasks) {
-        allTestingRowsMask ^= testingRowMask;
+        allTestingRowMask ^= testingRowMask;
         BOOST_TEST_REQUIRE(5.0, testingRowMask.manhattan());
     }
-    BOOST_TEST_REQUIRE(25.0, allTestingRowsMask.manhattan());
+    BOOST_TEST_REQUIRE(25.0, allTestingRowMask.manhattan());
 }
 
 BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
-
-    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
 
     test::CRandomNumbers testRng;
     maths::common::CPRNG::CXorOShiro128Plus rng;
@@ -721,23 +718,23 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         }
         frame->finishWritingRows();
 
-        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+        core::CPackedBitVector allTrainingRowMask{numberRows, true};
 
         TDoubleDoubleUMap categoryCounts;
-        for (auto i = allTrainingRowsMask.beginOneBits();
-             i != allTrainingRowsMask.endOneBits(); ++i) {
+        for (auto i = allTrainingRowMask.beginOneBits();
+             i != allTrainingRowMask.endOneBits(); ++i) {
             categoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
         }
 
         core::CPackedBitVector samplingRowMask;
         samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMask(
-            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
+            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowMask);
 
         // Count should be very nearly the expected value.
         BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
                             samplingRowMask.manhattan(), 5.0);
 
-        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+        core::CPackedBitVector allTestingRowMask{numberRows, false};
 
         TDoubleDoubleUMap testingCategoryCounts;
         frame->readRows(1, 0, frame->numberRows(),
@@ -768,10 +765,10 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         }
         frame->finishWritingRows();
 
-        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+        core::CPackedBitVector allTrainingRowMask{numberRows, true};
         core::CPackedBitVector samplingRowMask;
         samplingRowMask = maths::analytics::CDataFrameUtils::stratifiedSamplingRowMask(
-            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
+            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowMask);
 
         // Count should be very nearly the expected value.
         BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
@@ -803,7 +800,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
 }
 
 BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
-    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
+
     test::CRandomNumbers testRng;
     maths::common::CPRNG::CXorOShiro128Plus rng;
 
@@ -829,28 +826,28 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
                                 std::int32_t&) { *column = 0; });
         }
         frame->finishWritingRows();
-        core::CPackedBitVector distributionSourceRowsMask{
+        core::CPackedBitVector distributionSourceRowMask{
             numberDistributionSourceRows[0], true};
-        distributionSourceRowsMask.extend(false, numberAdditionalRows);
+        distributionSourceRowMask.extend(false, numberAdditionalRows);
 
-        core::CPackedBitVector allRowsMask{distributionSourceRowsMask.size(), true};
+        core::CPackedBitVector allRowsMask{distributionSourceRowMask.size(), true};
 
         TDoubleDoubleUMap expectedCategoryCounts;
-        for (auto i = distributionSourceRowsMask.beginOneBits();
-             i != distributionSourceRowsMask.endOneBits(); ++i) {
+        for (auto i = distributionSourceRowMask.beginOneBits();
+             i != distributionSourceRowMask.endOneBits(); ++i) {
             expectedCategoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
         }
 
-        auto samplingRowsMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
+        auto sampledRowMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
             1, *frame, 0, rng, numberDistributionSourceRows[0], 10,
-            distributionSourceRowsMask, allRowsMask);
+            distributionSourceRowMask, allRowsMask);
 
-        BOOST_REQUIRE_EQUAL(samplingRowsMask.size(), allRowsMask.size());
-        BOOST_REQUIRE_CLOSE(samplingRowsMask.manhattan(),
+        BOOST_REQUIRE_EQUAL(sampledRowMask.size(), allRowsMask.size());
+        BOOST_REQUIRE_CLOSE(sampledRowMask.manhattan(),
                             numberDistributionSourceRows[0], 1);
 
         auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(
-            1, *frame, samplingRowsMask, {0})[0];
+            1, *frame, sampledRowMask, {0})[0];
 
         LOG_TRACE(<< "Expected category count "
                   << core::CContainerPrinter::print(expectedCategoryCounts));
@@ -881,31 +878,31 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
                                 std::int32_t&) { *column = value[i]; });
         }
         frame->finishWritingRows();
-        core::CPackedBitVector distributionSourceRowsMask{
+        core::CPackedBitVector distributionSourceRowMask{
             numberDistributionSourceRows[0], true};
-        distributionSourceRowsMask.extend(false, numberAdditionalRows);
+        distributionSourceRowMask.extend(false, numberAdditionalRows);
 
-        core::CPackedBitVector allRowsMask{distributionSourceRowsMask.size(), true};
-        auto samplingRowsMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
+        core::CPackedBitVector allRowsMask{distributionSourceRowMask.size(), true};
+        auto sampledRowMask = maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMask(
             1, *frame, 0, rng, numberDistributionSourceRows[0], numberBins,
-            distributionSourceRowsMask, allRowsMask);
+            distributionSourceRowMask, allRowsMask);
 
         // Count should be very nearly the expected value.
-        BOOST_REQUIRE_EQUAL(samplingRowsMask.size(), allRowsMask.size());
+        BOOST_REQUIRE_EQUAL(sampledRowMask.size(), allRowsMask.size());
         BOOST_REQUIRE_CLOSE(static_cast<double>(numberDistributionSourceRows[0]),
-                            samplingRowsMask.manhattan(), 1.0);
+                            sampledRowMask.manhattan(), 1.0);
 
         // Ensure that the target's distribution is similar.
         maths::common::CQuantileSketch expectedQuantiles(
             maths::common::CQuantileSketch::E_Linear, numberRows);
         maths::common::CQuantileSketch actualQuantiles(
             maths::common::CQuantileSketch::E_Linear,
-            static_cast<std::size_t>(samplingRowsMask.manhattan()));
+            static_cast<std::size_t>(sampledRowMask.manhattan()));
         for (std::size_t i = 0; i < numberRows; ++i) {
-            if (distributionSourceRowsMask[i]) {
+            if (distributionSourceRowMask[i]) {
                 expectedQuantiles.add(value[i]);
             }
-            if (samplingRowsMask[i]) {
+            if (sampledRowMask[i]) {
                 actualQuantiles.add(value[i]);
             }
         }
