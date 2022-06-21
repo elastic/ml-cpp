@@ -18,8 +18,11 @@ set(SNAPSHOT yes)
 
 set(ML_APP_NAME controller)
 
-execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}"
-  $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM OUTPUT_STRIP_TRAILING_WHITESPACE)
+file(READ ${CMAKE_SOURCE_DIR}/gradle.properties GRADLE_PROPERTIES)
+if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9\.]+)")
+  set(ML_VERSION_NUM "${CMAKE_MATCH_1}")
+endif()
+
 message(STATUS "ML_VERSION_NUM ${ML_VERSION_NUM}")
 
 message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
@@ -41,6 +44,8 @@ else()
   set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
 endif()
 
+string(REPLACE "\\" "/" CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
