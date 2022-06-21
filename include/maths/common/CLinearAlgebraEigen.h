@@ -200,6 +200,7 @@ template<typename SCALAR>
 class CDenseMatrix : public Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic> {
 public:
     using TBase = Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic>;
+    using TIndexType = typename TBase::Index;
 
 public:
     //! Forwarding constructor.
@@ -259,6 +260,7 @@ template<typename SCALAR>
 class CDenseVector : public Eigen::Matrix<SCALAR, Eigen::Dynamic, 1> {
 public:
     using TBase = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
+    using TIndexType = typename TBase::Index;
 
 public:
     static const std::string DENSE_VECTOR_TAG;
@@ -380,6 +382,7 @@ class CMemoryMappedDenseMatrix
     : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT> {
 public:
     using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT>;
+    using TIndexType = typename TBase::Index;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -498,6 +501,7 @@ class CMemoryMappedDenseVector
 public:
     using TDenseVector = CDenseVector<SCALAR>;
     using TBase = Eigen::Map<typename TDenseVector::TBase, ALIGNMENT>;
+    using TIndexType = typename TBase::Index;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }

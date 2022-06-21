@@ -150,13 +150,20 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     if (memoryUsage > memoryLimit) {
         auto roundMb = [](std::size_t memory) {
-            return 0.01 * static_cast<double>((100 * memory) / core::constants::BYTES_IN_MEGABYTES);
+            double scale{std::max(
+                std::pow(10.0, std::ceil(std::log(static_cast<double>(core::constants::BYTES_IN_MEGABYTES) /
+                                                  static_cast<double>(memory)) /
+                                         std::log(10.0))),
+                100.0)};
+            return std::round(scale * static_cast<double>(memory) /
+                              static_cast<double>(core::constants::BYTES_IN_MEGABYTES)) /
+                   scale;
         };
         // Simply log the limit being configured too low. If we exceed the limit
         // during the run, we will fail and the user will have to update the
         // limit and attempt to re-run.
         LOG_INFO(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower"
-                 << " than the estimate " << std::ceil(roundMb(memoryUsage)) << "MB."
+                 << " than the estimate " << roundMb(memoryUsage) << "MB."
                  << "The analytics process may fail due to hitting the memory limit.");
     }
     if (m_NumberPartitions > 1) {

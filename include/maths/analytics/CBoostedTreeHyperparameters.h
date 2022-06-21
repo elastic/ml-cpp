@@ -679,6 +679,7 @@ private:
     using TDoubleDoubleDoubleSizeTupleVec =
         std::vector<std::tuple<double, double, double, std::size_t>>;
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
+    using TIndexVec = std::vector<TVector::TIndexType>;
     using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
@@ -700,7 +701,9 @@ private:
     minimizeTestLoss(double intervalLeftEnd,
                      double intervalRightEnd,
                      TDoubleDoubleDoubleSizeTupleVec testLosses) const;
-    void checkIfCanSkipFineTuneSearch(double lossGap, std::size_t numberTrees);
+    void checkIfCanSkipFineTuneSearch(const TIndexVec& relevantParameters,
+                                      double lossGap,
+                                      std::size_t numberTrees);
     void captureHyperparametersAndLoss(double loss);
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
     void setHyperparameterValues(TVector parameters);
