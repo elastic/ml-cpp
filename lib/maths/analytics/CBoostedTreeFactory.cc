@@ -514,14 +514,22 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // Initialize regularization multipliers with their minimum permitted values.
     if (treeSizePenaltyMultiplier.rangeFixed() == false) {
-        treeSizePenaltyMultiplier.set(minBoundary(
-            treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
-            2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
+        if (m_GainPerNode90thPercentile == 0.0) {
+            treeSizePenaltyMultiplier.fixTo(0.0);
+        } else {
+            treeSizePenaltyMultiplier.set(minBoundary(
+                treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
+                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
+        }
     }
     if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
-        leafWeightPenaltyMultiplier.set(minBoundary(
-            leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
-            2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
+        if (m_TotalCurvaturePerNode90thPercentile == 0.0) {
+            leafWeightPenaltyMultiplier.fixTo(0.0);
+        } else {
+            leafWeightPenaltyMultiplier.set(minBoundary(
+                leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
+                2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
+        }
     }
 
     // Search for depth limit at which the tree starts to overfit.

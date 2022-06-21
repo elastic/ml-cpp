@@ -302,7 +302,20 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTre
     // naturally measured as a ratio, i.e. diff(p_1, p_0) = p_1 / p_0 for p_0
     // less than p_1, This translates to using log parameter values.
 
+    TIndexVec relevantParameters;
+    relevantParameters.reserve(m_TunableHyperparameters.size());
+
+    auto recordedHyperparameters = m_TunableHyperparameters;
+
     this->initializeTunableHyperparameters();
+
+    for (auto parameter : m_TunableHyperparameters) {
+        auto coordinate = std::find(recordedHyperparameters.begin(),
+                                    recordedHyperparameters.end(), parameter);
+        if (coordinate != recordedHyperparameters.end()) {
+            relevantParameters.push_back(coordinate - recordedHyperparameters.begin());
+        }
+    }
 
     common::CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
     boundingBox.reserve(m_TunableHyperparameters.size());
@@ -351,14 +364,21 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTre
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
-    this->checkIfCanSkipFineTuneSearch(numberTrees);
+    this->checkIfCanSkipFineTuneSearch(relevantParameters, numberTrees);
 }
 
-void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numberTrees) {
+void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& relevantParameters,
+                                                               std::size_t numberTrees) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
         // Add information about observed line search training runs to the GP.
         for (auto & [ parameters, loss ] : m_LineSearchHyperparameterLosses) {
-            this->addObservation(std::move(parameters), loss, 0.0, true);
+            TVector parameters_{
+                static_cast<TVector::TIndexType>(relevantParameters.size())};
+            for (std::size_t i = 0; i < relevantParameters.size(); ++i) {
+                parameters_(static_cast<TVector::TIndexType>(i)) =
+                    parameters(relevantParameters[i]);
+            }
+            this->addObservation(std::move(parameters_), loss, 0.0, true);
         }
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
@@ -854,8 +874,8 @@ void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss)
     }
 }
 
-CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParametersVector(
-    const CBoostedTreeHyperparameters::THyperparametersVec& selectedHyperparameters) const {
+CBoostedTreeHyperparameters::TVector
+CBoostedTreeHyperparameters::selectParametersVector(const THyperparametersVec& selectedHyperparameters) const {
     TVector parameters{selectedHyperparameters.size()};
 
     // Read parameters for last round.
@@ -896,7 +916,7 @@ CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParamete
     return parameters;
 }
 
-void CBoostedTreeHyperparameters::setHyperparameterValues(CBoostedTreeHyperparameters::TVector parameters) {
+void CBoostedTreeHyperparameters::setHyperparameterValues(TVector parameters) {
     TVector minBoundary;
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
@@ -964,11 +984,11 @@ void CBoostedTreeHyperparameters::setHyperparameterValues(CBoostedTreeHyperparam
     }
 }
 
-void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
+void CBoostedTreeHyperparameters::addObservation(TVector parameters,
                                                  double loss,
                                                  double variance,
                                                  bool reestimate) {
-    m_BayesianOptimization->add(parameters, loss, variance);
+    m_BayesianOptimization->add(std::move(parameters), loss, variance);
     if (reestimate) {
         m_BayesianOptimization->maximumLikelihoodKernel();
     }
