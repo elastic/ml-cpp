@@ -35,7 +35,7 @@
 * Fairer application of size penalty for model selection for training classification
   and regression models. (See {ml-pull}2291[#2291].)
 * Accelerate training for data frame analytics by skipping fine parameter tuning if it 
-  is unnecessary. (See {ml-pull}2298[#2298])
+  is unnecessary. (See {ml-pull}2298[#2298].)
 
 == {es} version 8.3.0
 
