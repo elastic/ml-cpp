@@ -11,7 +11,7 @@
 
 project("ML Core")
 
-set(ML_DEPENDENCIES eigen)
+set(ML_DEPENDENCIES third_party)
 set(ML_LINK_LIBRARIES
   ${ZLIB_LIBRARIES}
   ${LIBXML2_LIBRARIES}
