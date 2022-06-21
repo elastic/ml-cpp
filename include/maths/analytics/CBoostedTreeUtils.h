@@ -57,9 +57,9 @@ enum EHyperparameter {
     E_Gamma,
     E_SoftTreeDepthLimit,
     E_SoftTreeDepthTolerance,
-    E_Eta,                  //!< Train only.
-    E_EtaGrowthRatePerTree, //!< Train only.
-    E_MaximumNumberTrees,   //!< Train only.
+    E_Eta,
+    E_EtaGrowthRatePerTree,
+    E_MaximumNumberTrees, //!< Train only.
     E_FeatureBagFraction,
     E_PredictionChangeCost,     //!< Incremental train only.
     E_RetrainedTreeEta,         //!< Incremental train only.

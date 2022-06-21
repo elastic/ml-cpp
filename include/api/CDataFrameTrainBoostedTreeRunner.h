@@ -125,6 +125,8 @@ protected:
 
     //! \return The parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
+    //! \return the task to perform.
+    api_t::EDataFrameTrainBoostedTreeTask task() const { return m_Task; }
     //! \return The name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
     //! \return The name of prediction field.
@@ -139,9 +141,6 @@ protected:
 
     //! Write the boosted tree and custom processors to \p builder.
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
-
-    //! Get the task to perform.
-    api_t::EDataFrameTrainBoostedTreeTask task() const { return m_Task; }
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::analytics::CBoostedTreeFactory>;

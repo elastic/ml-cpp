@@ -31,8 +31,8 @@ class CDataFrameCategoryEncoder;
 }
 namespace api {
 
-//! \brief Class which writes the data summarization as a compressed, base64 encoded
-//! and chunked JSON blob.
+//! \brief Writes the data summarization as a compressed, base64 encoded and chunked
+//! JSON blob.
 //!
 //! DESCRIPTION:\n
 //! The data summarization contains data rows as well as the feature value encoding
