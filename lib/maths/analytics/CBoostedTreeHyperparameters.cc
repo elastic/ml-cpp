@@ -273,11 +273,12 @@ CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoubleDoubleSizeTupleVec testLosses) const {
-    auto minLoss = std::min_element(testLosses.begin(), testLosses.end(),
-                                    [](const auto& lhs, const auto& rhs) {
-                                        return std::get<1>(lhs) < std::get<1>(rhs);
-                                    });
-    double minValue{std::get<0>(*minLoss)};
+    double minLossValue{std::get<0>(*std::min_element(
+        testLosses.begin(), testLosses.end(), [](const auto& lhs, const auto& rhs) {
+            return std::get<1>(lhs) < std::get<1>(rhs);
+        }))};
+    double minLossGap{std::numeric_limits<double>::max()};
+    double minSize{std::numeric_limits<double>::max()};
     common::CLowess<2>::TDoubleDoublePrVec testLossCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec lossGapCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec forestSizeCurveValues;
@@ -285,6 +286,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     lossGapCurveValues.reserve(testLosses.size());
     forestSizeCurveValues.reserve(testLosses.size());
     for (const auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
+        minLossGap = std::min(minLossGap, lossGap);
+        minSize = std::min(minSize, static_cast<double>(size));
         testLossCurveValues.emplace_back(parameter, testLoss);
         lossGapCurveValues.emplace_back(parameter, lossGap);
         forestSizeCurveValues.emplace_back(parameter, static_cast<double>(size));
@@ -300,15 +303,15 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     double bestParameter;
     double bestParameterTestLoss;
     std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
-    double lossGap{std::max(lossGapCurve.predict(bestParameter), 0.0)};
-    double forestSize{forestSizeCurve.predict(bestParameter)};
-    LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
+    double lossGap{std::max(lossGapCurve.predict(bestParameter), minLossGap)};
+    double forestSize{std::max(forestSizeCurve.predict(bestParameter), minSize)};
+    LOG_DEBUG(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
               << ", loss gap = " << lossGap << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
                  static_cast<double>(maxLineSearchIterations())};
-    intervalLeftEnd = std::min(bestParameter - width, minValue);
-    intervalRightEnd = std::max(bestParameter + width, minValue);
+    intervalLeftEnd = std::min(bestParameter - width, minLossValue);
+    intervalRightEnd = std::max(bestParameter + width, minLossValue);
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
     return {TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}},
