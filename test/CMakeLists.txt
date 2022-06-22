@@ -21,8 +21,18 @@ ml_add_test(bin/controller/unittest controller)
 ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
 
 add_custom_target(build_tests
-  DEPENDS ${ML_BUILD_TEST_DEPENDS}
-  )
+    DEPENDS ${ML_BUILD_TEST_DEPENDS}
+)
+add_custom_target(clean_test_results
+    COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-clean-results.cmake
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+add_custom_target(run_tests
+    DEPENDS clean_test_results ${ML_TEST_DEPENDS}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 add_custom_target(test
-  DEPENDS ${ML_TEST_DEPENDS}
-  )
+    DEPENDS run_tests
+    COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/test-check-success.cmake
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
