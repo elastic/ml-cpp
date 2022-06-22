@@ -420,8 +420,8 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& 
             m_BayesianOptimization->add(std::move(parameters_), loss, 0.0);
         }
 
-        // Perform 2 additional rounds of kernel parameter optimization.
-        for (std::size_t i = 0; i < 2; ++i) {
+        // Perform 3 additional rounds of kernel parameter optimization.
+        for (std::size_t i = 0; i < 3; ++i) {
             m_BayesianOptimization->maximumLikelihoodKernel();
         }
 
