@@ -68,6 +68,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
                                                    const CDataFrameAnalysisParameters& parameters)
     : CDataFrameOutliersRunner{spec} {
 
+    this->computeAndSaveExecutionStrategy();
+
     m_StandardizationEnabled = parameters[STANDARDIZATION_ENABLED].fallback(true);
     m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::analytics::COutliers::E_Ensemble);
@@ -82,6 +84,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
                                           maths::analytics::COutliers::E_Ensemble)},
       m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+    this->computeAndSaveExecutionStrategy();
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
@@ -91,6 +94,11 @@ std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
 std::size_t CDataFrameOutliersRunner::dataFrameSliceCapacity() const {
     return core::dataFrameDefaultSliceCapacity(this->spec().numberColumns() +
                                                this->numberExtraColumns());
+}
+
+core::CPackedBitVector
+CDataFrameOutliersRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
+    return {frame.numberRows(), true};
 }
 
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
@@ -184,13 +192,15 @@ const std::string& CDataFrameOutliersRunnerFactory::name() const {
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameOutliersRunner>(spec);
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& jsonParameters) const {
+                                          const rapidjson::Value& jsonParameters,
+                                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     auto parameters = parameterReader().read(jsonParameters);
     return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);
 }

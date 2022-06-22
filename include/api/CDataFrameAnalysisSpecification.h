@@ -109,18 +109,22 @@ public:
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
     //! \param persisterSupplier Shared pointer to the CDataAdder instance.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
-                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
+    explicit CDataFrameAnalysisSpecification(
+        const std::string& jsonSpecification,
+        TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr,
+        TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
-    CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification,
-                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
-                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
+    CDataFrameAnalysisSpecification(
+        TRunnerFactoryUPtrVec runnerFactories,
+        const std::string& jsonSpecification,
+        TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr,
+        TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -152,6 +156,9 @@ public:
     //! \return The analysis name.
     const std::string& analysisName() const;
 
+    //! \return The special string signifying a missing value.
+    const std::string& missingFieldValue() const;
+
     //! \return The names of the categorical fields.
     const TStrVec& categoricalFieldNames() const;
 
@@ -159,12 +166,8 @@ public:
     //! fit in memory.
     bool diskUsageAllowed() const;
 
-    //! Make a data frame suitable for this analysis specification.
-    //!
-    //! This chooses the storage strategy based on the analysis constraints and
-    //! the number of rows and target number of columns and reserves capacity as
-    //! appropriate.
-    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
+    //! \return The temporary directory if this analysis is using disk storage.
+    const std::string& temporaryDirectory() const;
 
     //! Validate if \p frame is suitable for running the analysis on.
     bool validate(const core::CDataFrame& frame) const;
@@ -183,10 +186,15 @@ public:
     //! \return The stream from which to retore state if there is one.
     TDataSearcherUPtr restoreSearcher() const;
 
-private:
-    void initializeRunner(const rapidjson::Value& jsonAnalysis);
+    //! Persister supplier without any action.
     static TDataAdderUPtr noopPersisterSupplier();
+
+    //! Restore search supplier without any action.
     static TDataSearcherUPtr noopRestoreSearcherSupplier();
+
+private:
+    void initializeRunner(const rapidjson::Value& jsonAnalysis,
+                          TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
 private:
     std::size_t m_NumberRows = 0;

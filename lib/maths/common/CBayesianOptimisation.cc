@@ -20,6 +20,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
 #include <maths/common/CLbfgs.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>

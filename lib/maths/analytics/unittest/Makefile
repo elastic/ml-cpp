@@ -24,9 +24,12 @@ all: build
 
 SRCS=\
 	Main.cc \
+	BoostedTreeTestData.cc \
+	CBoostedTreeHyperparametersTest.cc \
 	CBoostedTreeLeafNodeStatisticsTest.cc \
 	CBoostedTreeLossTest.cc \
 	CBoostedTreeTest.cc \
+	CBoostedTreeUtilsTest.cc \
 	CDataFrameCategoryEncoderTest.cc \
 	CDataFrameUtilsTest.cc \
 	CMicTest.cc \

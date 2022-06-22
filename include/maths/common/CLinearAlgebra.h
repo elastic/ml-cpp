@@ -950,8 +950,8 @@ private:
 
 public:
     using TArray = T[N];
-    using TBoostArray = std::array<T, N>;
-    using TConstIterator = typename TBoostArray::const_iterator;
+    using TStdArray = std::array<T, N>;
+    using TConstIterator = typename TStdArray::const_iterator;
 
 public:
     //! See core::CMemory.
@@ -1154,7 +1154,7 @@ public:
     }
 
     //! Convert to a boost array.
-    inline TBoostArray toBoostArray() const { return TBase::m_X; }
+    inline TStdArray toArray() const { return TBase::m_X; }
 
     //! Convert to the specified vector representation.
     //!

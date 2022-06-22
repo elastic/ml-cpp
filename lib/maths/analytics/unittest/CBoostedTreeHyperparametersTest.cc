@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
     hyperparameters.eta().fixToRange(0.1, 1.0);
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperparameters.initializeFineTuneSearch(0);
+    hyperparameters.initializeFineTuneSearch(0.0, 0);
 
     test::CRandomNumbers rng;
     TDoubleVec losses;
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
         parameter.fixTo(TDoubleVec{0.5});
 
-        hyperparameters.initializeFineTuneSearch(0);
+        hyperparameters.initializeFineTuneSearch(0.0, 0);
 
         BOOST_REQUIRE_EQUAL(--numberToTune, hyperparameters.numberToTune());
         BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
 
         BOOST_REQUIRE_EQUAL(numberToTune, hyperparameters.numberToTune());
 
-        hyperparameters.initializeFineTuneSearch(0);
+        hyperparameters.initializeFineTuneSearch(0.0, 0);
 
         BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
                             hyperparameters.numberRounds());
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     hyperparameters.eta().fixToRange(0.1, 1.0);
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperparameters.initializeFineTuneSearch(0);
+    hyperparameters.initializeFineTuneSearch(0.0, 0);
 
     test::CRandomNumbers rng;
 
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
          hyperparameters.etaGrowthRatePerTree().value(), hyperparameters.eta().value()});
 
     hyperparameters.resetFineTuneSearch();
-    hyperparameters.initializeFineTuneSearch(0);
+    hyperparameters.initializeFineTuneSearch(0.0, 0);
 
     initHyperaparameters();
     TDoubleVec bestParameters;
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
     origHyperaparameters.eta().fixToRange(0.1, 1.0);
     origHyperaparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    origHyperaparameters.initializeFineTuneSearch(0);
+    origHyperaparameters.initializeFineTuneSearch(0.0, 0);
 
     origHyperaparameters.startFineTuneSearch();
 

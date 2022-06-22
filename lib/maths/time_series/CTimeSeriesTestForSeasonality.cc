@@ -2253,8 +2253,9 @@ double CTimeSeriesTestForSeasonality::SModel::numberParameters() const {
 }
 
 double CTimeSeriesTestForSeasonality::SModel::targetModelSize() const {
-    return static_cast<double>(std::accumulate(
-        s_Hypotheses.begin(), s_Hypotheses.end(), 0, [&](auto partialSize, const auto& hypothesis) {
+    return std::accumulate(
+        s_Hypotheses.begin(), s_Hypotheses.end(), 0.0,
+        [&](auto partialSize, const auto& hypothesis) {
             if (hypothesis.s_Model) {
                 partialSize += static_cast<double>(hypothesis.s_ModelSize);
             } else if (hypothesis.s_DiscardingModel == false) {
@@ -2262,7 +2263,7 @@ double CTimeSeriesTestForSeasonality::SModel::targetModelSize() const {
                     s_Params->m_ModelledPeriodsSizes[hypothesis.s_SimilarModelled]);
             }
             return partialSize;
-        }));
+        });
 }
 
 double CTimeSeriesTestForSeasonality::SModel::numberScalings() const {

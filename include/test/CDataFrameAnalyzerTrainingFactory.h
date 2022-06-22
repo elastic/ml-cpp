@@ -98,6 +98,7 @@ public:
                                       double softTreeDepthTolerance = -1.0,
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
+                                      double downsampleFactor = 0.0,
                                       double featureBagFraction = 0.0,
                                       double lossFunctionParameter = 1.0,
                                       TSizeOptional seed = {}) {
@@ -176,6 +177,9 @@ public:
         if (maximumNumberTrees > 0) {
             treeFactory.maximumNumberTrees(maximumNumberTrees);
         }
+        if (downsampleFactor > 0.0) {
+            treeFactory.downsampleFactor({downsampleFactor});
+        }
         if (featureBagFraction > 0.0) {
             treeFactory.featureBagFraction({featureBagFraction});
         }
@@ -184,14 +188,14 @@ public:
             "testJob", core::constants::BYTES_IN_GIGABYTES);
         treeFactory.analysisInstrumentation(instrumentation);
 
-        auto tree = treeFactory.buildFor(*frame, weights.size());
+        auto tree = treeFactory.buildForTrain(*frame, weights.size());
 
         tree->train();
         tree->predict();
 
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = tree->readAndAdjustPrediction(*row);
+                auto prediction = tree->adjustedPrediction(*row);
                 appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
             }
         });

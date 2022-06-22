@@ -98,7 +98,6 @@ class MATHS_ANALYTICS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
 public:
     enum EStatsType { E_Regression, E_Classification };
     struct SHyperparameters {
-        double s_Eta{-1.0};
         CBoostedTree::EClassAssignmentObjective s_ClassAssignmentObjective{
             CBoostedTree::E_MinimumRecall};
         double s_DepthPenaltyMultiplier{-1.0};
@@ -106,13 +105,17 @@ public:
         double s_SoftTreeDepthTolerance{-1.0};
         double s_TreeSizePenaltyMultiplier{-1.0};
         double s_LeafWeightPenaltyMultiplier{-1.0};
+        double s_TreeTopologyChangePenalty{-1.0};
         double s_DownsampleFactor{-1.0};
-        std::size_t s_NumFolds{0};
-        std::size_t s_MaxTrees{0};
         double s_FeatureBagFraction{-1.0};
+        double s_Eta{-1.0};
         double s_EtaGrowthRatePerTree{-1.0};
+        double s_RetrainedTreeEta{-1.0};
+        double s_PredictionChangeCost{-1.0};
+        std::size_t s_MaxTrees{0};
         std::size_t s_MaxAttemptsToAddTree{0};
         std::size_t s_NumSplitsPerFeature{0};
+        std::size_t s_NumFolds{0};
         std::size_t s_MaxOptimizationRoundsPerHyperparameter{0};
     };
     using TDoubleVec = std::vector<double>;
@@ -128,8 +131,6 @@ public:
     virtual void lossType(const std::string& lossType) = 0;
     //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
-    //! Set the fraction of data used for training per fold.
-    virtual void trainingFractionPerFold(double fraction) = 0;
     //! \return A writable object containing the training hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
@@ -160,7 +161,6 @@ public:
     void iterationTime(std::uint64_t /* delta */) override {}
     void lossType(const std::string& /* lossType */) override {}
     void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override {}
-    void trainingFractionPerFold(double /* fraction */) override {}
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 private:

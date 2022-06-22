@@ -73,7 +73,7 @@ public:
 
     class MATHS_ANALYTICS_EXPORT CVisitor {
     public:
-        virtual ~CVisitor() = default;
+        virtual ~CVisitor() noexcept = default;
         //! Adds to last added tree.
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
@@ -136,6 +136,9 @@ public:
     //! Get the gain of the split.
     double gain() const { return m_Gain; }
 
+    //! Get the gain variance for alternative splits.
+    double gainVariance() const { return m_GainVariance; }
+
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
 
@@ -148,8 +151,14 @@ public:
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
+    //! Set the left child index to \p value.
+    void leftChildIndex(TNodeIndex value) { m_LeftChild = value; }
+
     //! Get the index of the right child node.
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
+
+    //! Set the right child index to \p value.
+    void rightChildIndex(TNodeIndex value) { m_RightChild = value; }
 
     //! Split this node and add its child nodes to \p tree.
     TNodeIndexNodeIndexPr split(const TFloatVecVec& candidateSplits,
@@ -157,6 +166,7 @@ public:
                                 double splitValue,
                                 bool assignMissingToLeft,
                                 double gain,
+                                double gainVariance,
                                 double curvature,
                                 TNodeVec& tree);
 
@@ -168,14 +178,18 @@ public:
                                 double splitValue,
                                 bool assignMissingToLeft,
                                 double gain,
+                                double gainVariance,
                                 double curvature,
                                 TNodeVec& tree) {
         return this->split({}, splitFeature, splitValue, assignMissingToLeft,
-                           gain, curvature, tree);
+                           gain, gainVariance, curvature, tree);
     }
 
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
+
+    //! Get the feature value at which to split .
+    double splitValue() const { return m_SplitValue; }
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -204,29 +218,31 @@ private:
     doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const;
 
 private:
-    std::size_t m_SplitFeature = 0;
-    double m_SplitValue = 0.0;
+    std::size_t m_SplitFeature{0};
+    double m_SplitValue{0.0};
     std::uint8_t m_Split{0};
     std::uint8_t m_MissingSplit{0};
-    bool m_AssignMissingToLeft = true;
+    bool m_AssignMissingToLeft{true};
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;
     TVector m_NodeValue;
-    double m_Gain = 0.0;
-    double m_Curvature = 0.0;
-    std::size_t m_NumberSamples = 0;
+    double m_Gain{0.0};
+    double m_GainVariance{0.0};
+    double m_Curvature{0.0};
+    std::size_t m_NumberSamples{0};
 };
 
 //! \brief A boosted regression tree model.
 //!
 //! DESCRIPTION:\n
-//! This is strongly based on xgboost. We deviate in two important respect: we have
+//! This is strongly based on xgboost. We deviate in some important respects: we have
 //! hyperparameters which control the chance of selecting a feature in the feature
-//! bag for a tree, we have automatic handling of categorical fields, we roll in a
-//! hyperparameter optimisation loop based on Bayesian Optimisation seeded with a
-//! random search and we use an increasing learn rate training a single forest.
+//! bag for a tree, we have automatic handling of categorical fields, we automatically
+//! perform hyperparameter optimisation based on Bayesian Optimisation, we use soft
+//! depth based regularisation and we can vary the learn rate while training a single
+//! forest.
 //!
-//! The probability of selecting a feature behave like a feature weight, allowing us
+//! The probability of selecting a feature behaves like a feature weight, allowing us
 //! to:
 //!   1. Incorporate an estimate of strength of relationship between a regressor and
 //!      the target variable upfront,
@@ -256,7 +272,6 @@ public:
     class MATHS_ANALYTICS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                             public CBoostedTreeNode::CVisitor {
     public:
-        ~CVisitor() override = default;
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;
         virtual void addLossFunction(const TLossFunction& lossFunction) = 0;
@@ -271,10 +286,16 @@ public:
     //! Train on the examples in the data frame supplied to the constructor.
     void train() override;
 
+    //! Incrementally train the current model.
+    //!
+    //! \warning Train must have been previously called or a model loaded.
+    void trainIncremental() override;
+
     //! Write the predictions to the data frame supplied to the constructor.
     //!
+    //! \param[in] newDataOnly Only predict newly supplied data.
     //! \warning This can only be called after train.
-    void predict() const override;
+    void predict(bool newDataOnly = false) const override;
 
     //! Get the SHAP value calculator.
     //!
@@ -285,20 +306,35 @@ public:
     THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the number of rows used to train the model.
-    std::size_t numberTrainingRows() const override;
+    std::size_t numberTrainRows() const override;
+
+    //! Get the mean gap in the loss between test and train examples.
+    double lossGap() const override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
+    //! Get a mask for the new training data.
+    const core::CPackedBitVector& newTrainingRowMask() const override;
+
     //! Read the model prediction from \p row.
-    TDouble2Vec readPrediction(const TRowRef& row) const override;
+    TDouble2Vec prediction(const TRowRef& row) const override;
+
+    //! Read the previous model prediction from \p row if it has been updated.
+    TDouble2Vec previousPrediction(const TRowRef& row) const override;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     //!
     //! For example, classification multiplicative weights are used for each
     //! class to target different objectives (accuracy or minimum recall) when
     //! assigning classes.
-    TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
+    TDouble2Vec adjustedPrediction(const TRowRef& row) const override;
+
+    //! Get the selected rows that summarize.
+    core::CPackedBitVector dataSummarization() const override;
+
+    //! Get the category encoder.
+    const CDataFrameCategoryEncoder& categoryEncoder() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -315,12 +351,12 @@ public:
     //! \name Test Only
     //@{
     //! Get the implementation.
-    CBoostedTreeImpl& impl();
+    CBoostedTreeImpl& impl() const;
 
     //! Get the weight that has been chosen for each feature for training.
     const TDoubleVec& featureWeightsForTraining() const;
 
-    //! \return The best hyperparameters.
+    //! \return The hyperparameters.
     const CBoostedTreeHyperparameters& hyperparameters() const;
 
     //! \return The classification weights vector.
@@ -333,7 +369,7 @@ private:
 private:
     CBoostedTree(core::CDataFrame& frame,
                  TTrainingStateCallback recordTrainingState,
-                 TImplUPtr&& impl);
+                 TImplUPtr&& impl) noexcept;
 
 private:
     TImplUPtr m_Impl;

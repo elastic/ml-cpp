@@ -62,7 +62,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                      const std::string& predictionFieldType,
                      T (rapidjson::Value::*extract)() const,
                      const std::vector<T>& expectedPredictions) {
-    // Prepare input data frame
+    // Prepare input data frame.
     const std::string predictionField{dependentVariableField + "_prediction"};
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
     const TStrVec categoricalColumns{"x1", "x2", "x3", "x4", "x5"};
@@ -74,9 +74,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
     auto frame = core::makeMainStorageDataFrame(columnNames.size()).first;
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
-    for (std::size_t i = 0; i < rows.size(); ++i) {
-        frame->parseAndWriteRow(
-            core::CVectorRange<const TStrVec>(rows[i], 0, rows[i].size()));
+    for (const auto& row : rows) {
+        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(row, 0, row.size()));
     }
     frame->finishWritingRows();
     BOOST_TEST_REQUIRE(frame->numberRows() == rows.size());
@@ -94,11 +93,12 @@ void testWriteOneRow(const std::string& dependentVariableField,
     rapidjson::Document jsonParameters;
     jsonParameters.Parse(specFactory.predictionParams(
         test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField));
-    auto parameters =
-        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters);
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
+    api::CDataFrameTrainBoostedTreeClassifierRunnerFactory factory;
+    auto placeholder = factory.make(*spec, jsonParameters);
+    const auto& runner =
+        static_cast<const api::CDataFrameTrainBoostedTreeClassifierRunner&>(*placeholder);
 
-    // Write results to the output stream
+    // Write results to the output stream.
     std::stringstream output;
     {
         core::CJsonOutputStreamWrapper outputStreamWrapper(output);
@@ -124,7 +124,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
             }
         });
     }
-    // Verify results
+
+    // Verify results.
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(output.str().c_str());
     BOOST_TEST_REQUIRE(arrayDoc.IsArray());

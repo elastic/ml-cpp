@@ -135,6 +135,9 @@ if [ -z "$JOB_NAME" ] ; then
     # check if CCACHE is available and use it if it's found
     if [ -d "/usr/lib/ccache" ] ; then
         PATH=/usr/lib/ccache/:$PATH
+    # on centos it should be in /usr/lib64/ccache when installed with yum.
+    elif [ -d "/usr/lib64/ccache" ] ; then
+        PATH=/usr/lib64/ccache/:$PATH
     # on Mac it should be /usr/local/lib when installed with brew
     elif [ -d "/usr/local/lib/ccache" ] ; then
         PATH=/usr/local/lib/ccache/:$PATH

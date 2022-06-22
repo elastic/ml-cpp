@@ -1,0 +1,23 @@
+diversipy           ==0.8
+jupyter             ==1.0.0
+matplotlib          ==3.3.4
+numpy               ==1.19.5
+pandas              ==1.1.5
+scikit-learn        ==0.24.1
+scipy               ==1.5.4
+seaborn             ==0.11.1
+libtmux             ==0.10.1
+graphviz            ==0.16
+pathlib2            ==2.3.5
+nbsmoke             ==0.5.0
+bump2version        ==1.0.1
+scikit-multiflow    ==0.5.3
+sacred              ==0.8.2
+google-crc32c       ==1.1.2
+google-cloud-storage==1.41.1
+elasticsearch       ==7.13.4
+eland               ==7.13.0b1
+deepmerge           ==0.3.0
+dask[complete]      ==2021.3.0
+plotly              ==5.3.1
+distro              ==1.6.0

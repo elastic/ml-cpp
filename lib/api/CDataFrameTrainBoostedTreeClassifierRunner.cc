@@ -11,8 +11,10 @@
 
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>
@@ -87,11 +89,12 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
 
 CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisParameters& parameters)
+    const CDataFrameAnalysisParameters& parameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
+          spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>()), frameAndDirectory} {
 
-    std::size_t numberClasses{parameters[NUM_CLASSES].as<std::size_t>()};
+    m_NumClasses = parameters[NUM_CLASSES].as<std::size_t>();
     auto classAssignmentObjective = parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(
         maths::analytics::CBoostedTree::E_MinimumRecall);
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
@@ -123,8 +126,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << CLASSIFICATION_WEIGHTS << " but got '"
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
     }
-    if (classificationWeights.size() > 0 && classificationWeights.size() != numberClasses) {
-        HANDLE_FATAL(<< "Input error: expected " << numberClasses << " " << CLASSIFICATION_WEIGHTS
+    if (classificationWeights.size() > 0 && classificationWeights.size() != m_NumClasses) {
+        HANDLE_FATAL(<< "Input error: expected " << m_NumClasses << " " << CLASSIFICATION_WEIGHTS
                      << " but got " << classificationWeights.size() << ".");
     }
 }
@@ -137,9 +140,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const auto& tree = this->boostedTree();
     this->writeOneRow(
         frame, tree.columnHoldingDependentVariable(),
-        [&](const TRowRef& row_) { return tree.readPrediction(row_); },
-        [&](const TRowRef& row_) { return tree.readAndAdjustPrediction(row_); },
-        row, writer, tree.shap());
+        [&](const TRowRef& row_) { return tree.prediction(row_); },
+        [&](const TRowRef& row_) { return tree.adjustedPrediction(row_); }, row,
+        writer, tree.shap());
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
@@ -313,6 +316,12 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
                      << "The number of rows read is '" << frame.numberRows() << "'.");
+    } else if (categoryCount != m_NumClasses) {
+        HANDLE_FATAL(<< "Input error: " << m_NumClasses << " provided for " << NUM_CLASSES
+                     << " but there are " << categoryCount << " in the data: "
+                     << core::CContainerPrinter::print(
+                            frame.categoricalColumnValues()[dependentVariableColumn])
+                     << ".");
     }
 }
 
@@ -332,9 +341,22 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
-    m_InferenceModelMetadata.hyperparameterImportance(
-        this->boostedTree().hyperparameterImportance());
-    m_InferenceModelMetadata.numberTrainingRows(this->boostedTree().numberTrainingRows());
+
+    switch (this->task()) {
+    case api_t::E_Encode:
+    case api_t::E_Predict:
+        break;
+    case api_t::E_Train:
+    case api_t::E_Update:
+        m_InferenceModelMetadata.hyperparameterImportance(
+            this->boostedTree().hyperparameterImportance());
+    }
+    m_InferenceModelMetadata.numTrainRows(this->boostedTree().numberTrainRows());
+    m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
+    m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
+        this->boostedTree().dataSummarization().manhattan()));
+    m_InferenceModelMetadata.trainedModelMemoryUsage(
+        core::CMemory::dynamicSize(this->boostedTree().trainedModel()));
     return m_InferenceModelMetadata;
 }
 
@@ -359,7 +381,9 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
+    const CDataFrameAnalysisSpecification&,
+    TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
                  << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
@@ -368,11 +392,13 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnal
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters) const {
+    const rapidjson::Value& jsonParameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeClassifierRunner::parameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
-    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec, parameters);
+    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(
+        spec, parameters, frameAndDirectory);
 }
 
 const std::string CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME{"classification"};

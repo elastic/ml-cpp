@@ -9,13 +9,13 @@
  * limitation.
  */
 
-#include "core/CContainerPrinter.h"
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/analytics/CBoostedTreeLeafNodeStatisticsIncremental.h>
+#include <maths/analytics/CBoostedTreeLeafNodeStatisticsScratch.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     using TNodeVec = maths::analytics::CBoostedTree::TNodeVec;
 
     std::size_t cols{2};
-    TSizeVec extraColumns{2, 3, 4, 5, 6};
+    TSizeVec extraColumns{2, 3, 4, 5, 0, 6};
     std::size_t rows{50};
     std::size_t numberThreads{1};
 
@@ -449,8 +449,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             }
         });
 
-        maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
-        workspace.reinitialize(numberThreads, featureSplits, 1);
+        maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace workspace{1};
+        workspace.reinitialize(numberThreads, featureSplits);
 
         core::CPackedBitVector trainingRowMask(rows, true);
 
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
         TNodeVec tree(1);
 
-        auto rootSplit = std::make_shared<maths::analytics::CBoostedTreeLeafNodeStatistics>(
+        auto rootSplit = std::make_shared<maths::analytics::CBoostedTreeLeafNodeStatisticsScratch>(
             0 /*root*/, extraColumns, 1, *frame, parameters, featureSplits,
             treeFeatureBag, nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace);
 
@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
             splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
-            rootSplit->curvature(), tree);
+            rootSplit->gainVariance(), rootSplit->curvature(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -593,10 +593,11 @@ BOOST_AUTO_TEST_CASE(testComputeBestSplitStatisticsThreading) {
     std::iota(featureBag.begin(), featureBag.end(), 0);
 
     for (std::size_t p : {1, 3}) {
+        LOG_DEBUG(<< "CBoostedTreeLeafNodeStatisticsScratch(p = " << p << ")");
         for (std::size_t t = 0; t < 100; ++t) {
             auto derivatives = generateSplitsDerivatives(rng, numberCandidateSplits, p);
             derivatives.remapCurvature(1, featureBag);
-            maths::analytics::CBoostedTreeLeafNodeStatistics statistics{
+            maths::analytics::CBoostedTreeLeafNodeStatisticsScratch statistics{
                 extraColumns, p, candidateSplits, std::move(derivatives)};
 
             auto singleThreadedBestSplit = statistics.computeBestSplitStatistics(
@@ -606,6 +607,44 @@ BOOST_AUTO_TEST_CASE(testComputeBestSplitStatisticsThreading) {
 
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Gain,
                                 multiThreadedBestSplit.s_Gain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_GainVariance,
+                                multiThreadedBestSplit.s_GainVariance);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Curvature,
+                                multiThreadedBestSplit.s_Curvature);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Feature,
+                                multiThreadedBestSplit.s_Feature);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_SplitAt,
+                                multiThreadedBestSplit.s_SplitAt);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_MinimumChildRowCount,
+                                multiThreadedBestSplit.s_MinimumChildRowCount);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_LeftChildHasFewerRows,
+                                multiThreadedBestSplit.s_LeftChildHasFewerRows);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_AssignMissingToLeft,
+                                multiThreadedBestSplit.s_AssignMissingToLeft);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_MinimumChildRowCount,
+                                multiThreadedBestSplit.s_MinimumChildRowCount);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_LeftChildMaxGain,
+                                multiThreadedBestSplit.s_LeftChildMaxGain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_RightChildMaxGain,
+                                multiThreadedBestSplit.s_RightChildMaxGain);
+        }
+
+        LOG_DEBUG(<< "CBoostedTreeLeafNodeStatisticsIncremental(p = " << p << ")");
+        for (std::size_t t = 0; t < 100; ++t) {
+            auto derivatives = generateSplitsDerivatives(rng, numberCandidateSplits, p);
+            derivatives.remapCurvature(1, featureBag);
+            maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental statistics{
+                extraColumns, p, candidateSplits, std::move(derivatives)};
+
+            auto singleThreadedBestSplit = statistics.computeBestSplitStatistics(
+                1 /*number threads*/, regularization, featureBag);
+            auto multiThreadedBestSplit = statistics.computeBestSplitStatistics(
+                4 /*number threads*/, regularization, featureBag);
+
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Gain,
+                                multiThreadedBestSplit.s_Gain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_GainVariance,
+                                multiThreadedBestSplit.s_GainVariance);
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Curvature,
                                 multiThreadedBestSplit.s_Curvature);
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Feature,
