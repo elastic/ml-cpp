@@ -11,7 +11,6 @@
 
 project("ML Test")
 
-set(ML_DEPENDENCIES third_party)
 set(ML_LINK_LIBRARIES 
   ${Boost_LIBRARIES_WITH_UNIT_TEST}
   MlApi

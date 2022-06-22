@@ -18,17 +18,18 @@ add_custom_target(licenses ALL
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_custom_target(
-    third_party
-    DEPENDS eigen 3rd_party.sh
-    COMMAND bash -c "./3rd_party.sh --add ${INSTALL_DIR}"
+# Install 3rd party libraries in our build tree
+# as part of the CMake configuration step - avoiding
+# the need for it to be done on every build
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${INSTALL_DIR} -P ./3rd_party.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Pull the Eigen repo as part of the configuration step
 # thus avoiding any race conditions with parallel builds
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -P "./pull-eigen.cmake"
+    COMMAND ${CMAKE_COMMAND} -P ./pull-eigen.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
