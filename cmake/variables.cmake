@@ -199,10 +199,10 @@ endif()
 string(TIMESTAMP BUILD_YEAR "%Y")
 
 if(WIN32)
-  set(USER_NAME $ENV{USERNAME})
+  set(ML_USER $ENV{USERNAME})
 else()
-  execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME
+  execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE ML_USER
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_NUM OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)

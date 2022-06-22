@@ -28,11 +28,6 @@ endif()
 # that is linked into the Windows executables
 #
 function(ml_generate_resources _target)
-  string(TIMESTAMP BUILD_YEAR "%Y")
-
-  set(ML_USER $ENV{USERNAME})
-
-  execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   file(READ ${CMAKE_SOURCE_DIR}/gradle.properties GRADLE_PROPERTIES)
   if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9.]+)")
