@@ -43,7 +43,7 @@ function(ml_generate_resources _target)
     set(ML_VERSION_STR "${ML_VERSION_STR}-$ENV{VERSION_QUALIFIER}")
   endif()
 
-  if(DEFINED ENV{SNAPSHOT} AND $ENV{SNAPSHOT} NOT STREQUAL "no")
+  if(NOT ENV{SNAPSHOT} STREQUAL no)
     set(ML_VERSION_STR "${ML_VERSION_STR}-SNAPSHOT")
   endif()
 
