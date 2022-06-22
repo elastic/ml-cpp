@@ -13,9 +13,11 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLoopProgress.h>
+#include <core/CPackedBitVector.h>
 
 CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec)
     : ml::api::CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
+    this->computeAndSaveExecutionStrategy();
 }
 
 std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
@@ -24,6 +26,11 @@ std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
 
 std::size_t CDataFrameMockAnalysisRunner::dataFrameSliceCapacity() const {
     return 10000;
+}
+
+ml::core::CPackedBitVector
+CDataFrameMockAnalysisRunner::rowsToWriteMask(const ml::core::CDataFrame& frame) const {
+    return {frame.numberRows(), true};
 }
 
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
@@ -67,13 +74,15 @@ const std::string& CDataFrameMockAnalysisRunnerFactory::name() const {
 }
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const {
+CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
+                                              TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                                              const rapidjson::Value&) const {
+                                              const rapidjson::Value&,
+                                              TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }
 

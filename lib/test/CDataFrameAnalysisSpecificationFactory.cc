@@ -199,6 +199,30 @@ CDataFrameAnalysisSpecificationFactory::earlyStoppingEnabled(bool earlyStoppingE
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::task(TTask task) {
+    m_Task = task;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::dataSummarizationFraction(double fraction) {
+    m_DataSummarizationFraction = fraction;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::previousTrainLossGap(double lossGap) {
+    m_PreviousTrainLossGap = lossGap;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::previousTrainNumberRows(std::size_t number) {
+    m_PreviousTrainNumberRows = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -269,7 +293,7 @@ std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
+CDataFrameAnalysisSpecificationFactory::outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
 
     std::size_t rows{m_Rows ? *m_Rows : 110};
     std::size_t columns{m_Columns ? *m_Columns : 5};
@@ -282,7 +306,7 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, frameAndDirectory);
 }
 
 std::string
@@ -302,35 +326,51 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     writer.String(dependentVariable);
     if (m_Alpha >= 0.0) {
         writer.Key(TRunner::ALPHA);
+        writer.StartArray();
         writer.Double(m_Alpha);
+        writer.EndArray();
     }
     if (m_Lambda >= 0.0) {
         writer.Key(TRunner::LAMBDA);
+        writer.StartArray();
         writer.Double(m_Lambda);
+        writer.EndArray();
     }
     if (m_Gamma >= 0.0) {
         writer.Key(TRunner::GAMMA);
+        writer.StartArray();
         writer.Double(m_Gamma);
+        writer.EndArray();
     }
     if (m_SoftTreeDepthLimit >= 0.0) {
         writer.Key(TRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.StartArray();
         writer.Double(m_SoftTreeDepthLimit);
+        writer.EndArray();
     }
     if (m_SoftTreeDepthTolerance >= 0.0) {
         writer.Key(TRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.StartArray();
         writer.Double(m_SoftTreeDepthTolerance);
+        writer.EndArray();
     }
     if (m_Eta > 0.0) {
         writer.Key(TRunner::ETA);
+        writer.StartArray();
         writer.Double(m_Eta);
+        writer.EndArray();
     }
     if (m_EtaGrowthRatePerTree > 0.0) {
         writer.Key(TRunner::ETA_GROWTH_RATE_PER_TREE);
+        writer.StartArray();
         writer.Double(m_EtaGrowthRatePerTree);
+        writer.EndArray();
     }
     if (m_DownsampleFactor > 0.0) {
         writer.Key(TRunner::DOWNSAMPLE_FACTOR);
+        writer.StartArray();
         writer.Double(m_DownsampleFactor);
+        writer.EndArray();
     }
     if (m_MaximumNumberTrees > 0) {
         writer.Key(TRunner::MAX_TREES);
@@ -338,7 +378,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     }
     if (m_FeatureBagFraction > 0.0) {
         writer.Key(TRunner::FEATURE_BAG_FRACTION);
+        writer.StartArray();
         writer.Double(m_FeatureBagFraction);
+        writer.EndArray();
     }
     if (m_NumberRoundsPerHyperparameter > 0) {
         writer.Key(TRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
@@ -363,6 +405,34 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_EarlyStoppingEnabled == false) {
         writer.Key(TRunner::EARLY_STOPPING_ENABLED);
         writer.Bool(m_EarlyStoppingEnabled);
+    }
+    if (m_DataSummarizationFraction > 0.0) {
+        writer.Key(TRunner::DATA_SUMMARIZATION_FRACTION);
+        writer.Double(m_DataSummarizationFraction);
+    }
+    if (m_PreviousTrainLossGap > 0.0) {
+        writer.Key(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
+        writer.Double(m_PreviousTrainLossGap);
+    }
+    if (m_PreviousTrainNumberRows > 0) {
+        writer.Key(TRunner::PREVIOUS_TRAIN_NUM_ROWS);
+        writer.Uint64(m_PreviousTrainNumberRows);
+    }
+
+    writer.Key(TRunner::TASK);
+    switch (m_Task) {
+    case TTask::E_Encode:
+        writer.String(TRunner::TASK_ENCODE);
+        break;
+    case TTask::E_Train:
+        writer.String(TRunner::TASK_TRAIN);
+        break;
+    case TTask::E_Update:
+        writer.String(TRunner::TASK_UPDATE);
+        break;
+    case TTask::E_Predict:
+        writer.String(TRunner::TASK_PREDICT);
+        break;
     }
 
     if (analysis == classification()) {
@@ -410,7 +480,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
                 break;
             }
         }
-        if (m_RegressionLossFunctionParameter) {
+        if (m_RegressionLossFunctionParameter != boost::none) {
             writer.Key(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
             writer.Double(m_RegressionLossFunctionParameter.get());
         }
@@ -422,8 +492,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analysis,
-                                                       const std::string& dependentVariable) const {
+CDataFrameAnalysisSpecificationFactory::predictionSpec(
+    const std::string& analysis,
+    const std::string& dependentVariable,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
 
     std::size_t rows{m_Rows ? *m_Rows : 100};
     std::size_t columns{m_Columns ? *m_Columns : 5};
@@ -438,12 +510,18 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(
-            spec, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
-    } else if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *m_PersisterSupplier);
-    } else {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+            spec, frameAndDirectory, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
     }
+    if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, frameAndDirectory, *m_PersisterSupplier);
+    }
+    if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier == nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, frameAndDirectory, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
+            *m_RestoreSearcherSupplier);
+    }
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, frameAndDirectory);
 }
 }
 }

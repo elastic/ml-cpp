@@ -33,6 +33,7 @@
 #include <locale>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace ml {
@@ -349,20 +350,22 @@ private:
 //! DESCRIPTION:\n
 //! This stores and manages persistence of all the boosted tree training and
 //! incremental training hyperparameters. It also provides functionality for
-//! optimizing these using a combination of random (Sobolov sequence) search
+//! optimizing these using a combination of random (Sobolev sequence) search
 //! and Bayesian Optimisation.
 class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
-    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalDoubleSizePr = boost::optional<std::pair<double, std::size_t>>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
+    using TVector = common::CDenseVector<double>;
     using TVector3x1 = common::CVectorNx1<double, 3>;
-    using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
 
     //! \brief The arguments to the initial search we perform for each parameter.
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
@@ -428,6 +431,11 @@ public:
 public:
     CBoostedTreeHyperparameters();
 
+    //! Set if we're incremental training.
+    void incrementalTraining(bool value) { m_IncrementalTraining = value; }
+    //! \return True if we are incremental training.
+    bool incrementalTraining() const { return m_IncrementalTraining; }
+
     //! Set whether we should scale regularisation hyperaparameters as we adjust
     //! the downsample factor.
     void disableScaling(bool disabled) { m_ScalingDisabled = disabled; }
@@ -480,6 +488,15 @@ public:
     //! Get the penalty which applies to a leaf at depth \p depth.
     double penaltyForDepth(std::size_t depth) const;
 
+    //! Get the writeable tolerance in the depth tree depth limit.
+    TDoubleParameter& treeTopologyChangePenalty() {
+        return m_TreeTopologyChangePenalty;
+    }
+    //! Get the tolerance in the depth tree depth limit.
+    const TDoubleParameter& treeTopologyChangePenalty() const {
+        return m_TreeTopologyChangePenalty;
+    }
+
     //! Get the writeable data downsample factor when computing loss derivatives.
     TDoubleParameter& downsampleFactor() { return m_DownsampleFactor; }
     //! Get the data downsample factor when computing loss derivatives.
@@ -494,9 +511,9 @@ public:
         return m_FeatureBagFraction;
     }
 
-    //! Get the writeable weight shinkage.
+    //! Get the writeable weight shrinkage.
     TDoubleParameter& eta() { return m_Eta; }
-    //! Get the weight shinkage.
+    //! Get the weight shrinkage.
     const TDoubleParameter& eta() const { return m_Eta; }
 
     //! Get the writeable growth in weight shrinkage per tree which is added.
@@ -504,6 +521,23 @@ public:
     //! Get the growth in weight shrinkage per tree which is added.
     const TDoubleParameter& etaGrowthRatePerTree() const {
         return m_EtaGrowthRatePerTree;
+    }
+
+    //! Get the writeable weight shrinkage to use when retraining a tree.
+    TDoubleParameter& retrainedTreeEta() { return m_RetrainedTreeEta; }
+    //! Get the weight shrinkage to use when retraining a tree.
+    const TDoubleParameter& retrainedTreeEta() const {
+        return m_RetrainedTreeEta;
+    }
+
+    //! Compute the learn rate for the tree at \p index.
+    double etaForTreeAtPosition(std::size_t index) const;
+
+    //! Get the writeable multiplier of prediction change penalty.
+    TDoubleParameter& predictionChangeCost() { return m_PredictionChangeCost; }
+    //! Get the multiplier of prediction change penalty.
+    const TDoubleParameter& predictionChangeCost() const {
+        return m_PredictionChangeCost;
     }
 
     //! Set the maximum number of trees to use.
@@ -525,47 +559,37 @@ public:
     void bayesianOptimisationRestarts(std::size_t restarts);
 
     //! Get the maximum number of iterations used in testLossLineSearch.
-    std::size_t maxLineSearchIterations() const { return 10; }
+    static std::size_t maxLineSearchIterations() { return 10; }
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberToTune() const;
 
     //! Reset search state.
-    void resetSearch();
+    void resetFineTuneSearch();
 
     //! Compute the fine tune search interval for \p parameter.
-    void initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
-                                          TDoubleParameter& parameter) const;
-
-    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
-    //! At the end we use a smooth curve fit through all test loss values (using
-    //! LOWESS regression) and use this to get a best estimate of where the true
-    //! minimum occurs.
     //!
-    //! \return A vector comprising
-    //! <pre>
-    //!   | minimum value for fine tune |
-    //!   |       initial value         |
-    //!   | maximum value for fine tune |
-    //! </pre>
-    TOptionalVector3x1 testLossLineSearch(const CInitializeFineTuneArguments& args,
-                                          double intervalLeftEnd,
-                                          double intervalRightEnd) const;
+    //! \return The best number of trees to use for the current hyperparameter settings.
+    TOptionalDoubleSizePr
+    initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                     TDoubleParameter& parameter) const;
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeSearch();
+    void initializeFineTuneSearch(double lossGap, std::size_t numberTrees);
+
+    //! Check if search is making no progress improving the test loss.
+    bool optimisationMakingNoProgress() const;
 
     //! Initialize a search for the best hyperparameters.
-    void startSearch();
+    void startFineTuneSearch();
 
     //! Check if the search for the best hyperparameter values has finished.
-    bool searchNotFinished() const {
-        return m_StoppedHyperparameterOptimizationEarly == false &&
-               m_CurrentRound < m_NumberRounds;
+    bool fineTuneSearchNotFinished() const {
+        return m_StopHyperparameterOptimizationEarly == false && m_CurrentRound < m_NumberRounds;
     }
 
     //! Start a new round of hyperparameter search.
-    void startNextSearchRound() { ++m_CurrentRound; }
+    void startNextRound() { ++m_CurrentRound; }
 
     //! Get the current round of the search for the best hyperparameters.
     std::size_t currentRound() const { return m_CurrentRound; }
@@ -575,6 +599,9 @@ public:
 
     //! Get the best forest test loss.
     double bestForestTestLoss() const { return m_BestForestTestLoss; }
+
+    //! Get the gap between the train and test loss for the best forest.
+    double bestForestLossGap() const { return m_BestForestLossGap; }
 
     //! Update with the statistics for the current round.
     void addRoundStats(const TMeanAccumulator& meanForestSizeAccumulator, double meanTestLoss);
@@ -587,8 +614,10 @@ public:
     //!
     //! \return True if we they are the best hyperparameters.
     bool captureBest(const TMeanVarAccumulator& testLossMoments,
-                     std::size_t numberTrees,
-                     double numberNodes);
+                     double meanLossGap,
+                     double numberKeptNodes,
+                     double numberNewNodes,
+                     std::size_t numberTrees);
 
     //! Restore the hyperparameters saved by captureBest.
     void restoreBest();
@@ -597,7 +626,7 @@ public:
     void captureScale();
 
     //! The penalty to apply based on the model size.
-    double modelSizePenalty(double numberNodes) const;
+    double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
 
     //! Compute the loss at \p n standard deviations of \p lossMoments above
     //! the mean.
@@ -647,25 +676,46 @@ private:
     using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TDoubleDoubleDoubleSizeTupleVec =
+        std::vector<std::tuple<double, double, double, std::size_t>>;
+    using TOptionalVector3x1 = boost::optional<TVector3x1>;
+    using TIndexVec = std::vector<TVector::TIndexType>;
+    using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
+    using TVectorDoublePr = std::pair<TVector, double>;
+    using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
 
 private:
     void initializeTunableHyperparameters();
     void initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
                                    double intervalLeftEnd,
                                    double intervalRightEnd,
-                                   TDoubleDoublePrVec& testLosses) const;
-    void fineTineTestLoss(const CInitializeFineTuneArguments& args,
+                                   TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1DoubleSizeTr testLossLineSearch(const CInitializeFineTuneArguments& args,
+                                                      double intervalLeftEnd,
+                                                      double intervalRightEnd) const;
+    void fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                           double intervalLeftEnd,
                           double intervalRightEnd,
-                          TDoubleDoublePrVec& testLosses) const;
-    TVector3x1 minimizeTestLoss(double intervalLeftEnd,
-                                double intervalRightEnd,
-                                TDoubleDoublePrVec testLosses) const;
+                          TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1DoubleSizeTr
+    minimizeTestLoss(double intervalLeftEnd,
+                     double intervalRightEnd,
+                     TDoubleDoubleDoubleSizeTupleVec testLosses) const;
+    void checkIfCanSkipFineTuneSearch(const TIndexVec& relevantParameters,
+                                      double lossGap,
+                                      std::size_t numberTrees);
+    void captureHyperparametersAndLoss(double loss);
+    TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
+    void setHyperparameterValues(TVector parameters);
+    //! \note Only tunable parameters should be passed in \p parameters. If \p reestimate
+    //! is set to true, kernel parameters of the GP are re-estimated.
+    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
+    void resetBayesianOptimization();
     void saveCurrent();
 
 private:
+    bool m_IncrementalTraining{false};
+
     //! \name Hyperparameters
     //@{
     TDoubleParameter m_DepthPenaltyMultiplier{0.0, TDoubleParameter::E_LogSearch};
@@ -673,17 +723,20 @@ private:
     TDoubleParameter m_LeafWeightPenaltyMultiplier{0.0, TDoubleParameter::E_LogSearch};
     TDoubleParameter m_SoftTreeDepthLimit{0.0, TDoubleParameter::E_LinearSearch};
     TDoubleParameter m_SoftTreeDepthTolerance{1.0, TDoubleParameter::E_LinearSearch};
+    TDoubleParameter m_TreeTopologyChangePenalty{0.0, TDoubleParameter::E_LogSearch};
     TDoubleParameter m_DownsampleFactor{0.5, TDoubleParameter::E_LogSearch};
     TDoubleParameter m_FeatureBagFraction{0.5, TDoubleParameter::E_LogSearch};
     TDoubleParameter m_Eta{0.1, TDoubleParameter::E_LogSearch};
     TDoubleParameter m_EtaGrowthRatePerTree{1.05, TDoubleParameter::E_LinearSearch};
+    TDoubleParameter m_RetrainedTreeEta{1.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_PredictionChangeCost{0.5, TDoubleParameter::E_LogSearch};
     TSizeParameter m_MaximumNumberTrees{20, TSizeParameter::E_LinearSearch};
     //@}
 
     //@ \name Hyperparameter Optimisation
     //@{
-    bool m_StopHyperparameterOptimizationEarly{true};
-    bool m_StoppedHyperparameterOptimizationEarly{false};
+    bool m_EarlyHyperparameterOptimizationStoppingEnabled{true};
+    bool m_StopHyperparameterOptimizationEarly{false};
     bool m_ScalingDisabled{false};
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
     TOptionalSize m_BayesianOptimisationRestarts;
@@ -693,9 +746,12 @@ private:
     std::size_t m_NumberRounds{1};
     std::size_t m_CurrentRound{0};
     double m_BestForestTestLoss{boosted_tree_detail::INF};
-    double m_BestForestNumberNodes{0.0};
+    double m_BestForestNumberKeptNodes{0.0};
+    double m_BestForestNumberNewNodes{0.0};
+    double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
+    TVectorDoublePrVec m_LineSearchHyperparameterLosses;
     //@}
 };
 }

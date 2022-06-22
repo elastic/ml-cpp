@@ -10,87 +10,20 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <core/CBase64Filter.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
-#include <core/Constants.h>
 
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
 #include <iterator>
 #include <memory>
-#include <ostream>
 
 namespace ml {
 namespace api {
 
 namespace {
-// clang-format off
-const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
-const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
-const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
-const std::string JSON_COMPRESSED_INFERENCE_MODEL_TAG{"compressed_inference_model"};
-const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
-const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
-const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
-const std::string JSON_DEFINITION_TAG{"definition"};
-const std::string JSON_DOC_NUM_TAG{"doc_num"};
-const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
-const std::string JSON_ENSEMBLE_TAG{"ensemble"};
-const std::string JSON_EOS_TAG{"eos"};
-const std::string JSON_EXPONENT_TAG{"exponent"};
-const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
-const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
-const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
-const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
-const std::string JSON_FIELD_LENGTH_TAG{"field_length"};
-const std::string JSON_FIELD_NAMES_TAG{"field_names"};
-const std::string JSON_FIELD_TAG{"field"};
-const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
-const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
-const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
-const std::string JSON_HOT_MAP_TAG{"hot_map"};
-const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
-const std::string JSON_LEFT_CHILD_TAG{"left_child"};
-const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
-const std::string JSON_LT{"lt"};
-const std::string JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
-const std::string JSON_NODE_INDEX_TAG{"node_index"};
-const std::string JSON_NUM_CLASSES_TAG{"num_classes"};
-const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
-const std::string JSON_NUM_LEAVES_TAG{"num_leaves"};
-const std::string JSON_NUM_NODES_TAG{"num_nodes"};
-const std::string JSON_NUM_OPERATIONS_TAG{"num_operations"};
-const std::string JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG{"num_output_processor_weights"};
-const std::string JSON_NUMBER_SAMPLES_TAG{"number_samples"};
-const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
-const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
-const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
-const std::string JSON_SPLIT_FEATURE_TAG{"split_feature"};
-const std::string JSON_SPLIT_GAIN_TAG{"split_gain"};
-const std::string JSON_TARGET_MAP_TAG{"target_map"};
-const std::string JSON_TARGET_MEAN_ENCODING_TAG{"target_mean_encoding"};
-const std::string JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
-const std::string JSON_TARGET_TYPE_REGRESSION{"regression"};
-const std::string JSON_TARGET_TYPE_TAG{"target_type"};
-const std::string JSON_THRESHOLD_TAG{"threshold"};
-const std::string JSON_TOTAL_DEFINITION_LENGTH_TAG{"total_definition_length"};
-const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
-const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
-const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
-const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
-const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
-const std::string JSON_TREE_TAG{"tree"};
-const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
-const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
-const std::string JSON_WEIGHTS_TAG{"weights"};
-// clang-format on
-
-const std::size_t MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 
 auto toRapidjsonValue(std::size_t value) {
     return rapidjson::Value{static_cast<std::uint64_t>(value)};
@@ -112,7 +45,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.Double(value);
     }
@@ -124,7 +56,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.String(value);
     }
@@ -254,11 +185,11 @@ void CEnsemble::addToJsonStream(TGenericLineWriter& writer) const {
     writer.EndObject();
 }
 
-void CEnsemble::featureNames(const TStringVec& featureNames) {
-    this->CTrainedModel::featureNames(featureNames);
+void CEnsemble::featureNames(TStringVec featureNames) {
     for (auto& trainedModel : m_TrainedModels) {
         trainedModel->featureNames(featureNames);
     }
+    this->CTrainedModel::featureNames(std::move(featureNames));
 }
 
 void CEnsemble::aggregateOutput(TAggregateOutputUPtr&& aggregateOutput) {
@@ -284,22 +215,19 @@ void CEnsemble::targetType(ETargetType targetType) {
     }
 }
 
-CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
-    boost::unordered_set<std::string> set;
+const CEnsemble::TStringVec& CEnsemble::removeUnusedFeatures() {
+    boost::unordered_set<std::string> uniqueUsedFeatures;
     for (auto& trainedModel : this->trainedModels()) {
-        TStringVec vec(trainedModel->removeUnusedFeatures());
-        set.insert(vec.begin(), vec.end());
+        const auto& usedFeatures = trainedModel->removeUnusedFeatures();
+        uniqueUsedFeatures.insert(usedFeatures.begin(), usedFeatures.end());
     }
-    TStringVec selectedFeatureNames;
-    selectedFeatureNames.reserve(set.size());
-    std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
-    std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
-    this->CTrainedModel::featureNames(selectedFeatureNames);
-    return selectedFeatureNames;
-}
-
-const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
-    return this->CTrainedModel::featureNames();
+    TStringVec usedFeatures(uniqueUsedFeatures.begin(), uniqueUsedFeatures.end());
+    std::sort(usedFeatures.begin(), usedFeatures.end());
+    // It is very important that we call the base class method here because we don't
+    // want to reset feature names of the individual models which may be referenced
+    // by position in their feature name vector.
+    this->CTrainedModel::featureNames(std::move(usedFeatures));
+    return this->featureNames();
 }
 
 void CEnsemble::classificationLabels(const TStringVec& classificationLabels) {
@@ -384,82 +312,29 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
     return m_TreeStructure;
 }
 
-CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
-    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+const CTree::TStringVec& CTree::removeUnusedFeatures() {
+    boost::unordered_map<std::size_t, std::size_t> usedFeatureIndices;
     for (auto& treeNode : m_TreeStructure) {
         if (treeNode.leaf() == false) {
-            std::size_t adjustedIndex{selectedFeatureIndices
-                                          .emplace(treeNode.splitFeature(),
-                                                   selectedFeatureIndices.size())
-                                          .first->second};
+            std::size_t adjustedIndex{
+                usedFeatureIndices
+                    .emplace(treeNode.splitFeature(), usedFeatureIndices.size())
+                    .first->second};
             treeNode.splitFeature(adjustedIndex);
         }
     }
-    TStringVec selectedFeatureNames(selectedFeatureIndices.size());
+    TStringVec usedFeatures(usedFeatureIndices.size());
     auto& featureNames = this->featureNames();
-    for (auto i = selectedFeatureIndices.begin(); i != selectedFeatureIndices.end(); ++i) {
-        selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
+    for (const auto& index : usedFeatureIndices) {
+        usedFeatures[index.second] = std::move(featureNames[index.first]);
     }
-    this->featureNames(std::move(selectedFeatureNames));
+    this->featureNames(std::move(usedFeatures));
     return this->featureNames();
 }
 
-std::string CInferenceModelDefinition::jsonString() const {
-    std::ostringstream jsonStrm;
-    this->jsonStream(jsonStrm);
-    return jsonStrm.str();
-}
-
-void CInferenceModelDefinition::jsonStream(std::ostream& jsonStrm) const {
-    rapidjson::OStreamWrapper wrapper{jsonStrm};
-    TGenericLineWriter writer{wrapper};
-    this->addToJsonStream(writer);
-    jsonStrm.flush();
-}
-
-std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
-    std::stringstream compressedStream;
-    using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
-    {
-        TFilteredOutput outFilter;
-        outFilter.push(boost::iostreams::gzip_compressor());
-        outFilter.push(core::CBase64Encoder());
-        outFilter.push(compressedStream);
-        this->jsonStream(outFilter);
-    }
-    return compressedStream;
-}
-
-void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    std::stringstream compressedStream{this->jsonCompressedStream()};
-    std::streamsize processed{0};
-    compressedStream.seekg(0, compressedStream.end);
-    std::streamsize remained{compressedStream.tellg()};
-    compressedStream.seekg(0, compressedStream.beg);
-    std::size_t docNum{0};
-    std::string buffer;
-    while (remained > 0) {
-        std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
-        buffer.clear();
-        std::copy_n(std::istreambuf_iterator<char>(compressedStream.seekg(processed)),
-                    bytesToProcess, std::back_inserter(buffer));
-        remained -= bytesToProcess;
-        processed += bytesToProcess;
-        writer.StartObject();
-        writer.Key(JSON_COMPRESSED_INFERENCE_MODEL_TAG);
-        writer.StartObject();
-        writer.Key(JSON_DOC_NUM_TAG);
-        writer.Uint64(docNum);
-        writer.Key(JSON_DEFINITION_TAG);
-        writer.String(buffer);
-        if (remained == 0) {
-            writer.Key(JSON_EOS_TAG);
-            writer.Bool(true);
-        }
-        writer.EndObject();
-        writer.EndObject();
-        ++docNum;
-    }
+void CInferenceModelDefinition::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
+    this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
+        JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG, writer);
 }
 
 void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) const {
@@ -519,8 +394,12 @@ const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
     return m_FeatureNames;
 }
 
-void CTrainedModel::featureNames(const TStringVec& featureNames) {
-    m_FeatureNames = featureNames;
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
+    return m_FeatureNames;
+}
+
+void CTrainedModel::featureNames(TStringVec featureNames) {
+    m_FeatureNames = std::move(featureNames);
 }
 
 void CTrainedModel::targetType(ETargetType targetType) {
@@ -529,14 +408,6 @@ void CTrainedModel::targetType(ETargetType targetType) {
 
 CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
-}
-
-CTrainedModel::TStringVec& CTrainedModel::featureNames() {
-    return m_FeatureNames;
-}
-
-void CTrainedModel::featureNames(TStringVec&& featureNames) {
-    m_FeatureNames = std::move(featureNames);
 }
 
 const CTrainedModel::TOptionalStringVec& CTrainedModel::classificationLabels() const {
@@ -553,6 +424,40 @@ const CTrainedModel::TOptionalDoubleVec& CTrainedModel::classificationWeights() 
 
 void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
     m_ClassificationWeights = std::move(classificationWeights);
+}
+
+CTrainedModel::CFeatureNameProvider::CFeatureNameProvider(TStrVec fieldNames, TStrVecVec categoryNames)
+    : m_FieldNames{std::move(fieldNames)}, m_CategoryNames{std::move(categoryNames)} {
+}
+
+const std::string&
+CTrainedModel::CFeatureNameProvider::fieldName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex];
+}
+
+const std::string&
+CTrainedModel::CFeatureNameProvider::category(std::size_t inputColumnIndex,
+                                              std::size_t hotCategory) const {
+    return m_CategoryNames[inputColumnIndex][hotCategory];
+}
+
+std::string CTrainedModel::CFeatureNameProvider::identityEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex];
+}
+
+std::string
+CTrainedModel::CFeatureNameProvider::oneHotEncodingName(std::size_t inputColumnIndex,
+                                                        std::size_t hotCategory) const {
+    return m_FieldNames[inputColumnIndex] + "_" +
+           m_CategoryNames[inputColumnIndex][hotCategory];
+}
+
+std::string CTrainedModel::CFeatureNameProvider::targetMeanEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex] + "_targetmean";
+}
+
+std::string CTrainedModel::CFeatureNameProvider::frequencyEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex] + "_frequency";
 }
 
 CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
@@ -982,5 +887,63 @@ void CExponent::addToJsonStream(TGenericLineWriter& writer) const {
 const std::string& CExponent::stringType() const {
     return JSON_EXPONENT_TAG;
 }
+
+// clang-format off
+const std::string CAggregateOutput::JSON_WEIGHTS_TAG{"weights"};
+const std::string CEncoding::CSizeInfo::JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
+const std::string CEncoding::CSizeInfo::JSON_FIELD_LENGTH_TAG{"field_length"};
+const std::string CEncoding::CSizeInfo::JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
+const std::string CEncoding::JSON_FEATURE_NAME_TAG{"feature_name"};
+const std::string CEncoding::JSON_FIELD_TAG{"field"};
+const std::string CEnsemble::CSizeInfo::JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
+const std::string CEnsemble::CSizeInfo::JSON_NUM_OPERATIONS_TAG{"num_operations"};
+const std::string CEnsemble::CSizeInfo::JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG{"num_output_processor_weights"};
+const std::string CEnsemble::CSizeInfo::JSON_TREE_SIZES_TAG{"tree_sizes"};
+const std::string CEnsemble::JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
+const std::string CEnsemble::JSON_ENSEMBLE_TAG{"ensemble"};
+const std::string CEnsemble::JSON_TRAINED_MODELS_TAG{"trained_models"};
+const std::string CExponent::JSON_EXPONENT_TAG{"exponent"};
+const std::string CFrequencyEncoding::JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
+const std::string CFrequencyEncoding::JSON_FREQUENCY_MAP_TAG{"frequency_map"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
+const std::string CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG{"compressed_inference_model"};
+const std::string CInferenceModelDefinition::JSON_DEFINITION_TAG{"definition"};
+const std::string CInferenceModelDefinition::JSON_PREPROCESSORS_TAG{"preprocessors"};
+const std::string CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG{"trained_model"};
+const std::string CLogisticRegression::JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
+const std::string COneHotEncoding::CSizeInfo::JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
+const std::string COneHotEncoding::JSON_HOT_MAP_TAG{"hot_map"};
+const std::string COneHotEncoding::JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
+const std::string CTargetMeanEncoding::JSON_DEFAULT_VALUE_TAG{"default_value"};
+const std::string CTargetMeanEncoding::JSON_TARGET_MAP_TAG{"target_map"};
+const std::string CTargetMeanEncoding::JSON_TARGET_MEAN_ENCODING_TAG{"target_mean_encoding"};
+const std::string CTrainedModel::CSizeInfo::JSON_NUM_CLASSES_TAG{"num_classes"};
+const std::string CTrainedModel::CSizeInfo::JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
+const std::string CTrainedModel::JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
+const std::string CTrainedModel::JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
+const std::string CTrainedModel::JSON_FEATURE_NAMES_TAG{"feature_names"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_REGRESSION{"regression"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_TAG{"target_type"};
+const std::string CTree::CSizeInfo::JSON_NUM_LEAVES_TAG{"num_leaves"};
+const std::string CTree::CSizeInfo::JSON_NUM_NODES_TAG{"num_nodes"};
+const std::string CTree::CTreeNode::JSON_DECISION_TYPE_TAG{"decision_type"};
+const std::string CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG{"default_left"};
+const std::string CTree::CTreeNode::JSON_LEAF_VALUE_TAG{"leaf_value"};
+const std::string CTree::CTreeNode::JSON_LEFT_CHILD_TAG{"left_child"};
+const std::string CTree::CTreeNode::JSON_LT{"lt"};
+const std::string CTree::CTreeNode::JSON_NODE_INDEX_TAG{"node_index"};
+const std::string CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG{"number_samples"};
+const std::string CTree::CTreeNode::JSON_RIGHT_CHILD_TAG{"right_child"};
+const std::string CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG{"split_feature"};
+const std::string CTree::CTreeNode::JSON_SPLIT_GAIN_TAG{"split_gain"};
+const std::string CTree::CTreeNode::JSON_THRESHOLD_TAG{"threshold"};
+const std::string CTree::JSON_TREE_STRUCTURE_TAG{"tree_structure"};
+const std::string CTree::JSON_TREE_TAG{"tree"};
+const std::string CWeightedMode::JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
+const std::string CWeightedSum::JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
+// clang-format on
 }
 }

@@ -31,6 +31,7 @@ class CRapidJsonConcurrentLineWriter;
 }
 namespace maths {
 namespace analytics {
+class CDataFrameCategoryEncoder;
 class CTreeShapFeatureImportance;
 
 //! \brief Defines the interface for fitting and inferring a predictive model
@@ -41,6 +42,7 @@ public:
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
+    using TRecordEncodersCallback = std::function<void(TPersistFunc)>;
     using TRowRef = core::CDataFrame::TRowRef;
 
     //! The objective for the classification decision (given predicted class probabilities).
@@ -57,10 +59,16 @@ public:
     //! Train on the examples in the data frame supplied to the constructor.
     virtual void train() = 0;
 
+    //! Incrementally train the current model.
+    //!
+    //! \warning Train must have been previously called or a model loaded.
+    virtual void trainIncremental() = 0;
+
     //! Write the predictions to the data frame supplied to the constructor.
     //!
+    //! \param[in] newDataOnly Only predict newly supplied data.
     //! \warning This can only be called after train.
-    virtual void predict() const = 0;
+    virtual void predict(bool newDataOnly = false) const = 0;
 
     //! Get the SHAP value calculator.
     //!
@@ -68,16 +76,34 @@ public:
     virtual CTreeShapFeatureImportance* shap() const = 0;
 
     //! Get the number of rows used to train the model.
-    virtual std::size_t numberTrainingRows() const = 0;
+    virtual std::size_t numberTrainRows() const = 0;
+
+    //! Get the mean gap in the loss between test and train examples.
+    virtual double lossGap() const = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
+    //! Get a mask for the new training data.
+    virtual const core::CPackedBitVector& newTrainingRowMask() const = 0;
+
     //! Read the prediction out of \p row.
-    virtual TDouble2Vec readPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec prediction(const TRowRef& row) const = 0;
+
+    //! Read the previous model prediction from \p row if it has been updated.
+    virtual TDouble2Vec previousPrediction(const TRowRef& row) const = 0;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
-    virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec adjustedPrediction(const TRowRef& row) const = 0;
+
+    //! Get the selected rows that summarize.
+    virtual core::CPackedBitVector dataSummarization() const = 0;
+
+    //! Get the category encoder.
+    virtual const CDataFrameCategoryEncoder& categoryEncoder() const = 0;
+
+    //! Get the data the model is trained on.
+    const core::CDataFrame& trainingData() const;
 
 protected:
     CDataFramePredictiveModel(core::CDataFrame& frame, TTrainingStateCallback recordTrainingState);

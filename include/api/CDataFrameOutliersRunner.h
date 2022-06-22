@@ -46,6 +46,9 @@ public:
     //! \return The capacity of the data frame slice to use.
     std::size_t dataFrameSliceCapacity() const override;
 
+    //! Get a mask for all rows.
+    core::CPackedBitVector rowsToWriteMask(const core::CDataFrame& frame) const override;
+
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
@@ -104,9 +107,11 @@ public:
     const std::string& name() const override;
 
 private:
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters) const override;
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value& jsonParameters,
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 }
 }

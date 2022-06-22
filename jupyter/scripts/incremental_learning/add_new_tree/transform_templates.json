@@ -1,0 +1,42 @@
+[
+    {
+        "transform_name": "partition_on_metric_ranges",
+        "transform_parameters": {
+            "fraction": 0.0,
+            "metric_features": []
+        }
+    },
+    {
+        "transform_name": "resample_metric_features",
+        "transform_parameters": {
+            "fraction": 0.0,
+            "magnitude": 0.0,
+            "metric_features": []
+        }
+    },
+    {
+        "transform_name": "shift_metric_features",
+        "transform_parameters": {
+            "fraction": 0.0,
+            "magnitude": 0.0,
+            "categorical_features": []
+        }
+    },
+    {
+        "transform_name": "rotate_metric_features",
+        "transform_parameters": {
+            "fraction": 0.0,
+            "magnitude": 0.0,
+            "categorical_features": []
+        }
+    }    
+    ,
+    {
+        "transform_name": "regression_category_drift",
+        "transform_parameters": {
+            "fraction": 0.0,
+            "magnitude": 0.0,
+            "categorical_features": [],
+            "target": ""
+        }
+    }]

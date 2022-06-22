@@ -39,6 +39,7 @@ SRCS=\
 	CDataFrameAnalyzerFeatureImportanceTest.cc \
 	CDataFrameAnalyzerOutlierTest.cc \
 	CDataFrameAnalyzerTrainingTest.cc \
+	CDataSummarizationJsonSerializerTest.cc \
 	CDataFrameTrainBoostedTreeClassifierRunnerTest.cc \
 	CDataFrameTrainBoostedTreeRegressionRunnerTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
@@ -64,6 +65,7 @@ SRCS=\
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
+	CSerializableToJsonTest.cc \
 	CSingleFieldDataCategorizerTest.cc \
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \

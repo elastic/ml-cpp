@@ -29,7 +29,10 @@ namespace boosted_tree {
 class CLoss;
 }
 class CBoostedTreeNode;
+class CDataFrameCategoryEncoder;
+class CEncodedDataFrameRowRef;
 namespace boosted_tree_detail {
+using TDoubleVec = std::vector<double>;
 using TFloatVec = std::vector<common::CFloatStorage>;
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
@@ -38,11 +41,12 @@ using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment:
 using TAlignedMemoryMappedFloatVector =
     common::CMemoryMappedDenseVector<common::CFloatStorage, Eigen::Aligned16>;
 
-enum EExtraColumn {
+enum EExtraColumnTag {
     E_Prediction = 0,
     E_Gradient,
     E_Curvature,
     E_Weight,
+    E_PreviousPrediction,
     E_BeginSplits
 };
 
@@ -55,12 +59,15 @@ enum EHyperparameter {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
-    E_MaximumNumberTrees,
-    E_FeatureBagFraction
+    E_MaximumNumberTrees, //!< Train only.
+    E_FeatureBagFraction,
+    E_PredictionChangeCost,     //!< Incremental train only.
+    E_RetrainedTreeEta,         //!< Incremental train only.
+    E_TreeTopologyChangePenalty //!< Incremental train only.
 };
 
 constexpr std::size_t NUMBER_EXTRA_COLUMNS{E_BeginSplits + 1}; // This must be last extra column
-constexpr std::size_t NUMBER_HYPERPARAMETERS{E_FeatureBagFraction + 1}; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; // This must be last hyperparameter
 constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
 
 //! \brief Hyperparameter importance information.
@@ -109,6 +116,26 @@ inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters
             {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned}}; // curvature
 }
 
+//! Get the tags for extra columns needed by training.
+inline TSizeVec extraColumnTagsForIncrementalTrain() {
+    return {E_PreviousPrediction};
+}
+
+//! Get the extra columns needed by incremental training.
+inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // previous prediction
+}
+
+//! Get the extra columns needed for prediction.
+inline TSizeAlignmentPrVec extraColumnsForPredict(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // prediction
+}
+
+//! Get the tags for extra columns needed for prediction.
+inline TSizeVec extraColumnTagsForPredict() {
+    return {E_Prediction};
+}
+
 //! Read the prediction from \p row.
 inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
                                                const TSizeVec& extraColumns,
@@ -119,6 +146,29 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 //! Zero the prediction of \p row.
 MATHS_ANALYTICS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+
+//! Write \p value to \p row prediction column(s).
+MATHS_ANALYTICS_EXPORT
+void writePrediction(const TRowRef& row,
+                     const TSizeVec& extraColumns,
+                     std::size_t numberLossParameters,
+                     const TMemoryMappedFloatVector& value);
+
+//! Write \p value to \p row previous prediction column(s).
+MATHS_ANALYTICS_EXPORT
+void writePreviousPrediction(const TRowRef& row,
+                             const TSizeVec& extraColumns,
+                             std::size_t numberLossParameters,
+                             const TMemoryMappedFloatVector& value);
+
+//! Read the previous prediction for \p row if training incementally.
+MATHS_ANALYTICS_EXPORT
+inline TMemoryMappedFloatVector readPreviousPrediction(const TRowRef& row,
+                                                       const TSizeVec& extraColumns,
+                                                       std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_PreviousPrediction],
+            static_cast<int>(numberLossParameters)};
+}
 
 //! Read all the loss derivatives from \p row into an aligned vector.
 inline TAlignedMemoryMappedFloatVector
@@ -135,6 +185,8 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 //! Write the loss gradient to \p row.
 MATHS_ANALYTICS_EXPORT
 void writeLossGradient(const TRowRef& row,
+                       const CEncodedDataFrameRowRef& encodedRow,
+                       bool newExample,
                        const TSizeVec& extraColumns,
                        const boosted_tree::CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
@@ -156,6 +208,8 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 //! Write the loss Hessian to \p row.
 MATHS_ANALYTICS_EXPORT
 void writeLossCurvature(const TRowRef& row,
+                        const CEncodedDataFrameRowRef& encodedRow,
+                        bool newExample,
                         const TSizeVec& extraColumns,
                         const boosted_tree::CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
@@ -179,6 +233,20 @@ inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extr
 inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
 }
+
+//! Compute the probabilities with which to select each tree for retraining.
+//!
+//! TODO should this be a member of CBoostedTreeImpl.
+MATHS_ANALYTICS_EXPORT
+TDoubleVec
+retrainTreeSelectionProbabilities(std::size_t numberThreads,
+                                  const core::CDataFrame& frame,
+                                  const TSizeVec& extraColumns,
+                                  std::size_t dependentVariable,
+                                  const CDataFrameCategoryEncoder& encoder,
+                                  const core::CPackedBitVector& trainingDataRowMask,
+                                  const boosted_tree::CLoss& loss,
+                                  const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};
 }

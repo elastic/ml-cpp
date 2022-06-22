@@ -20,6 +20,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
 #include <maths/common/CLbfgs.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -117,6 +118,22 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
     }
 }
 
+CBayesianOptimisation::CBayesianOptimisation(TVectorVectorPr parameterBounds, std::size_t restarts)
+    : m_Restarts{restarts}, m_MinBoundary{std::move(parameterBounds.first)},
+      m_MaxBoundary{std::move(parameterBounds.second)},
+      m_KernelParameters(m_MinBoundary.rows() + 1),
+      m_MinimumKernelCoordinateDistanceScale(m_MinBoundary.rows()) {
+
+    if (m_MinBoundary.rows() != m_MaxBoundary.rows()) {
+        LOG_ERROR(<< "Input error: sizes of the minimum and maximum boundaries do not match. "
+                  << "Please report this error.");
+    }
+
+    m_KernelParameters.setOnes();
+    m_MinimumKernelCoordinateDistanceScale.setConstant(
+        m_MaxBoundary.rows(), MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE);
+}
+
 CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
     if (traverser.traverseSubLevel([this](auto& traverser_) {
             return this->acceptRestoreTraverser(traverser_);
@@ -158,8 +175,7 @@ void CBayesianOptimisation::explainedErrorVariance(double vx) {
     m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
 }
 
-std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
-CBayesianOptimisation::boundingBox() const {
+CBayesianOptimisation::TVectorVectorPr CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
 }
 
@@ -369,6 +385,8 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
 
 double CBayesianOptimisation::anovaTotalCoefficientOfVariation() {
     this->precondition();
+    LOG_TRACE(<< "anovaTotalVariance " << this->anovaTotalVariance() << " m_RangeShift "
+              << m_RangeShift << " m_RangeScale " << m_RangeScale);
     return std::sqrt(this->anovaTotalVariance()) / m_RangeShift;
 }
 

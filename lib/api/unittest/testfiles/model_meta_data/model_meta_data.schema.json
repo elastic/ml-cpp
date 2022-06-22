@@ -5,8 +5,19 @@
     "title": "model_meta_data",
     "type": "object",
     "properties": {
+        "data_summarization": {
+            "description": "Information regarding data summarization for incremental learning.",
+            "type": "object",
+            "properties": {
+                "num_rows": {
+                    "type": "number"
+                }
+            },
+            "required": ["num_rows"],
+            "additionalProperties": false
+        },
         "total_feature_importance": {
-            "description": "Average feature importance for all features used by the model",
+            "description": "Average feature importance for all features used by the model.",
             "type": "array",
             "items": {
                 "type": "object",
@@ -91,6 +102,26 @@
                 ]
             },
             "additionalItems": false
+        },
+        "train_properties" : {
+            "description" : "Properies of the training process which produced the model.",
+            "type" : "object",
+            "properties" : {
+                "num_train_rows" : {
+                    "type" : "number"
+                },
+                "loss_gap" : {
+                    "type" : "number"
+                },
+                "trained_model_memory_usage": {
+                    "type" : "number"
+                }
+            },
+            "required" : [
+                "num_train_rows",
+                "loss_gap"
+            ],
+            "additionalProperties" : false
         }
     },
     "additionalProperties": false

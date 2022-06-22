@@ -133,9 +133,9 @@ public:
     //! \note This will store as much information about the points
     //! subject to this constraint so will generally hold approximately
     //! \p space tuples.
-    CNaturalBreaksClassifier(std::size_t space,
-                             double decayRate = 0.0,
-                             double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
+    explicit CNaturalBreaksClassifier(std::size_t space,
+                                      double decayRate = 0.0,
+                                      double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
     //! Create from part of a state document.
     bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -237,10 +237,10 @@ public:
     //! Get a checksum for this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const;
 
-    //! Get the memory used by this component
+    //! Get the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
-    //! Get the memory used by this component
+    //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
     //! Get the minimum within class total deviation partition

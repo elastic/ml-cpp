@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/data_summarization/data_summarization.schema.json",
+    "description": "Data summarization object",
+    "title": "data_summarization",
+    "type": "object",
+    "properties": {
+        "num_columns": {
+            "description": "Number of columns in the data frame.",
+            "type": "number"
+        },
+        "column_names": {
+            "description": "List of column names.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "additionalItems": false
+        },
+        "column_is_categorical": {
+            "description": "List indicating whether or not the column contains categorical values.",
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            },
+            "additionalItems": false
+        },
+        "categorical_column_values": {
+            "description": "List of lists containing unique string values for categorical fields.",
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "additionalItems": false
+            },
+            "additionalItems": false
+        },
+        "encodings_indices": {
+            "description": "List mapping feature name to encoding index.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "encoding_name": {
+                        "type": "string"
+                    },
+                    "encoding_index": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "encoding_name",
+                    "encoding_index"
+                ]
+            }
+        },
+        "encodings": {
+            "description": "Encodings used in the boosted tree.",
+            "type": "object"
+        },
+        "data": {
+            "description": "String serialized rows.",
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "additionalItems": false
+            },
+            "additionalItems": false
+        }
+    },
+    "required": [
+        "num_columns",
+        "column_names",
+        "column_is_categorical",
+        "categorical_column_values",
+        "data",
+        "encodings",
+        "encodings_indices"
+    ],
+    "additionalProperties": false
+}

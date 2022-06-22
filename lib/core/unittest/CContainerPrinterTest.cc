@@ -18,6 +18,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -35,13 +36,16 @@ BOOST_AUTO_TEST_CASE(testAll) {
     LOG_DEBUG(<< "vec = " << CContainerPrinter::print(vec));
     BOOST_REQUIRE_EQUAL(std::string("[1.1, 3.2]"), CContainerPrinter::print(vec));
 
-    std::list<std::pair<int, int>> list;
-    list.push_back(std::make_pair(1, 2));
-    list.push_back(std::make_pair(2, 2));
-    list.push_back(std::make_pair(3, 2));
+    std::list<std::pair<int, int>> list{{1, 2}, {2, 2}, {3, 2}};
     LOG_DEBUG(<< "list = " << CContainerPrinter::print(list));
     BOOST_REQUIRE_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
                         CContainerPrinter::print(list));
+
+    std::vector<std::tuple<double, double, double>> tuples{{1.1, 1.2, 1.3},
+                                                           {2.2, 2.3, 2.4}};
+    LOG_DEBUG(<< "tuples = " << core::CContainerPrinter::print(tuples));
+    BOOST_REQUIRE_EQUAL(std::string("[(1.1, 1.2, 1.3), (2.2, 2.3, 2.4)]"),
+                        core::CContainerPrinter::print(tuples));
 
     std::list<std::shared_ptr<double>> plist;
     plist.push_back(std::shared_ptr<double>());
@@ -53,16 +57,15 @@ BOOST_AUTO_TEST_CASE(testAll) {
     double three = 3.0;
     double fivePointOne = 5.1;
     std::map<double, double*> map;
-    map.insert(std::make_pair(1.1, &three));
-    map.insert(std::make_pair(3.3, &fivePointOne));
-    map.insert(std::make_pair(1.0, static_cast<double*>(nullptr)));
+    map.emplace(1.1, &three);
+    map.emplace(3.3, &fivePointOne);
+    map.emplace(1.0, static_cast<double*>(nullptr));
     LOG_DEBUG(<< "map = " << CContainerPrinter::print(map));
     BOOST_REQUIRE_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
                         CContainerPrinter::print(map));
 
-    std::unique_ptr<int> pints[] = {std::unique_ptr<int>(new int(2)),
-                                    std::unique_ptr<int>(new int(3)),
-                                    std::unique_ptr<int>(new int(2))};
+    std::unique_ptr<int> pints[]{std::make_unique<int>(2), std::make_unique<int>(3),
+                                 std::make_unique<int>(2)};
     LOG_DEBUG(<< "pints = "
               << CContainerPrinter::print(std::begin(pints), std::end(pints)));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3, 2]"),
@@ -74,9 +77,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
                         CContainerPrinter::print(ovec));
 
     std::vector<std::pair<std::list<std::pair<int, int>>, double>> aggregate;
-    aggregate.push_back(std::make_pair(list, 1.3));
-    aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
-    aggregate.push_back(std::make_pair(list, 5.1));
+    aggregate.emplace_back(list, 1.3);
+    aggregate.emplace_back(std::list<std::pair<int, int>>(), 0.0);
+    aggregate.emplace_back(list, 5.1);
     LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
     BOOST_REQUIRE_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
                         CContainerPrinter::print(aggregate));
