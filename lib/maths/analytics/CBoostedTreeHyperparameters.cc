@@ -414,11 +414,17 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& 
                 parameters_(static_cast<TVector::TIndexType>(i)) =
                     parameters(relevantParameters[i]);
             }
-            this->addObservation(std::move(parameters_), loss, 0.0, true);
+            m_BayesianOptimization->add(std::move(parameters_), loss, 0.0);
         }
+
+        // Perform 2 additional rounds of kernel parameter optimization.
+        for (std::size_t i = 0; i < 2; ++i) {
+            m_BayesianOptimization->maximumLikelihoodKernel();
+        }
+
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
-            LOG_DEBUG(<< "Skipping fine tune hyperparameters");
+            LOG_DEBUG(<< "Skipping to fine-tune hyperparameters");
         } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
@@ -478,7 +484,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
               << ", explained variance = " << explainedVariance);
     LOG_TRACE(<< "parameters = " << this->print());
 
-    this->addObservation(parameters, meanTestLoss, testLossVariance, false);
+    m_BayesianOptimization->add(parameters, meanTestLoss, testLossVariance);
 
     // One fold might have examples which are harder to predict on average than
     // another fold, particularly if the sample size is small. What we really care
@@ -1133,16 +1139,6 @@ void CBoostedTreeHyperparameters::setHyperparameterValues(TVector parameters) {
                 .scale(scale);
             break;
         }
-    }
-}
-
-void CBoostedTreeHyperparameters::addObservation(TVector parameters,
-                                                 double loss,
-                                                 double variance,
-                                                 bool reestimate) {
-    m_BayesianOptimization->add(std::move(parameters), loss, variance);
-    if (reestimate) {
-        m_BayesianOptimization->maximumLikelihoodKernel();
     }
 }
 

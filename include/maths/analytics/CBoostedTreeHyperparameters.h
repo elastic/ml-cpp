@@ -707,9 +707,6 @@ private:
     void captureHyperparametersAndLoss(double loss);
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
     void setHyperparameterValues(TVector parameters);
-    //! \note Only tunable parameters should be passed in \p parameters. If \p reestimate
-    //! is set to true, kernel parameters of the GP are re-estimated.
-    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
     void resetBayesianOptimization();
     void saveCurrent();
 
