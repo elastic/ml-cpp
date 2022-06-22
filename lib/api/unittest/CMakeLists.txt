@@ -13,6 +13,7 @@ project("ML Api unit tests")
 
 set (SRCS
   Main.cc
+  CAnnotationJsonWriterTest.cc
   CAnomalyJobConfigTest.cc
   CAnomalyJobLimitTest.cc
   CAnomalyJobTest.cc
@@ -26,9 +27,10 @@ set (SRCS
   CDataFrameAnalyzerFeatureImportanceTest.cc
   CDataFrameAnalyzerOutlierTest.cc
   CDataFrameAnalyzerTrainingTest.cc
+  CDataFrameMockAnalysisRunner.cc
   CDataFrameTrainBoostedTreeClassifierRunnerTest.cc
   CDataFrameTrainBoostedTreeRegressionRunnerTest.cc
-  CDataFrameMockAnalysisRunner.cc
+  CDataSummarizationJsonSerializerTest.cc
   CDetectionRulesJsonParserTest.cc
   CFieldDataCategorizerTest.cc
   CForecastRunnerTest.cc
@@ -40,7 +42,6 @@ set (SRCS
   CMemoryUsageEstimationResultJsonWriterTest.cc
   CMockDataAdder.cc
   CMockSearcher.cc
-  CAnnotationJsonWriterTest.cc
   CModelPlotDataJsonWriterTest.cc
   CModelSnapshotJsonWriterTest.cc
   CMultiFileDataAdderTest.cc
@@ -51,6 +52,7 @@ set (SRCS
   CPersistenceManagerTest.cc
   CRestorePreviousStateTest.cc
   CResultNormalizerTest.cc
+  CSerializableToJsonTest.cc
   CSingleFieldDataCategorizerTest.cc
   CSingleStreamDataAdderTest.cc
   CStateRestoreStreamFilterTest.cc

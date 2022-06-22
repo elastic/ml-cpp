@@ -13,9 +13,11 @@ project("ML Maths Analytics unit tests")
 
 set (SRCS
   Main.cc
+  BoostedTreeTestData.cc
   CBoostedTreeLeafNodeStatisticsTest.cc
   CBoostedTreeLossTest.cc
   CBoostedTreeTest.cc
+  CBoostedTreeUtilsTest.cc
   CDataFrameCategoryEncoderTest.cc
   CDataFrameUtilsTest.cc
   CMicTest.cc

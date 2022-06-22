@@ -22,6 +22,8 @@ ml_add_library(MlMathsAnalytics SHARED
   CBoostedTreeHyperparameters.cc
   CBoostedTreeImpl.cc
   CBoostedTreeLeafNodeStatistics.cc
+  CBoostedTreeLeafNodeStatisticsIncremental.cc
+  CBoostedTreeLeafNodeStatisticsScratch.cc
   CBoostedTreeLeafNodeStatisticsThreading.cc
   CBoostedTreeLoss.cc
   CBoostedTreeUtils.cc

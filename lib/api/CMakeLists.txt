@@ -44,6 +44,8 @@ ml_add_library(MlApi SHARED
   CDataFrameTrainBoostedTreeRegressionRunner.cc
   CDataFrameTrainBoostedTreeRunner.cc
   CDataProcessor.cc
+  CDataSummarizationJsonTags.cc
+  CDataSummarizationJsonWriter.cc
   CDetectionRulesJsonParser.cc
   CFieldDataCategorizer.cc
   CForecastRunner.cc
@@ -66,6 +68,8 @@ ml_add_library(MlApi SHARED
   CPerPartitionCategoryIdMapper.cc
   CPersistenceManager.cc
   CResultNormalizer.cc
+  CRetrainableModelJsonReader.cc
+  CSerializableToJson.cc
   CSimpleOutputWriter.cc
   CSingleFieldDataCategorizer.cc
   CSingleStreamDataAdder.cc
