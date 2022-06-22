@@ -28,23 +28,61 @@ endif()
 # that is linked into the Windows executables
 #
 function(ml_generate_resources _target)
-  if(NOT WIN32)
-    return()
-  endif()
-  set( ${_target}_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.res )
-  set_target_properties( ${_target} PROPERTIES LINK_FLAGS ${${_target}_LINKFLAGS} )
-  execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh ${_target}.exe" OUTPUT_VARIABLE
-    RC_DEFINES OUTPUT_STRIP_TRAILING_WHITESPACE)
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh "rc -nologo ${CPPFLAGS} ${RC_DEFINES} -Fo${_target}.res ${CMAKE_SOURCE_DIR}/mk/ml.rc")
-  add_custom_target(
-    ${_target}.res
-    DEPENDS ${CMAKE_SOURCE_DIR}/mk/ml.rc ${CMAKE_SOURCE_DIR}/gradle.properties ${CMAKE_SOURCE_DIR}/mk/ml.ico ${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
-    COMMAND bash -c ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
-    )
-  add_dependencies(${_target} ${_target}.res)
+  string(TIMESTAMP BUILD_YEAR "%Y")
 
-  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
-  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_target}.res)
+  set(ML_USER $ENV{USERNAME})
+
+  execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  file(READ ${CMAKE_SOURCE_DIR}/gradle.properties GRADLE_PROPERTIES)
+  if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9.]+)")
+    set(ML_VERSION_STR "${CMAKE_MATCH_1}")
+  endif()
+
+  if(ENV{VERSION_QUALIFIER})
+    set(ML_VERSION_STR "${ML_VERSION_STR}-$ENV{VERSION_QUALIFIER}")
+  endif()
+
+  if(DEFINED ENV{SNAPSHOT} AND $ENV{SNAPSHOT} NOT STREQUAL "no")
+    set(ML_VERSION_STR "${ML_VERSION_STR}-SNAPSHOT")
+  endif()
+
+  if(${ML_VERSION_STR} MATCHES "([0-9.]+)")
+    set(ML_VERSION ${CMAKE_MATCH_1})
+  endif()
+  string(REPLACE "." "," ML_VERSION "${ML_VERSION}")
+
+  set(ML_PATCH "0")
+
+  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
+
+  if(UNCOMMITED_CHANGES EQUAL 0)
+    set(ML_FILEFLAGS "0")
+  else()
+    set(ML_FILEFLAGS "VS_FF_PRIVATEBUILD")
+  endif()
+
+  if("${_target}" MATCHES ".dll$")
+    set(ML_FILETYPE "VFT_DLL")
+  else()
+    set(ML_FILETYPE "VFT_APP")
+  endif()
+
+  set(ML_FILENAME ${_target})
+
+  if(${_target} MATCHES "([^.]+).")
+    set(ML_NAME ${CMAKE_MATCH_1})
+  endif()
+  set(ML_YEAR ${BUILD_YEAR})
+  set(ML_ICON ${CMAKE_SOURCE_DIR}/mk/ml.ico)
+
+  configure_file(
+	"${CMAKE_SOURCE_DIR}/mk/ml.rc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/${ML_NAME}.rc"
+        @ONLY
+        )
+
 endfunction()
 
 #
@@ -95,6 +133,11 @@ function(ml_add_library _target _type)
 
   add_compile_definitions(BUILDING_lib${_target})
 
+  if (WIN32 AND _type STREQUAL "SHARED")
+    ml_generate_resources(lib${_target}.dll)
+    list(APPEND PLATFORM_SRCS ${CMAKE_CURRENT_BINARY_DIR}/lib${_target}.rc)
+  endif()
+
   add_library(${_target} ${_type} ${PLATFORM_SRCS})
 
   if(ML_LINK_LIBRARIES)
@@ -140,6 +183,11 @@ function(ml_add_executable _target)
     add_library(Ml${_target} OBJECT ${PLATFORM_SRCS})
   endif()
 
+  if (WIN32)
+    ml_generate_resources(${_target}.exe)
+    list(APPEND PLATFORM_SRCS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.rc)
+  endif()
+
   add_executable(${_target} Main.cc ${PLATFORM_SRCS})
 
   if (ML_EXE_LINKER_FLAGS)
@@ -149,8 +197,6 @@ function(ml_add_executable _target)
   target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
 
   ml_install(${_target})
-
-  ml_generate_resources(${_target})
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(${_target} PRIVATE "${COVERAGE}")
