@@ -175,15 +175,20 @@ void CBayesianOptimisation::explainedErrorVariance(double vx) {
     m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
 }
 
+std::size_t CBayesianOptimisation::restarts() const {
+    return m_Restarts;
+}
+
 CBayesianOptimisation::TVectorVectorPr CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
 }
 
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
-CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImprovement) {
+CBayesianOptimisation::maximumExpectedImprovement(std::size_t numberRounds,
+                                                  double negligibleExpectedImprovement) {
 
     // Reapply conditioning and recompute the maximum likelihood kernel parameters.
-    this->maximumLikelihoodKernel();
+    this->maximumLikelihoodKernel(numberRounds);
 
     TVector xmax;
     double fmax{-1.0};
@@ -220,7 +225,6 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
                 xmax = x;
             }
         }
-
     } else {
 
         for (std::size_t i = 0; i < interpolates.size(); /**/) {
@@ -623,7 +627,8 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
     return {std::move(EI), std::move(EIGradient)};
 }
 
-const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKernel() {
+const CBayesianOptimisation::TVector&
+CBayesianOptimisation::maximumLikelihoodKernel(std::size_t numberRounds) {
 
     if (m_FunctionMeanValues.size() < 2) {
         return m_KernelParameters;
@@ -631,61 +636,70 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
-    this->precondition();
+    auto lastKernelParameters = m_KernelParameters;
+    do {
+        this->precondition();
 
-    TLikelihoodFunc l;
-    TLikelihoodGradientFunc g;
-    std::tie(l, g) = this->minusLikelihoodAndGradient();
+        TLikelihoodFunc l;
+        TLikelihoodGradientFunc g;
+        std::tie(l, g) = this->minusLikelihoodAndGradient();
 
-    CLbfgs<TVector> lbfgs{10};
+        CLbfgs<TVector> lbfgs{10};
 
-    double lmax{l(m_KernelParameters)};
-    TVector amax{m_KernelParameters};
+        double lmax{l(m_KernelParameters)};
+        TVector amax{m_KernelParameters};
 
-    // Try the current values first.
-    double la;
-    TVector a;
-    std::tie(a, la) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
-    if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
-        lmax = la;
-        amax = a;
-    }
-
-    TMinAccumulator probes{m_Restarts - 1};
-
-    // We restart optimization with scales of the current values for global probing.
-    std::size_t n(m_KernelParameters.size());
-    TDoubleVecVec scales;
-    scales.reserve(10 * (m_Restarts - 1));
-    CSampling::sobolSequenceSample(n, 10 * (m_Restarts - 1), scales);
-
-    for (const auto& scale : scales) {
-        a.noalias() = m_KernelParameters;
-        for (std::size_t j = 0; j < n; ++j) {
-            a(j) *= CTools::stableExp(CTools::linearlyInterpolate(
-                0.0, 1.0, std::log(0.2), std::log(2.0), scale[j]));
-        }
-        la = l(a);
+        // Try the current values first.
+        double la;
+        TVector a;
+        std::tie(a, la) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
         if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
             lmax = la;
             amax = a;
         }
-        probes.add({la, std::move(a)});
-    }
 
-    for (auto& a0 : probes) {
-        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
-        if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
-            lmax = la;
-            amax = std::move(a);
+        TMinAccumulator probes{m_Restarts - 1};
+
+        // We restart optimization with scales of the current values for global probing.
+        TVector::TIndexType n{m_KernelParameters.size()};
+        TDoubleVecVec scales;
+        scales.reserve(10 * (m_Restarts - 1));
+        CSampling::sobolSequenceSample(n, 10 * (m_Restarts - 1), scales);
+
+        for (const auto& scale : scales) {
+            a.noalias() = m_KernelParameters;
+            for (TVector::TIndexType i = 0; i < n; ++i) {
+                a(i) *= CTools::stableExp(CTools::linearlyInterpolate(
+                    0.0, 1.0, std::log(0.2), std::log(2.0), scale[i]));
+            }
+            la = l(a);
+            if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+                lmax = la;
+                amax = a;
+            }
+            probes.add({la, std::move(a)});
         }
-    }
 
-    // Ensure that kernel lengths are always positive. It shouldn't change the results
-    // but improves traceability.
-    m_KernelParameters = amax.cwiseAbs();
-    LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
-    LOG_TRACE(<< "likelihood = " << -lmax);
+        for (auto& a0 : probes) {
+            std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
+            if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+                lmax = la;
+                amax = std::move(a);
+            }
+        }
+
+        // Ensure that kernel lengths are always positive. It shouldn't change the results
+        // but improves traceability.
+        m_KernelParameters = amax.cwiseAbs();
+        LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
+        LOG_TRACE(<< "likelihood = " << -lmax);
+    } while ([&] {
+        bool result = (--numberRounds > 0 &&
+                       (m_KernelParameters - lastKernelParameters).norm() >
+                           5e-3 * m_KernelParameters.norm());
+        lastKernelParameters = m_KernelParameters;
+        return result;
+    }());
 
     return m_KernelParameters;
 }

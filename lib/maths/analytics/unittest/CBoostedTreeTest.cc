@@ -3852,8 +3852,8 @@ BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
     std::tie(biasNotStopEarly, rSquaredNotStopEarly) = computeMetrics(false);
 
     LOG_DEBUG(<< "biasStopEarly = " << biasStopEarly
-              << " rSquaredStopEarly = " << rSquaredStopEarly << "\n"
-              << "biasNotStopEarly = " << biasNotStopEarly
+              << " rSquaredStopEarly = " << rSquaredStopEarly);
+    LOG_DEBUG(<< "biasNotStopEarly = " << biasNotStopEarly
               << " rSquaredNotStopEarly = " << rSquaredNotStopEarly);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         0.0, biasStopEarly,

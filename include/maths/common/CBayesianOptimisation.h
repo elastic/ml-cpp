@@ -89,13 +89,17 @@ public:
     //! shouldn't be included in the kernel.
     void explainedErrorVariance(double vx);
 
+    //! Get the number of restarts to use in global optimisation.
+    std::size_t restarts() const;
+
     //! Get the bounding box (in the function domain) in which we're minimizing.
     TVectorVectorPr boundingBox() const;
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
     std::pair<TVector, TOptionalDouble>
-    maximumExpectedImprovement(double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
+    maximumExpectedImprovement(std::size_t numberRounds = 1,
+                               double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
 
     //! Estimate the maximum booking memory used by this class for optimising
     //! \p numberParameters using \p numberRounds rounds.
@@ -154,7 +158,7 @@ public:
     std::pair<TEIFunc, TEIGradientFunc> minusExpectedImprovementAndGradient() const;
 
     //! Compute the maximum likelihood kernel parameters.
-    const TVector& maximumLikelihoodKernel();
+    const TVector& maximumLikelihoodKernel(std::size_t numberRounds = 1);
     //@}
 
 private:
