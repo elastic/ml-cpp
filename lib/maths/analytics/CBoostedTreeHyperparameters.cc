@@ -427,7 +427,7 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& 
 
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
-            LOG_DEBUG(<< "Skipping to fine-tune hyperparameters");
+            LOG_DEBUG(<< "Skipping fine-tune hyperparameters");
         } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
