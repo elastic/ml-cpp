@@ -273,11 +273,12 @@ CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoubleDoubleSizeTupleVec testLosses) const {
-    auto minLoss = std::min_element(testLosses.begin(), testLosses.end(),
-                                    [](const auto& lhs, const auto& rhs) {
-                                        return std::get<1>(lhs) < std::get<1>(rhs);
-                                    });
-    double minValue{std::get<0>(*minLoss)};
+    double minLossValue{std::get<0>(*std::min_element(
+        testLosses.begin(), testLosses.end(), [](const auto& lhs, const auto& rhs) {
+            return std::get<1>(lhs) < std::get<1>(rhs);
+        }))};
+    double minLossGap{std::numeric_limits<double>::max()};
+    double minSize{std::numeric_limits<double>::max()};
     common::CLowess<2>::TDoubleDoublePrVec testLossCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec lossGapCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec forestSizeCurveValues;
@@ -285,6 +286,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     lossGapCurveValues.reserve(testLosses.size());
     forestSizeCurveValues.reserve(testLosses.size());
     for (const auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
+        minLossGap = std::min(minLossGap, lossGap);
+        minSize = std::min(minSize, static_cast<double>(size));
         testLossCurveValues.emplace_back(parameter, testLoss);
         lossGapCurveValues.emplace_back(parameter, lossGap);
         forestSizeCurveValues.emplace_back(parameter, static_cast<double>(size));
@@ -300,15 +303,15 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     double bestParameter;
     double bestParameterTestLoss;
     std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
-    double lossGap{std::max(lossGapCurve.predict(bestParameter), 0.0)};
-    double forestSize{forestSizeCurve.predict(bestParameter)};
+    double lossGap{std::max(lossGapCurve.predict(bestParameter), minLossGap)};
+    double forestSize{std::max(forestSizeCurve.predict(bestParameter), minSize)};
     LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
               << ", loss gap = " << lossGap << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
                  static_cast<double>(maxLineSearchIterations())};
-    intervalLeftEnd = std::min(bestParameter - width, minValue);
-    intervalRightEnd = std::max(bestParameter + width, minValue);
+    intervalLeftEnd = std::min(bestParameter - width, minLossValue);
+    intervalRightEnd = std::max(bestParameter + width, minLossValue);
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
     return {TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}},
@@ -414,11 +417,17 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(const TIndexVec& 
                 parameters_(static_cast<TVector::TIndexType>(i)) =
                     parameters(relevantParameters[i]);
             }
-            this->addObservation(std::move(parameters_), loss, 0.0, true);
+            m_BayesianOptimization->add(std::move(parameters_), loss, 0.0);
         }
+
+        // Perform 3 additional rounds of kernel parameter optimization.
+        for (std::size_t i = 0; i < 3; ++i) {
+            m_BayesianOptimization->maximumLikelihoodKernel();
+        }
+
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
-            LOG_DEBUG(<< "Skipping fine tune hyperparameters");
+            LOG_DEBUG(<< "Skipping fine-tune hyperparameters");
         } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
@@ -478,7 +487,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
               << ", explained variance = " << explainedVariance);
     LOG_TRACE(<< "parameters = " << this->print());
 
-    this->addObservation(parameters, meanTestLoss, testLossVariance, false);
+    m_BayesianOptimization->add(parameters, meanTestLoss, testLossVariance);
 
     // One fold might have examples which are harder to predict on average than
     // another fold, particularly if the sample size is small. What we really care
@@ -1133,16 +1142,6 @@ void CBoostedTreeHyperparameters::setHyperparameterValues(TVector parameters) {
                 .scale(scale);
             break;
         }
-    }
-}
-
-void CBoostedTreeHyperparameters::addObservation(TVector parameters,
-                                                 double loss,
-                                                 double variance,
-                                                 bool reestimate) {
-    m_BayesianOptimization->add(std::move(parameters), loss, variance);
-    if (reestimate) {
-        m_BayesianOptimization->maximumLikelihoodKernel();
     }
 }
 
