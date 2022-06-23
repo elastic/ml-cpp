@@ -305,7 +305,7 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
     double lossGap{std::max(lossGapCurve.predict(bestParameter), minLossGap)};
     double forestSize{std::max(forestSizeCurve.predict(bestParameter), minSize)};
-    LOG_DEBUG(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
+    LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
               << ", loss gap = " << lossGap << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
