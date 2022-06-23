@@ -1619,12 +1619,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
               << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
     // The initial model has too little capacity so we should get substantial
     // improvements for adding trees.
-    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
+    BOOST_TEST_REQUIRE(0.95 * testError0 >= testError5);
     BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
     // Since we perturb the hyperparameter optimisation we aren't guaranteed
     // to have lower test error for 10 vs 5 trees, but it should be very close
     // if it is larger.
-    BOOST_TEST_REQUIRE(1.02 * testError5 >= testError10);
+    BOOST_TEST_REQUIRE(1.03 * testError5 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
