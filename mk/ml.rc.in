@@ -12,7 +12,7 @@ BEGIN
     BEGIN
         BLOCK "080904E4"
         BEGIN
-#if ML_FILEFLAGS
+#if @ML_FILEFLAGS@
             VALUE "Comments", "Build @ML_BUILD_STR@  by  @ML_USER@"
 #else
             VALUE "Comments", "Build @ML_BUILD_STR@"
@@ -26,7 +26,7 @@ BEGIN
             VALUE "LegalTrademarks", "TODO"
 #endif
             VALUE "OriginalFilename", "@ML_FILENAME@"
-#if ML_FILEFLAGS
+#if @ML_FILEFLAGS@
             VALUE "PrivateBuild", "Built by @ML_USER@"
 #endif
             VALUE "ProductName", "Elasticsearch machine learning"
