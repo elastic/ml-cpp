@@ -1,7 +1,5 @@
 #include <Windows.h>
 
-#define ML_FILEFLAGS "@ML_FILEFLAGS@"
-
 1 VERSIONINFO
     FILEVERSION    @ML_VERSION@,@ML_PATCH@
     PRODUCTVERSION @ML_VERSION@,@ML_PATCH@
@@ -14,7 +12,7 @@ BEGIN
     BEGIN
         BLOCK "080904E4"
         BEGIN
-#if ML_FILEFLAGS
+#if @ML_FILEFLAGS@
             VALUE "Comments", "Build @ML_BUILD_STR@  by  @ML_USER@"
 #else
             VALUE "Comments", "Build @ML_BUILD_STR@"
@@ -28,7 +26,7 @@ BEGIN
             VALUE "LegalTrademarks", "TODO"
 #endif
             VALUE "OriginalFilename", "@ML_FILENAME@"
-#if ML_FILEFLAGS
+#if @ML_FILEFLAGS@
             VALUE "PrivateBuild", "Built by @ML_USER@"
 #endif
             VALUE "ProductName", "Elasticsearch machine learning"
