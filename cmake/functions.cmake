@@ -29,10 +29,7 @@ endif()
 #
 function(ml_generate_resources _target)
 
-  file(READ ${CMAKE_SOURCE_DIR}/gradle.properties GRADLE_PROPERTIES)
-  if(${GRADLE_PROPERTIES} MATCHES "elasticsearchVersion=([0-9.]+)")
-    set(ML_VERSION_STR "${CMAKE_MATCH_1}")
-  endif()
+  set(ML_VERSION_STR "${ML_VERSION_NUM}")
 
   if(ENV{VERSION_QUALIFIER})
     set(ML_VERSION_STR "${ML_VERSION_STR}-$ENV{VERSION_QUALIFIER}")
@@ -77,6 +74,8 @@ function(ml_generate_resources _target)
 	"${CMAKE_CURRENT_BINARY_DIR}/${ML_NAME}.rc"
         @ONLY
         )
+
+  set(ML_FILEFLAGS ${ML_FILEFLAGS} PARENT_SCOPE)
 
 endfunction()
 
@@ -131,6 +130,7 @@ function(ml_add_library _target _type)
   if (WIN32 AND _type STREQUAL "SHARED")
     ml_generate_resources(lib${_target}.dll)
     list(APPEND PLATFORM_SRCS ${CMAKE_CURRENT_BINARY_DIR}/lib${_target}.rc)
+    add_compile_definitions(ML_FILEFLAGS=${ML_FILEFLAGS})
   endif()
 
   add_library(${_target} ${_type} ${PLATFORM_SRCS})
@@ -181,6 +181,7 @@ function(ml_add_executable _target)
   if (WIN32)
     ml_generate_resources(${_target}.exe)
     list(APPEND PLATFORM_SRCS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.rc)
+    add_compile_definitions(ML_FILEFLAGS=${ML_FILEFLAGS})
   endif()
 
   add_executable(${_target} Main.cc ${PLATFORM_SRCS})
