@@ -195,3 +195,14 @@ if(MSVC)
   set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
   set(CMAKE_IMPORT_LIBRARY_PREFIX "lib")
 endif()
+
+string(TIMESTAMP BUILD_YEAR "%Y")
+
+if(WIN32)
+  set(ML_USER $ENV{USERNAME})
+else()
+  execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE ML_USER
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)
