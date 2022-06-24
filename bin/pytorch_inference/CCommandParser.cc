@@ -192,7 +192,7 @@ CCommandParser::validateInferenceRequestJson(const rapidjson::Document& doc,
         }
     }
 
-    // check optional args
+    // Check optional args.
     std::uint64_t varCount{1};
     std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     while (doc.HasMember(varArgName)) {
