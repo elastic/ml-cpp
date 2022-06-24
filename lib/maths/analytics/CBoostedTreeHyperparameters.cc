@@ -665,11 +665,11 @@ void CBoostedTreeHyperparameters::checkRestoredInvariants(bool expectOptimizerIn
 
 std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
     std::size_t numberToTune{this->numberToTune()};
-    return sizeof(*this) + numberToTune * sizeof(int) +
-           (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) +
+    return sizeof(*this) + numberToTune * sizeof(int) + // m_TunableHyperparameters
+           (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) + // m_HyperparameterSamples
            common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds) +
-           numberToTune * sizeof(std::size_t) +
-           numberToTune * maxLineSearchIterations() * sizeof(double);
+           numberToTune * sizeof(std::size_t) + // m_LineSearchRelevantParameters
+           numberToTune * maxLineSearchIterations() * sizeof(double); // m_LineSearchHyperparameterLosses
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
