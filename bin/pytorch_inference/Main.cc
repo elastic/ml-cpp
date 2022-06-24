@@ -270,6 +270,7 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
             jsonWriter.write(response);
         } else {
             wrappedOutputStream.writeJson(std::move(responseJson));
+            wrappedOutputStream.flush();
         }
     });
     return true;

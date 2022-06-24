@@ -121,7 +121,6 @@ void CJsonOutputStreamWrapper::writeJson(std::string json) {
             o.put(JSON_ARRAY_DELIMITER);
         }
         o << json_;
-        o.flush();
     });
 }
 
