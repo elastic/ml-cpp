@@ -1013,7 +1013,6 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
-                          .earlyStoppingEnabled(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -3163,7 +3162,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                 maths::analytics::CBoostedTreeFactory::constructFromParameters(
                     threads, std::make_unique<maths::analytics::boosted_tree::CMse>())
                     .analysisInstrumentation(instrumentation)
-                    .earlyStoppingEnabled(false)
+                    .stopHyperparameterOptimizationEarly(false)
                     .buildForTrain(*frame, cols - 1);
 
             regression->train();
@@ -3826,7 +3825,7 @@ BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
 
         auto factory = maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>());
-        factory.numberHoldoutRows(numberHoldoutRows).earlyStoppingEnabled(earlyStoppingEnabled);
+        factory.numberHoldoutRows(numberHoldoutRows).stopHyperparameterOptimizationEarly(earlyStoppingEnabled);
         auto regression = factory.buildForTrain(*frame, cols - 1);
         regression->train();
         regression->predict();
