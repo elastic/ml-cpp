@@ -1013,7 +1013,6 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
-                          .earlyStoppingEnabled(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -1619,12 +1618,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
               << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
     // The initial model has too little capacity so we should get substantial
     // improvements for adding trees.
-    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
+    BOOST_TEST_REQUIRE(0.95 * testError0 >= testError5);
     BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
     // Since we perturb the hyperparameter optimisation we aren't guaranteed
     // to have lower test error for 10 vs 5 trees, but it should be very close
     // if it is larger.
-    BOOST_TEST_REQUIRE(1.02 * testError5 >= testError10);
+    BOOST_TEST_REQUIRE(1.03 * testError5 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -3163,7 +3162,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                 maths::analytics::CBoostedTreeFactory::constructFromParameters(
                     threads, std::make_unique<maths::analytics::boosted_tree::CMse>())
                     .analysisInstrumentation(instrumentation)
-                    .earlyStoppingEnabled(false)
+                    .stopHyperparameterOptimizationEarly(false)
                     .buildForTrain(*frame, cols - 1);
 
             regression->train();
@@ -3826,7 +3825,7 @@ BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
 
         auto factory = maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>());
-        factory.numberHoldoutRows(numberHoldoutRows).earlyStoppingEnabled(earlyStoppingEnabled);
+        factory.numberHoldoutRows(numberHoldoutRows).stopHyperparameterOptimizationEarly(earlyStoppingEnabled);
         auto regression = factory.buildForTrain(*frame, cols - 1);
         regression->train();
         regression->predict();
@@ -3852,8 +3851,8 @@ BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
     std::tie(biasNotStopEarly, rSquaredNotStopEarly) = computeMetrics(false);
 
     LOG_DEBUG(<< "biasStopEarly = " << biasStopEarly
-              << " rSquaredStopEarly = " << rSquaredStopEarly << "\n"
-              << "biasNotStopEarly = " << biasNotStopEarly
+              << " rSquaredStopEarly = " << rSquaredStopEarly);
+    LOG_DEBUG(<< "biasNotStopEarly = " << biasNotStopEarly
               << " rSquaredNotStopEarly = " << rSquaredNotStopEarly);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         0.0, biasStopEarly,

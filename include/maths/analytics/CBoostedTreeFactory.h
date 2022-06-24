@@ -173,7 +173,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
-    CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+    CBoostedTreeFactory& stopHyperparameterOptimizationEarly(bool enable);
     //! Set the fraction of data rows for data summarization in (0.0, 1.0].
     CBoostedTreeFactory& dataSummarizationFraction(double fraction);
     //! Set the row mask for new data with which we want to incrementally train.
