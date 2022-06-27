@@ -13,7 +13,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_MACOSX_RPATH 1)
   set(CMAKE_INSTALL_RPATH "@loader_path")
 endif()
 
