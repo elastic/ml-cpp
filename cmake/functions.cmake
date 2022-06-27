@@ -67,10 +67,10 @@ function(ml_generate_resources _target)
     set(ML_NAME ${CMAKE_MATCH_1})
   endif()
   set(ML_YEAR ${BUILD_YEAR})
-  set(ML_ICON ${CMAKE_SOURCE_DIR}/mk/ml.ico)
+  set(ML_ICON ${CMAKE_SOURCE_DIR}/cmake/ml.ico)
 
   configure_file(
-	"${CMAKE_SOURCE_DIR}/mk/ml.rc.in"
+	"${CMAKE_SOURCE_DIR}/cmake/ml.rc.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/${ML_NAME}.rc"
         @ONLY
         )
@@ -277,7 +277,7 @@ function(ml_doxygen _output)
   set(DOXYGEN_HTML_OUTPUT            ${_output})
   set(DOXYGEN_PROJECT_NAME           "ML C++")
   set(DOXYGEN_PROJECT_NUMBER         ${ML_VERSION_NUM})
-  set(DOXYGEN_PROJECT_LOGO           mk/ml.ico)
+  set(DOXYGEN_PROJECT_LOGO           cmake/ml.ico)
   set(DOXYGEN_OUTPUT_DIRECTORY       ${CMAKE_SOURCE_DIR}/build/doxygen)
   set(DOXYGEN_INHERIT_DOCS           NO)
   set(DOXYGEN_SEPARATE_MEMBER_PAGES  NO)

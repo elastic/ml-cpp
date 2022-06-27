@@ -53,11 +53,8 @@ project("ML")
 include(variables)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  add_custom_target(
-    plist ALL
-    DEPENDS $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh
-    DEPENDS $ENV{CPP_SRC_HOME}/gradle.properties
-    COMMAND $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh "${ML_APP_NAME}" false > Info.plist
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/Info.plist.in
+    ${CMAKE_BINARY_DIR}/Info.plist
     )
   install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
