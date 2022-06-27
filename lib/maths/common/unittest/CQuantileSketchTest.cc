@@ -473,14 +473,13 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
             for (double t = 1.0; t <= 50.0; t += 1.0) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.0, 20.0 * t, 1000, samples);
-                testSketch(sketch, samples, 0.04 * t, 0.12 * t, meanBias, meanError);
+                testSketch(sketch, samples, 0.10 * t, 0.12 * t, meanBias, meanError);
             }
-            LOG_DEBUG(<< "mean bias = "
-                      << std::fabs(maths::common::CBasicStatistics::mean(meanBias)) << ", mean error "
-                      << maths::common::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
+                      << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
             BOOST_TEST_REQUIRE(
                 std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0007);
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.004);
         };
 
         maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
@@ -500,12 +499,12 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
             for (double t = 1.0; t <= 50.0; t += 1.0) {
                 TDoubleVec samples;
                 rng.generateNormalSamples(20.0 * (t - 1.0), 20.0 * t, 1000, samples);
-                testSketch(sketch, samples, 0.03 * t, 0.09 * t, meanBias, meanError);
+                testSketch(sketch, samples, 0.03 * t, 0.1 * t, meanBias, meanError);
             }
-            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
-                      << maths::common::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
+                      << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
             BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.002);
+                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0005);
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
         };
 
@@ -528,10 +527,10 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
                 rng.generateLogNormalSamples(0.03 * (t - 1.0), 0.12 * t, 1000, samples);
                 testSketch(sketch, samples, 0.05 * t, 0.1 * t, meanBias, meanError);
             }
-            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
-                      << maths::common::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
+                      << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
             BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0006);
+                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0005);
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0009);
         };
 
@@ -565,8 +564,8 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
                 rng.random_shuffle(samples.begin(), samples.end());
                 testSketch(sketch, samples, maxBias * t, maxError * t, meanBias, meanError);
             }
-            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
-                      << maths::common::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
+                      << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
             BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) <
                                maxMeanBias);
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
