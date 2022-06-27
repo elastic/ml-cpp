@@ -52,7 +52,7 @@ class Job:
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  verbose: bool = True, run=None):
-        """Initialize the class .
+        """Initialize the class.
 
         Args:
             input (Union[str, tempfile._TemporaryFileWrapper]): input filename or temp file handler
@@ -207,7 +207,7 @@ class Job:
                     self.run.add_artifact(self.config.name)
                 if is_temp(self.input):
                     self.run.add_artifact(self.input.name)
-                logger.info("Temprory files are stored as artifacts.")
+                logger.info("Temporary files are stored as artifacts.")
             if clean:
                 self.clean()
             raise RuntimeError("Running data_frame_analyzer failed.")
@@ -243,7 +243,7 @@ class Job:
         Note: Only works for binary classification.
 
         Returns:
-            Union[None, list]: prediction probabilities. 
+            Union[None, list]: prediction probabilities.
         """
         if self.analysis_name == 'regression':
             raise ValueError(
@@ -495,9 +495,9 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     return job
 
 
-def train(dataset_name: str, dataset: pandas.DataFrame, 
+def train(dataset_name: str, dataset: pandas.DataFrame,
           encode_job: Job=None, verbose: bool = True, run=None) -> Job:
-    """Train a model on the dataset .
+    """Train a model on the dataset.
 
     Args:
         dataset_name (str): [description]
@@ -530,7 +530,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame,
         restore_file = None
 
     job = run_job(input=data_file, config=config_file,
-                  persist=model_file, restore=restore_file, 
+                  persist=model_file, restore=restore_file,
                   verbose=verbose, run=run)
     return job
 
@@ -636,7 +636,7 @@ def encode(dataset_name: str,
     fdata.file.close()
     with open(configs_dir / f'{dataset_name}.json', encoding='utf-8') as fc:
         config = json.load(fc)
-    config['rows'] = dataset.shape[0] 
+    config['rows'] = dataset.shape[0]
     config = update_config(config, run=run)
 
     config['analysis']['parameters']['task'] = 'encode'

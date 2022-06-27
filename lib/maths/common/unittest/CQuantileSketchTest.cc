@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include "core/CMemory.h"
+#include "core/CStopWatch.h"
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -33,21 +35,18 @@ using namespace ml;
 namespace {
 
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void testSketch(maths::common::CQuantileSketch::EInterpolation interpolation,
-                std::size_t n,
+template<typename SKETCH>
+void testSketch(SKETCH sketch,
                 TDoubleVec& samples,
                 double maxBias,
                 double maxError,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
-    maths::common::CQuantileSketch sketch(interpolation, n);
-    maths::common::CFastQuantileSketch fastSketch(
-        interpolation, n, maths::common::CPRNG::CXorOShiro128Plus{}, 0.9);
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
-    fastSketch = std::for_each(samples.begin(), samples.end(), fastSketch);
-    LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+    LOG_TRACE(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
 
     std::size_t N = samples.size();
     std::sort(samples.begin(), samples.end());
@@ -58,19 +57,18 @@ void testSketch(maths::common::CQuantileSketch::EInterpolation interpolation,
         double q = static_cast<double>(i) / 20.0;
         double xq = samples[static_cast<std::size_t>(static_cast<double>(N) * q)];
         double sq;
-        BOOST_REQUIRE_EQUAL(sketch.quantile(100.0 * q, sq),
-                            fastSketch.quantile(100.0 * q, sq));
         BOOST_TEST_REQUIRE(sketch.quantile(100.0 * q, sq));
         bias.add(xq - sq);
         error.add(std::fabs(xq - sq));
     }
 
-    double min, max;
+    double min;
+    double max;
     sketch.quantile(0.0, min);
     sketch.quantile(100.0, max);
     double scale = max - min;
 
-    LOG_DEBUG(<< "bias = " << maths::common::CBasicStatistics::mean(bias)
+    LOG_TRACE(<< "bias = " << maths::common::CBasicStatistics::mean(bias)
               << ", error " << maths::common::CBasicStatistics::mean(error));
     BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(bias)) < maxBias);
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < maxError);
@@ -107,7 +105,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 }
 
 BOOST_AUTO_TEST_CASE(testReduce) {
-    LOG_DEBUG(<< "*** Linear ***");
+    LOG_DEBUG(<< "**** Linear ****");
     {
         maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 6);
 
@@ -184,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 1.5);
     }
 
-    LOG_DEBUG(<< "*** Piecewise Constant ***");
+    LOG_DEBUG(<< "**** Piecewise Constant ****");
     {
         maths::common::CQuantileSketch sketch(
             maths::common::CQuantileSketch::E_PiecewiseConstant, 6);
@@ -327,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 }
 
 BOOST_AUTO_TEST_CASE(testMedian) {
-    LOG_DEBUG(<< "*** Exact ***");
+    LOG_DEBUG(<< "**** Exact ****");
     {
         maths::common::CQuantileSketch sketch(
             maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
@@ -360,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testMedian) {
         BOOST_REQUIRE_EQUAL(5.0, median);
     }
 
-    LOG_DEBUG(<< "*** Approximate ***");
+    LOG_DEBUG(<< "**** Approximate ****");
 
     test::CRandomNumbers rng;
 
@@ -471,98 +469,130 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "*** Uniform ***");
+    LOG_DEBUG(<< "**** Uniform ****");
     {
-        TMeanAccumulator meanBias;
-        TMeanAccumulator meanError;
-        for (std::size_t t = 0; t < 5; ++t) {
-            TDoubleVec samples;
-            rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(maths::common::CQuantileSketch::E_Linear, 20, samples,
-                       0.15, 0.3, meanBias, meanError);
-        }
-        LOG_DEBUG(<< "mean bias = "
-                  << std::fabs(maths::common::CBasicStatistics::mean(meanBias)) << ", mean error "
-                  << maths::common::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0007);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
-    }
-
-    LOG_DEBUG(<< "*** Normal ***");
-    {
-        TMeanAccumulator meanBias;
-        TMeanAccumulator meanError;
-        for (std::size_t t = 0; t < 5; ++t) {
-            TDoubleVec samples;
-            rng.generateNormalSamples(20.0 * static_cast<double>(t),
-                                      20.0 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(maths::common::CQuantileSketch::E_Linear, 20, samples,
-                       0.16, 0.2, meanBias, meanError);
-        }
-        LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
-                  << ", mean error " << maths::common::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.002);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
-    }
-
-    LOG_DEBUG(<< "*** Log-Normal ***");
-    {
-        TMeanAccumulator meanBias;
-        TMeanAccumulator meanError;
-        for (std::size_t t = 0; t < 5; ++t) {
-            TDoubleVec samples;
-            rng.generateLogNormalSamples(0.1 * static_cast<double>(t),
-                                         0.4 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(maths::common::CQuantileSketch::E_Linear, 20, samples,
-                       0.11, 0.12, meanBias, meanError);
-        }
-        LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
-                  << ", mean error " << maths::common::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0006);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0009);
-    }
-    LOG_DEBUG(<< "*** Mixture ***");
-    {
-        TMeanAccumulator meanBiasLinear;
-        TMeanAccumulator meanErrorLinear;
-        TMeanAccumulator meanBiasPiecewise;
-        TMeanAccumulator meanErrorPiecewise;
-        for (std::size_t t = 0; t < 5; ++t) {
-            TDoubleVec samples_[4] = {};
-            rng.generateNormalSamples(10.0 * static_cast<double>(t),
-                                      20.0 * static_cast<double>(t + 1), 400,
-                                      samples_[0]);
-            rng.generateNormalSamples(20.0 * static_cast<double>(t),
-                                      20.0 * static_cast<double>(t + 1), 600,
-                                      samples_[1]);
-            rng.generateNormalSamples(100.0 * static_cast<double>(t),
-                                      40.0 * static_cast<double>(t + 1), 400,
-                                      samples_[2]);
-            rng.generateUniformSamples(500.0 * static_cast<double>(t),
-                                       550.0 * static_cast<double>(t + 1), 600,
-                                       samples_[3]);
-            TDoubleVec samples;
-            for (std::size_t i = 0; i < 4; ++i) {
-                samples.insert(samples.end(), samples_[i].begin(), samples_[i].end());
+        auto testUniform = [rng](const maths::common::CQuantileSketch& sketch) mutable {
+            TMeanAccumulator meanBias;
+            TMeanAccumulator meanError;
+            for (double t = 1.0; t <= 50.0; t += 1.0) {
+                TDoubleVec samples;
+                rng.generateUniformSamples(0.0, 20.0 * t, 1000, samples);
+                testSketch(sketch, samples, 0.04 * t, 0.12 * t, meanBias, meanError);
             }
-            rng.random_shuffle(samples.begin(), samples.end());
-            testSketch(maths::common::CQuantileSketch::E_Linear, 40, samples,
-                       49, 50, meanBiasLinear, meanErrorLinear);
-            testSketch(maths::common::CQuantileSketch::E_PiecewiseConstant, 40,
-                       samples, 55, 56, meanBiasPiecewise, meanErrorPiecewise);
-        }
-        LOG_DEBUG(<< "linear mean bias = "
-                  << maths::common::CBasicStatistics::mean(meanBiasLinear) << ", mean error "
-                  << maths::common::CBasicStatistics::mean(meanErrorLinear));
-        BOOST_TEST_REQUIRE(
-            std::fabs(maths::common::CBasicStatistics::mean(meanBiasLinear)) < 0.012);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanErrorLinear) < 0.013);
-        LOG_DEBUG(<< "piecewise mean bias = "
-                  << maths::common::CBasicStatistics::mean(meanBiasPiecewise) << ", mean error "
-                  << maths::common::CBasicStatistics::mean(meanErrorPiecewise));
-        BOOST_TEST_REQUIRE(
-            std::fabs(maths::common::CBasicStatistics::mean(meanBiasPiecewise)) < 0.015);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanErrorPiecewise) < 0.015);
+            LOG_DEBUG(<< "mean bias = "
+                      << std::fabs(maths::common::CBasicStatistics::mean(meanBias)) << ", mean error "
+                      << maths::common::CBasicStatistics::mean(meanError));
+            BOOST_TEST_REQUIRE(
+                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0007);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
+        };
+
+        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CFastQuantileSketch fastSketch{
+            maths::common::CQuantileSketch::E_Linear, 20};
+        LOG_DEBUG(<< "** sketch **");
+        testUniform(sketch);
+        LOG_DEBUG(<< "** fast sketch **");
+        testUniform(fastSketch);
+    }
+
+    LOG_DEBUG(<< "**** Normal ****");
+    {
+        auto testNormal = [rng](const maths::common::CQuantileSketch& sketch) mutable {
+            TMeanAccumulator meanBias;
+            TMeanAccumulator meanError;
+            for (double t = 1.0; t <= 50.0; t += 1.0) {
+                TDoubleVec samples;
+                rng.generateNormalSamples(20.0 * (t - 1.0), 20.0 * t, 1000, samples);
+                testSketch(sketch, samples, 0.03 * t, 0.09 * t, meanBias, meanError);
+            }
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
+                      << maths::common::CBasicStatistics::mean(meanError));
+            BOOST_TEST_REQUIRE(
+                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.002);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
+        };
+
+        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CFastQuantileSketch fastSketch{
+            maths::common::CQuantileSketch::E_Linear, 20};
+        LOG_DEBUG(<< "** sketch **");
+        testNormal(sketch);
+        LOG_DEBUG(<< "** fast sketch **");
+        testNormal(fastSketch);
+    }
+
+    LOG_DEBUG(<< "**** Log-Normal ****");
+    {
+        auto testLogNormal = [&](const maths::common::CQuantileSketch& sketch) {
+            TMeanAccumulator meanBias;
+            TMeanAccumulator meanError;
+            for (double t = 1.0; t <= 50.0; t += 1.0) {
+                TDoubleVec samples;
+                rng.generateLogNormalSamples(0.03 * (t - 1.0), 0.12 * t, 1000, samples);
+                testSketch(sketch, samples, 0.05 * t, 0.1 * t, meanBias, meanError);
+            }
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
+                      << maths::common::CBasicStatistics::mean(meanError));
+            BOOST_TEST_REQUIRE(
+                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0006);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0009);
+        };
+
+        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CFastQuantileSketch fastSketch{
+            maths::common::CQuantileSketch::E_Linear, 20};
+        LOG_DEBUG(<< "** sketch **");
+        testLogNormal(sketch);
+        LOG_DEBUG(<< "** fast sketch **");
+        testLogNormal(fastSketch);
+    }
+
+    LOG_DEBUG(<< "**** Mixture ****");
+    {
+        auto testMixture = [rng](const maths::common::CQuantileSketch& sketch,
+                                 double maxBias, double maxError,
+                                 double maxMeanBias, double maxMeanError) mutable {
+            TMeanAccumulator meanBias;
+            TMeanAccumulator meanError;
+            for (double t = 1.0; t < 50.0; ++t) {
+                TDoubleVecVec samples_(4);
+                rng.generateNormalSamples(10.0 * (t - 1.0), 20.0 * t, 400, samples_[0]);
+                rng.generateNormalSamples(20.0 * (t - 1.0), 20.0 * t, 600, samples_[1]);
+                rng.generateNormalSamples(100.0 * (t - 1.0), 40.0 * t, 400, samples_[2]);
+                rng.generateUniformSamples(500.0 * (t - 1.0), 550.0 * t, 600, samples_[3]);
+                TDoubleVec samples;
+                for (std::size_t i = 0; i < 4; ++i) {
+                    samples.insert(samples.end(), samples_[i].begin(),
+                                   samples_[i].end());
+                }
+                rng.random_shuffle(samples.begin(), samples.end());
+                testSketch(sketch, samples, maxBias * t, maxError * t, meanBias, meanError);
+            }
+            LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias) << ", mean error "
+                      << maths::common::CBasicStatistics::mean(meanError));
+            BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) <
+                               maxMeanBias);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
+        };
+
+        maths::common::CQuantileSketch linearSketch{
+            maths::common::CQuantileSketch::E_Linear, 40};
+        maths::common::CFastQuantileSketch fastLinearSketch{
+            maths::common::CQuantileSketch::E_Linear, 40};
+        maths::common::CQuantileSketch piecewiseSketch{
+            maths::common::CQuantileSketch::E_PiecewiseConstant, 40};
+        maths::common::CFastQuantileSketch fastPiecewiseSketch{
+            maths::common::CQuantileSketch::E_PiecewiseConstant, 40};
+
+        LOG_DEBUG(<< "** linear sketch **");
+        testMixture(linearSketch, 60, 62, 0.021, 0.022);
+        LOG_DEBUG(<< "** fast linear sketch **");
+        testMixture(fastLinearSketch, 60, 62, 0.021, 0.022);
+        LOG_DEBUG(<< "** piecewise sketch **");
+        testMixture(linearSketch, 55, 56, 0.021, 0.022);
+        LOG_DEBUG(<< "** fast piecewise sketch **");
+        testMixture(fastLinearSketch, 55, 56, 0.021, 0.022);
     }
 }
 
@@ -571,14 +601,14 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "*** Exact ***");
+    LOG_DEBUG(<< "**** Exact ****");
     {
-        double values[] = {1.3, 5.2, 0.3, 0.7, 6.9, 10.3, 0.1, -2.9, 9.3, 0.0};
+        TDoubleVec values{1.3, 5.2, 0.3, 0.7, 6.9, 10.3, 0.1, -2.9, 9.3, 0.0};
 
         {
             maths::common::CQuantileSketch sketch(
                 maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
-            sketch = std::for_each(std::begin(values), std::end(values), sketch);
+            sketch = std::for_each(values.begin(), values.end(), sketch);
             for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
@@ -613,7 +643,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         }
     }
 
-    LOG_DEBUG(<< "*** Uniform ***");
+    LOG_DEBUG(<< "**** Uniform ****");
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
@@ -642,14 +672,43 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testFastSketch) {
+
+    // Check that the fast sketch with the same reduction factor produces identical results.
+
+    test::CRandomNumbers generator;
+    TDoubleVec samples;
+    generator.generateUniformSamples(0.0, 5000.0, 10000000, samples);
+
+    {
+        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
+        core::CStopWatch watch{true};
+        for (const auto& sample : samples) {
+            sketch.add(sample);
+        }
+        LOG_DEBUG(<< watch.lap());
+        LOG_DEBUG(<< core::CMemory::dynamicSize(&sketch));
+    }
+
+    {
+        maths::common::CFastQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
+        core::CStopWatch watch{true};
+        for (const auto& sample : samples) {
+            sketch.add(sample);
+        }
+        LOG_DEBUG(<< watch.lap());
+        LOG_DEBUG(<< core::CMemory::dynamicSize(&sketch));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers generator;
     TDoubleVec samples;
-    generator.generateUniformSamples(0.0, 5000.0, 500u, samples);
+    generator.generateUniformSamples(0.0, 5000.0, 500, samples);
 
-    maths::common::CQuantileSketch origSketch(maths::common::CQuantileSketch::E_Linear, 100u);
-    for (std::size_t i = 0; i < samples.size(); ++i) {
-        origSketch.add(samples[i]);
+    maths::common::CQuantileSketch origSketch{maths::common::CQuantileSketch::E_Linear, 100};
+    for (const auto& sample : samples) {
+        origSketch.add(sample);
     }
 
     std::string origXml;
@@ -661,15 +720,15 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "quantile sketch XML representation:\n" << origXml);
 
-    maths::common::CQuantileSketch restoredSketch(
-        maths::common::CQuantileSketch::E_Linear, 100u);
+    maths::common::CQuantileSketch restoredSketch{
+        maths::common::CQuantileSketch::E_Linear, 100};
     {
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            std::bind(&maths::common::CQuantileSketch::acceptRestoreTraverser,
-                      &restoredSketch, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
+            return restoredSketch.acceptRestoreTraverser(traverser_);
+        }));
     }
 
     // Checksums should agree.

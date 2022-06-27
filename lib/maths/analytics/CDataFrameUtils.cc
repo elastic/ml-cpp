@@ -174,10 +174,11 @@ regressionStratifiedCrossValidationRowSampler(std::size_t numberThreads,
                                               std::size_t numberBuckets,
                                               const core::CPackedBitVector& rowMask) {
 
-    auto quantiles = CDataFrameUtils::columnQuantiles(
-                         numberThreads, frame, rowMask, {targetColumn},
-                         common::CQuantileSketch{common::CQuantileSketch::E_Linear, 50})
-                         .first;
+    auto quantiles =
+        CDataFrameUtils::columnQuantiles(
+            numberThreads, frame, rowMask, {targetColumn},
+            common::CFastQuantileSketch{common::CFastQuantileSketch::E_Linear, 50})
+            .first;
 
     TDoubleVec buckets;
     for (double step = 100.0 / static_cast<double>(numberBuckets), percentile = step;
@@ -482,7 +483,7 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                  const core::CDataFrame& frame,
                                  const core::CPackedBitVector& rowMask,
                                  const TSizeVec& columnMask,
-                                 common::CQuantileSketch estimateQuantiles,
+                                 common::CFastQuantileSketch quantileEstimator,
                                  const CDataFrameCategoryEncoder* encoder,
                                  const TWeightFunc& weight) {
 
@@ -507,7 +508,7 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(columnMask.size(), estimateQuantiles));
+        TQuantileSketchVec(columnMask.size(), quantileEstimator));
     auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         result = std::move(quantiles);
     };
@@ -1222,7 +1223,8 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(2, common::CQuantileSketch{common::CQuantileSketch::E_Linear, 100}));
+        TQuantileSketchVec(2, common::CFastQuantileSketch{
+                                  common::CFastQuantileSketch::E_Linear, 100}));
     auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         result = std::move(quantiles);
     };

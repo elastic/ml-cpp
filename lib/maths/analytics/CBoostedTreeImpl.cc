@@ -63,11 +63,6 @@ using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumul
 using TMemoryUsageCallback = CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback;
 
 namespace {
-// It isn't critical to recompute splits every tree we add because random
-// downsampling means they're only approximate estimates of the full data
-// quantiles anyway. So we amortise their compute cost w.r.t. training trees
-// by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
-const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
@@ -210,6 +205,21 @@ double numberForestNodes(const CBoostedTreeImpl::TNodeVecVec& forest) {
         numberNodes += static_cast<double>(tree.size());
     }
     return numberNodes;
+}
+
+std::size_t minimumSplitRefreshInterval(double eta, std::size_t numberFeatures) {
+    // It isn't critical to recompute splits every tree we add. So we amortise
+    // the cost of computing them by only refreshing once every few trees.
+    //
+    // If eta is small then we ought to be able to use the same splits repeatedly
+    // since we only extract a fraction of the information in selected splits per
+    // tree.
+    //
+    // The relative cost of computing quantiles is proportional to the number
+    // of features so we scale by the number of features to ensure their cost
+    // is always negligible.
+    return static_cast<std::size_t>(std::round(std::max(
+        {0.5 / eta, 3.0 * static_cast<double>(numberFeatures) / 50.0, 3.0})));
 }
 }
 
@@ -895,7 +905,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     TMeanAccumulator meanLossGap;
     TDoubleVec numberTrees;
     numberTrees.reserve(m_Hyperparameters.currentRound());
-    TMeanAccumulator meanForestSizeAccumulator;
+    TMeanAccumulator meanForestSize;
 
     while (folds.empty() == false && stopCrossValidationEarly(testLossMoments) == false) {
         std::size_t fold{folds.back()};
@@ -912,26 +922,24 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         meanLossGap.add(lossGap);
         m_FoldRoundTestLosses[fold][m_Hyperparameters.currentRound()] = testLoss;
         numberTrees.push_back(static_cast<double>(forest.size()));
-        meanForestSizeAccumulator.add(numberForestNodes(forest));
+        meanForestSize.add(numberForestNodes(forest));
         m_Instrumentation->lossValues(fold, std::move(testLossValues));
     }
     m_TrainingProgress.increment(maximumNumberTrees * folds.size());
     LOG_TRACE(<< "skipped " << folds.size() << " folds");
 
-    std::sort(numberTrees.begin(), numberTrees.end());
-    std::size_t medianNumberTrees{
-        static_cast<std::size_t>(common::CBasicStatistics::median(numberTrees))};
-    double meanForestSize{common::CBasicStatistics::mean(meanForestSizeAccumulator)};
+    std::size_t medianNumberTrees{static_cast<std::size_t>(
+        common::CBasicStatistics::median(std::move(numberTrees)))};
     testLossMoments = this->correctTestLossMoments(folds, testLossMoments);
     LOG_TRACE(<< "test mean loss = " << common::CBasicStatistics::mean(testLossMoments)
               << ", sigma = " << std::sqrt(common::CBasicStatistics::mean(testLossMoments))
-              << ", mean number nodes in forest = " << meanForestSize);
+              << ", mean number nodes = " << common::CBasicStatistics::mean(meanForestSize));
 
-    m_Hyperparameters.addRoundStats(meanForestSizeAccumulator,
+    m_Hyperparameters.addRoundStats(meanForestSize,
                                     common::CBasicStatistics::mean(testLossMoments));
 
-    return {std::move(forest), testLossMoments,
-            common::CBasicStatistics::mean(meanLossGap), medianNumberTrees, meanForestSize};
+    return {std::move(forest), testLossMoments, common::CBasicStatistics::mean(meanLossGap),
+            medianNumberTrees, common::CBasicStatistics::mean(meanForestSize)};
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
@@ -1096,8 +1104,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
             this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
             scopeMemoryUsage.add(candidateSplits);
-            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
-                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
+            nextTreeCountToRefreshSplits += minimumSplitRefreshInterval(
+                eta, std::count_if(featuresToRefresh.begin(), featuresToRefresh.end(),
+                                   [](auto refresh) { return refresh; }));
         }
     } while (stoppingCondition.shouldStop(forest.size(), [&] {
         double trainLoss{this->meanLoss(frame, trainingRowMask)};
@@ -1107,7 +1116,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     }) == false);
 
     LOG_TRACE(<< "Stopped at " << forest.size() - 1 << "/"
-              << m_Hyperparameters.maximumNumberTrees().print());
+              << m_Hyperparameters.maximumNumberTrees().print()
+              << ", best test loss = " << stoppingCondition.bestTestLoss()
+              << ", loss gap = " << stoppingCondition.lossGap());
 
     trainingProgress.increment(
         std::max(m_Hyperparameters.maximumNumberTrees().value(), forest.size()) -
@@ -1224,8 +1235,9 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
             this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
             scopeMemoryUsage.add(candidateSplits);
-            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
-                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
+            nextTreeCountToRefreshSplits += minimumSplitRefreshInterval(
+                eta, std::count_if(featuresToRefresh.begin(), featuresToRefresh.end(),
+                                   [](auto refresh) { return refresh; }));
         }
 
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
@@ -2122,8 +2134,8 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trai
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) {
-    return static_cast<std::size_t>(
-        std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
+    return static_cast<std::size_t>(std::ceil(
+        10.0 * std::sqrt(std::min(static_cast<double>(numberRows), 250000.0))));
 }
 
 std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {

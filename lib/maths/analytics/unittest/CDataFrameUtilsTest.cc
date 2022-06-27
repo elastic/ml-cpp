@@ -51,7 +51,7 @@ using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
-using TQuantileSketchVec = std::vector<maths::common::CQuantileSketch>;
+using TQuantileSketchVec = std::vector<maths::common::CFastQuantileSketch>;
 
 auto generateCategoricalData(test::CRandomNumbers& rng,
                              std::size_t rows,
@@ -350,9 +350,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
 
             TQuantileSketchVec actualQuantiles;
             bool successful;
-            std::tie(actualQuantiles, successful) = maths::analytics::CDataFrameUtils::columnQuantiles(
-                threads, *frame, maskAll(rows), columnMask,
-                maths::common::CQuantileSketch{maths::common::CQuantileSketch::E_Linear, 100});
+            std::tie(actualQuantiles, successful) =
+                maths::analytics::CDataFrameUtils::columnQuantiles(
+                    threads, *frame, maskAll(rows), columnMask,
+                    maths::common::CFastQuantileSketch{
+                        maths::common::CQuantileSketch::E_Linear, 100});
             BOOST_TEST_REQUIRE(successful);
 
             // Check the quantile sketches match.
@@ -362,7 +364,8 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             for (std::size_t i = 5; i < 100; i += 5) {
                 for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {
                     double x{static_cast<double>(i)};
-                    double qa, qe;
+                    double qa;
+                    double qe;
                     BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
                     BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -372,12 +375,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             }
 
             TMeanAccumulator mae;
-            for (std::size_t i = 0; i < columnsMae.size(); ++i) {
+            for (auto& columnMae : columnsMae) {
                 LOG_DEBUG(<< "Column MAE = "
-                          << maths::common::CBasicStatistics::mean(columnsMae[i]));
-                BOOST_TEST_REQUIRE(
-                    maths::common::CBasicStatistics::mean(columnsMae[i]) < 0.03);
-                mae += columnsMae[i];
+                          << maths::common::CBasicStatistics::mean(columnMae));
+                BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(columnMae) < 0.03);
+                mae += columnMae;
             }
             LOG_DEBUG(<< "MAE = " << maths::common::CBasicStatistics::mean(mae));
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.015);
@@ -457,14 +459,15 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
     bool successful;
     std::tie(actualQuantiles, successful) = maths::analytics::CDataFrameUtils::columnQuantiles(
         1, *frame, maskAll(rows), columnMask,
-        maths::common::CQuantileSketch{maths::common::CQuantileSketch::E_Linear, 100},
+        maths::common::CFastQuantileSketch{maths::common::CFastQuantileSketch::E_Linear, 100},
         &encoder);
     BOOST_TEST_REQUIRE(successful);
 
     for (std::size_t i = 5; i < 100; i += 5) {
         for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {
             double x{static_cast<double>(i)};
-            double qa, qe;
+            double qa;
+            double qe;
             BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
             BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
             BOOST_REQUIRE_EQUAL(qe, qa);

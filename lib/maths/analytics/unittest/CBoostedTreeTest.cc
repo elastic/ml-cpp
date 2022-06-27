@@ -845,7 +845,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
-    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
+    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.25 * std::fabs(biasWithoutWeights));
     BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
@@ -1010,9 +1010,11 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto frame = core::makeMainStorageDataFrame(cols, rows).first;
     fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
+    // We disable early stopping because we test hold losses from fine tuning.
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
+                          .stopHyperparameterOptimizationEarly(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();

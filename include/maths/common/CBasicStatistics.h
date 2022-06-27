@@ -66,10 +66,10 @@ public:
     static double mean(const TDoubleVec& data);
 
     //! Compute the sample median.
-    static double median(const TDoubleVec& data);
+    static double median(TDoubleVec data);
 
     //! Compute the median absolute deviation.
-    static double mad(const TDoubleVec& data);
+    static double mad(TDoubleVec data);
 
     //! Compute the maximum of \p first, \p second and \p third.
     template<typename T>

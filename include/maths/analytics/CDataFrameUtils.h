@@ -33,7 +33,7 @@ class CPackedBitVector;
 }
 namespace maths {
 namespace common {
-class CQuantileSketch;
+class CFastQuantileSketch;
 }
 namespace analytics {
 class CDataFrameCategoryEncoder;
@@ -82,7 +82,7 @@ public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
     using TReadPredictionFunc = std::function<TMemoryMappedFloatVector(const TRowRef&)>;
-    using TQuantileSketchVec = std::vector<common::CQuantileSketch>;
+    using TQuantileSketchVec = std::vector<common::CFastQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
     //! \brief Defines the data type of a collection of numbers.
@@ -103,7 +103,7 @@ public:
     //! \brief Used to extract the value from a specific column of the data frame.
     class MATHS_ANALYTICS_EXPORT CColumnValue {
     public:
-        CColumnValue(std::size_t column) : m_Column{column} {}
+        explicit CColumnValue(std::size_t column) : m_Column{column} {}
         virtual ~CColumnValue() = default;
         virtual double operator()(const TRowRef& row) const = 0;
         virtual double operator()(const TFloatVec& row) const = 0;
@@ -119,7 +119,8 @@ public:
     //! \brief Used to extract the value from a metric column of the data frame.
     class MATHS_ANALYTICS_EXPORT CMetricColumnValue final : public CColumnValue {
     public:
-        CMetricColumnValue(std::size_t column) : CColumnValue{column} {}
+        explicit CMetricColumnValue(std::size_t column)
+            : CColumnValue{column} {}
         double operator()(const TRowRef& row) const override {
             return row[this->column()];
         }
@@ -265,7 +266,7 @@ public:
                     const core::CDataFrame& frame,
                     const core::CPackedBitVector& rowMask,
                     const TSizeVec& columnMask,
-                    common::CQuantileSketch quantileEstimator,
+                    common::CFastQuantileSketch quantileEstimator,
                     const CDataFrameCategoryEncoder* encoder = nullptr,
                     const TWeightFunc& weight = unitWeight);
 
