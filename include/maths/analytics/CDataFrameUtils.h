@@ -33,6 +33,7 @@ class CPackedBitVector;
 }
 namespace maths {
 namespace common {
+class CQuantileSketch;
 class CFastQuantileSketch;
 }
 namespace analytics {
@@ -82,7 +83,8 @@ public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
     using TReadPredictionFunc = std::function<TMemoryMappedFloatVector(const TRowRef&)>;
-    using TQuantileSketchVec = std::vector<common::CFastQuantileSketch>;
+    using TQuantileSketchVec = std::vector<common::CQuantileSketch>;
+    using TFastQuantileSketchVec = std::vector<common::CFastQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
     //! \brief Defines the data type of a collection of numbers.
@@ -261,7 +263,7 @@ public:
     //! quantiles.
     //! \param[in] weight The weight to assign each row. The default is unity for
     //! all rows.
-    static std::pair<TQuantileSketchVec, bool>
+    static std::pair<TFastQuantileSketchVec, bool>
     columnQuantiles(std::size_t numberThreads,
                     const core::CDataFrame& frame,
                     const core::CPackedBitVector& rowMask,

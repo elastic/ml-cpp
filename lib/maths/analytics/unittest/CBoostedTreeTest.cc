@@ -845,7 +845,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
-    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.25 * std::fabs(biasWithoutWeights));
+    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
     BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
@@ -2290,7 +2290,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.7);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.74);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -2625,7 +2625,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 15.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 5.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

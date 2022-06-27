@@ -19,6 +19,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/CPRNG.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/CTools.h>
 #include <maths/common/CToolsDetail.h>
@@ -305,7 +306,8 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
     std::size_t capacity{500};
 
     TDoubleVecVec values(4);
-    TQuantileSketchVec expectedQuantiles(4, {maths::common::CQuantileSketch::E_Linear, 100});
+    TQuantileSketchVec expectedQuantiles(
+        4, {maths::common::CFastQuantileSketch::E_Linear, rows});
     {
         std::size_t i = 0;
         for (auto a : {-10.0, 0.0}) {
@@ -353,8 +355,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             std::tie(actualQuantiles, successful) =
                 maths::analytics::CDataFrameUtils::columnQuantiles(
                     threads, *frame, maskAll(rows), columnMask,
-                    maths::common::CFastQuantileSketch{
-                        maths::common::CQuantileSketch::E_Linear, 100});
+                    {maths::common::CFastQuantileSketch::E_Linear, 100});
             BOOST_TEST_REQUIRE(successful);
 
             // Check the quantile sketches match.
@@ -369,7 +370,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
                     BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
                     BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                        qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
+                        qe, qa, 0.08 * std::max(std::fabs(qe), 2.5));
                     columnsMae[feature].add(std::fabs(qa - qe));
                 }
             }
@@ -378,11 +379,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             for (auto& columnMae : columnsMae) {
                 LOG_DEBUG(<< "Column MAE = "
                           << maths::common::CBasicStatistics::mean(columnMae));
-                BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(columnMae) < 0.03);
+                BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(columnMae) < 0.08);
                 mae += columnMae;
             }
             LOG_DEBUG(<< "MAE = " << maths::common::CBasicStatistics::mean(mae));
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.015);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.05);
         }
 
         core::startDefaultAsyncExecutor();
@@ -444,7 +445,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
     TQuantileSketchVec expectedQuantiles{
-        columnMask.size(), {maths::common::CQuantileSketch::E_Linear, 100}};
+        columnMask.size(), {maths::common::CFastQuantileSketch::E_Linear, 100}};
     frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
                            const core::CDataFrame::TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -459,8 +460,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
     bool successful;
     std::tie(actualQuantiles, successful) = maths::analytics::CDataFrameUtils::columnQuantiles(
         1, *frame, maskAll(rows), columnMask,
-        maths::common::CFastQuantileSketch{maths::common::CFastQuantileSketch::E_Linear, 100},
-        &encoder);
+        {maths::common::CFastQuantileSketch::E_Linear, 100}, &encoder);
     BOOST_TEST_REQUIRE(successful);
 
     for (std::size_t i = 5; i < 100; i += 5) {
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         auto frame = core::makeMainStorageDataFrame(numberCols).first;
         frame->categoricalColumns(TBoolVec{true});
         for (std::size_t i = 0; i < numberRows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            frame->writeRow([&](auto column, std::int32_t&) {
                 *column = std::floor(std::fabs(categories[i]));
             });
         }
@@ -741,8 +741,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
 
         TDoubleDoubleUMap testingCategoryCounts;
         frame->readRows(1, 0, frame->numberRows(),
-                        [&](const core::CDataFrame::TRowItr& beginRows,
-                            const core::CDataFrame::TRowItr& endRows) {
+                        [&](const auto& beginRows, const auto& endRows) {
                             for (auto row = beginRows; row != endRows; ++row) {
                                 testingCategoryCounts[(*row)[0]] += 1.0;
                             }
@@ -781,8 +780,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         maths::common::CQuantileSketch expectedQuantiles(
             maths::common::CQuantileSketch::E_Linear, numberRows);
         maths::common::CQuantileSketch actualQuantiles(
-            maths::common::CQuantileSketch::E_Linear,
-            static_cast<std::size_t>(samplingRowMask.manhattan()));
+            maths::common::CQuantileSketch::E_Linear, numberRows);
         for (std::size_t i = 0; i < numberRows; ++i) {
             expectedQuantiles.add(value[i]);
             if (samplingRowMask[i]) {
@@ -820,13 +818,12 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         auto frame = core::makeMainStorageDataFrame(numberCols).first;
         frame->categoricalColumns(TBoolVec{true});
         for (std::size_t i = 0; i < numberDistributionSourceRows[0]; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            frame->writeRow([&](auto column, std::int32_t&) {
                 *column = std::floor(std::fabs(categories[i]));
             });
         }
         for (std::size_t i = 0; i < numberAdditionalRows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
-                                std::int32_t&) { *column = 0; });
+            frame->writeRow([&](auto column, std::int32_t&) { *column = 0; });
         }
         frame->finishWritingRows();
         core::CPackedBitVector distributionSourceRowMask{
@@ -877,8 +874,8 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         auto frame = core::makeMainStorageDataFrame(numberCols).first;
         frame->categoricalColumns(TBoolVec{false});
         for (std::size_t i = 0; i < numberRows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
-                                std::int32_t&) { *column = value[i]; });
+            frame->writeRow(
+                [&](auto column, std::int32_t&) { *column = value[i]; });
         }
         frame->finishWritingRows();
         core::CPackedBitVector distributionSourceRowMask{
@@ -899,8 +896,7 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         maths::common::CQuantileSketch expectedQuantiles(
             maths::common::CQuantileSketch::E_Linear, numberRows);
         maths::common::CQuantileSketch actualQuantiles(
-            maths::common::CQuantileSketch::E_Linear,
-            static_cast<std::size_t>(sampledRowMask.manhattan()));
+            maths::common::CQuantileSketch::E_Linear, numberRows);
         for (std::size_t i = 0; i < numberRows; ++i) {
             if (distributionSourceRowMask[i]) {
                 expectedQuantiles.add(value[i]);

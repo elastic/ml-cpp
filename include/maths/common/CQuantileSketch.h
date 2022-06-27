@@ -123,11 +123,9 @@ protected:
     using TSizeVec = std::vector<std::size_t>;
 
 protected:
-    //! Get the target size for sketch post reduce.
-    virtual std::size_t target() const;
-
     //! Reduce to the maximum permitted size.
-    void reduceWithSuppliedCosts(TFloatFloatPrVec& mergeCosts,
+    void reduceWithSuppliedCosts(std::size_t target,
+                                 TFloatFloatPrVec& mergeCosts,
                                  TSizeVec& mergeCandidates,
                                  TBoolVec& stale);
 
@@ -147,8 +145,11 @@ protected:
     static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
 
 private:
-    //! Reduce to the maximum permitted size.
-    virtual void reduce();
+    //! A possibly accelerated implementation of reduce.
+    virtual void fastReduce();
+
+    //! Reduce to \p target size.
+    void reduce(std::size_t target);
 
     //! Compute quantiles on the supplied knots.
     static void quantile(EInterpolation interpolation,
@@ -230,10 +231,7 @@ public:
 
 private:
     //! Reduce to the maximum permitted size.
-    void reduce() override;
-
-    //! Get the target size for sketch post reduce.
-    std::size_t target() const override;
+    void fastReduce() override;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
