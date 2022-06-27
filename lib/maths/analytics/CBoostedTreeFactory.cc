@@ -770,6 +770,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
+
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         softTreeDepthLimitParameter.set(log2MaxTreeSize);
         softTreeDepthToleranceParameter.set(
@@ -803,11 +804,18 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         m_NumberTrees = hyperparameters.maximumNumberTrees().value();
 
         if (m_GainPerNode90thPercentile == 0.0) {
-            softTreeDepthLimitParameter.fixTo(MIN_SOFT_DEPTH_LIMIT);
-            depthPenaltyMultiplierParameter.fixTo(0.0);
-            treeSizePenaltyMultiplier.fixTo(0.0);
+            if (softTreeDepthLimitParameter.rangeFixed() == false) {
+                softTreeDepthLimitParameter.fixTo(MIN_SOFT_DEPTH_LIMIT);
+            }
+            if (depthPenaltyMultiplierParameter.rangeFixed() == false) {
+                depthPenaltyMultiplierParameter.fixTo(0.0);
+            }
+            if (treeSizePenaltyMultiplier.rangeFixed() == false) {
+                treeSizePenaltyMultiplier.fixTo(0.0);
+            }
         }
-        if (m_TotalCurvaturePerNode90thPercentile == 0.0) {
+        if (m_TotalCurvaturePerNode90thPercentile == 0.0 &&
+            leafWeightPenaltyMultiplier.rangeFixed() == false) {
             leafWeightPenaltyMultiplier.fixTo(0.0);
         }
 

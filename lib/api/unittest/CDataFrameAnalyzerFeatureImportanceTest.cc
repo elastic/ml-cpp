@@ -666,7 +666,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.3, -0.3})};
+    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
     auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
@@ -784,7 +784,10 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     double classProbabilities[3];
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{0.0}, c2{0.0}, c3{0.0}, c4{0.0};
+            double c1{0.0};
+            double c2{0.0};
+            double c3{0.0};
+            double c4{0.0};
             double denominator{0.0};
             for (std::size_t i = 0; i < classes.size(); ++i) {
                 // class shap values should sum(abs()) to the overall feature importance
