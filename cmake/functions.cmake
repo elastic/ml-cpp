@@ -153,6 +153,7 @@ function(ml_add_non_distributed_library _target _type)
     endif()
   endif()
 endfunction()
+
 #
 # Rules to create and install  a library target
 # _type may be SHARED or STATIC
@@ -250,6 +251,8 @@ function(ml_add_non_distributed_executable _target)
 
   add_executable(${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
+
+  target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
 
 endfunction()
 

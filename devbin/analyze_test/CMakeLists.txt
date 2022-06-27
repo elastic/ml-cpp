@@ -9,10 +9,8 @@
 # limitation.
 #
 
-add_subdirectory(unixtime_to_string)
-add_subdirectory(model_extractor)
-add_subdirectory(state_search_splitter)
-add_subdirectory(analyze_test)
-add_subdirectory(move_copy_swap)
-add_subdirectory(vfprog)
-add_subdirectory(vsbug)
+project("ML Analyze Test")
+
+ml_add_non_distributed_executable(analyze_test
+  Main.cc
+  )
