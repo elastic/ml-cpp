@@ -13,16 +13,15 @@ REM
 REM Set up a build environment, to ensure repeatable builds
 
 REM Initialize the Visual Studio command prompt environment variables
-cmd /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
 
 REM Set %CPP_SRC_HOME% to be an absolute path to this script's location, as
 REM different builds will come from different repositories and go to different
 REM staging areas
-SET MY_DIR=%~dp0
 SET CPP_SRC_HOME=%~dp0
 
 REM Logical filesystem root
-if NOT "%LOCAL_DRIVE%"== "" (SET ROOT=%LOCAL_DRIVE%) else (SET ROOT=C:)
+SET ROOT=%CD:~0,2%
 
 SET PATH=%ROOT%/PROGRA~1/CMake/bin;%CPP_SRC_HOME%/build/distribution/platform/windows-x86_64/bin;%PATH%
 		

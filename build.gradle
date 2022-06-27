@@ -117,7 +117,7 @@ clean {
     exec {
       environment makeEnvironment
       commandLine shell
-      args shell_flag, "${set_env} && set &&  + ${clean_cmd}"
+      args shell_flag, "${set_env} && ${clean_cmd}"
       workingDir "${projectDir}"
     }
   }
