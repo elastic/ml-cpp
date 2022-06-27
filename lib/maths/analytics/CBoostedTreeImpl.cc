@@ -219,7 +219,7 @@ std::size_t minimumSplitRefreshInterval(double eta, std::size_t numberFeatures) 
     // of features so we scale by the number of features to ensure their cost
     // is always negligible.
     return static_cast<std::size_t>(std::round(std::max(
-        {0.5 / eta, 3.0 * static_cast<double>(numberFeatures) / 50.0, 3.0})));
+        {0.5 / eta, static_cast<double>(numberFeatures) / 50.0, 3.0})));
 }
 }
 

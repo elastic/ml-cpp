@@ -202,7 +202,7 @@ public:
 //! \brief This tunes the quantile sketch for performance when space is less important.
 //!
 //! DESCRIPTION:\n
-//! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 3.0x
+//! This uses around 1.5x the memory than `CQuantileSketch` but updating is around 2-3x
 //! faster when using its default reduction factor.
 class MATHS_COMMON_EXPORT CFastQuantileSketch final : public CQuantileSketch {
 public:

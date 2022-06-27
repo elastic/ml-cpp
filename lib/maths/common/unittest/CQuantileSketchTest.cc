@@ -9,13 +9,13 @@
  * limitation.
  */
 
-#include "core/CMemory.h"
-#include "core/CStopWatch.h"
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CStopWatch.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CQuantileSketch.h>
@@ -231,27 +231,23 @@ BOOST_AUTO_TEST_CASE(testReduce) {
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
 
-        double points[] = {1.0,  2.0,  40.0, 13.0, 5.0,  6.0,  4.0,
-                           7.0,  15.0, 17.0, 19.0, 44.0, 42.0, 3.0,
-                           46.0, 48.0, 50.0, 21.0, 23.0, 52.0};
-        double cdf[] = {5.0,  10.0, 15.0, 20.0, 25.0, 30.0, 35.0,
-                        40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
-                        75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
+        TDoubleVec points{1.0,  2.0,  40.0, 13.0, 5.0,  6.0,  4.0,
+                          7.0,  15.0, 17.0, 19.0, 44.0, 42.0, 3.0,
+                          46.0, 48.0, 50.0, 21.0, 23.0, 52.0};
+        TDoubleVec cdf{5.0,  10.0, 15.0, 20.0, 25.0, 30.0, 35.0,
+                       40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
+                       75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::common::CQuantileSketch sketch(
             maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
-        for (std::size_t i = 0; i < boost::size(points); ++i) {
-            sketch.add(points[i]);
+        for (const auto& point : points) {
+            sketch.add(point);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
-            if ((i + 1) % 5 == 0) {
-                LOG_DEBUG(<< "sketch = "
-                          << core::CContainerPrinter::print(sketch.knots()));
-            }
         }
 
-        std::sort(std::begin(points), std::end(points));
+        std::sort(points.begin(), points.end());
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < cdf.size(); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -415,7 +411,7 @@ BOOST_AUTO_TEST_CASE(testMad) {
                                maths::common::CQuantileSketch::E_Linear}) {
         TMeanAccumulator error;
 
-        for (std::size_t t = 0; t < 100; ++t) {
+        for (std::size_t t = 0; t < 500; ++t) {
             rng.generateNormalSamples(10.0, 10.0, 101, samples);
 
             maths::common::CQuantileSketch sketch(interpolation, 20);
@@ -427,13 +423,13 @@ BOOST_AUTO_TEST_CASE(testMad) {
 
             std::nth_element(samples.begin(), samples.begin() + 50, samples.end());
             double median = samples[50];
-            for (auto&& sample : samples) {
+            for (auto& sample : samples) {
                 sample = std::fabs(sample - median);
             }
             std::nth_element(samples.begin(), samples.begin() + 50, samples.end());
             double expectedMad = samples[50];
 
-            if (t % 10 == 0) {
+            if (t % 50 == 0) {
                 LOG_DEBUG(<< "expected MAD = " << expectedMad << " actual MAD = " << mad);
             }
 
@@ -442,7 +438,7 @@ BOOST_AUTO_TEST_CASE(testMad) {
         }
 
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.07);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.075);
     }
 }
 
@@ -622,7 +618,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         }
         {
             maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 10);
-            sketch = std::for_each(std::begin(values), std::end(values), sketch);
+            sketch = std::for_each(values.begin(), values.end(), sketch);
             for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
@@ -672,33 +668,28 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testFastSketch) {
+BOOST_AUTO_TEST_CASE(testFastSketchPerformance) {
 
     // Check that the fast sketch with the same reduction factor produces identical results.
 
     test::CRandomNumbers generator;
     TDoubleVec samples;
-    generator.generateUniformSamples(0.0, 5000.0, 10000000, samples);
+    generator.generateUniformSamples(0.0, 5000.0, 1500000, samples);
+    maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
+    maths::common::CFastQuantileSketch fastSketch{maths::common::CQuantileSketch::E_Linear, 75};
 
-    {
-        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
-        core::CStopWatch watch{true};
-        for (const auto& sample : samples) {
-            sketch.add(sample);
-        }
-        LOG_DEBUG(<< watch.lap());
-        LOG_DEBUG(<< core::CMemory::dynamicSize(&sketch));
-    }
+    core::CStopWatch watch{true};
+    std::for_each(samples.begin(), samples.end(), sketch);
+    auto lap = watch.lap();
+    LOG_DEBUG(<< "sketch duration = " << lap);
 
-    {
-        maths::common::CFastQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
-        core::CStopWatch watch{true};
-        for (const auto& sample : samples) {
-            sketch.add(sample);
-        }
-        LOG_DEBUG(<< watch.lap());
-        LOG_DEBUG(<< core::CMemory::dynamicSize(&sketch));
-    }
+    std::for_each(samples.begin(), samples.end(), fastSketch);
+    LOG_DEBUG(<< "fast sketch duration = " << watch.lap() - lap);
+
+    LOG_DEBUG(<< "sketch memory usage = " << core::CMemory::dynamicSize(&sketch));
+    LOG_DEBUG(<< "fast sketch memory usage = " << core::CMemory::dynamicSize(&fastSketch));
+    BOOST_TEST_REQUIRE(2 * core::CMemory::dynamicSize(&sketch) >
+                       core::CMemory::dynamicSize(&fastSketch));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

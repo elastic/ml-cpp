@@ -471,7 +471,9 @@ void CQuantileSketch::reduceWithSuppliedCosts(TFloatFloatPrVec& mergeCosts,
             LOG_TRACE(<< "Merging " << l << " and " << r
                       << ", cost = " << mergeCosts[l - 1].first);
 
-            auto mergedKnot = this->mergedKnot(l, r, mergeCosts[l].second);
+            // Note that mergeCosts[l - 1].second isn't truly random because
+            // it is used for selecting the merge order, but it's good enough.
+            auto mergedKnot = this->mergedKnot(l, r, mergeCosts[l - 1].second);
 
             // Find the points that have been merged with xl and xr if any.
             std::ptrdiff_t ll{previousDifferent(m_Knots, l)};
@@ -533,6 +535,7 @@ CQuantileSketch::mergedKnot(std::size_t l, std::size_t r, double tieBreaker) con
     double nr{m_Knots[r].second};
     LOG_TRACE(<< "(xl,nl) = (" << xl << "," << nl << "), (xr,nr) = (" << xr
               << "," << nr << ")");
+
     TFloatFloatPr mergedKnot;
     switch (m_Interpolation) {
     case E_Linear:
@@ -544,6 +547,7 @@ CQuantileSketch::mergedKnot(std::size_t l, std::size_t r, double tieBreaker) con
         mergedKnot.second = nl + nr;
         break;
     }
+
     return mergedKnot;
 }
 
@@ -620,7 +624,7 @@ void CFastQuantileSketch::reduce() {
         for (std::size_t i = 0; i < numberToMerge; ++i) {
             std::size_t l{m_MergeCandidates[i] + 1};
             std::size_t r{static_cast<std::size_t>(nextDifferent(knots, l))};
-            auto mergedKnot = this->mergedKnot(l, r, m_MergeCosts[l].second);
+            auto mergedKnot = this->mergedKnot(l, r, m_MergeCosts[l - 1].second);
 
             // Find the points that have been merged with xl and xr if any.
             std::ptrdiff_t ll{previousDifferent(knots, l)};
