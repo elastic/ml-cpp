@@ -250,7 +250,7 @@ function(third_party _arg)
 
   # Special extra platform-specific processing
   if (CMAKE_SYSTEM_NAME STREQUAL "linux")
-    if (INSTALL_DIR AND NOT DEFINED ENV{CPP_CROSS_COMPILE} OR NOT $ENV{CPP_CROSS_COMPILE} STREQUAL "macosx")
+    if (INSTALL_DIR AND NOT DEFINED ENV{CPP_CROSS_COMPILE} OR NOT "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
       execute_process(COMMAND find . -type f COMMAND egrep -v '^core|-debug$|libMl' COMMAND xargs COMMAND sed -e "s/ /;/g" OUTPUT_VARIABLE FIND_RES WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
       foreach(RES ${FIND_RES})
         # Replace RPATH for 3rd party libraries that already have one
