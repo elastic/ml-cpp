@@ -9,7 +9,7 @@
 # limitation.
 #
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(CMAKE_INSTALL_RPATH "\$ORIGIN/../lib")
+  set(CMAKE_INSTALL_RPATH $ORIGIN/../lib)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
