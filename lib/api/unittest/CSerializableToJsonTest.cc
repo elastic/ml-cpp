@@ -70,8 +70,6 @@ private:
         writer.StartObject();
         writer.Key("name");
         writer.String(m_Name);
-        writer.EndObject();
-        writer.StartObject();
         writer.Key("values");
         writer.StartArray();
         for (const auto& value : m_Values) {

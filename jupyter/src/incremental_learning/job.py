@@ -434,6 +434,7 @@ class JobJSONEncoder(json.JSONEncoder):
 
 
 def update_config(config, run=None) -> dict:
+    config['analysis']['parameters']['data_summarization_fraction'] = 0.1
     if run:
         if 'threads' in run.config.keys():
             config['threads'] = run.config['threads']

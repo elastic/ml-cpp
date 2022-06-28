@@ -150,7 +150,14 @@ else()
   if (DEFINED ENV{VCBASE})
     set(VCBASE $ENV{VCBASE})
   endif()
-  set(VCVER "14.29.30133")
+
+  file(GLOB MSVC_VERS "${LOCAL_DRIVE}/${VCBASE}/VC/Tools/MSVC/*")
+  list(GET MSVC_VERS -1 MSVC_VER)
+  if(${MSVC_VER} MATCHES "/([^/]+)$")
+    set(VCVER ${CMAKE_MATCH_1})
+  endif()
+  message(STATUS "VCVER: ${VCVER}")
+
   set(STL_LOCATION "${LOCAL_DRIVE}/${VCBASE}/VC/Redist/MSVC/${VCVER}/x64/Microsoft.VC142.CRT")
   set(STL_PATTERN "140")
   set(STL_EXTENSION ".dll")
@@ -243,7 +250,7 @@ function(third_party _arg)
 
   # Special extra platform-specific processing
   if (CMAKE_SYSTEM_NAME STREQUAL "linux")
-    if (INSTALL_DIR AND NOT DEFINED ENV{CPP_CROSS_COMPILE} OR $ENV{CPP_CROSS_COMPILE} NOT STREQUAL "macosx")
+    if (INSTALL_DIR AND NOT DEFINED ENV{CPP_CROSS_COMPILE} OR NOT "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
       execute_process(COMMAND find . -type f COMMAND egrep -v '^core|-debug$|libMl' COMMAND xargs COMMAND sed -e "s/ /;/g" OUTPUT_VARIABLE FIND_RES WORKING_DIRECTORY "${INSTALL_DIR}" OUTPUT_STRIP_TRAILING_WHITESPACE)
       foreach(RES ${FIND_RES})
         # Replace RPATH for 3rd party libraries that already have one

@@ -318,7 +318,7 @@ const std::string CBoostedTreeParameter<T>::VALUE_TAG{"value"};
 template<typename T>
 class CScopeBoostedTreeParameterOverrides {
 public:
-    CScopeBoostedTreeParameterOverrides() = default;
+    CScopeBoostedTreeParameterOverrides() noexcept = default;
     ~CScopeBoostedTreeParameterOverrides() {
         // Undo changes in reverse order to which they were applied.
         for (std::size_t i = m_Parameters.size(); i > 0; --i) {
@@ -701,17 +701,13 @@ private:
     minimizeTestLoss(double intervalLeftEnd,
                      double intervalRightEnd,
                      TDoubleDoubleDoubleSizeTupleVec testLosses) const;
-    void checkIfCanSkipFineTuneSearch(const TIndexVec& relevantParameters,
-                                      double lossGap,
-                                      std::size_t numberTrees);
+    void checkIfCanSkipFineTuneSearch(double testLossVariance);
     void captureHyperparametersAndLoss(double loss);
-    TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
+    TVector currentParametersVector() const;
     void setHyperparameterValues(TVector parameters);
-    //! \note Only tunable parameters should be passed in \p parameters. If \p reestimate
-    //! is set to true, kernel parameters of the GP are re-estimated.
-    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
-    void resetBayesianOptimization();
     void saveCurrent();
+    template<typename F>
+    void foreachTunableParameter(const F& f) const;
 
 private:
     bool m_IncrementalTraining{false};
@@ -733,7 +729,7 @@ private:
     TSizeParameter m_MaximumNumberTrees{20, TSizeParameter::E_LinearSearch};
     //@}
 
-    //@ \name Hyperparameter Optimisation
+    //! \name Hyperparameter Optimisation
     //@{
     bool m_EarlyHyperparameterOptimizationStoppingEnabled{true};
     bool m_StopHyperparameterOptimizationEarly{false};
@@ -751,6 +747,7 @@ private:
     double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
+    TIndexVec m_LineSearchRelevantParameters;
     TVectorDoublePrVec m_LineSearchHyperparameterLosses;
     //@}
 };

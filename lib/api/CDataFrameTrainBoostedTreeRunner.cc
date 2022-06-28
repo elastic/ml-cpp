@@ -157,7 +157,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto numberRoundsPerHyperparameter =
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
             NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET);
-    auto earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
+    auto stopHyperparameterOptimizationEarly =
+        parameters[EARLY_STOPPING_ENABLED].fallback(true);
     auto bayesianOptimisationRestarts =
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0});
     auto stopCrossValidationEarly = parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true);
@@ -270,7 +271,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .earlyStoppingEnabled(earlyStoppingEnabled)
+        .stopHyperparameterOptimizationEarly(stopHyperparameterOptimizationEarly)
         .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining)
         .disableHyperparameterScaling(disableHyperparameterScaling)
         .downsampleFactor(std::move(downsampleFactor))

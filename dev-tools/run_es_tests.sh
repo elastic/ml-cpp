@@ -36,7 +36,7 @@ function isCloneTargetValid {
 }
 
 SELECTED_FORK=elastic
-SELECTED_BRANCH=master
+SELECTED_BRANCH=main
 
 function pickCloneTarget {
 
