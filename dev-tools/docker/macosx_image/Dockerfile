@@ -49,3 +49,11 @@ RUN \
   cd ../.. && \
   rm -rf cctools-port
 
+# Install CMake
+# v3.19.2 minimum is required
+RUN \
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh && \
+  chmod +x cmake-3.23.2-Linux-x86_64.sh && \
+  ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
+  rm -f cmake-3.23.2-Linux-x86_64.sh
+

@@ -12,7 +12,7 @@ It is possible to build on Windows Server 2012r2, Windows Server 2016 and Window
 
 ### Base requirements
 
-Follow the instructions (**only!**) for Windows 8 SDK and Git for Windows from [windows.md](windows.md).
+Follow the instructions (**only!**) for Windows 8 SDK, CMake and Git for Windows from [windows.md](windows.md).
 
 ### Microsoft C++ build tools
 

@@ -18,7 +18,7 @@ umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
 export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
@@ -239,12 +239,12 @@ to complete the build.
 
 ### CMake
 
-CMake version 3.5 is the minimum required to build PyTorch. Download version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh> and install:
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh> and install:
 
 ```
-chmod +x cmake-3.19.3-Linux-x86_64.sh
+chmod +x cmake-3.23.2-Linux-x86_64.sh
 sudo mkdir /usr/local/cmake
-sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
+sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 ```
 
 Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
