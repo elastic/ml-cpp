@@ -94,7 +94,7 @@ if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux)
   project.ext.shell = "cmd.exe"
   project.ext.set_env = ".\\set_env.bat"
   project.ext.shell_flag = "/c"
-  project.ext.clean_cmd = "rmdir /s /q cmake_build 3rd_party\\eigen"
+  project.ext.clean_cmd = "if exist cmake_build\\ (rmdir /s /q cmake_build) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
   // Stripping the binaries is not necessary on windows, execute a no-op command instead
   project.ext.strip_cmd = "cd ."
 }
