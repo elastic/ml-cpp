@@ -155,18 +155,6 @@ sudo make install
 
 to install.
 
-### CMake
-
-CMake version 3.19.2 is the minimum required to build ml-cpp. Download version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh> and install:
-
-```
-chmod +x cmake-3.23.2-Linux-x86_64.sh
-sudo mkdir /usr/local/cmake
-sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
-```
-
-Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
-
 ### patchelf
 
 Obtain patchelf from <https://github.com/NixOS/patchelf/releases/download/0.13/patchelf-0.13.tar.bz2>.

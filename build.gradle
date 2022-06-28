@@ -78,12 +78,9 @@ if (isWindows) {
   artifactClassifier = 'linux-' + osArch
 }
 
-String cmakeFlags = '--no-warn-unused-cli -D CMAKE_BUILD_TYPE=Release -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
-
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
 project.ext.make = (isMacOsX || isWindows) ? "gnumake" : "make"
-project.ext.cmake = "cmake"
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
@@ -100,25 +97,28 @@ clean {
     exec {
       environment makeEnvironment
       commandLine bash
-      args '-c', 'source ./set_env.sh && rm -rf 3rd_party/eigen cmake_build'
+      args '-c', 'source ./set_env.sh && ' + make + ' clean'
       workingDir "${projectDir}"
     }
   }
 }
 
-task configure(type: Exec) {
+task compile(type: Exec) {
+  // Only do this fully parallelised compile without linking step on a quad core
+  // machine or better - with fewer cores it's not worth it
+  enabled numCpus >= 4
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake_build ' + cmakeFlags
+  args '-c', 'source ./set_env.sh && 3rd_party/pull-eigen.sh && ' + make + ' -j' + numCpus + ' objcompile'
   workingDir "${projectDir}"
 }
 
-task compile(type: Exec) {
+task make(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -t install -v -j' + numCpus
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus
   workingDir "${projectDir}"
-  dependsOn 'configure'
+  dependsOn 'compile'
 }
 
 task strip(type: Exec) {
@@ -126,7 +126,7 @@ task strip(type: Exec) {
   commandLine bash
   args '-c', 'source ./set_env.sh && dev-tools/strip_binaries.sh'
   workingDir "${projectDir}"
-  dependsOn 'compile'
+  dependsOn 'make'
 }
 
 task format(type: Exec) {
@@ -190,7 +190,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -v -j' + numCpus + ' -t test'
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' test'
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'

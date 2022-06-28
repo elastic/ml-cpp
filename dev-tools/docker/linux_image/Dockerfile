@@ -112,13 +112,17 @@ RUN \
   /usr/local/bin/pip3.7 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
-# v3.19.2 minimum is required
+# v3.5 minimum is required
 RUN \
   cd ${build_dir} && \
-  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh && \
-  chmod +x cmake-3.23.2-Linux-x86_64.sh && \
-  ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/gcc103 && \
-  rm -f cmake-3.23.2-Linux-x86_64.sh
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh && \
+  chmod +x cmake-3.19.3-Linux-x86_64.sh && \
+  mkdir /usr/local/cmake && \
+  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake && \
+  rm -f cmake-3.19.3-Linux-x86_64.sh
+
+# Add cmake to PATH
+ENV PATH=${PATH}:/usr/local/cmake/bin
 
 # Install Intel MKL
 RUN \

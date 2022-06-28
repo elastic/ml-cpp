@@ -19,7 +19,7 @@ umask 0002
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
 export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7
 export PATH=$JAVA_HOME/bin:$PYTHONHOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
@@ -109,7 +109,7 @@ to install the Boost headers and libraries.
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp.  Download the graphical installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-macos-universal.dmg> (or get a more recent version).
+CMake is required to build PyTorch.  Download the graphical installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-macos-universal.dmg> (or get a more recent version).
 
 Open the `.dmg` and install the application it by dragging it to the `Applications` folder.
 

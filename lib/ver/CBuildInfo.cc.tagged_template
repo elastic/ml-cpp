@@ -19,13 +19,8 @@ namespace ver {
 // Initialise static strings
 // The tokens in the template file are substituted by the Makefile
 // @warning.comment@
-#ifdef DEV_BUILD
-const std::string CBuildInfo::VERSION_NUMBER("based on @version.number@");
-const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by @user.name@");
-#else
 const std::string CBuildInfo::VERSION_NUMBER("@version.number@");
 const std::string CBuildInfo::BUILD_NUMBER("@build.number@");
-#endif
 const std::string CBuildInfo::COPYRIGHT("Copyright (c) @build.year@ Elasticsearch BV");
 
 const std::string& CBuildInfo::versionNumber() {

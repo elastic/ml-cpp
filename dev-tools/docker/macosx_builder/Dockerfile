@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-macosx-build:15
+FROM docker.elastic.co/ml-dev/ml-macosx-build:14
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
@@ -19,8 +19,6 @@ COPY . /ml-cpp/
 
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE macosx
-
-ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/darwin-x86_64.cmake
 
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=
