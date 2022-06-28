@@ -11,7 +11,7 @@
 
 project("ML vflib")
 
-include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/devinclude)
+include_directories(${CMAKE_SOURCE_DIR}/devinclude)
 
 ml_add_non_distributed_library(Vf SHARED
   CIncrementer.cc
