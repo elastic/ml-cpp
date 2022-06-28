@@ -35,6 +35,7 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
+using TTimeVec = std::vector<core_t::TTime>;
 
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
@@ -55,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
     LOG_DEBUG(<< "Day of month");
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on the second day of the month.
-        core_t::TTime months[]{
+        TTimeVec months{
             86400,    // 2nd Jan
             2764800,  // 2nd Feb
             5184000,  // 2nd Mar
@@ -67,16 +68,15 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             21081600, // 2nd Sep
             23673600  // 2nd Oct
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time) - months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 30000 && time < months[i - 1] + 50000) {
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                                                                   : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
     LOG_DEBUG(<< "Days before end of month");
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on the last day of the month.
-        core_t::TTime months[]{
+        TTimeVec months{
             2592000,  // 31st Jan
             5011200,  // 28th Feb
             7689600,  // 31st Mar
@@ -114,16 +114,15 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             15552000, // 30th June
             18230400  // 31st July
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time) - months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 10000 && time < months[i - 1] + 20000) {
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -151,23 +150,22 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
     LOG_DEBUG(<< "Day of week week of month");
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on first Monday of each month.
-        core_t::TTime months[]{
+        TTimeVec months{
             345600,  // Mon 5th Jan
             2764800, // Mon 2nd Feb
             5184000, // Mon 2nd Mar
             8208000, // Mon 6th Apr
             10627200 // Mon 4th May
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time) - months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -185,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -195,23 +193,22 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
     LOG_DEBUG(<< "Day of week weeks before end of month");
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on last Friday of each month.
-        core_t::TTime months[]{
+        TTimeVec months{
             2505600, // Fri 30th Jan
             4924800, // Fri 27th Feb
             7344000, // Fri 27th Mar
             9763200, // Fri 24th Apr
             12787200 // Fri 29th May
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time) - months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -229,7 +226,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -238,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
     double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    BOOST_TEST_REQUIRE(accuracy > 0.9);
+    BOOST_TEST_REQUIRE(accuracy > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testTimeZones) {
@@ -253,23 +250,23 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
         LOG_DEBUG(<< "time zone offset = " << timeZoneOffset);
 
         // Repeated error on first Sunday of each month.
-        core_t::TTime months[]{
+        TTimeVec months{
             259200,  // Sun 4th Jan
             2678400, // Sun 1st Feb
             5097600, // Sun 1st Mar
             8121600, // Sun 5th Apr
             10540800 // Sun 3rd May
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time + timeZoneOffset) -
+                    months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 25000 &&
@@ -300,23 +297,23 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
         LOG_DEBUG(<< "time zone offset = " << timeZoneOffset);
 
         // Repeated error on last Friday of each month.
-        core_t::TTime months[]{
+        TTimeVec months{
             2592000, // Sat 31th Jan
             5011200, // Sat 28th Feb
             7430400, // Sat 28th Mar
             9849600, // Sat 25th Apr
             12873600 // Sat 30th May
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time + timeZoneOffset) -
+                    months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 45000 &&
@@ -343,7 +340,7 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
 
     double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    BOOST_TEST_REQUIRE(accuracy > 0.9);
+    BOOST_TEST_REQUIRE(accuracy > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
@@ -358,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
     LOG_DEBUG(<< "Day of month");
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on the second day of the month.
-        core_t::TTime months[]{
+        TTimeVec months{
             86400,    // 2nd Jan
             2764800,  // 2nd Feb
             5184000,  // 2nd Mar
@@ -370,16 +367,15 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
             21081600, // 2nd Sep
             23673600  // 2nd Oct
         };
-        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+        core_t::TTime end = months[months.size() - 1] + 86400;
 
         maths::time_series::CCalendarCyclicTest cyclic(HOUR);
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
-                std::lower_bound(std::begin(months), std::end(months), time) -
-                    std::begin(months),
-                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
+                std::lower_bound(months.begin(), months.end(), time) - months.begin(),
+                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 36000 && time < months[i - 1] + 39600) {
@@ -404,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
 
     double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    BOOST_TEST_REQUIRE(accuracy > 0.9);
+    BOOST_TEST_REQUIRE(accuracy > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testFalsePositives) {
@@ -432,7 +428,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
             }
         }
     }
@@ -456,7 +452,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
             }
         }
     }
@@ -482,7 +478,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
             }
         }
     }
@@ -522,9 +518,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            std::bind(&maths::time_series::CCalendarCyclicTest::acceptRestoreTraverser,
-                      &restored, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
+            return restored.acceptRestoreTraverser(traverser_);
+        }));
     }
     BOOST_REQUIRE_EQUAL(orig.checksum(), restored.checksum());
 

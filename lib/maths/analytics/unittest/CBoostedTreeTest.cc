@@ -3784,8 +3784,8 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
         return regression->hyperparameters().optimisationMakingNoProgress();
     };
 
-    BOOST_REQUIRE_EQUAL(verify(0.01), false);
-    BOOST_REQUIRE_EQUAL(verify(1000), true);
+    BOOST_REQUIRE_EQUAL(verify(0.001), false);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
