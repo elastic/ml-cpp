@@ -787,10 +787,10 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
         // Make sure all line search intervals are not empty.
         m_GainPerNode1stPercentile = common::CTools::truncate(
-            m_GainPerNode1stPercentile, 1e-6 * m_GainPerNode90thPercentile,
+            m_GainPerNode1stPercentile, 1e-7 * m_GainPerNode90thPercentile,
             0.1 * m_GainPerNode90thPercentile);
         m_TotalCurvaturePerNode1stPercentile = common::CTools::truncate(
-            m_TotalCurvaturePerNode1stPercentile, 1e-6 * m_TotalCurvaturePerNode90thPercentile,
+            m_TotalCurvaturePerNode1stPercentile, 1e-7 * m_TotalCurvaturePerNode90thPercentile,
             0.1 * m_TotalCurvaturePerNode90thPercentile);
 
         LOG_TRACE(<< "max depth = " << softTreeDepthLimitParameter.print());
