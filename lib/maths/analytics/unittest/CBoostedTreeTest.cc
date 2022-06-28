@@ -908,7 +908,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.95);
+    BOOST_TEST_REQUIRE(rSquared > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -2625,7 +2625,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 5.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 15.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
