@@ -218,8 +218,8 @@ std::size_t minimumSplitRefreshInterval(double eta, std::size_t numberFeatures) 
     // The relative cost of computing quantiles is proportional to the number
     // of features so we scale by the number of features to ensure their cost
     // is always negligible.
-    return static_cast<std::size_t>(std::round(std::max(
-        {0.5 / eta, static_cast<double>(numberFeatures) / 50.0, 3.0})));
+    return static_cast<std::size_t>(std::round(
+        std::max({0.5 / eta, static_cast<double>(numberFeatures) / 50.0, 3.0})));
 }
 }
 
@@ -1486,12 +1486,9 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                 auto row{*row_};
                 auto encodedRow = m_Encoder->encode(row);
                 auto* splits = beginSplits(row, m_ExtraColumns);
-                for (std::size_t i = 0; i < encodedRow.numberColumns(); ++splits) {
-                    CPackedUInt8Decorator::TUInt8Ary packedSplits{
-                        CPackedUInt8Decorator{*splits}.readBytes()};
-                    for (std::size_t j = 0;
-                         j < packedSplits.size() && i < encodedRow.numberColumns();
-                         ++i, ++j) {
+                for (std::size_t i = 0, n = encodedRow.numberColumns(); i < n; ++splits) {
+                    auto packedSplits = CPackedUInt8Decorator{*splits}.readBytes();
+                    for (std::size_t j = 0; j < packedSplits.size() && i < n; ++i, ++j) {
                         if (featureMask[i]) {
                             double feature{encodedRow[i]};
                             packedSplits[j] =
@@ -1500,7 +1497,8 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                                           missingSplit(candidateSplits[i]))
                                     : static_cast<std::uint8_t>(
                                           std::upper_bound(candidateSplits[i].begin(),
-                                                           candidateSplits[i].end(), feature) -
+                                                           candidateSplits[i].end(),
+                                                           common::CFloatStorage{feature}) -
                                           candidateSplits[i].begin());
                         }
                     }
