@@ -13,7 +13,6 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CTimezone.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -95,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                                                                   : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -140,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -183,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -226,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 850);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -280,7 +279,6 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
                 if (feature == boost::none) {
                     falseNegative += 1.0;
                 } else {
-                    LOG_DEBUG(<< feature->first.print() << " " << feature->second);
                     (feature->first.print() == "1st Sunday of month"
                          ? truePositive
                          : falsePositive) += 1.0;
@@ -428,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
             }
         }
     }
@@ -452,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
             }
         }
     }
@@ -478,7 +476,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 920);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
             }
         }
     }

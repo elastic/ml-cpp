@@ -167,8 +167,11 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
         return false;
     }
 
-    if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch*>(this)->reduce(m_MaxSize);
+    if (m_Unsorted > 0 || m_Knots.size() > this->fastReduceTargetSize()) {
+        // It is critical to match the size selected by the call to reduce in
+        // the add method or the unmerged values can cause issues estimating
+        // the cdf close to 0 or 1.
+        const_cast<CQuantileSketch*>(this)->reduce(this->fastReduceTargetSize());
     }
 
     CFloatStorage x = x_;
@@ -300,8 +303,11 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         LOG_ERROR(<< "No values added to quantile sketch");
         return false;
     }
-    if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch*>(this)->reduce(m_MaxSize);
+    if (m_Unsorted > 0 || m_Knots.size() > this->fastReduceTargetSize()) {
+        // It is critical to match the size selected by the call to reduce in
+        // the add method or the unmerged values can cause issues estimating
+        // percentiles close to 0 or 100.
+        const_cast<CQuantileSketch*>(this)->reduce(this->fastReduceTargetSize());
     }
     if (percentage < 0.0 || percentage > 100.0) {
         LOG_ERROR(<< "Invalid percentile " << percentage);
@@ -418,8 +424,12 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
     result = knots[n - 1].second;
 }
 
+std::size_t CQuantileSketch::fastReduceTargetSize() const {
+    return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
+}
+
 void CQuantileSketch::fastReduce() {
-    this->reduce(static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0));
+    this->reduce(this->fastReduceTargetSize());
 }
 
 void CQuantileSketch::reduce(std::size_t target) {
@@ -591,14 +601,17 @@ std::size_t CFastQuantileSketch::staticSize() const {
     return sizeof(*this);
 }
 
+std::size_t CFastQuantileSketch::fastReduceTargetSize() const {
+    return static_cast<std::size_t>(
+        m_ReductionFraction * static_cast<double>(this->maxSize()) + 1.0);
+}
+
 void CFastQuantileSketch::fastReduce() {
 
     this->orderAndDeduplicate();
 
-    std::size_t target{static_cast<std::size_t>(
-        m_ReductionFraction * static_cast<double>(this->maxSize()) + 1.0)};
     TFloatFloatPrVec& knots{this->writeableKnots()};
-    if (knots.size() > target) {
+    if (knots.size() > this->fastReduceTargetSize()) {
         std::size_t n{m_MergeCosts.size()};
         m_MergeCosts.resize(knots.size() - 3);
         std::uniform_real_distribution<double> u01{0.0, 1.0};
@@ -612,7 +625,7 @@ void CFastQuantileSketch::fastReduce() {
         }
         LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(m_MergeCosts));
 
-        std::size_t numberToMerge{knots.size() - target};
+        std::size_t numberToMerge{knots.size() - this->fastReduceTargetSize()};
 
         // This is pseudo greedy since unlike CQuantileSketch which is greedy.
         // We simply ignore the fact that we have slightly different costs for

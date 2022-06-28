@@ -145,6 +145,9 @@ protected:
     static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
 
 private:
+    //! Get the target size for fastReduce.
+    virtual std::size_t fastReduceTargetSize() const;
+
     //! A possibly accelerated implementation of reduce.
     virtual void fastReduce();
 
@@ -230,6 +233,9 @@ public:
     std::size_t staticSize() const override;
 
 private:
+    //! Get the target size for fastReduce.
+    std::size_t fastReduceTargetSize() const override;
+
     //! Reduce to the maximum permitted size.
     void fastReduce() override;
 

@@ -379,11 +379,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             for (auto& columnMae : columnsMae) {
                 LOG_DEBUG(<< "Column MAE = "
                           << maths::common::CBasicStatistics::mean(columnMae));
-                BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(columnMae) < 0.08);
+                BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(columnMae) < 0.07);
                 mae += columnMae;
             }
             LOG_DEBUG(<< "MAE = " << maths::common::CBasicStatistics::mean(mae));
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.05);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.04);
         }
 
         core::startDefaultAsyncExecutor();
