@@ -190,7 +190,16 @@ function(ml_add_library _target _type)
       target_link_libraries(${_target} PRIVATE
         "-current_version ${ML_VERSION_NUM}"
         "-compatibility_version ${ML_VERSION_NUM}"
-        "${COVERAGE}")
+        "${COVERAGE}"
+        )
+    endif()
+
+    # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
+    if("$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
+      target_link_libraries(${_target} PRIVATE
+          "-Wl,-install_name,@rpath/lib${_target}.dylib"
+          "-Wl,-rpath,@loader_path/."
+        )
     endif()
 
     ml_install(${_target})
@@ -234,6 +243,13 @@ function(ml_add_executable _target)
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(${_target} PRIVATE "${COVERAGE}")
+  endif()
+
+  # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
+  if("$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
+    target_link_libraries(${_target} PRIVATE
+      "-Wl,-rpath,@loader_path/../lib"
+      )
   endif()
 endfunction()
 
