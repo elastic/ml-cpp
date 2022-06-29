@@ -9,9 +9,6 @@
 # limitation.
 #
 
-# the name of the target operating system
-set(CMAKE_SYSTEM_NAME Linux)
-
 set(CPP_PLATFORM_HOME $ENV{CPP_SRC_HOME}/build/distribution/platform/linux-x86_64)
 
 message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
