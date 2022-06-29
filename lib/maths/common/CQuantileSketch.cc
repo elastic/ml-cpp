@@ -100,11 +100,11 @@ std::ptrdiff_t nextDifferent(TFloatFloatPrVec& knots, std::size_t index) {
     return next.index();
 }
 
-const double EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
-const std::size_t MINIMUM_MAX_SIZE = 3;
-const core::TPersistenceTag UNSORTED_TAG("a", "unsorted");
-const core::TPersistenceTag KNOTS_TAG("b", "knots");
-const core::TPersistenceTag COUNT_TAG("c", "count");
+const auto EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
+const std::size_t MINIMUM_MAX_SIZE{3};
+const core::TPersistenceTag UNSORTED_TAG{"a", "unsorted"};
+const core::TPersistenceTag KNOTS_TAG{"b", "knots"};
+const core::TPersistenceTag COUNT_TAG{"c", "count"};
 }
 
 CQuantileSketch::CQuantileSketch(EInterpolation interpolation, std::size_t size)
@@ -136,7 +136,7 @@ const CQuantileSketch& CQuantileSketch::operator+=(const CQuantileSketch& rhs) {
     m_Count += rhs.m_Count;
     LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(m_Knots));
 
-    this->reduce();
+    this->reduce(m_MaxSize);
 
     TFloatFloatPrVec values(m_Knots.begin(), m_Knots.end());
     m_Knots.swap(values);
@@ -149,7 +149,7 @@ void CQuantileSketch::add(double x, double n) {
     m_Knots.emplace_back(x, n);
     m_Count += n;
     if (m_Knots.size() > m_MaxSize) {
-        this->reduce();
+        this->fastReduce();
     }
 }
 
@@ -167,8 +167,11 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
         return false;
     }
 
-    if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch*>(this)->reduce();
+    if (m_Unsorted > 0 || m_Knots.size() > this->fastReduceTargetSize()) {
+        // It is critical to match the size selected by the call to reduce in
+        // the add method or the unmerged values can cause issues estimating
+        // the cdf close to 0 or 1.
+        const_cast<CQuantileSketch*>(this)->reduce(this->fastReduceTargetSize());
     }
 
     CFloatStorage x = x_;
@@ -300,8 +303,11 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         LOG_ERROR(<< "No values added to quantile sketch");
         return false;
     }
-    if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch*>(this)->reduce();
+    if (m_Unsorted > 0 || m_Knots.size() > this->fastReduceTargetSize()) {
+        // It is critical to match the size selected by the call to reduce in
+        // the add method or the unmerged values can cause issues estimating
+        // percentiles close to 0 or 100.
+        const_cast<CQuantileSketch*>(this)->reduce(this->fastReduceTargetSize());
     }
     if (percentage < 0.0 || percentage > 100.0) {
         LOG_ERROR(<< "Invalid percentile " << percentage);
@@ -349,14 +355,14 @@ bool CQuantileSketch::checkInvariants() const {
         LOG_ERROR(<< "Invalid unsorted count: " << m_Unsorted << "/" << m_Knots.size());
         return false;
     }
-    if (!std::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted)) {
+    if (std::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted) == false) {
         LOG_ERROR(<< "Unordered knots: "
                   << core::CContainerPrinter::print(m_Knots.begin(), m_Knots.end() - m_Unsorted));
         return false;
     }
     double count = 0.0;
-    for (std::size_t i = 0; i < m_Knots.size(); ++i) {
-        count += m_Knots[i].second;
+    for (const auto& knot : m_Knots) {
+        count += knot.second;
     }
     if (std::fabs(m_Count - count) > 10.0 * EPS * m_Count) {
         LOG_ERROR(<< "Count mismatch: error " << std::fabs(m_Count - count) << "/" << m_Count);
@@ -418,11 +424,19 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
     result = knots[n - 1].second;
 }
 
-void CQuantileSketch::reduce() {
+std::size_t CQuantileSketch::fastReduceTargetSize() const {
+    return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
+}
+
+void CQuantileSketch::fastReduce() {
+    this->reduce(this->fastReduceTargetSize());
+}
+
+void CQuantileSketch::reduce(std::size_t target) {
 
     this->orderAndDeduplicate();
 
-    if (m_Knots.size() > this->target()) {
+    if (m_Knots.size() > target) {
         TFloatFloatPrVec mergeCosts;
         TSizeVec mergeCandidates;
         TBoolVec stale(m_Knots.size(), false);
@@ -430,24 +444,19 @@ void CQuantileSketch::reduce() {
         mergeCandidates.reserve(m_Knots.size());
         CPRNG::CXorOShiro128Plus rng(static_cast<std::uint64_t>(m_Count));
         std::uniform_real_distribution<double> u01{0.0, 1.0};
-        for (std::size_t i = 1; i + 2 < m_Knots.size(); ++i) {
-            mergeCosts.emplace_back(cost(m_Knots[i], m_Knots[i + 1]), u01(rng));
-            mergeCandidates.push_back(i - 1);
+        for (std::size_t i = 0; i + 3 < m_Knots.size(); ++i) {
+            mergeCosts.emplace_back(cost(m_Knots[i + 1], m_Knots[i + 2]), u01(rng));
+            mergeCandidates.push_back(i);
         }
         LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(mergeCosts));
-
-        this->reduce(rng, mergeCosts, mergeCandidates, stale);
+        this->reduceWithSuppliedCosts(target, mergeCosts, mergeCandidates, stale);
     }
 }
 
-std::size_t CQuantileSketch::target() const {
-    return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
-}
-
-void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
-                             TFloatFloatPrVec& mergeCosts,
-                             TSizeVec& mergeCandidates,
-                             TBoolVec& stale) {
+void CQuantileSketch::reduceWithSuppliedCosts(std::size_t target,
+                                              TFloatFloatPrVec& mergeCosts,
+                                              TSizeVec& mergeCandidates,
+                                              TBoolVec& stale) {
 
     auto mergeCostGreater = [&mergeCosts](std::size_t lhs, std::size_t rhs) {
         return COrderings::lexicographical_compare(
@@ -456,11 +465,10 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
     };
     std::make_heap(mergeCandidates.begin(), mergeCandidates.end(), mergeCostGreater);
 
-    std::size_t merged{this->target()};
+    std::size_t numberToMerge{m_Knots.size() - target};
     std::ptrdiff_t numberMergeCandidates{static_cast<std::ptrdiff_t>(m_Knots.size()) - 3};
-    std::uniform_real_distribution<double> u01{0.0, 1.0};
 
-    while (m_Knots.size() > merged) {
+    while (numberToMerge > 0) {
         LOG_TRACE(<< "merge candidates = " << core::CContainerPrinter::print(mergeCandidates));
 
         std::size_t l{mergeCandidates.front() + 1};
@@ -473,28 +481,13 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
             LOG_TRACE(<< "Merging " << l << " and " << r
                       << ", cost = " << mergeCosts[l - 1].first);
 
-            double xl{m_Knots[l].first};
-            double nl{m_Knots[l].second};
-            double xr{m_Knots[r].first};
-            double nr{m_Knots[r].second};
-            LOG_TRACE(<< "(xl,nl) = (" << xl << "," << nl << "), (xr,nr) = ("
-                      << xr << "," << nr << ")");
+            // Note that mergeCosts[l - 1].second isn't truly random because
+            // it is used for selecting the merge order, but it's good enough.
+            auto mergedKnot = this->mergedKnot(l, r, mergeCosts[l - 1].second);
 
             // Find the points that have been merged with xl and xr if any.
             std::ptrdiff_t ll{previousDifferent(m_Knots, l)};
             std::ptrdiff_t rr{nextDifferent(m_Knots, r) - 1};
-
-            TFloatFloatPr mergedKnot;
-            switch (m_Interpolation) {
-            case E_Linear:
-                mergedKnot.first = (nl * xl + nr * xr) / (nl + nr);
-                mergedKnot.second = nl + nr;
-                break;
-            case E_PiecewiseConstant:
-                mergedKnot.first = nl < nr ? xr : (nl > nr ? xl : u01(rng) < 0.5 ? xl : xr);
-                mergedKnot.second = nl + nr;
-                break;
-            }
             std::fill_n(m_Knots.begin() + ll + 1, rr - ll, mergedKnot);
             LOG_TRACE(<< "merged = " << core::CContainerPrinter::print(mergedKnot));
             LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(m_Knots[rr + 1]));
@@ -505,7 +498,7 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
             if (rr < numberMergeCandidates) {
                 stale[rr] = true;
             }
-            ++merged;
+            --numberToMerge;
         } else {
             CUniqueIterator ll(m_Knots, l);
             CUniqueIterator rr{ll};
@@ -544,6 +537,30 @@ void CQuantileSketch::orderAndDeduplicate() {
     m_Unsorted = 0;
 }
 
+CQuantileSketch::TFloatFloatPr
+CQuantileSketch::mergedKnot(std::size_t l, std::size_t r, double tieBreaker) const {
+    double xl{m_Knots[l].first};
+    double nl{m_Knots[l].second};
+    double xr{m_Knots[r].first};
+    double nr{m_Knots[r].second};
+    LOG_TRACE(<< "(xl,nl) = (" << xl << "," << nl << "), (xr,nr) = (" << xr
+              << "," << nr << ")");
+
+    TFloatFloatPr mergedKnot;
+    switch (m_Interpolation) {
+    case E_Linear:
+        mergedKnot.first = (nl * xl + nr * xr) / (nl + nr);
+        mergedKnot.second = nl + nr;
+        break;
+    case E_PiecewiseConstant:
+        mergedKnot.first = nl < nr ? xr : (nl > nr ? xl : tieBreaker < 0.5 ? xl : xr);
+        mergedKnot.second = nl + nr;
+        break;
+    }
+
+    return mergedKnot;
+}
+
 double CQuantileSketch::cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) {
     // Interestingly, minimizing the approximation error (area between
     // curve before and after merging) produces good summary for the
@@ -571,14 +588,12 @@ void CFastQuantileSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsag
     core::CMemoryDebug::dynamicSize("m_Knots", this->knots(), mem);
     core::CMemoryDebug::dynamicSize("m_MergeCosts", m_MergeCosts, mem);
     core::CMemoryDebug::dynamicSize("m_MergeCandidates", m_MergeCandidates, mem);
-    core::CMemoryDebug::dynamicSize("m_Stale", m_Stale, mem);
 }
 
 std::size_t CFastQuantileSketch::memoryUsage() const {
     std::size_t mem{this->CQuantileSketch::memoryUsage()};
     mem += core::CMemory::dynamicSize(m_MergeCosts);
     mem += core::CMemory::dynamicSize(m_MergeCandidates);
-    mem += core::CMemory::dynamicSize(m_Stale);
     return mem;
 }
 
@@ -586,34 +601,55 @@ std::size_t CFastQuantileSketch::staticSize() const {
     return sizeof(*this);
 }
 
-void CFastQuantileSketch::reduce() {
+std::size_t CFastQuantileSketch::fastReduceTargetSize() const {
+    return static_cast<std::size_t>(
+        m_ReductionFraction * static_cast<double>(this->maxSize()) + 1.0);
+}
+
+void CFastQuantileSketch::fastReduce() {
 
     this->orderAndDeduplicate();
 
-    const TFloatFloatPrVec& knots{this->knots()};
-    if (knots.size() > this->target()) {
-        std::size_t m{knots.size() - 3};
+    TFloatFloatPrVec& knots{this->writeableKnots()};
+    if (knots.size() > this->fastReduceTargetSize()) {
         std::size_t n{m_MergeCosts.size()};
-        m_MergeCosts.resize(m);
+        m_MergeCosts.resize(knots.size() - 3);
         std::uniform_real_distribution<double> u01{0.0, 1.0};
         for (std::size_t i = n; i < m_MergeCosts.size(); ++i) {
             m_MergeCosts[i].second = u01(m_Rng);
         }
-        m_MergeCandidates.resize(m);
-        m_Stale.assign(knots.size(), false);
-        for (std::size_t i = 0; i < m; ++i) {
+        m_MergeCandidates.resize(knots.size() - 3);
+        for (std::size_t i = 0; i + 3 < knots.size(); ++i) {
             m_MergeCosts[i].first = cost(knots[i + 1], knots[i + 2]);
             m_MergeCandidates[i] = i;
         }
         LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(m_MergeCosts));
 
-        this->reduce(m_Rng, m_MergeCosts, m_MergeCandidates, m_Stale);
-    }
-}
+        std::size_t numberToMerge{knots.size() - this->fastReduceTargetSize()};
 
-std::size_t CFastQuantileSketch::target() const {
-    return static_cast<std::size_t>(
-        m_ReductionFraction * static_cast<double>(this->maxSize()) + 1.0);
+        // This is pseudo greedy unlike CQuantileSketch which is greedy: we
+        // simply ignore the fact that we have slightly different costs after
+        // each merge. This allows us to avoid using a heap altogether which
+        // dominates the computational cost of reduce.
+
+        std::nth_element(m_MergeCandidates.begin(), m_MergeCandidates.begin() + numberToMerge,
+                         m_MergeCandidates.end(), [&](auto lhs, auto rhs) {
+                             return m_MergeCosts[lhs] < m_MergeCosts[rhs];
+                         });
+        for (std::size_t i = 0; i < numberToMerge; ++i) {
+            std::size_t l{m_MergeCandidates[i] + 1};
+            std::size_t r{static_cast<std::size_t>(nextDifferent(knots, l))};
+            auto mergedKnot = this->mergedKnot(l, r, m_MergeCosts[l - 1].second);
+
+            // Find the points that have been merged with xl and xr if any.
+            std::ptrdiff_t ll{previousDifferent(knots, l)};
+            std::ptrdiff_t rr{nextDifferent(knots, r) - 1};
+            std::fill_n(knots.begin() + ll + 1, rr - ll, mergedKnot);
+            LOG_TRACE(<< "merged = " << core::CContainerPrinter::print(mergedKnot));
+            LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(knots[rr + 1]));
+        }
+        knots.erase(std::unique(knots.begin(), knots.end()), knots.end());
+    }
 }
 }
 }

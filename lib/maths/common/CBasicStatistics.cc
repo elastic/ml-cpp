@@ -8,6 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #include <maths/common/CBasicStatistics.h>
 
 #include <core/CLogger.h>
@@ -34,7 +35,7 @@ double medianInPlace(std::vector<double>& data) {
     // For an odd number of elements, this will get the median element into
     // place.  For an even number of elements, it will get the second element
     // of the middle pair into place.
-    size_t index{size / 2};
+    std::size_t index{size / 2};
     std::nth_element(data.begin(), data.begin() + index, data.end());
 
     if (useMean) {
@@ -60,27 +61,25 @@ double CBasicStatistics::mean(const TDoubleVec& data) {
                               static_cast<double>(data.size());
 }
 
-double CBasicStatistics::median(const TDoubleVec& data) {
+double CBasicStatistics::median(TDoubleVec data) {
     if (data.empty()) {
         return 0.0;
     }
     if (data.size() == 1) {
         return data[0];
     }
-    TDoubleVec data_{data};
-    return medianInPlace(data_);
+    return medianInPlace(data);
 }
 
-double CBasicStatistics::mad(const TDoubleVec& data) {
+double CBasicStatistics::mad(TDoubleVec data) {
     if (data.size() < 2) {
         return 0.0;
     }
-    TDoubleVec data_{data};
-    double median{medianInPlace(data_)};
-    for (auto& datum : data_) {
-        datum = std::fabs(datum - median);
+    double median{medianInPlace(data)};
+    for (auto& x : data) {
+        x = std::fabs(x - median);
     }
-    return medianInPlace(data_);
+    return medianInPlace(data);
 }
 
 double CBasicStatistics::varianceAtPercentile(double percentage, double variance, double degreesFreedom) {

@@ -908,7 +908,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.95);
+    BOOST_TEST_REQUIRE(rSquared > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -1010,9 +1010,11 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto frame = core::makeMainStorageDataFrame(cols, rows).first;
     fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
+    // We disable early stopping because we test hold losses from fine tuning.
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
+                          .stopHyperparameterOptimizationEarly(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -1611,19 +1613,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     double testError0{computePenalisedTestError(*frame0, updateBaseModel(*frame0, 0))};
     auto frame1 = makeBatch2();
     double testError5{computePenalisedTestError(*frame1, updateBaseModel(*frame1, 5))};
-    auto frame2 = makeBatch2();
-    double testError10{computePenalisedTestError(*frame2, updateBaseModel(*frame2, 10))};
 
-    LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase << ", 0 new trees = " << testError0
-              << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
+    LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase
+              << ", 0 new trees = " << testError0 << ", 5 new trees = " << testError5);
     // The initial model has too little capacity so we should get substantial
-    // improvements for adding trees.
-    BOOST_TEST_REQUIRE(0.95 * testError0 >= testError5);
-    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
-    // Since we perturb the hyperparameter optimisation we aren't guaranteed
-    // to have lower test error for 10 vs 5 trees, but it should be very close
-    // if it is larger.
-    BOOST_TEST_REQUIRE(1.03 * testError5 >= testError10);
+    // improvements for adding trees vs just retraining.
+    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -2288,7 +2283,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.7);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.74);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -3782,8 +3777,8 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
         return regression->hyperparameters().optimisationMakingNoProgress();
     };
 
-    BOOST_REQUIRE_EQUAL(verify(0.01), false);
-    BOOST_REQUIRE_EQUAL(verify(1000), true);
+    BOOST_REQUIRE_EQUAL(verify(0.001), false);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {

@@ -608,6 +608,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     //
     // we expect c2 > c1 > c3 \approx c4.
 
+    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
+              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
     // randomly on [-10, 10].
@@ -666,7 +668,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.3, -0.3})};
+    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
     auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
@@ -735,11 +737,9 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 
     LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
               << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
-
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
-    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 20.0); // c3 and c4 within 20% of each other
 
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
     for (std::size_t i = 0; i < classes.size(); ++i) {
@@ -784,7 +784,10 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     double classProbabilities[3];
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{0.0}, c2{0.0}, c3{0.0}, c4{0.0};
+            double c1{0.0};
+            double c2{0.0};
+            double c3{0.0};
+            double c4{0.0};
             double denominator{0.0};
             for (std::size_t i = 0; i < classes.size(); ++i) {
                 // class shap values should sum(abs()) to the overall feature importance
@@ -903,6 +906,8 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
         }
     }
 
+    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
+              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
     BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 20.0); // c1 and c2 within 20% of each other
     BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 20.0); // c1 and c3 within 20% of each other
     BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 20.0); // c1 and c4 within 20% of each other

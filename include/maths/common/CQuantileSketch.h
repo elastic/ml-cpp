@@ -124,27 +124,36 @@ protected:
 
 protected:
     //! Reduce to the maximum permitted size.
-    virtual void reduce();
-
-    //! Get the target size for sketch post reduce.
-    virtual std::size_t target() const;
-
-    //! Reduce to the maximum permitted size.
-    void reduce(CPRNG::CXorOShiro128Plus& rng,
-                TFloatFloatPrVec& mergeCosts,
-                TSizeVec& mergeCandidates,
-                TBoolVec& stale);
+    void reduceWithSuppliedCosts(std::size_t target,
+                                 TFloatFloatPrVec& mergeCosts,
+                                 TSizeVec& mergeCandidates,
+                                 TBoolVec& stale);
 
     //! Sort and combine any co-located values.
     void orderAndDeduplicate();
 
-    //! Compute the cost of combining \p vl and \p vr.
-    static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
+    //! The result of merging knots at positions \p l and \p r.
+    TFloatFloatPr mergedKnot(std::size_t l, std::size_t r, double tieBreaker) const;
+
+    //! Get the knot values which can be written.
+    TFloatFloatPrVec& writeableKnots() { return m_Knots; }
 
     //! The maximum permitted size for the sketch.
     std::size_t maxSize() const { return m_MaxSize; }
 
+    //! Compute the cost of combining \p vl and \p vr.
+    static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
+
 private:
+    //! Get the target size for fastReduce.
+    virtual std::size_t fastReduceTargetSize() const;
+
+    //! A possibly accelerated implementation of reduce.
+    virtual void fastReduce();
+
+    //! Reduce to \p target size.
+    void reduce(std::size_t target);
+
     //! Compute quantiles on the supplied knots.
     static void quantile(EInterpolation interpolation,
                          const TFloatFloatPrVec& knots,
@@ -197,7 +206,7 @@ public:
 //! \brief This tunes the quantile sketch for performance when space is less important.
 //!
 //! DESCRIPTION:\n
-//! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 2.0x
+//! This uses around 1.5x the memory than `CQuantileSketch` but updating is around 2-3x
 //! faster when using its default reduction factor.
 class MATHS_COMMON_EXPORT CFastQuantileSketch final : public CQuantileSketch {
 public:
@@ -224,20 +233,16 @@ public:
     std::size_t staticSize() const override;
 
 private:
-    using CQuantileSketch::reduce;
+    //! Get the target size for fastReduce.
+    std::size_t fastReduceTargetSize() const override;
 
-private:
     //! Reduce to the maximum permitted size.
-    void reduce() override;
-
-    //! Get the target size for sketch post reduce.
-    std::size_t target() const override;
+    void fastReduce() override;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     TFloatFloatPrVec m_MergeCosts;
     TSizeVec m_MergeCandidates;
-    TBoolVec m_Stale;
     double m_ReductionFraction;
 };
 

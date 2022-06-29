@@ -770,6 +770,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
+
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         softTreeDepthLimitParameter.set(log2MaxTreeSize);
         softTreeDepthToleranceParameter.set(
@@ -785,11 +786,12 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         m_TotalCurvaturePerNode90thPercentile = gainAndTotalCurvaturePerNode[2].second;
 
         // Make sure all line search intervals are not empty.
-        m_GainPerNode1stPercentile = std::min(m_GainPerNode1stPercentile,
-                                              0.1 * m_GainPerNode90thPercentile);
-        m_TotalCurvaturePerNode1stPercentile =
-            std::min(m_TotalCurvaturePerNode1stPercentile,
-                     0.1 * m_TotalCurvaturePerNode90thPercentile);
+        m_GainPerNode1stPercentile = common::CTools::truncate(
+            m_GainPerNode1stPercentile, 1e-7 * m_GainPerNode90thPercentile,
+            0.1 * m_GainPerNode90thPercentile);
+        m_TotalCurvaturePerNode1stPercentile = common::CTools::truncate(
+            m_TotalCurvaturePerNode1stPercentile, 1e-7 * m_TotalCurvaturePerNode90thPercentile,
+            0.1 * m_TotalCurvaturePerNode90thPercentile);
 
         LOG_TRACE(<< "max depth = " << softTreeDepthLimitParameter.print());
         LOG_TRACE(<< "tolerance = " << softTreeDepthToleranceParameter.print());
@@ -800,27 +802,35 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         m_LossGap = hyperparameters.bestForestLossGap();
         m_NumberTrees = hyperparameters.maximumNumberTrees().value();
-    });
 
-    // Initialize regularization multipliers with their minimum permitted values.
-    if (treeSizePenaltyMultiplier.rangeFixed() == false) {
         if (m_GainPerNode90thPercentile == 0.0) {
-            treeSizePenaltyMultiplier.fixTo(0.0);
-        } else {
+            if (softTreeDepthLimitParameter.rangeFixed() == false) {
+                softTreeDepthLimitParameter.fixTo(MIN_SOFT_DEPTH_LIMIT);
+            }
+            if (depthPenaltyMultiplierParameter.rangeFixed() == false) {
+                depthPenaltyMultiplierParameter.fixTo(0.0);
+            }
+            if (treeSizePenaltyMultiplier.rangeFixed() == false) {
+                treeSizePenaltyMultiplier.fixTo(0.0);
+            }
+        }
+        if (m_TotalCurvaturePerNode90thPercentile == 0.0 &&
+            leafWeightPenaltyMultiplier.rangeFixed() == false) {
+            leafWeightPenaltyMultiplier.fixTo(0.0);
+        }
+
+        // Initialize regularization multipliers with their minimum permitted values.
+        if (treeSizePenaltyMultiplier.rangeFixed() == false) {
             treeSizePenaltyMultiplier.set(minBoundary(
                 treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
                 2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
         }
-    }
-    if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
-        if (m_TotalCurvaturePerNode90thPercentile == 0.0) {
-            leafWeightPenaltyMultiplier.fixTo(0.0);
-        } else {
+        if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
             leafWeightPenaltyMultiplier.set(minBoundary(
                 leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
                 2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
         }
-    }
+    });
 
     // Search for depth limit at which the tree starts to overfit.
     if (softTreeDepthLimitParameter.rangeFixed() == false) {
