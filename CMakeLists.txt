@@ -74,6 +74,8 @@ add_subdirectory(3rd_party)
 add_subdirectory(lib)
 add_subdirectory(bin)
 add_subdirectory(test)
+add_subdirectory(devbin)
+add_subdirectory(devlib)
 
 # Add a target to build Doxygen generated documentation
 # if the doxygen executable can be found

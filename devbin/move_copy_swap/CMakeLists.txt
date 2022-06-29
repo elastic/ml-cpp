@@ -8,17 +8,13 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(CMAKE_INSTALL_RPATH $ORIGIN/../lib)
-endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
-endif()
+project("ML Move/Copy/Swap")
 
-add_subdirectory(autodetect)
-add_subdirectory(categorize)
-add_subdirectory(controller)
-add_subdirectory(data_frame_analyzer)
-add_subdirectory(normalize)
-add_subdirectory(pytorch_inference)
+set(ML_LINK_LIBRARIES 
+  MlCore
+  )
+
+ml_add_non_distributed_executable(move_copy_swap
+  Main.cc
+  )
