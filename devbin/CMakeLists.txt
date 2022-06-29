@@ -8,17 +8,11 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(CMAKE_INSTALL_RPATH $ORIGIN/../lib)
-endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
-endif()
-
-add_subdirectory(autodetect)
-add_subdirectory(categorize)
-add_subdirectory(controller)
-add_subdirectory(data_frame_analyzer)
-add_subdirectory(normalize)
-add_subdirectory(pytorch_inference)
+add_subdirectory(unixtime_to_string)
+add_subdirectory(model_extractor)
+add_subdirectory(state_search_splitter)
+add_subdirectory(analyze_test)
+add_subdirectory(move_copy_swap)
+add_subdirectory(vfprog)
+add_subdirectory(vsbug)
