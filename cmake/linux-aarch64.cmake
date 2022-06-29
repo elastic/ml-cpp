@@ -15,6 +15,10 @@ if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "aarch6
   # the name of the target operating system
   set(CMAKE_SYSTEM_NAME Linux)
 
+  # This is the system version of CentOS 7, which is what we currently cross compile for Linux on.
+  # Should be incremented if the cross compile Docker image for linux-aarch64 is rebuilt.
+  set(CMAKE_SYSTEM_VERSION 3.10.0-514.6.1.el7.x86_64)
+
   set(CROSS_TARGET_PLATFORM  aarch64-linux-gnu)
   set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
 

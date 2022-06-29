@@ -15,6 +15,10 @@ if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx
 
   # the name of the target operating system
   set(CMAKE_SYSTEM_NAME Darwin)
+
+  # Darwin 18 is Mojave (macOS 10.14), which is what our macOS cross compilation environment currently uses.
+  # Should be incremented when we upgrade the macOS cross compilation environment.
+  set(CMAKE_SYSTEM_VERSION 18.7.0)
   
   set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
   set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
