@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <boost/random/poisson_distribution.hpp>
 #include <maths/common/CSampling.h>
 
 #include <core/CContainerPrinter.h>
@@ -108,8 +109,10 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
     if (variance < 0.0) {
         LOG_ERROR(<< "Invalid variance " << variance);
         return;
-    } else if (variance == 0.0) {
+    }
+    if (variance == 0.0) {
         result.resize(n, mean);
+        return;
     }
 
     result.reserve(n);
@@ -119,10 +122,31 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
     }
 }
 
+//! Implementation of Poisson sampling.
+template<typename RNG>
+void doPoissonSample(RNG& rng, double rate, std::size_t n, TSizeVec& result) {
+    result.clear();
+    if (rate <= 0.0) {
+        LOG_ERROR(<< "Invalid rate " << rate);
+        return;
+    }
+
+    result.reserve(n);
+    boost::random::poisson_distribution<std::size_t> poisson{rate};
+    for (std::size_t i = 0; i < n; ++i) {
+        result.push_back(poisson(rng));
+    }
+}
+
 //! Implementation of chi^2 sampling.
 template<typename RNG>
 void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
     result.clear();
+    if (f <= 0.0) {
+        LOG_ERROR(<< "Invalid degrees freedom " << f);
+        return;
+    }
+
     result.reserve(n);
     boost::random::chi_squared_distribution<double> chi2(f);
     for (std::size_t i = 0; i < n; ++i) {
@@ -499,6 +523,19 @@ void CSampling::normalSample(CPRNG::CXorShift1024Mult& rng,
                              std::size_t n,
                              TDoubleVec& result) {
     doNormalSample(rng, mean, variance, n, result);
+}
+
+void CSampling::poissonSample(double rate, std::size_t n, TSizeVec& result) {
+    core::CScopedFastLock scopedLock(ms_Lock);
+    doPoissonSample(ms_Rng, rate, n, result);
+}
+
+void CSampling::poissonSample(CPRNG::CXorOShiro128Plus& rng, double rate, std::size_t n, TSizeVec& result) {
+    doPoissonSample(rng, rate, n, result);
+}
+
+void CSampling::poissonSample(CPRNG::CXorShift1024Mult& rng, double rate, std::size_t n, TSizeVec& result) {
+    doPoissonSample(rng, rate, n, result);
 }
 
 void CSampling::chiSquaredSample(double f, std::size_t n, TDoubleVec& result) {

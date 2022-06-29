@@ -206,8 +206,8 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(
             args.frame(), args.tree().m_TrainingRowMasks[0],
             args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
         args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
-        testLosses.emplace_back(parameter, result.s_TestLoss, result.s_LossGap,
-                                result.s_Forest.size());
+        testLosses.emplace_back(parameter, common::CBasicStatistics::mean(result.s_TestLoss),
+                                result.s_LossGap, result.s_Forest.size());
     }
 }
 
@@ -258,9 +258,10 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
             args.frame(), args.tree().m_TrainingRowMasks[0],
             args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
 
-        minTestLoss.add(result.s_TestLoss);
+        minTestLoss.add(common::CBasicStatistics::mean(result.s_TestLoss));
 
-        double adjustedTestLoss{adjustTestLoss(parameter(0), result.s_TestLoss)};
+        double adjustedTestLoss{adjustTestLoss(
+            parameter(0), common::CBasicStatistics::mean(result.s_TestLoss))};
         bopt.add(parameter, adjustedTestLoss, 0.0);
         args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
         testLosses.emplace_back(parameter(0), adjustedTestLoss,
@@ -377,7 +378,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
 
-    this->checkIfCanSkipFineTuneSearch(0.0 /*test loss variance*/);
+    this->checkIfCanSkipFineTuneSearch();
 
     // We purposely don't record the test loss because it isn't comparable with the
     // value computed in fine tune. However, an estimate of the test train loss gap
@@ -392,7 +393,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
     m_MaximumNumberTrees.set(numberTreesToRestore);
 }
 
-void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(double testLossVariance) {
+void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch() {
 
     if (m_EarlyHyperparameterOptimizationStoppingEnabled && m_IncrementalTraining == false) {
 
@@ -401,22 +402,24 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(double testLossVa
         std::swap(toRestore, m_BayesianOptimization);
 
         // Add information about observed line search training runs to the GP.
-        for (auto & [ parameters, loss ] : m_LineSearchHyperparameterLosses) {
+        for (auto & [ parameters, testLossMoments ] : m_LineSearchHyperparameterLosses) {
             TVector parameters_{static_cast<TVector::TIndexType>(
                 m_LineSearchRelevantParameters.size())};
             for (std::size_t i = 0; i < m_LineSearchRelevantParameters.size(); ++i) {
                 parameters_(i) = parameters(m_LineSearchRelevantParameters[i]);
             }
-            m_BayesianOptimization->add(std::move(parameters_), loss, testLossVariance);
+            double meanTestLoss{common::CBasicStatistics::mean(testLossMoments)};
+            double testLossVariance{common::CBasicStatistics::variance(testLossMoments)};
+            m_BayesianOptimization->add(std::move(parameters_), meanTestLoss, testLossVariance);
         }
 
-        // Perform 3 rounds of kernel parameter optimization.
+        // Perform three rounds of kernel parameter optimization.
         m_BayesianOptimization->maximumLikelihoodKernel(3);
 
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
 
         if (m_StopHyperparameterOptimizationEarly) {
-            LOG_DEBUG(<< "Skipping fine-tune hyperparameters");
+            LOG_INFO(<< "Skipping fine-tune hyperparameters");
         } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
@@ -432,7 +435,7 @@ bool CBoostedTreeHyperparameters::optimisationMakingNoProgress() const {
     if (m_StopHyperparameterOptimizationEarly) {
         return true;
     }
-    double anovaCoV{m_BayesianOptimization->anovaTotalCoefficientOfVariation()};
+    double anovaCoV{m_BayesianOptimization->excessCoefficientOfVariation()};
     LOG_TRACE(<< "anovaTotalCoefficientOfVariation " << anovaCoV);
     return anovaCoV < 1e-3;
 }
@@ -480,13 +483,6 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
-        if (m_CurrentRound == 0) {
-            // First time through we recheck if we can skip using the test loss
-            // variance we measure across folds. This gives us a better sense of
-            // whether the improvement we are likely to see is in the measurement
-            // noise.
-            this->checkIfCanSkipFineTuneSearch(testLossVariance);
-        }
     } else if (this->optimisationMakingNoProgress()) {
         m_StopHyperparameterOptimizationEarly = true;
         return false;
@@ -495,7 +491,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             m_BayesianOptimization->maximumExpectedImprovement(3);
     }
 
-    this->setHyperparameterValues(parameters);
+    this->setHyperparameterValues(std::move(parameters));
 
     return true;
 }
@@ -509,7 +505,7 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double testLoss{lossAtNSigma(1.0, testLossMoments)};
+    double testLoss{common::CBasicStatistics::mean(testLossMoments)};
     double penalizedTestLoss{testLoss + this->modelSizePenalty(numberKeptNodes, numberNewNodes)};
     double bestPenalizedTestLoss{
         m_BestForestTestLoss + this->modelSizePenalty(m_BestForestNumberKeptNodes,
@@ -977,7 +973,7 @@ void CBoostedTreeHyperparameters::restoreBest() {
     m_PredictionChangeCost.load();
     m_MaximumNumberTrees.load();
     LOG_TRACE(<< "loss* = " << m_BestForestTestLoss);
-    LOG_TRACE(<< "parameters*= " << this->print());
+    LOG_TRACE(<< "parameters* = " << this->print());
 }
 
 void CBoostedTreeHyperparameters::captureScale() {
@@ -996,7 +992,7 @@ void CBoostedTreeHyperparameters::captureScale() {
     m_MaximumNumberTrees.captureScale();
 }
 
-void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss) {
+void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(const TMeanVarAccumulator& testLoss) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
         m_LineSearchHyperparameterLosses.emplace_back(this->currentParametersVector(), testLoss);
     }

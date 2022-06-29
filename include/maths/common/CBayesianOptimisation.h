@@ -113,16 +113,17 @@ public:
     //! \p dimension for the values \p input.
     double evaluate1D(double input, int dimension) const;
 
-    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
-    double anovaConstantFactor() const;
+    //! Get the coefficient of variation after subtracting the measurement error
+    //! variance for the Gaussian process in the search bounding box using ANOVA
+    //! decomposition.
+    double excessCoefficientOfVariation();
 
     //! Get the total variance of the Gaussian process in the search bounding box
     //! using ANOVA decomposition.
     double anovaTotalVariance() const;
 
-    //! Get the coefficiet of variation of the Gaussian process in the search
-    //! bounding box using ANOVA decomposition.
-    double anovaTotalCoefficientOfVariation();
+    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
+    double anovaConstantFactor() const;
 
     //! Get the main effect of the parameter \p dimension in the Gaussian process
     //! using ANOVA decomposition.

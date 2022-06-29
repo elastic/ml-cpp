@@ -628,13 +628,6 @@ public:
     //! The penalty to apply based on the model size.
     double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
 
-    //! Compute the loss at \p n standard deviations of \p lossMoments above
-    //! the mean.
-    static double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
-        return common::CBasicStatistics::mean(lossMoments) +
-               n * std::sqrt(common::CBasicStatistics::variance(lossMoments));
-    }
-
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec importances() const;
     //@}
@@ -681,8 +674,8 @@ private:
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TIndexVec = std::vector<TVector::TIndexType>;
     using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
-    using TVectorDoublePr = std::pair<TVector, double>;
-    using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
+    using TVectorMeanVarAccumulatorPr = std::pair<TVector, TMeanVarAccumulator>;
+    using TVectorMeanVarAccumulatorPrVec = std::vector<TVectorMeanVarAccumulatorPr>;
 
 private:
     void initializeTunableHyperparameters();
@@ -701,8 +694,8 @@ private:
     minimizeTestLoss(double intervalLeftEnd,
                      double intervalRightEnd,
                      TDoubleDoubleDoubleSizeTupleVec testLosses) const;
-    void checkIfCanSkipFineTuneSearch(double testLossVariance);
-    void captureHyperparametersAndLoss(double loss);
+    void checkIfCanSkipFineTuneSearch();
+    void captureHyperparametersAndLoss(const TMeanVarAccumulator& loss);
     TVector currentParametersVector() const;
     void setHyperparameterValues(TVector parameters);
     void saveCurrent();
@@ -748,7 +741,7 @@ private:
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
     TIndexVec m_LineSearchRelevantParameters;
-    TVectorDoublePrVec m_LineSearchHyperparameterLosses;
+    TVectorMeanVarAccumulatorPrVec m_LineSearchHyperparameterLosses;
     //@}
 };
 }

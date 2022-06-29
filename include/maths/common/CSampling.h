@@ -201,8 +201,8 @@ public:
         using TVec = std::vector<T>;
 
     public:
-        CVectorDissimilaritySampler(std::size_t targetSampleSize,
-                                    const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
+        explicit CVectorDissimilaritySampler(std::size_t targetSampleSize,
+                                             const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
             : CStreamSampler<T>(targetSampleSize, rng),
               m_SampleWeights(targetSampleSize, 0.0) {
             m_Samples.reserve(targetSampleSize);
@@ -294,7 +294,7 @@ public:
 
     private:
         TVec m_Samples;
-        double m_MinWeight = std::numeric_limits<double>::max();
+        double m_MinWeight{std::numeric_limits<double>::max()};
         TDoubleVec m_SampleWeights;
         TDoubleVec m_Probabilities;
     };
@@ -432,6 +432,17 @@ public:
                              double variance,
                              std::size_t n,
                              TDoubleVec& result);
+
+    //! Get \p n samples of a Poisson random variable with rate \p rate using \p rng.
+    static void poissonSample(double rate, std::size_t n, TSizeVec& result);
+
+    //! Get \p n samples of a Poisson random variable with rate \p rate using \p rng.
+    static void
+    poissonSample(CPRNG::CXorOShiro128Plus& rng, double rate, std::size_t n, TSizeVec& result);
+
+    //! Get \p n samples of a Poisson random variable with rate \p rate using \p rng.
+    static void
+    poissonSample(CPRNG::CXorShift1024Mult& rng, double rate, std::size_t n, TSizeVec& result);
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom.

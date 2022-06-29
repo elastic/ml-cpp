@@ -387,15 +387,15 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
     return std::max(0.0, (theta2 * theta2 * sum - f0 * f0) / scale2);
 }
 
-double CBayesianOptimisation::anovaTotalCoefficientOfVariation() {
-    this->precondition();
-    LOG_TRACE(<< "anovaTotalVariance " << this->anovaTotalVariance() << " m_RangeShift "
-              << m_RangeShift << " m_RangeScale " << m_RangeScale);
-    return std::sqrt(this->anovaTotalVariance()) / m_RangeShift;
-}
-
 double CBayesianOptimisation::anovaTotalVariance() const {
     return this->anovaTotalVariance(this->kinvf());
+}
+
+double CBayesianOptimisation::excessCoefficientOfVariation() {
+    double errorVariance{this->meanErrorVariance() / CTools::pow2(m_RangeScale)};
+    LOG_TRACE(<< "anovaTotalVariance " << this->anovaTotalVariance()
+              << ", mean error variance = " << errorVariance);
+    return std::sqrt(std::max(this->anovaTotalVariance() - errorVariance, 0.0)) / m_RangeShift;
 }
 
 double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimension) const {
