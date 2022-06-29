@@ -627,10 +627,10 @@ void CFastQuantileSketch::fastReduce() {
 
         std::size_t numberToMerge{knots.size() - this->fastReduceTargetSize()};
 
-        // This is pseudo greedy since unlike CQuantileSketch which is greedy.
-        // We simply ignore the fact that we have slightly different costs for
-        // merging the knots we've just merged. This allows us to avoid using
-        // a heap altogeter which dominates the computational cost of reduce.
+        // This is pseudo greedy unlike CQuantileSketch which is greedy: we
+        // simply ignore the fact that we have slightly different costs after
+        // each merge. This allows us to avoid using a heap altogether which
+        // dominates the computational cost of reduce.
 
         std::nth_element(m_MergeCandidates.begin(), m_MergeCandidates.begin() + numberToMerge,
                          m_MergeCandidates.end(), [&](auto lhs, auto rhs) {

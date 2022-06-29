@@ -1613,15 +1613,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     double testError0{computePenalisedTestError(*frame0, updateBaseModel(*frame0, 0))};
     auto frame1 = makeBatch2();
     double testError5{computePenalisedTestError(*frame1, updateBaseModel(*frame1, 5))};
-    auto frame2 = makeBatch2();
-    double testError10{computePenalisedTestError(*frame2, updateBaseModel(*frame2, 10))};
 
-    LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase << ", 0 new trees = " << testError0
-              << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
+    LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase
+              << ", 0 new trees = " << testError0 << ", 5 new trees = " << testError5);
     // The initial model has too little capacity so we should get substantial
-    // improvements for adding trees.
+    // improvements for adding trees vs just retraining.
     BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
-    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
