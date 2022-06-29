@@ -21,7 +21,7 @@ You will also need to add several directories to your `PATH` environment variabl
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64`
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1`
 - `/c/PROGRA~1/Java/jdk1.8.0_121/bin`
-- `/c/PROGRA~1/CMake/bin/cmake`
+- `/c/PROGRA~1/CMake/bin`
 - `/c/usr/local/bin`
 - `/c/usr/local/lib`
 
@@ -32,7 +32,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
-export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin/cmake"
+export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin"
 ```
 
 ### Operating system
