@@ -435,9 +435,9 @@ bool CBoostedTreeHyperparameters::optimisationMakingNoProgress() const {
     if (m_StopHyperparameterOptimizationEarly) {
         return true;
     }
-    double anovaCoV{m_BayesianOptimization->excessCoefficientOfVariation()};
-    LOG_TRACE(<< "anovaTotalCoefficientOfVariation " << anovaCoV);
-    return anovaCoV < 1e-3;
+    double cov{m_BayesianOptimization->excessCoefficientOfVariation()};
+    LOG_TRACE(<< "excessCoefficientOfVariation " << cov);
+    return cov < 1e-3;
 }
 
 void CBoostedTreeHyperparameters::startFineTuneSearch() {

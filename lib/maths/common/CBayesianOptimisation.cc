@@ -393,7 +393,7 @@ double CBayesianOptimisation::anovaTotalVariance() const {
 
 double CBayesianOptimisation::excessCoefficientOfVariation() {
     double errorVariance{this->meanErrorVariance() / CTools::pow2(m_RangeScale)};
-    LOG_TRACE(<< "anovaTotalVariance " << this->anovaTotalVariance()
+    LOG_DEBUG(<< "anovaTotalVariance " << this->anovaTotalVariance()
               << ", mean error variance = " << errorVariance);
     return std::sqrt(std::max(this->anovaTotalVariance() - errorVariance, 0.0)) / m_RangeShift;
 }
