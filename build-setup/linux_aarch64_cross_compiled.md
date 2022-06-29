@@ -4,7 +4,7 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_CROSS_COMPILE` - Should be set to "aarch64".
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 - `PATH` - Must have `/usr/local/gcc103/bin` before `/usr/bin` and `/bin`.
 - `LD_LIBRARY_PATH` - Must have `/usr/local/gcc103/lib64` and `/usr/local/gcc103/lib` before `/usr/lib` and `/lib`.
 
@@ -15,7 +15,7 @@ umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
 export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/bin:/bin:/usr/sbin:/sbin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 export CPP_CROSS_COMPILE=aarch64
 ```

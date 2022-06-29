@@ -4,7 +4,7 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_CROSS_COMPILE` - Should be set to "macosx".
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 
 For example, you might create a .bashrc file in your home directory containing this:
 
@@ -12,7 +12,7 @@ For example, you might create a .bashrc file in your home directory containing t
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export PATH=$JAVA_HOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 export CPP_CROSS_COMPILE=macosx
 ```

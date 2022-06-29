@@ -69,24 +69,6 @@ CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI i
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
-### GNU make
-
-Download `make-4.2.1.tar.bz2` (or a more recent version) from <http://ftp.gnu.org/gnu/make/> . Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
-
-```
-cd /c/tools
-tar jxvf /z/cpp_src/make-4.2.1.tar.bz2
-```
-
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
-
-```
-cd \tools\make-4.2.1
-build_w32.bat
-```
-
-Finally, copy the file `gnumake.exe` from `C:\tools\make-4.2.1\WinRel` to `C:\usr\local\bin`.
-
 ### zlib
 
 Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2019 C runtime library. Therefore it is necessary to build zlib from source.

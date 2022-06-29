@@ -9,7 +9,7 @@ NOTE: if you upgrade macOS then Xcode may need to be re-installed. Please ensure
 You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 - `PATH` - Must have `/usr/local/bin` before `/usr/bin` and `/bin`.
 
 For example, you might create a `.bashrc` file in your home directory containing something like this:

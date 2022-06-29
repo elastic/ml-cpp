@@ -35,6 +35,5 @@ VCVER=`/bin/ls -1 /c/$VCBASE/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/$VCBASE/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/$VCBASE/Common7/IDE:/c/$WINSDKBASE/8.0/bin/x64:/c/$WINSDKBASE/8.0/bin/x86:/c/$VCBASE/TEAMTO~1/PERFOR~1/x64:/c/$VCBASE/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
 export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows"
-alias make=gnumake
 ```
 
