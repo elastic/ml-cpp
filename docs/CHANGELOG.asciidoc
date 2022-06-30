@@ -38,6 +38,7 @@
   is unnecessary. (See {ml-pull}2298[#2298].)
 * Address some causes of high runtimes training regression and classification models
   on large data sets with many features. (See 2332[#2332].)
+* Add caching for PyTorch inference. (See 2305[#2305].)
 
 == {es} version 8.3.0
 
