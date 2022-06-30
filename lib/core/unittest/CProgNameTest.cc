@@ -22,9 +22,7 @@ BOOST_AUTO_TEST_CASE(testProgName) {
 
     LOG_DEBUG(<< "Current program name is " << progName);
 
-    ml::core::CRegex expectedNameRegex;
-    BOOST_TEST_REQUIRE(expectedNameRegex.init("ml_test_core"));
-    BOOST_TEST_REQUIRE(expectedNameRegex.matches(progName));
+    BOOST_REQUIRE_EQUAL(std::string("ml_test_core"), progName);
 }
 
 BOOST_AUTO_TEST_CASE(testProgDir) {
