@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/random/poisson_distribution.hpp>
 #include <maths/common/CSampling.h>
 
 #include <core/CContainerPrinter.h>
@@ -29,6 +28,7 @@
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
 #include <boost/random/sobol.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
