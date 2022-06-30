@@ -16,7 +16,7 @@ by simply calling `g++` or `clang++`.
 For testing and evaluation purposes you can use [30-day trial version of CLion](https://www.jetbrains.com/clion) or
 participate on the [CLion early access program](https://www.jetbrains.com/clion/nextversion/).
 
-You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2.3 or later) with the
+You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2021.3.4 or later) with the
 `File Watcher` plugin.
 
 You can install plugins either during the initialization dialog, when you first start CLion, or later using the menu
@@ -38,7 +38,7 @@ for the `ml-cpp` project.
 By default `CLion` will opt for generating a `Ninja` build system. While this is a perfectly valid option, for
 better compatibility with building from the command line it is preferred to configure `CLion` to generate `Unix Makefiles`.
 To do this either select `Unix Makefiles` from the `Generator` drop-down or type `-G "Unix Makefiles"` in the
-`CMake options` field. Add `cmake_build` to the `Build directory` field and e.g. `-j 10` to the `Build options` field
+`CMake options` field. Add  e.g. `-j 10` to the `Build options` field
 and we're done. (You may need to set the `CPP_SRC_HOME` environment variable in the `Environment` field if this is
 missing or incorrect in your environment).
 

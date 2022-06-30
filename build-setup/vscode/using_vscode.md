@@ -1,8 +1,6 @@
 # Using Visual Studio Code with `ml-cpp`
 
-Previously, we explained how to [set up CLion for `ml-cpp`](../clion/using_clion.md). You may find, that CLion has some
-performance problems when indexing `ml-cpp` project: it may take very long to open the project or CLion may freeze and
-fail. In this case, [Visual Studio Code](https://code.visualstudio.com/) can be an alternative. `VSCode` offers support
+As an alternative to [CLion](../clion/using_clion.md), `VSCode` offers support
 for `CMake` projects by way of an extension, while still being able to provide features like autocompletion,
 code navigation, static code analysis, etc. 
 
@@ -22,8 +20,10 @@ are disabled. Note that we don't want to disable the complete C/C++ Extension, s
 debugging capabilities.
 
 Now for the `CMake` plugin, change the `Build directory` specified in **Settings** > **Extensions** >
-**CMake Tools** to read `${workspaceFolder}/cmake_build`. You may also wish to set certain environment
-variables for the build. e.g. `ML_DEBUG=1`. To do so, under `Cmake: Build Environment` click the `Add item`
+**CMake Tools** to read `${workspaceFolder}/cmake-build-release` or `${workspaceFolder}/cmake-build-debug`,
+depending on the build variant that you can select in the side panel at the bottom of the editor window.
+You may also wish to set certain environment variables for the build. e.g. `ML_DEBUG=1`. 
+To do so, under `Cmake: Build Environment` click the `Add item`
 button and add the variable definition. The other settings can be left as-is.
 
 ![CMake Config](./cmake_config.png)
@@ -36,6 +36,9 @@ in the side panel at the bottom of the editor window
 ![Debug Test](./debug_test_case.png)
 and select the desired test case. e.g. `test_ver` from the drop-down list, you may also need to change the selected
 target to launch - `ml_test_ver` in this example.
+
+See [Target Debugging and Launching](https://vector-of-bool.github.io/docs/vscode-cmake-tools/debugging.html) for
+more details of debugging with the `CMake Tools` extension for `VSCode`. 
 
 ## User tasks
 
