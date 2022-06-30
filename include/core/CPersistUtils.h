@@ -953,38 +953,43 @@ public:
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            auto subLevel = [](std::size_t pos, auto& element,
-                               CStateRestoreTraverser& traverser_) {
+            // GCC doesn't handle expanding the logging macro in the lambda context.
+            std::ostringstream errors;
+            auto subLevel = [&errors](std::size_t pos, auto& element,
+                                      CStateRestoreTraverser& traverser_) {
                 if (traverser_.name() != TUPLE_PREFIX + std::to_string(pos)) {
-                    LOG_ERROR(<< "Tag mismatch at " << traverser_.name() << ", expected "
-                              << TUPLE_PREFIX + std::to_string(pos));
+                    errors << "Tag mismatch at " << traverser_.name()
+                           << ", expected " << TUPLE_PREFIX + std::to_string(pos);
                     return false;
                 }
                 if (restore(traverser_.name(), element, traverser_) == false) {
-                    LOG_ERROR(<< "Restore error at " << traverser_.name()
-                              << ": " << traverser_.value());
+                    errors << "Restore error at " << traverser_.name() << ": "
+                           << traverser_.value();
                     return false;
                 }
                 if (pos + 1 < std::tuple_size_v<std::tuple<T...>>) {
                     if (traverser_.next() == false) {
-                        LOG_ERROR(<< "Restore error at " << traverser_.name()
-                                  << ": " << traverser_.value());
+                        errors << "Restore error at " << traverser_.name()
+                               << ": " << traverser_.value();
                         return false;
                     }
                 }
                 return true;
             };
-            return traverser.traverseSubLevel([&](auto& traverser_) {
-                bool success{true};
-                std::size_t pos{0};
-                std::apply(
-                    [&](auto&... element) {
-                        // Note we want to shortcircuit if not successful.
-                        ((success = success && subLevel(pos++, element, traverser_)), ...);
-                    },
-                    t);
-                return success;
-            });
+            if (traverser.traverseSubLevel([&](auto& traverser_) {
+                    bool success{true};
+                    std::size_t pos{0};
+                    std::apply(
+                        [&](auto&... element) {
+                            // Note we want to shortcircuit if not successful.
+                            ((success = success && subLevel(pos++, element, traverser_)), ...);
+                        },
+                        t);
+                    return success;
+                }) == false) {
+                LOG_ERROR(<< errors.str());
+                return false;
+            }
         }
         return true;
     }
