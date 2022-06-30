@@ -9,14 +9,16 @@
 # limitation.
 #
 
-# the name of the target operating system
-set(CMAKE_SYSTEM_NAME Linux)
-
-message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
-
 set(CPP_PLATFORM_HOME $ENV{CPP_SRC_HOME}/build/distribution/platform/linux-aarch64)
 
-if(DEFINED ENV{CPP_CROSS_COMPILE} AND ENV{CPP_CROSS_COMPILE} STREQUAL "aarch64")
+if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "aarch64")
+  # the name of the target operating system
+  set(CMAKE_SYSTEM_NAME Linux)
+
+  # This is the system version of CentOS 7, which is what we currently cross compile for Linux on.
+  # Should be incremented if the cross compile Docker image for linux-aarch64 is rebuilt.
+  set(CMAKE_SYSTEM_VERSION 3.10.0-514.6.1.el7.x86_64)
+
   set(CROSS_TARGET_PLATFORM  aarch64-linux-gnu)
   set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
 
@@ -28,6 +30,8 @@ if(DEFINED ENV{CPP_CROSS_COMPILE} AND ENV{CPP_CROSS_COMPILE} STREQUAL "aarch64")
   set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 endif()
+
+message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
 
 ##########################

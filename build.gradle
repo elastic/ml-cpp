@@ -80,8 +80,25 @@ if (isWindows) {
 
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_BUILD_TYPE=Release -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
 
-// Always do the C++ build using bash (Git bash on Windows)
-project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
+String msystem = "$System.env.MSYSTEM"
+if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux) 
+{
+  // Always do the C++ build using bash (Git bash on Windows using MinGW)
+  project.ext.shell = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
+  project.ext.set_env = "source ./set_env.sh"
+  project.ext.shell_flag = "-c"
+  project.ext.clean_cmd = "rm -rf cmake-build-release 3rd_party/eigen"
+  // Stripping the binaries is not necessary on windows, execute a no-op command instead
+  project.ext.strip_cmd = isWindows ? true : "dev-tools/strip_binaries.sh"
+} else {
+  project.ext.shell = "cmd.exe"
+  project.ext.set_env = ".\\set_env.bat"
+  project.ext.shell_flag = "/c"
+  project.ext.clean_cmd = "if exist cmake-build-release\\ (rmdir /s /q cmake-build-release) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
+  // Stripping the binaries is not necessary on windows, execute a no-op command instead
+  project.ext.strip_cmd = "cd ."
+}
+
 project.ext.make = (isMacOsX || isWindows) ? "gnumake" : "make"
 project.ext.cmake = "cmake"
 project.ext.numCpus = Runtime.runtime.availableProcessors()
@@ -99,8 +116,8 @@ clean {
   doLast {
     exec {
       environment makeEnvironment
-      commandLine bash
-      args '-c', 'source ./set_env.sh && rm -rf 3rd_party/eigen cmake-build-release'
+      commandLine shell
+      args shell_flag, "${set_env} && ${clean_cmd}"
       workingDir "${projectDir}"
     }
   }
@@ -108,30 +125,30 @@ clean {
 
 task configure(type: Exec) {
   environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake-build-release ' + cmakeFlags
+  commandLine shell
+  args shell_flag, "${set_env} && ${cmake} -B cmake-build-release ${cmakeFlags}"
   workingDir "${projectDir}"
 }
 
 task compile(type: Exec) {
   environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake-build-release --config Release -t install -v -j' + numCpus
+  commandLine shell
+  args shell_flag, "${set_env} && ${cmake} --build cmake-build-release --config Release -t install -v -j ${numCpus}"
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
 
 task strip(type: Exec) {
   environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && dev-tools/strip_binaries.sh'
+  commandLine shell
+  args shell_flag, "${set_env} && ${strip_cmd}"
   workingDir "${projectDir}"
   dependsOn 'compile'
 }
 
 task format(type: Exec) {
-  commandLine bash
-  args '-c', 'source ./set_env.sh && dev-tools/clang-format.sh'
+  commandLine shell
+  args shell_flag, "${set_env} && ${cmake} -P cmake/clang-format.cmake"
   workingDir "${projectDir}"
 }
 
@@ -189,8 +206,8 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 
 task test(type: Exec) {
   environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake-build-release --config Release -v -j' + numCpus + ' -t test'
+  commandLine shell
+  args shell_flag, "${set_env} && ${cmake} --build cmake-build-release --config Release -v -j ${numCpus} -t test"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
@@ -397,7 +414,7 @@ task buildNoDependenciesZipFromDownloads(type: Zip) {
 task buildDependencyReport(type: Exec) {
   outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
-  commandLine bash
+  commandLine shell
   args '-c', "source ./set_env.sh && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
   workingDir "${projectDir}"
   description = 'Create a CSV report on 3rd party dependencies we redistribute'

@@ -9,12 +9,17 @@
 # limitation.
 #
 
-# the name of the target operating system
-message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
-
 set(CPP_PLATFORM_HOME $ENV{CPP_SRC_HOME}/build/distribution/platform/darwin-aarch64)
 
 if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
+  # the name of the target operating system
+  set(CMAKE_SYSTEM_NAME Darwin)
+
+  # Apple silicon requires at least Big Sur which is Darwin 20.1.
+  # Note that we don't currently support cross compiling to macOS ARM architecture,
+  # so this branch is tecnically redundant.
+  set(CMAKE_SYSTEM_VERSION 20.1.0)
+
   set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
   set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
 
@@ -26,6 +31,8 @@ if(DEFINED ENV{CPP_CROSS_COMPILE} AND "$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx
   set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 endif()
+
+message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
 ##########################
 # this must be first
