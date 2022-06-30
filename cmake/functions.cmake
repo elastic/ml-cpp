@@ -149,7 +149,15 @@ function(ml_add_non_distributed_library _target _type)
       target_link_libraries(${_target} PRIVATE
         "-current_version ${ML_VERSION_NUM}"
         "-compatibility_version ${ML_VERSION_NUM}"
+        "-Wl,-dead_strip_dylibs"
         "${COVERAGE}")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      target_link_libraries(${_target} PRIVATE
+        "-Wl,--as-needed"
+        "${COVERAGE}")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+      target_link_libraries(${_target} PRIVATE
+        "-OPT:REF")
     endif()
   endif()
 endfunction()
@@ -190,8 +198,16 @@ function(ml_add_library _target _type)
       target_link_libraries(${_target} PRIVATE
         "-current_version ${ML_VERSION_NUM}"
         "-compatibility_version ${ML_VERSION_NUM}"
+        "-Wl,-dead_strip_dylibs"
         "${COVERAGE}"
         )
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      target_link_libraries(${_target} PRIVATE
+        "-Wl,--as-needed"
+        "${COVERAGE}")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+      target_link_libraries(${_target} PRIVATE
+        "-OPT:REF")
     endif()
 
     # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
@@ -245,6 +261,19 @@ function(ml_add_executable _target)
     target_link_libraries(${_target} PRIVATE "${COVERAGE}")
   endif()
 
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(${_target} PRIVATE
+        "-Wl,-dead_strip_dylibs"
+        )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(${_target} PRIVATE
+      "-Wl,--as-needed"
+      )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(${_target} PRIVATE
+      "-OPT:REF")
+  endif()
+
   # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
   if("$ENV{CPP_CROSS_COMPILE}" STREQUAL "macosx")
     target_link_libraries(${_target} PRIVATE
@@ -269,6 +298,19 @@ function(ml_add_non_distributed_executable _target)
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
 
   target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
+
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(${_target} PUBLIC
+        "-Wl,-dead_strip_dylibs"
+        )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(${_target} PRIVATE
+      "-Wl,--as-needed"
+      )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(${_target} PRIVATE
+      "-OPT:REF")
+  endif()
 
 endfunction()
 
