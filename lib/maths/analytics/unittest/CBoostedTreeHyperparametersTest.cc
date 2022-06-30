@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
 
         hyperparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
 
-        double loss{maths::analytics::CBoostedTreeHyperparameters::lossAtNSigma(1, testLossMoments)};
+        double loss{maths::common::CBasicStatistics::mean(testLossMoments)};
         if (loss < minimumLoss) {
             expectedBestParameters.assign(
                 {hyperparameters.depthPenaltyMultiplier().value(),

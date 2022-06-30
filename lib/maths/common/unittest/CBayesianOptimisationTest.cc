@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
                 bopt.evaluate1D(probe[i], static_cast<int>(i)));
         }
         totalVarianceResults.push_back(bopt.anovaTotalVariance());
-        totalCoefficientOfVariationResults.push_back(bopt.anovaTotalCoefficientOfVariation());
+        totalCoefficientOfVariationResults.push_back(bopt.excessCoefficientOfVariation());
     }
 
     LOG_DEBUG(<< "evaluate      = " << core::CContainerPrinter::print(evaluateResults));
@@ -734,14 +734,16 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaOutOfBoundaries) {
+
     // Ensure that ANOVA integrates correctly within given boundaries even if some
     // observations are outside of the boundaries.
+
     std::size_t dim{1};
     std::size_t numSamples{30};
 
     test::CRandomNumbers rng;
     auto calculateAnovaValues = [&](double totalMin, double boundaryMin, double boundaryMax,
-                                    double totalMax) -> std::tuple<double, double, double> {
+                                    double totalMax) -> std::pair<double, double> {
         TDoubleVec trainSamples(numSamples * dim);
         rng.generateUniformSamples(totalMin, totalMax, trainSamples.size(), trainSamples);
         maths::common::CBayesianOptimisation::TDoubleDoublePrVec boundaries;
@@ -753,7 +755,6 @@ BOOST_AUTO_TEST_CASE(testAnovaOutOfBoundaries) {
         for (std::size_t i = 0; i < numSamples; ++i) {
             TVector x{vector({trainSamples[i]})};
             bopt.add(x, x.norm(), (boundaryMax - boundaryMin) * 1e-3);
-            // bopt.maximumLikelihoodKernel();
         }
 
         TDoubleVec kernelParameters(dim + 1, 0.5);
@@ -761,16 +762,13 @@ BOOST_AUTO_TEST_CASE(testAnovaOutOfBoundaries) {
         bopt.kernelParameters(vector(kernelParameters));
         double f0{bopt.anovaConstantFactor()};
         double totalVariance{bopt.anovaTotalVariance()};
-        double totalCoefficientOfVariation{bopt.anovaTotalCoefficientOfVariation()};
-        return {f0, totalVariance, totalCoefficientOfVariation};
+        return {f0, totalVariance};
     };
 
-    auto[expectedConst, expectedTV, expectedCoV] = calculateAnovaValues(1.0, 1.0, 2.0, 2.0);
-    auto[actualConst, actualTV, actualCoV] = calculateAnovaValues(0.0, 1.0, 2.0, 3.0);
-    BOOST_REQUIRE_CLOSE(expectedConst, actualConst, 1);
+    auto[expectedConst, expectedTV] = calculateAnovaValues(1.0, 1.0, 2.0, 2.0);
+    auto[actualConst, actualTV] = calculateAnovaValues(0.0, 1.0, 2.0, 3.0);
+    BOOST_REQUIRE_CLOSE(expectedConst, actualConst, 1.0);
     BOOST_REQUIRE_CLOSE(expectedTV, actualTV, 1);
-    // TODO Activate this test once #2259 is backported into the feature brunch
-    // BOOST_REQUIRE_CLOSE(expectedCoV, actualCoV, 27);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

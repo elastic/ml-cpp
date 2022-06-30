@@ -27,7 +27,10 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <sstream>
 #include <string>
+#include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -40,6 +43,7 @@ const TPersistenceTag FIRST_TAG("a", "first");
 const TPersistenceTag SECOND_TAG("b", "second");
 const TPersistenceTag MAP_TAG("c", "map");
 const TPersistenceTag SIZE_TAG("d", "size");
+const std::string TUPLE_PREFIX{"t_"};
 
 template<typename T>
 struct remove_const {
@@ -210,7 +214,7 @@ public:
     //! \brief Converts a built in type to a string using CStringUtils functions.
     class CORE_EXPORT CBuiltinToString {
     public:
-        CBuiltinToString(const char pairDelimiter)
+        explicit CBuiltinToString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         std::string operator()(double value) const {
@@ -254,6 +258,17 @@ public:
                    this->operator()(value.second);
         }
 
+        template<typename... T>
+        std::string operator()(const std::tuple<T...>& value) const {
+            std::ostringstream result;
+            std::apply(
+                [&](const auto&... element) {
+                    ((result << this->operator()(element) << m_PairDelimiter), ...);
+                },
+                value);
+            return result.str();
+        }
+
     private:
         char m_PairDelimiter;
     };
@@ -261,7 +276,7 @@ public:
     //! \brief Converts a string to a built in type using CStringUtils functions.
     class CORE_EXPORT CBuiltinFromString {
     public:
-        CBuiltinFromString(const char pairDelimiter)
+        explicit CBuiltinFromString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         template<typename T>
@@ -332,6 +347,35 @@ public:
             }
             m_Token.assign(token, delimPos + 1, token.length() - delimPos);
             return this->operator()(m_Token, value.second);
+        }
+
+        template<typename... T>
+        bool operator()(const std::string& token, std::tuple<T...>& value) const {
+            if (std::count(token.begin(), token.end(), m_PairDelimiter) !=
+                std::tuple_size_v<std::tuple<T...>>) {
+                return false;
+            }
+
+            auto popOneItem = [this](std::string_view& tokenView, auto& element) {
+                std::size_t delimPos(tokenView.find(m_PairDelimiter));
+                if (delimPos == std::string::npos) {
+                    return false;
+                }
+                m_Token = tokenView.substr(0, delimPos);
+                bool result{this->operator()(m_Token, element)};
+                tokenView.remove_prefix(delimPos + 1);
+                return result;
+            };
+
+            bool success{true};
+            std::string_view tokenView{token};
+            std::apply(
+                [&](auto&... element) {
+                    // Note we want to shortcircuit if not successful.
+                    ((success = success && popOneItem(tokenView, element)), ...);
+                },
+                value);
+            return success;
         }
 
     private:
@@ -697,6 +741,24 @@ public:
                              [&t](auto& inserter_) { newLevel(t, inserter_); });
     }
 
+    template<typename... T>
+    static void dispatch(const std::string& tag,
+                         const std::tuple<T...>& t,
+                         CStatePersistInserter& inserter) {
+        auto newLevel = [](std::size_t pos, const auto& element,
+                           CStatePersistInserter& inserter_) {
+            persist(TUPLE_PREFIX + std::to_string(pos), element, inserter_);
+        };
+        inserter.insertLevel(tag, [&](auto& inserter_) {
+            std::size_t pos{0};
+            std::apply(
+                [&](const auto&... element) {
+                    ((newLevel(pos++, element, inserter_)), ...);
+                },
+                t);
+        });
+    }
+
 private:
     template<typename A, typename B>
     static void newLevel(const std::pair<A, B>& t, CStatePersistInserter& inserter) {
@@ -879,6 +941,55 @@ public:
             }
             return traverser.traverseSubLevel(
                 [&t](auto& traverser_) { return subLevel(t, traverser_); });
+        }
+        return true;
+    }
+
+    template<typename... T>
+    static bool
+    dispatch(const std::string& tag, std::tuple<T...>& t, CStateRestoreTraverser& traverser) {
+        if (traverser.name() == tag) {
+            if (traverser.hasSubLevel() == false) {
+                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
+                return false;
+            }
+            // GCC doesn't handle expanding the logging macro in the lambda context.
+            std::ostringstream errors;
+            auto subLevel = [&errors](std::size_t pos, auto& element,
+                                      CStateRestoreTraverser& traverser_) {
+                if (traverser_.name() != TUPLE_PREFIX + std::to_string(pos)) {
+                    errors << "Tag mismatch at " << traverser_.name()
+                           << ", expected " << TUPLE_PREFIX + std::to_string(pos);
+                    return false;
+                }
+                if (restore(traverser_.name(), element, traverser_) == false) {
+                    errors << "Restore error at " << traverser_.name() << ": "
+                           << traverser_.value();
+                    return false;
+                }
+                if (pos + 1 < std::tuple_size_v<std::tuple<T...>>) {
+                    if (traverser_.next() == false) {
+                        errors << "Restore error at " << traverser_.name()
+                               << ": " << traverser_.value();
+                        return false;
+                    }
+                }
+                return true;
+            };
+            if (traverser.traverseSubLevel([&](auto& traverser_) {
+                    bool success{true};
+                    std::size_t pos{0};
+                    std::apply(
+                        [&](auto&... element) {
+                            // Note we want to shortcircuit if not successful.
+                            ((success = success && subLevel(pos++, element, traverser_)), ...);
+                        },
+                        t);
+                    return success;
+                }) == false) {
+                LOG_ERROR(<< errors.str());
+                return false;
+            }
         }
         return true;
     }

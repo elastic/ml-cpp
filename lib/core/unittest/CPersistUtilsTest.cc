@@ -24,7 +24,9 @@
 
 #include <cmath>
 #include <map>
+#include <numeric>
 #include <set>
+#include <tuple>
 #include <vector>
 
 using TDoubleVec = std::vector<double>;
@@ -95,9 +97,14 @@ struct SEqual {
         return lhs.first == rhs.first && this->operator()(lhs.second, rhs.second);
     }
 
-    template<typename A, typename B>
-    bool operator()(const std::pair<A, B>& lhs, const std::pair<A, B>& rhs) {
+    template<typename U, typename V>
+    bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) {
         return compare(lhs.first, rhs.first) && compare(lhs.second, rhs.second);
+    }
+
+    template<typename... T>
+    bool operator()(const std::tuple<T...>& lhs, const std::tuple<T...>& rhs) {
+        return lhs == rhs;
     }
 };
 
@@ -116,12 +123,11 @@ class CCompareImpl<ContainerCompare> {
 public:
     template<typename T>
     static bool dispatch(const T& lhs, const T& rhs) {
-        using TCItr = typename T::const_iterator;
         if (lhs.size() != rhs.size()) {
             return false;
         }
-        for (TCItr i = lhs.begin(), j = rhs.begin(); i != lhs.end(); ++i, ++j) {
-            if (!compare(*i, *j)) {
+        for (auto i = lhs.begin(), j = rhs.begin(); i != lhs.end(); ++i, ++j) {
+            if (compare(*i, *j) == false) {
                 return false;
             }
         }
@@ -203,6 +209,22 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         testPersistRestore(collection);
     }
 
+    LOG_DEBUG(<< "*** pair ***");
+    {
+        std::pair<double, double> pair1{3.1, 5.9};
+        testPersistRestore(pair1);
+
+        std::pair<double, int> pair2{3.1, 50};
+        testPersistRestore(pair2);
+    }
+    LOG_DEBUG(<< "*** tuple ***");
+    {
+        std::tuple<double, double, double> tuple1{1.0, 2.0, 3.4};
+        testPersistRestore(tuple1);
+
+        std::tuple<int, double, double> tuple2{99, 2.0, 3.4};
+        testPersistRestore(tuple2);
+    }
     LOG_DEBUG(<< "*** vector ***");
     {
         TDoubleVec collection;
@@ -226,14 +248,14 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         TSizeDoubleMap collection;
         testPersistRestore(collection);
 
-        collection.insert(TSizeDoublePr(1, 3.2));
+        collection.emplace(1, 3.2);
         testPersistRestore(collection);
 
-        collection.insert(TSizeDoublePr(4, 1.0 / 3.0));
+        collection.emplace(4, 1.0 / 3.0);
         testPersistRestore(collection);
 
-        collection.insert(TSizeDoublePr(20, 158.0 / 3.0));
-        collection.insert(TSizeDoublePr(0, 1.678e-45));
+        collection.emplace(20, 158.0 / 3.0);
+        collection.emplace(0, 1.678e-45);
         testPersistRestore(collection);
     }
     LOG_DEBUG(<< "*** set ***");
@@ -255,139 +277,68 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
     }
     LOG_DEBUG(<< "*** array ***");
     {
-        std::array<double, 5> collection;
-        collection[0] = 1.2;
-        collection[1] = 4.6;
-        collection[2] = 5.81;
-        collection[3] = 3.8;
-        collection[4] = 1.0 / 3.0;
+        std::array<double, 5> collection{1.2, 4.6, 5.81, 3.8, 1.0 / 3.0};
         testPersistRestore(collection);
     }
-    LOG_DEBUG(<< "*** uset ***");
+    LOG_DEBUG(<< "*** unordered set ***");
     {
-        TSizeUSet set;
-        set.insert(1);
-        set.insert(3);
-        set.insert(5);
-        set.insert(9);
-        set.insert(8);
-        set.insert(7);
-        set.insert(6);
-        set.insert(5);
-        set.insert(4);
+        TSizeUSet set{1, 3, 5, 9, 8, 7, 6, 5, 4};
         testPersistRestore(set);
     }
     LOG_DEBUG(<< "*** nested ***");
     {
-        TDoubleVecVec vec(3);
-        vec[0].push_back(22.22);
-        vec[0].push_back(3456245);
-        vec[0].push_back(0.0001);
-        vec[0].push_back(1.3234324);
-        vec[0].push_back(0.0054);
-        vec[0].push_back(33.907);
-        vec[1].push_back(6.2456);
-        vec[1].push_back(17.13452345);
-        vec[1].push_back(-99.99);
-        vec[2].push_back(0.67);
+        TDoubleVecVec collection1{{22.22, 3456245, 0.0001, 1.3234324, 0.0054, 33.907},
+                                  {6.2456, 17.13452345, -99.99},
+                                  {0.67}};
 
-        testPersistRestore(vec);
+        testPersistRestore(collection1);
 
-        TStrVec strs;
-        strs.push_back("y");
-        strs.push_back("n");
-        strs.push_back("adsf asdf ");
-        strs.push_back("anything goes");
-        strs.push_back("isn#t this fun?");
-        strs.push_back("w w");
-        strs.push_back("yyy");
-        strs.push_back("ttt ttt.t");
-        strs.push_back("something");
+        TStrVec collection2{
+            "y",   "n",   "adsf asdf ", "anything goes", "isn#t this fun?",
+            "w w", "yyy", "ttt ttt.t",  "something"};
 
-        testPersistRestore(strs);
+        testPersistRestore(collection2);
 
-        TStrVecVec moreStrs;
-        moreStrs.push_back(strs);
-        moreStrs.push_back(strs);
-        moreStrs.push_back(strs);
-        moreStrs.push_back(strs);
-        moreStrs.push_back(strs);
-        moreStrs.push_back(strs);
-        moreStrs[0].push_back("one");
-        moreStrs[1].push_back("two");
-        moreStrs[2].push_back("three");
-        moreStrs[4].push_back("one");
+        TStrVecVec collection3(6, collection2);
+        collection3[0].push_back("one");
+        collection3[1].push_back("two");
+        collection3[2].push_back("three");
+        collection3[4].push_back("one");
 
-        testPersistRestore(moreStrs);
+        testPersistRestore(collection3);
 
-        TSizeUSetVec collection(5);
-        collection[0].insert(1);
-        collection[0].insert(3);
-        collection[0].insert(5);
-        collection[0].insert(7);
-        collection[0].insert(9);
-        collection[1].insert(2);
-        collection[1].insert(4);
-        collection[1].insert(6);
-        collection[1].insert(8);
-        collection[1].insert(10);
-        collection[2].insert(99);
-        collection[2].insert(109);
-        collection[2].insert(909);
-        collection[2].insert(999);
-        collection[2].insert(99999);
-        collection[2].insert(91919);
-        collection[2].insert(909090909);
-        collection[3].insert(0);
-        collection[3].insert(1);
-        collection[3].insert(2);
-        collection[3].insert(3);
-        collection[3].insert(4);
-        collection[3].insert(5);
-        collection[3].insert(6);
-        collection[3].insert(7);
-        collection[4].insert(7);
-        collection[4].insert(6);
-        collection[4].insert(5);
-        collection[4].insert(4);
-        collection[4].insert(3);
-        collection[4].insert(2);
-        collection[4].insert(1);
-        collection[4].insert(0);
-        testPersistRestore(collection);
+        TSizeUSetVec collection4{{1, 3, 5, 7, 9},
+                                 {2, 4, 6, 8, 10},
+                                 {99, 109, 909, 999, 99999, 91919, 909090909},
+                                 {0, 1, 2, 3, 4, 5, 6, 7},
+                                 {7, 6, 5, 4, 3, 2, 1, 0}};
+
+        testPersistRestore(collection4);
+
+        std::vector<std::tuple<double, double, int>> collection5{{1.3, 7.1, 0},
+                                                                 {17.1, -2.1, 5}};
+
+        testPersistRestore(collection5);
     }
     LOG_DEBUG(<< "*** unordered_map ***");
     {
-        TStrIntUMap map;
-        map.reserve(5);
-        map["hello"] = 66;
-        map["thing"] = 999;
-        map["wanton destruction"] = 2;
-        map["0"] = 1;
-        map["hola"] = 43;
+        TStrIntUMap map{
+            {"hello", 66}, {"thing", 999}, {"wanton destruction", 2}, {"0", 1}, {"hola", 43}};
         testPersistRestore(map);
     }
     {
         TStrDoubleVecVecUMap map;
         map.reserve(1);
-        TDoubleVecVec vec(3);
-        vec[0].push_back(22.22);
-        vec[0].push_back(3456245);
-        vec[0].push_back(0.0001);
-        vec[0].push_back(1.3234324);
-        vec[0].push_back(0.000000054);
-        vec[0].push_back(33.907);
-        vec[1].push_back(6.2456);
-        vec[1].push_back(17.13452345);
-        vec[1].push_back(-99.99);
-        vec[2].push_back(0.0000000067);
+        TDoubleVecVec vec{{22.22, 3456245, 0.0001, 1.3234324, 0.000000054, 33.907},
+                          {6.2456, 17.13452345, -99.99},
+                          {0.0000000067}};
         map["shorty"] = vec;
 
         vec[0].push_back(444);
+        vec[1].clear();
         vec[2].push_back(94.94);
         vec[2].push_back(94.95);
         vec[2].push_back(94.96);
-        vec[1].clear();
         map["charlie"] = vec;
 
         testPersistRestore(map);
@@ -417,16 +368,16 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
     {
         std::string bad("dejk");
         TDoubleVec collection;
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
         BOOST_TEST_REQUIRE(collection.empty());
 
         bad += core::CPersistUtils::DELIMITER;
         bad += "12";
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
         BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("1.3") + core::CPersistUtils::DELIMITER + bad;
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
         BOOST_TEST_REQUIRE(collection.empty());
     }
     {
@@ -435,12 +386,12 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         bad += core::CPersistUtils::PAIR_DELIMITER;
         bad += "kdsk";
         TSizeDoubleMap collection;
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
         BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER +
               "2.3" + core::CPersistUtils::DELIMITER + bad;
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
         BOOST_TEST_REQUIRE(collection.empty());
     }
     {
@@ -449,8 +400,34 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         state += core::CPersistUtils::DELIMITER;
         state += "2.4";
         std::array<double, 3> wrongSize;
-        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(state, wrongSize));
+        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(state, wrongSize), false);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testToStringContainers) {
+
+    TDoubleVec collection1{1.1, 2.2, 3.3, 4.4, 9.0};
+    std::string state1{core::CPersistUtils::toString(collection1)};
+    LOG_DEBUG(<< "state 1 = " << state1);
+    TDoubleVec restored1;
+    BOOST_TEST_REQUIRE(core::CPersistUtils::fromString(state1, restored1));
+    BOOST_TEST_REQUIRE(compare(collection1, restored1));
+
+    std::vector<std::pair<double, int>> collection2{
+        {1.1, 1}, {2.2, 2}, {3.3, 3}, {4.4, 4}, {9.0, 0}};
+    std::string state2{core::CPersistUtils::toString(collection2)};
+    LOG_DEBUG(<< "state 2 = " << state2);
+    std::vector<std::pair<double, int>> restored2;
+    BOOST_TEST_REQUIRE(core::CPersistUtils::fromString(state2, restored2));
+    BOOST_TEST_REQUIRE(compare(collection2, restored2));
+
+    std::vector<std::tuple<double, double, int>> collection3{{1.3, 7.1, 0},
+                                                             {17.1, -2.1, 5}};
+    std::string state3{core::CPersistUtils::toString(collection3)};
+    LOG_DEBUG(<< "state 3 = " << state3);
+    std::vector<std::tuple<double, double, int>> restored3;
+    BOOST_TEST_REQUIRE(core::CPersistUtils::fromString(state3, restored3));
+    BOOST_TEST_REQUIRE(compare(collection3, restored3));
 }
 
 BOOST_AUTO_TEST_CASE(testPersistIterators) {
@@ -463,8 +440,8 @@ BOOST_AUTO_TEST_CASE(testPersistIterators) {
             collection.push_back(i);
         }
 
-        TDoubleVec::iterator begin = collection.begin();
-        TDoubleVec::iterator end = collection.begin() + 10;
+        auto begin = collection.begin();
+        auto end = collection.begin() + 10;
 
         std::string state = core::CPersistUtils::toString(begin, end);
         LOG_DEBUG(<< "state = " << state);
@@ -472,14 +449,12 @@ BOOST_AUTO_TEST_CASE(testPersistIterators) {
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
 
-        TDoubleVec firstTen;
-        for (int i = 0; i < 10; i++) {
-            firstTen.push_back(i);
-        }
+        TDoubleVec firstTen(10);
+        std::iota(firstTen.begin(), firstTen.end(), 0);
         BOOST_TEST_REQUIRE(equal(firstTen, restored));
 
-        TDoubleVec::iterator fifth = collection.begin() + 5;
-        TDoubleVec::iterator tenth = collection.begin() + 10;
+        auto fifth = collection.begin() + 5;
+        auto tenth = collection.begin() + 10;
 
         state = core::CPersistUtils::toString(fifth, tenth);
         LOG_DEBUG(<< "state = " << state);
@@ -500,10 +475,8 @@ BOOST_AUTO_TEST_CASE(testAppend) {
     {
         LOG_DEBUG(<< "*** vector append ***");
 
-        TDoubleVec source;
-        for (int i = 0; i < 9; i++) {
-            source.push_back(i);
-        }
+        TDoubleVec source(9);
+        std::iota(source.begin(), source.end(), 0);
 
         std::string state = core::CPersistUtils::toString(source);
         LOG_DEBUG(<< "state = " << state);
@@ -515,8 +488,8 @@ BOOST_AUTO_TEST_CASE(testAppend) {
             source.push_back(i);
         }
 
-        TDoubleVec::iterator begin = source.begin() + 9;
-        TDoubleVec::iterator end = source.begin() + 15;
+        auto begin = source.begin() + 9;
+        auto end = source.begin() + 15;
 
         state = core::CPersistUtils::toString(begin, end);
         BOOST_TEST_REQUIRE(begin == end);
@@ -555,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         BOOST_TEST_REQUIRE(equal(collection, restored));
 
         for (int i = 0; i < 10; i++) {
-            collection.insert(TSizeDoublePr(i, 3.2));
+            collection.emplace(i, 3.2);
         }
 
         state = core::CPersistUtils::toString(collection);
@@ -565,10 +538,9 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         BOOST_TEST_REQUIRE(equal(collection, restored));
 
         // add another element
-        std::pair<TSizeDoubleMap::iterator, bool> pr =
-            collection.insert(TSizeDoublePr(14, 1.0));
+        auto pr = collection.insert(TSizeDoublePr(14, 1.0));
 
-        TSizeDoubleMap::iterator end = collection.end();
+        auto end = collection.end();
         state = core::CPersistUtils::toString(pr.first, end);
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,

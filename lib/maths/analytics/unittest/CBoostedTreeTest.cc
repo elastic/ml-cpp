@@ -100,7 +100,8 @@ public:
 
     double meanChangePenalisedLoss(core::CDataFrame& frame,
                                    const core::CPackedBitVector& rowMask) const {
-        return m_TreeImpl.meanChangePenalisedLoss(frame, rowMask);
+        return maths::common::CBasicStatistics::mean(
+            m_TreeImpl.meanChangePenalisedLoss(frame, rowMask));
     }
 
 private:
@@ -3739,10 +3740,10 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
     // on the optimisation objective.
 
     test::CRandomNumbers rng;
-    std::size_t rows{500};
+    std::size_t rows{2000};
     std::size_t cols{3};
 
-    std::size_t numberHoldoutRows{200};
+    std::size_t numberHoldoutRows{1500};
 
     auto verify = [&](double noiseVariance) {
         auto target = [&] {
@@ -3770,10 +3771,11 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-        auto factory = maths::analytics::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::analytics::boosted_tree::CMse>());
-        factory.numberHoldoutRows(numberHoldoutRows);
-        auto regression = factory.buildForTrain(*frame, cols - 1);
+        auto regression =
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .numberHoldoutRows(numberHoldoutRows)
+                .buildForTrain(*frame, cols - 1);
         return regression->hyperparameters().optimisationMakingNoProgress();
     };
 

@@ -379,6 +379,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         m_TreeImpl->m_TrainFractionPerFold.fixTo(
             1.0 - static_cast<double>(m_NumberHoldoutRows) /
                       m_TreeImpl->allTrainingRowMask().manhattan());
+        m_TreeImpl->m_UserSuppliedHoldOutSet = true;
+
     } else {
         auto result = frame.readRows(
             m_NumberThreads,
@@ -426,11 +428,11 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
                                           static_cast<double>(frame.numberColumns() - 1)) /
                                          static_cast<double>(totalNumberTrainingRows)};
         LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction);
-        m_TreeImpl->m_NumberFolds.set(static_cast<std::size_t>(
-            std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
-                                     1.0 / MAX_NUMBER_FOLDS))));
+        m_TreeImpl->m_NumberFolds.set(static_cast<std::size_t>(std::round(
+            1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
+                           1.0 / MAX_NUMBER_FOLDS))));
         m_TreeImpl->m_TrainFractionPerFold.set(std::min(
-            1.0 - 1.0 / static_cast<double>(m_TreeImpl->m_NumberFolds.value()),
+            1.0 - 1.0 / std::max(static_cast<double>(m_TreeImpl->m_NumberFolds.value()), 2.0),
             static_cast<double>(m_MaximumNumberOfTrainRows) /
                 static_cast<double>(totalNumberTrainingRows)));
     }
@@ -569,44 +571,45 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     } else {
         std::size_t dependentVariable{m_TreeImpl->m_DependentVariable};
         std::size_t numberThreads{m_TreeImpl->m_NumberThreads};
-        std::size_t numberFolds{m_TreeImpl->m_NumberFolds.value()};
+        std::size_t numberFolds{std::max(m_TreeImpl->m_NumberFolds.value(), std::size_t{2})};
         std::size_t numberBuckets(m_StratifyRegressionCrossValidation ? 10 : 1);
         double trainFractionPerFold{m_TreeImpl->m_TrainFractionPerFold.value()};
         auto& rng = m_TreeImpl->m_Rng;
 
-        if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
+        const auto& newTrainingRowMask = m_TreeImpl->m_NewTrainingRowMask;
+
+        if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false ||
+            m_TreeImpl->m_NewTrainingRowMask.manhattan() == 0.0) {
             std::tie(m_TreeImpl->m_TrainingRowMasks,
                      m_TreeImpl->m_TestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
                     numberThreads, frame, dependentVariable, rng, numberFolds,
                     trainFractionPerFold, numberBuckets, allTrainingRowMask);
+
         } else {
 
             // Use separate stratified samples on old and new training data to ensure
             // we have even splits of old and new data across all folds.
-
-            const auto& newTrainingRowMask = m_TreeImpl->m_NewTrainingRowMask;
 
             std::tie(m_TreeImpl->m_TrainingRowMasks,
                      m_TreeImpl->m_TestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
                     numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
                     numberBuckets, allTrainingRowMask & ~newTrainingRowMask);
-
-            if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
-                TPackedBitVectorVec newTrainingRowMasks;
-                TPackedBitVectorVec newTestingRowMasks;
-                std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
-                    CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                        numberThreads, frame, dependentVariable, rng,
-                        numberFolds, trainFractionPerFold, numberBuckets,
-                        allTrainingRowMask & newTrainingRowMask);
-                for (std::size_t i = 0; i < numberFolds; ++i) {
-                    m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
-                    m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
-                }
+            TPackedBitVectorVec newTrainingRowMasks;
+            TPackedBitVectorVec newTestingRowMasks;
+            std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
+                CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                    numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
+                    numberBuckets, allTrainingRowMask & newTrainingRowMask);
+            for (std::size_t i = 0; i < numberFolds; ++i) {
+                m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
+                m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
             }
         }
+
+        m_TreeImpl->m_TrainingRowMasks.resize(m_TreeImpl->m_NumberFolds.value());
+        m_TreeImpl->m_TestingRowMasks.resize(m_TreeImpl->m_NumberFolds.value());
     }
 }
 

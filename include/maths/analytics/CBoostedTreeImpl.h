@@ -226,11 +226,11 @@ private:
 
     //! \brief The result of training a single forest.
     struct STrainForestResult {
-        std::tuple<TNodeVecVec, double, double, TDoubleVec> asTuple() {
+        std::tuple<TNodeVecVec, TMeanVarAccumulator, double, TDoubleVec> asTuple() {
             return {std::move(s_Forest), s_TestLoss, s_LossGap, std::move(s_TestLosses)};
         }
         TNodeVecVec s_Forest;
-        double s_TestLoss{0.0};
+        TMeanVarAccumulator s_TestLoss{0.0};
         double s_LossGap{0.0};
         TDoubleVec s_TestLosses;
     };
@@ -400,12 +400,13 @@ private:
                             const TUpdateRowPrediction& updateRowPrediction) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
-    double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
+    TMeanVarAccumulator meanLoss(const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& rowMask) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame
     //! adjusted for incremental training.
-    double meanChangePenalisedLoss(const core::CDataFrame& frame,
-                                   const core::CPackedBitVector& rowMask) const;
+    TMeanVarAccumulator meanChangePenalisedLoss(const core::CDataFrame& frame,
+                                                const core::CPackedBitVector& rowMask) const;
 
     //! Compute the overall variance of the error we see between folds.
     double betweenFoldTestLossVariance() const;
@@ -489,6 +490,7 @@ private:
     //@{
     TSizeParameter m_NumberFolds{4};
     TDoubleParameter m_TrainFractionPerFold{0.75};
+    bool m_UserSuppliedHoldOutSet{false};
     bool m_StopCrossValidationEarly{true};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     //@}
