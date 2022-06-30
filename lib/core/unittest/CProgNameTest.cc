@@ -22,10 +22,8 @@ BOOST_AUTO_TEST_CASE(testProgName) {
 
     LOG_DEBUG(<< "Current program name is " << progName);
 
-    // allow for different naming scheme to support cmake builds
-    // TODO Once we've cut over to CMake make this unconditional
     ml::core::CRegex expectedNameRegex;
-    BOOST_TEST_REQUIRE(expectedNameRegex.init("ml_test(_core)?"));
+    BOOST_TEST_REQUIRE(expectedNameRegex.init("ml_test_core"));
     BOOST_TEST_REQUIRE(expectedNameRegex.matches(progName));
 }
 

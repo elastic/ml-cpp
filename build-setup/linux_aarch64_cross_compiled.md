@@ -70,7 +70,7 @@ export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
 ```
 
-These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our build system).
 
 ### binutils (bootstrap version)
 

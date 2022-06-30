@@ -44,7 +44,7 @@ unset CPLUS_INCLUDE_PATH
 unset LIBRARY_PATH
 ```
 
-The above environment variables only need to be set when building tools on macOS. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+The above environment variables only need to be set when building tools on macOS. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our build system).
 
 ### Xcode
 
@@ -70,7 +70,7 @@ at the command prompt.
 
 ### Boost 1.77.0
 
-Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
