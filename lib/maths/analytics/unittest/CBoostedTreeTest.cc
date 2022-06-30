@@ -3740,10 +3740,10 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
     // on the optimisation objective.
 
     test::CRandomNumbers rng;
-    std::size_t rows{1500};
+    std::size_t rows{2000};
     std::size_t cols{3};
 
-    std::size_t numberHoldoutRows{1000};
+    std::size_t numberHoldoutRows{1500};
 
     auto verify = [&](double noiseVariance) {
         auto target = [&] {

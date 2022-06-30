@@ -674,8 +674,8 @@ private:
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TIndexVec = std::vector<TVector::TIndexType>;
     using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
-    using TVectorMeanVarAccumulatorPr = std::pair<TVector, TMeanVarAccumulator>;
-    using TVectorMeanVarAccumulatorPrVec = std::vector<TVectorMeanVarAccumulatorPr>;
+    using TVectorDoubleDoubleTr = std::tuple<TVector, double, double>;
+    using TVectorDoubleDoubleTrVec = std::vector<TVectorDoubleDoubleTr>;
 
 private:
     void initializeTunableHyperparameters();
@@ -741,7 +741,7 @@ private:
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
     TIndexVec m_LineSearchRelevantParameters;
-    TVectorMeanVarAccumulatorPrVec m_LineSearchHyperparameterLosses;
+    TVectorDoubleDoubleTrVec m_LineSearchHyperparameterLosses;
     //@}
 };
 }

@@ -2076,7 +2076,7 @@ CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
 
     auto results = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState( // Prevent weird formatting.
+        core::bindRetrievableState( // Prevents weird formatting.
             [ this, rng = m_Rng, samples = TSizeVec{} ](
                 TMeanAccumulatorVec & losses, const TRowItr& beginRows, const TRowItr& endRows) mutable {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};

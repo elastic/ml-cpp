@@ -18,6 +18,7 @@
 #include <maths/analytics/CBoostedTreeImpl.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CBayesianOptimisation.h>
 #include <maths/common/CLinearAlgebra.h>
@@ -342,7 +343,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
                            bool result{false};
                            this->foreachTunableParameter([&](std::size_t i, const auto& parameter) {
                                result |= parameter.fixed() &&
-                                         loss.first(i) != parameter.value();
+                                         std::get<0>(loss)(i) != parameter.value();
                            });
                            return result;
                        }),
@@ -402,14 +403,13 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch() {
         std::swap(toRestore, m_BayesianOptimization);
 
         // Add information about observed line search training runs to the GP.
-        for (auto & [ parameters, testLossMoments ] : m_LineSearchHyperparameterLosses) {
+        for (auto & [ parameters, meanTestLoss, testLossVariance ] :
+             m_LineSearchHyperparameterLosses) {
             TVector parameters_{static_cast<TVector::TIndexType>(
                 m_LineSearchRelevantParameters.size())};
             for (std::size_t i = 0; i < m_LineSearchRelevantParameters.size(); ++i) {
                 parameters_(i) = parameters(m_LineSearchRelevantParameters[i]);
             }
-            double meanTestLoss{common::CBasicStatistics::mean(testLossMoments)};
-            double testLossVariance{common::CBasicStatistics::variance(testLossMoments)};
             m_BayesianOptimization->add(std::move(parameters_), meanTestLoss, testLossVariance);
         }
 
@@ -665,7 +665,8 @@ std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
            (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) + // m_HyperparameterSamples
            common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds) +
            numberToTune * sizeof(std::size_t) + // m_LineSearchRelevantParameters
-           numberToTune * maxLineSearchIterations() * sizeof(double); // m_LineSearchHyperparameterLosses
+           numberToTune * maxLineSearchIterations() * // m_LineSearchHyperparameterLosses
+               (sizeof(TVectorDoubleDoubleTr) + numberToTune * sizeof(double));
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
@@ -994,7 +995,9 @@ void CBoostedTreeHyperparameters::captureScale() {
 
 void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(const TMeanVarAccumulator& testLoss) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
-        m_LineSearchHyperparameterLosses.emplace_back(this->currentParametersVector(), testLoss);
+        m_LineSearchHyperparameterLosses.emplace_back(
+            this->currentParametersVector(), common::CBasicStatistics::mean(testLoss),
+            common::CBasicStatistics::variance(testLoss));
     }
 }
 
