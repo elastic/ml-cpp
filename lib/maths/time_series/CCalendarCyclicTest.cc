@@ -36,6 +36,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <mutex>
 #include <string>
 
 namespace ml {
@@ -43,14 +44,6 @@ namespace maths {
 namespace time_series {
 namespace {
 using TTimeVec = std::vector<core_t::TTime>;
-
-//! \brief Sets the time zone to a specified value in a constructor
-//! call so it can be called once by static initialisation.
-struct SSetTimeZone {
-    explicit SSetTimeZone(const std::string& zone) {
-        core::CTimezone::instance().timezoneName(zone);
-    }
-};
 
 //! \brief Hashes a calendar feature.
 struct SHashFeature {
@@ -87,12 +80,15 @@ const double VERY_LARGE_ERROR_PERCENTILE{99.99};
 const unsigned int MINIMUM_REPEATS{4};
 //! The maximum significance to accept a feature.
 const double MAXIMUM_SIGNIFICANCE{0.01};
+//! Used to guard setting the timezone.
+std::once_flag setTimeZone;
 }
 
 CCalendarCyclicTest::CCalendarCyclicTest(double decayRate)
     : m_DecayRate{decayRate}, m_ErrorQuantiles{common::CQuantileSketch::E_Linear, 20},
       m_CurrentBucketTime{0}, m_CurrentBucketIndex{0} {
-    static const SSetTimeZone timezone("GMT");
+    std::call_once(setTimeZone,
+                   [] { core::CTimezone::instance().timezoneName("GMT"); });
     TErrorStatsVec stats(SIZE);
     this->deflate(stats);
 }

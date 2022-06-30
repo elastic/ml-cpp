@@ -113,6 +113,12 @@ struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::ha
 template<typename SELECTOR>
 class CChecksumImpl {};
 
+//! Convenience function to select implementation.
+template<typename T>
+std::uint64_t checksum(std::uint64_t seed, const T& target) {
+    return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target);
+}
+
 //! Basic checksum functionality implementation.
 template<>
 class CChecksumImpl<BasicChecksum> {
@@ -165,46 +171,49 @@ public:
     template<typename T>
     static std::uint64_t
     dispatch(std::uint64_t seed, const std::reference_wrapper<T>& target) {
-        return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target.get());
+        return checksum(seed, target.get());
     }
 
     //! Checksum of a optional.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const boost::optional<T>& target) {
-        return target == boost::none
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == boost::none ? seed : checksum(seed, *target);
     }
 
     //! A raw pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const T* target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a shared pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::shared_ptr<T>& target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a unique pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::unique_ptr<T>& target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a pair.
     template<typename U, typename V>
     static std::uint64_t dispatch(std::uint64_t seed, const std::pair<U, V>& target) {
-        seed = CChecksumImpl<typename selector<U>::value>::dispatch(seed, target.first);
-        return CChecksumImpl<typename selector<V>::value>::dispatch(seed, target.second);
+        seed = checksum(seed, target.first);
+        return checksum(seed, target.second);
+    }
+
+    //! Checksum a tuple.
+    template<typename... T>
+    static std::uint64_t dispatch(std::uint64_t seed, const std::tuple<T...>& target) {
+        std::apply(
+            [&](const auto&... element) {
+                ((seed = checksum(seed, element)), ...);
+            },
+            target);
+        return seed;
     }
 
     //! Checksum an Eigen dense vector.
@@ -240,10 +249,8 @@ public:
     template<typename VECTOR, typename ANNOTATION>
     static std::uint64_t
     dispatch(std::uint64_t seed, const CAnnotatedVector<VECTOR, ANNOTATION>& target) {
-        seed = CChecksumImpl<typename selector<VECTOR>::value>::dispatch(
-            seed, static_cast<const VECTOR&>(target));
-        return CChecksumImpl<typename selector<ANNOTATION>::value>::dispatch(
-            seed, target.annotation());
+        seed = checksum(seed, static_cast<const VECTOR&>(target));
+        return checksum(seed, target.annotation());
     }
 };
 
@@ -290,8 +297,7 @@ public:
     static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
         std::uint64_t result{seed};
         for (const auto& element : target) {
-            result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(
-                result, element);
+            result = checksum(result, element);
         }
         return result;
     }
@@ -351,13 +357,6 @@ public:
 private:
     static const std::hash<std::vector<bool>> ms_VectorBoolHasher;
 };
-
-//! Convenience function to select implementation.
-template<typename T>
-std::uint64_t checksum(std::uint64_t seed, const T& target) {
-    return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target);
-}
-
 } // checksum_detail::
 
 //! \brief Implementation of utility functionality for creating

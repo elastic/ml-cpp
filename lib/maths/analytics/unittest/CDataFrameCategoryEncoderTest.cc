@@ -560,7 +560,8 @@ BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
 
     bool passed{true};
 
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+    frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                           const core::CDataFrame::TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (passed) {
                 auto encoded = encoder.encode(*row);
@@ -615,7 +616,7 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
 
     maths::analytics::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
 
-    TFloatVec unseen{3.0f, 5.0f, 4.0f, 1.5f};
+    TFloatVec unseen{3.0F, 5.0F, 4.0F, 1.5F};
     core::CDataFrame::TRowRef row{rows, unseen.begin(), unseen.end(), 0};
 
     auto encodedRow = encoder.encode(row);
@@ -658,11 +659,10 @@ BOOST_AUTO_TEST_CASE(testDiscardNuisanceFeatures) {
     for (std::size_t i = 0; i < rows; ++i) {
         auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             double target{0.0};
-            std::size_t j = 0;
-            for (/**/; j + 2 < cols; ++j, ++column) {
+            for (std::size_t j = 0; j + 1 < features.size(); ++j, ++column) {
                 target += * column = features[j][i];
             }
-            *(column++) = features[j][i];
+            *(column++) = features[cols - 2][i];
             *column = target;
         };
 
@@ -682,11 +682,115 @@ BOOST_AUTO_TEST_CASE(testDiscardNuisanceFeatures) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage) {
+
+    // Check that we don't exceed the memory estimate for a variety of problem sizes.
+
+    test::CRandomNumbers rng;
+
+    auto makeDataFrame = [&](std::size_t rows, std::size_t metricCols,
+                             std::size_t categoricalCols) {
+
+        std::size_t cols{metricCols + categoricalCols};
+        auto frame = core::makeMainStorageDataFrame(cols + 1).first;
+
+        TBoolVec categoricalColumns(metricCols, false);
+        categoricalColumns.resize(cols, true);
+        categoricalColumns.resize(cols + 1, false);
+        frame->categoricalColumns(std::move(categoricalColumns));
+
+        TDoubleVec metricFeatures;
+        TDoubleVec categoricalFeatures;
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            double target{0.0};
+            for (std::size_t i = 0; i < metricFeatures.size(); ++i, ++column) {
+                *column = metricFeatures[i];
+                target += *column;
+            }
+            for (std::size_t i = 0; i < categoricalFeatures.size(); ++i, ++column) {
+                *column = std::floor(categoricalFeatures[i] /
+                                     std::min(0.5 * static_cast<double>(i + 1), 10.0));
+                target += 2.0 * *column;
+            }
+            *column = target;
+        };
+
+        for (std::size_t i = 0; i < rows; ++i) {
+            rng.generateUniformSamples(0.0, 6.0, metricCols, metricFeatures);
+            rng.generateUniformSamples(0.0, 500.0, categoricalCols, categoricalFeatures);
+            frame->writeRow(writeOneRow);
+        }
+        frame->finishWritingRows();
+
+        return frame;
+    };
+
+    {
+        LOG_DEBUG(<< "500 x 10");
+        auto frame = makeDataFrame(500, 1, 9);
+        maths::analytics::CMakeDataFrameCategoryEncoder encoder{1, *frame, 10};
+        encoder.makeEncodings();
+        LOG_DEBUG(<< "actual   = " << sizeof(encoder) + encoder.memoryUsage());
+        LOG_DEBUG(<< "estimate = "
+                  << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                         500, 11, 9));
+        BOOST_TEST_REQUIRE(2 * (sizeof(encoder) + encoder.memoryUsage()) >
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               500, 11, 9));
+        BOOST_TEST_REQUIRE(sizeof(encoder) + encoder.memoryUsage() <
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               500, 11, 9));
+    }
+    {
+        LOG_DEBUG(<< "5000 x 10");
+        auto frame = makeDataFrame(5000, 1, 9);
+        maths::analytics::CMakeDataFrameCategoryEncoder encoder{1, *frame, 10};
+        encoder.makeEncodings();
+        LOG_DEBUG(<< "actual   = " << sizeof(encoder) + encoder.memoryUsage());
+        LOG_DEBUG(<< "estimate = "
+                  << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                         5000, 11, 9));
+        BOOST_TEST_REQUIRE(2 * (sizeof(encoder) + encoder.memoryUsage()) >
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               5000, 11, 9));
+        BOOST_TEST_REQUIRE(sizeof(encoder) + encoder.memoryUsage() <
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               5000, 11, 9));
+    }
+    {
+        LOG_DEBUG(<< "50000 x 50");
+        auto frame = makeDataFrame(50000, 30, 20);
+        maths::analytics::CMakeDataFrameCategoryEncoder encoder{1, *frame, 50};
+        encoder.makeEncodings();
+        LOG_DEBUG(<< "actual   = " << sizeof(encoder) + encoder.memoryUsage());
+        LOG_DEBUG(<< "estimate = "
+                  << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                         50000, 51, 20));
+        BOOST_TEST_REQUIRE(5 * (sizeof(encoder) + encoder.memoryUsage()) >
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               50000, 51, 20));
+        BOOST_TEST_REQUIRE(sizeof(encoder) + encoder.memoryUsage() <
+                           maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               50000, 51, 20));
+    }
+    {
+        // Flag if the memory estimate changes a lot.
+        LOG_DEBUG(<< "1000000 x 2000");
+        LOG_DEBUG(<< "estimate = "
+                  << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                         1000000, 2001, 1000));
+        BOOST_TEST_REQUIRE(20000000 < maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                                          1000000, 2001, 1000));
+        BOOST_TEST_REQUIRE(30000000 > maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                                          1000000, 2001, 1000));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     // Test checksum of restored encoder matches persisted one.
 
-    TDoubleVec categoryValue[2]{{-15.0, 20.0, 0.0}, {10.0, -10.0, 0.0}};
+    TDoubleVecVec categoryValue{{-15.0, 20.0, 0.0}, {10.0, -10.0, 0.0}};
 
     auto target = [&](const TDoubleVecVec& features, std::size_t row) {
         std::size_t categories[]{
@@ -727,9 +831,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     std::stringstream persistTo;
     core::CJsonStatePersistInserter inserter{persistTo};
-    inserter.insertLevel("top-level", std::bind(&maths::analytics::CDataFrameCategoryEncoder::acceptPersistInserter,
-                                                &encoder, std::placeholders::_1));
-    encoder.acceptPersistInserter(inserter);
+    inserter.insertLevel("top-level", [&](auto& inserter_) {
+        encoder.acceptPersistInserter(inserter_);
+    });
     persistTo.flush();
 
     LOG_DEBUG(<< "persisted " << persistTo.str());

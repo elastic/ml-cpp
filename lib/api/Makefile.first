@@ -24,6 +24,7 @@ LIBS:=$(LIB_ML_CORE) $(LIB_ML_MATHS_COMMON) $(LIB_ML_MATHS_TIME_SERIES) $(LIB_ML
 all: build
 
 SRCS= \
+CAnnotationJsonWriter.cc \
 CAnomalyJob.cc \
 CAnomalyJobConfig.cc \
 CAnomalyJobConfigReader.cc \
@@ -35,16 +36,18 @@ CConfigUpdater.cc \
 CCsvInputParser.cc \
 CCsvOutputWriter.cc \
 CDataFrameAnalysisConfigReader.cc \
+CDataFrameAnalysisInstrumentation.cc\
 CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalysisSpecificationJsonWriter.cc \
-CDataFrameAnalysisInstrumentation.cc\
 CDataFrameAnalyzer.cc \
 CDataFrameOutliersRunner.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataFrameTrainBoostedTreeRunner.cc \
 CDataProcessor.cc \
+CDataSummarizationJsonTags.cc \
+CDataSummarizationJsonWriter.cc \
 CDetectionRulesJsonParser.cc \
 CFieldDataCategorizer.cc \
 CForecastRunner.cc \
@@ -57,7 +60,6 @@ CIoManager.cc \
 CJsonOutputWriter.cc \
 CLengthEncodedInputParser.cc \
 CMemoryUsageEstimationResultJsonWriter.cc \
-CAnnotationJsonWriter.cc \
 CModelPlotDataJsonWriter.cc \
 CModelSizeStatsJsonWriter.cc \
 CModelSnapshotJsonWriter.cc \
@@ -68,6 +70,8 @@ CNoopCategoryIdMapper.cc \
 CPerPartitionCategoryIdMapper.cc \
 CPersistenceManager.cc \
 CResultNormalizer.cc \
+CRetrainableModelJsonReader.cc \
+CSerializableToJson.cc \
 CSimpleOutputWriter.cc \
 CSingleFieldDataCategorizer.cc \
 CSingleStreamDataAdder.cc \

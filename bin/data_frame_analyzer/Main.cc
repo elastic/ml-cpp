@@ -52,6 +52,10 @@
 #include <string>
 
 namespace {
+using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    ml::api::CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr;
+
 class CCleanUpOnExit : private ml::core::CNonInstantiatable {
 public:
     using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
@@ -123,10 +127,10 @@ int main(int argc, char** argv) {
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr{
-        cancellerThread,        inputFileName,         isInputFileNamedPipe,
-        outputFileName,         isOutputFileNamedPipe, restoreFileName,
-        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
+    ml::api::CIoManager ioMgr(cancellerThread, inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe,
+                              restoreFileName, isRestoreFileNamedPipe,
+                              persistFileName, isPersistFileNamedPipe);
 
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
@@ -167,8 +171,6 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
-    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
     std::tie(analysisSpecificationJson, couldReadConfigFile) =
@@ -208,25 +210,30 @@ int main(int argc, char** argv) {
         return nullptr;
     };
 
-    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
-        analysisSpecificationJson, std::move(persisterSupplier),
-        std::move(restoreSearcherSupplier));
-
     if (memoryUsageEstimationOnly) {
+        auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
+            analysisSpecificationJson, nullptr, std::move(persisterSupplier),
+            std::move(restoreSearcherSupplier));
         auto outStream = resultsStreamSupplier();
         ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
         analysisSpecification->estimateMemoryUsage(writer);
         return EXIT_SUCCESS;
     }
 
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
+        analysisSpecificationJson, &frameAndDirectory,
+        std::move(persisterSupplier), std::move(restoreSearcherSupplier));
+
+    CCleanUpOnExit::add(frameAndDirectory.second);
+
     if (analysisSpecification->numberThreads() > 1) {
         ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
 
-    ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), std::move(resultsStreamSupplier)};
-
-    CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
+    ml::api::CDataFrameAnalyzer dataFrameAnalyzer{std::move(analysisSpecification),
+                                                  std::move(frameAndDirectory),
+                                                  std::move(resultsStreamSupplier)};
 
     auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {

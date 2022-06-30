@@ -101,4 +101,3 @@ CXmlNodeWithChildrenTest.cc \
 CXmlParserTest.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk
-

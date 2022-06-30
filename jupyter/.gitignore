@@ -1,0 +1,7 @@
+env
+**/.ipynb_checkpoints
+**/__pycache__/
+notebooks/datasets
+**egg-info
+.requirements.log
+config.ini

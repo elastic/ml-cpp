@@ -619,7 +619,8 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         CTestInstrumentation instrumentation;
 
         auto memoryUsageCallback = [&](std::int64_t delta) {
-            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+            // fetch_add returns the value immediately _before_ adding delta.
+            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta) + delta};
 
             std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
             while (prevMaxMemoryUsage < memoryUsage_ &&

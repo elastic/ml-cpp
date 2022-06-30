@@ -51,7 +51,6 @@ const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard_limit"};
 const std::string MEMORY_STATUS_OK_TAG{"ok"};
 const std::string MEMORY_STATUS_TAG{"status"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
-const std::string META_DATA_TAG{"meta_data"};
 const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
 const std::string PARAMETERS_TAG{"parameters"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
@@ -71,7 +70,6 @@ const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
 
 // Hyperparameters
 // TODO we should expose these in the analysis config.
-const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string MAX_ATTEMPTS_TO_ADD_TREE_TAG{"max_attempts_to_add_tree"};
 const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
 
@@ -142,7 +140,7 @@ void CDataFrameAnalysisInstrumentation::startNewProgressMonitoredTask(const std:
         m_ProgressMonitoredTask = task;
         m_FractionalProgress.store(0.0);
     }
-    this->writeProgress(lastTask, 100, m_Writer.get());
+    writeProgress(lastTask, 100, m_Writer.get());
 }
 
 void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress) {
@@ -297,7 +295,7 @@ counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounte
 }
 
 void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
-    auto writer = this->writer();
+    auto* writer = this->writer();
     if (writer != nullptr && m_AnalysisStatsInitialized == true) {
         writer->Key(OUTLIER_DETECTION_STATS);
         writer->StartObject();
@@ -346,29 +344,25 @@ void CDataFrameOutliersInstrumentation::writeTimingStats(rapidjson::Value& paren
 
 void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parentObject) {
     auto* writer = this->writer();
-
     if (writer != nullptr) {
-
         writer->addMember(
             CDataFrameOutliersRunner::N_NEIGHBORS,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Parameters.s_NumberNeighbours))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Parameters.s_NumberNeighbours))
                 .Move(),
             parentObject);
         writer->addMember(
             CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
-            rapidjson::Value(this->m_Parameters.s_ComputeFeatureInfluence).Move(),
-            parentObject);
+            rapidjson::Value(m_Parameters.s_ComputeFeatureInfluence).Move(), parentObject);
         writer->addMember(CDataFrameOutliersRunner::OUTLIER_FRACTION,
-                          rapidjson::Value(this->m_Parameters.s_OutlierFraction).Move(),
+                          rapidjson::Value(m_Parameters.s_OutlierFraction).Move(),
                           parentObject);
         writer->addMember(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,
-                          rapidjson::Value(this->m_FeatureInfluenceThreshold).Move(),
+                          rapidjson::Value(m_FeatureInfluenceThreshold).Move(), parentObject);
+        writer->addMember(CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
+                          rapidjson::Value(m_Parameters.s_StandardizeColumns).Move(),
                           parentObject);
-        writer->addMember(
-            CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
-            rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
         writer->addMember(CDataFrameOutliersRunner::METHOD,
-                          maths::analytics::COutliers::print(this->m_Parameters.s_Method),
+                          maths::analytics::COutliers::print(m_Parameters.s_Method),
                           parentObject);
     }
 }
@@ -398,8 +392,8 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::size_t fold,
     m_LossValues.emplace_back(fold, std::move(lossValues));
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::trainingFractionPerFold(double fraction) {
-    m_TrainingFractionPerFold = fraction;
+void CDataFrameTrainBoostedTreeInstrumentation::task(api_t::EDataFrameTrainBoostedTreeTask task) {
+    m_Task = task;
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
@@ -436,12 +430,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->Key(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
 
-        // TODO enable with Java changes.
-        //rapidjson::Value metaDataObject{writer->makeObject()};
-        //this->writeMetaData(metaDataObject);
-        //writer->Key(META_DATA_TAG);
-        //writer->write(metaDataObject);
-
         writer->EndObject();
     }
     this->reset();
@@ -452,23 +440,15 @@ void CDataFrameTrainBoostedTreeInstrumentation::reset() {
     m_LossValues.clear();
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::writeMetaData(rapidjson::Value& parentObject) {
-    auto* writer = this->writer();
-    if (writer != nullptr) {
-        writer->addMember(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD,
-                          rapidjson::Value(m_TrainingFractionPerFold).Move(), parentObject);
-    }
-}
-
 void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
     auto* writer = this->writer();
 
     if (writer != nullptr) {
         writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA,
-                          rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(),
-                          parentObject);
+                          rapidjson::Value(m_Hyperparameters.s_Eta).Move(), parentObject);
+
         if (m_Type == E_Classification) {
-            auto objective = this->m_Hyperparameters.s_ClassAssignmentObjective;
+            auto objective = m_Hyperparameters.s_ClassAssignmentObjective;
             writer->addMember(
                 CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE,
                 CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[objective],
@@ -476,61 +456,72 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
         }
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::ALPHA,
-            rapidjson::Value(this->m_Hyperparameters.s_DepthPenaltyMultiplier).Move(),
+            rapidjson::Value(m_Hyperparameters.s_DepthPenaltyMultiplier).Move(),
             parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
-            rapidjson::Value(this->m_Hyperparameters.s_SoftTreeDepthLimit).Move(),
-            parentObject);
+            rapidjson::Value(m_Hyperparameters.s_SoftTreeDepthLimit).Move(), parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
-            rapidjson::Value(this->m_Hyperparameters.s_SoftTreeDepthTolerance).Move(),
+            rapidjson::Value(m_Hyperparameters.s_SoftTreeDepthTolerance).Move(),
             parentObject);
-        writer->addMember(CDataFrameTrainBoostedTreeRunner::GAMMA,
-                          rapidjson::Value(this->m_Hyperparameters.s_TreeSizePenaltyMultiplier)
-                              .Move(),
-                          parentObject);
-        writer->addMember(CDataFrameTrainBoostedTreeRunner::LAMBDA,
-                          rapidjson::Value(this->m_Hyperparameters.s_LeafWeightPenaltyMultiplier)
-                              .Move(),
-                          parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR,
-            rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
+            CDataFrameTrainBoostedTreeRunner::GAMMA,
+            rapidjson::Value(m_Hyperparameters.s_TreeSizePenaltyMultiplier).Move(),
             parentObject);
+        writer->addMember(
+            CDataFrameTrainBoostedTreeRunner::LAMBDA,
+            rapidjson::Value(m_Hyperparameters.s_LeafWeightPenaltyMultiplier).Move(),
+            parentObject);
+
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR,
+                          rapidjson::Value(m_Hyperparameters.s_DownsampleFactor).Move(),
+                          parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::NUM_FOLDS,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumFolds))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Hyperparameters.s_NumFolds))
                 .Move(),
             parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::MAX_TREES,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxTrees))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxTrees))
                 .Move(),
             parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
-            rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(),
-            parentObject);
+            rapidjson::Value(m_Hyperparameters.s_FeatureBagFraction).Move(), parentObject);
         writer->addMember(
-            ETA_GROWTH_RATE_PER_TREE_TAG,
-            rapidjson::Value(this->m_Hyperparameters.s_EtaGrowthRatePerTree).Move(),
-            parentObject);
+            CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE,
+            rapidjson::Value(m_Hyperparameters.s_EtaGrowthRatePerTree).Move(), parentObject);
+
         writer->addMember(
             MAX_ATTEMPTS_TO_ADD_TREE_TAG,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxAttemptsToAddTree))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxAttemptsToAddTree))
                 .Move(),
             parentObject);
         writer->addMember(
             NUM_SPLITS_PER_FEATURE_TAG,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumSplitsPerFeature))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Hyperparameters.s_NumSplitsPerFeature))
                 .Move(),
             parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
-            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
+            rapidjson::Value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
                 .Move(),
             parentObject);
+        if (m_Task == api_t::E_Update) {
+            writer->addMember(
+                CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY,
+                rapidjson::Value(m_Hyperparameters.s_TreeTopologyChangePenalty).Move(),
+                parentObject);
+            writer->addMember(
+                CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST,
+                rapidjson::Value(m_Hyperparameters.s_PredictionChangeCost).Move(),
+                parentObject);
+            writer->addMember(
+                CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA,
+                rapidjson::Value(m_Hyperparameters.s_RetrainedTreeEta).Move(), parentObject);
+        }
     }
 }
 

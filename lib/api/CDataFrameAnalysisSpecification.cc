@@ -105,16 +105,18 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     const std::string& jsonSpecification,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory,
     TPersisterSupplier persisterSupplier,
     TRestoreSearcherSupplier restoreSearcherSupplier)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
-                                      std::move(persisterSupplier),
+                                      frameAndDirectory, std::move(persisterSupplier),
                                       std::move(restoreSearcherSupplier)} {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRunnerFactoryUPtrVec runnerFactories,
     const std::string& jsonSpecification,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory,
     TPersisterSupplier persisterSupplier,
     TRestoreSearcherSupplier restoreSearcherSupplier)
     : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
@@ -128,7 +130,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
 
         auto parameters = CONFIG_READER.read(specification);
 
-        for (auto name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
+        for (const auto& name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
             if (parameters[name].as<std::size_t>() == 0) {
                 HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero");
             }
@@ -156,9 +158,9 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
                             " usage is allowed! Please report this problem.");
         }
 
-        auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
+        const auto* jsonAnalysis = parameters[ANALYSIS].jsonObject();
         if (jsonAnalysis != nullptr) {
-            this->initializeRunner(*jsonAnalysis);
+            this->initializeRunner(*jsonAnalysis, frameAndDirectory);
         }
     }
 }
@@ -187,6 +189,18 @@ const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
 }
 
+const std::string& CDataFrameAnalysisSpecification::jobId() const {
+    return m_JobId;
+}
+
+const std::string& CDataFrameAnalysisSpecification::analysisName() const {
+    return m_AnalysisName;
+}
+
+const std::string& CDataFrameAnalysisSpecification::missingFieldValue() const {
+    return m_MissingFieldValue;
+}
+
 const CDataFrameAnalysisSpecification::TStrVec&
 CDataFrameAnalysisSpecification::categoricalFieldNames() const {
     return m_CategoricalFieldNames;
@@ -196,22 +210,8 @@ bool CDataFrameAnalysisSpecification::diskUsageAllowed() const {
     return m_DiskUsageAllowed;
 }
 
-CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr
-CDataFrameAnalysisSpecification::makeDataFrame() {
-    if (m_Runner == nullptr) {
-        return {};
-    }
-
-    auto result = m_Runner->storeDataFrameInMainMemory()
-                      ? core::makeMainStorageDataFrame(
-                            m_NumberColumns, m_Runner->dataFrameSliceCapacity())
-                      : core::makeDiskStorageDataFrame(
-                            m_TemporaryDirectory, m_NumberColumns, m_NumberRows,
-                            m_Runner->dataFrameSliceCapacity());
-    result.first->missingString(m_MissingFieldValue);
-    result.first->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
-
-    return result;
+const std::string& CDataFrameAnalysisSpecification::temporaryDirectory() const {
+    return m_TemporaryDirectory;
 }
 
 bool CDataFrameAnalysisSpecification::validate(const core::CDataFrame& frame) const {
@@ -256,7 +256,8 @@ void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimation
     m_Runner->estimateMemoryUsage(writer);
 }
 
-void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
+void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis,
+                                                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) {
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
@@ -267,9 +268,10 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
 
     for (const auto& factory : m_RunnerFactories) {
         if (m_AnalysisName == factory->name()) {
-            auto parameters = analysis[PARAMETERS].jsonObject();
-            m_Runner = parameters != nullptr ? factory->make(*this, *parameters)
-                                             : factory->make(*this);
+            const auto* parameters = analysis[PARAMETERS].jsonObject();
+            m_Runner = parameters != nullptr
+                           ? factory->make(*this, *parameters, frameAndDirectory)
+                           : factory->make(*this, frameAndDirectory);
             return;
         }
     }
@@ -296,14 +298,6 @@ CDataFrameAnalysisSpecification::noopPersisterSupplier() {
 CDataFrameAnalysisSpecification::TDataSearcherUPtr
 CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
     return nullptr;
-}
-
-const std::string& CDataFrameAnalysisSpecification::jobId() const {
-    return m_JobId;
-}
-
-const std::string& CDataFrameAnalysisSpecification::analysisName() const {
-    return m_AnalysisName;
 }
 }
 }

@@ -1121,63 +1121,14 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
 }
 
 BOOST_AUTO_TEST_CASE(testMedian) {
-    {
-        maths::common::CBasicStatistics::TDoubleVec sampleVec;
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(0.0, median);
-    }
-    {
-        double sample[] = {1.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(1.0, median);
-    }
-    {
-        double sample[] = {2.0, 1.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(1.5, median);
-    }
-    {
-        double sample[] = {3.0, 1.0, 2.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(2.0, median);
-    }
-    {
-        double sample[] = {3.0, 5.0, 9.0, 1.0, 2.0, 6.0, 7.0, 4.0, 8.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(5.0, median);
-    }
-    {
-        double sample[] = {3.0, 5.0, 10.0, 2.0, 6.0, 7.0, 1.0, 9.0, 4.0, 8.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(5.5, median);
-    }
+    BOOST_REQUIRE_EQUAL(0.0, maths::common::CBasicStatistics::median({}));
+    BOOST_REQUIRE_EQUAL(1.0, maths::common::CBasicStatistics::median({1.0}));
+    BOOST_REQUIRE_EQUAL(1.5, maths::common::CBasicStatistics::median({2.0, 1.0}));
+    BOOST_REQUIRE_EQUAL(2.0, maths::common::CBasicStatistics::median({3.0, 1.0, 2.0}));
+    BOOST_REQUIRE_EQUAL(5.0, maths::common::CBasicStatistics::median(
+                                 {3.0, 5.0, 9.0, 1.0, 2.0, 6.0, 7.0, 4.0, 8.0}));
+    BOOST_REQUIRE_EQUAL(5.5, maths::common::CBasicStatistics::median(
+                                 {3.0, 5.0, 10.0, 2.0, 6.0, 7.0, 1.0, 9.0, 4.0, 8.0}));
 }
 
 BOOST_AUTO_TEST_CASE(testMad) {

@@ -185,6 +185,43 @@ CDataFrame::TSizeVecSizePr CDataFrame::resizeColumns(std::size_t numberThreads,
     return {result, numberExtraColumns};
 }
 
+void CDataFrame::resizeRows(std::size_t numberRows) {
+    if (numberRows == m_NumberRows) {
+        return;
+    }
+
+    if (numberRows > m_NumberRows) {
+        // Add new rows if the size is being increased.
+        for (std::size_t i = this->numberRows(); i < numberRows; ++i) {
+            this->writeRow([this](TFloatVecItr columns, std::int32_t&) {
+                for (std::size_t j = 0; j < m_NumberColumns; ++j, ++columns) {
+                    *columns = 0.0;
+                }
+            });
+        }
+        this->finishWritingRows();
+        return;
+    }
+
+    m_NumberRows = numberRows;
+
+    // Find the last slice given the new size.
+    auto lastSlice = m_Slices.begin();
+    for (/**/; (*lastSlice)->indexOfLastRow(m_RowCapacity) + 1 < numberRows; ++lastSlice) {
+    }
+
+    // Remove extra rows if the number of rows is being reduced.
+    m_Slices.erase(lastSlice + 1, m_Slices.end());
+    if ((*lastSlice)->indexOfLastRow(m_RowCapacity) + 1 > m_NumberRows) {
+        auto handle = (*lastSlice)->read();
+        auto rows = handle.rows();
+        auto docHashes = handle.docHashes();
+        rows.resize(m_RowCapacity * (m_NumberRows - (*lastSlice)->indexOfFirstRow()));
+        docHashes.resize((m_NumberRows - (*lastSlice)->indexOfFirstRow()));
+        (*lastSlice)->write(rows, docHashes);
+    }
+}
+
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
                                                    std::size_t beginRows,
                                                    std::size_t endRows,
@@ -245,7 +282,9 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
     return {std::move(writers), successful};
 }
 
-void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash) {
+void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues,
+                                  const TPtrdiffVec* columnMap,
+                                  const std::string* hash) {
 
     auto stringToValue = [this](bool isCategorical, TStrSizeUMap& categoryLookup,
                                 TStrVec& categories, const std::string& columnValue) {
@@ -296,14 +335,24 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
 
     // This is only used when writing rows so is resized lazily.
     if (m_CategoricalColumnValueLookup.size() != m_NumberColumns) {
-        m_CategoricalColumnValueLookup.resize(m_NumberColumns);
+        this->fillCategoricalColumnValueLookup();
     }
 
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
-        for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
-            *columns = stringToValue(m_ColumnIsCategorical[i],
-                                     m_CategoricalColumnValueLookup[i],
-                                     m_CategoricalColumnValues[i], columnValues[i]);
+        if (columnMap != nullptr) {
+            for (std::size_t i = 0; i < columnMap->size(); ++i, ++columns) {
+                std::ptrdiff_t j{(*columnMap)[i]};
+                *columns = stringToValue(m_ColumnIsCategorical[i],
+                                         m_CategoricalColumnValueLookup[i],
+                                         m_CategoricalColumnValues[i],
+                                         j >= 0 ? columnValues[j] : m_MissingString);
+            }
+        } else {
+            for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
+                *columns = stringToValue(
+                    m_ColumnIsCategorical[i], m_CategoricalColumnValueLookup[i],
+                    m_CategoricalColumnValues[i], columnValues[i]);
+            }
         }
         docHash = 0;
         if (hash != nullptr &&
@@ -322,13 +371,23 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     (*m_Writer)(writeRow);
 }
 
+bool CDataFrame::hasColumnNames() const {
+    return std::any_of(m_ColumnNames.begin(), m_ColumnNames.end(),
+                       [](const auto& name) { return name.empty() == false; });
+}
+
 void CDataFrame::columnNames(TStrVec columnNames) {
     if (columnNames.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns << "' column names values but got "
-                     << CContainerPrinter::print(columnNames));
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' column names values but got "
+                     << columnNames.size() << ". The values are "
+                     << CContainerPrinter::print(columnNames) << ".");
     } else {
         m_ColumnNames = std::move(columnNames);
     }
+}
+
+const std::string& CDataFrame::missingString() const {
+    return m_MissingString;
 }
 
 void CDataFrame::missingString(std::string missing) {
@@ -348,15 +407,27 @@ void CDataFrame::categoricalColumns(TStrVec categoricalColumnNames) {
 
 void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
     if (columnIsCategorical.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns
-                     << "' 'is categorical' column indicator values but got "
-                     << CContainerPrinter::print(columnIsCategorical));
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' 'is categorical' column indicator values but got "
+                     << columnIsCategorical.size() << ". The values are "
+                     << CContainerPrinter::print(columnIsCategorical) << ".");
     } else {
         m_ColumnIsCategorical = std::move(columnIsCategorical);
     }
 }
 
+void CDataFrame::categoricalColumnValues(TStrVecVec categoricalColumnValues) {
+    if (categoricalColumnValues.size() != m_NumberColumns) {
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' categorical column values but got "
+                     << categoricalColumnValues.size() << ". The values are "
+                     << CContainerPrinter::print(categoricalColumnValues) << ".");
+    } else {
+        m_CategoricalColumnValues = std::move(categoricalColumnValues);
+        this->fillCategoricalColumnValueLookup();
+    }
+}
+
 void CDataFrame::finishWritingRows() {
+
     // Get any slices which have been written, append and clear the writer.
 
     if (m_Writer != nullptr) {
@@ -423,9 +494,23 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
                                             std::size_t numberColumns,
                                             CAlignment::EType alignment) {
-    return inMainMemory
-               ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
-               : 0;
+    return sizeof(CDataFrame) + core::CMemory::dynamicSize(TStrVec(numberColumns)) +
+           core::CMemory::dynamicSize(TStrVecVec(numberColumns)) +
+           core::CMemory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
+           core::CMemory::dynamicSize(TBoolVec(numberColumns)) +
+           (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
+                         : 0);
+    ;
+}
+
+void CDataFrame::fillCategoricalColumnValueLookup() {
+    m_CategoricalColumnValueLookup.clear();
+    m_CategoricalColumnValueLookup.resize(m_NumberColumns);
+    for (std::size_t i = 0; i < m_CategoricalColumnValues.size(); ++i) {
+        for (std::size_t j = 0; j < m_CategoricalColumnValues[i].size(); ++j) {
+            m_CategoricalColumnValueLookup[i].emplace(m_CategoricalColumnValues[i][j], j);
+        }
+    }
 }
 
 bool CDataFrame::parallelApplyToAllRows(std::size_t beginRows,
@@ -502,7 +587,7 @@ bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
-    if (rowMask) {
+    if (rowMask != nullptr) {
         maskedRow = rowMask->beginOneBits();
         endMaskedRows = rowMask->endOneBits();
     }
@@ -709,7 +794,7 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
         m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
     }
 
-    if (m_DocHashesOfSliceBeingWritten.size() > 0) {
+    if (m_DocHashesOfSliceBeingWritten.empty() == false) {
         std::size_t firstRow{m_NumberRows - m_RowsOfSliceBeingWritten.size() / m_RowCapacity};
         LOG_TRACE(<< "Last slice [" << std::to_string(firstRow) << ","
                   << std::to_string(m_NumberRows) + ")");

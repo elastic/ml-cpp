@@ -110,9 +110,9 @@ struct SFixtureSingleTree {
 
         auto& tree = s_Trees[0];
         tree.resize(1);
-        tree[0].split(0, 0.5, true, 0.0, 0.0, tree);
-        tree[1].split(1, 0.5, true, 0.0, 0.0, tree);
-        tree[2].split(1, 0.5, true, 0.0, 0.0, tree);
+        tree[0].split(0, 0.5, true, 0.0, 0.0, 0.0, tree);
+        tree[1].split(1, 0.5, true, 0.0, 0.0, 0.0, tree);
+        tree[2].split(1, 0.5, true, 0.0, 0.0, 0.0, tree);
         tree[3].value(toVector(3.0));
         tree[4].value(toVector(8.0));
         tree[5].value(toVector(13.0));
@@ -166,11 +166,11 @@ struct SFixtureMultipleTrees {
 
         auto& tree1 = s_Trees[0];
         tree1.resize(1);
-        tree1[0].split(0, 0.55, true, 0.0, 0.0, tree1);
+        tree1[0].split(0, 0.55, true, 0.0, 0.0, 0.0, tree1);
         tree1[0].numberSamples(10);
-        tree1[1].split(0, 0.41, true, 0.0, 0.0, tree1);
+        tree1[1].split(0, 0.41, true, 0.0, 0.0, 0.0, tree1);
         tree1[1].numberSamples(6);
-        tree1[2].split(1, 0.25, true, 0.0, 0.0, tree1);
+        tree1[2].split(1, 0.25, true, 0.0, 0.0, 0.0, tree1);
         tree1[2].numberSamples(4);
         tree1[3].value(toVector(1.18230136));
         tree1[3].numberSamples(5);
@@ -183,11 +183,11 @@ struct SFixtureMultipleTrees {
 
         auto& tree2 = s_Trees[1];
         tree2.resize(1);
-        tree2[0].split(0, 0.45, true, 0.0, 0.0, tree2);
+        tree2[0].split(0, 0.45, true, 0.0, 0.0, 0.0, tree2);
         tree2[0].numberSamples(10);
-        tree2[1].split(0, 0.25, true, 0.0, 0.0, tree2);
+        tree2[1].split(0, 0.25, true, 0.0, 0.0, 0.0, tree2);
         tree2[1].numberSamples(5);
-        tree2[2].split(0, 0.59, true, 0.0, 0.0, tree2);
+        tree2[2].split(0, 0.59, true, 0.0, 0.0, 0.0, tree2);
         tree2[2].numberSamples(5);
         tree2[3].value(toVector(1.04476388));
         tree2[3].numberSamples(3);
@@ -274,7 +274,8 @@ struct SFixtureRandomTrees {
             rng.generateUniformSamples(0, s_NumberFeatures, 1, splitFeature);
             rng.generateUniformSamples(bottom[nodeIndex][splitFeature[0]],
                                        top[nodeIndex][splitFeature[0]], 1, splitThreshold);
-            tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true, 0.0, 0.0, tree);
+            tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true, 0.0,
+                                  0.0, 0.0, tree);
             // keep the management of the boundaries, to make sure the generated thresholds are realistic
             TDoubleVec leftChildBottom{bottom[nodeIndex]};
             TDoubleVec rightChildBottom{bottom[nodeIndex]};
