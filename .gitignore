@@ -81,4 +81,5 @@ boost_test_results.xml
 cmake_install.cmake
 CMakeCache.txt
 CMakeFiles/
-cmake_build/
+cmake-build-release/
+cmake-build-debug/

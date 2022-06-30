@@ -21,7 +21,7 @@ You will also need to add several directories to your `PATH` environment variabl
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64`
 - `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1`
 - `/c/PROGRA~1/Java/jdk1.8.0_121/bin`
-- `/c/PROGRA~1/CMake/bin/cmake`
+- `/c/PROGRA~1/CMake/bin`
 - `/c/usr/local/bin`
 - `/c/usr/local/lib`
 
@@ -32,7 +32,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
-export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin/cmake"
+export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin"
 ```
 
 ### Operating system
@@ -68,24 +68,6 @@ As well as providing a Git implementation, Git for Windows comes with Windows po
 CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-win64-x64.msi> (or get a more recent version).
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
-
-### GNU make
-
-Download `make-4.2.1.tar.bz2` (or a more recent version) from <http://ftp.gnu.org/gnu/make/> . Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
-
-```
-cd /c/tools
-tar jxvf /z/cpp_src/make-4.2.1.tar.bz2
-```
-
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
-
-```
-cd \tools\make-4.2.1
-build_w32.bat
-```
-
-Finally, copy the file `gnumake.exe` from `C:\tools\make-4.2.1\WinRel` to `C:\usr\local\bin`.
 
 ### zlib
 
@@ -139,7 +121,7 @@ nmake install
 
 ### Boost 1.77.0
 
-Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2> . You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2> . You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 

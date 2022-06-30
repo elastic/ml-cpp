@@ -7,7 +7,7 @@ To ensure everything is consistent for redistributable builds we build all redis
 You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 - `PATH` - Must have `/usr/local/gcc103/bin` before `/usr/bin` and `/bin`.
 - `LD_LIBRARY_PATH` - Must have `/usr/local/gcc103/lib64` and `/usr/local/gcc103/lib` before `/usr/lib` and `/lib`.
 
@@ -47,7 +47,7 @@ unset LIBRARY_PATH
 
 For aarch64 replace `-msse4.2 -mfpmath=sse` with `-march=armv8-a+crc+crypto`.
 
-These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our build system).
 
 ### gcc
 
@@ -173,7 +173,7 @@ to install.
 
 ### Boost 1.77.0
 
-Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 

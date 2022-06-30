@@ -87,14 +87,14 @@ if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux)
   project.ext.shell = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
   project.ext.set_env = "source ./set_env.sh"
   project.ext.shell_flag = "-c"
-  project.ext.clean_cmd = "rm -rf cmake_build 3rd_party/eigen"
+  project.ext.clean_cmd = "rm -rf cmake-build-release 3rd_party/eigen"
   // Stripping the binaries is not necessary on windows, execute a no-op command instead
   project.ext.strip_cmd = isWindows ? true : "dev-tools/strip_binaries.sh"
 } else {
   project.ext.shell = "cmd.exe"
   project.ext.set_env = ".\\set_env.bat"
   project.ext.shell_flag = "/c"
-  project.ext.clean_cmd = "if exist cmake_build\\ (rmdir /s /q cmake_build) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
+  project.ext.clean_cmd = "if exist cmake-build-release\\ (rmdir /s /q cmake-build-release) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
   // Stripping the binaries is not necessary on windows, execute a no-op command instead
   project.ext.strip_cmd = "cd ."
 }
@@ -126,14 +126,14 @@ clean {
 task configure(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} -B cmake_build ${cmakeFlags}"
+  args shell_flag, "${set_env} && ${cmake} -B cmake-build-release ${cmakeFlags}"
   workingDir "${projectDir}"
 }
 
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build cmake_build --config Release -t install -v -j ${numCpus}"
+  args shell_flag, "${set_env} && ${cmake} --build cmake-build-release --config Release -t install -v -j ${numCpus}"
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
@@ -207,7 +207,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build cmake_build --config Release -v -j ${numCpus} -t test"
+  args shell_flag, "${set_env} && ${cmake} --build cmake-build-release --config Release -v -j ${numCpus} -t test"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'

@@ -128,7 +128,7 @@ case `uname` in
             else
                 ./docker_test.sh --extract-unit-tests linux
                 echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
-                (cd ../cmake_build/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-x86_64/lib && pwd` ./ml_test_seccomp)
+                (cd ../cmake-build-release/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-x86_64/lib && pwd` ./ml_test_seccomp)
             fi
 
         elif [ "$HARDWARE_ARCH" = aarch64 ] ; then
@@ -137,7 +137,7 @@ case `uname` in
             else
                 ./docker_test.sh --extract-unit-tests linux_aarch64_native
                 echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
-                (cd ../cmake_build/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp)
+                (cd ../cmake-build-release/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp)
             fi
         fi
 

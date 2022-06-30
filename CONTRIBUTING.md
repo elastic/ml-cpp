@@ -65,14 +65,14 @@ Please adhere to the general guideline that you should never force push to a pub
 1.  Do your changes. 
 1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
 1.  Write a test, unit tests are located under `lib/{module}/unittest`
-1.  Test your changes (`cmake --build cmake_build -v -t test`)
+1.  Test your changes (`cmake --build cmake-build-release -v -t test`)
 
 The build system uses CMake. To build either call `cmake` directly from the top level of the source tree,
 for example:
 
 ```
-cmake -B cmake_build
-cmake --build cmake_build -v -j`nproc`
+cmake -B cmake-build-release
+cmake --build cmake-build-release -v -j`nproc`
 ```
 
 Or, more simply, use Gradle:
