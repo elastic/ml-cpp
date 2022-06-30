@@ -23,8 +23,8 @@ ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 
 RUN --mount=type=cache,target=/root/.ccache \
     . ./set_env.sh &&  \
-    cmake -B cmake_build && \
-    cmake --build cmake_build --config Release -t install -j`nproc` && \
+    cmake -B cmake-build-release && \
+    cmake --build cmake-build-release --config Release -t install -j`nproc` && \
     find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
     dev-tools/strip_binaries.sh 
 

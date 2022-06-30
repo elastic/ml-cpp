@@ -100,7 +100,7 @@ clean {
     exec {
       environment makeEnvironment
       commandLine bash
-      args '-c', 'source ./set_env.sh && rm -rf 3rd_party/eigen cmake_build'
+      args '-c', 'source ./set_env.sh && rm -rf 3rd_party/eigen cmake-build-release'
       workingDir "${projectDir}"
     }
   }
@@ -109,14 +109,14 @@ clean {
 task configure(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake_build ' + cmakeFlags
+  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake-build-release ' + cmakeFlags
   workingDir "${projectDir}"
 }
 
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -t install -v -j' + numCpus
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake-build-release --config Release -t install -v -j' + numCpus
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
@@ -190,7 +190,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -v -j' + numCpus + ' -t test'
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake-build-release --config Release -v -j' + numCpus + ' -t test'
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
