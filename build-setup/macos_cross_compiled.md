@@ -4,15 +4,15 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_CROSS_COMPILE` - Should be set to "macosx".
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 
 For example, you might create a .bashrc file in your home directory containing this:
 
 ```
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
-export PATH=$JAVA_HOME/bin:/usr/bin:/bin:/usr/sbin:/sbin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+export PATH=$JAVA_HOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 export CPP_CROSS_COMPILE=macosx
 ```
@@ -62,6 +62,15 @@ cd /usr/local/sysroot-x86_64-apple-macosx10.14/usr
 sudo tar jxvf ~/usr-x86_64-apple-macosx10.14.tar.bz2
 sudo tar jxvf ~/xcode-x86_64-apple-macosx10.14.tar.bz2
 sudo tar jxvf ~/sdk-x86_64-apple-macosx10.14.tar.bz2
+```
+
+### CMake
+
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh> and install:
+
+```
+chmod +x cmake-3.23.2-Linux-x86_64.sh
+sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local
 ```
 
 ### cctools-port
