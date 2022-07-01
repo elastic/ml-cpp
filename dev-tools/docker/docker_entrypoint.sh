@@ -27,7 +27,6 @@ cd "$MY_DIR/../.."
 
 # Note: no need to clean due to the .dockerignore file
 
-rm -rf cmake-build-release
 # Configure the build
 cmake -B cmake-build-release ${CMAKE_FLAGS}
 
