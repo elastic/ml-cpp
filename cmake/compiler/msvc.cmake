@@ -11,7 +11,7 @@
 
 
 if(NOT CRT_OPT)
-  set(CRT_OPT /MD)
+  set(CRT_OPT $<$<CONFIG:Release>:/MD>)
 endif()
 
 set(VCINCLUDES ${VCBASE}/VC/Tools/MSVC/${VCVER}/include)
