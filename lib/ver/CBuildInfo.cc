@@ -17,16 +17,15 @@ namespace ml {
 namespace ver {
 
 // Initialise static strings
-// The tokens in the template file are substituted by the Makefile
-// @warning.comment@
+// Variables are supplied by command line macro definitions
 #ifdef DEV_BUILD
-const std::string CBuildInfo::VERSION_NUMBER("based on @version.number@");
-const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by @user.name@");
+const std::string CBuildInfo::VERSION_NUMBER("based on " STRINGIFY_MACRO(PRODUCT_VERSION));
+const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by " STRINGIFY_MACRO(ML_USER));
 #else
-const std::string CBuildInfo::VERSION_NUMBER("@version.number@");
-const std::string CBuildInfo::BUILD_NUMBER("@build.number@");
+const std::string CBuildInfo::VERSION_NUMBER(STRINGIFY_MACRO(PRODUCT_VERSION));
+const std::string CBuildInfo::BUILD_NUMBER(STRINGIFY_MACRO(ML_BUILD_STR));
 #endif
-const std::string CBuildInfo::COPYRIGHT("Copyright (c) @build.year@ Elasticsearch BV");
+const std::string CBuildInfo::COPYRIGHT("Copyright (c) " STRINGIFY_MACRO(BUILD_YEAR) " Elasticsearch BV");
 
 const std::string& CBuildInfo::versionNumber() {
     return VERSION_NUMBER;
