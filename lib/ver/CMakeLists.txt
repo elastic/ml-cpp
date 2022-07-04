@@ -29,10 +29,9 @@ else()
   execute_process(COMMAND git diff-index HEAD -- OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
 endif()
 
-# Decide which build to perform based on whether there are uncommitted changes
-message(STATUS "UNCOMMITTED_CHANGES ${UNCOMMITTED_CHANGES}")
+# Decide how to format the version information based on whether there are uncommitted changes
 if(UNCOMMITTED_CHANGES)
-  message(STATUS "DEV_BUILD")
+  message(STATUS "UNCOMMITTED_CHANGES ${UNCOMMITTED_CHANGES}")
   message(STATUS "PRODUCT_VERSION ${PRODUCT_VERSION}")
   message(STATUS "ML_USER ${ML_USER}")
   message(STATUS "BUILD_YEAR ${BUILD_YEAR}")
