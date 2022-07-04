@@ -157,7 +157,6 @@ function(ml_add_non_distributed_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        "INCREMENTAL:NO"
         "-OPT:REF")
     endif()
   endif()
@@ -208,7 +207,6 @@ function(ml_add_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        "INCREMENTAL:NO"
         "-OPT:REF")
     endif()
 
@@ -273,7 +271,6 @@ function(ml_add_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
-      "INCREMENTAL:NO"
       "-OPT:REF")
   endif()
 
@@ -312,7 +309,6 @@ function(ml_add_non_distributed_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
-      "INCREMENTAL:NO"
       "-OPT:REF")
   endif()
 
