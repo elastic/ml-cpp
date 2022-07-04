@@ -669,65 +669,6 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
     checkMemoryUsageInstrumentation(categorizer);
 }
 
-BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
-    static const std::size_t TEST_SIZE{100000};
-    ml::core::CStopWatch stopWatch;
-
-    std::uint64_t inlineTokenisationTime{0};
-    {
-        TTokenListDataCategorizerKeepsFields categorizer{
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
-
-        LOG_DEBUG(<< "Before test with inline tokenisation");
-
-        stopWatch.start();
-        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
-            BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
-                                categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
-                                                            103));
-        }
-        inlineTokenisationTime = stopWatch.stop();
-
-        LOG_DEBUG(<< "After test with inline tokenisation");
-        LOG_DEBUG(<< "Inline tokenisation test took " << inlineTokenisationTime << "ms");
-    }
-
-    stopWatch.reset();
-
-    TTokenListDataCategorizerKeepsFields::TStrStrUMap fields;
-    fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] =
-        "Vpxa,verbose,VpxaHalCnxHostagent,opID,WFU-ddeadb59,WaitForUpdatesDone,Received,callback";
-
-    std::uint64_t preTokenisationTime{0};
-    {
-        TTokenListDataCategorizerKeepsFields categorizer{
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
-
-        LOG_DEBUG(<< "Before test with pre-tokenisation");
-
-        stopWatch.start();
-        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
-            BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
-                                categorizer.computeCategory(false, fields, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
-                                                            103));
-        }
-        preTokenisationTime = stopWatch.stop();
-
-        LOG_DEBUG(<< "After test with pre-tokenisation");
-        LOG_DEBUG(<< "Pre-tokenisation test took " << preTokenisationTime << "ms");
-    }
-
-    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
-    bool likelyInCi{keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0'};
-    if (likelyInCi) {
-        // CI is most likely running on a VM, and this test can fail quite often
-        // due to the VM stalling or being slowed down by noisy neighbours
-        LOG_INFO(<< "Skipping test pre-tokenised performance assertion");
-    } else {
-        BOOST_TEST_REQUIRE(preTokenisationTime <= inlineTokenisationTime);
-    }
-}
-
 BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
     TTokenListDataCategorizerKeepsFields categorizer{
         m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
