@@ -26,3 +26,6 @@ SET ROOT=%CD:~0,2%
 SET PATH=%ROOT%/PROGRA~1/CMake/bin;%CPP_SRC_HOME%/build/distribution/platform/windows-x86_64/bin;%PATH%
 		
 SET BOOST_ROOT=%ROOT%/usr/local
+
+SET INCLUDE=
+SET LIBPATH=

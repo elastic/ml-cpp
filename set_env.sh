@@ -176,7 +176,10 @@ unset CPPFLAGS
 unset CFLAGS
 unset CXXFLAGS
 unset LDFLAGS
-if [ "$SIMPLE_PLATFORM" != "windows" ] ; then
+if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
+    unset INCLUDE
+    unset LIBPATH
+else
     unset CPATH
     unset C_INCLUDE_PATH
     unset CPLUS_INCLUDE_PATH
