@@ -153,13 +153,33 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_NO_LIB)
 endif()
 
-if(UNIX AND "$ENV{ML_DEBUG}" AND "$ENV{ML_COVERAGE}")
+# Perform a "Release" build by default...
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+# However, to keep in step with our historical
+# build system if ML_DEBUG is set to a boolean
+# true value, e.g. ML_DEBUG=1, then override
+# the build type to be Debug
+if(DEFINED ENV{ML_DEBUG} AND $ENV{ML_DEBUG})
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+if(UNIX AND CMAKE_BUILD_TYPE STREQUAL Debug AND DEFINED ENV{ML_COVERAGE})
   set(ML_COVERAGE "--coverage")
 endif()
 
-if(NOT "$ENV{ML_DEBUG}")
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+  message(STATUS "IN DEBUG MODE")
+else()
+  message(STATUS "NOT IN DEBUG MODE")
+  message(STATUS "Adding NDEBUG and EXCLUDE_TRACE_LOGGING to ML_COMPILE_DEFINITIONS")
   list(APPEND ML_COMPILE_DEFINITIONS "NDEBUG" "EXCLUDE_TRACE_LOGGING")
   if(UNIX)
+    message(STATUS "Adding -O3 to OPTCFLAGS")
     list(APPEND OPTCFLAGS "-O3")
     if (NOT APPLE)
       list(APPEND OPTCFLAGS "-Wdisabled-optimization")
