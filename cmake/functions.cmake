@@ -143,8 +143,6 @@ function(ml_add_non_distributed_library _target _type)
     add_dependencies(${_target} ${ML_DEPENDENCIES})
   endif()
 
-  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-
   if (_type STREQUAL "SHARED")
     if (ML_SHARED_LINKER_FLAGS)
       target_link_options(${_target} PUBLIC ${ML_SHARED_LINKER_FLAGS})
