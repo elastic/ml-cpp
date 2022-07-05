@@ -158,15 +158,15 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
-
 # However, to keep in step with our historical
 # build system if ML_DEBUG is set to a boolean
 # true value, e.g. ML_DEBUG=1, then override
 # the build type to be Debug
-if(DEFINED ENV{ML_DEBUG} AND $ENV{ML_DEBUG})
+if("$ENV{ML_DEBUG}")
   set(CMAKE_BUILD_TYPE Debug)
 endif()
+
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 if(UNIX AND CMAKE_BUILD_TYPE STREQUAL Debug AND DEFINED ENV{ML_COVERAGE})
   set(ML_COVERAGE "--coverage")
