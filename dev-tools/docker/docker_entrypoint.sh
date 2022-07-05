@@ -27,8 +27,11 @@ cd "$MY_DIR/../.."
 
 # Note: no need to clean due to the .dockerignore file
 
+# Configure the build
+cmake -B cmake-build-release ${CMAKE_FLAGS}
+
 # Build the code
-make -j`nproc`
+cmake --build cmake-build-release --config Release -j`nproc` -v -t install
 
 # Strip the binaries
 dev-tools/strip_binaries.sh
@@ -59,6 +62,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    make -j`nproc` ML_KEEP_GOING=1 test || echo failed > build/test_status.txt
+    cmake --build cmake-build-release --config Release -t test -j`nproc` || echo failed > build/test_status.txt
 fi
 

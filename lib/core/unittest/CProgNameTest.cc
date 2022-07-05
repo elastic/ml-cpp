@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(testProgName) {
 
     LOG_DEBUG(<< "Current program name is " << progName);
 
-    BOOST_REQUIRE_EQUAL(std::string("ml_test"), progName);
+    BOOST_REQUIRE_EQUAL(std::string("ml_test_core"), progName);
 }
 
 BOOST_AUTO_TEST_CASE(testProgDir) {
