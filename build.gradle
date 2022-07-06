@@ -81,13 +81,16 @@ if (isWindows) {
 // Ensure we have a consistent combination of build config type and build directory
 // based on whether we want a debug build or not.
 // By default a "Release" build is performed.
+// Note that we are catering for single-config CMake generators - such as 'Unix Makefiles' -
+// where the build type is specified at configuration time as well as multi-config generators - such as Visual Studio -
+// where the desired build type is specified at build time with the '--config' option. (It's safe to always specify the
+// '--config' option as it will simply be ignored by a single-config generated build system)
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
-project.ext.cmake_build_dir = "cmake-build-release"
-project.ext.cmake_build_type = "Release"
-if (mlDebug.toBoolean())
-{
-  project.ext.cmake_build_dir = "cmake-build-debug"
-  project.ext.cmake_build_type = "Debug"
+project.ext.cmakeBuildDir = "cmake-build-release"
+project.ext.cmakeBuildType = "Release"
+if (mlDebug.toBoolean()) {
+  project.ext.cmakeBuildDir = "cmake-build-debug"
+  project.ext.cmakeBuildType = "Debug"
 }
 
 String msystem = "$System.env.MSYSTEM"
@@ -97,14 +100,14 @@ if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux)
   project.ext.shell = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
   project.ext.set_env = "source ./set_env.sh"
   project.ext.shell_flag = "-c"
-  project.ext.clean_cmd = "rm -rf ${cmake_build_dir} 3rd_party/eigen"
+  project.ext.clean_cmd = "rm -rf ${cmakeBuildDir} 3rd_party/eigen"
   // Stripping the binaries is not necessary on windows, execute a no-op command instead
   project.ext.strip_cmd = isWindows ? true : "dev-tools/strip_binaries.sh"
 } else {
   project.ext.shell = "cmd.exe"
   project.ext.set_env = ".\\set_env.bat"
   project.ext.shell_flag = "/c"
-  project.ext.clean_cmd = "if exist ${cmake_build_dir}\\ (rmdir /s /q ${cmake_build_dir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
+  project.ext.clean_cmd = "if exist ${cmakeBuildDir}\\ (rmdir /s /q ${cmakeBuildDir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
   // Stripping the binaries is not necessary on windows, execute a no-op command instead
   project.ext.strip_cmd = "cd ."
 }
@@ -136,14 +139,14 @@ clean {
 task configure(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} -B ${cmake_build_dir} ${cmakeFlags}"
+  args shell_flag, "${set_env} && ${cmake} -B ${cmakeBuildDir} ${cmakeFlags}"
   workingDir "${projectDir}"
 }
 
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build ${cmake_build_dir} --config ${cmake_build_type} -t install -v -j ${numCpus}"
+  args shell_flag, "${set_env} && ${cmake} --build ${cmakeBuildDir} --config ${cmakeBuildType} -t install -v -j ${numCpus}"
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
@@ -217,7 +220,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build ${cmake_build_dir} --config ${cmake_build_type} -v -j ${numCpus} -t test"
+  args shell_flag, "${set_env} && ${cmake} --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'

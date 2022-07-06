@@ -176,7 +176,14 @@ endif()
 # However, to keep in step with our historical
 # build system if ML_DEBUG is set to a boolean
 # true value, e.g. ML_DEBUG=1, then override
-# the build type to be Debug
+# the build type to be Debug for single-config
+# CMake generators (such as Unix Makefiles).
+# For multi-config generators (such as Visual Studio)
+# the CMAKE_BUILD_TYPE variable is ignored and instead the
+# build type is determined at build time via the '--config' option.
+# See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
+# and https://cmake.org/cmake/help/latest/variable/CMAKE_CONFIGURATION_TYPES.html
+# for more detail.
 if("$ENV{ML_DEBUG}")
   set(CMAKE_BUILD_TYPE Debug)
 endif()
