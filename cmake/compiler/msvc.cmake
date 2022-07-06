@@ -31,7 +31,6 @@ list(APPEND ML_C_FLAGS
   "/X"
   "/nologo"
   "/W4"
-  ${CRT_OPT}
   "/EHsc"
   "/Zi"
   "/Gw"

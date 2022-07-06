@@ -84,15 +84,11 @@ if (isWindows) {
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
 project.ext.cmake_build_dir = "cmake-build-release"
 project.ext.cmake_build_type = "Release"
-if (mlDebug == "1")
+if (mlDebug.toBoolean())
 {
-  cmakeFlags = cmakeFlags + ' -D CMAKE_BUILD_TYPE=Debug'
   project.ext.cmake_build_dir = "cmake-build-debug"
   project.ext.cmake_build_type = "Debug"
-} else {
-  cmakeFlags = cmakeFlags + ' -D CMAKE_BUILD_TYPE=Release'
 }
-
 
 String msystem = "$System.env.MSYSTEM"
 if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux) 
@@ -147,7 +143,7 @@ task configure(type: Exec) {
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build ${cmake_build_dir} --config ${cmake_build_type} -t MlSeccomp -v -j ${numCpus}"
+  args shell_flag, "${set_env} && ${cmake} --build ${cmake_build_dir} --config ${cmake_build_type} -t install -v -j ${numCpus}"
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
