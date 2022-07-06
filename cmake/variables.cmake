@@ -148,34 +148,61 @@ else()
   set(ML_RESOURCES_DIR ${CMAKE_INSTALL_PREFIX}/resources)
 endif()
 
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_NO_LIB)
 endif()
 
-if(UNIX AND "$ENV{ML_DEBUG}" AND "$ENV{ML_COVERAGE}")
-  set(ML_COVERAGE "--coverage")
+# Dictate which flags to use for a "Release" build
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE = ${CMAKE_CXX_FLAGS_RELEASE}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /DEXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
 endif()
 
-if(NOT "$ENV{ML_DEBUG}")
-  list(APPEND ML_COMPILE_DEFINITIONS "NDEBUG" "EXCLUDE_TRACE_LOGGING")
-  if(UNIX)
-    list(APPEND OPTCFLAGS "-O3")
-    if (NOT APPLE)
-      list(APPEND OPTCFLAGS "-Wdisabled-optimization")
-      list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2")
-    endif()
-  else()
-    set(OPTCFLAGS $<$<CONFIG:Release>:/O2> "/Qfast_transcendentals" "/Qvec-report:1")
-  endif()
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
+endif()
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE = ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG}")
+
+# Perform a "Release" build by default...
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# However, to keep in step with our historical
+# build system if ML_DEBUG is set to a boolean
+# true value, e.g. ML_DEBUG=1, then override
+# the build type to be Debug for single-config
+# CMake generators (such as Unix Makefiles).
+# For multi-config generators (such as Visual Studio)
+# the CMAKE_BUILD_TYPE variable is ignored and instead the
+# build type is determined at build time via the '--config' option.
+# See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
+# and https://cmake.org/cmake/help/latest/variable/CMAKE_CONFIGURATION_TYPES.html
+# for more detail.
+if("$ENV{ML_DEBUG}")
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+if(UNIX AND CMAKE_BUILD_TYPE STREQUAL Debug AND DEFINED ENV{ML_COVERAGE})
+  set(ML_COVERAGE "--coverage")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND ML_COMPILE_DEFINITIONS "_REENTRANT")
 endif()
 
-list(APPEND ML_CXX_FLAGS ${OPTCFLAGS})
 list(APPEND ML_COMPILE_DEFINITIONS EIGEN_MPL2_ONLY EIGEN_MAX_ALIGN_BYTES=32)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  list(APPEND ML_COMPILE_DEFINITIONS EIGEN_VECTORIZE_SSE3 EIGEN_VECTORIZE_SSE4_1 EIGEN_VECTORIZE_SSE4_2)
+endif()
 
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)

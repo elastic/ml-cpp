@@ -278,6 +278,7 @@ function(ml_add_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
+      -STACK:0x800000
       $<$<CONFIG:Release>:-OPT:REF>)
   endif()
 
@@ -318,6 +319,7 @@ function(ml_add_non_distributed_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
+      -STACK:0x800000
       $<$<CONFIG:Release>:-OPT:REF>)
   endif()
 
