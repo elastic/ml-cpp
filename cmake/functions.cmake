@@ -133,6 +133,8 @@ function(ml_add_non_distributed_library _target _type)
 
   add_library(${_target} ${_type} EXCLUDE_FROM_ALL ${PLATFORM_SRCS})
 
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()
@@ -181,6 +183,8 @@ function(ml_add_library _target _type)
   endif()
 
   add_library(${_target} ${_type} ${PLATFORM_SRCS})
+
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
@@ -240,6 +244,7 @@ function(ml_add_executable _target)
 
   if(PLATFORM_SRCS)
     add_library(Ml${_target} OBJECT ${PLATFORM_SRCS})
+    set_property(TARGET Ml${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   endif()
 
   if (WIN32)
@@ -248,6 +253,8 @@ function(ml_add_executable _target)
   endif()
 
   add_executable(${_target} Main.cc ${PLATFORM_SRCS})
+
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
   if (ML_EXE_LINKER_FLAGS)
     target_link_options(${_target} PUBLIC ${ML_EXE_LINKER_FLAGS})
@@ -298,6 +305,8 @@ function(ml_add_non_distributed_executable _target)
   add_executable(${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
 
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -335,6 +344,8 @@ function(ml_add_test_executable _target)
 
   add_executable(ml_test_${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
+
+  set_property(TARGET ml_test_${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
   target_link_libraries(ml_test_${_target} ${ML_LINK_LIBRARIES})
 
