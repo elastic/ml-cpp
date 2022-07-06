@@ -49,6 +49,8 @@ endif()
 
 project("ML")
 
+include(CheckPIESupported)
+check_pie_supported()
 
 include(variables)
 
