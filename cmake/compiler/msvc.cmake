@@ -9,9 +9,8 @@
 # limitation.
 #
 
-
-if(NOT CRT_OPT)
-  set(CRT_OPT /MD)
+if (NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
 endif()
 
 set(VCINCLUDES ${VCBASE}/VC/Tools/MSVC/${VCVER}/include)
@@ -31,7 +30,6 @@ list(APPEND ML_COMPILE_DEFINITIONS
 list(APPEND ML_C_FLAGS
   "/X"
   "/nologo"
-  ${OPTCFLAGS}
   "/W4"
   ${CRT_OPT}
   "/EHsc"
@@ -55,6 +53,5 @@ list(APPEND ML_CXX_FLAGS
   "/wd4355"
   "/wd4512"
   "/wd4702"
-  "/bigobj"
-  "${OPTCPPFLAGS}")
+  "/bigobj")
 

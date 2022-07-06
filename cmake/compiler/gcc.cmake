@@ -41,7 +41,6 @@ SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
 list(APPEND ML_C_FLAGS
   "-g"
   ${CROSS_FLAGS}
-  ${OPTCFLAGS}
   ${ARCHCFLAGS}
   "-fstack-protector"
   "-fno-math-errno"
