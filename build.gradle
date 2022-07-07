@@ -94,26 +94,23 @@ if (mlDebug.toBoolean()) {
 }
 
 String msystem = "$System.env.MSYSTEM"
-if ((isWindows && msystem == 'MINGW64') || isMacOsX || isLinux) 
-{
-  // Always do the C++ build using bash (Git bash on Windows using MinGW)
-  project.ext.shell = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
-  project.ext.set_env = "source ./set_env.sh"
-  project.ext.shell_flag = "-c"
-  project.ext.clean_cmd = "rm -rf ${cmakeBuildDir} 3rd_party/eigen"
-  // Stripping the binaries is not necessary on windows, execute a no-op command instead
-  project.ext.strip_cmd = isWindows ? true : "dev-tools/strip_binaries.sh"
-} else {
+if (isWindows && msystem != 'MINGW64') {
   project.ext.shell = "cmd.exe"
-  project.ext.set_env = ".\\set_env.bat"
-  project.ext.shell_flag = "/c"
-  project.ext.clean_cmd = "if exist ${cmakeBuildDir}\\ (rmdir /s /q ${cmakeBuildDir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
-  // Stripping the binaries is not necessary on windows, execute a no-op command instead
-  project.ext.strip_cmd = "cd ."
+  project.ext.setEnv = ".\\set_env.bat"
+  project.ext.shellFlag = "/c"
+  project.ext.cleanCmd = "if exist ${cmakeBuildDir}\\ (rmdir /s /q ${cmakeBuildDir}) && if exist 3rd_party\\eigen (rmdir /s /q 3rd_party\\eigen)"
+  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
+  project.ext.stripCmd = "cd ."
+} else {
+  // Use the bash shell for the C++ build (Git bash when on Windows using MinGW)
+  project.ext.shell = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
+  project.ext.setEnv = "source ./set_env.sh"
+  project.ext.shellFlag = "-c"
+  project.ext.cleanCmd = "rm -rf ${cmakeBuildDir} 3rd_party/eigen"
+  // Stripping the binaries is not necessary on Windows, execute a no-op command instead
+  project.ext.stripCmd = isWindows ? 'true' : "dev-tools/strip_binaries.sh"
 }
 
-project.ext.make = (isMacOsX || isWindows) ? "gnumake" : "make"
-project.ext.cmake = "cmake"
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
@@ -121,7 +118,7 @@ project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'ML_DEBUG': mlDebug ]
 
 configurations.all {
-  // check for updates every build
+  // Check for updates every build
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
@@ -130,7 +127,7 @@ clean {
     exec {
       environment makeEnvironment
       commandLine shell
-      args shell_flag, "${set_env} && ${clean_cmd}"
+      args shellFlag, "${setEnv} && ${cleanCmd}"
       workingDir "${projectDir}"
     }
   }
@@ -139,14 +136,14 @@ clean {
 task configure(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} -B ${cmakeBuildDir} ${cmakeFlags}"
+  args shellFlag, "${setEnv} && cmake -B ${cmakeBuildDir} ${cmakeFlags}"
   workingDir "${projectDir}"
 }
 
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build ${cmakeBuildDir} --config ${cmakeBuildType} -t install -v -j ${numCpus}"
+  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t install"
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
@@ -154,14 +151,14 @@ task compile(type: Exec) {
 task strip(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${strip_cmd}"
+  args shellFlag, "${setEnv} && ${stripCmd}"
   workingDir "${projectDir}"
   dependsOn 'compile'
 }
 
 task format(type: Exec) {
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} -P cmake/clang-format.cmake"
+  args shellFlag, "${setEnv} && cmake -P cmake/clang-format.cmake"
   workingDir "${projectDir}"
 }
 
@@ -220,7 +217,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shell_flag, "${set_env} && ${cmake} --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
+  args shellFlag, "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
@@ -428,7 +425,8 @@ task buildDependencyReport(type: Exec) {
   outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
   commandLine shell
-  args '-c', "source ./set_env.sh && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
+  // TODO: this won't work on Windows outside of Git bash
+  args shellFlag, "${setEnv} && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
   workingDir "${projectDir}"
   description = 'Create a CSV report on 3rd party dependencies we redistribute'
 }
