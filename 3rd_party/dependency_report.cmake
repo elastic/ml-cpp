@@ -38,18 +38,13 @@ function(dependency_report _output_file)
   # name,version,revision,url,license,copyright,sourceURL
 
   file(WRITE ${_output_file} "name,version,revision,url,license,copyright,sourceURL${EOL}")
-  file(GLOB INFO_FILES $ENV{CPP_SRC_HOME}/3rd_party/licenses/*INFO.csv)
+  file(GLOB INFO_FILES ${CMAKE_CURRENT_LIST_DIR}/licenses/*INFO.csv)
   foreach(INFO_FILE ${INFO_FILES})
     file(STRINGS ${INFO_FILE} ${INFO_FILE}_CONTENTS)
     list(GET ${INFO_FILE}_CONTENTS -1 INFO_LINE)
     file(APPEND ${_output_file} "${INFO_LINE}${EOL}")
   endforeach()
 endfunction()
-
-if(NOT DEFINED ENV{CPP_SRC_HOME})
-  message("ERROR: Environment variable CPP_SRC_HOME is not set")
-  return()
-endif()
 
 if(OUTPUT_FILE)
   dependency_report(${OUTPUT_FILE})
