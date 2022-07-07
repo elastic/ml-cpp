@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE(testReweightOutliers) {
 
     test::CRandomNumbers rng;
 
-    maths::time_series::CSignal::TFloatMeanAccumulatorVec values;
+    maths::time_series::CSignal::TFloatMeanAccumulatorVec values(144);
     TDoubleVec noise;
     TDoubleVec u01;
 
