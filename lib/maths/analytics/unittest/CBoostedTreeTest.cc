@@ -3740,8 +3740,8 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
     // on the optimisation objective.
 
     test::CRandomNumbers rng;
-    std::size_t rows{2000};
-    std::size_t cols{3};
+    std::size_t rows{2500};
+    std::size_t cols{4};
 
     std::size_t numberHoldoutRows{1500};
 
@@ -3776,11 +3776,11 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .numberHoldoutRows(numberHoldoutRows)
                 .buildForTrain(*frame, cols - 1);
-        return regression->hyperparameters().optimisationMakingNoProgress();
+        return regression->hyperparameters().fineTuneSearchNotFinished();
     };
 
-    BOOST_REQUIRE_EQUAL(verify(0.001), false);
-    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
+    BOOST_REQUIRE_EQUAL(verify(0.0), true);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), false);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {

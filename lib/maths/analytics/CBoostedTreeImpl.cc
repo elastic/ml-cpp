@@ -46,6 +46,7 @@
 #include <maths/common/MathsTypes.h>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/none.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
@@ -139,11 +140,13 @@ public:
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
-    explicit CTrainingLossCurveStats(std::size_t maximumNumberTrees)
-        : m_MaximumNumberTrees{maximumNumberTrees},
-          m_MaximumNumberTreesWithoutImprovement{std::max(
+    explicit CTrainingLossCurveStats(std::size_t maximumNumberTrees,
+                                     double minTestLoss = std::numeric_limits<double>::max())
+        : m_MinTestLoss{minTestLoss}, m_MaximumNumberTrees{maximumNumberTrees},
+          m_MaximumNumberTreesWithoutImprovementCompetitive{std::max(
               static_cast<std::size_t>(0.075 * static_cast<double>(maximumNumberTrees) + 0.5),
-              std::size_t{1})} {}
+              std::size_t{3})},
+          m_MaximumNumberTreesWithoutImprovementUncompetitive{3} {}
 
     std::size_t bestNumberTrees() const {
         return std::get<NUMBER_TREES>(m_BestTestLoss[0]);
@@ -173,11 +176,9 @@ public:
     template<typename FUNC>
     bool shouldStopTraining(std::size_t numberTrees, FUNC computeLoss) {
         this->capture(numberTrees, computeLoss);
-        if (numberTrees - std::get<NUMBER_TREES>(m_BestTestLoss[0]) >
-            m_MaximumNumberTreesWithoutImprovement) {
-            return true;
-        }
-        return numberTrees > m_MaximumNumberTrees;
+        return (numberTrees - this->bestNumberTrees() >
+                this->maximumNumberTreesWithoutImprovement()) ||
+               (numberTrees > m_MaximumNumberTrees);
     }
 
 private:
@@ -203,8 +204,18 @@ private:
     static constexpr std::size_t TRAIN_LOSS{2};
 
 private:
+    std::size_t maximumNumberTreesWithoutImprovement() const {
+        bool competitive{common::CBasicStatistics::mean(this->bestTestLoss()) <
+                         1.05 * m_MinTestLoss};
+        return competitive ? m_MaximumNumberTreesWithoutImprovementCompetitive
+                           : m_MaximumNumberTreesWithoutImprovementUncompetitive;
+    }
+
+private:
+    double m_MinTestLoss;
     std::size_t m_MaximumNumberTrees;
-    std::size_t m_MaximumNumberTreesWithoutImprovement;
+    std::size_t m_MaximumNumberTreesWithoutImprovementCompetitive;
+    std::size_t m_MaximumNumberTreesWithoutImprovementUncompetitive;
     TLossStatsMinAccumulator m_BestTestLoss;
 };
 
@@ -305,7 +316,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Hyperparameter optimisation loop.
 
-        this->initializePerFoldTestLosses();
+        TDoubleVec minTestLosses{this->initializePerFoldTestLosses()};
 
         for (m_Hyperparameters.startFineTuneSearch();
              m_Hyperparameters.fineTuneSearchNotFinished();
@@ -320,10 +331,11 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                 frame, m_Hyperparameters.maximumNumberTrees().value(),
                 [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                        const core::CPackedBitVector& testingRowMask,
-                       core::CLoopProgress& trainingProgress) {
-                    return this->trainForest(frame_, trainingRowMask,
-                                             testingRowMask, trainingProgress);
-                });
+                       double minTestLoss, core::CLoopProgress& trainingProgress) {
+                    return this->trainForest(frame_, trainingRowMask, testingRowMask,
+                                             trainingProgress, minTestLoss);
+                },
+                minTestLosses);
 
             // If we're evaluating using a hold-out set we will not retrain on the
             // full data set at the end.
@@ -477,7 +489,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     // Hyperparameter optimisation loop.
 
-    this->initializePerFoldTestLosses();
+    TDoubleVec minTestLosses{this->initializePerFoldTestLosses()};
 
     std::size_t numberTreesToRetrain{this->numberTreesToRetrain()};
     TMeanVarAccumulator timeAccumulator;
@@ -500,10 +512,11 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
             frame, numberTreesToRetrain,
             [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                    const core::CPackedBitVector& testingRowMask,
-                   core::CLoopProgress& trainingProgress) {
+                   double /*minTestLoss*/, core::CLoopProgress& trainingProgress) {
                 return this->updateForest(frame_, trainingRowMask,
                                           testingRowMask, trainingProgress);
-            });
+            },
+            minTestLosses);
 
         // If we're evaluating using a hold-out set we will not retrain on the
         // full data set at the end.
@@ -794,11 +807,23 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile, const TNodeVec
     return {gains[index], curvatures[index]};
 }
 
-void CBoostedTreeImpl::initializePerFoldTestLosses() {
+CBoostedTreeImpl::TDoubleVec CBoostedTreeImpl::initializePerFoldTestLosses() {
     m_FoldRoundTestLosses.resize(m_NumberFolds.value());
     for (auto& losses : m_FoldRoundTestLosses) {
         losses.resize(m_Hyperparameters.numberRounds());
     }
+
+    TDoubleVec minTestLosses(m_FoldRoundTestLosses.size(),
+                             std::numeric_limits<double>::max());
+    for (std::size_t fold = 0; fold < m_FoldRoundTestLosses.size(); ++fold) {
+        for (const auto& loss : m_FoldRoundTestLosses[fold]) {
+            if (loss != boost::none) {
+                minTestLosses[fold] = std::min(minTestLosses[fold], *loss);
+            }
+        }
+    }
+
+    return minTestLosses;
 }
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
@@ -898,7 +923,8 @@ template<typename F>
 CBoostedTreeImpl::SCrossValidationResult
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
                                       std::size_t maximumNumberTrees,
-                                      const F& trainForest) {
+                                      const F& trainForest,
+                                      TDoubleVec& minTestLosses) {
 
     // We want to ensure we evaluate on equal proportions for each fold.
     TSizeVec folds(m_NumberFolds.value());
@@ -939,7 +965,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         double lossGap;
         TDoubleVec testLossValues;
         std::tie(forest, testLoss, lossGap, testLossValues) =
-            trainForest(frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold], m_TrainingProgress)
+            trainForest(frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold],
+                        minTestLosses[fold], m_TrainingProgress)
                 .asTuple();
         LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << testLoss);
@@ -949,6 +976,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
             common::CBasicStatistics::mean(testLoss);
         numberTrees.push_back(static_cast<double>(forest.size()));
         meanForestSize.add(numberForestNodes(forest));
+        minTestLosses[fold] = std::min(minTestLosses[fold],
+                                       common::CBasicStatistics::mean(testLoss));
         m_Instrumentation->lossValues(fold, std::move(testLossValues));
     }
     m_TrainingProgress.increment(maximumNumberTrees * folds.size());
@@ -1013,7 +1042,8 @@ CBoostedTreeImpl::STrainForestResult
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
                               const core::CPackedBitVector& testingRowMask,
-                              core::CLoopProgress& trainingProgress) const {
+                              core::CLoopProgress& trainingProgress,
+                              double minTestLoss) const {
 
     LOG_TRACE(<< "Training one forest...");
 
@@ -1074,7 +1104,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     scopeMemoryUsage.add(testLosses);
 
     CTrainingLossCurveStats lossCurveStats{
-        m_Hyperparameters.maximumNumberTrees().value()};
+        m_Hyperparameters.maximumNumberTrees().value(), minTestLoss};
     TWorkspace workspace{m_Loss->numberParameters()};
 
     // For each iteration:
