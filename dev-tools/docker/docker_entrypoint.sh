@@ -31,7 +31,7 @@ cd "$MY_DIR/../.."
 cmake -B cmake-build-docker ${CMAKE_FLAGS}
 
 # Build the code
-cmake --build cmake-build-docker --config Release -j`nproc` -v -t install
+cmake --build cmake-build-docker -v -j`nproc` -t install
 
 # Strip the binaries
 dev-tools/strip_binaries.sh
@@ -62,6 +62,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    cmake --build cmake-build-docker --config Release -t test -j`nproc` || echo failed > build/test_status.txt
+    cmake --build cmake-build-docker -v -j`nproc` -t test || echo failed > build/test_status.txt
 fi
 
