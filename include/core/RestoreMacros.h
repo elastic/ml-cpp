@@ -125,6 +125,19 @@ namespace core {
         continue;                                                              \
     }
 }
+
+#define RESTORE_WITH_UTILS(tag, target)                                                \
+    if (name == tag) {                                                                 \
+        if (core::CPersistUtils::restore(tag, target, traverser) == false) {           \
+            if (traverser.value().empty()) {                                           \
+                LOG_ERROR(<< "Failed to restore " #tag);                               \
+            } else {                                                                   \
+                LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value()); \
+            }                                                                          \
+            return false;                                                              \
+        }                                                                              \
+        continue;                                                                      \
+    }
 }
 
 #endif // INCLUDED_ml_core_RestoreMacros_h

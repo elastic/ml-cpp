@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <sstream>
 #include <string>
@@ -269,6 +270,11 @@ public:
             return result.str();
         }
 
+        template<typename T>
+        std::string operator()(const std::atomic<T>& value) const {
+            return this->operator()(value.load());
+        }
+
     private:
         char m_PairDelimiter;
     };
@@ -376,6 +382,14 @@ public:
                 },
                 value);
             return success;
+        }
+
+        template<typename T>
+        bool operator()(const std::string& token, std::atomic<T>& value) const {
+            T value_;
+            bool result{CStringUtils::stringToType(token, value_)};
+            value.store(value_);
+            return result;
         }
 
     private:

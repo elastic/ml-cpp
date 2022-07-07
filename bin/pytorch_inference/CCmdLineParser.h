@@ -49,6 +49,7 @@ public:
                       std::string& logProperties,
                       std::int32_t& numThreadsPerAllocation,
                       std::int32_t& numAllocations,
+                      std::size_t& cacheMemorylimitBytes,
                       bool& validElasticLicenseKeyConfirmed);
 
 private:

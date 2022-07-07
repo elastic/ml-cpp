@@ -18,6 +18,7 @@ set (SRCS
   CBlockingCallCancellingTimerTest.cc
   CCompressUtilsTest.cc
   CCompressedDictionaryTest.cc
+  CCompressedLfuCacheTest.cc
   CConcurrencyTest.cc
   CConcurrentWrapperTest.cc
   CContainerPrinterTest.cc

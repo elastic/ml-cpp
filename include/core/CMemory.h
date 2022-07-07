@@ -660,7 +660,8 @@ public:
                 m_Callbacks.emplace_back(std::cref(typeid(T)),
                                          &CAnyVisitor::dynamicSizeCallback<T>);
                 return true;
-            } else if (i->first.get() != typeid(T)) {
+            }
+            if (i->first.get() != typeid(T)) {
                 m_Callbacks.insert(i, {std::cref(typeid(T)),
                                        &CAnyVisitor::dynamicSizeCallback<T>});
                 return true;

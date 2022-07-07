@@ -23,9 +23,9 @@ const char CJsonOutputStreamWrapper::JSON_ARRAY_DELIMITER(',');
 CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
     : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
     // initialize the bufferpool
-    for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
-        m_StringBuffers[i].Reserve(BUFFER_START_SIZE);
-        m_StringBufferQueue.push(&m_StringBuffers[i]);
+    for (auto& stringBuffer : m_StringBuffers) {
+        stringBuffer.Reserve(BUFFER_START_SIZE);
+        m_StringBufferQueue.push(&stringBuffer);
     }
 
     m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_START); });
@@ -113,11 +113,22 @@ void CJsonOutputStreamWrapper::syncFlush() {
     c.wait(lock);
 }
 
+void CJsonOutputStreamWrapper::writeJson(std::string json) {
+    m_ConcurrentOutputStream([ this, json_ = std::move(json) ](std::ostream & o) {
+        if (m_FirstObject) {
+            m_FirstObject = false;
+        } else {
+            o.put(JSON_ARRAY_DELIMITER);
+        }
+        o << json_;
+    });
+}
+
 void CJsonOutputStreamWrapper::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
-    std::size_t bufferSize = 0;
-    for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
+    std::size_t bufferSize{0};
+    for (const auto& stringBuffer : m_StringBuffers) {
         // GetSize() returns the length of the string, not the used memory, need to inspect internals
-        bufferSize += m_StringBuffers[i].stack_.GetCapacity();
+        bufferSize += stringBuffer.stack_.GetCapacity();
     }
 
     mem->addItem("m_StringBuffers", bufferSize);
@@ -132,10 +143,10 @@ void CJsonOutputStreamWrapper::debugMemoryUsage(const CMemoryUsage::TMemoryUsage
 }
 
 std::size_t CJsonOutputStreamWrapper::memoryUsage() const {
-    std::size_t memoryUsage = 0;
-    for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
+    std::size_t memoryUsage{0};
+    for (const auto& stringBuffer : m_StringBuffers) {
         // GetSize() returns the length of the string, not the used memory, need to inspect internals
-        memoryUsage += m_StringBuffers[i].stack_.GetCapacity();
+        memoryUsage += stringBuffer.stack_.GetCapacity();
     }
 
     // we can not use dynamic size methods as it would stumble upon the pointers
