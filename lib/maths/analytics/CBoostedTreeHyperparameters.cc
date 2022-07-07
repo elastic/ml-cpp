@@ -479,16 +479,24 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
 
+    // We don't stop early for incremental training because iterations are fast.
+    bool canStopEarly{m_CurrentRound > 3 && m_IncrementalTraining == false};
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
-    } else if (this->optimisationMakingNoProgress()) {
-        m_StopHyperparameterOptimizationEarly = true;
-        return false;
+        if (canStopEarly) {
+            m_BayesianOptimization->maximumLikelihoodKernel(3);
+        }
     } else {
         std::tie(parameters, std::ignore) =
             m_BayesianOptimization->maximumExpectedImprovement(3);
+    }
+
+    if (canStopEarly && this->optimisationMakingNoProgress()) {
+        m_StopHyperparameterOptimizationEarly = true;
+        return false;
     }
 
     this->setHyperparameterValues(std::move(parameters));
