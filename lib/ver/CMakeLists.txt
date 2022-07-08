@@ -22,11 +22,11 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # On Windows ignore file mode differences, as file modes don't really exist on Windows
-  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
-  execute_process(COMMAND git -c core.fileMode=false diff-index HEAD -- OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git -c core.fileMode=false diff-index HEAD -- WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
 else()
-  execute_process(COMMAND git update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
-  execute_process(COMMAND git diff-index HEAD -- OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git update-index -q --refresh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git diff-index HEAD -- WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
 endif()
 
 # Decide how to format the version information based on whether there are uncommitted changes

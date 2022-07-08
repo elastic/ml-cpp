@@ -79,3 +79,10 @@ add_subdirectory(devlib)
 # Add a target to build Doxygen generated documentation
 # if the doxygen executable can be found
 ml_doxygen(${CMAKE_SOURCE_DIR}/build/doxygen)
+
+# Xcode code signs the binary artifacts by default,
+# which we don't want as it invalidates things when
+# the RPATH is updated upon install. Hence we disable
+# code signing here.
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO")
