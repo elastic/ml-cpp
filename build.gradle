@@ -425,7 +425,8 @@ task buildDependencyReport(type: Exec) {
   outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
   commandLine shell
-  args shellFlag, "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
+  args shellFlag, isWindows ? "${setEnv} && cmake -D OUTPUT_FILE=\"${outputs.files.singleFile}\" -P 3rd_party/dependency_report.cmake"
+                            : "${setEnv} && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
   workingDir "${projectDir}"
   description = 'Create a CSV report on 3rd party dependencies we redistribute'
 }
