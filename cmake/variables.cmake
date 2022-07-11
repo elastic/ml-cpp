@@ -156,7 +156,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_NO_LIB)
 endif()
 
-# Dictate which flags to use for a "Release" build
+# Dictate which flags to use for "Release" and "Debug" builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_DEBUG "/Od /RTC1")
@@ -242,4 +242,4 @@ else()
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND git rev-parse --short=14 HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}  OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)

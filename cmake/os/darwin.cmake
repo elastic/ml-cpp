@@ -15,3 +15,10 @@ set(EXE_DIR MacOS)
 set(CMAKE_MACOSX_RPATH 1)
 add_compile_definitions(MacOSX)
 set(PLATFORM_NAME "MacOSX")
+
+# Xcode code signs the binary artifacts by default,
+# which we don't want as it is invalidated when
+# the RPATH is updated upon install. Hence we disable
+# code signing here.
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO")
