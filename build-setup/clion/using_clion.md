@@ -40,8 +40,8 @@ better compatibility with building from the command line it is preferred to conf
 `Unix Makefiles`. To do this either select `Unix Makefiles` from the `Generator` drop-down or type 
 `-G "Unix Makefiles"` in the`CMake options` field, and add  e.g. `-j 10` to the `Build options` field. To be consistent
 with our CI builds set the build type to be `RelWithDebInfo` which will generate an optimized build with debug symbols.
-Of course if you have a specific need for it, it is always possible to switch to for another build type such as `Debug`
-, although is advisable **not** to select the `Default` build type as its behaviour may change in subsequent releases of
+Of course if you have a specific need for it, it is always possible to switch to for another build type such as `Debug`,
+although is advisable **not** to select the `Default` build type as its behaviour may change in subsequent releases of
 `CLion`.
 
 Make sure to leave the `Build directory` field blank as CLion will automatically determine it based on the build type

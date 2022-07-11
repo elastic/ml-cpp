@@ -159,7 +159,11 @@ function(ml_add_non_distributed_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        $<$<CONFIG:Release>:-OPT:REF>)
+        $<$<CONFIG:Release>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+        $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+        )
     endif()
   endif()
 endfunction()
@@ -211,7 +215,11 @@ function(ml_add_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        $<$<CONFIG:Release>:-OPT:REF>)
+        $<$<CONFIG:Release>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+        $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+        )
     endif()
 
     # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
@@ -279,7 +287,11 @@ function(ml_add_executable _target)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
       -STACK:0x800000
-      $<$<CONFIG:Release>:-OPT:REF>)
+      $<$<CONFIG:Release>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+      $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+      )
   endif()
 
   # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
@@ -320,7 +332,11 @@ function(ml_add_non_distributed_executable _target)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
       -STACK:0x800000
-      $<$<CONFIG:Release>:-OPT:REF>)
+      $<$<CONFIG:Release>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+      $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+      )
   endif()
 
 endfunction()
