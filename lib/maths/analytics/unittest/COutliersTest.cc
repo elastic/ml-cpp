@@ -57,13 +57,13 @@ public:
 public:
     void updateMemoryUsage(std::int64_t delta) override {
         if (m_MemoryUsageCallback) {
-            m_MemoryUsageCallback.get()(delta);
+            (*m_MemoryUsageCallback)(delta);
         }
     }
 
     void updateProgress(double d) override {
         if (m_ProgressCallback) {
-            m_ProgressCallback.get()(d);
+            (*m_ProgressCallback)(d);
         }
     }
 

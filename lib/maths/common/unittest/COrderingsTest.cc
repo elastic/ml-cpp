@@ -48,7 +48,7 @@ public:
     static std::size_t ms_Copies;
 
 public:
-    CDictionary(const TStrVec& words) : m_Words(words) {}
+    explicit CDictionary(TStrVec words) : m_Words{std::move(words)} {}
 
     CDictionary(const CDictionary&) = default;
 
@@ -68,7 +68,7 @@ private:
     TStrVec m_Words;
 };
 
-std::size_t CDictionary::ms_Copies(0u);
+std::size_t CDictionary::ms_Copies(0);
 
 void swap(CDictionary& lhs, CDictionary& rhs) {
     lhs.swap(rhs);
@@ -376,19 +376,19 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
 
-    double values_[]{10.0, 1.0, 5.0, 3.0, 1.0};
-    TDoubleVec values(std::begin(values_), std::end(values_));
+    TDoubleVec values{10.0, 1.0, 5.0, 3.0, 1.0};
     TDoubleVecCItrVec iterators;
-    for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
+    for (auto i = values.begin(); i != values.end(); ++i) {
         iterators.push_back(i);
     }
 
     std::sort(iterators.begin(), iterators.end(),
               core::CFunctional::SDereference<maths::common::COrderings::SLess>());
-    std::sort(std::begin(values_), std::end(values_));
+    TDoubleVec orderedValues{values};
+    std::sort(orderedValues.begin(), orderedValues.end());
     for (std::size_t i = 0; i < values.size(); ++i) {
-        LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
-        BOOST_REQUIRE_EQUAL(values_[i], *iterators[i]);
+        LOG_DEBUG(<< "expected " << orderedValues[i] << ", got " << *iterators[i]);
+        BOOST_REQUIRE_EQUAL(orderedValues[i], *iterators[i]);
     }
 }
 
@@ -620,7 +620,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         TDictionaryVec values3;
         for (std::size_t i = 0; i < rawWords.size(); i += 5) {
             TStrVec words(rawWords.begin() + i, rawWords.begin() + i + 5);
-            values3.push_back(CDictionary(words));
+            values3.emplace_back(std::move(words));
         }
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         std::string expectedKeys("[0.1, 0.7, 0.9, 1.4, 4, 5.1, 7.1, 80]");
@@ -721,10 +721,10 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
             auto itr = expected.begin();
             for (std::size_t j = 0; j < keys.size(); ++j, ++itr) {
                 BOOST_REQUIRE_EQUAL(itr->first, keys[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<0>(), values1[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<1>(), values2[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<2>(), values3[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<3>(), values4[j]);
+                BOOST_REQUIRE_EQUAL(std::get<0>(itr->second), values1[j]);
+                BOOST_REQUIRE_EQUAL(std::get<1>(itr->second), values2[j]);
+                BOOST_REQUIRE_EQUAL(std::get<2>(itr->second), values3[j]);
+                BOOST_REQUIRE_EQUAL(std::get<3>(itr->second), values4[j]);
             }
         }
     }
