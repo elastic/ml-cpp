@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE(testReweightOutliers) {
 
     test::CRandomNumbers rng;
 
-    maths::time_series::CSignal::TFloatMeanAccumulatorVec values(144);
+    maths::time_series::CSignal::TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
     TDoubleVec u01;
 
@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE(testReweightOutliers) {
 
         const auto& component = components[test % components.size()];
 
-        values.assign(values.size(), maths::time_series::CSignal::TFloatMeanAccumulator{});
+        values.assign(100, maths::time_series::CSignal::TFloatMeanAccumulator{});
         rng.generateUniformSamples(0.0, 1.0, values.size(), u01);
         rng.generateNormalSamples(0.0, 4.0, values.size(), noise);
 
