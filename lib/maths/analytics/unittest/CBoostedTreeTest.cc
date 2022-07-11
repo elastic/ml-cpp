@@ -2853,7 +2853,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.45);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {
