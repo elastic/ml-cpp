@@ -212,7 +212,9 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        CCluster(std::size_t index, CNormalMeanPrecConjugate prior, CNaturalBreaksClassifier structure);
+        CCluster(std::size_t index,
+                 const CNormalMeanPrecConjugate& prior,
+                 CNaturalBreaksClassifier structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -227,7 +229,6 @@ public:
 
     using TClusterVec = std::vector<CCluster>;
     using TClusterVecItr = TClusterVec::iterator;
-    using TClusterVecCItr = TClusterVec::const_iterator;
 
 public:
     //! The central confidence interval on which to Winsorise.
