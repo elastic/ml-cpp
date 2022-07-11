@@ -452,13 +452,10 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
     fillDataFrame(5, 0, 2, {{1.0}, {1.0}, {1.0}, {1.0}, {1.0}},
                   {0.0, 0.0, 0.0, 0.0, 0.0}, [](const TRowRef&) { return 1.0; }, *frame);
 
-    try {
-        auto regression =
-            maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .buildFor(*frame, cols - 1);
-        regression->train();
-    } catch (...) { BOOST_FAIL("Shouldn't throw"); }
+    BOOST_REQUIRE_NO_THROW(maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                               1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                               .buildFor(*frame, cols - 1)
+                               ->train());
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
@@ -707,9 +704,9 @@ BOOST_AUTO_TEST_CASE(testHuber) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.96);
 }
 
-BOOST_AUTO_TEST_CASE(testMsle) {
-    // TODO #1744 test quality of MSLE on data with log-normal errors.
-}
+// TODO #1744 test quality of MSLE on data with log-normal errors.
+//BOOST_AUTO_TEST_CASE(testMsle) {
+//}
 
 BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
 
