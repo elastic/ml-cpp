@@ -135,9 +135,7 @@ BOOST_AUTO_TEST_CASE(testRoundTrip) {
         restored.fromCompressedJsonStream(ndjson);
 
         auto result = restored.compare(original);
-        if (result.empty() == false) {
-            BOOST_TEST_FAIL(result);
-        }
+        BOOST_TEST_REQUIRE(result.empty(), result);
     }
 }
 

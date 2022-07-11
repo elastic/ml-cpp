@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#define BOOST_TEST_MODULE lib.maths
+#define BOOST_TEST_MODULE lib.maths.time_series
 // Defining BOOST_TEST_MODULE usually auto-generates main(), but we don't want
 // this as we need custom initialisation to allow for output in both console and
 // Boost.Test XML formats
