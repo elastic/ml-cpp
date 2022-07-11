@@ -238,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                               << ", baseline bucket mean = "
                               << core::CContainerPrinter::print(baselineMean));
 
-                    BOOST_TEST_REQUIRE(currentCount);
+                    BOOST_TEST_REQUIRE(currentCount.has_value());
                     BOOST_REQUIRE_EQUAL(expectedCount, *currentCount);
 
                     TDouble1Vec mean =
@@ -351,8 +351,8 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
         {157, {1.6, 1.6}}, {164, {1.66, 1.55}}, {199, {1.28, 1.4}},
         {202, {1.3, 1.1}}, {204, {1.5, 1.8}}};
 
-    TUIntVec sampleCounts{2u, 1u};
-    TUIntVec expectedSampleCounts{2u, 1u};
+    TUIntVec sampleCounts{2, 1};
+    TUIntVec expectedSampleCounts{2, 1};
 
     std::size_t i{0};
     for (auto& sampleCount : sampleCounts) {
@@ -360,7 +360,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
 
         this->makeModel(params, {model_t::E_IndividualMeanLatLongByPerson},
                         startTime, sampleCount);
-        CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+        auto& model = static_cast<CMetricModel&>(*m_Model);
         BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
         // Bucket values.
@@ -371,12 +371,12 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
 
         // Sampled values.
         TMean2Accumulator expectedLatLongSample;
-        std::size_t numberSamples{0u};
+        std::size_t numberSamples{0};
         TDoubleVecVec expectedLatLongSamples;
         TMultivariatePriorPtr expectedPrior =
             factory.defaultMultivariatePrior(model_t::E_IndividualMeanLatLongByPerson);
 
-        std::size_t j{0u};
+        std::size_t j{0};
         core_t::TTime time{startTime};
         for (;;) {
             if (j < data.size() && data[j].first < time + bucketLength) {
@@ -447,7 +447,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                           << ", actual baseline = "
                           << core::CContainerPrinter::print(baselineLatLong));
 
-                BOOST_TEST_REQUIRE(count);
+                BOOST_TEST_REQUIRE(count.has_value());
                 BOOST_REQUIRE_EQUAL(expectedCount, *count);
 
                 TDouble1Vec latLong;
@@ -525,7 +525,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
 
     double mean{5.0};
     double variance{2.0};
-    std::size_t anomalousBucket{12u};
+    std::size_t anomalousBucket{12};
     double anomaly{5 * std::sqrt(variance)};
 
     SModelParams params(bucketLength);
@@ -534,10 +534,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
                                   model_t::E_IndividualMaxByPerson};
 
     this->makeModel(params, features, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
-    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
+    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
@@ -582,14 +582,14 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     TSizeVec bucketCounts{5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
     double mean{5.0};
     double variance{2.0};
-    std::size_t anomalousBucket{12u};
+    std::size_t anomalousBucket{12};
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualMedianByPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
-    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
+    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2);
     test::CRandomNumbers rng;
 
     core_t::TTime time{startTime};
@@ -647,10 +647,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100u};
-    std::size_t bucketCount{5u};
-    std::size_t lowMeanBucket{60u};
-    std::size_t highMeanBucket{80u};
+    std::size_t numberOfBuckets{100};
+    std::size_t bucketCount{5};
+    std::size_t lowMeanBucket{60};
+    std::size_t highMeanBucket{80};
     double mean{5.0};
     double variance{0.00001};
     double lowMean{2.0};
@@ -658,7 +658,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowMeanByPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -696,17 +696,17 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
               << core::CContainerPrinter::print(probabilities.begin(),
                                                 probabilities.end()));
 
-    BOOST_TEST_REQUIRE(probabilities[lowMeanBucket] < 0.01);
-    BOOST_TEST_REQUIRE(probabilities[highMeanBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] < 0.01);
+    BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] > 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100u};
-    std::size_t bucketCount{5u};
-    std::size_t lowMeanBucket{60u};
-    std::size_t highMeanBucket{80u};
+    std::size_t numberOfBuckets{100};
+    std::size_t bucketCount{5};
+    std::size_t lowMeanBucket{60};
+    std::size_t highMeanBucket{80};
     double mean{5.0};
     double variance{0.00001};
     double lowMean{2.0};
@@ -714,7 +714,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualHighMeanByPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -750,17 +750,17 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
-    BOOST_TEST_REQUIRE(probabilities[lowMeanBucket] > 0.1);
-    BOOST_TEST_REQUIRE(probabilities[highMeanBucket] < 0.01);
+    BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] < 0.01);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{10};
-    std::size_t numberOfBuckets{100u};
-    std::size_t bucketCount{5u};
-    std::size_t lowSumBucket{60u};
-    std::size_t highSumBucket{80u};
+    std::size_t numberOfBuckets{100};
+    std::size_t bucketCount{5};
+    std::size_t lowSumBucket{60};
+    std::size_t highSumBucket{80};
     double mean{50.0};
     double variance{5.0};
     double lowMean{5.0};
@@ -768,7 +768,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowSumByBucketAndPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -803,17 +803,17 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
     }
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
-    BOOST_TEST_REQUIRE(probabilities[lowSumBucket] < 0.01);
-    BOOST_TEST_REQUIRE(probabilities[highSumBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] < 0.01);
+    BOOST_TEST_REQUIRE(*probabilities[highSumBucket] > 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{10};
     std::size_t numberOfBuckets{100};
-    std::size_t bucketCount{5u};
-    std::size_t lowSumBucket{60u};
-    std::size_t highSumBucket{80u};
+    std::size_t bucketCount{5};
+    std::size_t lowSumBucket{60};
+    std::size_t highSumBucket{80};
     double mean{50.0};
     double variance{5.0};
     double lowMean{5.0};
@@ -821,7 +821,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualHighSumByBucketAndPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -856,14 +856,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
     }
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
-    BOOST_TEST_REQUIRE(probabilities[lowSumBucket] > 0.1);
-    BOOST_TEST_REQUIRE(probabilities[highSumBucket] < 0.01);
-}
-
-BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLatLong,
-                        CTestFixture,
-                        *boost::unit_test::disabled()) {
-    // TODO
+    BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[highSumBucket] < 0.01);
 }
 
 BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
@@ -876,8 +870,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
     for (auto feature : {model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson}) {
         core_t::TTime startTime{0};
         core_t::TTime bucketLength{10};
-        std::size_t numberOfBuckets{50u};
-        std::size_t bucketCount{5u};
+        std::size_t numberOfBuckets{50};
+        std::size_t bucketCount{5};
         double mean{5.0};
         double variance{1.0};
         std::string influencer{"I"};
@@ -895,7 +889,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
         BOOST_TEST_REQUIRE(model_);
         BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
-        CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
+        auto& model = static_cast<CMetricModel&>(*model_.get());
 
         test::CRandomNumbers rng;
         core_t::TTime time{startTime};
@@ -962,7 +956,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
         BOOST_TEST_REQUIRE(model_);
         BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
-        CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
+        auto& model = static_cast<CMetricModel&>(*model_.get());
 
         SAnnotatedProbability annotatedProbability;
 
@@ -972,7 +966,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
                                 gatherer, model, annotatedProbability);
             BOOST_REQUIRE_EQUAL(influences[i].size(),
                                 annotatedProbability.s_Influences.size());
-            if (influences[i].size() > 0) {
+            if (influences[i].empty() == false) {
                 for (const auto& expected : influences[i]) {
                     bool found{false};
                     for (const auto& actual : annotatedProbability.s_Influences) {
@@ -1109,10 +1103,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testLatLongInfluence, CTestFixture, *boost::unit_test::disabled()) {
-    // TODO
-}
-
 BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     maths::common::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
@@ -1125,29 +1115,29 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     const TStrVec people{"p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"};
 
     TSizeVecVec eventCounts;
-    eventCounts.push_back(TSizeVec(1000u, 0));
+    eventCounts.push_back(TSizeVec(1000, 0));
     eventCounts[0][0] = 4;
     eventCounts[0][1] = 3;
     eventCounts[0][2] = 5;
     eventCounts[0][4] = 2;
-    eventCounts.push_back(TSizeVec(1000u, 1));
-    eventCounts.push_back(TSizeVec(1000u, 0));
+    eventCounts.push_back(TSizeVec(1000, 1));
+    eventCounts.push_back(TSizeVec(1000, 0));
     eventCounts[2][1] = 10;
     eventCounts[2][2] = 13;
     eventCounts[2][8] = 5;
     eventCounts[2][15] = 2;
-    eventCounts.push_back(TSizeVec(1000u, 0));
+    eventCounts.push_back(TSizeVec(1000, 0));
     eventCounts[3][2] = 13;
     eventCounts[3][8] = 9;
     eventCounts[3][15] = 12;
-    eventCounts.push_back(TSizeVec(1000u, 2));
-    eventCounts.push_back(TSizeVec(1000u, 1));
-    eventCounts.push_back(TSizeVec(1000u, 0));
+    eventCounts.push_back(TSizeVec(1000, 2));
+    eventCounts.push_back(TSizeVec(1000, 1));
+    eventCounts.push_back(TSizeVec(1000, 0));
     eventCounts[6][0] = 4;
     eventCounts[6][1] = 3;
     eventCounts[6][2] = 5;
     eventCounts[6][4] = 2;
-    eventCounts.push_back(TSizeVec(1000u, 0));
+    eventCounts.push_back(TSizeVec(1000, 0));
     eventCounts[7][2] = 13;
     eventCounts[7][8] = 9;
     eventCounts[7][15] = 12;
@@ -1164,13 +1154,13 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     CModelFactory::TModelPtr model_;
     this->makeModelT<CMetricModelFactory>(params, features, startTime,
                                           model_t::E_MetricOnline, gatherer, model_);
-    CMetricModel* model = dynamic_cast<CMetricModel*>(model_.get());
+    auto* model = dynamic_cast<CMetricModel*>(model_.get());
     BOOST_TEST_REQUIRE(model);
     CModelFactory::TDataGathererPtr expectedGatherer;
     CModelFactory::TModelPtr expectedModel_;
     this->makeModelT<CMetricModelFactory>(params, features, startTime, model_t::E_MetricOnline,
                                           expectedGatherer, expectedModel_);
-    CMetricModel* expectedModel = dynamic_cast<CMetricModel*>(expectedModel_.get());
+    auto* expectedModel = dynamic_cast<CMetricModel*>(expectedModel_.get());
     BOOST_TEST_REQUIRE(expectedModel);
 
     test::CRandomNumbers rng;
@@ -1179,7 +1169,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0; i < eventCounts.size(); ++i, bucketStart = startTime) {
         for (std::size_t j = 0; j < eventCounts[i].size(); ++j, bucketStart += bucketLength) {
-            core_t::TTime n = static_cast<core_t::TTime>(eventCounts[i][j]);
+            auto n = static_cast<core_t::TTime>(eventCounts[i][j]);
             if (n > 0) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.0, 5.0, static_cast<size_t>(n), samples);
@@ -1220,7 +1210,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
             bucketStart += bucketLength;
         }
         this->addArrival(SMessage(events[i].time(),
-                                  gatherer->personName(events[i].personId().get()),
+                                  gatherer->personName(*events[i].personId()),
                                   events[i].values()[0][0]),
                          gatherer);
     }
@@ -1239,7 +1229,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
         this->addArrival(
             SMessage(expectedEvents[i].time(),
-                     expectedGatherer->personName(expectedEvents[i].personId().get()),
+                     expectedGatherer->personName(*expectedEvents[i].personId()),
                      expectedEvents[i].values()[0][0]),
             expectedGatherer);
     }
@@ -1316,7 +1306,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CModelFactory::TModelPtr modelNoGapPtr(factory.makeModel(gathererNoGap));
     BOOST_TEST_REQUIRE(modelNoGapPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelNoGapPtr->category());
-    CMetricModel& modelNoGap = static_cast<CMetricModel&>(*modelNoGapPtr.get());
+    auto& modelNoGap = static_cast<CMetricModel&>(*modelNoGapPtr.get());
 
     {
         TStrVec influencerValues1{"i1"};
@@ -1344,7 +1334,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CModelFactory::TModelPtr modelWithGapPtr(factory.makeModel(gathererWithGap));
     BOOST_TEST_REQUIRE(modelWithGapPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelWithGapPtr->category());
-    CMetricModel& modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
+    auto& modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
     core_t::TTime gap(bucketLength * 10);
 
     {
@@ -1399,7 +1389,7 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     CModelFactory::TModelPtr modelSkipGapPtr(factory.makeModel(gathererSkipGap));
     BOOST_TEST_REQUIRE(modelSkipGapPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelSkipGapPtr->category());
-    CMetricModel& modelSkipGap = static_cast<CMetricModel&>(*modelSkipGapPtr.get());
+    auto& modelSkipGap = static_cast<CMetricModel&>(*modelSkipGapPtr.get());
 
     // The idea here is to compare a model that has a gap skipped against a model
     // that has explicit nulls for the buckets that sampling was skipped.
@@ -1431,7 +1421,7 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     CModelFactory::TModelPtr modelExNullPtr(factory.makeModel(gathererExNull));
     BOOST_TEST_REQUIRE(modelExNullPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelExNullPtr->category());
-    CMetricModel& modelExNullGap = static_cast<CMetricModel&>(*modelExNullPtr.get());
+    auto& modelExNullGap = static_cast<CMetricModel&>(*modelExNullPtr.get());
 
     // p1: |(1, 42.0), ("", 42.0), (null, 42.0)|(1, 1.0)|(1, 1.0)|(null, 100.0)|(null, 100.0)|(1, 42.0)|
     // p2: |(1, 42.0), ("", 42.0)|(0, 0.0)|(0, 0.0)|(null, 100.0)|(null, 100.0)|(0, 0.0)|
@@ -1506,7 +1496,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(model_);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
-    CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
+    auto& model = static_cast<CMetricModel&>(*model_.get());
 
     TDoubleVec bucket1{1.0, 1.1};
     TDoubleVec bucket2{10.0, 10.1};
@@ -1626,7 +1616,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(model_);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
-    CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
+    auto& model = static_cast<CMetricModel&>(*model_.get());
     CCountingModel countingModel(params, gatherer, interimBucketCorrector);
 
     std::size_t pid1 = this->addPerson("p1", gatherer);
@@ -1720,7 +1710,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(modelPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelPtr->category());
-    CMetricModel& model = static_cast<CMetricModel&>(*modelPtr.get());
+    auto& model = static_cast<CMetricModel&>(*modelPtr.get());
     CCountingModel countingModel(params, gatherer, interimBucketCorrector);
 
     std::size_t pid1 = this->addPerson("p1", gatherer);
@@ -1887,7 +1877,7 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     CModelFactory::TModelPtr modelWithZerosPtr(factory.makeModel(gathererWithZeros));
     BOOST_TEST_REQUIRE(modelWithZerosPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelWithZerosPtr->category());
-    CMetricModel& modelWithZeros = static_cast<CMetricModel&>(*modelWithZerosPtr.get());
+    auto& modelWithZeros = static_cast<CMetricModel&>(*modelWithZerosPtr.get());
 
     CModelFactory::SGathererInitializationData gathererNoZerosInitData(startTime);
     CModelFactory::TDataGathererPtr gathererNoZeros(
@@ -1896,7 +1886,7 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     CModelFactory::TModelPtr modelNoZerosPtr(factory.makeModel(initDataNoZeros));
     BOOST_TEST_REQUIRE(modelNoZerosPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelNoZerosPtr->category());
-    CMetricModel& modelNoZeros = static_cast<CMetricModel&>(*modelNoZerosPtr.get());
+    auto& modelNoZeros = static_cast<CMetricModel&>(*modelNoZerosPtr.get());
 
     // The idea here is to compare a model that has records with summary count of zero
     // against a model that has no records at all where the first model had the zero-count records.
@@ -2146,7 +2136,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
 
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowMedianByPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -2182,8 +2172,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
-    BOOST_TEST_REQUIRE(probabilities[lowMedianBucket] < 0.01);
-    BOOST_TEST_REQUIRE(probabilities[highMedianBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[lowMedianBucket] < 0.01);
+    BOOST_TEST_REQUIRE(*probabilities[highMedianBucket] > 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
@@ -2200,7 +2190,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
 
     SModelParams params(bucketLength);
     makeModel(params, {model_t::E_IndividualHighMeanByPerson}, startTime);
-    CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+    auto& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
@@ -2236,8 +2226,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
-    BOOST_TEST_REQUIRE(probabilities[lowMedianBucket] > 0.1);
-    BOOST_TEST_REQUIRE(probabilities[highMedianBucket] < 0.01);
+    BOOST_TEST_REQUIRE(*probabilities[lowMedianBucket] > 0.1);
+    BOOST_TEST_REQUIRE(*probabilities[highMedianBucket] < 0.01);
 }
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
@@ -2267,7 +2257,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     factory.features(features);
     CModelFactory::TDataGathererPtr gathererNoSkip(factory.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrNoSkip(factory.makeModel(gathererNoSkip));
-    CMetricModel* modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
+    auto* modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
 
     // Model with the skip sampling rule
     SModelParams paramsWithRules(bucketLength);
@@ -2278,7 +2268,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrWithSkip(factoryWithSkip.makeModel(gathererWithSkip));
-    CMetricModel* modelWithSkip = dynamic_cast<CMetricModel*>(modelPtrWithSkip.get());
+    auto* modelWithSkip = dynamic_cast<CMetricModel*>(modelPtrWithSkip.get());
 
     std::size_t endTime = startTime + bucketLength;
 
@@ -2348,7 +2338,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // Check the last value times of the underlying models are the same
-    const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel =
+    const auto* timeSeriesModel =
         dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0));
     BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
