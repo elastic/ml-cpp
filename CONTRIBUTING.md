@@ -71,8 +71,8 @@ The build system uses CMake. To build either call `cmake` directly from the top 
 for example:
 
 ```
-cmake -B cmake-build-release
-cmake --build cmake-build-release -v -j`nproc`
+cmake -B cmake-build-relwithdebinfo
+cmake --build cmake-build-relwithdebinfo -v -j`nproc`
 ```
 
 Or, more simply, use Gradle:
@@ -81,7 +81,7 @@ Or, more simply, use Gradle:
 ./gradlew :compile
 ```
 
-Note that we configure the build to be of type `Release`, and specify the compiler flag `-g` in the cmake configuration files in order to obtain a fully optimized build along with debugging symbols (for Windows builds using Visual Studio the equivalent is using the /Zi flag to generate PDB files). This is used in preference to `RelWithDebInfo` as `Release` generally gives a higher optimization level than `RelWithDebInfo` (`O3` vs `O2` respectively) and on Windows RelWithDebInfo omits inlining which is undesirable.
+Note that we configure the build to be of type `RelWithDebInfo` in order to obtain a fully optimized build along with debugging symbols (for Windows native builds this is achieved by adding the flags `--config RelWithDebInfo` to the `cmake --build` command line).
 
 If you need to test C++ changes in this repo in conjunction with Elasticsearch changes then use
 Gradle's `--include-build` option to tell your Elasticsearch build to build the C++ locally
