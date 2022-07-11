@@ -65,7 +65,7 @@ Please adhere to the general guideline that you should never force push to a pub
 1.  Do your changes. 
 1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
 1.  Write a test, unit tests are located under `lib/{module}/unittest`
-1.  Test your changes (`cmake --build cmake-build-release -v -t test`)
+1.  Test your changes (`cmake --build cmake-build-relwithdebinfo -v -t test`)
 
 The build system uses CMake. To build either call `cmake` directly from the top level of the source tree,
 for example:

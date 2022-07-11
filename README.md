@@ -77,7 +77,7 @@ When building on Windows from the native command shell that command becomes
 cmake --build cmake-build-relwithdebinfo -j 7
 ```
 
-* To build and run the unit tests run `cmake --build cmake-build-release -t test`. Again this can be sped up somewhat by using the `-j` option. e.g.
+* To build and run the unit tests run `cmake --build cmake-build-relwithdebinfo -t test`. Again this can be sped up somewhat by using the `-j` option. e.g.
 ```
 cmake --build cmake-build-relwithdebinfo -t test -j 7
 ```
@@ -161,11 +161,11 @@ Options::
 
 Other executables exist under the `devbin` directory. These are not built by default. To build these you need to explicitly specify a target. 
 ```
-cmake --build cmake-build-release -j 7 -t model_extractor
+cmake --build cmake-build-relwithdebinfo -j 7 -t model_extractor
 ```
-The executable is created under the `cmake-build-release` hierarchy, so to run do
+The executable is created under the `cmake-build-relwithdebinfo` hierarchy, so to run do
 ```
-./cmake-build-release/devbin/model_extractor/model_extractor --help
+./cmake-build-relwithdebinfo/devbin/model_extractor/model_extractor --help
 ```
 
 
