@@ -80,14 +80,14 @@ if (isWindows) {
 
 // Ensure we have a consistent combination of build config type and build directory
 // based on whether we want a debug build or not.
-// By default a "Release" build is performed.
+// By default a "RelWithDebInfo" build is performed.
 // Note that we are catering for single-config CMake generators - such as 'Unix Makefiles' -
-// where the build type is specified at configuration time as well as multi-config generators - such as Visual Studio -
+// where the build type is specified at configuration time, as well as multi-config generators - such as Visual Studio -
 // where the desired build type is specified at build time with the '--config' option. (It's safe to always specify the
 // '--config' option as it will simply be ignored by a single-config generated build system)
 String cmakeFlags = '--no-warn-unused-cli -D CMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
-project.ext.cmakeBuildDir = "cmake-build-release"
-project.ext.cmakeBuildType = "Release"
+project.ext.cmakeBuildDir = "cmake-build-relwithdebinfo"
+project.ext.cmakeBuildType = "RelWithDebInfo"
 if (mlDebug.toBoolean()) {
   project.ext.cmakeBuildDir = "cmake-build-debug"
   project.ext.cmakeBuildType = "Debug"

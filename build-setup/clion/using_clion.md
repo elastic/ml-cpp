@@ -39,7 +39,7 @@ By default `CLion` will opt for generating a `Ninja` build system. While this is
 better compatibility with building from the command line it is preferred to configure `CLion` to generate
 `Unix Makefiles`. To do this either select `Unix Makefiles` from the `Generator` drop-down or type 
 `-G "Unix Makefiles"` in the`CMake options` field. Add  e.g. `-j 10` to the `Build options` field, select your
-desired build type (either`Release` or `Debug`) and we're done. Make sure to leave the `Build directory` field
+desired build type (e.g.`Release` or `Debug`) and we're done. Make sure to leave the `Build directory` field
 blank as CLion will automatically determine it based on the build type selected. 
 (You may need to set the `CPP_SRC_HOME`environment variable in the`Environment` field if this is missing or 
 incorrect in your environment).

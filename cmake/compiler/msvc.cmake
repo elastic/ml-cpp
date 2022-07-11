@@ -32,7 +32,6 @@ list(APPEND ML_C_FLAGS
   "/nologo"
   "/W4"
   "/EHsc"
-  "/Zi"
   "/Gw"
   "/FS"
   "/Zc:inline"
