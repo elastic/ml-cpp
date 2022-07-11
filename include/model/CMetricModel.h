@@ -275,7 +275,7 @@ public:
     const TAnnotationVec& annotations() const override;
 
 private:
-    using TOptionalSample = boost::optional<CSample>;
+    using TOptionalSample = std::optional<CSample>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;

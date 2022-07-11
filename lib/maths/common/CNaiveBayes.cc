@@ -176,7 +176,7 @@ bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& param
             m_ClassConditionalDensities.emplace(label, std::move(class_)))
         RESTORE_SETUP_TEARDOWN(MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG, double value,
                                core::CStringUtils::stringToType(traverser.value(), value),
-                               m_MinMaxLogLikelihoodToUseFeature.reset(value))
+                               m_MinMaxLogLikelihoodToUseFeature.emplace(value))
     } while (traverser.next());
     return true;
 }

@@ -24,10 +24,6 @@ const CEventData::TDouble1VecArray DUMMY_ARRAY = CEventData::TDouble1VecArray();
 const std::string DASH("-");
 }
 
-CEventData::CEventData()
-    : m_Time(0), m_Pid(), m_Cids(), m_Values(), m_IsExplicitNull(false) {
-}
-
 void CEventData::swap(CEventData& other) {
     std::swap(m_Time, other.m_Time);
     std::swap(m_Pid, other.m_Pid);
@@ -40,10 +36,10 @@ void CEventData::swap(CEventData& other) {
 
 void CEventData::clear() {
     m_Time = 0;
-    m_Pid = boost::none;
+    m_Pid = std::nullopt;
     m_Cids.clear();
     m_Values.clear();
-    m_StringValue = boost::none;
+    m_StringValue = std::nullopt;
     m_Influences.clear();
     m_IsExplicitNull = false;
 }
@@ -53,8 +49,8 @@ void CEventData::time(core_t::TTime time) {
 }
 
 bool CEventData::person(std::size_t pid) {
-    if (!m_Pid) {
-        m_Pid.reset(pid);
+    if (m_Pid == std::nullopt) {
+        m_Pid.emplace(pid);
     } else if (pid != m_Pid) {
         LOG_ERROR(<< "Ignoring subsequent person " << pid << ", current person " << *m_Pid);
         return false;
@@ -69,14 +65,14 @@ void CEventData::addAttribute(TOptionalSize cid) {
 void CEventData::addValue(const TDouble1Vec& value) {
     m_Values.push_back(TOptionalDouble1VecArraySizePr());
     if (!value.empty()) {
-        m_Values.back().reset(TDouble1VecArraySizePr(TDouble1VecArray(), 1));
+        m_Values.back().emplace(TDouble1VecArray{}, 1);
         m_Values.back()->first.fill(value);
         m_Values.back()->second = 1;
     }
 }
 
 void CEventData::stringValue(const std::string& value) {
-    m_StringValue.reset(value);
+    m_StringValue.emplace(value);
 }
 
 void CEventData::addInfluence(const TOptionalStr& influence) {
@@ -84,10 +80,8 @@ void CEventData::addInfluence(const TOptionalStr& influence) {
 }
 
 void CEventData::addCountStatistic(std::size_t count) {
-    TDouble1VecArraySizePr values;
-    values.first.fill(TDouble1Vec(1, 0.0));
-    values.second = count;
-    m_Values.push_back(values);
+    m_Values.emplace_back(std::in_place, TDouble1VecArray{}, count);
+    m_Values.back()->first.fill(TDouble1Vec(1, 0.0));
 }
 
 void CEventData::addStatistics(const TDouble1VecArraySizePr& values) {

@@ -226,7 +226,7 @@ protected:
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TMeanAccumulator =
         typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
-    using TOptionalMeanAccumulator = boost::optional<TMeanAccumulator>;
+    using TOptionalMeanAccumulator = std::optional<TMeanAccumulator>;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TBoundingBox = CBoundingBox<TBarePoint>;
     using TNode = typename TKdTree::SNode;
@@ -278,8 +278,8 @@ protected:
     private:
         //! Initialize the centroid if it is null.
         void initialize(const POINT& x) const {
-            if (!m_Centroid) {
-                m_Centroid.reset(TMeanAccumulator(las::zero(x)));
+            if (m_Centroid == std::nullopt) {
+                m_Centroid.emplace(las::zero(x));
             }
         }
 

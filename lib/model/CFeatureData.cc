@@ -107,7 +107,7 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
                                        bool isInteger,
                                        bool isNonNegative,
                                        const TSampleVec& samples)
-    : s_BucketValue(boost::in_place(bucketTime, bucketValue, bucketVarianceScale, bucketCount)),
+    : s_BucketValue(std::in_place, bucketTime, bucketValue, bucketVarianceScale, bucketCount),
       s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
     s_InfluenceValues.swap(influenceValues);
 }

@@ -18,8 +18,6 @@
 
 #include <maths/analytics/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <functional>
 #include <utility>
 #include <vector>

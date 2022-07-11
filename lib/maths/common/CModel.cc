@@ -224,7 +224,7 @@ const CModelProbabilityParams::TSize2Vec& CModelProbabilityParams::coordinates()
 }
 
 CModelProbabilityParams& CModelProbabilityParams::mostAnomalousCorrelate(std::size_t correlate) {
-    m_MostAnomalousCorrelate.reset(correlate);
+    m_MostAnomalousCorrelate.emplace(correlate);
     return *this;
 }
 

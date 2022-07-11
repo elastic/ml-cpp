@@ -591,7 +591,7 @@ CMakeDataFrameCategoryEncoder::minimumRowsPerFeature(std::size_t minimumRowsPerF
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble minimumFrequencyToOneHotEncode) {
-    if (minimumFrequencyToOneHotEncode != boost::none) {
+    if (minimumFrequencyToOneHotEncode != std::nullopt) {
         m_MinimumFrequencyToOneHotEncode = *minimumFrequencyToOneHotEncode;
     }
     return *this;
@@ -599,7 +599,7 @@ CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble mi
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight) {
-    if (redundancyWeight != boost::none) {
+    if (redundancyWeight != std::nullopt) {
         m_RedundancyWeight = *redundancyWeight;
     }
     return *this;
@@ -607,7 +607,7 @@ CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::minimumRelativeMicToSelectFeature(TOptionalDouble minimumRelativeMicToSelectFeature) {
-    if (minimumRelativeMicToSelectFeature != boost::none) {
+    if (minimumRelativeMicToSelectFeature != std::nullopt) {
         m_MinimumRelativeMicToSelectFeature = *minimumRelativeMicToSelectFeature;
     }
     return *this;

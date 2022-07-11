@@ -31,11 +31,11 @@
 #include <model/ModelTypes.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -185,7 +185,7 @@ public:
     using reverse_iterator = typename TQueue::reverse_iterator;
     using const_reverse_iterator = typename TQueue::const_reverse_iterator;
     using TSampleVec = std::vector<CSample>;
-    using TOptionalSubSample = boost::optional<SSubSample>;
+    using TOptionalSubSample = std::optional<SSubSample>;
 
 public:
     static const std::string SUB_SAMPLE_TAG;

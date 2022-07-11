@@ -188,7 +188,7 @@ void prune(TUInt8Vec& b, std::uint8_t z) {
 
 } // detail::
 
-using TOptionalSize = boost::optional<std::size_t>;
+using TOptionalSize = std::optional<std::size_t>;
 
 const char DELIMITER(':');
 const char PAIR_DELIMITER(';');

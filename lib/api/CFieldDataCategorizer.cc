@@ -103,7 +103,7 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOpti
         return msgHandled;
     }
 
-    if (time == boost::none) {
+    if (time == std::nullopt) {
         time = this->parseTime(dataRowFields);
     }
 

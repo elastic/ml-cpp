@@ -121,7 +121,7 @@ public:
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
-        boost::optional<std::string> s_Extra;
+        std::optional<std::string> s_Extra;
     };
 
     struct SBackgroundPersistArgs {

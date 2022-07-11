@@ -27,11 +27,11 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
 #include <numeric>
+#include <optional>
 
 BOOST_AUTO_TEST_SUITE(COutliersTest)
 
@@ -51,8 +51,8 @@ using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPoin
 
 class CTestInstrumentation final : public maths::analytics::CDataFrameOutliersInstrumentationStub {
 public:
-    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
-    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
+    using TProgressCallbackOpt = std::optional<TProgressCallback>;
+    using TMemoryUsageCallbackOpt = std::optional<TMemoryUsageCallback>;
 
 public:
     void updateMemoryUsage(std::int64_t delta) override {

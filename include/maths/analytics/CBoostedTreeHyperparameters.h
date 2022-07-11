@@ -26,12 +26,11 @@
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CTools.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
 #include <functional>
 #include <locale>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -355,8 +354,8 @@ private:
 class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
     using TStrVec = std::vector<std::string>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalDoubleSizePr = boost::optional<std::pair<double, std::size_t>>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalDoubleSizePr = std::optional<std::pair<double, std::size_t>>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
     using TVector = common::CDenseVector<double>;
@@ -365,7 +364,6 @@ public:
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
-    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
 
     //! \brief The arguments to the initial search we perform for each parameter.
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
@@ -671,11 +669,12 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TDoubleDoubleDoubleSizeTupleVec =
         std::vector<std::tuple<double, double, double, std::size_t>>;
-    using TOptionalVector3x1 = boost::optional<TVector3x1>;
+    using TOptionalVector3x1 = std::optional<TVector3x1>;
     using TIndexVec = std::vector<TVector::TIndexType>;
     using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
     using TVectorDoubleDoubleTr = std::tuple<TVector, double, double>;
     using TVectorDoubleDoubleTrVec = std::vector<TVectorDoubleDoubleTr>;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
 
 private:
     void initializeTunableHyperparameters();

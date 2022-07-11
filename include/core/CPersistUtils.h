@@ -20,7 +20,6 @@
 #include <core/ImportExport.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
@@ -28,6 +27,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -248,8 +248,8 @@ public:
         }
 
         template<typename T>
-        std::string operator()(const boost::optional<T>& value) const {
-            return value ? this->operator()(std::make_pair(true, value.get()))
+        std::string operator()(const std::optional<T>& value) const {
+            return value ? this->operator()(std::make_pair(true, *value))
                          : this->operator()(std::make_pair(false, T{}));
         }
 
@@ -331,11 +331,11 @@ public:
         }
 
         template<typename T>
-        bool operator()(const std::string& token, boost::optional<T>& value) const {
+        bool operator()(const std::string& token, std::optional<T>& value) const {
             std::pair<bool, T> pairValue;
             if (this->operator()(token, pairValue)) {
-                value = pairValue.first ? boost::optional<T>{pairValue.second}
-                                        : boost::optional<T>{};
+                value = pairValue.first ? std::optional<T>{pairValue.second}
+                                        : std::optional<T>{};
                 return true;
             }
             return false;

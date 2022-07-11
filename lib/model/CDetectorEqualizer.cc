@@ -19,7 +19,7 @@
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace model {
@@ -42,14 +42,14 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inse
 }
 
 bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    boost::optional<int> detector;
+    std::optional<int> detector;
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(DETECTOR_TAG, detector.reset(0),
+        RESTORE_SETUP_TEARDOWN(DETECTOR_TAG, detector.emplace(0),
                                core::CStringUtils::stringToType(traverser.value(), *detector),
                                /**/)
         if (name == SKETCH_TAG) {
-            if (!detector) {
+            if (detector == std::nullopt) {
                 LOG_ABORT(<< "Expected the detector label first");
             }
             m_Sketches.emplace_back(*detector, maths::common::CQuantileSketch(

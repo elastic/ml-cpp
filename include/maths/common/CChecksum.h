@@ -21,7 +21,6 @@
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/optional/optional.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
@@ -30,6 +29,7 @@
 #include <cstring>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -174,10 +174,10 @@ public:
         return checksum(seed, target.get());
     }
 
-    //! Checksum of a optional.
+    //! Checksum of an optional.
     template<typename T>
-    static std::uint64_t dispatch(std::uint64_t seed, const boost::optional<T>& target) {
-        return target == boost::none ? seed : checksum(seed, *target);
+    static std::uint64_t dispatch(std::uint64_t seed, const std::optional<T>& target) {
+        return target == std::nullopt ? seed : checksum(seed, *target);
     }
 
     //! A raw pointer.

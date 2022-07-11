@@ -30,7 +30,6 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/optional/optional_io.hpp>
 
 #include <cmath>
 #include <exception>
@@ -273,7 +272,8 @@ CBayesianOptimisation::maximumExpectedImprovement(std::size_t numberRounds,
     }
 
     xmax = this->from01(std::move(xmax));
-    LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
+    LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = "
+              << core::CContainerPrinter::print(expectedImprovement));
 
     return {std::move(xmax), expectedImprovement};
 }

@@ -14,8 +14,7 @@
 
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional/optional_fwd.hpp>
-
+#include <optional>
 #include <utility>
 
 namespace ml {
@@ -38,7 +37,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CLogTDistribution {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
 
 public:
     CLogTDistribution(double degreesFreedom, double location, double scale);

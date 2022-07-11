@@ -22,11 +22,10 @@
 
 #include <rapidjson/fwd.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -76,7 +75,6 @@ public:
     using TProgressRecorder = std::function<void(double)>;
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
-    using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
     using TDataSummarizationJsonWriterUPtr = std::unique_ptr<CDataSummarizationJsonWriter>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
@@ -168,7 +166,7 @@ public:
     virtual TDataSummarizationJsonWriterUPtr dataSummarization() const;
 
     //! \return A serialisable metadata of the trained model.
-    virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;
+    virtual const CInferenceModelMetadata* inferenceModelMetadata() const;
 
     //! \return Reference to the analysis instrumentation.
     virtual const CDataFrameAnalysisInstrumentation& instrumentation() const = 0;

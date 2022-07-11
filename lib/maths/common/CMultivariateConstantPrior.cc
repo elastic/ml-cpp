@@ -23,11 +23,10 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 
-#include <boost/optional.hpp>
-
 #include <iomanip>
 #include <ios>
 #include <limits>
+#include <optional>
 #include <sstream>
 
 namespace ml {
@@ -36,7 +35,7 @@ namespace common {
 namespace {
 
 using TDouble10Vec = core::CSmallVector<double, 10>;
-using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
+using TOptionalDouble10Vec = std::optional<TDouble10Vec>;
 
 //! \brief Converts a constant value to a string.
 class CConstantToString {
@@ -47,13 +46,13 @@ public:
 };
 
 //! Set the constant, validating the input.
-void setConstant(std::size_t dimension, const TDouble10Vec& value, TOptionalDouble10Vec& result) {
+void setConstant(std::size_t dimension, TDouble10Vec value, TOptionalDouble10Vec& result) {
     if (value.size() != dimension) {
         LOG_ERROR(<< "Unexpected dimension: " << value.size() << " != " << dimension);
     } else if (CMathsFuncs::isNan(value)) {
         LOG_ERROR(<< "NaN constant");
     } else {
-        result.reset(value);
+        result.emplace(std::move(value));
     }
 }
 
@@ -86,7 +85,7 @@ bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTrave
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(CONSTANT_TAG, TDouble10Vec constant,
                                core::CPersistUtils::fromString(traverser.value(), constant),
-                               m_Constant.reset(constant))
+                               m_Constant.emplace(constant))
     } while (traverser.next());
 
     return true;

@@ -107,7 +107,7 @@ private:
     using TMinMaxAccumulator = std::vector<maths::common::CBasicStatistics::CMinMax<double>>;
     using TSizeMeanAccumulatorUMap = boost::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = boost::unordered_map<std::size_t, TMinMaxAccumulator>;
-    using TOptionalVector = boost::optional<TVector>;
+    using TOptionalVector = std::optional<TVector>;
     using THyperparametersVec = std::vector<SHyperparameterImportance>;
 
 private:

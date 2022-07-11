@@ -15,14 +15,14 @@
 
 #include <model/CHierarchicalResults.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace api {
 
 namespace {
-using TOptionalDouble = boost::optional<double>;
-using TOptionalUInt64 = boost::optional<uint64_t>;
+using TOptionalDouble = std::optional<double>;
+using TOptionalUInt64 = std::optional<std::uint64_t>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 const std::string COUNT_NAME("count");
 const std::string EMPTY_STRING;

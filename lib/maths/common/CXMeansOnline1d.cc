@@ -1315,9 +1315,9 @@ CXMeansOnline1d::CCluster::CCluster(const CXMeansOnline1d& clusterer)
 }
 
 CXMeansOnline1d::CCluster::CCluster(std::size_t index,
-                                    const CNormalMeanPrecConjugate& prior,
-                                    const CNaturalBreaksClassifier& structure)
-    : m_Index(index), m_Prior(prior), m_Structure(structure) {
+                                    CNormalMeanPrecConjugate prior,
+                                    CNaturalBreaksClassifier structure)
+    : m_Index(index), m_Prior(std::move(prior)), m_Structure(std::move(structure)) {
 }
 
 bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -1473,8 +1473,10 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
 
     CNormalMeanPrecConjugate leftNormal(dataType, categories[0], decayRate);
     CNormalMeanPrecConjugate rightNormal(dataType, categories[1], decayRate);
-    return TClusterClusterPr{CCluster(index1, leftNormal, classifiers[0]),
-                             CCluster(index2, rightNormal, classifiers[1])};
+    return TOptionalClusterClusterPr{
+        std::in_place,
+        CCluster{index1, std::move(leftNormal), std::move(classifiers[0])},
+        CCluster{index2, std::move(rightNormal), std::move(classifiers[1])}};
 }
 
 bool CXMeansOnline1d::CCluster::shouldMerge(CCluster& other,

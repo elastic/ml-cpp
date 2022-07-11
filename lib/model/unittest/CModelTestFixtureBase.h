@@ -26,12 +26,12 @@
 #include <model/CModelFactory.h>
 #include <model/CResourceMonitor.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -42,12 +42,12 @@ public:
     using TBoolVec = std::vector<bool>;
 
     using TDouble1Vec = ml::core::CSmallVector<double, 1>;
-    using TOptionalDouble1Vec = boost::optional<TDouble1Vec>;
+    using TOptionalDouble1Vec = std::optional<TDouble1Vec>;
     using TDouble2Vec = ml::core::CSmallVector<double, 2>;
     using TDouble4Vec = ml::core::CSmallVector<double, 4>;
     using TDouble4Vec1Vec = ml::core::CSmallVector<TDouble4Vec, 1>;
     using TDoubleDoublePr = std::pair<double, double>;
-    using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
+    using TOptionalDoubleDoublePr = std::optional<TDoubleDoublePr>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleStrPr = std::pair<double, std::string>;
@@ -59,11 +59,11 @@ public:
     using TMeanAccumulator = ml::maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMultivariatePriorPtr = std::shared_ptr<ml::maths::common::CMultivariatePrior>;
 
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalStr = boost::optional<std::string>;
-    using TOptionalUInt = boost::optional<unsigned int>;
-    using TOptionalUInt64 = boost::optional<std::uint64_t>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalUInt = std::optional<unsigned int>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
 
     using TPriorPtr = std::shared_ptr<ml::maths::common::CPrior>;
 
@@ -87,7 +87,7 @@ public:
 
     using TTimeDoublePr = std::pair<ml::core_t::TTime, double>;
     using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
-    using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
+    using TOptionalTimeDoublePr = std::optional<TTimeDoublePr>;
     using TTimeStrVecPr = std::pair<ml::core_t::TTime, TStrVec>;
     using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
     using TTimeVec = std::vector<ml::core_t::TTime>;

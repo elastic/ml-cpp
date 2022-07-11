@@ -32,11 +32,10 @@
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/optional.hpp>
-
 #include <cmath>
 #include <cstddef>
 #include <numeric>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -102,7 +101,7 @@ public:
     using TKMeansOnlineVec = std::vector<TKMeansOnline>;
     class CCluster;
     using TClusterClusterPr = std::pair<CCluster, CCluster>;
-    using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
+    using TOptionalClusterClusterPr = std::optional<TClusterClusterPr>;
 
     //! \brief Represents a cluster.
     class CCluster {

@@ -18,11 +18,11 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
+#include <optional>
 #include <ostream>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -40,7 +40,7 @@ using namespace ml;
 
 namespace {
 
-using TOptionalDouble = boost::optional<double>;
+using TOptionalDouble = std::optional<double>;
 
 class CDictionary {
 public:
@@ -563,7 +563,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
     using TStrVec = std::vector<std::string>;
     using TDictionaryVec = std::vector<CDictionary>;
     using TDoubleRangeVec = core::CVectorRange<TDoubleVec>;
-    using TDoubleTuple = boost::tuple<double, double, double, double>;
+    using TDoubleTuple = std::tuple<double, double, double, double>;
     using TDoubleDoubleTupleMap = std::map<double, TDoubleTuple>;
 
     {

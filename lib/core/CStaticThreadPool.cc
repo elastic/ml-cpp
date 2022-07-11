@@ -133,14 +133,14 @@ void CStaticThreadPool::worker(std::size_t id) {
         if (id < size) {
             for (std::size_t i = 0; i < size; ++i) {
                 task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
-                if (task != boost::none) {
+                if (task != std::nullopt) {
                     break;
                 }
             }
         } else {
-            task = boost::none;
+            task = std::nullopt;
         }
-        if (task == boost::none) {
+        if (task == std::nullopt) {
             task = m_TaskQueues[id].pop();
         }
 
@@ -161,7 +161,7 @@ void CStaticThreadPool::drainQueuesWithoutBlocking() {
     auto popTask = [&] {
         for (auto& queue : m_TaskQueues) {
             task = queue.tryPop();
-            if (task != boost::none) {
+            if (task != std::nullopt) {
                 (*task)();
                 return true;
             }
@@ -177,7 +177,7 @@ CStaticThreadPool::CWrappedTask::CWrappedTask(TTask&& task, TOptionalSize thread
 }
 
 bool CStaticThreadPool::CWrappedTask::executableOnThread(std::size_t id) const {
-    return m_ThreadId == boost::none || *m_ThreadId == id;
+    return m_ThreadId == std::nullopt || *m_ThreadId == id;
 }
 
 void CStaticThreadPool::CWrappedTask::operator()() {

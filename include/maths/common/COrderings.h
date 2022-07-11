@@ -17,11 +17,11 @@
 #include <core/CVectorRange.h>
 #include <core/UnwrapRef.h>
 
-#include <boost/optional/optional_fwd.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -58,8 +58,7 @@ public:
         }
 
         template<typename T>
-        static inline bool
-        less(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
+        static inline bool less(const std::optional<T>& lhs, const std::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
@@ -67,11 +66,11 @@ public:
                        : rInitialized < lInitialized;
         }
         template<typename T>
-        static inline bool less(const T& lhs, const boost::optional<T>& rhs) {
+        static inline bool less(const T& lhs, const std::optional<T>& rhs) {
             return !rhs ? true : ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(*rhs);
         }
         template<typename T>
-        static inline bool less(const boost::optional<T>& lhs, const T& rhs) {
+        static inline bool less(const std::optional<T>& lhs, const T& rhs) {
             return !lhs ? false : ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(rhs);
         }
     };
@@ -91,7 +90,7 @@ public:
 
         template<typename T>
         static inline bool
-        greater(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
+        greater(const std::optional<T>& lhs, const std::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
@@ -99,11 +98,11 @@ public:
                        : rInitialized > lInitialized;
         }
         template<typename T>
-        static inline bool greater(const T& lhs, const boost::optional<T>& rhs) {
+        static inline bool greater(const T& lhs, const std::optional<T>& rhs) {
             return !rhs ? false : ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(*rhs);
         }
         template<typename T>
-        static inline bool greater(const boost::optional<T>& lhs, const T& rhs) {
+        static inline bool greater(const std::optional<T>& lhs, const T& rhs) {
             return !lhs ? true : ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(rhs);
         }
     };
@@ -307,7 +306,7 @@ public:
         using result_type = bool;
 
         template<typename T>
-        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
+        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalLess::less(lhs, rhs);
         }
 
@@ -352,7 +351,7 @@ public:
         using result_type = bool;
 
         template<typename T>
-        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
+        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalGreater::greater(lhs, rhs);
         }
 

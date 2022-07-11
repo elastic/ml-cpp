@@ -172,9 +172,9 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     }
 
     // Time may have been parsed already further back along the chain
-    if (time == boost::none) {
+    if (time == std::nullopt) {
         time = this->parseTime(dataRowFields);
-        if (time == boost::none) {
+        if (time == std::nullopt) {
             // Time is compulsory for anomaly detection - the base class will
             // have logged the parse error
             return true;
@@ -190,7 +190,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         std::ostringstream ss;
         ss << "Records must be in ascending time order. "
            << "Record '" << this->debugPrintRecord(dataRowFields) << "' time "
-           << time << " is before bucket time " << m_LastFinalisedBucketEndTime;
+           << *time << " is before bucket time " << m_LastFinalisedBucketEndTime;
         LOG_ERROR(<< ss.str());
         return true;
     }
@@ -893,7 +893,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
                                core_t::TTime& completeToTime,
                                std::size_t& numDetectors) {
     m_RestoredStateDetail.s_RestoredStateStatus = E_Failure;
-    m_RestoredStateDetail.s_Extra = boost::none;
+    m_RestoredStateDetail.s_Extra = std::nullopt;
 
     // Call name() to prime the traverser if it hasn't started
     traverser.name();

@@ -20,11 +20,11 @@
 
 #include <maths/common/MathsTypes.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -284,7 +284,7 @@ class MATHS_ANALYTICS_EXPORT CMakeDataFrameCategoryEncoder {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TEncodingUPtrVec = CDataFrameCategoryEncoder::TEncodingUPtrVec;
     using TProgressCallback = std::function<void(double)>;
 

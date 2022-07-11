@@ -107,10 +107,9 @@ CPopulationModel::CPopulationModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
       m_NewDistinctPersonCounts(BJKST_HASHES, BJKST_MAX_SIZE) {
     const model_t::TFeatureVec& features = dataGatherer->features();
-    for (std::size_t i = 0; i < features.size(); ++i) {
-        if (!model_t::isCategorical(features[i]) && !model_t::isConstant(features[i])) {
-            m_NewPersonBucketCounts.reset(maths::time_series::CCountMinSketch(
-                COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS));
+    for (auto feature : features) {
+        if (!model_t::isCategorical(feature) && !model_t::isConstant(feature)) {
+            m_NewPersonBucketCounts.emplace(COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS);
             break;
         }
     }
@@ -348,8 +347,7 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time,
         std::min(numberExistingPeople, gatherer.numberActivePeople()),
         std::min(numberExistingAttributes, gatherer.numberActiveAttributes()),
         0); // # correlations
-    std::size_t ourUsage = usageEstimate ? usageEstimate.get()
-                                         : this->computeMemoryUsage();
+    std::size_t ourUsage = usageEstimate ? *usageEstimate : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
     std::size_t numberNewPeople = gatherer.numberPeople();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople

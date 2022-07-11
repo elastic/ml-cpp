@@ -19,10 +19,10 @@
 #include <core/UnwrapRef.h>
 
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/optional/optional_fwd.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -282,7 +282,7 @@ private:
     //! Print a std::shared_pointer.
     template<typename T>
     static std::string printElement(const std::shared_ptr<T>& value) {
-        if (value == std::shared_ptr<T>()) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -295,8 +295,8 @@ private:
 
     //! Print a (boost) optional.
     template<typename T>
-    static std::string printElement(const boost::optional<T>& value) {
-        if (!value) {
+    static std::string printElement(const std::optional<T>& value) {
+        if (value == std::nullopt) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -385,7 +385,7 @@ public:
 
     //! Print an optional value for debug.
     template<typename T>
-    static std::string print(const boost::optional<T>& value) {
+    static std::string print(const std::optional<T>& value) {
         return printElement(value);
     }
 };

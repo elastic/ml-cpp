@@ -17,9 +17,8 @@
 #include <api/CGlobalCategoryId.h>
 #include <api/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace ml {
@@ -55,7 +54,7 @@ public:
     //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
 
 public:
     CSingleFieldDataCategorizer(std::string partitionFieldName,

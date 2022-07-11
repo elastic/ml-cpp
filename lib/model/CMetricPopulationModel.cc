@@ -38,10 +38,9 @@
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-#include <boost/optional.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
+
+#include <optional>
 
 namespace ml {
 namespace model {
@@ -51,7 +50,7 @@ namespace {
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
-using TOptionalSample = boost::optional<CSample>;
+using TOptionalSample = std::optional<CSample>;
 using TSizeSizePrFeatureDataPrVec = CMetricPopulationModel::TSizeSizePrFeatureDataPrVec;
 using TFeatureSizeSizePrFeatureDataPrVecPr =
     std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
@@ -790,7 +789,7 @@ std::size_t CMetricPopulationModel::memoryUsage() const {
     TOptionalSize estimate = this->estimateMemoryUsage(
         gatherer.numberActivePeople(), gatherer.numberActiveAttributes(),
         0); // # correlations
-    return estimate ? estimate.get() : this->computeMemoryUsage();
+    return estimate ? *estimate : this->computeMemoryUsage();
 }
 
 std::size_t CMetricPopulationModel::computeMemoryUsage() const {

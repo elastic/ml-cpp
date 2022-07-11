@@ -21,11 +21,10 @@
 
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <algorithm>
 #include <complex>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -46,7 +45,7 @@ public:
     using TComplexVec = std::vector<TComplex>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePr2Vec = std::vector<TSizeSizePr>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;

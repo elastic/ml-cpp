@@ -20,7 +20,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/normal.hpp>
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 

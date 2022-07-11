@@ -1043,7 +1043,7 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
             return maths::common::COrderings::lexicographical_compare(
-                lhs != boost::none ? 0 : 1, *lhs, rhs != boost::none ? 0 : 1, *rhs);
+                lhs != std::nullopt ? 0 : 1, *lhs, rhs != std::nullopt ? 0 : 1, *rhs);
         });
 
     BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse), *actualMse, 1e-3);
@@ -1151,7 +1151,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
             return maths::common::COrderings::lexicographical_compare(
-                lhs == boost::none ? 1 : 0, *lhs, rhs == boost::none ? 1 : 0, *rhs);
+                lhs == std::nullopt ? 1 : 0, *lhs, rhs == std::nullopt ? 1 : 0, *rhs);
         });
 
     BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse) +
