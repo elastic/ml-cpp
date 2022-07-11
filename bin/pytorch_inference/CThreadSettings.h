@@ -27,6 +27,7 @@ public:
 
     std::int32_t numThreadsPerAllocation() const;
     std::int32_t numAllocations() const;
+    std::int32_t pyTorchThreadpoolThreads() const;
     void numAllocations(std::int32_t numAllocations);
 
     static void validateThreadingParameters(std::int32_t maxThreads,

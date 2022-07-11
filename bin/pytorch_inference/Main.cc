@@ -325,7 +325,9 @@ int main(int argc, char** argv) {
     // It doesn't hurt to set variables that won't have any effect on some platforms.
     ml::core::CSetEnv::setEnv(
         "VECLIB_MAXIMUM_THREADS",
-        ml::core::CStringUtils::typeToString(numThreadsPerAllocation).c_str(), 0);
+        ml::core::CStringUtils::typeToString(threadSettings.pyTorchThreadpoolThreads())
+            .c_str(),
+        0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -377,7 +379,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    at::set_num_threads(threadSettings.numThreadsPerAllocation());
+    at::set_num_threads(threadSettings.pyTorchThreadpoolThreads());
 
     // This is not used as we don't call at::launch anywhere.
     // Setting it to 1 to ensure there is no thread pool sitting around.
