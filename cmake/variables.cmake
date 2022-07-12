@@ -159,24 +159,27 @@ endif()
 # Dictate which flags to use for "Release" and "Debug" builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Od /RTC1")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
 endif()
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE = ${CMAKE_CXX_FLAGS_RELEASE}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG}")
 
-# Perform a "Release" build by default...
+# Perform a "RelWithDebInfo" build by default...
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # However, to keep in step with our historical

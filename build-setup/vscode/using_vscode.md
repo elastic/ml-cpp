@@ -20,9 +20,9 @@ are disabled. Note that we don't want to disable the complete C/C++ Extension, s
 debugging capabilities.
 
 Now for the `CMake` plugin, change the `Build directory` specified in **Settings** > **Extensions** >
-**CMake Tools** to read `${workspaceFolder}/cmake-build-release` or `${workspaceFolder}/cmake-build-debug`,
+**CMake Tools** to read `${workspaceFolder}/cmake-build-relwithdebinfo` (preferred) or `${workspaceFolder}/cmake-build-debug`,
 depending on the build variant that you can select in the side panel at the bottom of the editor window.
-You may also wish to set certain environment variables for the build. e.g. `ML_DEBUG=1`. 
+You may also wish to set certain environment variables for the build.
 To do so, under `Cmake: Build Environment` click the `Add item`
 button and add the variable definition. The other settings can be left as-is.
 
