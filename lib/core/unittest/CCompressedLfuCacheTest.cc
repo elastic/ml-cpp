@@ -385,6 +385,7 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
 
     TDoubleVec u01;
     rng.generateUniformSamples(0.0, 1.0, 50000, u01);
+    BOOST_REQUIRE_EQUAL(50000, u01.size());
 
     core::CStopWatch watch{true};
 
