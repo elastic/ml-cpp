@@ -15,8 +15,6 @@
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <memory>
 
 namespace ml {
@@ -25,29 +23,11 @@ namespace core {
 //! \brief Useful extensions to the std:: functional collection of types.
 class CORE_EXPORT CFunctional : CNonInstantiatable {
 public:
-    //! \brief Checks is a nullable type is null.
-    struct CORE_EXPORT SIsNull {
-        template<typename T>
-        bool operator()(const T* ptr) const {
-            return ptr == nullptr;
-        }
-
-        template<typename T>
-        bool operator()(const boost::optional<T>& optional) const {
-            return !optional;
-        }
-
-        template<typename T>
-        bool operator()(std::shared_ptr<T>& ptr) const {
-            return ptr == nullptr;
-        }
-    };
-
     //! \brief Dereferences objects which support a unary operator *
     //! and calls the predicate \p PRED on them.
     template<typename PRED>
     struct SDereference {
-        SDereference(const PRED& pred = PRED()) : s_Pred(pred) {}
+        explicit SDereference(const PRED& pred = PRED()) : s_Pred(pred) {}
 
         //! Version for unary predicates.
         //!

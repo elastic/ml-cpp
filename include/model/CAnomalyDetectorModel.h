@@ -28,7 +28,6 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstdint>
@@ -36,6 +35,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -144,10 +144,10 @@ public:
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TStr1Vec = core::CSmallVector<std::string, 1>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalUInt64 = boost::optional<std::uint64_t>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
     using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
     using TFeatureInfluenceCalculatorCPtrPr =

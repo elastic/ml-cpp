@@ -232,9 +232,8 @@ CDataFrameAnalysisRunner::dataSummarization() const {
     return {};
 }
 
-CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
-CDataFrameAnalysisRunner::inferenceModelMetadata() const {
-    return {};
+const CInferenceModelMetadata* CDataFrameAnalysisRunner::inferenceModelMetadata() const {
+    return nullptr;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

@@ -33,7 +33,7 @@ std::size_t CModelTestFixtureBase::addPerson(const std::string& p,
         person.push_back(&i);
     }
     if (value) {
-        person.push_back(&(value.get()));
+        person.push_back(&(*value));
     }
     ml::model::CEventData result;
     gatherer->processFields(person, result, m_ResourceMonitor);
@@ -56,35 +56,35 @@ CModelTestFixtureBase::addArrival(const SMessage& message,
                                   ml::model::CModelFactory::TDataGathererPtr& gatherer) {
     ml::model::CDataGatherer::TStrCPtrVec fields{&message.s_Person};
     if (message.s_Attribute) {
-        fields.push_back(&message.s_Attribute.get());
+        fields.push_back(&*message.s_Attribute);
     }
     std::string value;
     if (message.s_Dbl1Vec) {
-        value = {valueAsString(message.s_Dbl1Vec.get())};
+        value = {valueAsString(*message.s_Dbl1Vec)};
         fields.push_back(&value);
     }
     if (message.s_Inf1) {
-        fields.push_back(&(message.s_Inf1.get()));
+        fields.push_back(&*message.s_Inf1);
     }
     if (message.s_Inf2) {
-        fields.push_back(&(message.s_Inf2.get()));
+        fields.push_back(&*message.s_Inf2);
     }
     if (message.s_Value) {
-        fields.push_back(&(message.s_Value.get()));
+        fields.push_back(&*message.s_Value);
     }
     std::string dblAsString;
     if (message.s_Dbl) {
         dblAsString = ml::core::CStringUtils::typeToStringPrecise(
-            message.s_Dbl.get(), ml::core::CIEEE754::E_DoublePrecision);
+            *message.s_Dbl, ml::core::CIEEE754::E_DoublePrecision);
         fields.push_back(&dblAsString);
     }
     std::string delimitedDblPr;
     if (message.s_DblPr) {
         delimitedDblPr += ml::core::CStringUtils::typeToStringPrecise(
-            message.s_DblPr.get().first, ml::core::CIEEE754::E_DoublePrecision);
+            message.s_DblPr->first, ml::core::CIEEE754::E_DoublePrecision);
         delimitedDblPr += ml::model::CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
         delimitedDblPr += ml::core::CStringUtils::typeToStringPrecise(
-            message.s_DblPr.get().second, ml::core::CIEEE754::E_DoublePrecision);
+            message.s_DblPr->second, ml::core::CIEEE754::E_DoublePrecision);
         fields.push_back(&delimitedDblPr);
     }
 
@@ -156,7 +156,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::model::SAnnotatedProbability& probability) {
     const std::string person{"p"};
     const std::string attribute{"a"};
-    for (auto& pr : bucket) {
+    for (const auto& pr : bucket) {
         const std::string valueAsString{ml::core::CStringUtils::typeToStringPrecise(
             pr.first, ml::core::CIEEE754::E_DoublePrecision)};
 
@@ -199,7 +199,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                 model.computeProbability(pid, startTime, startTime + bucketLength,
                                          partitioningFields, 2, annotatedProbability);
 
-                std::string person = model.personName(pid);
+                const std::string& person = model.personName(pid);
                 TDoubleStrPrVec attributes;
                 for (const auto& probability : annotatedProbability.s_AttributeProbabilities) {
                     attributes.emplace_back(probability.s_Probability,
@@ -240,8 +240,8 @@ ml::model::CEventData CModelTestFixtureBase::makeEventData(ml::core_t::TTime tim
     result.addAttribute(std::size_t(0));
     result.addValue(value);
     result.addInfluence(influence);
-    if (stringValue) {
-        result.stringValue(stringValue.get());
+    if (stringValue != std::nullopt) {
+        result.stringValue(*stringValue);
     }
     return result;
 }
@@ -253,8 +253,7 @@ void CModelTestFixtureBase::generateAndCompareKey(const ml::model::function_t::T
     TStrVec byFields{"", "by"};
     TStrVec partitionFields{"", "partition"};
 
-    ml::model::CAnomalyDetectorModelConfig config =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig();
+    auto config = ml::model::CAnomalyDetectorModelConfig::defaultConfig();
 
     int detectorIndex{0};
     for (const auto& countFunction : countFunctions) {

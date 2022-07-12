@@ -23,11 +23,9 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/optional.hpp>
-#include <boost/unordered_map.hpp>
-
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -77,7 +75,7 @@ class MODEL_EXPORT CModelFactory {
 public:
     using TFeatureVec = std::vector<model_t::EFeature>;
     using TStrVec = std::vector<std::string>;
-    using TOptionalUInt = boost::optional<unsigned int>;
+    using TOptionalUInt = std::optional<unsigned int>;
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
@@ -380,7 +378,7 @@ public:
 
 protected:
     using TMultivariatePriorUPtrVec = std::vector<TMultivariatePriorUPtr>;
-    using TOptionalSearchKey = boost::optional<CSearchKey>;
+    using TOptionalSearchKey = std::optional<CSearchKey>;
 
 protected:
     //! Get the singleton interim bucket correction calculator.

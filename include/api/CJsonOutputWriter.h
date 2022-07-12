@@ -26,11 +26,10 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/optional.hpp>
-
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -171,7 +170,7 @@ public:
         TStr1Vec s_ScheduledEventDescriptions;
     };
 
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
 
     using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
     using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;

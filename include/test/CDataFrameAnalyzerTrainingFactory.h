@@ -43,7 +43,7 @@ public:
     using TLossUPtr = std::unique_ptr<maths::analytics::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
     using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
-    using TSizeOptional = boost::optional<std::size_t>;
+    using TSizeOptional = std::optional<std::size_t>;
 
 public:
     static void addPredictionTestData(TLossFunctionType type,
@@ -55,7 +55,7 @@ public:
 
         test::CRandomNumbers rng;
         if (seed) {
-            rng.seed(seed.get());
+            rng.seed(*seed);
         }
 
         TDoubleVec weights;
@@ -105,7 +105,7 @@ public:
 
         test::CRandomNumbers rng;
         if (seed) {
-            rng.seed(seed.get());
+            rng.seed(*seed);
         }
 
         TDoubleVec weights;

@@ -67,7 +67,7 @@ public:
     using TPackedBitVectorPackedBitVectorPr =
         std::pair<core::CPackedBitVector, core::CPackedBitVector>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
-    using TOptionalNodeIndex = boost::optional<TNodeIndex>;
+    using TOptionalNodeIndex = std::optional<TNodeIndex>;
     using TVector = common::CDenseVector<double>;
     using TRowRef = core::CDataFrame::TRowRef;
 
@@ -90,7 +90,7 @@ public:
     explicit CBoostedTreeNode(std::size_t numberLossParameters);
 
     //! Check if this is a leaf node.
-    bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
+    bool isLeaf() const { return m_LeftChild == std::nullopt; }
 
     //! Get the leaf index for \p row.
     TNodeIndex leafIndex(const CEncodedDataFrameRowRef& row,
@@ -149,13 +149,13 @@ public:
     std::size_t numberSamples() const;
 
     //! Get the index of the left child node.
-    TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
+    TNodeIndex leftChildIndex() const { return *m_LeftChild; }
 
     //! Set the left child index to \p value.
     void leftChildIndex(TNodeIndex value) { m_LeftChild = value; }
 
     //! Get the index of the right child node.
-    TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
+    TNodeIndex rightChildIndex() const { return *m_RightChild; }
 
     //! Set the right child index to \p value.
     void rightChildIndex(TNodeIndex value) { m_RightChild = value; }

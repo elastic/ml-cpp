@@ -19,8 +19,7 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/optional.hpp>
-
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -117,8 +116,8 @@ struct MODEL_EXPORT SAnnotatedProbability {
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
-    using TOptionalDouble = boost::optional<double>;
-    using TOptionalUInt64 = boost::optional<std::uint64_t>;
+    using TOptionalDouble = std::optional<double>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
 
     SAnnotatedProbability();
     SAnnotatedProbability(double p);

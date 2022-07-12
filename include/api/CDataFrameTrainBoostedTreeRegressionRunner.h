@@ -59,7 +59,7 @@ public:
                              const TStrVecVec& categoryNameMap) const override;
 
     //! \return A serialisable metadata of the trained regression model.
-    TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
+    const CInferenceModelMetadata* inferenceModelMetadata() const override;
 
 private:
     static TLossFunctionUPtr lossFunction(const CDataFrameAnalysisParameters& parameters);

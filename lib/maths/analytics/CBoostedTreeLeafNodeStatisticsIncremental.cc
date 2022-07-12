@@ -22,6 +22,7 @@
 #include <maths/common/CTools.h>
 
 #include <limits>
+#include <utility>
 
 namespace ml {
 namespace maths {
@@ -407,7 +408,7 @@ double
 CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegularization& regularization,
                                                                 std::size_t feature,
                                                                 std::size_t split) const {
-    if (m_PreviousSplit == boost::none) {
+    if (m_PreviousSplit == std::nullopt) {
         return 0.0;
     }
 
@@ -445,13 +446,14 @@ CBoostedTreeLeafNodeStatisticsIncremental::rootPreviousSplit(const CWorkspace& w
         return {};
     }
 
-    return SPreviousSplit{rootIndex(), node.splitFeature(), node.splitValue()};
+    return TOptionalPreviousSplit{std::in_place, rootIndex(),
+                                  node.splitFeature(), node.splitValue()};
 }
 
 CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
 CBoostedTreeLeafNodeStatisticsIncremental::leftChildPreviousSplit(std::size_t feature,
                                                                   const CWorkspace& workspace) const {
-    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+    if (workspace.retraining() == nullptr || m_PreviousSplit == std::nullopt ||
         m_PreviousSplit->s_Feature != feature) {
         return {};
     }
@@ -464,13 +466,14 @@ CBoostedTreeLeafNodeStatisticsIncremental::leftChildPreviousSplit(std::size_t fe
     std::size_t leftChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
     const auto& node = tree[leftChildIndex];
 
-    return SPreviousSplit{leftChildIndex, node.splitFeature(), node.splitValue()};
+    return TOptionalPreviousSplit{std::in_place, leftChildIndex,
+                                  node.splitFeature(), node.splitValue()};
 }
 
 CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
 CBoostedTreeLeafNodeStatisticsIncremental::rightChildPreviousSplit(std::size_t feature,
                                                                    const CWorkspace& workspace) const {
-    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+    if (workspace.retraining() == nullptr || m_PreviousSplit == std::nullopt ||
         m_PreviousSplit->s_Feature != feature) {
         return {};
     }
@@ -481,9 +484,10 @@ CBoostedTreeLeafNodeStatisticsIncremental::rightChildPreviousSplit(std::size_t f
     }
 
     std::size_t rightChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
-    auto& node = tree[rightChildIndex];
+    const auto& node = tree[rightChildIndex];
 
-    return SPreviousSplit{rightChildIndex, node.splitFeature(), node.splitValue()};
+    return TOptionalPreviousSplit{std::in_place, rightChildIndex,
+                                  node.splitFeature(), node.splitValue()};
 }
 }
 }

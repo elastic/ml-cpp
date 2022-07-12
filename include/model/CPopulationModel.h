@@ -276,7 +276,7 @@ protected:
     void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override = 0;
 
 private:
-    using TOptionalCountMinSketch = boost::optional<maths::time_series::CCountMinSketch>;
+    using TOptionalCountMinSketch = std::optional<maths::time_series::CCountMinSketch>;
 
 private:
     //! The last time each person was seen.

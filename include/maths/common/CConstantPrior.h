@@ -18,7 +18,7 @@
 
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -37,7 +37,7 @@ namespace common {
 //! manner to all other types of data.
 class MATHS_COMMON_EXPORT CConstantPrior : public CPrior {
 public:
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
 
     //! Lift the overloads of addSamples into scope.
     using CPrior::addSamples;

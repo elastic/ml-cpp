@@ -302,7 +302,7 @@ std::size_t CIndividualModel::memoryUsage() const {
     TOptionalSize estimate = this->estimateMemoryUsage(
         gatherer.numberActivePeople(), gatherer.numberActiveAttributes(),
         this->numberCorrelations());
-    return estimate ? estimate.get() : this->computeMemoryUsage();
+    return estimate ? *estimate : this->computeMemoryUsage();
 }
 
 std::size_t CIndividualModel::computeMemoryUsage() const {
@@ -446,8 +446,7 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
         std::min(numberExistingPeople, gatherer.numberActivePeople()),
         0, // # attributes
         numberCorrelations);
-    std::size_t ourUsage = usageEstimate ? usageEstimate.get()
-                                         : this->computeMemoryUsage();
+    std::size_t ourUsage = usageEstimate ? *usageEstimate : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
     std::size_t numberNewPeople = gatherer.numberPeople();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople
@@ -556,7 +555,7 @@ double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
     double weight{1.0};
     if (model_t::includeEmptyBuckets(feature)) {
         TOptionalUInt64 count{this->currentBucketCount(pid, time)};
-        if (count == boost::none || *count == 0) {
+        if (count == std::nullopt || *count == 0) {
             weight = maths::common::CModel::emptyBucketWeight(this->personFrequency(pid));
         }
     }

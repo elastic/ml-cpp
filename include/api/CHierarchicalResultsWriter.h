@@ -21,9 +21,8 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <functional>
+#include <optional>
 
 namespace ml {
 namespace api {
@@ -41,8 +40,8 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
                                               private core::CNonCopyable {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TOptionalDouble = boost::optional<double>;
-    using TOptionalUInt64 = boost::optional<std::uint64_t>;
+    using TOptionalDouble = std::optional<double>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
 
     // Influencers
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;

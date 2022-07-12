@@ -23,9 +23,8 @@
 
 #include <maths/common/CLinearAlgebra.h>
 
-#include <boost/optional.hpp>
-
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -251,8 +250,7 @@ public:
 private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TDoubleSizePr = std::pair<double, std::size_t>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 

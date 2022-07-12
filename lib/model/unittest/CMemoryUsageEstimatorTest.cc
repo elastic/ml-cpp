@@ -16,7 +16,6 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-#include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CMemoryUsageEstimatorTest)
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testEstimateLinear) {
     // Ascale = 556
 
     // Test that several values have to be added before estimation starts
-    CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 1, 1);
+    auto mem = estimate(estimator, 1, 1);
     BOOST_TEST_REQUIRE(!mem);
 
     addValue(estimator, 610, 1, 1);
@@ -70,16 +69,16 @@ BOOST_AUTO_TEST_CASE(testEstimateLinear) {
 
     addValue(estimator, 718, 3, 1);
     mem = estimate(estimator, 4, 1);
-    BOOST_TEST_REQUIRE(mem);
-    BOOST_REQUIRE_EQUAL(std::size_t(772), mem.get());
+    BOOST_TEST_REQUIRE(mem.has_value());
+    BOOST_REQUIRE_EQUAL(772, *mem);
 
     addValue(estimator, 826, 5, 1);
     addValue(estimator, 880, 6, 1);
     addValue(estimator, 934, 7, 1);
     addValue(estimator, 988, 8, 1);
     mem = estimate(estimator, 9, 1);
-    BOOST_TEST_REQUIRE(mem);
-    BOOST_REQUIRE_EQUAL(std::size_t(1042), mem.get());
+    BOOST_TEST_REQUIRE(mem.has_value());
+    BOOST_REQUIRE_EQUAL(1042, *mem);
 
     // Test that after 10 estimates we need to add some more real values
     for (std::size_t i = 0; i < 10; i++) {
@@ -91,11 +90,11 @@ BOOST_AUTO_TEST_CASE(testEstimateLinear) {
     addValue(estimator, 1274, 3, 2);
     addValue(estimator, 2386, 3, 4);
     mem = estimate(estimator, 4, 4);
-    BOOST_REQUIRE_EQUAL(std::size_t(2440), mem.get());
+    BOOST_REQUIRE_EQUAL(2440, *mem);
     mem = estimate(estimator, 5, 4);
-    BOOST_REQUIRE_EQUAL(std::size_t(2494), mem.get());
+    BOOST_REQUIRE_EQUAL(2494, *mem);
     mem = estimate(estimator, 6, 5);
-    BOOST_REQUIRE_EQUAL(std::size_t(3104), mem.get());
+    BOOST_REQUIRE_EQUAL(3104, *mem);
 
     // This is outside the variance range of the supplied values
     mem = estimate(estimator, 60, 30);
@@ -118,12 +117,12 @@ BOOST_AUTO_TEST_CASE(testEstimateNonlinear) {
         addValue(estimator, 938, 7, 1);
         addValue(estimator, 1020, 8, 1);
 
-        CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 9, 1);
-        BOOST_REQUIRE_EQUAL(std::size_t(1080), mem.get());
+        auto mem = estimate(estimator, 9, 1);
+        BOOST_REQUIRE_EQUAL(1080, *mem);
 
         addValue(estimator, 1188, 8, 2);
         mem = estimate(estimator, 9, 3);
-        BOOST_REQUIRE_EQUAL(std::size_t(1443), mem.get());
+        BOOST_REQUIRE_EQUAL(1443, *mem);
     }
 
     {
@@ -149,11 +148,11 @@ BOOST_AUTO_TEST_CASE(testEstimateNonlinear) {
         addValue(estimator, pScale * 20 * 20 + aScale * 25 * 25 + cScale * 40 * 40,
                  20, 25, 40);
 
-        CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
+        auto mem = estimate(estimator, 25, 35, 45);
         std::size_t actual = pScale * 25 * 25 + aScale * 35 * 35 + cScale * 45 * 45;
-        LOG_DEBUG(<< "actual = " << actual << ", estimated = " << mem.get());
+        LOG_DEBUG(<< "actual = " << actual << ", estimated = " << *mem);
         BOOST_TEST_REQUIRE(
-            static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
+            static_cast<double>(actual - *mem) / static_cast<double>(actual) < 0.15);
     }
 }
 

@@ -265,7 +265,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 }
 
                 const TOptionalSample& bucket = data_.second.s_BucketValue;
-                if (model_t::isSampled(feature) && bucket != boost::none) {
+                if (model_t::isSampled(feature) && bucket != std::nullopt) {
                     values.assign(1, core::make_triple(
                                          bucket->time(), TDouble2Vec(bucket->value(dimension)),
                                          model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));

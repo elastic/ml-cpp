@@ -21,19 +21,17 @@
 #include <maths/common/CFuzzyLogic.h>
 #include <maths/common/CLinearAlgebra.h>
 
-#include <maths/time_series/ImportExport.h>
-
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
+#include <maths/time_series/ImportExport.h>
 
-#include <boost/math/distributions/binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -77,7 +75,7 @@ private:
 //! \brief A summary of a new seasonal component.
 class MATHS_TIME_SERIES_EXPORT CNewSeasonalComponentSummary {
 public:
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -149,7 +147,7 @@ private:
 class MATHS_TIME_SERIES_EXPORT CSeasonalDecomposition {
 public:
     using TBoolVec = std::vector<bool>;
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -197,7 +195,7 @@ public:
     std::string print() const;
 
 private:
-    using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
+    using TOptionalNewTrendSummary = std::optional<CNewTrendSummary>;
 
 private:
     TOptionalNewTrendSummary m_Trend;
@@ -286,8 +284,8 @@ private:
     using TDoubleVec = std::vector<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TMaxAccumulator =
         common::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;

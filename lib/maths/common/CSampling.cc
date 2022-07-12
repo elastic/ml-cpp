@@ -899,7 +899,7 @@ core::CFastMutex CSampling::ms_Lock;
 CSampling::CRandomNumberGenerator CSampling::ms_Rng;
 
 void CSampling::CRandomNumberGenerator::mock() {
-    m_Mock.reset((min() + max()) / 2);
+    m_Mock.emplace((min() + max()) / 2);
 }
 
 void CSampling::CRandomNumberGenerator::unmock() {

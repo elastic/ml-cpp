@@ -43,7 +43,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
         auto meanFeatureImportance = maths::common::CBasicStatistics::mean(item.second);
         const auto& minMaxFeatureImportance = m_TotalShapValuesMinMax.at(item.first);
         if (meanFeatureImportance.size() == 1 && m_ClassValues.empty()) {
-            // Regression
+            // Regression.
             writer.Key(JSON_IMPORTANCE_TAG);
             writer.StartObject();
             writer.Key(JSON_MEAN_MAGNITUDE_TAG);
@@ -54,8 +54,8 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             writer.Double(minMaxFeatureImportance[0].max());
             writer.EndObject();
         } else if (meanFeatureImportance.size() == 1 && m_ClassValues.empty() == false) {
-            // Binary classification
-            // since we track the min/max only for one class, this will make the range more robust
+            // Binary classification.
+            // Since we track the min/max only for one class, this will make the range more robust.
             double minimum{std::min(minMaxFeatureImportance[0].min(),
                                     -minMaxFeatureImportance[0].max())};
             double maximum{-minimum};
@@ -79,7 +79,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             }
             writer.EndArray();
         } else {
-            // Multiclass classification
+            // Multiclass classification.
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
             for (std::size_t j = 0;
@@ -112,11 +112,11 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
         writer.Key(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
         writer.StartObject();
         if (m_ShapBaseline->size() == 1 && m_ClassValues.empty()) {
-            // Regression
+            // Regression.
             writer.Key(JSON_BASELINE_TAG);
-            writer.Double(m_ShapBaseline.get()(0));
+            writer.Double((*m_ShapBaseline)(0));
         } else if (m_ShapBaseline->size() == 1 && m_ClassValues.empty() == false) {
-            // Binary classification
+            // Binary classification.
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
             for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
@@ -125,17 +125,15 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
                 writer.Key(JSON_BASELINE_TAG);
                 if (j == 1) {
-                    writer.Double(m_ShapBaseline.get()(0));
+                    writer.Double((*m_ShapBaseline)(0));
                 } else {
-                    writer.Double(-m_ShapBaseline.get()(0));
+                    writer.Double(-(*m_ShapBaseline)(0));
                 }
                 writer.EndObject();
             }
-
             writer.EndArray();
-
         } else {
-            // Multiclass classification
+            // Multiclass classification.
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
             for (std::size_t j = 0; j < static_cast<std::size_t>(m_ShapBaseline->size()) &&
@@ -145,7 +143,7 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
                 writer.Key(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
                 writer.Key(JSON_BASELINE_TAG);
-                writer.Double(m_ShapBaseline.get()(j));
+                writer.Double((*m_ShapBaseline)(j));
                 writer.EndObject();
             }
             writer.EndArray();
@@ -184,8 +182,8 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
 }
 
 void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) const {
-    // only write out if data summarization exists
     if (m_NumDataSummarizationRows > 0) {
+        // Only output if the data summarization fraction was specified.
         writer.Key(JSON_DATA_SUMMARIZATION_TAG);
         writer.StartObject();
         writer.Key(JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG);

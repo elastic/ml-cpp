@@ -22,7 +22,6 @@
 #include <maths/common/CPRNG.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
@@ -30,6 +29,7 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -354,7 +354,7 @@ public:
         }
 
     private:
-        using TOptionalResultType = boost::optional<result_type>;
+        using TOptionalResultType = std::optional<result_type>;
 
     private:
         TOptionalResultType m_Mock;
@@ -685,7 +685,8 @@ private:
     template<typename RNG>
     class CUniform0nGenerator {
     public:
-        CUniform0nGenerator(RNG& generator) : m_Generator(&generator) {}
+        explicit CUniform0nGenerator(RNG& generator)
+            : m_Generator(&generator) {}
         std::size_t operator()(std::size_t n) const {
             boost::random::uniform_int_distribution<std::size_t> uniform(0, n - 1);
             return uniform(*m_Generator);

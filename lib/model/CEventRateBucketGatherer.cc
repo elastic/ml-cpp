@@ -844,8 +844,8 @@ std::string CEventRateBucketGatherer::description() const {
 bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                                              CEventData& result,
                                              CResourceMonitor& resourceMonitor) {
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalStr = boost::optional<std::string>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalStr = std::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size()) {
         LOG_ERROR(<< "Unexpected field values: " << core::CContainerPrinter::print(fieldValues)

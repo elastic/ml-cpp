@@ -12,12 +12,12 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     BOOST_REQUIRE_EQUAL(std::string("[2, 3, 2]"),
                         CContainerPrinter::print(std::begin(pints), std::end(pints)));
 
-    std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
+    std::vector<std::optional<double>> ovec(2, std::optional<double>());
     LOG_DEBUG(<< "ovec = " << CContainerPrinter::print(ovec));
     BOOST_REQUIRE_EQUAL(std::string("[\"null\", \"null\"]"),
                         CContainerPrinter::print(ovec));

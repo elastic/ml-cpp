@@ -26,10 +26,9 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -128,9 +127,9 @@ public:
                    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalDouble = boost::optional<double>;
-    using TOptionalLossFunctionType = boost::optional<TLossFunctionType>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalDouble = std::optional<double>;
+    using TOptionalLossFunctionType = std::optional<TLossFunctionType>;
 
 private:
     // Shared

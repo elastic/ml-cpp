@@ -29,9 +29,10 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <optional>
 
 BOOST_AUTO_TEST_SUITE(CMetricDataGathererTest)
 
@@ -50,8 +51,8 @@ using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
 using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
 using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
 using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
-using TOptionalDouble = boost::optional<double>;
-using TOptionalStr = boost::optional<std::string>;
+using TOptionalDouble = std::optional<double>;
+using TOptionalStr = std::optional<std::string>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TTimeDoublePrVecVec = std::vector<TTimeDoublePrVec>;

@@ -41,7 +41,6 @@
 
 #include "CModelTestFixtureBase.h"
 
-#include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
@@ -108,11 +107,11 @@ public:
             {3, 4},
             {3}};
 
-        double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
+        TDoubleVec attributeRates{10.0, 0.02, 15.0, 2.0, 1.0};
 
-        TSizeSizeSizeTr anomaliesAttributePerson[] = {
-            {10u, 0u, 1u}, {15u, 0u, 11u}, {30u, 2u, 4u},
-            {35u, 2u, 5u}, {50u, 0u, 11u}, {75u, 2u, 5u}};
+        TSizeSizeSizeTr anomaliesAttributePerson[]{{10, 0, 1},  {15, 0, 11},
+                                                   {30, 2, 4},  {35, 2, 5},
+                                                   {50, 0, 11}, {75, 2, 5}};
 
         test::CRandomNumbers rng;
 
@@ -208,7 +207,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                 std::size_t pid = expectedCount.first;
                 expectedCurrentBucketPersonIds.push_back(pid);
                 auto count = model->currentBucketCount(pid, startTime);
-                BOOST_TEST_REQUIRE(count);
+                BOOST_TEST_REQUIRE(count.has_value());
                 BOOST_REQUIRE_EQUAL(expectedCount.second, *count);
             }
 
@@ -237,9 +236,10 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
 
         this->addArrival(message, m_Gatherer);
 
-        std::size_t pid, cid;
+        std::size_t pid;
+        std::size_t cid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(message.s_Person, pid));
-        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute.get(), cid));
+        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(*message.s_Attribute, cid));
         ++expectedBucketPersonCounts[pid];
         ++expectedBucketPersonAttributeCounts[{pid, cid}];
     }
@@ -420,9 +420,10 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
 
         this->addArrival(message, m_Gatherer);
 
-        std::size_t pid, cid;
+        std::size_t pid;
+        std::size_t cid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(message.s_Person, pid));
-        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute.get(), cid));
+        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(*message.s_Attribute, cid));
         ++expectedCounts[{pid, cid}];
     }
 }
@@ -440,8 +441,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* model =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     TStrVec expectedAnomalies{"[10, p1, c0]", "[15, p11, c0]", "[30, p4, c2]",
@@ -449,7 +449,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
 
     TAnomalyVec orderedAnomalies;
 
-    this->generateOrderedAnomalies(6u, startTime, bucketLength, messages,
+    this->generateOrderedAnomalies(6, startTime, bucketLength, messages,
                                    m_Gatherer, *model, orderedAnomalies);
 
     BOOST_REQUIRE_EQUAL(expectedAnomalies.size(), orderedAnomalies.size());
@@ -516,16 +516,15 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         eventCounts[3][70][0].second = 4; // p4, bucket 70, c2
     }
 
-    const std::string expectedPeople[] = {people[0], people[2], people[3]};
-    const std::string expectedAttributes[] = {attributes[2], attributes[3]};
+    const std::string expectedPeople[]{people[0], people[2], people[3]};
+    const std::string expectedAttributes[]{attributes[2], attributes[3]};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.01;
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* model =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     CModelFactory::TDataGathererPtr expectedGatherer(m_Factory->makeDataGatherer({startTime}));
@@ -558,8 +557,8 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     for (const auto& message : messages) {
         if (std::binary_search(std::begin(expectedPeople),
                                std::end(expectedPeople), message.s_Person) &&
-            std::binary_search(std::begin(expectedAttributes), std::end(expectedAttributes),
-                               message.s_Attribute.get())) {
+            std::binary_search(std::begin(expectedAttributes),
+                               std::end(expectedAttributes), *message.s_Attribute)) {
             expectedMessages.push_back(message);
         }
     }
@@ -650,20 +649,20 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
     };
 
     using TDataVec = std::vector<SDatum>;
-    TDataVec data{{"a1", "p1", 1u},  {"a2", "p2", 1u}, {"a3", "p3", 10u},
-                  {"a4", "p4", 3u},  {"a5", "p5", 4u}, {"a6", "p6", 5u},
-                  {"a7", "p7", 2u},  {"a8", "p8", 1u}, {"a9", "p9", 3u},
-                  {"a10", "p10", 7u}};
+    TDataVec data{{"a1", "p1", 1},  {"a2", "p2", 1}, {"a3", "p3", 10},
+                  {"a4", "p4", 3},  {"a5", "p5", 4}, {"a6", "p6", 5},
+                  {"a7", "p7", 2},  {"a8", "p8", 1}, {"a9", "p9", 3},
+                  {"a10", "p10", 7}};
 
     const core_t::TTime bucketLength{600};
 
     core_t::TTime startTime{0};
 
     TMessageVec messages;
-    std::size_t bucket{0u};
+    std::size_t bucket{0};
     for (core_t::TTime bucketStart = startTime; bucketStart < 100 * bucketLength;
          bucketStart += bucketLength, ++bucket) {
-        std::size_t i{0u};
+        std::size_t i{0};
         for (auto& datum : data) {
             if (bucket % datum.s_Period == 0) {
                 for (std::size_t j = 0; j < i + 1; ++j) {
@@ -684,8 +683,7 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* populationModel =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* populationModel = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(populationModel);
 
     core_t::TTime time{startTime};
@@ -745,9 +743,9 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
     const TStrVec people{"p1",  "p2",  "p3",  "p4",  "p5",  "p6",  "p7",
                          "p8",  "p9",  "p10", "p11", "p12", "p13", "p14",
                          "p15", "p16", "p17", "p18", "p19", "p20"};
-    TSizeVec heavyHitters{0u, 4u};
-    TSizeVec normal{1u,  2u,  3u,  5u,  6u,  7u,  8u,  9u,  10u,
-                    11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, 19u};
+    TSizeVec heavyHitters{0, 4};
+    TSizeVec normal{1,  2,  3,  5,  6,  7,  8,  9,  10,
+                    11, 12, 13, 14, 15, 16, 17, 18, 19};
 
     std::size_t messagesPerBucket = heavyHitters.size() * attributes.size() +
                                     normal.size();
@@ -764,9 +762,9 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
                                    static_cast<std::size_t>(bucketStart + bucketLength),
                                    messagesPerBucket, times);
 
-        std::size_t m{0u};
-        for (auto& attribute : attributes) {
-            for (auto& heavyHitter : heavyHitters) {
+        std::size_t m{0};
+        for (const auto& attribute : attributes) {
+            for (const auto& heavyHitter : heavyHitters) {
                 messages.emplace_back(static_cast<core_t::TTime>(times[m++]),
                                       people[heavyHitter], attribute);
             }
@@ -789,8 +787,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
 
-    CEventRatePopulationModel* populationModel =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* populationModel = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(populationModel);
 
     core_t::TTime time{startTime};
@@ -965,8 +962,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CModelFactory::TDataGathererPtr gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
     CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
     CAnomalyDetectorModel::TModelPtr modelNoGapHolder(factory.makeModel(modelNoGapInitData));
-    CEventRatePopulationModel* modelNoGap =
-        dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
+    auto* modelNoGap = dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
 
     this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererNoGap);
     this->addArrival(SMessage(100, "p1", TOptionalStr("a2")), gathererNoGap);
@@ -982,7 +978,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         factory.makeDataGatherer(gathererWithGapInitData));
     CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
     CAnomalyDetectorModel::TModelPtr modelWithGapHolder(factory.makeModel(modelWithGapInitData));
-    CEventRatePopulationModel* modelWithGap =
+    auto* modelWithGap =
         dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
 
     this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererWithGap);
@@ -1043,8 +1039,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     SModelParams params(bucketLength);
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* model =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     CCountingModel countingModel(params, m_Gatherer, m_InterimBucketCorrector);
@@ -1134,8 +1129,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* populationModel =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* populationModel = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(populationModel);
 
     for (const auto& message : messages) {

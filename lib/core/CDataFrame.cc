@@ -88,7 +88,7 @@ CRowPtr CRowIterator::operator->() const {
 }
 
 CRowIterator& CRowIterator::operator++() {
-    if (m_PopMaskedRow != boost::none) {
+    if (m_PopMaskedRow != std::nullopt) {
         std::size_t nextIndex{(*m_PopMaskedRow)()};
         m_RowItr += m_RowCapacity * (nextIndex - m_Index);
         m_DocHashItr += nextIndex - m_Index;
@@ -822,7 +822,7 @@ std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns) {
 
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         boost::optional<std::size_t> sliceCapacity,
+                         std::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
                          CAlignment::EType alignment) {
     auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
@@ -830,7 +830,7 @@ makeMainStorageDataFrame(std::size_t numberColumns,
             firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity == boost::none) {
+    if (sliceCapacity == std::nullopt) {
         sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
 
@@ -843,7 +843,7 @@ std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         boost::optional<std::size_t> sliceCapacity,
+                         std::optional<std::size_t> sliceCapacity,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
                          CAlignment::EType alignment) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
@@ -859,7 +859,7 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
             directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity == boost::none) {
+    if (sliceCapacity == std::nullopt) {
         sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
 

@@ -70,12 +70,12 @@ void CTree::CTreeNode::addToJsonStream(TGenericLineWriter& writer) const {
     writer.Uint64(m_NumberSamples);
 
     if (m_LeftChild) {
-        // internal node
+        // Internal node.
         writer.Key(JSON_SPLIT_FEATURE_TAG);
         writer.Uint64(m_SplitFeature);
-        if (m_SplitGain.is_initialized()) {
+        if (m_SplitGain) {
             writer.Key(JSON_SPLIT_GAIN_TAG);
-            writer.Double(m_SplitGain.get());
+            writer.Double(*m_SplitGain);
         }
         writer.Key(JSON_THRESHOLD_TAG);
         writer.Double(m_Threshold);
@@ -88,14 +88,14 @@ void CTree::CTreeNode::addToJsonStream(TGenericLineWriter& writer) const {
             break;
         }
         writer.Key(JSON_LEFT_CHILD_TAG);
-        writer.Uint(m_LeftChild.get());
+        writer.Uint(*m_LeftChild);
         writer.Key(JSON_RIGHT_CHILD_TAG);
-        writer.Uint(m_RightChild.get());
+        writer.Uint(*m_RightChild);
     } else if (m_LeafValue.size() > 1) {
-        // leaf node
+        // Leaf node.
         addJsonArray(JSON_LEAF_VALUE_TAG, m_LeafValue, writer);
     } else {
-        // leaf node
+        // Leaf node.
         writer.Key(JSON_LEAF_VALUE_TAG);
         writer.Double(m_LeafValue[0]);
     }
@@ -125,7 +125,7 @@ void CTree::CTreeNode::splitFeature(std::size_t splitFeature) {
 }
 
 bool CTree::CTreeNode::leaf() const {
-    return m_LeftChild.is_initialized() == false;
+    return m_LeftChild == std::nullopt;
 }
 
 CTrainedModel::TSizeInfoUPtr CTree::sizeInfo() const {

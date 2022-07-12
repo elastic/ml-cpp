@@ -244,14 +244,14 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                           << traverser.value());
                 return false;
             }
-            s_CurrentBucketCount.reset(i);
+            s_CurrentBucketCount.emplace(i);
         } else if (name == BASELINE_BUCKET_COUNT_TAG) {
             if (!core::CPersistUtils::restore(BASELINE_BUCKET_COUNT_TAG, d, traverser)) {
                 LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
                           << traverser.value());
                 return false;
             }
-            s_BaselineBucketCount.reset(d);
+            s_BaselineBucketCount.emplace(d);
         } else if (name == SHOULD_UPDATE_QUALITIES_TAG) {
             if (!core::CPersistUtils::restore(SHOULD_UPDATE_QUALITIES_TAG,
                                               s_ShouldUpdateQuantiles, traverser)) {

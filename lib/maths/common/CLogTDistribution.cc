@@ -15,7 +15,6 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/optional.hpp>
 
 #include <cmath>
 

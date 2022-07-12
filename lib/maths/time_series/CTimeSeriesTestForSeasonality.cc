@@ -32,6 +32,7 @@
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
 #include <boost/iterator/counting_iterator.hpp>
+#include <boost/math/distributions/binomial.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
 
 #include <algorithm>
@@ -233,7 +234,7 @@ bool CSeasonalDecomposition::componentsChanged() const {
 }
 
 const CNewTrendSummary* CSeasonalDecomposition::trend() const {
-    return m_Trend != boost::none ? &(*m_Trend) : nullptr;
+    return m_Trend != std::nullopt ? &(*m_Trend) : nullptr;
 }
 
 const CSeasonalDecomposition::TNewSeasonalComponentVec& CSeasonalDecomposition::seasonal() const {

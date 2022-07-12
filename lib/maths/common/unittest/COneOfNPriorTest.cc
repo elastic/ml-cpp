@@ -36,13 +36,13 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <memory>
 #include <numeric>
+#include <optional>
 
 BOOST_AUTO_TEST_SUITE(COneOfNPriorTest)
 
@@ -58,7 +58,7 @@ using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TPriorPtr = std::unique_ptr<maths::common::CPrior>;
 using TPriorPtrVec = std::vector<TPriorPtr>;
-using TOptionalDouble = boost::optional<double>;
+using TOptionalDouble = std::optional<double>;
 using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::common::CGammaRateConjugate>;
 using CLogNormalMeanPrecConjugate =
     CPriorTestInterfaceMixin<maths::common::CLogNormalMeanPrecConjugate>;
