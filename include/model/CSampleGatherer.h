@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_model_CSampleGatherer_h
 #define INCLUDED_ml_model_CSampleGatherer_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
@@ -334,8 +333,7 @@ public:
         std::ostringstream result;
         result << m_Classifier.isInteger() << ' ' << m_Classifier.isNonNegative()
                << ' ' << m_BucketStats.print() << ' ' << m_SampleStats.print()
-               << ' ' << core::CContainerPrinter::print(m_Samples) << ' '
-               << core::CContainerPrinter::print(m_InfluencerBucketStats);
+               << ' ' << m_Samples << ' ' << m_InfluencerBucketStats;
         return result.str();
     }
 

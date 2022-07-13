@@ -11,7 +11,6 @@
 
 #include <maths/common/CBjkstUniqueValues.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
@@ -638,7 +637,7 @@ std::uint32_t CBjkstUniqueValues::SSketch::number() const {
         estimates.push_back(static_cast<std::uint32_t>(s_B[i].size() / 3) * (1 << s_Z[i]));
     }
 
-    LOG_TRACE(<< "estimates = " << core::CContainerPrinter::print(estimates));
+    LOG_TRACE(<< "estimates = " << estimates);
 
     std::size_t n = estimates.size();
     if (n % 2 == 0) {

@@ -12,7 +12,6 @@
 #include <model/CMetricPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
@@ -299,8 +298,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -353,8 +351,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
             std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(true, this->personFilter(), this->attributeFilter(), data);
 
             TSizeValuesAndWeightsUMap attributeValuesAndWeights;
@@ -760,7 +757,7 @@ std::uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) c
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }

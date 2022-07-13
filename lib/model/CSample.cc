@@ -99,8 +99,8 @@ std::uint64_t CSample::checksum() const {
 
 std::string CSample::print() const {
     std::ostringstream result;
-    result << '(' << m_Time << ' ' << core::CContainerPrinter::print(m_Value)
-           << ' ' << m_VarianceScale << ' ' << m_Count << ')';
+    result << '(' << m_Time << ' ' << m_Value << ' ' << m_VarianceScale << ' '
+           << m_Count << ')';
     return result.str();
 }
 

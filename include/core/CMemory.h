@@ -147,15 +147,15 @@ struct STypeInfoLess {
     template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs,
                     const std::pair<TTypeInfoCRef, T>& rhs) const {
-        return ml::core::unwrap_ref(lhs.first).before(ml::core::unwrap_ref(rhs.first));
+        return unwrap_ref(lhs.first).before(unwrap_ref(rhs.first));
     }
     template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs, TTypeInfoCRef rhs) const {
-        return ml::core::unwrap_ref(lhs.first).before(ml::core::unwrap_ref(rhs));
+        return unwrap_ref(lhs.first).before(unwrap_ref(rhs));
     }
     template<typename T>
     bool operator()(TTypeInfoCRef lhs, const std::pair<TTypeInfoCRef, T>& rhs) const {
-        return ml::core::unwrap_ref(lhs).before(ml::core::unwrap_ref(rhs.first));
+        return unwrap_ref(lhs).before(unwrap_ref(rhs.first));
     }
 };
 

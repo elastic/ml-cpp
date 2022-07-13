@@ -21,7 +21,6 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
-#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>

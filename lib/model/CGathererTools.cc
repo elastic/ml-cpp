@@ -11,7 +11,6 @@
 
 #include <model/CGathererTools.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
@@ -21,8 +20,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/CMultinomialConjugate.h>
-#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 

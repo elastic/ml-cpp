@@ -13,7 +13,6 @@
 
 #include <maths/common/CMathsFuncs.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 

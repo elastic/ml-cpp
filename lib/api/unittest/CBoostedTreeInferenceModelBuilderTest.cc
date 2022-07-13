@@ -14,6 +14,7 @@
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CFloatStorage.h>
+#include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 

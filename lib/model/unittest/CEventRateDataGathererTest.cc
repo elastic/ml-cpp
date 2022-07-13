@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -241,7 +239,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
 
             BOOST_REQUIRE_EQUAL(feature, featureData[0].first);
@@ -452,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
@@ -488,7 +486,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     featureData[0].first);
@@ -528,7 +526,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                                     featureData[0].first);
@@ -601,7 +599,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
@@ -642,7 +640,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
@@ -673,7 +671,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
@@ -700,7 +698,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
@@ -829,9 +827,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p1"));
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p7"));
 
-    LOG_DEBUG(<< "recycled          = "
-              << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
-    LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
+    LOG_DEBUG(<< "recycled          = " << gatherer.recycledPersonIds());
+    LOG_DEBUG(<< "expected recycled = " << expectedRecycled);
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedRecycled),
                         core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
@@ -890,7 +887,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
@@ -927,7 +924,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     featureData[0].first);
@@ -967,7 +964,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                                     featureData[0].first);
@@ -1168,7 +1165,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+                LOG_DEBUG(<< "featureData = " << featureData);
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
@@ -1208,7 +1205,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
@@ -1239,7 +1236,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
@@ -1265,7 +1262,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);

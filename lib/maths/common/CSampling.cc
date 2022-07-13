@@ -11,7 +11,6 @@
 
 #include <maths/common/CSampling.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
 #include <core/CStatePersistInserter.h>
@@ -277,9 +276,7 @@ bool doMultivariateNormalSample(RNG& rng,
                                 std::size_t n,
                                 TDoubleVecVec& samples) {
     if (mean.size() != covariance.size()) {
-        LOG_ERROR(<< "Incompatible mean and covariance: "
-                  << core::CContainerPrinter::print(mean) << ", "
-                  << core::CContainerPrinter::print(covariance));
+        LOG_ERROR(<< "Incompatible mean and covariance: " << mean << ", " << covariance);
         return false;
     }
 
@@ -306,14 +303,13 @@ bool doMultivariateNormalSample(RNG& rng,
 
     std::size_t d = mean.size();
     LOG_TRACE(<< "Dimension = " << d);
-    LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(mean));
+    LOG_TRACE(<< "mean = " << mean);
 
     CDenseMatrix<double> C(d, d);
     for (std::size_t i = 0; i < d; ++i) {
         C(i, i) = covariance[i][i];
         if (covariance[i].size() < d - i) {
-            LOG_ERROR(<< "Bad covariance matrix: "
-                      << core::CContainerPrinter::print(covariance));
+            LOG_ERROR(<< "Bad covariance matrix: " << covariance);
             return false;
         }
         for (std::size_t j = 0; j < i; ++j) {
@@ -335,7 +331,7 @@ bool doMultivariateNormalSample(RNG& rng,
         stddevs.push_back(std::sqrt(std::max(S(i), 0.0)));
     }
     LOG_TRACE(<< "Singular values of C = " << S.transpose());
-    LOG_TRACE(<< "stddevs = " << core::CContainerPrinter::print(stddevs));
+    LOG_TRACE(<< "stddevs = " << stddevs);
     LOG_TRACE(<< "U =" << core_t::LINE_ENDING << ' ' << U);
     LOG_TRACE(<< "V =" << core_t::LINE_ENDING << ' ' << svd.matrixV());
 
@@ -804,7 +800,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     // floating point problems.
 
     if (std::fabs(totalRemainder) > 0.5) {
-        LOG_TRACE(<< "ideal choice function = " << core::CContainerPrinter::print(choices));
+        LOG_TRACE(<< "ideal choice function = " << choices);
 
         TDoubleSizePrVec candidates;
         for (std::size_t i = 0; i < choices.size(); ++i) {
@@ -814,7 +810,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             }
         }
         std::sort(candidates.begin(), candidates.end());
-        LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(candidates));
+        LOG_TRACE(<< "candidates = " << candidates);
 
         for (std::size_t i = 0;
              i < candidates.size() && std::fabs(totalRemainder) > 0.5; ++i) {
@@ -824,7 +820,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             totalRemainder += remainders[choices[j]][j] - remainders[choice][j];
         }
     }
-    LOG_TRACE(<< "choice function = " << core::CContainerPrinter::print(choices));
+    LOG_TRACE(<< "choice function = " << choices);
 
     sampling.reserve(weights.size());
     for (std::size_t i = 0; i < weights.size(); ++i) {

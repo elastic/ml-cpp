@@ -176,8 +176,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     for (std::size_t i = 0; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
                 kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
-            LOG_ERROR(<< "Couldn't integrate kernel over "
-                      << core::CContainerPrinter::print(intervals[i]));
+            LOG_ERROR(<< "Couldn't integrate kernel over " << intervals[i]);
         }
     }
 
@@ -211,7 +210,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
                                         quantile(modes[i], 1.0 - EPS)));
     }
     std::sort(range.begin(), range.end(), COrderings::SFirstLess());
-    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << range);
     std::size_t left = 0;
     for (std::size_t i = 1; i < range.size(); ++i) {
         if (range[left].second < range[i].first) {
@@ -222,7 +221,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
         }
     }
     range.erase(range.begin() + left + 1, range.end());
-    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << range);
 
     double result = 0.0;
 

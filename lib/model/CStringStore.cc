@@ -11,7 +11,6 @@
 
 #include <model/CStringStore.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
 #include <core/CStatePersistInserter.h>

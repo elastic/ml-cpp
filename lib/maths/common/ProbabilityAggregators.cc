@@ -823,7 +823,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             coeffs[i] /= cmax;
         }
     }
-    LOG_TRACE(<< "coeffs = " << core::CContainerPrinter::print(coeffs));
+    LOG_TRACE(<< "coeffs = " << coeffs);
 
     double pM = m_MinValues[0];
     LOG_TRACE(<< "p(" << M << ") = " << pM);
@@ -924,9 +924,9 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
                 minValues << " " << m_MinValues[j];
             }
             minValues << "]";
-            LOG_ERROR(<< "Invalid log(extreme probability) = " << result << ", m_NumberSamples = "
-                      << m_NumberSamples << ", m_MinValues = " << minValues.str()
-                      << ", coeffs = " << core::CContainerPrinter::print(coeffs)
+            LOG_ERROR(<< "Invalid log(extreme probability) = " << result
+                      << ", m_NumberSamples = " << m_NumberSamples
+                      << ", m_MinValues = " << minValues.str() << ", coeffs = " << coeffs
                       << ", log(max{coeffs}) = " << logLargestCoeff
                       << ", pM = " << pM << ", pMin = " << pMin);
             result = 0.0;

@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CKMeansOnline_h
 #define INCLUDED_ml_maths_common_CKMeansOnline_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -293,7 +292,7 @@ public:
             }
         }
 
-        LOG_TRACE(<< "result = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "result = " << result);
 
         return true;
     }
@@ -370,7 +369,7 @@ public:
 
     //! Age by a factor \p alpha, which should be in the range (0, 1).
     void age(double alpha) {
-        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "clusters = " << m_Clusters);
 
         for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
             m_Clusters[i].first.age(alpha);
@@ -385,7 +384,7 @@ public:
                                         }),
                          m_Clusters.end());
 
-        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "clusters = " << m_Clusters);
     }
 
     //! Check if there are points in the buffer.
@@ -407,7 +406,7 @@ public:
 
         // See, for example, Effective C++ item 3.
         const_cast<CKMeansOnline*>(this)->reduce();
-        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "categories = " << m_Clusters);
 
         TDoubleVec counts;
         counts.reserve(m_Clusters.size());
@@ -421,8 +420,7 @@ public:
         for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] /= Z;
         }
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(counts)
-                  << ", Z = " << Z << ", n = " << numberSamples);
+        LOG_TRACE(<< "weights = " << counts << ", Z = " << Z << ", n = " << numberSamples);
 
         result.reserve(2 * numberSamples);
 
@@ -446,8 +444,8 @@ public:
             result.insert(result.end(), clusterSamples.begin(), clusterSamples.end());
             weights.insert(weights.end(), clusterSamples.size(), ni);
         }
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "samples = " << result);
+        LOG_TRACE(<< "weights = " << weights);
 
         TDoublePointVec finalSamples;
         finalSamples.reserve(static_cast<std::size_t>(
@@ -480,7 +478,7 @@ public:
 
         result = std::move(finalSamples);
         LOG_TRACE(<< "# samples = " << result.size());
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "samples = " << result);
     }
 
     //! Print this classifier for debug.
@@ -510,17 +508,17 @@ protected:
     //! Sanity check \p split.
     bool checkSplit(const TSizeVecVec& split) const {
         if (split.empty()) {
-            LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
+            LOG_ERROR(<< "Bad split = " << split);
             return false;
         }
         for (std::size_t i = 0; i < split.size(); ++i) {
             if (split[i].empty()) {
-                LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
+                LOG_ERROR(<< "Bad split = " << split);
                 return false;
             }
             for (std::size_t j = 0; j < split[i].size(); ++j) {
                 if (split[i][j] >= m_Clusters.size()) {
-                    LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
+                    LOG_ERROR(<< "Bad split = " << split);
                     return false;
                 }
             }
@@ -536,7 +534,7 @@ protected:
             return;
         }
 
-        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "clusters = " << m_Clusters);
         LOG_TRACE(<< "# clusters = " << m_Clusters.size());
 
         TSphericalClusterVec oldClusters;
@@ -562,7 +560,7 @@ protected:
             m_Clusters[i].second = variance(centroid);
         }
 
-        LOG_TRACE(<< "reduced clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "reduced clusters = " << m_Clusters);
         LOG_TRACE(<< "# reduced clusters = " << m_Clusters.size());
     }
 

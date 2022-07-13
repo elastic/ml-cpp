@@ -25,7 +25,6 @@
 #include <maths/analytics/CTreeShapFeatureImportance.h>
 
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -104,7 +103,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     auto classificationWeights = parameters[CLASSIFICATION_WEIGHTS].fallback(
         CLASSIFICATION_WEIGHTS_CLASS, CLASSIFICATION_WEIGHTS_WEIGHT,
         std::vector<std::pair<std::string, double>>{});
-    if (classificationWeights.size() > 0) {
+    if (classificationWeights.empty() == false) {
         this->boostedTreeFactory().classificationWeights(classificationWeights);
     }
 
@@ -115,10 +114,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
-                     << ".");
+                     << PREDICTION_FIELD_NAME_BLACKLIST << ".");
     }
-    if (classificationWeights.size() > 0 &&
+    if (classificationWeights.empty() == false &&
         classAssignmentObjective != maths::analytics::CBoostedTree::E_Custom) {
         HANDLE_FATAL(<< "Input error: expected "
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::analytics::CDataFramePredictiveModel::E_Custom]
@@ -126,7 +124,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << CLASSIFICATION_WEIGHTS << " but got '"
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
     }
-    if (classificationWeights.size() > 0 && classificationWeights.size() != m_NumClasses) {
+    if (classificationWeights.empty() == false && classificationWeights.size() != m_NumClasses) {
         HANDLE_FATAL(<< "Input error: expected " << m_NumClasses << " " << CLASSIFICATION_WEIGHTS
                      << " but got " << classificationWeights.size() << ".");
     }
@@ -319,9 +317,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
     } else if (categoryCount != m_NumClasses) {
         HANDLE_FATAL(<< "Input error: " << m_NumClasses << " provided for " << NUM_CLASSES
                      << " but there are " << categoryCount << " in the data: "
-                     << core::CContainerPrinter::print(
-                            frame.categoricalColumnValues()[dependentVariableColumn])
-                     << ".");
+                     << frame.categoricalColumnValues()[dependentVariableColumn] << ".");
     }
 }
 

@@ -86,8 +86,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         LOG_DEBUG(<< "max error  = " << maxError[i][0]);
         LOG_DEBUG(<< "mean error = "
                   << maths::common::CBasicStatistics::mean(meanError[i]));
-        LOG_DEBUG(<< "large deviations = "
-                  << core::CContainerPrinter::print(epsDeviations[i]));
+        LOG_DEBUG(<< "large deviations = " << epsDeviations[i]);
         BOOST_TEST_REQUIRE(maxError[i][0] < maxMaxErrors[i]);
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError[i]) <
                            maxMeanErrors[i]);

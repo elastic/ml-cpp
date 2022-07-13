@@ -191,13 +191,12 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
         double error = 0.0;
 
-        for (TUint32PrUIntMapCItr i = uniqueHashedPairs.begin();
-             i != uniqueHashedPairs.end(); ++i) {
+        for (auto i = uniqueHashedPairs.begin(); i != uniqueHashedPairs.end(); ++i) {
             double p = 2.0 * static_cast<double>(i->second) / 2000.0 / 1999.0 /
                        static_cast<double>(hashes.size());
 
             if (p > 1.0 / 10000.0) {
-                LOG_DEBUG(<< core::CContainerPrinter::print(*i) << ", p = " << p);
+                LOG_DEBUG(<< *i << ", p = " << p);
                 error += p - 1 / 10000.0;
             }
             BOOST_TEST_REQUIRE(p < 1.6 / 10000.0);

@@ -21,6 +21,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 
@@ -218,7 +219,7 @@ void CKMostCorrelated::addVariables(std::size_t n) {
 }
 
 void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
-    LOG_TRACE(<< "removing = " << core::CContainerPrinter::print(remove));
+    LOG_TRACE(<< "removing = " << remove);
     for (std::size_t i = 0; i < remove.size(); ++i) {
         if (remove[i] < m_Moments.size()) {
             m_Moments[remove[i]] = TMeanVarAccumulator();
@@ -321,7 +322,7 @@ void CKMostCorrelated::capture() {
             // do so at random with probability proportional to 1 - absolute
             // correlation.
 
-            LOG_TRACE(<< "add = " << core::CContainerPrinter::print(add));
+            LOG_TRACE(<< "add = " << add);
 
             std::size_t vunerable = std::max(m_K, N - 3 * n);
 
@@ -337,7 +338,7 @@ void CKMostCorrelated::capture() {
                 for (std::size_t i = 0; i < p.size(); ++i) {
                     p[i] /= Z;
                 }
-                LOG_TRACE(<< "p = " << core::CContainerPrinter::print(p));
+                LOG_TRACE(<< "p = " << p);
 
                 TSizeVec replace;
                 CSampling::categoricalSampleWithoutReplacement(m_Rng, p, n - added, replace);
@@ -575,7 +576,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
 
     mostCorrelated.sort();
     result.assign(mostCorrelated.begin(), mostCorrelated.end());
-    LOG_TRACE(<< "most correlated " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "most correlated " << result);
 }
 
 void CKMostCorrelated::nextProjection() {

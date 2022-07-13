@@ -9,9 +9,7 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-
 #include <maths/common/CIntegration.h>
 #include <maths/common/CSpline.h>
 
@@ -230,8 +228,8 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
         TDoubleVec y(std::begin(y_), std::end(y_));
         y.insert(y.end(), std::begin(y_), std::end(y_));
 
-        LOG_DEBUG(<< "x = " << core::CContainerPrinter::print(x));
-        LOG_DEBUG(<< "y = " << core::CContainerPrinter::print(y));
+        LOG_DEBUG(<< "x = " << x);
+        LOG_DEBUG(<< "y = " << y);
 
         maths::common::CSpline<> spline(maths::common::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::common::CSplineTypes::E_Periodic);
@@ -300,8 +298,8 @@ BOOST_AUTO_TEST_CASE(testMean) {
             rng.generateUniformSamples(5.0, 15.0, n[0], y);
 
             LOG_DEBUG(<< "n = " << n[0]);
-            LOG_DEBUG(<< "x = " << core::CContainerPrinter::print(x));
-            LOG_DEBUG(<< "y = " << core::CContainerPrinter::print(y));
+            LOG_DEBUG(<< "x = " << x);
+            LOG_DEBUG(<< "y = " << y);
             for (std::size_t t = 0; t < boost::size(types); ++t) {
                 LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
@@ -371,7 +369,7 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
         // be zero (to working precision).
 
         TDoubleVec curvatures = spline.curvatures();
-        LOG_DEBUG(<< "curvatures = " << core::CContainerPrinter::print(curvatures));
+        LOG_DEBUG(<< "curvatures = " << curvatures);
         for (std::size_t i = 0; i < curvatures.size(); ++i) {
             BOOST_TEST_REQUIRE(std::fabs(curvatures[i]) < 2e-7);
         }
@@ -434,8 +432,8 @@ BOOST_AUTO_TEST_CASE(testSlope) {
             rng.generateUniformSamples(5.0, 15.0, n[0], y);
 
             LOG_DEBUG(<< "n = " << n[0]);
-            LOG_DEBUG(<< "x = " << core::CContainerPrinter::print(x));
-            LOG_DEBUG(<< "y = " << core::CContainerPrinter::print(y));
+            LOG_DEBUG(<< "x = " << x);
+            LOG_DEBUG(<< "y = " << y);
             for (std::size_t t = 0; t < boost::size(types); ++t) {
                 if (i % 10 == 0) {
                     LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");

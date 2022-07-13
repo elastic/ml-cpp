@@ -368,26 +368,13 @@ std::ostream& operator<<(std::ostream& o, const CSymmetricMatrixNxN<T, N>& m) {
 //! Output for debug.
 template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CVectorNx1<T, N>& v) {
-    o << "[";
-    for (std::size_t i = 0; i + 1 < N; ++i) {
-        o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
-    }
-    o << core::CStringUtils::typeToStringPretty(v(N - 1)) << ']';
-    return o;
+    return o << core::CContainerPrinter::print(v.begin(), v.end());
 }
 
 //! Output for debug.
 template<typename T>
 std::ostream& operator<<(std::ostream& o, const CVector<T>& v) {
-    if (v.dimension() == 0) {
-        return o << "[]";
-    }
-    o << "[";
-    for (std::size_t i = 0; i + 1 < v.dimension(); ++i) {
-        o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
-    }
-    o << core::CStringUtils::typeToStringPretty(v(v.dimension() - 1)) << ']';
-    return o;
+    return o << core::CContainerPrinter::print(v.begin(), v.end());
 }
 
 //! Overload sqrt for CVectorNx1.

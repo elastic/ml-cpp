@@ -282,8 +282,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         TDoubleVec lb;
         TDoubleVec ub;
         m_Prior->probabilitiesOfLessLikelyCategories(maths_t::E_TwoSided, lb, ub);
-        LOG_TRACE(<< "P({c}) >= " << core::CContainerPrinter::print(lb));
-        LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
+        LOG_TRACE(<< "P({c}) >= " << lb);
+        LOG_TRACE(<< "P({c}) <= " << ub);
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
         for (std::size_t i = 0; i < ub.size(); ++i) {
@@ -389,7 +389,7 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                            (right + 1)->second.s_Probability};
                     double tolerance{m_MaximumError *
                                      std::min(probabilities[1], probabilities[2])};
-                    LOG_TRACE(<< "p = " << core::CContainerPrinter::print(probabilities));
+                    LOG_TRACE(<< "p = " << probabilities);
 
                     if ((std::is_sorted(std::begin(probabilities), std::end(probabilities)) ||
                          std::is_sorted(std::begin(probabilities), std::end(probabilities),

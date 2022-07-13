@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     TPointVec samples;
     cluster.sample(10, samples);
-    LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_DEBUG(<< "samples = " << samples);
 
     TCovariances2 sampleMoments(2);
     for (std::size_t i = 0; i < samples.size(); ++i) {
@@ -189,8 +190,8 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     spreads.push_back(split->first.spread());
     spreads.push_back(split->second.spread());
     maths::common::COrderings::simultaneousSort(centres, spreads);
-    LOG_DEBUG(<< "centres = " << core::CContainerPrinter::print(centres));
-    LOG_DEBUG(<< "spreads = " << core::CContainerPrinter::print(spreads));
+    LOG_DEBUG(<< "centres = " << centres);
+    LOG_DEBUG(<< "spreads = " << spreads);
     double expectedCentres[][2] = {{2.25, 2.1125}, {10.64, 10.75}};
     BOOST_TEST_REQUIRE((centres[0] - TPoint(expectedCentres[0])).euclidean() < 1e-5);
     BOOST_TEST_REQUIRE((centres[1] - TPoint(expectedCentres[1])).euclidean() < 1e-5);

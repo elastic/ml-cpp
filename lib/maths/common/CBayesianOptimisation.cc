@@ -272,8 +272,7 @@ CBayesianOptimisation::maximumExpectedImprovement(std::size_t numberRounds,
     }
 
     xmax = this->from01(std::move(xmax));
-    LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = "
-              << core::CContainerPrinter::print(expectedImprovement));
+    LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
     return {std::move(xmax), expectedImprovement};
 }
@@ -448,8 +447,8 @@ CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffect
         mainEffects.emplace_back(effect, effect / totalVariance);
     }
     LOG_TRACE(<< "GP ANOVA constant " << f0 << " variance " << totalVariance
-              << "\nmain effects " << core::CContainerPrinter::print(mainEffects)
-              << "\nkernel parameters " << m_KernelParameters.transpose());
+              << "\nmain effects " << mainEffects << "\nkernel parameters "
+              << m_KernelParameters.transpose());
     return mainEffects;
 }
 

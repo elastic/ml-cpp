@@ -11,7 +11,6 @@
 
 #include <maths/time_series/CTrendComponent.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -36,7 +35,6 @@
 #include <cmath>
 #include <exception>
 #include <numeric>
-#include <tuple>
 
 namespace ml {
 namespace maths {
@@ -513,8 +511,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     LOG_TRACE(<< "forecasting = " << this->print());
 
     TSizeVec selectedModelOrders(this->selectModelOrdersForForecasting());
-    LOG_TRACE(<< "Selected model orders = "
-              << core::CContainerPrinter::print(selectedModelOrders));
+    LOG_TRACE(<< "Selected model orders = " << selectedModelOrders);
 
     TDoubleVec factors;
     this->smoothingFactors(step, factors);
@@ -539,7 +536,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         mse[i] = common::CBasicStatistics::mean(model.s_Mse)(order - 1);
         model.s_Regression.parameters(order, models[i], MAX_CONDITION);
         model.s_Regression.covariances(order, n * mse[i], modelCovariances[i], MAX_CONDITION);
-        LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
+        LOG_TRACE(<< "params      = " << models[i]);
         LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited());
         LOG_TRACE(<< "mse         = " << mse[i]);
     }

@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CMixtureDistribution.h>
@@ -76,7 +75,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {0.0, 2.0},  {0.0, 1.0}};
 
         for (std::size_t i = 0; i < boost::size(means); ++i) {
-            LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means[i]));
+            LOG_DEBUG(<< "means = " << means[i]);
             TDoubleVec weights;
             weights.push_back(0.6);
             weights.push_back(0.4);

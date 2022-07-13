@@ -12,8 +12,8 @@
 #ifndef INCLUDED_ml_maths_common_CBasicStatistics_h
 #define INCLUDED_ml_maths_common_CBasicStatistics_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
+#include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 #include <core/WindowsSafe.h>

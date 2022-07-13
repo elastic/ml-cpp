@@ -329,10 +329,10 @@ void CDecompositionComponent::CPackedSplines::interpolate(const TDoubleVec& knot
         !varianceSpline.interpolate(knots, variances, boundary)) {
         this->swap(oldSpline);
     }
-    LOG_TRACE(<< "types = " << core::CContainerPrinter::print(m_Types));
-    LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(m_Knots));
-    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(m_Values));
-    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+    LOG_TRACE(<< "types = " << m_Types);
+    LOG_TRACE(<< "knots = " << m_Knots);
+    LOG_TRACE(<< "values = " << m_Values);
+    LOG_TRACE(<< "curvatures = " << m_Curvatures);
 }
 
 std::uint64_t CDecompositionComponent::CPackedSplines::checksum(std::uint64_t seed) const {

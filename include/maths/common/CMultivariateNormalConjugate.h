@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateNormalConjugate_h
 #define INCLUDED_ml_maths_common_CMultivariateNormalConjugate_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -290,8 +289,7 @@ public:
 
         if (this->isBad()) {
             LOG_ERROR(<< "Update failed (" << this->debug() << ")"
-                      << ", samples = " << core::CContainerPrinter::print(samples)
-                      << ", weights = " << core::CContainerPrinter::print(weights));
+                      << ", samples = " << samples << ", weights = " << weights);
             this->setToNonInformative(this->offsetMargin(), this->decayRate());
         }
     }
@@ -362,9 +360,8 @@ public:
         this->remainingVariables(marginalize, condition, i1);
         if (i1.size() != 1) {
             LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                      << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                      << ", condition '"
-                      << core::CContainerPrinter::print(condition) << "'");
+                      << "marginalize '" << marginalize << "'"
+                      << ", condition '" << condition << "'");
             return {};
         }
 
@@ -626,12 +623,12 @@ public:
 
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "samples = " << samples);
+            LOG_ERROR(<< "weights = " << weights);
         } else if (status & maths_t::E_FpOverflowed) {
             LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
-            LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_TRACE(<< "samples = " << samples);
+            LOG_TRACE(<< "weights = " << weights);
         }
         return status;
     }

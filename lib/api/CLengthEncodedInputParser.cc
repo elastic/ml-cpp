@@ -10,7 +10,6 @@
  */
 #include <api/CLengthEncodedInputParser.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CSetMode.h>
 

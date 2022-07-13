@@ -10,7 +10,6 @@
  */
 
 #include <boost/test/unit_test_suite.hpp>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
 
@@ -381,8 +380,8 @@ BOOST_AUTO_TEST_CASE(testCyclicAutocorrelations) {
         maths::time_series::CSignal::autocorrelations(values, actual);
 
         if (t % 10 == 0) {
-            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
-            LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+            LOG_DEBUG(<< "expected = " << expected);
+            LOG_DEBUG(<< "actual   = " << actual);
         }
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                             core::CContainerPrinter::print(actual));
@@ -491,7 +490,7 @@ BOOST_AUTO_TEST_CASE(testRestrictTo) {
                 size += endpoints[i + 1] - endpoints[i];
                 windows[i / 2] = std::make_pair(endpoints[i], endpoints[i + 1]);
             }
-            LOG_TRACE(<< "windows = " << core::CContainerPrinter::print(windows));
+            LOG_TRACE(<< "windows = " << windows);
 
             restricted = values;
             maths::time_series::CSignal::restrictTo(windows, restricted);
@@ -1307,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
         }
     }
 
-    LOG_DEBUG(<< "sizes = " << core::CContainerPrinter::print(sizes));
+    LOG_DEBUG(<< "sizes = " << sizes);
     for (std::size_t i = 1; i < sizes.size(); ++i) {
         BOOST_TEST_REQUIRE(sizes[i] < sizes[i - 1]);
     }

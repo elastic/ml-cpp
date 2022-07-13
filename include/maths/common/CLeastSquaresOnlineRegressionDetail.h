@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CLeastSquaresOnlineRegressionDetail_h
 #define INCLUDED_ml_maths_common_CLeastSquaresOnlineRegressionDetail_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -65,7 +64,7 @@ void CLeastSquaresOnlineRegression<N, T, R_2>::shiftAbscissa(double dx) {
     for (std::size_t i = 1; i < 2 * N - 2; ++i) {
         d[i] = d[i - 1] * dx;
     }
-    LOG_TRACE(<< "d = " << core::CContainerPrinter::print(d));
+    LOG_TRACE(<< "d = " << d);
 
     LOG_TRACE(<< "S(before) " << CBasicStatistics::mean(m_S));
     for (std::size_t i = 2 * N - 2; i > 0; --i) {

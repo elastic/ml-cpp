@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -124,7 +123,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
     for (std::size_t i = a; i < b; ++i) {
         bucketPeople.push_back(i);
     }
-    LOG_DEBUG(<< "bucketPeople = " << core::CContainerPrinter::print(bucketPeople));
+    LOG_DEBUG(<< "bucketPeople = " << bucketPeople);
 
     for (std::size_t i = 0; i < categories.size(); ++i) {
         TDoubleVec offsets;
@@ -322,9 +321,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         attributeIds.push_back(cid);
         BOOST_REQUIRE_EQUAL(expectedAttributeOrder[categories[i]], cid);
     }
-    LOG_DEBUG(<< "attribute ids = " << core::CContainerPrinter::print(attributeIds));
-    LOG_DEBUG(<< "expected attribute ids = "
-              << core::CContainerPrinter::print(expectedAttributeOrder));
+    LOG_DEBUG(<< "attribute ids = " << attributeIds);
+    LOG_DEBUG(<< "expected attribute ids = " << expectedAttributeOrder);
 
     TStrVec people = allPeople();
     TSizeVec peopleIds;
@@ -334,9 +332,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         peopleIds.push_back(pid);
         BOOST_REQUIRE_EQUAL(expectedPeopleOrder[people[i]], pid);
     }
-    LOG_DEBUG(<< "people ids = " << core::CContainerPrinter::print(peopleIds));
-    LOG_DEBUG(<< "expected people ids = "
-              << core::CContainerPrinter::print(expectedPeopleOrder));
+    LOG_DEBUG(<< "people ids = " << peopleIds);
+    LOG_DEBUG(<< "expected people ids = " << expectedPeopleOrder);
 }
 
 BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
@@ -538,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             expectedBucketCompressedLengthPerPerson[key] = length;
         }
         LOG_DEBUG(<< "Time " << time << " bucketCompressedLengthPerPerson "
-                  << core::CContainerPrinter::print(bucketCompressedLengthPerPerson));
+                  << bucketCompressedLengthPerPerson);
         BOOST_REQUIRE_EQUAL(expectedBucketCompressedLengthPerPerson.size(),
                             bucketCompressedLengthPerPerson.size());
         for (TSizeSizePrFeatureDataPrVec::const_iterator j =
@@ -613,8 +610,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
             }
         }
     }
-    LOG_DEBUG(<< "expectedNonZeroCounts = "
-              << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << expectedNonZeroCounts);
 
     std::string expectedFeatureData;
     {
@@ -654,8 +650,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = static_cast<size_t>(nonZeroCounts[i].second);
     }
-    LOG_DEBUG(<< "actualNonZeroCounts = "
-              << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
                         core::CContainerPrinter::print(actualNonZeroCounts));

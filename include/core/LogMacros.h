@@ -12,6 +12,8 @@
 // The lack of include guards is deliberate in this file, to allow per-file
 // redefinition of logging macros
 
+#include <core/CContainerPrinter.h>
+
 #include <boost/current_function.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/severity_logger.hpp>
@@ -30,7 +32,8 @@
     << boost::log::add_value(ml::core::CLogger::instance().lineAttributeName(), __LINE__) \
     << boost::log::add_value(ml::core::CLogger::instance().fileAttributeName(), __FILE__) \
     << boost::log::add_value(ml::core::CLogger::instance().functionAttributeName(),       \
-                             BOOST_CURRENT_FUNCTION)
+                             BOOST_CURRENT_FUNCTION)                                      \
+    << ml::core::CPrintContainers {}
 
 // Log at a level known at compile time
 
@@ -49,7 +52,9 @@
 // enabled) - this avoids the overhead of checking the logging level at all for
 // this low level logging
 #define LOG_TRACE(message)                                                     \
-    static_cast<void>([&]() { std::ostringstream() << "" message; })
+    static_cast<void>([&]() {                                                  \
+        std::ostringstream() << ml::core::CPrintContainers{} << "" message;    \
+    })
 #else
 #define LOG_TRACE(message)                                                                   \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
@@ -127,7 +132,8 @@
 #define HANDLE_FATAL(message)                                                  \
     do {                                                                       \
         std::ostringstream ss;                                                 \
-        ss message;                                                            \
+        ss << ml::core::CPrintContainers {}                                    \
+        message;                                                               \
         ml::core::CLogger::instance().handleFatal(ss.str());                   \
     } while (0)
 

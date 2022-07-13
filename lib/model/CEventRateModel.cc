@@ -256,8 +256,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
 
             if (feature == model_t::E_IndividualTotalBucketCountByPerson) {
                 for (const auto& data_ : data) {
@@ -517,7 +516,7 @@ std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }

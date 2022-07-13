@@ -305,7 +305,7 @@ std::uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/
         }
     }
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "checksums = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "checksums = " << hashes);
     return maths::common::CChecksum::calculate(seed, hashes);
 }
 

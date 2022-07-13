@@ -544,7 +544,7 @@ std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
 
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,
                                                      core::CStateRestoreTraverser& traverser) {
-    m_BucketLength = ml::core::unwrap_ref(params.s_Params).bucketLength();
+    m_BucketLength = core::unwrap_ref(params.s_Params).bucketLength();
     if (traverser.name() == VERSION_7_3_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
@@ -1784,9 +1784,8 @@ void CTimeSeriesCorrelations::processSamples() {
                 multivariateWeights[j1][w][indices[1]] = samples2->s_Weights[j2][w];
             }
         }
-        LOG_TRACE(<< "correlate samples = " << core::CContainerPrinter::print(multivariateSamples)
-                  << ", correlate weights = "
-                  << core::CContainerPrinter::print(multivariateWeights));
+        LOG_TRACE(<< "correlate samples = " << multivariateSamples
+                  << ", correlate weights = " << multivariateWeights);
 
         prior->dataType(samples1->s_Type == maths_t::E_IntegerData ||
                                 samples2->s_Type == maths_t::E_IntegerData
@@ -1814,9 +1813,8 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
             static_cast<std::size_t>(
                 1.2 * static_cast<double>(allocator.maxNumberCorrelations())),
             correlated, &correlationCoeffs);
-        LOG_TRACE(<< "correlated = " << core::CContainerPrinter::print(correlated));
-        LOG_TRACE(<< "correlationCoeffs = "
-                  << core::CContainerPrinter::print(correlationCoeffs));
+        LOG_TRACE(<< "correlated = " << correlated);
+        LOG_TRACE(<< "correlationCoeffs = " << correlationCoeffs);
 
         std::ptrdiff_t cutoff{
             std::upper_bound(correlationCoeffs.begin(), correlationCoeffs.end(),

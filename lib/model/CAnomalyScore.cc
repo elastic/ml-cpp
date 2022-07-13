@@ -24,6 +24,7 @@
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 #include <maths/common/ProbabilityAggregators.h>
@@ -136,14 +137,14 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     double logPJoint;
     if (!logPJointCalculator.calculateUpperBound(logPJoint)) {
         LOG_ERROR(<< "Unable to calculate anomaly score"
-                  << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+                  << ", probabilities = " << probabilities);
         return false;
     }
 
     // Sanity check the probability not greater than 1.0.
     if (logPJoint > 0.0) {
-        LOG_ERROR(<< "Invalid log joint probability " << logPJoint << ", probabilities = "
-                  << core::CContainerPrinter::print(probabilities));
+        LOG_ERROR(<< "Invalid log joint probability " << logPJoint
+                  << ", probabilities = " << probabilities);
         return false;
     }
 
@@ -155,7 +156,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
         double logPi;
         if (!logPExtremeCalculator.calibrated(logPi)) {
             LOG_ERROR(<< "Unable to calculate anomaly score"
-                      << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+                      << ", probabilities = " << probabilities);
             return false;
         }
         if (logPi < logPExtreme) {
@@ -165,8 +166,8 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
 
     // Sanity check the probability in the range [0, 1].
     if (logPExtreme > 0.0) {
-        LOG_ERROR(<< "Invalid log extreme probability " << logPExtreme << ", probabilities = "
-                  << core::CContainerPrinter::print(probabilities));
+        LOG_ERROR(<< "Invalid log extreme probability " << logPExtreme
+                  << ", probabilities = " << probabilities);
         return false;
     }
 
@@ -225,9 +226,8 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
               << jointProbabilityWeight << ", logExtremeProbability = " << logPExtreme
               << ", extremeProbabilityWeight = " << extremeProbabilityWeight
               << ", overallProbability = " << overallProbability
-              << ", overallAnomalyScore = " << overallAnomalyScore
-              << ", # probabilities = " << probabilities.size()
-              << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+              << ", overallAnomalyScore = " << overallAnomalyScore << ", # probabilities = "
+              << probabilities.size() << ", probabilities = " << probabilities);
 
     return true;
 }
@@ -568,7 +568,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
             if (m_HighPercentileCount > n) {
                 LOG_ERROR(<< "Invalid c(H) " << m_HighPercentileCount);
                 LOG_ERROR(<< "target " << highPercentileCount);
-                LOG_ERROR(<< "L " << core::CContainerPrinter::print(L));
+                LOG_ERROR(<< "L " << L);
                 m_HighPercentileCount = n;
             }
             LOG_TRACE(<< "s(H) = " << m_HighPercentileScore
@@ -651,7 +651,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
             if (m_HighPercentileCount > n + 1) {
                 LOG_ERROR(<< "Invalid c(H) " << m_HighPercentileCount);
                 LOG_ERROR(<< "target " << highPercentileCount);
-                LOG_ERROR(<< "L " << core::CContainerPrinter::print(L));
+                LOG_ERROR(<< "L " << L);
                 m_HighPercentileCount = n;
             }
 

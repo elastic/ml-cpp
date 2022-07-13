@@ -205,8 +205,7 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     for (std::size_t i = 0; i < forest.size(); ++i) {
         propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
     }
-    LOG_TRACE(<< "loss gradients = "
-              << core::CContainerPrinter::print(trainingDataLossGradients));
+    LOG_TRACE(<< "loss gradients = " << trainingDataLossGradients);
 
     // We are interested in choosing trees for which the total gradient of the
     // loss at the current predictions for all nodes is the largest. These trees,
@@ -226,7 +225,7 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     for (auto& p : result) {
         p /= Z;
     }
-    LOG_TRACE(<< "probabilities = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "probabilities = " << result);
 
     return result;
 }

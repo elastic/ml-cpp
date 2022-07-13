@@ -2071,8 +2071,7 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 
 void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CSeasonalDecomposition& components) {
 
-    LOG_TRACE(<< "remove mask = "
-              << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
+    LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
     if (m_Seasonal->remove(components.seasonalToRemoveMask()) == false) {
         // We don't know how to apply the changes so just bail.
@@ -2747,8 +2746,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewCompon
 
 bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolVec& removeComponentsMask) {
     if (removeComponentsMask.size() != m_Components.size()) {
-        LOG_ERROR(<< "Unexpected seasonal components to remove "
-                  << core::CContainerPrinter::print(removeComponentsMask)
+        LOG_ERROR(<< "Unexpected seasonal components to remove " << removeComponentsMask
                   << ". Have " << m_Components.size() << " components.");
         return false;
     }

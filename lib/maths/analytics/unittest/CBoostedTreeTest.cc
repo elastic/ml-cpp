@@ -357,8 +357,8 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             modelRSquared[test].push_back(rSquared);
         }
     }
-    LOG_DEBUG(<< "bias = " << core::CContainerPrinter::print(modelBias));
-    LOG_DEBUG(<< " R^2 = " << core::CContainerPrinter::print(modelRSquared));
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
 
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
 }
@@ -409,8 +409,8 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
         modelBias.push_back(bias);
         modelRSquared.push_back(rSquared);
     }
-    LOG_DEBUG(<< "bias = " << core::CContainerPrinter::print(modelBias));
-    LOG_DEBUG(<< " R^2 = " << core::CContainerPrinter::print(modelRSquared));
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
 
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
 }
@@ -689,7 +689,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             }
         }
     }
-    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+    LOG_DEBUG(<< "outliers = " << outliers);
 
     auto generateLinearPlusOutliers = [&](test::CRandomNumbers& rng, std::size_t cols) {
         TDoubleVec m;
@@ -759,7 +759,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
             outliers.push_back(i);
         }
     }
-    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+    LOG_DEBUG(<< "outliers = " << outliers);
 
     auto target = [&] {
         TDoubleVec m;
@@ -1747,8 +1747,7 @@ BOOST_AUTO_TEST_CASE(testConstantFeatures) {
 
     TDoubleVec featureWeightsForTraining(regression->featureWeightsForTraining());
 
-    LOG_DEBUG(<< "feature weights = "
-              << core::CContainerPrinter::print(featureWeightsForTraining));
+    LOG_DEBUG(<< "feature weights = " << featureWeightsForTraining);
     BOOST_TEST_REQUIRE(featureWeightsForTraining[cols - 2] < 1e-4);
 }
 
@@ -2695,8 +2694,8 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         recalls.push_back(truePositives[1] / (truePositives[1] + falseNegatives[1]));
     }
 
-    LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
-    LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
+    LOG_DEBUG(<< "precisions = " << precisions);
+    LOG_DEBUG(<< "recalls    = " << recalls);
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
     BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.16);
@@ -3169,8 +3168,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         for (const auto& task : instrumentation.taskProgress()) {
             LOG_DEBUG(<< "task = " << task.s_Name);
             LOG_DEBUG(<< "monotonic = " << task.s_Monotonic);
-            LOG_DEBUG(<< "progress points = "
-                      << core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            LOG_DEBUG(<< "progress points = " << task.s_TenPercentProgressPoints);
             if (task.s_Name == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 // We don't do feature selection (we have enough data to use all of them).
             } else if (task.s_Name == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {

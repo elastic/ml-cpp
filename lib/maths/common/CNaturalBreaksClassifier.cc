@@ -11,7 +11,6 @@
 
 #include <maths/common/CNaturalBreaksClassifier.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
@@ -21,8 +20,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
-#include <maths/common/CMathsFuncs.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
@@ -223,7 +220,7 @@ bool CNaturalBreaksClassifier::split(const TSizeVec& split, TClassifierVec& resu
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
         std::is_sorted(split.begin(), split.end()) == false) {
-        LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
+        LOG_ERROR(<< "Bad split = " << split);
         return false;
     }
 
@@ -309,7 +306,7 @@ bool CNaturalBreaksClassifier::categories(const TSizeVec& split, TTupleVec& resu
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
         std::is_sorted(split.begin(), split.end()) == false) {
-        LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
+        LOG_ERROR(<< "Bad split = " << split);
         return false;
     }
 
@@ -368,7 +365,7 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time) {
 
     double alpha = std::exp(-m_DecayRate * time);
     LOG_TRACE(<< "alpha = " << alpha);
-    LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "categories = " << m_Categories);
 
     for (std::size_t i = 0; i < m_Categories.size(); ++i) {
         m_Categories[i].age(alpha);
@@ -383,7 +380,7 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time) {
                                       }),
                        m_Categories.end());
 
-    LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "categories = " << m_Categories);
 }
 
 bool CNaturalBreaksClassifier::buffering() const {
@@ -403,7 +400,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
 
     // See, for example, Effective C++ item 3.
     const_cast<CNaturalBreaksClassifier*>(this)->reduce();
-    LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "categories = " << m_Categories);
 
     TDoubleVec weights;
     weights.reserve(m_Categories.size());
@@ -422,8 +419,8 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     }
 
     numberSamples = std::min(numberSamples, static_cast<std::size_t>(weightSum));
-    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
-              << ", weightSum = " << weightSum << ", n = " << numberSamples);
+    LOG_TRACE(<< "weights = " << weights << ", weightSum = " << weightSum
+              << ", n = " << numberSamples);
 
     result.reserve(numberSamples);
 
@@ -469,7 +466,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
         }
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "samples = " << result);
 }
 
 std::string CNaturalBreaksClassifier::print() const {
@@ -579,7 +576,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categ
         }
     }
 
-    LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
+    LOG_TRACE(<< "categories = " << categories);
 
     for (std::size_t i = 1; i < N; ++i) {
         for (std::size_t m = 1; m <= std::min(i, n - 1); ++m) {
@@ -607,8 +604,8 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categ
         return false;
     }
 
-    LOG_TRACE(<< "D = " << core::CContainerPrinter::print(D));
-    LOG_TRACE(<< "B = " << core::CContainerPrinter::print(B));
+    LOG_TRACE(<< "D = " << D);
+    LOG_TRACE(<< "B = " << B);
 
     // Find the solution by back tracking. Note that we return
     // the end points of the half open intervals comprising
@@ -623,7 +620,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categ
         result[n - i] = B[result[n - i + 1] - 1][n - i + 1];
     }
 
-    LOG_TRACE(<< "result = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }
@@ -657,7 +654,7 @@ void CNaturalBreaksClassifier::reduce() {
     std::sort(m_Categories.begin(), m_Categories.end(), [](const auto& lhs, const auto& rhs) {
         return CBasicStatistics::mean(lhs) < CBasicStatistics::mean(rhs);
     });
-    LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "categories = " << m_Categories);
 
     while (m_Categories.size() > m_Space) {
         // Find the tuples to merge.
@@ -668,7 +665,7 @@ void CNaturalBreaksClassifier::reduce() {
         m_Categories.erase(m_Categories.begin() + toMerge.second);
     }
 
-    LOG_TRACE(<< "reduced categories = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "reduced categories = " << m_Categories);
 }
 
 CNaturalBreaksClassifier::TSizeSizePr CNaturalBreaksClassifier::closestPair() const {
@@ -692,7 +689,7 @@ CNaturalBreaksClassifier::TSizeSizePr CNaturalBreaksClassifier::closestPair() co
         }
     }
 
-    LOG_TRACE(<< "Closest pair = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "Closest pair = " << result);
 
     return result;
 }

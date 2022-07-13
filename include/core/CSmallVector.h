@@ -157,7 +157,7 @@ private:
 
 template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CSmallVector<T, N>& v) {
-    return o << core::CContainerPrinter::print(v.begin(), v.end());
+    return o << CContainerPrinter::print(v.begin(), v.end());
 }
 }
 }

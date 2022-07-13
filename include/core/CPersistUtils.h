@@ -357,8 +357,7 @@ public:
 
         template<typename... T>
         bool operator()(const std::string& token, std::tuple<T...>& value) const {
-            if (std::count(token.begin(), token.end(), m_PairDelimiter) !=
-                std::tuple_size_v<std::tuple<T...>>) {
+            if (std::count(token.begin(), token.end(), m_PairDelimiter) != sizeof...(T)) {
                 return false;
             }
 
@@ -981,7 +980,7 @@ public:
                            << traverser_.value();
                     return false;
                 }
-                if (pos + 1 < std::tuple_size_v<std::tuple<T...>>) {
+                if (pos + 1 < sizeof...(T)) {
                     if (traverser_.next() == false) {
                         errors << "Restore error at " << traverser_.name()
                                << ": " << traverser_.value();

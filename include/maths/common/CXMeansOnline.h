@@ -279,7 +279,7 @@ public:
             if (this->splitSearch(rng, minimumCount, split) == false) {
                 return {};
             }
-            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
+            LOG_TRACE(<< "split = " << split);
 
             TCovariances covariances[]{TCovariances(N), TCovariances(N)};
             TSphericalClusterVec clusters;
@@ -398,11 +398,10 @@ public:
 
             for (;;) {
                 TKMeansOnline::kmeans(rng, node, 2, candidate);
-                LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
+                LOG_TRACE(<< "candidate = " << candidate);
 
                 if (candidate.size() > 2) {
-                    LOG_ERROR(<< "Expected 2-split: "
-                              << core::CContainerPrinter::print(candidate));
+                    LOG_ERROR(<< "Expected 2-split: " << candidate);
                     break;
                 }
                 if (candidate[0].empty() || candidate[1].empty()) {
@@ -485,8 +484,8 @@ public:
                                                                  clusters.end(), x, less) -
                                                 clusters.begin();
                                 if (j >= clusters.size()) {
-                                    LOG_ERROR(<< "Missing " << x << " from clusters = "
-                                              << core::CContainerPrinter::print(clusters));
+                                    LOG_ERROR(<< "Missing " << x
+                                              << " from clusters = " << clusters);
                                     return false;
                                 }
                                 result[i].push_back(indexes[j]);
@@ -1127,7 +1126,7 @@ protected:
             if (prune.count() == 0) {
                 break;
             }
-            LOG_TRACE(<< "prune = " << core::CContainerPrinter::print(prune));
+            LOG_TRACE(<< "prune = " << prune);
 
             result = true;
 

@@ -194,7 +194,7 @@ bool readGrid(const std::string& file, TDoubleVec& weights, TDoubleVecVec& point
             core::CStringUtils::trimWhitespace(point[i]);
             double xi;
             if (!core::CStringUtils::stringToType(point[i], xi)) {
-                LOG_ERROR(<< "Bad point: " << core::CContainerPrinter::print(point));
+                LOG_ERROR(<< "Bad point: " << point);
                 return false;
             }
             points.back().push_back(xi);
@@ -1135,8 +1135,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
                 TDoubleVec b(limits.begin() + DIMENSION, limits.end());
 
                 LOG_DEBUG(<< "Testing " << polynomial);
-                LOG_DEBUG(<< "a = " << core::CContainerPrinter::print(a));
-                LOG_DEBUG(<< "b = " << core::CContainerPrinter::print(b));
+                LOG_DEBUG(<< "a = " << a);
+                LOG_DEBUG(<< "b = " << b);
 
                 double expected = integrate(polynomial, a, b);
 
@@ -1215,8 +1215,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
                 TDoubleVec b(limits.begin() + DIMENSION, limits.end());
 
                 LOG_DEBUG(<< "Testing " << polynomial);
-                LOG_DEBUG(<< "a = " << core::CContainerPrinter::print(a));
-                LOG_DEBUG(<< "b = " << core::CContainerPrinter::print(b));
+                LOG_DEBUG(<< "a = " << a);
+                LOG_DEBUG(<< "b = " << b);
 
                 double expected = integrate(polynomial, a, b);
 

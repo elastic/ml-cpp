@@ -189,11 +189,9 @@ void CSampleCounts::recycle(const TSizeVec& idsToRemove) {
         m_MeanNonZeroBucketCounts[id] = TMeanAccumulator();
         m_EffectiveSampleVariances[id] = TMeanAccumulator();
     }
-    LOG_TRACE(<< "m_SampleCounts = " << core::CContainerPrinter::print(m_SampleCounts));
-    LOG_TRACE(<< "m_MeanNonZeroBucketCounts = "
-              << core::CContainerPrinter::print(m_MeanNonZeroBucketCounts));
-    LOG_TRACE(<< "m_EffectiveSampleVariances = "
-              << core::CContainerPrinter::print(m_EffectiveSampleVariances));
+    LOG_TRACE(<< "m_SampleCounts = " << m_SampleCounts);
+    LOG_TRACE(<< "m_MeanNonZeroBucketCounts = " << m_MeanNonZeroBucketCounts);
+    LOG_TRACE(<< "m_EffectiveSampleVariances = " << m_EffectiveSampleVariances);
 }
 
 void CSampleCounts::remove(std::size_t lowestIdToRemove) {
@@ -204,11 +202,9 @@ void CSampleCounts::remove(std::size_t lowestIdToRemove) {
                                         m_MeanNonZeroBucketCounts.end());
         m_EffectiveSampleVariances.erase(m_EffectiveSampleVariances.begin() + lowestIdToRemove,
                                          m_EffectiveSampleVariances.end());
-        LOG_TRACE(<< "m_SampleCounts = " << core::CContainerPrinter::print(m_SampleCounts));
-        LOG_TRACE(<< "m_MeanNonZeroBucketCounts = "
-                  << core::CContainerPrinter::print(m_MeanNonZeroBucketCounts));
-        LOG_TRACE(<< "m_EffectiveSampleVariances = "
-                  << core::CContainerPrinter::print(m_EffectiveSampleVariances));
+        LOG_TRACE(<< "m_SampleCounts = " << m_SampleCounts);
+        LOG_TRACE(<< "m_MeanNonZeroBucketCounts = " << m_MeanNonZeroBucketCounts);
+        LOG_TRACE(<< "m_EffectiveSampleVariances = " << m_EffectiveSampleVariances);
     }
 }
 
@@ -231,7 +227,7 @@ std::uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
             hash = maths::common::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
         }
     }
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
     return maths::common::CChecksum::calculate(0, hashes);
 }
 

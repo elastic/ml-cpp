@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -259,7 +258,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                        bucket1[0].second);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
             BOOST_REQUIRE_EQUAL(
@@ -283,7 +282,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             gatherer.sampleNow(startTime);
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
@@ -823,9 +822,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     expectedRecycled.push_back(addPerson("p1", gatherer, m_ResourceMonitor));
     expectedRecycled.push_back(addPerson("p7", gatherer, m_ResourceMonitor));
 
-    LOG_DEBUG(<< "recycled          = "
-              << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
-    LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
+    LOG_DEBUG(<< "recycled          = " << gatherer.recycledPersonIds());
+    LOG_DEBUG(<< "expected recycled = " << expectedRecycled);
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedRecycled),
                         core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
@@ -889,10 +887,10 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
                     expected, featureData[j].second.s_BucketValue->value()[0]);
                 BOOST_REQUIRE_EQUAL(
                     std::size_t(1),
-                    ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
+                    core::unwrap_ref(featureData[j].second.s_Samples).size());
                 BOOST_REQUIRE_EQUAL(
                     expected,
-                    ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                    core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
             }
         }
         {
@@ -909,10 +907,10 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
                         expected, featureData[j].second.s_BucketValue->value()[0]);
                     BOOST_REQUIRE_EQUAL(
                         std::size_t(1),
-                        ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
+                        core::unwrap_ref(featureData[j].second.s_Samples).size());
                     BOOST_REQUIRE_EQUAL(
                         expected,
-                        ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                        core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
                 }
             }
         }
@@ -993,7 +991,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_EQUAL(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1524,8 +1522,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                     std::sort(statistics.begin(), statistics.end(),
                               maths::common::COrderings::SFirstLess());
 
-                    LOG_DEBUG(<< "statistics = "
-                              << core::CContainerPrinter::print(statistics));
+                    LOG_DEBUG(<< "statistics = " << statistics);
                     LOG_DEBUG(<< "expected   = " << *expected);
                     BOOST_REQUIRE_EQUAL((*expected++),
                                         core::CContainerPrinter::print(statistics));
@@ -1598,7 +1595,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
                        bucket1[0].get<1>(), bucket1[0].get<2>(), DELIMITER);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
             BOOST_REQUIRE_EQUAL(
@@ -1615,15 +1612,13 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             gatherer.sampleNow(startTime);
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.4, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
             BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-            LOG_DEBUG(<< core::CContainerPrinter::print(
-                          featureData[0].second[0].second.s_Samples));
             BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
@@ -1639,7 +1634,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime + bucketLength);
             gatherer.featureData(startTime + bucketLength, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
@@ -1660,7 +1655,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime + 2 * bucketLength);
             gatherer.featureData(startTime + 2 * bucketLength, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.3, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
@@ -1707,7 +1702,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
         BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(
             std::string("[(2323 [3.5, 3.3] 1 4)]"),
             core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
@@ -1798,7 +1793,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
             gatherer.sampleNow(startTime);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             CSample::TDouble1Vec v =
                 featureData[0].second[0].second.s_BucketValue->value();
             double expectedMean = 0;
@@ -1815,7 +1810,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
             gatherer.sampleNow(startTime);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
+            LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData[0].second[0].second.s_BucketValue);
         }
     }
@@ -1837,9 +1832,8 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
 
         TStrVec testInf(gatherer.beginInfluencers(), gatherer.endInfluencers());
 
-        LOG_DEBUG(<< "Influencer fields: " << core::CContainerPrinter::print(testInf));
-        LOG_DEBUG(<< "FOI: "
-                  << core::CContainerPrinter::print(gatherer.fieldsOfInterest()));
+        LOG_DEBUG(<< "Influencer fields: " << testInf);
+        LOG_DEBUG(<< "FOI: " << gatherer.fieldsOfInterest());
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         {
@@ -1890,7 +1884,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
 
             SMetricFeatureData mfd = fsfd.second[0].second;
             SMetricFeatureData::TStrCRefDouble1VecDoublePrPrVecVec ivs = mfd.s_InfluenceValues;
-            LOG_DEBUG(<< "IVs: " << core::CContainerPrinter::print(ivs));
+            LOG_DEBUG(<< "IVs: " << ivs);
             BOOST_REQUIRE_EQUAL(std::size_t(2), ivs.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), ivs[0].size());
             BOOST_REQUIRE_EQUAL(std::size_t(2), ivs[1].size());

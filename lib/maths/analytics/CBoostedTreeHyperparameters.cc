@@ -244,8 +244,7 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
         common::CBayesianOptimisation::TOptionalDouble EI;
         std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
         double threshold{LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE * minTestLoss[0]};
-        LOG_TRACE(<< "EI = " << core::CContainerPrinter::print(EI)
-                  << " threshold to continue = " << threshold);
+        LOG_TRACE(<< "EI = " << EI << " threshold to continue = " << threshold);
         if ((testLosses.size() >= minNumberTestLosses && EI != std::nullopt && *EI < threshold) ||
             args.updateParameter()(args.tree(), parameter(0)) == false) {
             args.tree().m_TrainingProgress.increment(
@@ -269,7 +268,7 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
     }
 
     std::sort(testLosses.begin(), testLosses.end());
-    LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
+    LOG_TRACE(<< "test losses = " << testLosses);
 }
 
 CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
@@ -367,8 +366,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
     this->foreachTunableParameter([&](std::size_t, const auto& parameter) {
         boundingBox.push_back(parameter.searchRange());
     });
-    LOG_TRACE(<< "hyperparameter search bounding box = "
-              << core::CContainerPrinter::print(boundingBox));
+    LOG_TRACE(<< "hyperparameter search bounding box = " << boundingBox);
 
     m_BayesianOptimization = std::make_unique<common::CBayesianOptimisation>(
         std::move(boundingBox),

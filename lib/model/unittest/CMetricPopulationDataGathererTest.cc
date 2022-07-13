@@ -532,9 +532,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = meanSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -551,9 +551,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = minSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -570,9 +570,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = maxSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -722,8 +722,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
             }
         }
     }
-    LOG_DEBUG(<< "expectedNonZeroCounts = "
-              << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << expectedNonZeroCounts);
 
     LOG_TRACE(<< "Expected");
     TStrFeatureDataPrVec expectedFeatureData;
@@ -762,8 +761,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = nonZeroCounts[i].second;
     }
-    LOG_DEBUG(<< "actualNonZeroCounts = "
-              << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
                         core::CContainerPrinter::print(actualNonZeroCounts));
@@ -1010,8 +1008,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                     std::sort(statistics.begin(), statistics.end(),
                               maths::common::COrderings::SFirstLess());
 
-                    LOG_DEBUG(<< "statistics = "
-                              << core::CContainerPrinter::print(statistics));
+                    LOG_DEBUG(<< "statistics = " << statistics);
                     LOG_DEBUG(<< "expected   = " << *expected);
                     BOOST_REQUIRE_EQUAL(*(expected++),
                                         core::CContainerPrinter::print(statistics));

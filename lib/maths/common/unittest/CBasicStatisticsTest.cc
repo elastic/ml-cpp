@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -643,7 +643,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -672,7 +672,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarSkewAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -727,7 +727,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarSkewAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
             3);
 
         for (std::size_t i = 0; i < boost::size(raw); ++i) {
-            LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(raw[i]));
+            LOG_DEBUG(<< "v = " << raw[i]);
             covariances1.add(maths::common::CVectorNx1<double, 3>(raw[i]));
             covariances2.add(maths::common::CVector<double>(std::begin(raw[i]),
                                                             std::end(raw[i])));

@@ -62,16 +62,16 @@ public:
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) < core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
         template<typename T>
         static inline bool less(const T& lhs, const std::optional<T>& rhs) {
-            return !rhs ? true : ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(*rhs);
+            return !rhs ? true : core::unwrap_ref(lhs) < core::unwrap_ref(*rhs);
         }
         template<typename T>
         static inline bool less(const std::optional<T>& lhs, const T& rhs) {
-            return !lhs ? false : ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(rhs);
+            return !lhs ? false : core::unwrap_ref(*lhs) < core::unwrap_ref(rhs);
         }
     };
 
@@ -94,16 +94,16 @@ public:
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) > core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
         template<typename T>
         static inline bool greater(const T& lhs, const std::optional<T>& rhs) {
-            return !rhs ? false : ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(*rhs);
+            return !rhs ? false : core::unwrap_ref(lhs) > core::unwrap_ref(*rhs);
         }
         template<typename T>
         static inline bool greater(const std::optional<T>& lhs, const T& rhs) {
-            return !lhs ? true : ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(rhs);
+            return !lhs ? true : core::unwrap_ref(*lhs) > core::unwrap_ref(rhs);
         }
     };
 
@@ -123,7 +123,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) < core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
     };
@@ -144,7 +144,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) > core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
     };
@@ -161,7 +161,7 @@ public:
 
         template<typename U, typename V>
         static inline bool less(const U& lhs, const V& rhs) {
-            return ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(rhs);
+            return core::unwrap_ref(lhs) < core::unwrap_ref(rhs);
         }
     };
 
@@ -177,7 +177,7 @@ public:
 
         template<typename U, typename V>
         static inline bool greater(const U& lhs, const V& rhs) {
-            return ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(rhs);
+            return core::unwrap_ref(lhs) > core::unwrap_ref(rhs);
         }
     };
 

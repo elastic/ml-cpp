@@ -528,9 +528,8 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         std::size_t shiftIndex{largestShift(shifts)};
         std::size_t changeIndex{segments[shiftIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts)
-                  << ", shift index = " << shiftIndex);
+        LOG_TRACE(<< "trend segments = " << segments);
+        LOG_TRACE(<< "shifts = " << shifts << ", shift index = " << shiftIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
@@ -582,9 +581,8 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
         std::size_t scaleIndex{largestScale(scales)};
         std::size_t changeIndex{segments[scaleIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales)
-                  << ", scale index = " << scaleIndex);
+        LOG_TRACE(<< "scale segments = " << segments);
+        LOG_TRACE(<< "scales = " << scales << ", scale index = " << scaleIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
@@ -692,8 +690,8 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         double truncatedVarianceH1;
         std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
         std::size_t changeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
+        LOG_TRACE(<< "shift segments = " << segments);
+        LOG_TRACE(<< "shifts = " << shifts);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);

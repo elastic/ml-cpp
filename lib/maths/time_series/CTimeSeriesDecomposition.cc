@@ -11,7 +11,6 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -523,8 +522,8 @@ CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
     if (m_Components.usingTrendForPrediction()) {
         bias *= (components + 1.0) / std::max(components, 1.0);
     }
-    LOG_TRACE(<< "mean = " << mean << " variance = " << variance << " bias = " << bias
-              << " scale = " << core::CContainerPrinter::print(scale));
+    LOG_TRACE(<< "mean = " << mean << " variance = " << variance
+              << " bias = " << bias << " scale = " << scale);
 
     scale *= m_Components.meanVarianceScale() / mean;
     scale = max(TVector2x1{1.0} + bias * (scale - TVector2x1{1.0}), TVector2x1{0.0});

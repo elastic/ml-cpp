@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CBootstrapClusterer_h
 #define INCLUDED_ml_maths_common_CBootstrapClusterer_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CKMeans.h>
@@ -352,7 +351,7 @@ protected:
                 }
             }
         }
-        LOG_TRACE(<< "ambiguous = " << core::CContainerPrinter::print(ambiguous));
+        LOG_TRACE(<< "ambiguous = " << ambiguous);
 
         TDoubleSizePrVec consistent;
         for (TSizeSizePrUSetCItr i = ambiguous.begin(); i != ambiguous.end(); ++i) {
@@ -376,7 +375,7 @@ protected:
             std::sort(consistent.begin(), consistent.end(), COrderings::SSecondLess());
             consistent.erase(std::unique(consistent.begin(), consistent.end(), SSecondEqual()),
                              consistent.end());
-            LOG_TRACE(<< "consistent = " << core::CContainerPrinter::print(consistent));
+            LOG_TRACE(<< "consistent = " << consistent);
 
             for (std::size_t k = 0; k < consistent.size(); ++k) {
                 boost::put(boost::edge_weight, graph,
@@ -510,7 +509,7 @@ protected:
                         components[inverse[j]] = n;
                     }
                 }
-                LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
+                LOG_TRACE(<< "components = " << components);
                 ++n;
             }
         }
@@ -686,7 +685,7 @@ protected:
 
                 TSizeVec components;
                 std::size_t c = this->positiveSubgraphConnected(graph, parities, components);
-                LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
+                LOG_TRACE(<< "components = " << components);
 
                 // Find the smallest component.
                 TSizeVec sizes(c, 0);
@@ -697,7 +696,7 @@ protected:
                 }
                 std::size_t smallest = static_cast<std::size_t>(
                     std::min_element(sizes.begin(), sizes.end()) - sizes.begin());
-                LOG_TRACE(<< "sizes = " << core::CContainerPrinter::print(sizes));
+                LOG_TRACE(<< "sizes = " << sizes);
                 LOG_TRACE(<< "smallest = " << smallest);
 
                 // Add all its vertices to the "to visit" set.

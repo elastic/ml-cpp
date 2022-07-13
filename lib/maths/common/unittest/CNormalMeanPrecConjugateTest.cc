@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 TDoubleDoublePr interval =
                     filter.marginalLikelihoodConfidenceInterval(percentages[i]);
                 LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                          << ", interval = " << core::CContainerPrinter::print(interval));
+                          << ", interval = " << interval);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.005);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.005);
                 error.add(std::fabs(interval.first - q1));
@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                     TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(
                         percentages[j], maths_t::countVarianceScaleWeight(vs));
                     LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                              << ", interval = " << core::CContainerPrinter::print(interval));
+                              << ", interval = " << interval);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.3);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.3);
                     error.add(std::fabs(interval.first - q1));
@@ -1108,7 +1108,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG(<< "68% confidence interval " << core::CContainerPrinter::print(interval)
+        LOG_DEBUG(<< "68% confidence interval " << interval
                   << ", approximate variance = " << sigma * sigma);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, 1.0 / (sigma * sigma), 0.15);
     }
@@ -1120,7 +1120,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG(<< "68% confidence interval " << core::CContainerPrinter::print(interval)
+        LOG_DEBUG(<< "68% confidence interval " << interval
                   << ", approximate s.t.d. = " << sigma);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / maths::common::MINIMUM_COEFFICIENT_OF_VARIATION / 430.5,
                                      1.0 / sigma, 7.0);

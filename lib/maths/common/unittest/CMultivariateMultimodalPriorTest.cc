@@ -257,11 +257,10 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     LOG_DEBUG(<< "numberSamples           = " << numberSamples);
     LOG_DEBUG(<< "propagatedNumberSamples = " << propagatedNumberSamples);
-    LOG_DEBUG(<< "mean           = " << core::CContainerPrinter::print(mean));
-    LOG_DEBUG(<< "propagatedMean = " << core::CContainerPrinter::print(propagatedMean));
-    LOG_DEBUG(<< "covariance           = " << core::CContainerPrinter::print(covariance));
-    LOG_DEBUG(<< "propagatedCovariance = "
-              << core::CContainerPrinter::print(propagatedCovariance));
+    LOG_DEBUG(<< "mean           = " << mean);
+    LOG_DEBUG(<< "propagatedMean = " << propagatedMean);
+    LOG_DEBUG(<< "covariance           = " << covariance);
+    LOG_DEBUG(<< "propagatedCovariance = " << propagatedCovariance);
 
     BOOST_TEST_REQUIRE(propagatedNumberSamples < numberSamples);
     BOOST_TEST_REQUIRE((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
@@ -683,8 +682,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
         if (i % 10 == 0) {
             LOG_DEBUG(<< "sample mean = "
                       << maths::common::CBasicStatistics::mean(expectedMean));
-            LOG_DEBUG(<< "distribution mean = "
-                      << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+            LOG_DEBUG(<< "distribution mean = " << filter.marginalLikelihoodMean());
         }
 
         double error = (maths::common::CBasicStatistics::mean(expectedMean) -
@@ -750,7 +748,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         }
 
         LOG_DEBUG(<< "# modes = " << filter.numberModes());
-        LOG_DEBUG(<< "mode          = " << core::CContainerPrinter::print(mode));
+        LOG_DEBUG(<< "mode          = " << mode);
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         double error = (TVector2(mode) - expectedMode).euclidean() /
                        expectedMode.euclidean();
@@ -891,8 +889,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 covariances[j][k].assign(covariances_[i][j][k], covariances_[i][j][k] + 2);
             }
         }
-        LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
-        LOG_DEBUG(<< "covariances = " << core::CContainerPrinter::print(covariances));
+        LOG_DEBUG(<< "means = " << means);
+        LOG_DEBUG(<< "covariances = " << covariances);
 
         TDoubleVecVec samples;
         for (std::size_t j = 0; j < w.size(); ++j) {
@@ -1005,7 +1003,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     //                                           lb, ub, tail);
     //    p.push_back((lb + ub) / 2.0);
     //}
-    //LOG_DEBUG(<< "p = " << core::CContainerPrinter::print(p) << ";");
+    //LOG_DEBUG(<< "p = " << p << ";");
 
     //std::ofstream f;
     //f.open("results.m");

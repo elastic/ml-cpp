@@ -11,12 +11,10 @@
 
 #include <model/CFeatureData.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 
 #include <boost/iterator/counting_iterator.hpp>
-#include <boost/utility/in_place_factory.hpp>
 
 #include <vector>
 

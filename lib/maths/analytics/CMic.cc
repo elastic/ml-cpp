@@ -78,7 +78,7 @@ double CMic::compute() {
 
         for (std::size_t l = 2; l < rootb; ++l) {
             TDoubleVec q(this->equipartitionAxis(Y, l));
-            LOG_TRACE(<< "Q = " << core::CContainerPrinter::print(q));
+            LOG_TRACE(<< "Q = " << q);
             // Note in the case of points with duplicate Y- values we still choose
             // k equal to the target size for Q here (since overall we still have
             // that kl < B(n) and we want to test additional grids).
@@ -93,7 +93,7 @@ double CMic::compute() {
 
         for (std::size_t l = rootb; l < b / 2; ++l) {
             TDoubleVec q(this->equipartitionAxis(Y, l));
-            LOG_TRACE(<< "Q = " << core::CContainerPrinter::print(q));
+            LOG_TRACE(<< "Q = " << q);
             // The same rationale for choice of k in the presence of duplicates.
             std::size_t ldistinct{q.size()};
             std::size_t k{b / l};
@@ -235,7 +235,7 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
     LOG_TRACE(<< "c * k = " << ck);
 
     TDoubleVec pi(this->equipartitionAxis(X, ck));
-    LOG_TRACE(<< "pi = " << core::CContainerPrinter::print(pi));
+    LOG_TRACE(<< "pi = " << pi);
     ck = std::min(ck, pi.size());
 
     double n{static_cast<double>(m_Samples.size())};
@@ -294,7 +294,7 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
         M[t - 1].reserve(k);
         M[t - 1].push_back(Fmax);
     }
-    LOG_TRACE(<< "mutual information = " << core::CContainerPrinter::print(M));
+    LOG_TRACE(<< "mutual information = " << M);
 
     // A dynamic program to compute the optimal 3- to k-subsets of partition pi.
     //
@@ -338,8 +338,7 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
         r += Hq;
     }
 
-    LOG_TRACE(<< "max mutual information(k = " << k
-              << ") = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "max mutual information(k = " << k << ") = " << result);
 
     return result;
 }

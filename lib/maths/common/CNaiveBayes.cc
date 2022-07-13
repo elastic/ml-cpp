@@ -392,7 +392,7 @@ bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
     if (class_ != m_ClassConditionalDensities.end() &&
         class_->second.conditionalDensities().size() > 0 &&
         class_->second.conditionalDensities().size() != x.size()) {
-        LOG_ERROR(<< "Unexpected feature vector: " << core::CContainerPrinter::print(x));
+        LOG_ERROR(<< "Unexpected feature vector: " << x);
         return false;
     }
     return true;

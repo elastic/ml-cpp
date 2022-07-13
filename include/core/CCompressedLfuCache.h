@@ -13,7 +13,6 @@
 #define INCLUDED_ml_core_CCompressedLfuCache_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -504,8 +503,7 @@ private:
             }
         }
 
-        LOG_TRACE(<< "bucket sequence = "
-                  << core::CContainerPrinter::print(m_BucketCountSequence));
+        LOG_TRACE(<< "bucket sequence = " << m_BucketCountSequence);
     }
 
     void checkRestoredInvariants() const {

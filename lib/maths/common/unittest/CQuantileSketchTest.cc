@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CRapidXmlParser.h>
@@ -46,7 +45,7 @@ void testSketch(SKETCH sketch,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
-    LOG_TRACE(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+    LOG_TRACE(<< "sketch = " << sketch.knots());
 
     std::size_t N = samples.size();
     std::sort(samples.begin(), samples.end());
@@ -98,7 +97,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     sketch = std::for_each(x, x + 2, sketch);
     BOOST_TEST_REQUIRE(sketch.checkInvariants());
 
-    LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+    LOG_DEBUG(<< "sketch = " << sketch.knots());
     BOOST_REQUIRE_EQUAL(6.0, sketch.count());
     BOOST_REQUIRE_EQUAL(std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
                         core::CContainerPrinter::print(sketch.knots()));
@@ -118,7 +117,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                             core::CContainerPrinter::print(sketch.knots()));
 
@@ -127,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         sketch.add(0.1);
         sketch.add(0.2);
         sketch.add(0.0);
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                             core::CContainerPrinter::print(sketch.knots()));
     }
@@ -140,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             sketch.add(static_cast<double>(i));
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
                                         " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
                                         " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
@@ -164,8 +163,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
-                LOG_DEBUG(<< "sketch = "
-                          << core::CContainerPrinter::print(sketch.knots()));
+                LOG_DEBUG(<< "sketch = " << sketch.knots());
             }
         }
 
@@ -196,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                             core::CContainerPrinter::print(sketch.knots()));
 
@@ -205,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         sketch.add(0.1);
         sketch.add(0.2);
         sketch.add(0.0);
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                             core::CContainerPrinter::print(sketch.knots()));
     }
@@ -219,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             sketch.add(static_cast<double>(i));
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
-        LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
                                         " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
                                         " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
@@ -277,8 +275,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
         sketch2.add(5.1);
 
         sketch1 += sketch2;
-        LOG_DEBUG(<< "merged sketch = "
-                  << core::CContainerPrinter::print(sketch1.knots()));
+        LOG_DEBUG(<< "merged sketch = " << sketch1.knots());
         BOOST_REQUIRE_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
                             core::CContainerPrinter::print(sketch1.knots()));
     }
@@ -299,12 +296,11 @@ BOOST_AUTO_TEST_CASE(testMerge) {
             sketch1.add(points[i]);
             sketch2.add(points[i + 1]);
         }
-        LOG_DEBUG(<< "sketch 1 = " << core::CContainerPrinter::print(sketch1.knots()));
-        LOG_DEBUG(<< "sketch 2 = " << core::CContainerPrinter::print(sketch2.knots()));
+        LOG_DEBUG(<< "sketch 1 = " << sketch1.knots());
+        LOG_DEBUG(<< "sketch 2 = " << sketch2.knots());
 
         maths::common::CQuantileSketch sketch3 = sketch1 + sketch2;
-        LOG_DEBUG(<< "merged sketch = "
-                  << core::CContainerPrinter::print(sketch3.knots()));
+        LOG_DEBUG(<< "merged sketch = " << sketch3.knots());
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;

@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
-    LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
+    LOG_DEBUG(<< "means = " << means);
     LOG_DEBUG(<< "covariance = " << covariance);
 
     for (std::size_t t = 0; t < 10; ++t) {
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
-    LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
+    LOG_DEBUG(<< "means = " << means);
     LOG_DEBUG(<< "covariance = " << covariance);
 
     for (std::size_t t = 0; t < 10; ++t) {

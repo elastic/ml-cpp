@@ -1008,8 +1008,7 @@ BOOST_AUTO_TEST_CASE(testStringBehaviour, *boost::unit_test::disabled()) {
         }
     }
 
-    LOG_INFO(<< "Capacities during growth from 0 to 50000 characters are: "
-             << core::CContainerPrinter::print(capacities));
+    LOG_INFO(<< "Capacities during growth from 0 to 50000 characters are: " << capacities);
 
     std::string toBeShrunk(100, 'a');
     toBeShrunk = "a lot smaller than it was";

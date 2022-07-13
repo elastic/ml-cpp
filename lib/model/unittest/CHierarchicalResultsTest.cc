@@ -10,7 +10,6 @@
  */
 
 #include <core/CBase64Filter.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -108,15 +107,12 @@ public:
         // Check we have the expected number of layers and that
         // all nodes are in a lower layer than their parents.
 
-        using TNodeCPtrSetCItr = TNodeCPtrSet::const_iterator;
-
         LOG_DEBUG(<< "# layers = " << m_Layers.size());
         BOOST_REQUIRE_EQUAL(expectedLayers, m_Layers.size());
 
         for (std::size_t i = 0; i < m_Layers.size(); ++i) {
-            LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
-            for (TNodeCPtrSetCItr itr = m_Layers[i].begin();
-                 itr != m_Layers[i].end(); ++itr) {
+            LOG_DEBUG(<< "Checking layer " << m_Layers[i]);
+            for (auto itr = m_Layers[i].begin(); itr != m_Layers[i].end(); ++itr) {
                 if ((*itr)->s_Parent) {
                     std::size_t p = this->layer((*itr)->s_Parent);
                     LOG_DEBUG(<< "layer = " << i << ", parent layer = " << p);
@@ -1109,14 +1105,12 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         addAggregateValues(0.5, 0.5, 5, std::begin(rp3), std::end(rp3),
                            expectedScores, expectedProbabilities);
         maths::common::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
-        LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
-        LOG_DEBUG(<< "scores         = " << core::CContainerPrinter::print(scores));
+        LOG_DEBUG(<< "expectedScores = " << expectedScores);
+        LOG_DEBUG(<< "scores         = " << scores);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedScores),
                             core::CContainerPrinter::print(scores));
-        LOG_DEBUG(<< "expectedProbabilities = "
-                  << core::CContainerPrinter::print(expectedProbabilities));
-        LOG_DEBUG(<< "probabilities         = "
-                  << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "expectedProbabilities = " << expectedProbabilities);
+        LOG_DEBUG(<< "probabilities         = " << probabilities);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedProbabilities),
                             core::CContainerPrinter::print(probabilities));
     }
@@ -1622,9 +1616,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             }
         }
         LOG_TRACE(<< "* leaf *");
-        LOG_TRACE(<< "expectedNormalized = "
-                  << core::CContainerPrinter::print(expectedNormalized));
-        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "expectedNormalized = " << expectedNormalized);
+        LOG_TRACE(<< "normalized         = " << normalized);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 
@@ -1655,9 +1648,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             }
         }
         LOG_TRACE(<< "* person *");
-        LOG_TRACE(<< "expectedNormalized = "
-                  << core::CContainerPrinter::print(expectedNormalized));
-        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "expectedNormalized = " << expectedNormalized);
+        LOG_TRACE(<< "normalized         = " << normalized);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 
@@ -1688,9 +1680,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             }
         }
         LOG_TRACE(<< "* partition *");
-        LOG_TRACE(<< "expectedNormalized = "
-                  << core::CContainerPrinter::print(expectedNormalized));
-        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "expectedNormalized = " << expectedNormalized);
+        LOG_TRACE(<< "normalized         = " << normalized);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 

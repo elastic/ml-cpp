@@ -201,7 +201,7 @@ std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }

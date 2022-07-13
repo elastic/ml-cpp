@@ -12,7 +12,6 @@
 #include <model/CIndividualModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
@@ -279,8 +278,8 @@ std::uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes1 = " << core::CContainerPrinter::print(hashes1));
-    LOG_TRACE(<< "hashes2 = " << core::CContainerPrinter::print(hashes2));
+    LOG_TRACE(<< "hashes1 = " << hashes1);
+    LOG_TRACE(<< "hashes2 = " << hashes2);
 
     seed = maths::common::CChecksum::calculate(seed, hashes1);
     return maths::common::CChecksum::calculate(seed, hashes2);

@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                               samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "probabilities = " << probabilities);
             LOG_DEBUG(<< "expectedDistinctCategories = "
                       << maths::common::CBasicStatistics::mean(expectedDistinctCategories)
                       << " (deviation = "

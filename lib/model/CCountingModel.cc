@@ -16,6 +16,7 @@
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>

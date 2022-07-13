@@ -11,7 +11,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <test/CRandomNumbersDetail.h>
@@ -147,8 +146,8 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
         std::size_t j = std::lower_bound(transform.begin(), transform.end(), samples[i]) -
                         transform.begin();
         if (j == transform.size()) {
-            LOG_ERROR(<< "Expected sample " << samples[i] << " to be less than largest value in "
-                      << core::CContainerPrinter::print(transform));
+            LOG_ERROR(<< "Expected sample " << samples[i]
+                      << " to be less than largest value in " << transform);
             j = transform.size() - 1;
         }
         samples[i] = categories[j];

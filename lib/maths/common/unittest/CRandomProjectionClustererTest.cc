@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <core/CLogger.h>
+
 #include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CRandomProjectionClusterer.h>
 #include <maths/common/CSetTools.h>
@@ -108,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
         BOOST_TEST_REQUIRE(clusterer.initialise(5, 3));
 
         const TVectorArrayVec& projections = clusterer.projections();
-        LOG_DEBUG(<< "projections = " << core::CContainerPrinter::print(projections));
+        LOG_DEBUG(<< "projections = " << projections);
 
         BOOST_REQUIRE_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
                             core::CContainerPrinter::print(projections));
@@ -240,8 +242,8 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
         std::sort(means.begin(), means.end());
         expectedMeans.push_back(means);
     }
-    LOG_DEBUG(<< "expected weights = " << core::CContainerPrinter::print(expectedWeights));
-    LOG_DEBUG(<< "expected means   = " << core::CContainerPrinter::print(expectedMeans));
+    LOG_DEBUG(<< "expected weights = " << expectedWeights);
+    LOG_DEBUG(<< "expected means   = " << expectedMeans);
 
     TDoubleVecVec weights_;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec means;
@@ -263,8 +265,8 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
         weights[1] += weights_[i][1] / 4.0;
         std::sort(means[i].begin(), means[i].end());
     }
-    LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
-    LOG_DEBUG(<< "means   = " << core::CContainerPrinter::print(means));
+    LOG_DEBUG(<< "weights = " << weights);
+    LOG_DEBUG(<< "means   = " << means);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedWeights),
                         core::CContainerPrinter::print(weights));
@@ -287,7 +289,7 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
     TDoubleVec means[3] = {};
     for (std::size_t i = 0; i < boost::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
-        LOG_DEBUG(<< "mean = " << core::CContainerPrinter::print(means[i]));
+        LOG_DEBUG(<< "mean = " << means[i]);
     }
     TDoubleVecVec covariances[] = {
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
@@ -319,7 +321,7 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
     clusterer.clusterProjections(maths::common::forRandomProjectionClusterer(
                                      maths::common::CKMeans<TVector5>(), 3, 5),
                                  weights, clusterMeans, clusterCovariances, examples);
-    LOG_DEBUG(<< "examples = " << core::CContainerPrinter::print(examples));
+    LOG_DEBUG(<< "examples = " << examples);
 
     TSizeVecVec neighbourhoods(examples.size());
     clusterer.neighbourhoods(examples, neighbourhoods);
@@ -344,9 +346,8 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
         expectedNeighbourhoods[closest].push_back(i);
     }
 
-    LOG_DEBUG(<< "neighbours          = " << core::CContainerPrinter::print(neighbourhoods));
-    LOG_DEBUG(<< "expected neighbours = "
-              << core::CContainerPrinter::print(expectedNeighbourhoods));
+    LOG_DEBUG(<< "neighbours          = " << neighbourhoods);
+    LOG_DEBUG(<< "expected neighbours = " << expectedNeighbourhoods);
 
     maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanJaccard;
     for (std::size_t i = 0; i < neighbourhoods.size(); ++i) {
@@ -382,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
         TDoubleVec means[3] = {};
         for (std::size_t i = 0; i < boost::size(means); ++i) {
             rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
-            LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(means[i]));
+            LOG_TRACE(<< "mean = " << means[i]);
         }
         TDoubleVecVec covariances[] = {
             TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
@@ -414,7 +415,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
         clusterer.clusterProjections(maths::common::forRandomProjectionClusterer(
                                          maths::common::CKMeans<TVector5>(), 3, 5),
                                      weights, clusterMeans, clusterCovariances, examples);
-        LOG_TRACE(<< "examples = " << core::CContainerPrinter::print(examples));
+        LOG_TRACE(<< "examples = " << examples);
 
         TSizeVecVec expectedConnectivity(examples.size(), TSizeVec(examples.size()));
         TSizeVec examples_(examples.begin(), examples.end());
@@ -437,15 +438,12 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
             for (std::size_t j = 0; j <= i; ++j) {
                 connectivity[i][j] = connectivity[j][i] = similarities[i][j] < 8.0 ? 1 : 0;
             }
-            LOG_TRACE(<< "similarities = "
-                      << core::CContainerPrinter::print(similarities[i]));
+            LOG_TRACE(<< "similarities = " << similarities[i]);
         }
 
         for (std::size_t i = 0; i < expectedConnectivity.size(); ++i) {
-            LOG_TRACE(<< "expected connectivity = "
-                      << core::CContainerPrinter::print(expectedConnectivity[i]));
-            LOG_TRACE(<< "actual connectivity   = "
-                      << core::CContainerPrinter::print(connectivity[i]));
+            LOG_TRACE(<< "expected connectivity = " << expectedConnectivity[i]);
+            LOG_TRACE(<< "actual connectivity   = " << connectivity[i]);
             for (std::size_t j = 0; j <= i; ++j) {
                 // clang-format off
                 switch (2 * expectedConnectivity[i][j] + connectivity[i][j]) {
@@ -479,7 +477,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     TDoubleVec means[3] = {};
     for (std::size_t i = 0; i < boost::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
-        LOG_DEBUG(<< "mean = " << core::CContainerPrinter::print(means[i]));
+        LOG_DEBUG(<< "mean = " << means[i]);
     }
     TDoubleVecVec covariances[] = {
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
@@ -511,7 +509,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     clusterer.clusterProjections(maths::common::forRandomProjectionClusterer(
                                      maths::common::CKMeans<TVector5>(), 3, 5),
                                  weights, clusterMeans, clusterCovariances, examples);
-    LOG_DEBUG(<< "examples = " << core::CContainerPrinter::print(examples));
+    LOG_DEBUG(<< "examples = " << examples);
 
     TSizeVecVec neighbourhoods(examples.size());
     clusterer.neighbourhoods(examples, neighbourhoods);
@@ -522,11 +520,11 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
 
     TSizeVecVec expectedClustering(boost::size(n));
     LOG_DEBUG(<< "expected clustering =");
-    for (std::size_t i = 0u, j = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0, j = 0; i < boost::size(n); ++i) {
         for (std::size_t ni = j + n[i]; j < ni; ++j) {
             expectedClustering[i].push_back(j);
         }
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(expectedClustering[i]));
+        LOG_DEBUG(<< "  " << expectedClustering[i]);
     }
 
     TSizeVecVec clustering;
@@ -539,7 +537,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
 
     LOG_DEBUG(<< "clustering =");
     for (std::size_t i = 0; i < clustering.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(clustering[i]));
+        LOG_DEBUG(<< "  " << clustering[i]);
     }
 
     for (std::size_t i = 0; i < expectedClustering.size(); ++i) {

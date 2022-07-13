@@ -230,7 +230,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             (*stats_[BIAS])[d].add(predictionError[d] + tolerance, weight);
             (*stats_[RECENT_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
             (*stats_[HISTORIC_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
-            LOG_TRACE(<< "stats = " << core::CContainerPrinter::print(stats_));
+            LOG_TRACE(<< "stats = " << stats_);
             LOG_TRACE(<< "predictions = " << common::CBasicStatistics::mean(m_PredictionMean));
         }
     }

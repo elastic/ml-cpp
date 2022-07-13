@@ -1254,12 +1254,12 @@ BOOST_AUTO_TEST_CASE(testShims) {
         maths::common::las::min(vector2, vector10);
         maths::common::las::min(vector3, vector11);
         maths::common::las::min(vector4, vector12);
-        LOG_DEBUG(<< " min1 = " << core::CContainerPrinter::print(vector5));
-        LOG_DEBUG(<< " min1 = " << core::CContainerPrinter::print(vector6));
+        LOG_DEBUG(<< " min1 = " << vector5);
+        LOG_DEBUG(<< " min1 = " << vector6);
         LOG_DEBUG(<< " min1 = " << vector7.transpose());
         LOG_DEBUG(<< " min1 = " << vector8.transpose());
-        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector9));
-        LOG_DEBUG(<< " min2 = " << core::CContainerPrinter::print(vector10));
+        LOG_DEBUG(<< " min2 = " << vector9);
+        LOG_DEBUG(<< " min2 = " << vector10);
         LOG_DEBUG(<< " min2 = " << vector11.transpose());
         LOG_DEBUG(<< " min2 = " << vector12.transpose());
         std::ostringstream o7;
@@ -1310,12 +1310,12 @@ BOOST_AUTO_TEST_CASE(testShims) {
         maths::common::las::max(vector2, vector10);
         maths::common::las::max(vector3, vector11);
         maths::common::las::max(vector4, vector12);
-        LOG_DEBUG(<< " max1 = " << core::CContainerPrinter::print(vector5));
-        LOG_DEBUG(<< " max1 = " << core::CContainerPrinter::print(vector6));
+        LOG_DEBUG(<< " max1 = " << vector5);
+        LOG_DEBUG(<< " max1 = " << vector6);
         LOG_DEBUG(<< " max1 = " << vector7.transpose());
         LOG_DEBUG(<< " max1 = " << vector8.transpose());
-        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector9));
-        LOG_DEBUG(<< " max2 = " << core::CContainerPrinter::print(vector10));
+        LOG_DEBUG(<< " max2 = " << vector9);
+        LOG_DEBUG(<< " max2 = " << vector10);
         LOG_DEBUG(<< " max2 = " << vector11.transpose());
         LOG_DEBUG(<< " max2 = " << vector12.transpose());
         std::ostringstream o7;
@@ -1355,8 +1355,8 @@ BOOST_AUTO_TEST_CASE(testShims) {
                           maths::common::las::componentwise(vector7);
         TDenseVector d4 = maths::common::las::componentwise(vector4) /
                           maths::common::las::componentwise(vector8);
-        LOG_DEBUG(<< " v1 / v2 = " << core::CContainerPrinter::print(d1));
-        LOG_DEBUG(<< " v1 / v2 = " << core::CContainerPrinter::print(d2));
+        LOG_DEBUG(<< " v1 / v2 = " << d1);
+        LOG_DEBUG(<< " v1 / v2 = " << d2);
         LOG_DEBUG(<< " v1 / v2 = " << d3.transpose());
         LOG_DEBUG(<< " v1 / v2 = " << d4.transpose());
         std::ostringstream o3;

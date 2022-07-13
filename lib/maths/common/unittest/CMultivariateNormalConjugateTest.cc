@@ -603,8 +603,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             if (!filter.isNonInformative()) {
                 TDouble10Vec m = filter.marginalLikelihoodMean();
                 TDouble10Vec10Vec v = filter.marginalLikelihoodCovariance();
-                LOG_DEBUG(<< "m = " << core::CContainerPrinter::print(m));
-                LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(v));
+                LOG_DEBUG(<< "m = " << m);
+                LOG_DEBUG(<< "v = " << v);
                 double trace = 0.0;
                 for (std::size_t j = 0; j < v.size(); ++j) {
                     trace += v[j][j];
@@ -716,8 +716,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
             modePlusEps[0][j] = mode[j] + eps;
             norm += eps * eps;
         }
-        LOG_DEBUG(<< "mode - eps = " << core::CContainerPrinter::print(modeMinusEps));
-        LOG_DEBUG(<< "mode + eps = " << core::CContainerPrinter::print(modePlusEps));
+        LOG_DEBUG(<< "mode - eps = " << modeMinusEps);
+        LOG_DEBUG(<< "mode + eps = " << modePlusEps);
         norm = std::sqrt(norm);
 
         double llm, ll, llp;
@@ -819,7 +819,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                 static_cast<double>(p.size()));
         }
         std::sort(sampleProbabilities.begin(), sampleProbabilities.end());
-        LOG_DEBUG(<< "sample p = " << core::CContainerPrinter::print(sampleProbabilities));
+        LOG_DEBUG(<< "sample p = " << sampleProbabilities);
 
         for (std::size_t j = 0; j < sampleProbabilities.size(); ++j) {
             double expectedProbability = static_cast<double>(j + 1) /
@@ -859,13 +859,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
     for (std::size_t i = 0; i < boost::size(means); ++i) {
         TDoubleVec mean(means[i], means[i] + 2);
-        LOG_DEBUG(<< "mean = " << core::CContainerPrinter::print(mean));
+        LOG_DEBUG(<< "mean = " << mean);
 
         for (std::size_t j = 0; j < boost::size(covariances); ++j) {
             TDoubleVecVec covariance;
             covariance.push_back(TDoubleVec(covariances[j], covariances[j] + 2));
             covariance.push_back(TDoubleVec(covariances[j] + 1, covariances[j] + 3));
-            LOG_DEBUG(<< "covariances = " << core::CContainerPrinter::print(covariance));
+            LOG_DEBUG(<< "covariances = " << covariance);
 
             TDoubleVecVec samples;
             rng.generateMultivariateNormalSamples(mean, covariance, 500, samples);
@@ -1016,7 +1016,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
         }
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
-        LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
+        LOG_DEBUG(<< "covariance matrix " << covariances);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
     }
@@ -1030,7 +1030,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
         }
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
-        LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
+        LOG_DEBUG(<< "covariance matrix " << covariances);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             1.0 / maths::common::MINIMUM_COEFFICIENT_OF_VARIATION / std::sqrt(2.0) / 430.5,
             std::sqrt(2.0 / (covariances[0][0] + covariances[1][1])), 0.4);

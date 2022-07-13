@@ -19,7 +19,6 @@
 
 #include <maths/common/CBjkstUniqueValues.h>
 #include <maths/common/CMultivariatePrior.h>
-#include <maths/common/COrderings.h>
 
 #include <maths/time_series/CCountMinSketch.h>
 

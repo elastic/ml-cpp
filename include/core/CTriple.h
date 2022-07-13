@@ -21,8 +21,6 @@
 #include <cstddef>
 #include <ostream>
 
-#include <string.h>
-
 namespace ml {
 namespace core {
 
@@ -47,7 +45,7 @@ public:
     }
 
 public:
-    CTriple() : first(), second(), third() {}
+    CTriple() = default;
     CTriple(const T1& first_, const T2& second_, const T3& third_)
         : first(first_), second(second_), third(third_) {}
 
@@ -66,7 +64,7 @@ public:
     }
 
     std::size_t hash() const {
-        std::size_t seed = 0;
+        std::size_t seed{0};
         boost::hash_combine(seed, first);
         boost::hash_combine(seed, second);
         boost::hash_combine(seed, third);
