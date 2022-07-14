@@ -90,7 +90,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&> f(logf, m_LogFx);
 
     try {
         double xr = m_A;
@@ -133,7 +133,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&> f(logf, m_LogFx);
 
     try {
         double xl = m_B;

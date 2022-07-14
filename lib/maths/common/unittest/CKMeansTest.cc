@@ -111,7 +111,7 @@ public:
         if (std::find(filtered.begin(), filtered.end(), closest[0].second) ==
             filtered.end()) {
             LOG_DEBUG(<< "filtered = " << filtered);
-            LOG_DEBUG(<< "closest  = " << closest.print());
+            LOG_DEBUG(<< "closest  = " << closest);
             BOOST_TEST_REQUIRE(false);
         }
         if (filtered.size() > 1) {

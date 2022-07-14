@@ -15,6 +15,7 @@
 #include <core/CSmallVector.h>
 
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 
 #include <test/CRandomNumbers.h>
 

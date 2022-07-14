@@ -39,7 +39,7 @@ namespace {
 template<unsigned int ORDER>
 class CPolynomialFunction {
 public:
-    CPolynomialFunction(const double (&coefficients)[ORDER + 1]) {
+    explicit CPolynomialFunction(const double (&coefficients)[ORDER + 1]) {
         std::copy(coefficients, coefficients + ORDER + 1, m_Coefficients);
     }
 
@@ -59,7 +59,7 @@ private:
     double m_Coefficients[ORDER + 1];
 };
 
-std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<0u>& f) {
+std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<0>& f) {
     return o << f.coefficient(0);
 }
 
@@ -213,9 +213,6 @@ bool readGrid(const std::string& file, TDoubleVec& weights, TDoubleVecVec& point
 
 class CSmoothHeavySide {
 public:
-    using result_type = double;
-
-public:
     CSmoothHeavySide(double slope, double offset)
         : m_Slope(slope), m_Offset(offset) {}
 
@@ -231,9 +228,6 @@ private:
 };
 
 class CNormal {
-public:
-    using result_type = double;
-
 public:
     CNormal(double mean, double std) : m_Mean(mean), m_Std(std) {}
 
@@ -256,17 +250,17 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
     // Test that "low" order polynomials are integrated exactly
     // (as they should be for a higher order quadrature).
 
-    using TConstant = CPolynomialFunction<0u>;
-    using TLinear = CPolynomialFunction<1u>;
-    using TQuadratic = CPolynomialFunction<2u>;
-    using TCubic = CPolynomialFunction<3u>;
-    using TQuartic = CPolynomialFunction<4u>;
-    using TQuintic = CPolynomialFunction<5u>;
-    using THexic = CPolynomialFunction<6u>;
-    using THeptic = CPolynomialFunction<7u>;
-    using TOctic = CPolynomialFunction<8u>;
-    using TNonic = CPolynomialFunction<9u>;
-    using TDecic = CPolynomialFunction<10u>;
+    using TConstant = CPolynomialFunction<0>;
+    using TLinear = CPolynomialFunction<1>;
+    using TQuadratic = CPolynomialFunction<2>;
+    using TCubic = CPolynomialFunction<3>;
+    using TQuartic = CPolynomialFunction<4>;
+    using TQuintic = CPolynomialFunction<5>;
+    using THexic = CPolynomialFunction<6>;
+    using THeptic = CPolynomialFunction<7>;
+    using TOctic = CPolynomialFunction<8>;
+    using TNonic = CPolynomialFunction<9>;
+    using TDecic = CPolynomialFunction<10>;
 
     static const double EPS = 1e-6;
 

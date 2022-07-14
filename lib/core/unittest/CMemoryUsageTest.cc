@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CAlignment.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -554,7 +555,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                                 sizeof(b) + core::CMemory::dynamicSize(b),
                             core::CMemory::dynamicSize(variables));
 
-        auto& debugVisitor = core::memory_detail::CMemoryDebug::anyVisitor();
+        auto& debugVisitor = core::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
         debugVisitor.registerCallback<TFooVec>();
 

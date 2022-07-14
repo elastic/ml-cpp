@@ -16,11 +16,12 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <iterator>
 #include <set>
 
 BOOST_AUTO_TEST_SUITE(CHashingTest)
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
     std::uint32_t m[] = {30, 300};
     std::uint32_t u[] = {1000, 10000};
 
-    for (size_t i = 0; i < boost::size(m); ++i) {
+    for (size_t i = 0; i < std::size(m); ++i) {
         CHashing::CUniversalHash::TUInt32HashVec hashes;
         CHashing::CUniversalHash::generateHashes(10u, m[i], hashes);
 
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
-            for (size_t j = 0; j < boost::size(u); ++j) {
+            for (size_t j = 0; j < std::size(u); ++j) {
                 std::uint32_t n = u[j];
 
                 LOG_DEBUG(<< "m = " << m[i] << ", U = [" << n << "]");

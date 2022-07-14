@@ -1453,18 +1453,6 @@ std::ostream& operator<<(std::ostream& o,
     return o << CBasicStatistics::print(accumulator);
 }
 
-template<typename T, std::size_t N, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
-    return o << accumulator.print();
-}
-
-template<typename T, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
-    return o << accumulator.print();
-}
-
 namespace basic_statistics_detail {
 
 //! \brief Default custom add function for values to the central

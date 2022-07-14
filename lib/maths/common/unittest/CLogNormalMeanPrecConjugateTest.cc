@@ -1558,14 +1558,13 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
 
                     double squareScale = std::log(1.0 + variance / (mean * mean));
                     double location = std::log(mean) - squareScale / 2.0;
-                    double precision = 1.0 / squareScale;
                     {
                         boost::math::lognormal_distribution<> logNormal(
                             location, std::sqrt(squareScale));
                         LOG_TRACE(<< "****** mean = " << boost::math::mean(logNormal)
                                   << ", variance = " << boost::math::variance(logNormal)
                                   << " ******");
-                        LOG_TRACE(<< "location = " << location << ", precision = " << precision);
+                        LOG_TRACE(<< "location = " << location);
                     }
 
                     for (std::size_t k = 0; k < boost::size(varianceScales); ++k) {
@@ -1578,15 +1577,13 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                         double scaledSquareScale =
                             std::log(1.0 + variance * scale / (mean * mean));
                         double scaledLocation = std::log(mean) - scaledSquareScale / 2.0;
-                        double scaledPrecision = 1.0 / scaledSquareScale;
                         {
                             boost::math::lognormal_distribution<> logNormal(
                                 scaledLocation, std::sqrt(scaledSquareScale));
                             LOG_TRACE(<< "scaled mean = " << boost::math::mean(logNormal)
                                       << ", scaled variance = "
                                       << boost::math::variance(logNormal));
-                            LOG_TRACE(<< "scaled location = " << scaledLocation
-                                      << ", scaled precision = " << scaledPrecision);
+                            LOG_TRACE(<< "scaled location = " << scaledLocation);
                         }
 
                         TMeanAccumulator meanError;
