@@ -13,7 +13,6 @@
 #define INCLUDED_ml_core_CConcurrentWrapper_h
 
 #include <core/CConcurrentQueue.h>
-#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 
 #include <functional>
