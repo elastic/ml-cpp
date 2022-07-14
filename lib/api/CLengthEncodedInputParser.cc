@@ -191,8 +191,8 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
             // a temporary string like this, so it is crucial that the
             // RESIZE_ALLOWED template argument is set to false when STR_VEC is
             // some type of vector of std::reference_wrappers.
-            using TVecValue = typename std::remove_cv<typename STR_VEC::value_type>::type;
-            static_assert(!RESIZE_ALLOWED || !std::is_same<TVecValue, TStrRef>::value,
+            using TVecValue = std::remove_cv_t<typename STR_VEC::value_type>;
+            static_assert(!RESIZE_ALLOWED || !std::is_same_v<TVecValue, TStrRef>,
                           "RESIZE_ALLOWED must be false for reference vectors");
             std::string temp;
             values.resize(numFields, typename STR_VEC::value_type(temp));

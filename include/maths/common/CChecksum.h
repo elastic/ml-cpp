@@ -31,6 +31,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 namespace ml {
@@ -44,70 +45,42 @@ class MemberChecksumWithSeed {};
 class MemberChecksumWithoutSeed {};
 class MemberHash {};
 
-//! Auxiliary type used by has_const_iterator to test for a nested
-//! typedef.
-template<typename T, typename R = void>
-struct enable_if_type {
-    using type = R;
-};
-
-//! Auxiliary type used by has_checksum_function to test for a nested
-//! member function.
-template<typename T, T, typename R = void>
-struct enable_if_is_type {
-    using type = R;
-};
-
 //! \name Class used to select appropriate checksum implementation
 //! for containers.
-//!
-//! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for nested typedef.
-//! \note Uses the enable_if trick to get around the restriction that
-//! "A partially specialized non-type argument expression shall not
-//! involve a template parameter of the partial specialization except
-//! when the argument expression is a simple identifier" (see section
-//! 14.5.4/9 of the standard).
 //@{
 template<typename T, typename ITR = void>
 struct container_selector {
     using value = BasicChecksum;
 };
 template<typename T>
-struct container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
+struct container_selector<T, std::void_t<typename T::const_iterator>> {
     using value = ContainerChecksum;
 };
 //@}
 
 //! \name Class used to select appropriate checksum implementation.
-//!
-//! Template and partial specialization which chooses between our
-//! various checksum implementations.
-//!
-//! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for checksum or hash functions.
-//! \note Uses the enable_if trick to get around the restriction that
-//! "A partially specialized non-type argument expression shall not
-//! involve a template parameter of the partial specialization except
-//! when the argument expression is a simple identifier" (see section
-//! 14.5.4/9 of the standard).
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct selector {
     using value = typename container_selector<T>::value;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::uint64_t (T::*)(std::uint64_t) const, &T::checksum>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::checksum), std::uint64_t (T::*)(std::uint64_t) const>>> {
     using value = MemberChecksumWithSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::uint64_t (T::*)() const, &T::checksum>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::checksum), std::uint64_t (T::*)() const>>> {
     using value = MemberChecksumWithoutSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::hash>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::hash), std::size_t (T::*)() const>>> {
     using value = MemberHash;
 };
+// clang-format on
 //@}
 
 template<typename SELECTOR>
@@ -320,7 +293,7 @@ public:
         TCRefVec ordered;
         ordered.reserve(target.size());
         for (const auto& element : target) {
-            ordered.push_back(TCRef(element));
+            ordered.emplace_back(element);
         }
 
         std::sort(ordered.begin(), ordered.end(),

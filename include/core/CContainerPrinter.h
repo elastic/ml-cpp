@@ -51,9 +51,8 @@ template<typename, typename = void>
 struct has_member_print_function : false_ {};
 // clang-format off
 template<typename T>
-struct has_member_print_function<
-        T, std::enable_if_t<std::is_same_v<decltype(&T::print), std::string (T::*)() const>>
-    > : true_ {};
+struct has_member_print_function<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::print), std::string (T::*)() const>>> : true_ {};
 // clang-format on
 //@}
 
@@ -65,9 +64,8 @@ template<typename, typename = void>
 struct is_printable : false_ {};
 // clang-format off
 template<typename T>
-struct is_printable<
-        T, std::enable_if_t<std::is_same_v<decltype(TEST_IS_PRINTABLE_STREAM << std::declval<T>()), std::ostream&>>
-    > : true_ {};
+struct is_printable<T, std::enable_if_t<
+            std::is_same_v<decltype(TEST_IS_PRINTABLE_STREAM << std::declval<T>()), std::ostream&>>> : true_ {};
 // clang-format on
 //@}
 

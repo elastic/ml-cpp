@@ -54,10 +54,13 @@ struct SDynamicSizeAlwaysZero<std::optional<T>> {
 };
 
 //! \brief Check for member dynamicSizeAlwaysZero function.
+// clang-format off
 template<typename T>
-struct SDynamicSizeAlwaysZero<T, std::enable_if_t<std::is_same<decltype(&T::dynamicSizeAlwaysZero), bool (*)()>::value>> {
+struct SDynamicSizeAlwaysZero<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::dynamicSizeAlwaysZero), bool (*)()>>> {
     static inline bool value() { return T::dynamicSizeAlwaysZero(); }
 };
+// clang-format on
 }
 }
 }

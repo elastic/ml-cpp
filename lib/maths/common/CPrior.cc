@@ -16,7 +16,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CCompositeFunctions.h>
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>

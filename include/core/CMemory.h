@@ -67,16 +67,19 @@ const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
 #endif
 
 //! \brief Default template declaration for CMemoryDynamicSize::dispatch.
-template<typename T, typename ENABLE = void>
+template<typename T, typename = void>
 struct SMemoryDynamicSize {
     static std::size_t dispatch(const T&) { return 0; }
 };
 
 //! \brief Template specialisation where T has member function "memoryUsage()"
+// clang-format off
 template<typename T>
-struct SMemoryDynamicSize<T, std::enable_if_t<std::is_same<decltype(&T::memoryUsage), std::size_t (T::*)() const>::value>> {
+struct SMemoryDynamicSize<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::memoryUsage), std::size_t (T::*)() const>>> {
     static std::size_t dispatch(const T& t) { return t.memoryUsage(); }
 };
+// clang-format on
 
 //! \brief Default template for classes that don't sport a staticSize member.
 template<typename T, typename ENABLE = void>
@@ -86,10 +89,13 @@ struct SMemoryStaticSize {
 
 //! \brief Template specialisation for classes having a staticSize member:
 //! used when base class pointers are passed to dynamicSize().
+// clang-format off
 template<typename T>
-struct SMemoryStaticSize<T, std::enable_if_t<std::is_same<decltype(&T::staticSize), std::size_t (T::*)() const>::value>> {
+struct SMemoryStaticSize<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::staticSize), std::size_t (T::*)() const>>> {
     static std::size_t dispatch(const T& t) { return t.staticSize(); }
 };
+// clang-format on
 
 //! \brief Total ordering of type_info objects.
 struct STypeInfoLess {
@@ -543,14 +549,16 @@ struct SDebugMemoryDynamicSize {
 };
 
 //! Template specialisation for when T has a debugMemoryUsage member function.
+// clang-format off
 template<typename T>
-struct SDebugMemoryDynamicSize<T, std::is_same<decltype(&T::debugMemoryUsage), void (T::*)(const CMemoryUsage::TMemoryUsagePtr&) const>> {
+struct SDebugMemoryDynamicSize<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::debugMemoryUsage), void (T::*)(const CMemoryUsage::TMemoryUsagePtr&) const>>> {
     static void dispatch(const char*, const T& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
         t.debugMemoryUsage(mem->addChild());
     }
 };
-
-} // memory_detail
+// clang-format on
+}
 
 //! \brief Core memory debug usage template class.
 //!
