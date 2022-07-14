@@ -12,11 +12,11 @@
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CTimezone.h>
-#include <core/CTriple.h>
 #include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>

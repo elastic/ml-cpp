@@ -13,8 +13,8 @@
 #define INCLUDED_ml_maths_common_CBasicStatistics_h
 
 #include <core/CHashing.h>
-#include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CLoggerTrace.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 #include <core/WindowsSafe.h>
 
@@ -1009,7 +1009,8 @@ private:
                     std::make_heap(this->begin(), this->end(), m_Less);
                 }
                 return true;
-            } else if (m_Less(x, *this->begin())) {
+            }
+            if (m_Less(x, *this->begin())) {
                 // We need to drop the largest value and update the heap.
                 std::pop_heap(this->begin(), this->end(), m_Less);
                 m_Statistics.back() = x;
@@ -1284,14 +1285,14 @@ public:
                                       const LESS& less = LESS{})
             : TImpl{std::vector<T>(std::max(n, std::size_t(1)), initial), less} {
             if (n == 0) {
-                LOG_DEBUG(<< "Invalid size of 0 for order statistics accumulator");
+                LOG_TRACE(<< "Invalid size of 0 for order statistics accumulator");
             }
         }
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
             if (n == 0) {
-                LOG_DEBUG(<< "Invalid resize to 0 for order statistics accumulator");
+                LOG_TRACE(<< "Invalid resize to 0 for order statistics accumulator");
                 n = 1;
             }
             this->clear();

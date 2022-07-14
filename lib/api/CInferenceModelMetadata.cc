@@ -10,6 +10,8 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <core/CLogger.h>
+
 #include <api/ApiTypes.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
@@ -25,7 +27,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    LOG_DEBUG(<< "Number data summarization rows " << m_NumDataSummarizationRows);
+    LOG_TRACE(<< "Number data summarization rows " << m_NumDataSummarizationRows);
     if (m_NumDataSummarizationRows > 0) {
         // Only output if data summarization fraction was specified.
         this->writeTrainProperties(writer);

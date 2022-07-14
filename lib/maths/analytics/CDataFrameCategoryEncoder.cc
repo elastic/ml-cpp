@@ -250,6 +250,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncod
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder)
     : CDataFrameCategoryEncoder(builder) {
+    SUPPRESS_USAGE_WARNING(print);
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {

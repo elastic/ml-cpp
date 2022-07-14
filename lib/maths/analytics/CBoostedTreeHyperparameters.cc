@@ -11,7 +11,8 @@
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 

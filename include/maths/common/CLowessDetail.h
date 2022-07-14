@@ -14,7 +14,7 @@
 
 #include <maths/common/CLowess.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLoggerTrace.h>
 
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>

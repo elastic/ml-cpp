@@ -91,8 +91,8 @@ public:
     //! type
     template<typename TYPE>
     bool attribute(const std::string& name, TYPE& value) const {
-        TStrStrPrVecCItr iter = std::find_if(
-            m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
+        auto iter = std::find_if(m_Attributes.begin(), m_Attributes.end(),
+                                 CFirstElementEquals(name));
         if (iter == m_Attributes.end()) {
             return false;
         }

@@ -19,7 +19,6 @@
 
 #include <boost/tuple/tuple.hpp>
 
-#include <algorithm>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -611,7 +610,7 @@ private:
     template<typename KEY_VECTOR, typename COMP = std::less<typename KEY_VECTOR::value_type>>
     class CIndexLess {
     public:
-        CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
+        explicit CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
             : m_Keys(&keys), m_Comp(comp) {}
 
         bool operator()(std::size_t lhs, std::size_t rhs) {
@@ -624,59 +623,10 @@ private:
     };
 
 public:
-    // The logic in this function is rather subtle because we want to
-    // sort the collections in place. In particular, we create a sorted
-    // collection of indices where each index tells us where to get the
-    // element from at that location and we want to re-order all the
-    // collections by that ordering in place. If an index matches its
-    // position then we can move to the next position. Otherwise, we
-    // need to swap the items at the index in to its position. To work
-    // in place we need to do something with the items which are displaced.
-    // If these are the items required at the swapped in position then
-    // we are done. Otherwise, we just repeat until we find this position.
-    // It is easy to verify that this process finds a closed cycle with
-    // at most N steps. Each time a swap is made at least one more item
-    // is in its correct place, and we update the ordering accordingly.
-    // So the containers are sorted in at most O(N) additional steps to
-    // the N * log(N) taken to sort the indices.
-#define SIMULTANEOUS_SORT_IMPL                                                 \
-    if (std::is_sorted(keys.begin(), keys.end(), comp)) {                      \
-        return true;                                                           \
-    }                                                                          \
-    using TSizeVec = std::vector<std::size_t>;                                 \
-    TSizeVec ordering;                                                         \
-    ordering.reserve(keys.size());                                             \
-    for (std::size_t i = 0; i < keys.size(); ++i) {                            \
-        ordering.push_back(i);                                                 \
-    }                                                                          \
-    std::stable_sort(ordering.begin(), ordering.end(),                         \
-                     CIndexLess<KEY_VECTOR, COMP>(keys, comp));                \
-    for (std::size_t i = 0; i < ordering.size(); ++i) {                        \
-        std::size_t j_ = i;                                                    \
-        std::size_t j = ordering[j_];                                          \
-        while (i != j) {                                                       \
-            using std::swap;                                                   \
-            swap(keys[j_], keys[j]);                                           \
-            CUSTOM_SWAP_VALUES                                                 \
-            ordering[j_] = j_;                                                 \
-            j_ = j;                                                            \
-            j = ordering[j_];                                                  \
-        }                                                                      \
-        ordering[j_] = j_;                                                     \
-    }                                                                          \
-    return true;
-
-#define CUSTOM_SWAP_VALUES swap(values[j_], values[j]);
     //! Simultaneously sort \p keys and \p values using the \p comp
     //! order of \p keys.
     template<typename KEY_VECTOR, typename VALUE_VECTOR, typename COMP>
-    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
-        if (keys.size() != values.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values) {
@@ -691,22 +641,13 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);
     //! Simultaneously sort \p keys, \p values1 and \p values2
     //! using the \p comp order of \p keys.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
     static bool simultaneousSort(KEY_VECTOR& keys,
                                  VALUE1_VECTOR& values1,
                                  VALUE2_VECTOR& values2,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
     static bool
@@ -723,10 +664,6 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2
     //! and \p values3 using the \p comp order of \p keys.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename COMP>
@@ -734,14 +671,7 @@ public:
                                  VALUE1_VECTOR& values1,
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys,
@@ -761,11 +691,6 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);                                             \
-    swap(values4[j_], values4[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2,
     //! \p values3 and \p values4 using the \p comp order of
     //! \p keys.
@@ -775,14 +700,7 @@ public:
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
                                  VALUE4_VECTOR& values4,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size() || values3.size() != values4.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename VALUE4_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys,
@@ -803,8 +721,6 @@ public:
         return simultaneousSort(keys, values1, values2, values3, values4,
                                 std::less<typename KEY_VECTOR::value_type>());
     }
-
-#undef SIMULTANEOUS_SORT_IMPL
     //@}
 };
 }

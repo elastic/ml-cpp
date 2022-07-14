@@ -11,7 +11,6 @@
 
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -25,7 +24,6 @@
 #include <maths/analytics/CTreeShapFeatureImportance.h>
 
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/CTools.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>

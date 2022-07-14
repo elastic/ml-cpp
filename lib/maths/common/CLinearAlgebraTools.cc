@@ -13,6 +13,8 @@
 
 #include <core/Constants.h>
 
+#include <maths/common/CTools.h>
+
 #include <boost/math/distributions/normal.hpp>
 
 namespace ml {

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CMetricPartialStatistic_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

@@ -52,7 +52,7 @@ public:
         if (ENABLED) {
             std::ofstream file_;
             file_.open(m_File);
-            auto file = (file_ << core::CPrintContainers{});
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
             file << "f = " << m_Values << ";\n";
             file << "r = " << m_Residuals << ";\n";

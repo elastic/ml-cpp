@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CBjkstUniqueValues_h
 
 #include <core/CHashing.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 

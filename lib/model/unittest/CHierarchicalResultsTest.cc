@@ -15,6 +15,8 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>

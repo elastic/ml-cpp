@@ -18,6 +18,7 @@
 
 #include <maths/common/CModelWeight.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 

@@ -8,25 +8,22 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #ifndef INCLUDED_ml_core_CMemory_h
 #define INCLUDED_ml_core_CMemory_h
 
 #include <core/BoostMultiIndex.h>
 #include <core/CLogger.h>
-#include <core/CMemoryUsage.h>
+#include <core/CMemoryFwd.h>
 #include <core/CNonInstantiatable.h>
 #include <core/UnwrapRef.h>
 
 #include <boost/any.hpp>
 #include <boost/circular_buffer_fwd.hpp>
 #include <boost/container/container_fwd.hpp>
-#include <boost/mpl/range_c.hpp>
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/shared_array.hpp>
-#include <boost/type_traits/is_pointer.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
-#include <boost/utility/enable_if.hpp>
 
 #include <array>
 #include <cstddef>
@@ -69,16 +66,6 @@ const std::size_t MIN_DEQUE_PAGE_SIZE = 512;
 const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
 #endif
 
-template<typename T, std::size_t (T::*)() const, typename R = void>
-struct enable_if_member_function {
-    using type = R;
-};
-
-template<bool (*)(), typename R = void>
-struct enable_if_function {
-    using type = R;
-};
-
 //! \brief Default template declaration for CMemoryDynamicSize::dispatch.
 template<typename T, typename ENABLE = void>
 struct SMemoryDynamicSize {
@@ -87,7 +74,7 @@ struct SMemoryDynamicSize {
 
 //! \brief Template specialisation where T has member function "memoryUsage()"
 template<typename T>
-struct SMemoryDynamicSize<T, typename enable_if_member_function<T, &T::memoryUsage>::type> {
+struct SMemoryDynamicSize<T, std::enable_if_t<std::is_same<decltype(&T::memoryUsage), std::size_t (T::*)() const>::value>> {
     static std::size_t dispatch(const T& t) { return t.memoryUsage(); }
 };
 
@@ -100,46 +87,8 @@ struct SMemoryStaticSize {
 //! \brief Template specialisation for classes having a staticSize member:
 //! used when base class pointers are passed to dynamicSize().
 template<typename T>
-struct SMemoryStaticSize<T, typename enable_if_member_function<T, &T::staticSize>::type> {
+struct SMemoryStaticSize<T, std::enable_if_t<std::is_same<decltype(&T::staticSize), std::size_t (T::*)() const>::value>> {
     static std::size_t dispatch(const T& t) { return t.staticSize(); }
-};
-
-//! \brief Base implementation checks for POD.
-template<typename T, typename ENABLE = void>
-struct SDynamicSizeAlwaysZero {
-    static inline bool value() { return std::is_pod<T>::value; }
-};
-
-//! \brief Checks types in pair.
-template<typename U, typename V>
-struct SDynamicSizeAlwaysZero<std::pair<U, V>> {
-    static inline bool value() {
-        return SDynamicSizeAlwaysZero<U>::value() && SDynamicSizeAlwaysZero<V>::value();
-    }
-};
-
-//! \brief Specialisation for std::less always true.
-template<typename T>
-struct SDynamicSizeAlwaysZero<std::less<T>> {
-    static inline bool value() { return true; }
-};
-
-//! \brief Specialisation for std::greater always true.
-template<typename T>
-struct SDynamicSizeAlwaysZero<std::greater<T>> {
-    static inline bool value() { return true; }
-};
-
-//! \brief Checks type in optional.
-template<typename T>
-struct SDynamicSizeAlwaysZero<std::optional<T>> {
-    static inline bool value() { return SDynamicSizeAlwaysZero<T>::value(); }
-};
-
-//! \brief Check for member dynamicSizeAlwaysZero function.
-template<typename T>
-struct SDynamicSizeAlwaysZero<T, typename enable_if_function<&T::dynamicSizeAlwaysZero>::type> {
-    static inline bool value() { return T::dynamicSizeAlwaysZero(); }
 };
 
 //! \brief Total ordering of type_info objects.
@@ -200,9 +149,6 @@ bool inplace(const CSmallVector<T, N>& t) {
 //! Only contains static members, this should not be instantiated.
 //!
 class CORE_EXPORT CMemory : private CNonInstantiatable {
-private:
-    static const std::string EMPTY_STRING;
-
 public:
     //! Implements a visitor pattern for computing the size of types
     //! stored in boost::any.
@@ -239,7 +185,8 @@ public:
                 m_Callbacks.emplace_back(std::cref(typeid(T)),
                                          &CAnyVisitor::dynamicSizeCallback<T>);
                 return true;
-            } else if (i->first.get() != typeid(T)) {
+            }
+            if (i->first.get() != typeid(T)) {
                 m_Callbacks.insert(i, {std::cref(typeid(T)),
                                        &CAnyVisitor::dynamicSizeCallback<T>});
                 return true;
@@ -281,8 +228,7 @@ public:
     //! Default template.
     template<typename T>
     static std::size_t
-    dynamicSize(const T& t,
-                typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+    dynamicSize(const T& t, std::enable_if_t<!std::is_pointer<T>::value>* = nullptr) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             mem += memory_detail::SMemoryDynamicSize<T>::dispatch(t);
@@ -293,8 +239,7 @@ public:
     //! Overload for pointer.
     template<typename T>
     static std::size_t
-    dynamicSize(const T& t,
-                typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+    dynamicSize(const T& t, std::enable_if_t<std::is_pointer<T>::value>* = nullptr) {
         return t == nullptr ? 0 : staticSize(*t) + dynamicSize(*t);
     }
 
@@ -583,11 +528,6 @@ private:
 
 namespace memory_detail {
 
-template<typename T, void (T::*)(const CMemoryUsage::TMemoryUsagePtr&) const, typename R = void>
-struct enable_if_member_debug_function {
-    using type = R;
-};
-
 //! Default template declaration for SDebugMemoryDynamicSize::dispatch.
 template<typename T, typename ENABLE = void>
 struct SDebugMemoryDynamicSize {
@@ -604,7 +544,7 @@ struct SDebugMemoryDynamicSize {
 
 //! Template specialisation for when T has a debugMemoryUsage member function.
 template<typename T>
-struct SDebugMemoryDynamicSize<T, typename enable_if_member_debug_function<T, &T::debugMemoryUsage>::type> {
+struct SDebugMemoryDynamicSize<T, std::is_same<decltype(&T::debugMemoryUsage), void (T::*)(const CMemoryUsage::TMemoryUsagePtr&) const>> {
     static void dispatch(const char*, const T& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
         t.debugMemoryUsage(mem->addChild());
     }
@@ -632,9 +572,6 @@ struct SDebugMemoryDynamicSize<T, typename enable_if_member_debug_function<T, &T
 //! Only contains static members, this should not be instantiated.
 //!
 class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
-private:
-    static const std::string EMPTY_STRING;
-
 public:
     //! Implements a visitor pattern for computing the size of types
     //! stored in boost::any.
@@ -706,21 +643,19 @@ public:
 public:
     //! Default template.
     template<typename T>
-    static void
-    dynamicSize(const char* name,
-                const T& t,
-                const CMemoryUsage::TMemoryUsagePtr& mem,
-                typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+    static void dynamicSize(const char* name,
+                            const T& t,
+                            const CMemoryUsage::TMemoryUsagePtr& mem,
+                            std::enable_if_t<!std::is_pointer<T>::value>* = nullptr) {
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, t, mem);
     }
 
     //! Overload for pointer.
     template<typename T>
-    static void
-    dynamicSize(const char* name,
-                const T& t,
-                const CMemoryUsage::TMemoryUsagePtr& mem,
-                typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+    static void dynamicSize(const char* name,
+                            const T& t,
+                            const CMemoryUsage::TMemoryUsagePtr& mem,
+                            std::enable_if_t<std::is_pointer<T>::value>* = nullptr) {
         if (t != nullptr) {
             mem->addItem("ptr", CMemory::staticSize(*t));
             memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);

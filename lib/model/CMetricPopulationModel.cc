@@ -13,13 +13,13 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 

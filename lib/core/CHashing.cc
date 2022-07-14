@@ -11,11 +11,13 @@
 
 #include <core/CHashing.h>
 
+#include <core/CFastMutex.h>
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
 #include <core/CStringUtils.h>
 
 #include <boost/config.hpp>
+#include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
 #include <algorithm>
@@ -25,13 +27,12 @@ namespace ml {
 namespace core {
 
 namespace {
-
 using TUniform32 = boost::random::uniform_int_distribution<std::uint32_t>;
+CFastMutex generatorMutex;
+boost::random::mt11213b generator;
 }
 
 const std::uint64_t CHashing::CUniversalHash::BIG_PRIME = 4294967291ULL;
-boost::random::mt11213b CHashing::CUniversalHash::ms_Generator;
-CFastMutex CHashing::CUniversalHash::ms_Mutex;
 
 CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash()
     : m_M(1000), m_A(1), m_B(0) {
@@ -199,15 +200,15 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, std::uint32_t m, TU
     b.reserve(k);
 
     {
-        CScopedFastLock scopedLock(ms_Mutex);
+        CScopedFastLock scopedLock(generatorMutex);
 
         TUniform32 uniform1(1, static_cast<std::uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        [uniform1] { return uniform1(ms_Generator); });
+                        [uniform1] { return uniform1(generator); });
 
         TUniform32 uniform0(0, static_cast<std::uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        [uniform0] { return uniform0(ms_Generator); });
+                        [uniform0] { return uniform0(generator); });
     }
     for (unsigned int& ai : a) {
         if (ai == 0) {
@@ -230,15 +231,15 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     b.reserve(k);
 
     {
-        CScopedFastLock scopedLock(ms_Mutex);
+        CScopedFastLock scopedLock(generatorMutex);
 
         TUniform32 uniform1(1, static_cast<std::uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        [uniform1] { return uniform1(ms_Generator); });
+                        [uniform1] { return uniform1(generator); });
 
         TUniform32 uniform0(0, static_cast<std::uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        [uniform0] { return uniform0(ms_Generator); });
+                        [uniform0] { return uniform0(generator); });
     }
     for (unsigned int& ai : a) {
         if (ai == 0) {
@@ -265,14 +266,14 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     b.reserve(k);
 
     {
-        CScopedFastLock scopedLock(ms_Mutex);
+        CScopedFastLock scopedLock(generatorMutex);
 
         for (std::size_t i = 0; i < k; ++i) {
             a.push_back(TUInt32Vec());
             a.back().reserve(n);
             TUniform32 uniform1(1, static_cast<std::uint32_t>(BIG_PRIME - 1));
             std::generate_n(std::back_inserter(a.back()), n,
-                            [uniform1] { return uniform1(ms_Generator); });
+                            [uniform1] { return uniform1(generator); });
             for (unsigned int& aj : a.back()) {
                 if (aj == 0) {
                     LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
@@ -283,7 +284,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
 
         TUniform32 uniform0(0, static_cast<std::uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        [uniform0] { return uniform0(ms_Generator); });
+                        [uniform0] { return uniform0(generator); });
     }
 
     result.reserve(k);

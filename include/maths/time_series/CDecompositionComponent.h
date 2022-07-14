@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CDecompositionComponent_h
 #define INCLUDED_ml_maths_time_series_CDecompositionComponent_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>

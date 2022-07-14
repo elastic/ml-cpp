@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(testPrintContainers) {
     std::ostringstream o;
 
     int array[]{1, 2, 3};
-    o << core::CPrintContainers{} // activates container printing
+    o << core::CScopePrintContainers{} // activates container printing
       << "a vec = " << std::vector<double>{1.0, 2.0, 3.0}
       << ", a map = " << std::map<int, double>{{1, 1.5}, {2, 2.5}}
       << ", a pair = " << std::make_pair(3, true) << ", an array = " << array;

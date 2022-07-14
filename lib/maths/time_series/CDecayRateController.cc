@@ -11,9 +11,8 @@
 
 #include <maths/time_series/CDecayRateController.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 

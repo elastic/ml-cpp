@@ -11,10 +11,10 @@
 
 #include <maths/analytics/CBoostedTreeFactory.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
-#include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

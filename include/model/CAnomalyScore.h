@@ -20,6 +20,8 @@
 
 #include <model/ImportExport.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <cstdint>
 #include <functional>
 #include <iosfwd>

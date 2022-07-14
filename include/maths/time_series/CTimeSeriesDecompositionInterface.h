@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 

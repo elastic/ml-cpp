@@ -13,6 +13,7 @@
 
 #include <core/CLogger.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CLinearAlgebraTools.h>
 

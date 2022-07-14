@@ -14,6 +14,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -1399,39 +1400,23 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
         std::sort(pCategories.begin(), pCategories.end());
         LOG_TRACE(<< "pCategories = " << pCategories);
 
-        // Get the index of largest probability less than or equal to P(U).
-        double pl = 0.0;
-        {
-            std::size_t l = pCategories.size();
-            if (pU > 0.0) {
-                l = std::lower_bound(pCategories.begin(), pCategories.end(),
-                                     TDoubleDoubleSizeTr(pU, pU, 0)) -
-                    pCategories.begin();
-            }
-
-            // Compute probabilities of less likely categories.
-            double pCumulative = 0.0;
-            for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
-                // Find the probability equal range [i, j).
-                double p = pCategories[i].get<1>();
+        // Compute probabilities of less likely categories.
+        double pCumulative = 0.0;
+        for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
+            // Find the probability equal range [i, j).
+            double p = pCategories[i].get<1>();
+            pCumulative += p;
+            while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
                 pCumulative += p;
-                while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
-                    pCumulative += p;
-                }
-
-                // Update the equal range probabilities [i, j).
-                for (/**/; i < j; ++i) {
-                    pCategories[i].get<1>() = pCumulative;
-                }
             }
 
-            if (l < pCategories.size()) {
-                pl = pCategories[l].get<1>();
+            // Update the equal range probabilities [i, j).
+            for (/**/; i < j; ++i) {
+                pCategories[i].get<1>() = pCumulative;
             }
         }
-
         LOG_TRACE(<< "pCategories = " << pCategories);
-        LOG_TRACE(<< "P(U) = " << pU << ", P(l) = " << pl);
+        LOG_TRACE(<< "P(U) = " << pU);
 
         lowerBounds.resize(pCategories.size(), 0.0);
         upperBounds.resize(pCategories.size(), 0.0);

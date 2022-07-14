@@ -14,7 +14,7 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CChecksum.h>
@@ -22,7 +22,6 @@
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/std_array.hpp>
 #include <boost/numeric/conversion/bounds.hpp>

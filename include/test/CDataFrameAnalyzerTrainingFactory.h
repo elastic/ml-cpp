@@ -19,8 +19,6 @@
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
 
-#include <maths/common/CTools.h>
-
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalyzer.h>
 

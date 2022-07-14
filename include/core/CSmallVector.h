@@ -18,7 +18,6 @@
 #include <boost/type_traits/has_minus_assign.hpp>
 #include <boost/type_traits/has_plus_assign.hpp>
 
-#include <algorithm>
 #include <initializer_list>
 #include <ostream>
 #include <type_traits>
@@ -38,10 +37,14 @@ struct SPlusAssign {
     static_assert(sizeof(T) < 0, "The contained type has no defined += operator");
 };
 
+inline std::size_t min(std::size_t a, std::size_t b) {
+    return a < b ? a : b;
+}
+
 template<typename T>
 struct SPlusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0, n = min(lhs.size(), rhs.size()); i < n; ++i) {
             lhs[i] += rhs[i];
         }
     }
@@ -55,7 +58,7 @@ struct SMinusAssign {
 template<typename T>
 struct SMinusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0, n = min(lhs.size(), rhs.size()); i < n; ++i) {
             lhs[i] -= rhs[i];
         }
     }

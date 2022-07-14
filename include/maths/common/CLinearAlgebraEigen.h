@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 #define INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CPersistUtils.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>

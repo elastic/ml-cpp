@@ -24,6 +24,8 @@
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CNaiveBayes.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>

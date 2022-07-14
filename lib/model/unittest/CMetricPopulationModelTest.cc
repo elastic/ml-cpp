@@ -19,6 +19,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>

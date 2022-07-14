@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CMetricMultivariateStatistic_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CChecksum.h>

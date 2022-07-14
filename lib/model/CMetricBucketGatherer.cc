@@ -12,13 +12,13 @@
 #include <model/CMetricBucketGatherer.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
 #include <model/CGathererTools.h>
 #include <model/CResourceMonitor.h>

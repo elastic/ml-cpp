@@ -476,7 +476,6 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
 
     std::size_t day{(week + 3) / 7};
     std::size_t weekend{(2 * week + 3) / 7};
-    std::size_t weekday{(5 * week + 3) / 7};
 
     TFloatMeanAccumulatorVec temporaryValues{values};
 
@@ -530,7 +529,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     }
     std::size_t strides[]{day, day};
     TSizeSizePr2Vec partitions[]{weekends, weekdays};
-    LOG_TRACE(<< "day = " << day << ", weekend = " << weekend << ", weekday = " << weekday);
+    LOG_TRACE(<< "day = " << day << ", weekend = " << weekend);
     LOG_TRACE(<< "weekends = " << weekends << ", weekdays = " << weekdays);
     LOG_TRACE(<< "strides = " << strides);
     LOG_TRACE(<< "partitions = " << partitions);

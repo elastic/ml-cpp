@@ -12,6 +12,7 @@
 #include <maths/common/CMultivariatePrior.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>

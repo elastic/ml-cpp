@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CLeastSquaresOnlineRegressionDetail_h
 #define INCLUDED_ml_maths_common_CLeastSquaresOnlineRegressionDetail_h
 
-#include <core/CLogger.h>
+#include <core/CLoggerTrace.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>

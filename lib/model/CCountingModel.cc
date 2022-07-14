@@ -12,6 +12,8 @@
 #include <model/CCountingModel.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>

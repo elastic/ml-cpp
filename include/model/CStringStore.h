@@ -12,7 +12,7 @@
 #define INCLUDED_ml_model_CStringStore_h
 
 #include <core/CFastMutex.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CNonCopyable.h>
 #include <core/CStoredStringPtr.h>
 

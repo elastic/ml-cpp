@@ -296,7 +296,8 @@ public:
     static const bool ENABLED{false};
 
 public:
-    explicit CDebugGenerator(std::string file = "results.py") : m_File{std::move(file)} {
+    explicit CDebugGenerator(std::string file = "results.py")
+        : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);
@@ -306,7 +307,7 @@ public:
         if (ENABLED) {
             std::ofstream file_;
             file_.open(m_File);
-            auto file = (file_ << core::CPrintContainers{});
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
             file << "a = " << m_Actual << ";\n";
             file << "plt.plot(a, 'b');\n";

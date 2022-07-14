@@ -12,7 +12,6 @@
 #define INCLUDED_ml_core_CTriple_h
 
 #include <core/CMemory.h>
-#include <core/CMemoryUsage.h>
 
 #include <boost/functional/hash.hpp>
 #include <boost/operators.hpp>

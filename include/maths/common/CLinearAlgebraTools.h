@@ -17,7 +17,6 @@
 
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/CTools.h>
 #include <maths/common/ImportExport.h>
 
 #include <cmath>

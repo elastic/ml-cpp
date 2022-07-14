@@ -11,12 +11,11 @@
 
 #include <maths/time_series/CSeasonalTime.h>
 
-#include <core/CIEEE754.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStringUtils.h>
 #include <core/Constants.h>
 
 #include <maths/common/CChecksum.h>

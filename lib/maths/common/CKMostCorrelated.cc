@@ -12,6 +12,7 @@
 #include <maths/common/CKMostCorrelated.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
@@ -134,16 +135,12 @@ bool CKMostCorrelated::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     do {
         const std::string& name = traverser.name();
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
-        RESTORE(PROJECTIONS_TAG,
-                core::CPersistUtils::restore(PROJECTIONS_TAG, m_Projections, traverser))
-        RESTORE(CURRENT_PROJECTED_TAG,
-                core::CPersistUtils::restore(CURRENT_PROJECTED_TAG, m_CurrentProjected, traverser))
-        RESTORE(PROJECTED_TAG,
-                core::CPersistUtils::restore(PROJECTED_TAG, m_Projected, traverser))
+        RESTORE_WITH_UTILS(PROJECTIONS_TAG, m_Projections)
+        RESTORE_WITH_UTILS(CURRENT_PROJECTED_TAG, m_CurrentProjected)
+        RESTORE_WITH_UTILS(PROJECTED_TAG, m_Projected)
         RESTORE_BUILT_IN(MAXIMUM_COUNT_TAG, m_MaximumCount)
-        RESTORE(MOMENTS_TAG, core::CPersistUtils::restore(MOMENTS_TAG, m_Moments, traverser))
-        RESTORE(MOST_CORRELATED_TAG,
-                core::CPersistUtils::restore(MOST_CORRELATED_TAG, m_MostCorrelated, traverser))
+        RESTORE_WITH_UTILS(MOMENTS_TAG, m_Moments)
+        RESTORE_WITH_UTILS(MOST_CORRELATED_TAG, m_MostCorrelated)
     } while (traverser.next());
 
     return true;

@@ -23,7 +23,6 @@
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>

@@ -11,7 +11,6 @@
 
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -30,6 +29,8 @@
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CSetTools.h>
 #include <maths/common/CStatisticalTests.h>

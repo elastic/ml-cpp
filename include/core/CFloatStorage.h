@@ -12,7 +12,9 @@
 #ifndef INCLUDED_ml_core_CFloatStorage_h
 #define INCLUDED_ml_core_CFloatStorage_h
 
+#ifdef CFLOATSTORAGE_BOUNDS_CHECK
 #include <core/CLogger.h>
+#endif
 #include <core/CStringUtils.h>
 
 #include <maths/common/ImportExport.h>

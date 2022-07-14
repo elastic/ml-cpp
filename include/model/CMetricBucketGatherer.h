@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CMetricBucketGatherer_h
 #define INCLUDED_ml_model_CMetricBucketGatherer_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>

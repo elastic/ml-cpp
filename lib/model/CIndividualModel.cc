@@ -12,8 +12,8 @@
 #include <model/CIndividualModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>

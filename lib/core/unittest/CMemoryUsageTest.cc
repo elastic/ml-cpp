@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include <core/CAlignment.h>
-#include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -542,7 +540,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t),
                             core::CMemory::dynamicSize(variables));
 
-        core::CMemory::CAnyVisitor& visitor = core::CMemory::anyVisitor();
+        auto& visitor = core::CMemory::anyVisitor();
         visitor.registerCallback<TDoubleVec>();
         visitor.registerCallback<TFooVec>();
 
@@ -556,7 +554,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                                 sizeof(b) + core::CMemory::dynamicSize(b),
                             core::CMemory::dynamicSize(variables));
 
-        core::CMemoryDebug::CAnyVisitor& debugVisitor = core::CMemoryDebug::anyVisitor();
+        auto& debugVisitor = core::memory_detail::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
         debugVisitor.registerCallback<TFooVec>();
 

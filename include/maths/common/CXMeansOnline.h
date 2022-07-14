@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CXMeansOnline_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -25,6 +25,8 @@
 #include <maths/common/CKMeansOnline.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSphericalCluster.h>

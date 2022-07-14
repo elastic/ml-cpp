@@ -20,10 +20,10 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <functional>
-#include <iostream>
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -59,12 +59,14 @@ struct has_member_print_function<
 
 //! \name Check if a type is printable to an ostream.
 //@{
+// Avoids including iostream everywhere.
+extern std::ostream TEST_IS_PRINTABLE_STREAM;
 template<typename, typename = void>
 struct is_printable : false_ {};
 // clang-format off
 template<typename T>
 struct is_printable<
-        T, std::enable_if_t<std::is_same_v<decltype(std::cout << std::declval<T>()), std::ostream&>>
+        T, std::enable_if_t<std::is_same_v<decltype(TEST_IS_PRINTABLE_STREAM << std::declval<T>()), std::ostream&>>
     > : true_ {};
 // clang-format on
 //@}
@@ -324,24 +326,29 @@ public:
     }
 };
 
-//! \brief A stream manipulator which enables printing of STL compliant containers.
+//! \brief A psuedo stream manipulator which enables printing of STL compliant
+//! containers.
 //!
 //! DESCRIPTION:\n
 //! Example usage\n
 //! \code{.cpp}
 //!   std::vector<double> myvec{1.0, 2.0, 3.0};
-//!   std::cout << CPrintContainers{} << "myvec = " << myvec << std::endl;
+//!   std::cout << CScopePrintContainers{} << "myvec = " << myvec << std::endl;
 //! \endcode
+//!
+//! Note that this only works for the scope of the current log line after the
+//! CScopePrintContainers variable is defined.
 //!
 //! IMPLEMENTATION:\n
 //! Libraries have a tendency to overload operator<< for std::ostream (for
 //! example PyTorch does this) for STL types. In such cases, we get a violation
 //! of the ODR if we do the same. However, we can simply wrap the std::ostream
-//! reference and overload operator<< for CPrintContainers to achieve the same
-//! effect. This avoids any chance of a collision definitions.
-class CPrintContainers {
+//! reference and overload operator<< for CScopePrintContainers to achieve the same
+//! effect. This avoids any chance of a collision of definitions.
+class CScopePrintContainers {
 public:
     void attach(std::ostream& stream) const { m_Stream = &stream; }
+    std::ostream* stream() const { return m_Stream; }
     template<typename T>
     void print(T&& t, printer_detail::true_) {
         (*m_Stream) << t;
@@ -357,43 +364,43 @@ private:
 
 //! Convert a STREAM object \p s into a wrapped stream which prints containers.
 template<typename STREAM>
-CPrintContainers operator<<(STREAM& s, CPrintContainers printer) {
+CScopePrintContainers operator<<(STREAM& s, CScopePrintContainers printer) {
     printer.attach(printer_detail::stream(s));
     return printer;
 }
 //! Convert a temporary STREAM object \p s into a wrapped stream which prints containers.
 template<typename STREAM>
-CPrintContainers operator<<(STREAM&& s, CPrintContainers printer) {
+CScopePrintContainers operator<<(STREAM&& s, CScopePrintContainers printer) {
     printer.attach(printer_detail::stream(s));
     return printer;
 }
 //! Print \p t with \p printer.
 template<typename T>
-CPrintContainers operator<<(CPrintContainers printer, T&& t) {
+CScopePrintContainers operator<<(CScopePrintContainers printer, T&& t) {
     printer.print(t, printer_detail::is_printable<T>{});
     return printer;
 }
 //! Print an array \p t with \p printer.
 template<typename T, std::size_t SIZE>
-CPrintContainers operator<<(CPrintContainers printer, const T (&t)[SIZE]) {
+CScopePrintContainers operator<<(CScopePrintContainers printer, const T (&t)[SIZE]) {
     printer.print(CContainerPrinter::print(t), printer_detail::true_{});
     return printer;
 }
 //! Print an array \p t with \p printer.
 template<typename T, std::size_t SIZE>
-CPrintContainers operator<<(CPrintContainers printer, T (&t)[SIZE]) {
+CScopePrintContainers operator<<(CScopePrintContainers printer, T (&t)[SIZE]) {
     printer.print(CContainerPrinter::print(t), printer_detail::true_{});
     return printer;
 }
 //! Print a character array \p t with \p printer.
 template<std::size_t SIZE>
-CPrintContainers operator<<(CPrintContainers printer, const char (&t)[SIZE]) {
+CScopePrintContainers operator<<(CScopePrintContainers printer, const char (&t)[SIZE]) {
     printer.print(t, printer_detail::true_{});
     return printer;
 }
 //! Print a character array \p t with \p printer.
 template<std::size_t SIZE>
-CPrintContainers operator<<(CPrintContainers printer, char (&t)[SIZE]) {
+CScopePrintContainers operator<<(CScopePrintContainers printer, char (&t)[SIZE]) {
     printer.print(t, printer_detail::true_{});
     return printer;
 }

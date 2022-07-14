@@ -437,8 +437,7 @@ public:
             return;
         } catch (const std::exception& e) {
             LOG_TRACE(<< "Falling back to Brent's solver: " << e.what());
-            // Avoid compiler warning in the case of LOG_TRACE being compiled out
-            static_cast<void>(&e);
+            SUPPRESS_USAGE_WARNING(e);
         }
         if (!brent(a, b, fa, fb, f, maxIterations, equal, bestGuess)) {
             throw std::invalid_argument("doesn't bracket root");

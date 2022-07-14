@@ -11,7 +11,6 @@
 
 #include <api/CDataFrameAnalyzer.h>
 
-#include <boost/unordered/unordered_map_fwd.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CFloatStorage.h>
@@ -21,6 +20,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>

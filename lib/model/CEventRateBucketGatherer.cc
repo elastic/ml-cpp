@@ -12,6 +12,7 @@
 #include <model/CEventRateBucketGatherer.h>
 
 #include <core/CFunctional.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -27,7 +28,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CResourceMonitor.h>
-#include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 
@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <atomic>
 #include <functional>
-#include <limits>
 #include <map>
 #include <string>
 #include <tuple>

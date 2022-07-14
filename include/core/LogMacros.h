@@ -33,28 +33,26 @@
     << boost::log::add_value(ml::core::CLogger::instance().fileAttributeName(), __FILE__) \
     << boost::log::add_value(ml::core::CLogger::instance().functionAttributeName(),       \
                              BOOST_CURRENT_FUNCTION)                                      \
-    << ml::core::CPrintContainers {}
+    << ml::core::CScopePrintContainers {}
 
 // Log at a level known at compile time
 
 #ifdef LOG_TRACE
 #undef LOG_TRACE
 #endif
-#ifdef PROMOTE_LOGGING_TO_INFO
+#if defined(PROMOTE_LOGGING_TO_INFO)
 // When this option is set all LOG_TRACE macros are promoted to LOG_INFO
 #define LOG_TRACE(message)                                                                  \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
     LOG_LOCATION_INFO                                                                       \
     message
 #elif defined(EXCLUDE_TRACE_LOGGING)
-// When this option is set TRACE logging is expanded to dummy code that can be
-// eliminated from the compiled program (certainly when optimisation is
-// enabled) - this avoids the overhead of checking the logging level at all for
-// this low level logging
-#define LOG_TRACE(message)                                                     \
-    static_cast<void>([&]() {                                                  \
-        std::ostringstream() << ml::core::CPrintContainers{} << "" message;    \
-    })
+// Compiling trace logging is expensive so if we don't want it just discard
+// the code in the preprocessor.
+#define LOG_TRACE(message)
+// Avoids compiler warning in the case a variable is only used in LOG_TRACE.
+#define SUPPRESS_USAGE_WARNING(variable) static_cast<void>(&(variable))
+
 #else
 #define LOG_TRACE(message)                                                                   \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
@@ -129,13 +127,11 @@
 #ifdef HANDLE_FATAL
 #undef HANDLE_FATAL
 #endif
-#define HANDLE_FATAL(message)                                                  \
-    do {                                                                       \
-        std::ostringstream ss;                                                 \
-        ss << ml::core::CPrintContainers {}                                    \
-        message;                                                               \
-        ml::core::CLogger::instance().handleFatal(ss.str());                   \
-    } while (0)
+#define HANDLE_FATAL(message)                                                              \
+    ml::core::CLogger::instance().handleFatal(                                             \
+        static_cast<std::ostringstream*>(                                                  \
+            (std::ostringstream{} << ml::core::CScopePrintContainers {} message).stream()) \
+            ->str())
 
 #ifdef LOG_ABORT
 #undef LOG_ABORT

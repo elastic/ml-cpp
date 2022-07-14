@@ -11,14 +11,13 @@
 
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CTriple.h>
-#include <core/CVectorRange.h>
+#include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 

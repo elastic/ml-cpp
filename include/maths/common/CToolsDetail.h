@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cmath>
 #include <exception>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -226,10 +227,8 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     double result = 0.0;
 
     CDifferentialEntropyKernel<T> kernel(mixture);
-    for (std::size_t i = 0; i < range.size(); ++i) {
-        double a = range[i].first;
-        double d = (range[i].second - range[i].first) / static_cast<double>(INTERVALS);
-
+    for (auto[a, b] : range) {
+        double d = (b - a) / static_cast<double>(INTERVALS);
         for (std::size_t j = 0; j < INTERVALS; ++j, a += d) {
             double integral;
             if (CIntegration::gaussLegendre<CIntegration::OrderFive>(kernel, a, a + d, integral)) {
@@ -240,6 +239,33 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
 
     LOG_TRACE(<< "result = " << result);
     return result;
+}
+
+template<typename COLLECTION>
+void CTools::inplaceSoftmax(COLLECTION& z) {
+    double Z{0.0};
+    double zmax{*std::max_element(z.begin(), z.end())};
+    for (auto& zi : z) {
+        zi = stableExp(zi - zmax);
+        Z += zi;
+    }
+    for (auto& zi : z) {
+        zi /= Z;
+    }
+}
+
+template<typename COLLECTION>
+void CTools::inplaceLogSoftmax(COLLECTION& z) {
+    double zmax{*std::max_element(z.begin(), z.end())};
+    for (auto& zi : z) {
+        zi -= zmax;
+    }
+    double logZ{std::log(std::accumulate(z.begin(), z.end(), 0.0, [](double sum, const auto& zi) {
+        return sum + std::exp(zi);
+    }))};
+    for (auto& zi : z) {
+        zi -= logZ;
+    }
 }
 
 template<typename T>

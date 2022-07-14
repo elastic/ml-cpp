@@ -61,7 +61,7 @@ public:
         if (ENABLED) {
             std::ofstream file_;
             file_.open("results.py");
-            auto file = (file_ << core::CPrintContainers{});
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
             file << "t = " << m_ValueTimes << ";\n";
             file << "f = " << m_Values << ";\n";

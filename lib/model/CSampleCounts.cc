@@ -153,8 +153,7 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
                               << " for " << this->name(gatherer, id) << " ("
                               << id << "). (Mean count " << count_ << ")");
                     m_SampleCounts[id] = newCount;
-                    // Avoid compiler warning in the case of LOG_TRACE being compiled out
-                    static_cast<void>(oldCount);
+                    SUPPRESS_USAGE_WARNING(oldCount);
                 }
             }
         } else if (maths::common::CBasicStatistics::count(count_) >=

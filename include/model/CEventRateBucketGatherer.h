@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CEventRateBucketGatherer_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 

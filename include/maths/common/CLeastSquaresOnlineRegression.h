@@ -18,9 +18,9 @@
 #include <maths/common/CCategoricalTools.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraTools.h>
+#include <maths/common/CTools.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/operators.hpp>
 
 #include <array>

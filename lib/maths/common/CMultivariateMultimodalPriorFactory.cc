@@ -11,6 +11,8 @@
 
 #include <maths/common/CMultivariateMultimodalPriorFactory.h>
 
+#include <core/CMemory.h>
+
 #include <maths/common/CMultivariateMultimodalPrior.h>
 #include <maths/common/CXMeansOnlineFactory.h>
 

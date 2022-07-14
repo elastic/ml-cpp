@@ -12,6 +12,7 @@
 #include <maths/common/CNaturalBreaksClassifier.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -62,7 +63,7 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
         const std::string& name = traverser.name();
         RESTORE(DECAY_RATE_TAG, m_DecayRate.fromString(traverser.value()))
         RESTORE_BUILT_IN(SPACE_TAG, m_Space)
-        RESTORE(CATEGORY_TAG, core::CPersistUtils::restore(CATEGORY_TAG, m_Categories, traverser))
+        RESTORE_WITH_UTILS(CATEGORY_TAG, m_Categories)
         RESTORE(POINTS_TAG, core::CPersistUtils::fromString(traverser.value(), m_PointsBuffer))
     } while (traverser.next());
 

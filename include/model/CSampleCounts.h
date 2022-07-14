@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CSampleCounts_h
 #define INCLUDED_ml_model_CSampleCounts_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>

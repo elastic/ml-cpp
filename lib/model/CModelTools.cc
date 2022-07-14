@@ -11,6 +11,9 @@
 
 #include <model/CModelTools.h>
 
+#include <core/CLogger.h>
+#include <core/CMemory.h>
+
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CModel.h>
@@ -18,7 +21,7 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 
-#include <model/CSample.h>
+//#include <model/CSample.h>
 
 #include <algorithm>
 #include <functional>

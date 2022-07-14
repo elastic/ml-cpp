@@ -12,7 +12,7 @@
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/Constants.h>
@@ -22,7 +22,6 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CPrior.h>
-#include <maths/common/CPriorStateSerialiser.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>

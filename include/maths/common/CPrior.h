@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CPrior_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
 

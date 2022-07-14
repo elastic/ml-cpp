@@ -13,6 +13,7 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CFunctional.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -22,6 +23,7 @@
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CTools.h>
@@ -1930,8 +1932,7 @@ bool CTimeSeriesCorrelations::acceptRestoreTraverser(const common::SDistribution
         RESTORE(K_MOST_CORRELATED_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
             return m_Correlations.acceptRestoreTraverser(traverser_);
         }))
-        RESTORE(CORRELATED_LOOKUP_TAG,
-                core::CPersistUtils::restore(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup, traverser))
+        RESTORE_WITH_UTILS(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup)
         RESTORE(CORRELATION_MODELS_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
             return this->restoreCorrelationModels(params, traverser_);
         }))
