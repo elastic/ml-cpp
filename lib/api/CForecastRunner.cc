@@ -19,6 +19,7 @@
 #include <model/CForecastModelPersist.h>
 #include <model/ModelTypes.h>
 
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -29,6 +30,27 @@ namespace api {
 
 namespace {
 const std::string EMPTY_STRING;
+
+//! Check for sufficient disk space.
+bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                  const boost::filesystem::path& path) {
+    boost::system::error_code errorCode;
+    auto spaceInfo = boost::filesystem::space(path, errorCode);
+
+    if (errorCode) {
+        LOG_ERROR(<< "Failed to retrieve disk information for " << path
+                  << " error " << errorCode.message());
+        return false;
+    }
+
+    if (spaceInfo.available < minForecastAvailableDiskSpace) {
+        LOG_WARN(<< "Checked disk space for " << path << " - required: " << minForecastAvailableDiskSpace
+                 << ", available: " << spaceInfo.available);
+        return false;
+    }
+
+    return true;
+}
 }
 
 const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
@@ -313,8 +335,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory) {
         boost::filesystem::path temporaryFolder(forecastJob.s_TemporaryFolder);
 
-        if (this->sufficientAvailableDiskSpace(forecastJob.s_MinForecastAvailableDiskSpace,
-                                               temporaryFolder) == false) {
+        if (sufficientAvailableDiskSpace(forecastJob.s_MinForecastAvailableDiskSpace,
+                                         temporaryFolder) == false) {
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISKSPACE);
             return false;
         }
@@ -453,26 +475,6 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     }
 
     forecastJob.s_ExpiryTime = forecastJob.s_CreateTime + expiresIn;
-
-    return true;
-}
-
-bool CForecastRunner::sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
-                                                   const boost::filesystem::path& path) {
-    boost::system::error_code errorCode;
-    auto spaceInfo = boost::filesystem::space(path, errorCode);
-
-    if (errorCode) {
-        LOG_ERROR(<< "Failed to retrieve disk information for " << path
-                  << " error " << errorCode.message());
-        return false;
-    }
-
-    if (spaceInfo.available < minForecastAvailableDiskSpace) {
-        LOG_WARN(<< "Checked disk space for " << path << " - required: " << minForecastAvailableDiskSpace
-                 << ", available: " << spaceInfo.available);
-        return false;
-    }
 
     return true;
 }

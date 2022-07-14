@@ -1117,11 +1117,6 @@ private:
         //! Get a checksum of this object.
         std::uint64_t checksum(std::uint64_t seed) const;
 
-        //! Print for debug.
-        std::string print() const {
-            return core::CContainerPrinter::print(this->begin(), this->end());
-        }
-
     protected:
         //! Get the statistics.
         CONTAINER& statistics() { return m_Statistics; }

@@ -11,6 +11,7 @@
 
 #include <maths/common/ProbabilityAggregators.h>
 
+#include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/Constants.h>
 
@@ -681,7 +682,8 @@ std::uint64_t CProbabilityOfExtremeSample::checksum(std::uint64_t seed) const {
 }
 
 std::ostream& CProbabilityOfExtremeSample::print(std::ostream& o) const {
-    return o << "(" << m_NumberSamples << ", " << m_MinValue.print() << ")";
+    return o << "(" << m_NumberSamples << ", "
+             << core::CContainerPrinter::print(m_MinValue) << ")";
 }
 
 std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& probability) {

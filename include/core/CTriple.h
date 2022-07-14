@@ -15,7 +15,6 @@
 
 #include <boost/functional/hash.hpp>
 #include <boost/operators.hpp>
-#include <boost/type_traits/is_pod.hpp>
 
 #include <cstddef>
 #include <ostream>

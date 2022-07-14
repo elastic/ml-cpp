@@ -30,7 +30,7 @@ namespace ml {
 namespace model {
 
 //! \brief Persist/Restore CModel sub-classes to/from text representations for
-//!  the purpose of forecasting.
+//! the purpose of forecasting.
 //!
 //! DESCRIPTION:\n
 //! Persists/Restores models to disk for the purpose of restoring and forecasting
@@ -39,9 +39,9 @@ namespace model {
 //! IMPLEMENTATION DECISIONS:\n
 //! Only as complete as required for forecasting.
 //!
-//! Persist and Restore are only done to avoid heap memory usage using temporary disk space.
-//! No need for backwards compatibility and version'ing as code will only be used
-//! locally never leaving process/io boundaries.
+//! Persist and Restore are only done to avoid heap memory usage using temporary
+//! disk space. No need for backwards compatibility and version'ing as code will
+//! only be used locally never leaving process/io boundaries.
 class MODEL_EXPORT CForecastModelPersist final {
 public:
     using TMathsModelPtr = std::unique_ptr<maths::common::CModel>;
@@ -97,8 +97,8 @@ public:
 
         //! the model state restorer
         core::CJsonStateRestoreTraverser m_RestoreTraverser;
-    }; // class CRestore
-};     // class CForecastModelPersist
+    };
+};
 }
 }
 
