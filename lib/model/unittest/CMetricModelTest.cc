@@ -449,14 +449,16 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                     latLong.push_back(
                         maths::common::CBasicStatistics::mean(expectedLatLong)(1));
                 }
-                BOOST_REQUIRE_EQUAL(latLong, bucketLatLong);
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
+                                    core::CContainerPrinter::print(bucketLatLong));
                 if (!baselineLatLong.empty()) {
                     baselineLatLongError.add(maths::common::fabs(
                         TVector2(baselineLatLong) -
                         maths::common::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
 
-                BOOST_REQUIRE_EQUAL(latLong, featureLatLong);
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
+                                    core::CContainerPrinter::print(featureLatLong));
                 BOOST_REQUIRE_EQUAL(expectedPrior->checksum(), prior.checksum());
 
                 // Test persistence. (We check for idempotency.)
@@ -561,7 +563,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG(<< "minProbabilities = " << minProbabilities.print());
+    LOG_DEBUG(<< "minProbabilities = " << minProbabilities);
     BOOST_REQUIRE_EQUAL(anomalousBucket, minProbabilities[0].second);
     BOOST_TEST_REQUIRE(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
@@ -619,7 +621,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG(<< "minProbabilities = " << minProbabilities.print());
+    LOG_DEBUG(<< "minProbabilities = " << minProbabilities);
     BOOST_REQUIRE_EQUAL(anomalousBucket, minProbabilities[0].second);
     BOOST_TEST_REQUIRE(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 

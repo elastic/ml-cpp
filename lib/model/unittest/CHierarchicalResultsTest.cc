@@ -1899,7 +1899,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         }
 
         mostAnomalous.sort();
-        LOG_DEBUG(<< "mostAnomalousBucket = " << mostAnomalous.print());
+        LOG_DEBUG(<< "mostAnomalousBucket = " << mostAnomalous);
         BOOST_REQUIRE_EQUAL(std::size_t(70), mostAnomalous[0].second);
         BOOST_TEST_REQUIRE(mostAnomalous[0].first / mostAnomalous[1].first < 100);
     }

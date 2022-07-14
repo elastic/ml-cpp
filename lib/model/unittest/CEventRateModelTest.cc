@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -698,7 +697,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         TStrVec expectedResults{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
                                 "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
         for (std::size_t i = 0; i < probabilities.size(); ++i) {
-            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            LOG_DEBUG(<< "probabilities = " << probabilities[i]);
             std::string results[2];
             for (std::size_t j = 0; j < 2; ++j) {
                 results[j] =
@@ -796,7 +795,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         TStrVecVec expectedResults{
             {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
         for (std::size_t i = 0; i < probabilities.size(); ++i) {
-            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            LOG_DEBUG(<< "probabilities = " << probabilities[i]);
             TStrVec results;
             for (const auto& result : probabilities[i]) {
                 results.push_back(core::CStringUtils::typeToString(result.second) +
@@ -903,7 +902,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
                                {"2400,p4", "2700,p4"},
                                {"2400,p3", "2700,p3"}};
     for (std::size_t i = 0; i < 4; ++i) {
-        LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+        LOG_DEBUG(<< "probabilities = " << probabilities[i]);
         TStrVec results;
         for (const auto& result : probabilities[i]) {
             results.push_back(core::CStringUtils::typeToString(result.second) +
