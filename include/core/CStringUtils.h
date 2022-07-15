@@ -15,7 +15,6 @@
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
 
-#include <locale>
 #include <string>
 #include <vector>
 
@@ -185,11 +184,6 @@ public:
     //! conversion between different character sets.
     static std::string wideToNarrow(const std::wstring& wideStr);
     static std::wstring narrowToWide(const std::string& narrowStr);
-
-    //! Get a locale object for character transformations
-    //! TODO - remove when we switch to a character conversion library
-    //! (e.g. ICU)
-    static const std::locale& locale();
 
     //! Read the contents of a file into a string.
     //! Returns a pair containing the file contents and a boolean indicating success or failure.

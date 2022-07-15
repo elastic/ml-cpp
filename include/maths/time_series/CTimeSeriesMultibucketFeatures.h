@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatures_h
 
 #include <core/CMemoryFwd.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>

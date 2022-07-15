@@ -29,11 +29,8 @@ namespace ml {
 namespace api {
 
 namespace {
-const std::string EMPTY_STRING;
-
-//! Check for sufficient disk space.
-bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
-                                  const boost::filesystem::path& path) {
+bool sufficientAvailableDiskSpaceForPath(std::size_t minForecastAvailableDiskSpace,
+                                         const boost::filesystem::path& path) {
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
 
@@ -51,6 +48,8 @@ bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
 
     return true;
 }
+
+const std::string EMPTY_STRING;
 }
 
 const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
@@ -335,8 +334,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory) {
         boost::filesystem::path temporaryFolder(forecastJob.s_TemporaryFolder);
 
-        if (sufficientAvailableDiskSpace(forecastJob.s_MinForecastAvailableDiskSpace,
-                                         temporaryFolder) == false) {
+        if (sufficientAvailableDiskSpaceForPath(forecastJob.s_MinForecastAvailableDiskSpace,
+                                                temporaryFolder) == false) {
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISKSPACE);
             return false;
         }
@@ -510,6 +509,11 @@ void CForecastRunner::sendMessage(WRITE write,
         forecastJob.s_CreateTime + DEFAULT_EXPIRY_TIME,
         forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
     (sink.*write)(message);
+}
+
+bool CForecastRunner::sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                                   const char* path) {
+    return sufficientAvailableDiskSpaceForPath(minForecastAvailableDiskSpace, path);
 }
 
 void CForecastRunner::SForecast::reset() {

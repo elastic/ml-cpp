@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_core_CSmallVector_h
 #define INCLUDED_ml_core_CSmallVector_h
 
+#include <core/CSmallVectorFwd.h>
+
 #include <boost/container/small_vector.hpp>
 
 #include <initializer_list>
@@ -21,11 +23,6 @@
 
 namespace ml {
 namespace core {
-
-//! Map boost::container::small_vector_base for consistent naming.
-template<typename T>
-using CSmallVectorBase = boost::container::small_vector_base<T>;
-
 namespace small_vector_detail {
 
 inline std::size_t min(std::size_t a, std::size_t b) {

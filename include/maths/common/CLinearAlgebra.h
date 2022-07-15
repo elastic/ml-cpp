@@ -15,7 +15,7 @@
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemoryFwd.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraFwd.h>

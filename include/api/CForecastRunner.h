@@ -261,6 +261,10 @@ private:
     template<typename WRITE>
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
+    //! Check for sufficient disk space.
+    static bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                             const char* path);
+
     //! parse and validate a forecast request and turn it into a forecast job
     static bool parseAndValidateForecastRequest(
         const std::string& controlMessage,

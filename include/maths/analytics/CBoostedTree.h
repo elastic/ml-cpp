@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTree_h
 
 #include <core/CDataFrame.h>
-#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 

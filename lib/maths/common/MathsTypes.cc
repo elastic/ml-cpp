@@ -14,6 +14,7 @@
 #include <maths/common/CMathsFuncs.h>
 
 #include <core/CLogger.h>
+#include <core/CSmallVector.h>
 #include <core/CStringUtils.h>
 
 #include <boost/math/special_functions/fpclassify.hpp>
