@@ -16,6 +16,7 @@
 #include <core/CHashing.h>
 #include <core/CMemoryFwd.h>
 #include <core/CNonInstantiatable.h>
+#include <core/CSmallVector.h>
 #include <core/Concurrency.h>
 
 #include <maths/analytics/ImportExport.h>

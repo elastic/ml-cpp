@@ -15,6 +15,7 @@
 #include <core/CFunctional.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
+#include <core/CTriple.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
