@@ -409,13 +409,11 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
-    // Starting the executor with 1 thread will use an extra thread that isn't necessary
-    // so we only start it when more than 1 threads are set.
-    if (numAllocations > 1) {
-        ml::core::startDefaultAsyncExecutor(numAllocations);
-    } else {
-        ml::core::stopDefaultAsyncExecutor();
-    }
+    // Size the threadpool to the number of hardware threads
+    // so we can grow and shrink the threadpool dynamically
+    ml::core::startDefaultAsyncExecutor();
+    // Set the number of threads to use
+    ml::core::defaultAsyncExecutor().numberThreadsInUse(numAllocations);
 
     commandParser.ioLoop(
         [&module_, &wrappedOutputStream](ml::torch::CCommandParser::CRequestCacheInterface& cache,
