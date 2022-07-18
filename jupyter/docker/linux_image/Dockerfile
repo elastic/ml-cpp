@@ -26,11 +26,12 @@ RUN --mount=type=cache,target=/root/.ccache \
     make -j altinstall && \
     ln -sfn /usr/local/bin/python3.8 /usr/bin/python3 && \
     ln -sfn /usr/local/bin/pip3.8 /usr/bin/pip3 && \
-    cd .. && rm -rf Python-3.8.7 
-RUN curl -L -o ts-1.3.1.tar.gz https://github.com/justanhduc/task-spooler/archive/refs/tags/v1.3.1-cpu.tar.gz && \
+    cd .. && rm -rf Python-3.8.7 Python-3.8.7.tgz && \
+    curl -L -o ts-1.3.1.tar.gz https://github.com/justanhduc/task-spooler/archive/refs/tags/v1.3.1-cpu.tar.gz && \
     tar -xzf ts-1.3.1.tar.gz && \
     cd task-spooler-1.3.1-cpu && \
     make && make install PREFIX=/usr && \
+    cd .. && rm -rf task-spooler-1.3.1-cpu ts-1.3.1.tar.gz && \
     ln -s /usr/bin/ts /usr/bin/tsp && \
     tsp -S `nproc` && \
     mkdir -p /root/data/configs /root/data/datasets /root/data/jobs
