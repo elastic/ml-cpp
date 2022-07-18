@@ -17,7 +17,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
@@ -28,6 +27,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -57,7 +57,7 @@ using TIntVec = std::vector<int>;
 using TSizeAnEnumMap = std::map<std::size_t, EAnEnum>;
 using TStrSet = std::set<std::string>;
 using TStrSetCItr = TStrSet::const_iterator;
-using TOptionalDouble = boost::optional<double>;
+using TOptionalDouble = std::optional<double>;
 using TOptionalDoubleVec = std::vector<TOptionalDouble>;
 using TMeanVarAccumulator =
     maths::common::CBasicStatistics::SSampleMeanVar<maths::common::CFloatStorage>::TAccumulator;

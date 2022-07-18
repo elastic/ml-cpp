@@ -21,9 +21,8 @@
 #include <maths/common/CPRNG.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <functional>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -59,7 +58,7 @@ class MATHS_COMMON_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TVector = CDenseVector<double>;
     using TVectorVectorPr = std::pair<TVector, TVector>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;

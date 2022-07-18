@@ -127,7 +127,7 @@ private:
         std::size_t s_Feature;
         double s_SplitAt;
     };
-    using TOptionalPreviousSplit = boost::optional<SPreviousSplit>;
+    using TOptionalPreviousSplit = std::optional<SPreviousSplit>;
 
 private:
     CBoostedTreeLeafNodeStatisticsIncremental(const TSizeVec& extraColumns,

@@ -71,15 +71,15 @@ When building on Windows from the native command shell that command becomes
 .\set_env.bat
 ```
 
-* Run `cmake -B cmake-build-release --config Release` to generate the build system under the `cmake-build-release` directory (the `--config Release` option may be omitted on Linux and Mac).
-* Run `cmake --build cmake-build-release` to build the libraries and the executables for the project. This may take some time, to speed up the build you can tell `cmake` to perform a parallel build using the `-j` (jobs) option. e.g.
+* Run `cmake -B cmake-build-relwithdebinfo` to generate the build system under the `cmake-build-relwithdebinfo` directory (the `--config RelWithDebInfo` option may be omitted on Linux and Mac).
+* Run `cmake --build cmake-build-relwithdebinfo --config RelWithDebInfo` to build the libraries and the executables for the project (the `--config RelWithDebInfo` option may be omitted on Linux and Mac). This may take some time, to speed up the build you can tell `cmake` to perform a parallel build using the `-j` (jobs) option. e.g.
 ```
-cmake --build cmake-build-release -j 7
+cmake --build cmake-build-relwithdebinfo -j 7
 ```
 
-* To build and run the unit tests run `cmake --build cmake-build-release -t test`. Again this can be sped up somewhat by using the `-j` option. e.g.
+* To build and run the unit tests run `cmake --build cmake-build-relwithdebinfo -t test`. Again this can be sped up somewhat by using the `-j` option. e.g.
 ```
-cmake --build cmake-build-release -t test -j 7
+cmake --build cmake-build-relwithdebinfo -t test -j 7
 ```
 
 ## Running
@@ -161,11 +161,11 @@ Options::
 
 Other executables exist under the `devbin` directory. These are not built by default. To build these you need to explicitly specify a target. 
 ```
-cmake --build cmake-build-release -j 7 -t model_extractor
+cmake --build cmake-build-relwithdebinfo -j 7 -t model_extractor
 ```
-The executable is created under the `cmake-build-release` hierarchy, so to run do
+The executable is created under the `cmake-build-relwithdebinfo` hierarchy, so to run do
 ```
-./cmake-build-release/devbin/model_extractor/model_extractor --help
+./cmake-build-relwithdebinfo/devbin/model_extractor/model_extractor --help
 ```
 
 

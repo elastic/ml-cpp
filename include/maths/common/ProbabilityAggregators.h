@@ -18,9 +18,8 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <iosfwd>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -53,7 +52,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CJointProbabilityOfLessLikelySamples
     : private boost::addable<CJointProbabilityOfLessLikelySamples> {
 public:
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
 
     //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
     struct SAddProbability {

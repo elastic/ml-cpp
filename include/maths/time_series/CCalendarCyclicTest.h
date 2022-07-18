@@ -21,9 +21,8 @@
 #include <maths/time_series/CCalendarFeature.h>
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -50,7 +49,7 @@ namespace time_series {
 class MATHS_TIME_SERIES_EXPORT CCalendarCyclicTest {
 public:
     using TFeatureTimePr = std::pair<CCalendarFeature, core_t::TTime>;
-    using TOptionalFeatureTimePr = boost::optional<TFeatureTimePr>;
+    using TOptionalFeatureTimePr = std::optional<TFeatureTimePr>;
 
 public:
     explicit CCalendarCyclicTest(double decayRate = 0.0);

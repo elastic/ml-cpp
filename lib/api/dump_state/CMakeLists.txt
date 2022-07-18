@@ -9,7 +9,7 @@
 # limitation.
 #
 
-project("ML DCump State")
+project("ML Dump State")
 
 set(SRCS
   )

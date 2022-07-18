@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "2nd day of month" ? truePositive
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "0 days before end of month"
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "1st Monday of month"
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "0 Fridays before end of month"
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "1st Sunday of month"
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "0 Saturdays before end of month"
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto feature = cyclic.test();
-                if (feature == boost::none) {
+                if (feature == std::nullopt) {
                     falseNegative += 1.0;
                 } else {
                     (feature->first.print() == "2nd day of month" ? truePositive
@@ -422,8 +422,8 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
 
             if (time % MONTH == 0) {
                 auto feature = cyclic.test();
-                (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
-                if (feature != boost::none) {
+                (feature == std::nullopt ? trueNegatives : falsePositives) += 1.0;
+                if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
                 BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
@@ -446,8 +446,8 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
 
             if (time % MONTH == 0) {
                 auto feature = cyclic.test();
-                (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
-                if (feature != boost::none) {
+                (feature == std::nullopt ? trueNegatives : falsePositives) += 1.0;
+                if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
                 BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
@@ -472,8 +472,8 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
 
             if (time % MONTH == 0) {
                 auto feature = cyclic.test();
-                (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
-                if (feature != boost::none) {
+                (feature == std::nullopt ? trueNegatives : falsePositives) += 1.0;
+                if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
                 BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);

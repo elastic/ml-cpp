@@ -21,9 +21,6 @@
 #include <rapidjson/fwd.h>
 
 namespace ml {
-namespace maths {
-class CTreeShapFeatureImportance;
-}
 namespace api {
 
 //! \brief Runs boosted tree classification on a core::CDataFrame.
@@ -83,8 +80,8 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames,
                              const TStrVecVec& categoryNames) const override;
 
-    //! \return A serialisable metadata of the trained classification model.
-    TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
+    //! \return A serialisable metadata of the trained regression model.
+    const CInferenceModelMetadata* inferenceModelMetadata() const override;
 
 private:
     static TLossFunctionUPtr loss(std::size_t numberClasses);

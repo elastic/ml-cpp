@@ -21,7 +21,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
@@ -29,6 +28,7 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -777,9 +777,9 @@ BOOST_AUTO_TEST_CASE(testDynamicSizeAlwaysZero) {
     BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SPod>::value();
     BOOST_REQUIRE_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<double>>::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::optional<double>>::value();
     BOOST_REQUIRE_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<SPod>>::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::optional<SPod>>::value();
     BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
     BOOST_REQUIRE_EQUAL(true, test);
@@ -787,7 +787,7 @@ BOOST_AUTO_TEST_CASE(testDynamicSizeAlwaysZero) {
     BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
     BOOST_REQUIRE_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<boost::optional<double>, SFoo>>::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<std::optional<double>, SFoo>>::value();
     BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<core::CHashing::CUniversalHash::CUInt32Hash>::value();
     BOOST_REQUIRE_EQUAL(true, test);

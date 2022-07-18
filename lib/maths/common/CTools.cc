@@ -38,10 +38,10 @@
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/tools/precision.hpp>
-#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
 #include <ostream>
 
 namespace boost {
@@ -63,7 +63,7 @@ namespace {
 
 using TDoubleBoolPr = std::pair<double, bool>;
 using TDoubleDoublePr = std::pair<double, double>;
-using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
+using TOptionalDoubleDoublePr = std::optional<TDoubleDoublePr>;
 
 namespace adapters {
 

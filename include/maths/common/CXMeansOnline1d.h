@@ -20,8 +20,7 @@
 #include <maths/common/Constants.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -116,7 +115,7 @@ public:
     using TDoubleVec = CClusterer1d::TPointPreciseVec;
     using TDoubleDoublePrVec = CClusterer1d::TPointPreciseDoublePrVec;
     using TClusterClusterPr = std::pair<CCluster, CCluster>;
-    using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
+    using TOptionalClusterClusterPr = std::optional<TClusterClusterPr>;
     using TDoubleDoublePr = std::pair<double, double>;
     using CClusterer1d::add;
 
@@ -215,7 +214,7 @@ public:
     private:
         CCluster(std::size_t index,
                  const CNormalMeanPrecConjugate& prior,
-                 const CNaturalBreaksClassifier& structure);
+                 CNaturalBreaksClassifier structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -230,7 +229,6 @@ public:
 
     using TClusterVec = std::vector<CCluster>;
     using TClusterVecItr = TClusterVec::iterator;
-    using TClusterVecCItr = TClusterVec::const_iterator;
 
 public:
     //! The central confidence interval on which to Winsorise.

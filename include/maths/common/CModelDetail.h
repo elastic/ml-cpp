@@ -16,7 +16,7 @@
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/CPrior.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace maths {
@@ -32,12 +32,12 @@ VECTOR CModel::marginalLikelihoodMean(const maths::common::CMultivariatePrior& p
 }
 
 template<typename TREND, typename VECTOR>
-boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
-    boost::optional<VECTOR> result;
+std::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
+    std::optional<VECTOR> result;
     std::size_t dimension = sample.size();
     for (std::size_t i = 0; i < dimension; ++i) {
         if (trend[i]->initialized()) {
-            result.reset(VECTOR(dimension, 0.0));
+            result.emplace(dimension, 0.0);
             for (/**/; i < dimension; ++i) {
                 if (trend[i]->initialized()) {
                     (*result)[i] = sample[i];
@@ -49,13 +49,13 @@ boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR
 }
 
 template<typename PRIOR, typename VECTOR>
-boost::optional<VECTOR> CModel::predictionError(double propagationInterval,
-                                                const PRIOR& prior,
-                                                const VECTOR& sample) {
-    boost::optional<VECTOR> result;
+std::optional<VECTOR> CModel::predictionError(double propagationInterval,
+                                              const PRIOR& prior,
+                                              const VECTOR& sample) {
+    std::optional<VECTOR> result;
     if (prior->numberSamples() > 20.0 / propagationInterval) {
         std::size_t dimension{sample.size()};
-        result.reset(sample);
+        result.emplace(sample);
         VECTOR mean(marginalLikelihoodMean<VECTOR>(*prior));
         for (std::size_t d = 0; d < dimension; ++d) {
             (*result)[d] -= mean[d];

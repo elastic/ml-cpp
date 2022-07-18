@@ -19,9 +19,8 @@
 #include <model/CSample.h>
 #include <model/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -71,7 +70,7 @@ struct MODEL_EXPORT SEventRateFeatureData {
 //! \brief The data for a metric series feature.
 struct MODEL_EXPORT SMetricFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TOptionalSample = boost::optional<CSample>;
+    using TOptionalSample = std::optional<CSample>;
     using TSampleVec = std::vector<CSample>;
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;

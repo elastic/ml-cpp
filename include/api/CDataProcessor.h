@@ -15,10 +15,10 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -53,7 +53,7 @@ public:
     using TStrStrUMapItr = TStrStrUMap::iterator;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
 
 public:
     CDataProcessor() = default;

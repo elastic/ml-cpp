@@ -16,9 +16,12 @@
 #include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
 
-#include <boost/optional.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
+
 #include <boost/unordered_map.hpp>
 
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -136,8 +139,8 @@ class API_EXPORT CTrainedModel : public CSerializableToJsonStream {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
-    using TOptionalDoubleVec = boost::optional<TDoubleVec>;
-    using TOptionalStringVec = boost::optional<TStringVec>;
+    using TOptionalDoubleVec = std::optional<TDoubleVec>;
+    using TOptionalStringVec = std::optional<TStringVec>;
 
     enum ETargetType { E_Classification, E_Regression };
 
@@ -236,8 +239,8 @@ public:
     public:
         using TDoubleVec = std::vector<double>;
         using TNodeIndex = std::uint32_t;
-        using TOptionalNodeIndex = boost::optional<TNodeIndex>;
-        using TOptionalDouble = boost::optional<double>;
+        using TOptionalNodeIndex = std::optional<TNodeIndex>;
+        using TOptionalDouble = std::optional<double>;
 
         static const std::string JSON_DECISION_TYPE_TAG;
         static const std::string JSON_DEFAULT_LEFT_TAG;

@@ -21,6 +21,15 @@ endif()
 message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 message (STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 
+# Use ccache if it is available
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+  message(STATUS "ccache found: ${CCACHE_FOUND}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_FOUND} CACHE STRING "" FORCE)
+else()
+  message(STATUS "ccache not found")
+endif()
+
 # Our CI build scripts explicitly specify the toolchain file
 # on the command line. To simplify developer builds allow
 # the toolchain to be obtained from an environment variable
@@ -46,9 +55,10 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-
 project("ML")
 
+include(CheckPIESupported)
+check_pie_supported()
 
 include(variables)
 

@@ -35,17 +35,16 @@ list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_DYN_LINK BOOST_MATH_NO_LONG_DOUBLE_
 
 if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_INSTALL_PREFIX ${CPP_PLATFORM_HOME}/controller.app/Contents/)
+    set(CMAKE_INSTALL_PREFIX "${CPP_PLATFORM_HOME}/controller.app/Contents/")
   else()
-    set(CMAKE_INSTALL_PREFIX ${CPP_PLATFORM_HOME})
-    message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+    set(CMAKE_INSTALL_PREFIX "${CPP_PLATFORM_HOME}")
   endif()
 else()
-  set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
+  set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
 endif()
 
-string(REPLACE "\\" "/" CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+string(REPLACE "\\" "/" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
@@ -65,12 +64,17 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(ML_BOOST_COMPILER_VER "gcc${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
-else()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   string(CONCAT BOOST_VCVER "vc" ${VCVER_MAJOR} ${VCVER_MINOR} )
   string(SUBSTRING ${BOOST_VCVER} 0 5 BOOST_VCVER)
   message(STATUS "BOOST_VCVER ${BOOST_VCVER}")
 
   set(ML_BOOST_COMPILER_VER ${BOOST_VCVER})
+  if(NOT BOOST_ROOT AND NOT DEFINED ENV{BOOST_ROOT})
+    set(BOOST_ROOT ${ROOT}/usr/local)
+  endif()
+else()
+  message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 message(STATUS "ML_BOOST_COMPILER_VER ${ML_BOOST_COMPILER_VER}")
 
@@ -148,30 +152,66 @@ else()
   set(ML_RESOURCES_DIR ${CMAKE_INSTALL_PREFIX}/resources)
 endif()
 
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_NO_LIB)
 endif()
 
-if(UNIX AND "$ENV{ML_DEBUG}" AND "$ENV{ML_COVERAGE}")
+# Dictate which flags to use for "Release" and "Debug" builds
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
+  set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+endif()
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE = ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG}")
+
+# Perform a "RelWithDebInfo" build by default...
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
+# However, to keep in step with our historical
+# build system if ML_DEBUG is set to a boolean
+# true value, e.g. ML_DEBUG=1, then override
+# the build type to be Debug for single-config
+# CMake generators (such as Unix Makefiles).
+# For multi-config generators (such as Visual Studio)
+# the CMAKE_BUILD_TYPE variable is ignored and instead the
+# build type is determined at build time via the '--config' option.
+# See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
+# and https://cmake.org/cmake/help/latest/variable/CMAKE_CONFIGURATION_TYPES.html
+# for more detail.
+if("$ENV{ML_DEBUG}")
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+if(UNIX AND CMAKE_BUILD_TYPE STREQUAL Debug AND DEFINED ENV{ML_COVERAGE})
   set(ML_COVERAGE "--coverage")
 endif()
 
-if(NOT "$ENV{ML_DEBUG}")
-  list(APPEND ML_COMPILE_DEFINITIONS "NDEBUG" "EXCLUDE_TRACE_LOGGING")
-  if(UNIX)
-    list(APPEND OPTCFLAGS "-O3")
-    if (NOT APPLE)
-      list(APPEND OPTCFLAGS "-Wdisabled-optimization")
-      list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2" "_REENTRANT")
-    endif()
-  else()
-    set(OPTCFLAGS "/O2" "/Qfast_transcendentals" "/Qvec-report:1")
-  endif()
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(APPEND ML_COMPILE_DEFINITIONS "_REENTRANT")
 endif()
 
-list(APPEND ML_CXX_FLAGS ${OPTCFLAGS})
 list(APPEND ML_COMPILE_DEFINITIONS EIGEN_MPL2_ONLY EIGEN_MAX_ALIGN_BYTES=32)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  list(APPEND ML_COMPILE_DEFINITIONS EIGEN_VECTORIZE_SSE3 EIGEN_VECTORIZE_SSE4_1 EIGEN_VECTORIZE_SSE4_2)
+endif()
 
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -205,4 +245,4 @@ else()
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-execute_process(COMMAND git rev-parse --short=14 HEAD OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND git rev-parse --short=14 HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}  OUTPUT_VARIABLE ML_BUILD_STR OUTPUT_STRIP_TRAILING_WHITESPACE)

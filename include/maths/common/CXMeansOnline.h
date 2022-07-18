@@ -32,11 +32,10 @@
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/optional.hpp>
-
 #include <cmath>
 #include <cstddef>
 #include <numeric>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -102,7 +101,7 @@ public:
     using TKMeansOnlineVec = std::vector<TKMeansOnline>;
     class CCluster;
     using TClusterClusterPr = std::pair<CCluster, CCluster>;
-    using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
+    using TOptionalClusterClusterPr = std::optional<TClusterClusterPr>;
 
     //! \brief Represents a cluster.
     class CCluster {
@@ -299,10 +298,12 @@ public:
             std::size_t index[]{indexGenerator.next(), indexGenerator.next()};
             indexGenerator.recycle(m_Index);
 
-            return TClusterClusterPr{{index[0], m_DataType, m_DecayRate,
-                                      covariances[0], std::move(structure[0])},
-                                     {index[1], m_DataType, m_DecayRate,
-                                      covariances[1], std::move(structure[1])}};
+            return TOptionalClusterClusterPr{
+                std::in_place,
+                CCluster{index[0], m_DataType, m_DecayRate, covariances[0],
+                         std::move(structure[0])},
+                CCluster{index[1], m_DataType, m_DecayRate, covariances[1],
+                         std::move(structure[1])}};
         }
 
         //! Check if this and \p other cluster should merge.

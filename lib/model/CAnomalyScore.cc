@@ -31,8 +31,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <boost/optional.hpp>
-
 #include <cstdint>
 #include <numeric>
 #include <ostream>
@@ -712,8 +710,8 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
 }
 
 void CAnomalyScore::CNormalizer::isForMembersOfPopulation(bool resultIsForMemberOfPopulation) {
-    if (m_IsForMembersOfPopulation == boost::none) {
-        m_IsForMembersOfPopulation.reset(resultIsForMemberOfPopulation);
+    if (m_IsForMembersOfPopulation == std::nullopt) {
+        m_IsForMembersOfPopulation.emplace(resultIsForMemberOfPopulation);
     } else {
         m_IsForMembersOfPopulation = *m_IsForMembersOfPopulation || resultIsForMemberOfPopulation;
     }
@@ -802,7 +800,7 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
         m_RawScoreHighQuantileSummary.acceptPersistInserter(inserter_);
     });
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
-    if (m_IsForMembersOfPopulation != boost::none) {
+    if (m_IsForMembersOfPopulation != std::nullopt) {
         inserter.insertValue(IS_FOR_MEMBERS_OF_POPULATION_TAG,
                              *m_IsForMembersOfPopulation ? 1 : 0);
     }
@@ -834,7 +832,7 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
                 }))
         RESTORE_SETUP_TEARDOWN(IS_FOR_MEMBERS_OF_POPULATION_TAG, int value,
                                core::CStringUtils::stringToType(traverser.value(), value),
-                               m_IsForMembersOfPopulation.reset(value == 1))
+                               m_IsForMembersOfPopulation.emplace(value == 1))
         core::CPersistUtils::restore(MAX_SCORES_PER_PARTITION_TAG, m_MaxScores, traverser);
 
     } while (traverser.next());
@@ -890,7 +888,7 @@ CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
 CAnomalyScore::CNormalizer::TWord
 CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAnalysis,
                                                     const TDictionary& dictionary) const {
-    if (isPopulationAnalysis == boost::none) {
+    if (isPopulationAnalysis == std::nullopt) {
         LOG_ERROR(<< "Using normalizer without refreshing settings");
 
     } else if (*isPopulationAnalysis) {

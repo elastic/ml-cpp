@@ -16,11 +16,11 @@
 
 #include <maths/common/CPrior.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -161,7 +161,7 @@ public:
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
 
 public:
     explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,

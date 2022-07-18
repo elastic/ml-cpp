@@ -1129,7 +1129,7 @@ std::string CMetricBucketGatherer::description() const {
 bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                                           CEventData& result,
                                           CResourceMonitor& resourceMonitor) {
-    using TOptionalStr = boost::optional<std::string>;
+    using TOptionalStr = std::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size()) {
         LOG_ERROR(<< "Unexpected field values: " << core::CContainerPrinter::print(fieldValues)

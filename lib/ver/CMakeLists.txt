@@ -22,17 +22,16 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # On Windows ignore file mode differences, as file modes don't really exist on Windows
-  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
-  execute_process(COMMAND git -c core.fileMode=false diff-index HEAD -- OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git -c core.fileMode=false diff-index HEAD -- WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
 else()
-  execute_process(COMMAND git update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
-  execute_process(COMMAND git diff-index HEAD -- OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git update-index -q --refresh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git diff-index HEAD -- WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE UNCOMMITTED_CHANGES)
 endif()
 
-# Decide which build to perform based on whether there are uncommitted changes
-message(STATUS "UNCOMMITTED_CHANGES ${UNCOMMITTED_CHANGES}")
+# Decide how to format the version information based on whether there are uncommitted changes
 if(UNCOMMITTED_CHANGES)
-  message(STATUS "DEV_BUILD")
+  message(STATUS "UNCOMMITTED_CHANGES ${UNCOMMITTED_CHANGES}")
   message(STATUS "PRODUCT_VERSION ${PRODUCT_VERSION}")
   message(STATUS "ML_USER ${ML_USER}")
   message(STATUS "BUILD_YEAR ${BUILD_YEAR}")

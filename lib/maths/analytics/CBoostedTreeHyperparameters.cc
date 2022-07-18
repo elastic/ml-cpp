@@ -25,8 +25,6 @@
 #include <maths/common/CLowess.h>
 #include <maths/common/CLowessDetail.h>
 
-#include <boost/optional/optional_io.hpp>
-
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -155,7 +153,7 @@ CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeF
         parameter.fixToRange(parameter.fromSearchValue(interval(MIN_VALUE_INDEX)),
                              parameter.fromSearchValue(interval(MAX_VALUE_INDEX)));
         parameter.set(parameter.fromSearchValue(interval(MID_VALUE_INDEX)));
-        return {{lossGap, forestSize}};
+        return TOptionalDoubleSizePr{std::in_place, lossGap, forestSize};
     }
 
     parameter.fix();
@@ -246,8 +244,9 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
         common::CBayesianOptimisation::TOptionalDouble EI;
         std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
         double threshold{LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE * minTestLoss[0]};
-        LOG_TRACE(<< "EI = " << EI << " threshold to continue = " << threshold);
-        if ((testLosses.size() >= minNumberTestLosses && EI != boost::none && *EI < threshold) ||
+        LOG_TRACE(<< "EI = " << core::CContainerPrinter::print(EI)
+                  << " threshold to continue = " << threshold);
+        if ((testLosses.size() >= minNumberTestLosses && EI != std::nullopt && *EI < threshold) ||
             args.updateParameter()(args.tree(), parameter(0)) == false) {
             args.tree().m_TrainingProgress.increment(
                 (maxLineSearchIterations() - testLosses.size()) *

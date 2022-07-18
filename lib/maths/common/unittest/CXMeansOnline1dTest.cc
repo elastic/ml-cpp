@@ -169,9 +169,9 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     for (std::size_t i = 0; i < boost::size(x2); ++i) {
         cluster.add(x2[i], c2[i]);
     }
-    maths::common::CXMeansOnline1d::TOptionalClusterClusterPr split =
-        cluster.split(maths::common::CAvailableModeDistributions::ALL, 5.0, 0.0,
-                      std::make_pair(0.0, 15.0), clusterer.indexGenerator());
+    auto split = cluster.split(maths::common::CAvailableModeDistributions::ALL,
+                               5.0, 0.0, std::make_pair(0.0, 15.0),
+                               clusterer.indexGenerator());
     BOOST_TEST_REQUIRE(split.has_value());
     LOG_DEBUG(<< "left centre  = " << split->first.centre());
     LOG_DEBUG(<< "left spread  = " << split->first.spread());

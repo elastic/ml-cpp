@@ -42,9 +42,7 @@ endif()
 
 
 list(APPEND ML_C_FLAGS 
-  "-g"
   ${CROSS_FLAGS}
-  ${OPTCFLAGS}
   ${ARCHCFLAGS}
   "-fstack-protector"
   "-Weverything"

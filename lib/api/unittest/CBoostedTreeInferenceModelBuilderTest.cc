@@ -411,14 +411,14 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
         BOOST_TEST_REQUIRE("logistic_regression" ==
                            trainedModel->aggregateOutput()->stringType());
         const auto& classificationLabels = trainedModel->classificationLabels();
-        BOOST_TEST_REQUIRE(classificationLabels.is_initialized());
+        BOOST_TEST_REQUIRE(bool{classificationLabels != std::nullopt});
         BOOST_REQUIRE_EQUAL_COLLECTIONS(classificationLabels->begin(),
                                         classificationLabels->end(),
                                         expectedClassificationLabels.begin(),
                                         expectedClassificationLabels.end());
 
         const auto& classificationWeights = trainedModel->classificationWeights();
-        BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
+        BOOST_TEST_REQUIRE(bool{classificationWeights != std::nullopt});
 
         // Check that predicted score matches the value calculated from the inference
         // classification weights.

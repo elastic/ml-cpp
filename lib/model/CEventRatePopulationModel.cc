@@ -890,7 +890,7 @@ std::size_t CEventRatePopulationModel::memoryUsage() const {
     TOptionalSize estimate = this->estimateMemoryUsage(
         gatherer.numberActivePeople(), gatherer.numberActiveAttributes(),
         0); // # correlations
-    return estimate ? estimate.get() : this->computeMemoryUsage();
+    return estimate ? *estimate : this->computeMemoryUsage();
 }
 
 std::size_t CEventRatePopulationModel::computeMemoryUsage() const {

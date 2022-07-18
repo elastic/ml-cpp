@@ -46,8 +46,8 @@ function(ml_generate_resources _target)
 
   set(ML_PATCH "0")
 
-  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
-  execute_process(COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  RESULT_VARIABLE UNCOMMITTED_CHANGES)
+  execute_process(COMMAND git -c core.fileMode=false update-index -q --refresh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} ERROR_FILE /dev/null OUTPUT_FILE /dev/null)
+  execute_process(COMMAND git -c core.fileMode=false diff-index --quiet HEAD --  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} RESULT_VARIABLE UNCOMMITTED_CHANGES)
 
   if(UNCOMMITED_CHANGES EQUAL 0)
     set(ML_FILEFLAGS "0")
@@ -133,6 +133,8 @@ function(ml_add_non_distributed_library _target _type)
 
   add_library(${_target} ${_type} EXCLUDE_FROM_ALL ${PLATFORM_SRCS})
 
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()
@@ -157,7 +159,11 @@ function(ml_add_non_distributed_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        "-OPT:REF")
+        $<$<CONFIG:Release>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+        $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+        )
     endif()
   endif()
 endfunction()
@@ -181,6 +187,8 @@ function(ml_add_library _target _type)
   endif()
 
   add_library(${_target} ${_type} ${PLATFORM_SRCS})
+
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
@@ -207,7 +215,11 @@ function(ml_add_library _target _type)
         "${COVERAGE}")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
       target_link_libraries(${_target} PRIVATE
-        "-OPT:REF")
+        $<$<CONFIG:Release>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+        $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+        $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+        )
     endif()
 
     # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
@@ -240,14 +252,17 @@ function(ml_add_executable _target)
 
   if(PLATFORM_SRCS)
     add_library(Ml${_target} OBJECT ${PLATFORM_SRCS})
+    set_property(TARGET Ml${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   endif()
 
   if (WIN32)
-    ml_generate_resources(${_target}.exe)
+    ml_generate_resources(${_target}${CMAKE_EXECUTABLE_SUFFIX})
     list(APPEND PLATFORM_SRCS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.rc)
   endif()
 
   add_executable(${_target} Main.cc ${PLATFORM_SRCS})
+
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
   if (ML_EXE_LINKER_FLAGS)
     target_link_options(${_target} PUBLIC ${ML_EXE_LINKER_FLAGS})
@@ -271,7 +286,12 @@ function(ml_add_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
-      "-OPT:REF")
+      -STACK:0x800000
+      $<$<CONFIG:Release>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+      $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+      )
   endif()
 
   # Cross compiling to MacOS needs some extra encouragement to correctly set the RPATH
@@ -297,6 +317,8 @@ function(ml_add_non_distributed_executable _target)
   add_executable(${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
 
+  set_property(TARGET ${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -309,7 +331,12 @@ function(ml_add_non_distributed_executable _target)
       )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${_target} PRIVATE
-      "-OPT:REF")
+      -STACK:0x800000
+      $<$<CONFIG:Release>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:REF>
+      $<$<CONFIG:RelWithDebInfo>:-OPT:ICF>
+      $<$<CONFIG:RelWithDebInfo>:-INCREMENTAL:NO>
+      )
   endif()
 
 endfunction()
@@ -334,22 +361,26 @@ function(ml_add_test_executable _target)
   add_executable(ml_test_${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
 
+  set_property(TARGET ml_test_${_target} PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+
   target_link_libraries(ml_test_${_target} ${ML_LINK_LIBRARIES})
 
   add_test(ml_test_${_target} ml_test_${_target})
 
-  if(MSVC)
-    # For Visual Studio builds the build type forms part of the path to the
-    # target. As this isn't known until build time a generator expression is
-    # required to determine it.
+  get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+  if(isMultiConfig)
+    # For multi-config CMake generators, such as "Visual Studio", "Ninja Multi-Config" etc.
+    # the build type forms part of the path to the target. As this isn't known until build
+    # time a generator expression is required to determine it.
     # Also, as some unittests make assumptions about the directory that the test
     # executable resides in we copy the test executable up a level in the binary
     # source directory.
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
-        ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
+        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX}
+        ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}${CMAKE_EXECUTABLE_SUFFIX}
         COMMAND ${CMAKE_COMMAND} -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR} -DTEST_NAME=ml_test_${_target} -P ${CMAKE_SOURCE_DIR}/cmake/test-runner.cmake
       COMMENT "Running test: ml_test_${_target}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

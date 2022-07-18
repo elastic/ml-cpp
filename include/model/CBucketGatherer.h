@@ -28,12 +28,12 @@
 
 #include <boost/any.hpp>
 #include <boost/functional/hash.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -73,7 +73,7 @@ public:
     using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TFeatureVec = model_t::TFeatureVec;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;

@@ -36,9 +36,7 @@
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <boost/math/special_functions/beta.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/optional.hpp>
 
 #include <cmath>
 #include <functional>

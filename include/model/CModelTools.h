@@ -27,7 +27,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/container/flat_map.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>

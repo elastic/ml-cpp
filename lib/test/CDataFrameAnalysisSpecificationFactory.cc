@@ -464,7 +464,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (analysis == regression()) {
         if (m_RegressionLossFunction) {
             writer.Key(TRegressionRunner::LOSS_FUNCTION);
-            switch (m_RegressionLossFunction.get()) {
+            switch (*m_RegressionLossFunction) {
             case TLossFunctionType::E_MsleRegression:
                 writer.String(TRegressionRunner::MSLE);
                 break;
@@ -480,9 +480,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
                 break;
             }
         }
-        if (m_RegressionLossFunctionParameter != boost::none) {
+        if (m_RegressionLossFunctionParameter != std::nullopt) {
             writer.Key(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
-            writer.Double(m_RegressionLossFunctionParameter.get());
+            writer.Double(*m_RegressionLossFunctionParameter);
         }
     }
 
