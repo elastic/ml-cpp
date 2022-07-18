@@ -168,6 +168,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
         }
         LOG_TRACE(<< "n = " << n << " - expected gcd = " << gcd
                   << ", gcd = " << maths::common::CIntegerTools::gcd(n));
+        BOOST_REQUIRE_EQUAL(gcd, maths::common::CIntegerTools::gcd(n));
     }
 
     LOG_DEBUG(<< "--- gcd(a, b, c, d) ---");
