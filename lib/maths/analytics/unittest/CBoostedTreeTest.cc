@@ -486,13 +486,10 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
     fillDataFrame(5, 0, 2, {{1.0}, {1.0}, {1.0}, {1.0}, {1.0}},
                   {0.0, 0.0, 0.0, 0.0, 0.0}, [](const TRowRef&) { return 1.0; }, *frame);
 
-    try {
-        auto regression =
-            maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .buildForTrain(*frame, cols - 1);
-        regression->train();
-    } catch (...) { BOOST_FAIL("Shouldn't throw"); }
+    BOOST_REQUIRE_NO_THROW(maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                               1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                               .buildForTrain(*frame, cols - 1)
+                               ->train());
 }
 
 BOOST_AUTO_TEST_CASE(testMsePiecewiseConstant) {
@@ -737,9 +734,9 @@ BOOST_AUTO_TEST_CASE(testHuber) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
-BOOST_AUTO_TEST_CASE(testMsle) {
-    // TODO #1744 test quality of MSLE on data with log-normal errors.
-}
+// TODO #1744 test quality of MSLE on data with log-normal errors.
+//BOOST_AUTO_TEST_CASE(testMsle) {
+//}
 
 BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
 
@@ -1043,7 +1040,7 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
             return maths::common::COrderings::lexicographical_compare(
-                lhs != boost::none ? 0 : 1, *lhs, rhs != boost::none ? 0 : 1, *rhs);
+                lhs != std::nullopt ? 0 : 1, *lhs, rhs != std::nullopt ? 0 : 1, *rhs);
         });
 
     BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse), *actualMse, 1e-3);
@@ -1151,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
             return maths::common::COrderings::lexicographical_compare(
-                lhs == boost::none ? 1 : 0, *lhs, rhs == boost::none ? 1 : 0, *rhs);
+                lhs == std::nullopt ? 1 : 0, *lhs, rhs == std::nullopt ? 1 : 0, *rhs);
         });
 
     BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse) +

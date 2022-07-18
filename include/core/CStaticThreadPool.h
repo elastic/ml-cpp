@@ -15,11 +15,10 @@
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <atomic>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -70,10 +69,10 @@ public:
     void busy(bool busy);
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     class CWrappedTask {
     public:
-        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = boost::none);
+        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = std::nullopt);
 
         bool executableOnThread(std::size_t id) const;
         void operator()();
@@ -82,7 +81,7 @@ private:
         TTask m_Task;
         TOptionalSize m_ThreadId;
     };
-    using TOptionalTask = boost::optional<CWrappedTask>;
+    using TOptionalTask = std::optional<CWrappedTask>;
     using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 50>;
     using TWrappedTaskQueueVec = std::vector<TWrappedTaskQueue>;
     using TThreadVec = std::vector<std::thread>;

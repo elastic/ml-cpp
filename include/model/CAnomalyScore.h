@@ -20,12 +20,11 @@
 
 #include <model/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <cstdint>
 #include <functional>
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -105,7 +104,7 @@ public:
     //! based on historic values percentiles.
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
-        using TOptionalBool = boost::optional<bool>;
+        using TOptionalBool = std::optional<bool>;
         using TMaxValueAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;

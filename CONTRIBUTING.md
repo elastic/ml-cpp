@@ -29,6 +29,7 @@ The process for contributing to any of the [Elastic repositories](https://github
 If you want to get started in the project, a good idea is to check issues labeled with help wanted. These are issues that should help newcomers to the project get something achieved without too much hassle.
 
 ### Fork and clone the repository
+
 You will need to fork the repository and clone it to your local machine. See the [Github help page](https://help.github.com/articles/fork-a-repo/) for help.
 
 ### Submitting your changes
@@ -57,13 +58,30 @@ Then sit back and wait. There will probably be discussion about the pull request
 Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from main, you can merge main into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is [integrated via GitHub](https://blog.github.com/2016-04-01-squash-your-commits/).
 
 ## Working with the ml-cpp codebase
+
 **Repository**: https://github.com/elastic/ml-cpp
 
 1.  Set up a build machine by following the instructions in the [build-setup](build-setup) directory
 1.  Do your changes. 
 1.  If you change code, follow the existing [coding style](STYLEGUIDE.md).
 1.  Write a test, unit tests are located under `lib/{module}/unittest`
-1.  Test your changes (`make test`)
+1.  Test your changes (`cmake --build cmake-build-relwithdebinfo -v -t test`)
+
+The build system uses CMake. To build either call `cmake` directly from the top level of the source tree,
+for example:
+
+```
+cmake -B cmake-build-relwithdebinfo
+cmake --build cmake-build-relwithdebinfo -v -j`nproc`
+```
+
+Or, more simply, use Gradle:
+
+```
+./gradlew :compile
+```
+
+Note that we configure the build to be of type `RelWithDebInfo` in order to obtain a fully optimized build along with debugging symbols (for Windows native builds this is achieved by adding the flags `--config RelWithDebInfo` to the `cmake --build` command line).
 
 If you need to test C++ changes in this repo in conjunction with Elasticsearch changes then use
 Gradle's `--include-build` option to tell your Elasticsearch build to build the C++ locally

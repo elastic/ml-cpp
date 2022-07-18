@@ -18,10 +18,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/optional.hpp>
-
 #include <array>
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -50,22 +49,19 @@ namespace model {
 class MODEL_EXPORT CEventData {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TOptionalSizeVec = std::vector<TOptionalSize>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     // Fixed size array - one element per metric category
     using TDouble1VecArray = std::array<TDouble1Vec, model_t::NUM_METRIC_CATEGORIES>;
     // Second element in pair stores count
     using TDouble1VecArraySizePr = std::pair<TDouble1VecArray, std::size_t>;
-    using TOptionalDouble1VecArraySizePr = boost::optional<TDouble1VecArraySizePr>;
+    using TOptionalDouble1VecArraySizePr = std::optional<TDouble1VecArraySizePr>;
     using TOptionalDouble1VecArraySizePrVec = std::vector<TOptionalDouble1VecArraySizePr>;
-    using TOptionalStr = boost::optional<std::string>;
+    using TOptionalStr = std::optional<std::string>;
     using TOptionalStrVec = std::vector<TOptionalStr>;
 
 public:
-    //! Create uninitialized event data.
-    CEventData();
-
     //! Efficiently swap the contents with \p other.
     void swap(CEventData& other);
 
@@ -140,7 +136,7 @@ private:
 
 private:
     //! The event time.
-    core_t::TTime m_Time;
+    core_t::TTime m_Time{0};
     //! The event person identifier.
     TOptionalSize m_Pid;
     //! The event attribute identifier(s).
@@ -152,7 +148,7 @@ private:
     //! The influencing field values.
     TOptionalStrVec m_Influences;
     //! Is it an explicit null record?
-    bool m_IsExplicitNull;
+    bool m_IsExplicitNull{false};
 };
 }
 }

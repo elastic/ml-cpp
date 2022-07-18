@@ -262,8 +262,8 @@ CCalendarCyclicTest::TOptionalFeatureTimePr CCalendarCyclicTest::test() const {
     }
 
     return mostSignificantError > 0
-               ? std::make_pair(mostSignificantFeature, mostSignificantOffset)
-               : TOptionalFeatureTimePr();
+               ? TOptionalFeatureTimePr{std::in_place, mostSignificantFeature, mostSignificantOffset}
+               : TOptionalFeatureTimePr{};
 }
 
 std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {

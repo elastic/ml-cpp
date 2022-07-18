@@ -355,7 +355,7 @@ private:
         TMeanAccumulator m_MeanAbsPredictionError;
     };
 
-    using TOptionalAnomaly = boost::optional<CAnomaly>;
+    using TOptionalAnomaly = std::optional<CAnomaly>;
 
 private:
     //! A unit weight.
@@ -413,14 +413,14 @@ void CTimeSeriesAnomalyModel::sample(const common::CModelProbabilityParams& para
                                      double overallProbability) {
 
     if (overallProbability < this->largestAnomalyProbability()) {
-        if (m_Anomaly == boost::none) {
-            m_Anomaly.reset(CAnomaly{this->scale(time)});
+        if (m_Anomaly == std::nullopt) {
+            m_Anomaly.emplace(CAnomaly{this->scale(time)});
         }
         if (bucketProbability < this->largestAnomalyProbability()) {
             m_Anomaly->update(this->scale(time), predictionError);
             this->sample(params, m_Anomaly->weight());
         }
-    } else if (m_Anomaly != boost::none) {
+    } else if (m_Anomaly != std::nullopt) {
         this->sample(params, 1.0 - m_Anomaly->weight());
         m_Anomaly.reset();
     }
@@ -504,7 +504,7 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(double bucketProbability,
 
 bool CTimeSeriesAnomalyModel::anomalyProbability(double& result) const {
     const auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
-    if (m_Anomaly == boost::none || model.isNonInformative()) {
+    if (m_Anomaly == std::nullopt || model.isNonInformative()) {
         return false;
     }
     double pl;
@@ -553,7 +553,7 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestore
                                    traverser.traverseSubLevel([&](auto& traverser_) {
                                        return restored.acceptRestoreTraverser(traverser_);
                                    }),
-                                   m_Anomaly.reset(restored))
+                                   m_Anomaly.emplace(std::move(restored)))
             RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
                 return m_AnomalyFeatureModels[index++].acceptRestoreTraverser(traverser_);
             }))
@@ -1052,7 +1052,7 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(
     TSize1Vec mostAnomalousCorrelate;
 
     TSize1Vec correlateIndices;
-    if (params.mostAnomalousCorrelate() != boost::none) {
+    if (params.mostAnomalousCorrelate() != std::nullopt) {
         if (*params.mostAnomalousCorrelate() >= variables.size()) {
             LOG_ERROR(<< "Unexpected correlate " << *params.mostAnomalousCorrelate());
             return false;

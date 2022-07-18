@@ -272,7 +272,8 @@ private:
 //! Macro to convert a pre-processor symbol to a string constant - has to be
 //! done in a macro unfortunately as the # operator is only recognised by the
 //! pre-processor.
-#define STRINGIFY_MACRO(str) (#str)
+#define STRINGIFY_MACRO(str) XSTRINGIFY_MACRO(str)
+#define XSTRINGIFY_MACRO(str) #str
 }
 }
 

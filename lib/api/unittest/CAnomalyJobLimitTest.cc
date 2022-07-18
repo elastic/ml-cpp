@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
 }
 
 BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TGenerator = std::function<TOptionalDouble(core_t::TTime)>;
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
     TGenerator sparse = [&rng, &level](core_t::TTime time) {
         TDoubleVec uniform01;
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-        return uniform01[0] < 0.1 ? level(time) : boost::none;
+        return uniform01[0] < 0.1 ? level(time) : std::nullopt;
     };
 
     // We assert on the number of by, partition and over fields we can

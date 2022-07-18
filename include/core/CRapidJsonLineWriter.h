@@ -20,13 +20,12 @@ namespace core {
 //! Writes each Json object to a single line.
 //! Not as verbose as rapidjson::prettywriter but it is still possible to
 //! parse json data streamed in this format by reading one line at a time
-/*!
-    \tparam OUTPUT_STREAM Type of output stream.
-    \tparam SOURCE_ENCODING Encoding of source string.
-    \tparam TARGET_ENCODING Encoding of output stream.
-    \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
-    \note implements Handler concept
-*/
+//!
+//! \tparam OUTPUT_STREAM Type of output stream.
+//! \tparam SOURCE_ENCODING Encoding of source string.
+//! \tparam TARGET_ENCODING Encoding of output stream.
+//! \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
+//! \note implements Handler concept
 template<typename OUTPUT_STREAM,
          typename SOURCE_ENCODING = rapidjson::UTF8<>,
          typename TARGET_ENCODING = rapidjson::UTF8<>,

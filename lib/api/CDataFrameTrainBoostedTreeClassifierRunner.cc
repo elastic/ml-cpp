@@ -335,7 +335,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
-CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+const CInferenceModelMetadata*
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     auto* featureImportance = this->boostedTree().shap();
     if (featureImportance != nullptr) {
@@ -357,7 +357,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
         this->boostedTree().dataSummarization().manhattan()));
     m_InferenceModelMetadata.trainedModelMemoryUsage(
         core::CMemory::dynamicSize(this->boostedTree().trainedModel()));
-    return m_InferenceModelMetadata;
+    return &m_InferenceModelMetadata;
 }
 
 // clang-format off

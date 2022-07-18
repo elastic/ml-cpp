@@ -58,20 +58,28 @@ To use CLion with the project, please refer to the ["Using CLion"](build-setup/c
 
 ## Building
 
-If you do choose to build the project from the command line yourself, regardless of the platform, the following instructions apply:
+###
+
+If you do choose to build the project from the command line yourself, for all platforms, the following instructions apply:
 
 * From the top level of the project, source the file `set_env.sh` e.g.
 ```
 . ./set_env.sh
 ```
-* Run `make` to build the the libraries and the executables for the project. This may take some time, to speed up the build you can tell make to perform a parallel build using the `-j` (jobs) option. e.g.
+When building on Windows from the native command shell that command becomes
 ```
-make -j 7
+.\set_env.bat
 ```
 
-* To build and run the unit tests run `make test`. Again this can be sped up somewhat by using the `-j` option. e.g.
+* Run `cmake -B cmake-build-relwithdebinfo` to generate the build system under the `cmake-build-relwithdebinfo` directory (the `--config RelWithDebInfo` option may be omitted on Linux and Mac).
+* Run `cmake --build cmake-build-relwithdebinfo --config RelWithDebInfo` to build the libraries and the executables for the project (the `--config RelWithDebInfo` option may be omitted on Linux and Mac). This may take some time, to speed up the build you can tell `cmake` to perform a parallel build using the `-j` (jobs) option. e.g.
 ```
-make -j 7 test
+cmake --build cmake-build-relwithdebinfo -j 7
+```
+
+* To build and run the unit tests run `cmake --build cmake-build-relwithdebinfo -t test`. Again this can be sped up somewhat by using the `-j` option. e.g.
+```
+cmake --build cmake-build-relwithdebinfo -t test -j 7
 ```
 
 ## Running
@@ -151,13 +159,13 @@ Options::
 
 ```
 
-Other executables exist under the `devbin` directory. To build and run these you will first need to change to the subdirectory in question e.g.
+Other executables exist under the `devbin` directory. These are not built by default. To build these you need to explicitly specify a target. 
 ```
-cd ./devbin/model_extractor/
-
-make -j 7
-
-./model_extractor --help
+cmake --build cmake-build-relwithdebinfo -j 7 -t model_extractor
+```
+The executable is created under the `cmake-build-relwithdebinfo` hierarchy, so to run do
+```
+./cmake-build-relwithdebinfo/devbin/model_extractor/model_extractor --help
 ```
 
 

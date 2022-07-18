@@ -15,10 +15,10 @@
 #include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
 
 #include <condition_variable>
 #include <mutex>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -40,7 +40,7 @@ namespace core {
 template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
-    using TOptional = boost::optional<T>;
+    using TOptional = std::optional<T>;
 
 public:
     CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
@@ -68,7 +68,7 @@ public:
     TOptional tryPop(PREDICATE allowed) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         if (m_Queue.empty() || allowed(m_Queue.front()) == false) {
-            return boost::none;
+            return std::nullopt;
         }
 
         size_t oldSize{m_Queue.size()};

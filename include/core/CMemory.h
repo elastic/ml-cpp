@@ -132,7 +132,7 @@ struct SDynamicSizeAlwaysZero<std::greater<T>> {
 
 //! \brief Checks type in optional.
 template<typename T>
-struct SDynamicSizeAlwaysZero<boost::optional<T>> {
+struct SDynamicSizeAlwaysZero<std::optional<T>> {
     static inline bool value() { return SDynamicSizeAlwaysZero<T>::value(); }
 };
 
@@ -534,9 +534,9 @@ public:
         return mem + t.capacity() * sizeof(T);
     }
 
-    //! Overload for boost::optional.
+    //! Overload for std::optional.
     template<typename T>
-    static std::size_t dynamicSize(const boost::optional<T>& t) {
+    static std::size_t dynamicSize(const std::optional<T>& t) {
         if (!t) {
             return 0;
         }
@@ -660,7 +660,8 @@ public:
                 m_Callbacks.emplace_back(std::cref(typeid(T)),
                                          &CAnyVisitor::dynamicSizeCallback<T>);
                 return true;
-            } else if (i->first.get() != typeid(T)) {
+            }
+            if (i->first.get() != typeid(T)) {
                 m_Callbacks.insert(i, {std::cref(typeid(T)),
                                        &CAnyVisitor::dynamicSizeCallback<T>});
                 return true;
@@ -1094,10 +1095,10 @@ public:
         }
     }
 
-    //! Overload for boost::optional.
+    //! Overload for std::optional.
     template<typename T>
     static void dynamicSize(const char* name,
-                            const boost::optional<T>& t,
+                            const std::optional<T>& t,
                             const CMemoryUsage::TMemoryUsagePtr& mem) {
         if (t) {
             dynamicSize(name, *t, mem);

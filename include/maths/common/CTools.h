@@ -23,8 +23,6 @@
 
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/policies/policy.hpp>
-#include <boost/optional.hpp>
-#include <boost/static_assert.hpp>
 
 #include <array>
 #include <cmath>

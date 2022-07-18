@@ -61,8 +61,8 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrame
         return index;
     }
     return this->assignToLeft(row)
-               ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
-               : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
+               ? tree[*m_LeftChild].leafIndex(row, tree, *m_LeftChild)
+               : tree[*m_RightChild].leafIndex(row, tree, *m_RightChild);
 }
 
 bool CBoostedTreeNode::assignToLeft(const CEncodedDataFrameRowRef& row) const {
@@ -79,10 +79,8 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const TRowRef& row,
         return index;
     }
     return this->assignToLeft(row, extraColumns)
-               ? tree[m_LeftChild.get()].leafIndex(row, extraColumns, tree,
-                                                   m_LeftChild.get())
-               : tree[m_RightChild.get()].leafIndex(row, extraColumns, tree,
-                                                    m_RightChild.get());
+               ? tree[*m_LeftChild].leafIndex(row, extraColumns, tree, *m_LeftChild)
+               : tree[*m_RightChild].leafIndex(row, extraColumns, tree, *m_RightChild);
 }
 
 bool CBoostedTreeNode::assignToLeft(const TRowRef& row, const TSizeVec& extraColumns) const {
@@ -118,7 +116,7 @@ CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
     m_Gain = gain;
     m_GainVariance = gainVariance;
     m_Curvature = curvature;
-    TNodeIndexNodeIndexPr result{m_LeftChild.get(), m_RightChild.get()};
+    TNodeIndexNodeIndexPr result{*m_LeftChild, *m_RightChild};
     // Don't access members after calling resize because this object is likely an
     // element of the vector being resized.
     tree.resize(tree.size() + 2);
@@ -212,8 +210,8 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
         result << m_NodeValue;
     } else {
         result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
-        tree[m_LeftChild.get()].doPrint(pad + "  ", tree, result);
-        tree[m_RightChild.get()].doPrint(pad + "  ", tree, result);
+        tree[*m_LeftChild].doPrint(pad + "  ", tree, result);
+        tree[*m_RightChild].doPrint(pad + "  ", tree, result);
     }
     return result;
 }

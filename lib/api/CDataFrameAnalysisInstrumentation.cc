@@ -261,7 +261,7 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
         }
         if (m_MemoryReestimate) {
             m_Writer->Key(MEMORY_REESTIMATE_TAG);
-            m_Writer->Int64(m_MemoryReestimate.get());
+            m_Writer->Int64(*m_MemoryReestimate);
         }
         m_Writer->EndObject();
     }

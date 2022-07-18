@@ -93,7 +93,9 @@ void loggedExpectedMessages(const std::string& logging, const TStrVec& messages)
 }
 
 BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
-    std::string t("Test message");
+    std::string t{"Test message"};
+
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().hasBeenReconfigured() == false);
 
     LOG_TRACE(<< "Trace");
     LOG_AT_LEVEL(ml::core::CLogger::E_Trace, << "Dynamic TRACE " << 1);

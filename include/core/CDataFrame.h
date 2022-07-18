@@ -19,7 +19,6 @@
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <algorithm>
@@ -28,6 +27,7 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -64,7 +64,7 @@ private:
     const CPackedBitVector::COneBitIndexConstIterator* m_EndMaskedRows;
 };
 
-using TOptionalPopMaskedRow = boost::optional<CPopMaskedRow>;
+using TOptionalPopMaskedRow = std::optional<CPopMaskedRow>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -690,7 +690,7 @@ std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
 CORE_EXPORT
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         std::optional<std::size_t> sliceCapacity = std::nullopt,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                              CDataFrame::EReadWriteToStorage::E_Sync,
                          CAlignment::EType alignment = CAlignment::E_Aligned16);
@@ -711,7 +711,7 @@ std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         std::optional<std::size_t> sliceCapacity = std::nullopt,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                              CDataFrame::EReadWriteToStorage::E_Async,
                          CAlignment::EType alignment = CAlignment::E_Aligned16);

@@ -81,3 +81,8 @@ boost_test_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore
 
+# CMake
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/

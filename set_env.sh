@@ -103,7 +103,7 @@ case $SIMPLE_PLATFORM in
         ;;
 
     windows)
-        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows
+        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows:$ROOT/PROGRA~1/CMake/bin
         PATH=$ROOT/usr/local/bin:$ROOT/usr/local/sbin:$PATH
         ;;
 
@@ -130,44 +130,28 @@ case $SIMPLE_PLATFORM in
 
 esac
 
-# do not cache in Jenkins
+# Do not cache in Jenkins
 if [ -z "$JOB_NAME" ] ; then
-    # check if CCACHE is available and use it if it's found
+    # Check if CCACHE is available and use it if it's found
     if [ -d "/usr/lib/ccache" ] ; then
-        PATH=/usr/lib/ccache/:$PATH
-    # on centos it should be in /usr/lib64/ccache when installed with yum.
+        PATH=/usr/lib/ccache:$PATH
+    # On CentOS it should be in /usr/lib64/ccache when installed with yum.
     elif [ -d "/usr/lib64/ccache" ] ; then
-        PATH=/usr/lib64/ccache/:$PATH
-    # on Mac it should be /usr/local/lib when installed with brew
+        PATH=/usr/lib64/ccache:$PATH
+    # On macOS it should be /usr/local/lib when installed with brew
     elif [ -d "/usr/local/lib/ccache" ] ; then
-        PATH=/usr/local/lib/ccache/:$PATH
+        PATH=/usr/local/lib/ccache:$PATH
     fi
 fi
 
-
 export PATH
-
-# GNU make
-case $SIMPLE_PLATFORM in
-
-    linux*)
-        MAKE=`which make`
-        ;;
-
-    macos|windows)
-        MAKE=`which gnumake`
-        ;;
-
-esac
-
-export MAKE
 
 # Localisation - don't use any locale specific functionality
 export LC_ALL=C
 
 # Unset environment variables that affect the choice of compiler/linker, or
-# where the compiler/linker look for dependencies - we only want what's in our
-# Makefiles
+# where the compiler/linker look for dependencies - we only want to use what's
+# explicitly defined in our build files
 unset CPP
 unset CC
 unset CXX
@@ -184,11 +168,5 @@ else
     unset C_INCLUDE_PATH
     unset CPLUS_INCLUDE_PATH
     unset LIBRARY_PATH
-fi
-
-# Tell the build to keep going under Jenkins so that we get as many errors as
-# possible from an automated build (Jenkins sets $JOB_NAME)
-if [ -n "$JOB_NAME" ] ; then
-    export ML_KEEP_GOING=1
 fi
 

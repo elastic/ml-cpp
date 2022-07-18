@@ -19,11 +19,10 @@
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -168,7 +167,7 @@ private:
 //! \brief The extra parameters needed by CModel::probability.
 class MATHS_COMMON_EXPORT CModelProbabilityParams {
 public:
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TBool2Vec = core::CSmallVector<bool, 2>;
     using TBool2Vec1Vec = core::CSmallVector<TBool2Vec, 2>;
     using TSize2Vec = core::CSmallVector<std::size_t, 2>;
@@ -497,11 +496,11 @@ protected:
 
     //! Get the error in the trend prediction for \p sample.
     template<typename TREND, typename VECTOR>
-    static boost::optional<VECTOR> predictionError(const TREND& trend, const VECTOR& sample);
+    static std::optional<VECTOR> predictionError(const TREND& trend, const VECTOR& sample);
 
     //! Get the error in the prior prediction for \p sample.
     template<typename PRIOR, typename VECTOR>
-    static boost::optional<VECTOR>
+    static std::optional<VECTOR>
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
 private:

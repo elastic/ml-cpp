@@ -11,6 +11,7 @@
 
 #include "CCommandParser.h"
 
+#include <core/CCompressedLfuCache.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
@@ -18,6 +19,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+#include <chrono>
 #include <istream>
 #include <sstream>
 #include <string>
@@ -56,7 +58,13 @@ const std::string CCommandParser::TOKENS{"tokens"};
 const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
 const std::string CCommandParser::UNKNOWN_ID;
 
-CCommandParser::CCommandParser(std::istream& strmIn) : m_StrmIn(strmIn) {
+CCommandParser::CCommandParser(std::istream& strmIn, std::size_t cacheMemoryLimitBytes)
+    : m_StrmIn{strmIn} {
+    if (cacheMemoryLimitBytes > 0) {
+        m_RequestCache = std::make_unique<CRequestCache>(cacheMemoryLimitBytes);
+    } else {
+        m_RequestCache = std::make_unique<CRequestCacheStub>();
+    }
 }
 
 bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
@@ -67,8 +75,8 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
 
     while (true) {
         rapidjson::Document doc;
-        rapidjson::ParseResult parseResult =
-            doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
+        rapidjson::ParseResult parseResult{
+            doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw)};
 
         if (static_cast<bool>(parseResult) == false) {
             if (m_StrmIn.eof()) {
@@ -88,15 +96,13 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
         LOG_TRACE(<< "Inference command: " << doc);
         switch (validateJson(doc, errorHandler)) {
         case EMessageType::E_InferenceRequest:
-            jsonToInferenceRequest(doc);
-            if (requestHandler(m_Request) == false) {
+            if (requestHandler(*m_RequestCache, jsonToInferenceRequest(doc)) == false) {
                 LOG_ERROR(<< "Request handler forced exit");
                 return false;
             }
             break;
         case EMessageType::E_ControlMessage:
-            jsonToControlMessage(doc);
-            controlHandler(m_ControlMessage);
+            controlHandler(jsonToControlMessage(doc));
             break;
         case EMessageType::E_MalformedMessage:
             continue;
@@ -132,7 +138,7 @@ CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
 
     const rapidjson::Value& control = doc[CONTROL];
     if (control.IsInt() == false || control.GetInt() < 0 ||
-        control.GetInt() >= SControlMessage::EControlMessageType::E_Unknown) {
+        control.GetInt() >= EControlMessageType::E_Unknown) {
         errorHandler(UNKNOWN_ID, "Invalid control message: unknown control message type");
         return EMessageType::E_MalformedMessage;
     }
@@ -186,7 +192,7 @@ CCommandParser::validateInferenceRequestJson(const rapidjson::Document& doc,
         }
     }
 
-    // check optional args
+    // Check optional args.
     std::uint64_t varCount{1};
     std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     while (doc.HasMember(varArgName)) {
@@ -235,66 +241,63 @@ bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArra
            }) == arr.End();
 }
 
-void CCommandParser::jsonToInferenceRequest(const rapidjson::Document& doc) {
-    // wipe any previous
-    m_Request.reset();
-    m_Request.s_RequestId = doc[REQUEST_ID].GetString();
+CCommandParser::SRequest
+CCommandParser::jsonToInferenceRequest(const rapidjson::Document& doc) {
+    SRequest request;
+    request.s_RequestId = doc[REQUEST_ID].GetString();
 
-    // read 2D array into contiguous memory
-    const rapidjson::Value::ConstArray& tokens = doc[TOKENS].GetArray();
-    m_Request.s_NumberInferences = tokens.Size();
-    for (const auto& itr : tokens) {
-        const auto& innerArray = itr.GetArray();
-        m_Request.s_NumberInputTokens = innerArray.Size();
-        m_Request.s_Tokens.reserve(m_Request.s_NumberInferences * m_Request.s_NumberInputTokens);
-
+    // Read 2D array into contiguous memory.
+    const auto& tokens = doc[TOKENS].GetArray();
+    request.s_NumberInferences = tokens.Size();
+    for (const auto& vals : tokens) {
+        const auto& innerArray = vals.GetArray();
+        request.s_NumberInputTokens = innerArray.Size();
+        request.s_Tokens.reserve(request.s_NumberInferences * request.s_NumberInputTokens);
         for (const auto& val : innerArray) {
-            m_Request.s_Tokens.push_back(val.GetUint64());
+            request.s_Tokens.push_back(val.GetUint64());
         }
     }
 
     std::uint64_t varCount{1};
-    std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
+    std::string varArgName{VAR_ARG_PREFIX + std::to_string(varCount)};
 
     while (doc.HasMember(varArgName)) {
 
-        const rapidjson::Value::ConstArray& outer = doc[varArgName].GetArray();
+        const auto& outerArray = doc[varArgName].GetArray();
         TUint64Vec arg;
-        arg.reserve(m_Request.s_NumberInferences * m_Request.s_NumberInputTokens);
-        for (const auto& val : outer) {
-            const auto& innerArray = val.GetArray();
-            for (const auto& e : innerArray) {
-                arg.push_back(e.GetUint64());
+        arg.reserve(request.s_NumberInferences * request.s_NumberInputTokens);
+        for (const auto& vals : outerArray) {
+            const auto& innerArray = vals.GetArray();
+            for (const auto& val : innerArray) {
+                arg.push_back(val.GetUint64());
             }
         }
-        m_Request.s_SecondaryArguments.push_back(std::move(arg));
+        request.s_SecondaryArguments.push_back(std::move(arg));
         ++varCount;
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }
+
+    return request;
 }
 
-void CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
-    // wipe any previous
-    m_ControlMessage.reset();
-
-    m_ControlMessage.s_MessageType =
-        static_cast<SControlMessage::EControlMessageType>(doc[CONTROL].GetInt());
-    m_ControlMessage.s_NumAllocations = doc[NUM_ALLOCATIONS].GetInt();
-    m_ControlMessage.s_RequestId = doc[REQUEST_ID].GetString();
+CCommandParser::SControlMessage
+CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
+    return {static_cast<EControlMessageType>(doc[CONTROL].GetInt()),
+            doc[NUM_ALLOCATIONS].GetInt(), doc[REQUEST_ID].GetString()};
 }
 
-void CCommandParser::SRequest::reset() {
-    s_NumberInputTokens = 0;
-    s_NumberInferences = 0;
-    s_RequestId.clear();
-    s_Tokens.clear();
-    s_SecondaryArguments.clear();
-}
-
-void CCommandParser::SControlMessage::reset() {
-    s_MessageType = E_Unknown;
-    s_NumAllocations = 0;
-    s_RequestId.clear();
+CCommandParser::CRequestCache::CRequestCache(std::size_t memoryLimitBytes)
+    : m_Impl{memoryLimitBytes, std::chrono::milliseconds{100},
+             [](const auto& dictionary, const auto& request) {
+                 auto translator = dictionary.translator();
+                 translator.add(request.s_NumberInputTokens);
+                 translator.add(request.s_NumberInferences);
+                 translator.add(request.s_Tokens);
+                 for (const auto& argument : request.s_SecondaryArguments) {
+                     translator.add(argument);
+                 }
+                 return translator.word();
+             }} {
 }
 }
 }

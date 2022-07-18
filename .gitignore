@@ -17,7 +17,7 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
-#vscode files
+# vscode files
 .vscode
 .clangd
 .cache
@@ -76,3 +76,9 @@ cppunit_results.xml
 boost_test_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore
+
+# CMake
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/

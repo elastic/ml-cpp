@@ -860,7 +860,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                 });
             break;
         case CBoostedTree::E_Custom:
-            if (m_ClassificationWeightsOverride != boost::none) {
+            if (m_ClassificationWeightsOverride != std::nullopt) {
                 const auto& classes = frame.categoricalColumnValues()[m_DependentVariable];
                 m_ClassificationWeights = TVector::Ones(numberClasses);
                 for (std::size_t i = 0; i < classes.size(); ++i) {
@@ -1746,7 +1746,7 @@ double CBoostedTreeImpl::minimumTestLoss() const {
     for (std::size_t round = 0; round + 1 < m_Hyperparameters.currentRound(); ++round) {
         TMeanVarAccumulator roundLossMoments;
         for (std::size_t fold = 0; fold < m_NumberFolds.value(); ++fold) {
-            if (m_FoldRoundTestLosses[fold][round] != boost::none) {
+            if (m_FoldRoundTestLosses[fold][round] != std::nullopt) {
                 roundLossMoments.add(*m_FoldRoundTestLosses[fold][round]);
             }
         }
@@ -2195,7 +2195,7 @@ double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
     for (const auto& testLosses : m_FoldRoundTestLosses) {
         TMeanAccumulator meanTestLoss;
         for (std::size_t i = 0; i <= m_Hyperparameters.currentRound(); ++i) {
-            if (testLosses[i] != boost::none) {
+            if (testLosses[i] != std::nullopt) {
                 meanTestLoss.add(*testLosses[i]);
             }
         }

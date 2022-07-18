@@ -17,9 +17,9 @@
 #include <model/ImportExport.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
 
 #include <array>
+#include <optional>
 #include <utility>
 
 namespace ml {
@@ -52,7 +52,7 @@ public:
         E_NumberPredictors
     };
     using TSizeArray = std::array<std::size_t, E_NumberPredictors>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
 
 public:
     //! Constructor

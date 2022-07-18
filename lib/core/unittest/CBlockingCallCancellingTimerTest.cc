@@ -29,11 +29,11 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
     BOOST_TEST_REQUIRE(cancellerThread.start());
 
     // The CBlockingCallCancellingTimer should wake up the blocking open
-    // of the named pipe "test_pipe".  Without this wake up, it would block
-    // indefinitely as nothing will ever connect to the other end.  The wake up
-    // happens after 1 second.
+    // of the named pipe "core_test_pipe".  Without this wake up, it would
+    // block indefinitely as nothing will ever connect to the other end.  The
+    // wake up happens after 1 second.
 
-    std::string testPipeName{ml::core::CNamedPipeFactory::defaultPath() + "test_pipe"};
+    std::string testPipeName{ml::core::CNamedPipeFactory::defaultPath() + "core_test_pipe"};
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm{ml::core::CNamedPipeFactory::openPipeStreamRead(
         testPipeName, cancellerThread.hasCancelledBlockingCall())};
     BOOST_TEST_REQUIRE(pipeStrm == nullptr);

@@ -32,11 +32,10 @@
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CPRNG.h>
 
-#include <boost/optional.hpp>
-
 #include <limits>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -56,11 +55,11 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
-    using TOptionalStrDoublePrVec = boost::optional<TStrDoublePrVec>;
+    using TOptionalStrDoublePrVec = std::optional<TStrDoublePrVec>;
     using TVector = common::CDenseVector<double>;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;

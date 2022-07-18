@@ -118,7 +118,7 @@ public:
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
     using TWriterUPtr = std::unique_ptr<TWriter>;
-    using TOptionalInt64 = boost::optional<std::int64_t>;
+    using TOptionalInt64 = std::optional<std::int64_t>;
 
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;

@@ -29,7 +29,6 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 

@@ -298,7 +298,7 @@ bool CCountingModel::computeTotalProbability(const std::string& /*person*/,
                                              std::size_t /*numberAttributeProbabilities*/,
                                              TOptionalDouble& probability,
                                              TAttributeProbability1Vec& attributeProbabilities) const {
-    probability.reset(1.0);
+    probability.emplace(1.0);
     attributeProbabilities.clear();
     return true;
 }

@@ -29,7 +29,7 @@ namespace api {
 //! A static utility for writing the model_size_stats document in JSON.
 class API_EXPORT CModelSizeStatsJsonWriter {
 public:
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
 
 public:
     //! Disallow instantiation.

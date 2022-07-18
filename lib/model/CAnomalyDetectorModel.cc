@@ -343,7 +343,7 @@ CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate(std::size_t numberP
     TOptionalSize estimate{this->estimateMemoryUsage(numberPeople, numberAttributes,
                                                      numberCorrelations)};
     if (estimate) {
-        return estimate.get();
+        return *estimate;
     }
 
     std::size_t computed{this->computeMemoryUsage()};

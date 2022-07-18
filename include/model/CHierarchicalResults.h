@@ -22,7 +22,7 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/optional.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <cstddef>
 #include <deque>

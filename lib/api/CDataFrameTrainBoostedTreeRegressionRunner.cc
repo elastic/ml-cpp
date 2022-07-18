@@ -161,7 +161,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
-CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+const CInferenceModelMetadata*
 CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     auto* featureImportance = this->boostedTree().shap();
     if (featureImportance != nullptr) {
@@ -183,7 +183,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
         this->boostedTree().dataSummarization().manhattan()));
-    return m_InferenceModelMetadata;
+    return &m_InferenceModelMetadata;
 }
 
 // clang-format off

@@ -180,8 +180,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         cluster.add(TPoint(x2[i]), c2[i]);
     }
     maths::common::CPRNG::CXorOShiro128Plus rng;
-    TXMeans2::TOptionalClusterClusterPr split =
-        cluster.split(rng, 5.0, clusterer.indexGenerator());
+    auto split = cluster.split(rng, 5.0, clusterer.indexGenerator());
     BOOST_TEST_REQUIRE(split.has_value());
     TPointVec centres;
     centres.push_back(split->first.centre());

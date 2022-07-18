@@ -30,14 +30,14 @@ namespace ml {
 namespace maths {
 namespace common {
 namespace {
-using TOptionalDouble = boost::optional<double>;
+using TOptionalDouble = std::optional<double>;
 
 //! Set the constant, validating the input.
 void setConstant(double value, TOptionalDouble& result) {
     if (CMathsFuncs::isNan(value)) {
         LOG_ERROR(<< "NaN constant");
     } else {
-        result.reset(value);
+        result.emplace(value);
     }
 }
 
@@ -70,7 +70,7 @@ bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(CONSTANT_TAG, double constant,
                                core::CStringUtils::stringToType(traverser.value(), constant),
-                               m_Constant.reset(constant))
+                               m_Constant.emplace(constant))
     } while (traverser.next());
     return true;
 }

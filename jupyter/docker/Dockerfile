@@ -8,7 +8,7 @@
 # limitation.
 
 # syntax=docker/dockerfile:1.3
-FROM docker.elastic.co/ml-dev/ml-linux-build:22 as builder
+FROM docker.elastic.co/ml-dev/ml-linux-build:24 as builder
 
 RUN yum install -y epel-release && \
     yum install -y ccache && \
@@ -23,7 +23,8 @@ ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 
 RUN --mount=type=cache,target=/root/.ccache \
     . ./set_env.sh &&  \
-    make -j`nproc` && \
+    cmake -B cmake-build-relwithdebinfo && \
+    cmake --build cmake-build-relwithdebinfo --config Release -t install -j`nproc` && \
     find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
     dev-tools/strip_binaries.sh 
 

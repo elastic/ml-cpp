@@ -1,147 +1,96 @@
 # Using Visual Studio Code with `ml-cpp`
 
-Previously, we explained how to [set up CLion for `ml-cpp`](../clion/using_clion.md). You may find, that CLion has some
-performance problems when indexing `ml-cpp` project: it may take very long to open the project or CLion may freeze and
-fail. In this case, [Visual Studio Code](https://code.visualstudio.com/) can be an alternative. When combined with
-`clangd`, it is significantly faster, while still being able to provide features like autocompletion, code navigation,
-static code analysis, etc.
+As an alternative to [CLion](../clion/using_clion.md), `VSCode` offers support
+for `CMake` projects by way of an extension, while still being able to provide features like autocompletion,
+code navigation, static code analysis, etc. 
 
 ## Prerequisites
 
 In this tutorial, we assume that you have `gcc` or `clang` installed as described in the
-[CLion tutorial](../clion/using_clion.md). We also assume that you already created `compile_commands.json` file as
-described there since `clangd` also uses it.
-
-[Install `clangd`](https://clangd.llvm.org/installation.html). Version 11.0 had a significant performance improvement,
-so it is worth going the extra mile and install the latest stable version. Install
+[CLion tutorial](../clion/using_clion.md). 
+and
 [Visual Studio Code](https://code.visualstudio.com/) with
-[clangd plugin](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd).
+[cmake plugin](https://marketplace.visualstudio.com/items?itemName=twxs.cmake),
+[cmake tools plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools),
+[C/C++ plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+as a minimum.
 
 In **Settings**, make sure *C_Cpp:Autocomplete* and *C_Cpp:Intelli Sense Engine* from the native C++ plugin of VS Code
 are disabled. Note that we don't want to disable the complete C/C++ Extension, since we are still going to use the
 debugging capabilities.
 
-Now for the `clangd` plugin, make sure that you have the correct path specified in **Settings** and *Clangd: Path*.
-*Clangd: Arguments* can look something like this:
+Now for the `CMake` plugin, change the `Build directory` specified in **Settings** > **Extensions** >
+**CMake Tools** to read `${workspaceFolder}/cmake-build-relwithdebinfo` (preferred) or `${workspaceFolder}/cmake-build-debug`,
+depending on the build variant that you can select in the side panel at the bottom of the editor window.
+You may also wish to set certain environment variables for the build.
+To do so, under `Cmake: Build Environment` click the `Add item`
+button and add the variable definition. The other settings can be left as-is.
 
-```text
--log=verbose
--pretty
---header-insertion=iwyu
---suggest-missing-includes
--j=4
---all-scopes-completion
---background-index=0
---clang-tidy
---compile-commands-dir=./
-```
+![CMake Config](./cmake_config.png)
 
 ## User tasks
 
 You can use [user tasks](https://code.visualstudio.com/docs/editor/tasks) to integrate VS Code with external tools. For
-example, re-format the project using a the docker container with correct clang-format version or build certain parts of
-the project in Debug mode. Later, we will see how we can use these tasks as dependencies for debugging.
+example, re-format the project using a the docker container with correct clang-format version or build just certain parts of
+the project.
 
 Here is an example of user tasks specified in `tasks.json`:
 
 ```json
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Format code",
-            "type": "shell",
-            "command": "cd ${workspaceFolder} && dev-tools/docker/run_docker_clang_format.sh",
-            "problemMatcher": [],
-            "options": {
-                "env": {
-                    "PATH": "${env:PATH}",
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }             
-        },
-        {
-            "label": "Build ml-cpp lib",
-            "type": "shell",
-            "command": "cd ${workspaceFolder} && make ML_DEBUG=1 -j6",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "options": {
-                "env": {
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }            
-        },
-        {
-            "label": "Build ml-cpp api tests",
-            "type": "shell",
-            "command": "cd ${workspaceFolder}/lib/api/unittest && make ML_DEBUG=1 -j6",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": [
-                "Build ml-cpp lib"
-            ],
-            "options": {
-                "env": {
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }              
-        },
-        {
-            "label": "Build ml-cpp core tests",
-            "type": "shell",
-            "command": "cd ${workspaceFolder}/lib/core/unittest && make ML_DEBUG=1 -j6",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": [
-                "Build ml-cpp lib"
-            ],
-            "options": {
-                "env": {
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }              
-        },
-        {
-            "label": "Build ml-cpp maths tests",
-            "type": "shell",
-            "command": "cd ${workspaceFolder}/lib/maths/unittest && make ML_DEBUG=1 -j6",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": [
-                "Build ml-cpp lib"
-            ],
-            "options": {
-                "env": {
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }                       
-        },
-        {
-            "label": "Build ml-cpp bin",
-            "type": "shell",
-            "command": "cd ${workspaceFolder}/bin && make ML_DEBUG=1 -j6",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": [
-                "Build ml-cpp lib"
-            ],
-            "options": {
-                "env": {
-                    "CPP_SRC_HOME": "${workspaceFolder}"
-                }
-            }               
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "CMake relwithdebinfo build",
+			"type": "shell",
+			"command": "cmake --build ${workspaceFolder}/cmake-build-relwithdebinfo -t install -v -j 10",
+			"problemMatcher": [],
+			"options": {
+				"env": {
+					"PATH": "${env:PATH}",
+					"CPP_SRC_HOME": "${workspaceFolder}"
+				}
+			}
+		},
+		{
+			"label": "CMake build relwithdebinfo tests",
+			"dependsOn": [
+				"CMake relwithdebinfo build"
+			],
+			"type": "shell",
+			"command": "cmake --build ${workspaceFolder}/cmake-build-relwithdebinfo -t build_tests -v -j 10",
+			"problemMatcher": [],
+			"options": {
+				"env": {
+					"PATH": "${env:PATH}",
+					"CPP_SRC_HOME": "${workspaceFolder}"
+				}
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "CMake build relwithdebinfo test_core",
+			"dependsOn": [
+				"CMake relwithdebinfo build"
+			],
+			"type": "shell",
+			"command": "cmake --build ${workspaceFolder}/cmake-build-relwithdebinfo -t ml_test_core -v -j 10",
+			"problemMatcher": [],
+			"options": {
+				"env": {
+					"PATH": "${env:PATH}",
+					"CPP_SRC_HOME": "${workspaceFolder}"
+				}
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
 }
 ```
 
@@ -151,87 +100,124 @@ To use [debugging](https://code.visualstudio.com/docs/editor/debugging), you nee
 arguments in a json file. You can use `preLaunchTask` to specify the user tasks that should be executed before the start
 (e.g. building project).
 
-Here is an example of the `launch.json` file. Please replace `YOUR_PLATFORM` in the `program` path with your 
-platform specific value (`linux-x86_64`, `darwin-x86_64`, etc):
+Here is an example of the `launch.json` file. Please update the fields for `targetArchitecture` and `MIMode` to values appropriate for your development platform.
 
 ```json
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "data_frame_analyzer",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/distribution/platform/YOUR_PLATFORM/bin/data_frame_analyzer",
-            "args": ["--input", "OnlineNewsPopularity_small.csv",
-                "--config", "es_regression_configuration_small.json", 
-                "--output", "output.txt"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "Build ml-cpp bin"
-        },
-        {
-            "name": "api unit test",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/lib/api/unittest/ml_test",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/lib/api/unittest",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "Build ml-cpp api tests"
-        },
-        {
-            "name": "maths unit test",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/lib/maths/unittest/ml_test",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/lib/maths/unittest",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "Build ml-cpp maths tests"
-        }
-    ]
+  "configurations": [
+    {
+      "name": "C++ Launch test_ver",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/ver/unittest/ml_test_ver",
+      "cwd": "${workspaceRoot}/lib/ver/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_seccomp",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/seccomp/unittest/ml_test_seccomp",
+      "cwd": "${workspaceRoot}/lib/seeccomp/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_core",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/core/unittest/ml_test_core",
+      "args": ["--run_test=CProgNameTest/testProgName"],
+      "cwd": "${workspaceRoot}/lib/core/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_model",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/model/unittest/ml_test_model",
+      "cwd": "${workspaceRoot}/lib/model/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_api",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/api/unittest/ml_test_api",
+      "cwd": "${workspaceRoot}/lib/api/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_maths_common",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/maths/common/unittest/ml_test_maths_common",
+      "cwd": "${workspaceRoot}/lib/maths/common/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_maths_analytics",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/maths/analytics/unittest/ml_test_maths_analytics",
+      "cwd": "${workspaceRoot}/lib/maths/analytics/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_maths_time_series",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/lib/maths/time_series/unittest/ml_test_maths_time_series",
+      "cwd": "${workspaceRoot}/lib/maths/time_series/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_controller",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/bin/controller/unittest/ml_test_controller",
+      "cwd": "${workspaceRoot}/bin/controller/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "C++ Launch test_pytorch_inference",
+      "type": "cppdbg",
+      "targetArchitecture": "arm64",
+      "request": "launch",
+      "program": "${workspaceFolder}/cmake-build-relwithdebinfo/test/bin/pytorch_inference/unittest/ml_test_pytorch_inference",
+      "cwd": "${workspaceRoot}/bin/pytorch_inference/unittest/",
+      "stopAtEntry": false,
+      "MIMode": "lldb"
+    }
+  ]
 }
 ```
 
+To run testsuites for a specific library click on the `Run and Debug` tab in the left handle panel and then select the desired `C++ launch` target from dropdown at the top of the `Run and Debug` panel, e.g.
+![Run and Debug](debug_test_case.png)
+
+
 To run a specific unit test add the test class/test name in the `args` field:
-```
+```json
             "args": [
-                "--run_test=CBoostedTreeTest/testPiecewiseConstant"
+                "--run_test=CProgNameTest/testProgName"
             ],
 ```
 
-
-
-## Limitations
-
-* `clangd` may not index all references correctly and so refactor-rename may not work correctly across multiple files so
-  you need to use find/replace.

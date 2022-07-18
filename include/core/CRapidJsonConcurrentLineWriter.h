@@ -49,7 +49,7 @@ public:
 public:
     //! Take a wrapped stream and provide a json writer object
     //! \p outStream reference to an wrapped output stream
-    CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
+    explicit CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
 
     ~CRapidJsonConcurrentLineWriter() override;
 
