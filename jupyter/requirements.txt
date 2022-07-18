@@ -1,4 +1,4 @@
-diversipy           ==0.8
+# diversipy           ==0.8
 jupyter             ==1.0.0
 matplotlib          ==3.3.4
 numpy               ==1.22.0
@@ -12,7 +12,7 @@ pathlib2            ==2.3.5
 nbsmoke             ==0.5.0
 bump2version        ==1.0.1
 scikit-multiflow    ==0.5.3
-sacred              ==0.8.2
+# sacred              ==0.8.2
 google-crc32c       ==1.1.2
 google-cloud-storage==1.41.1
 elasticsearch       ==7.13.4

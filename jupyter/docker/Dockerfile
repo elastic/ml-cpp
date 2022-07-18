@@ -16,21 +16,21 @@ RUN yum install -y epel-release && \
 ENV PATH="/usr/lib64/ccache:${PATH}"
 ENV CCACHE_SLOPPINESS="file_stat_matches,pch_defines,time_macros,include_file_mtime,include_file_ctime,system_headers"
 
-COPY . /ml-cpp
-WORKDIR /ml-cpp
-ENV CPP_SRC_HOME=/ml-cpp
+# COPY . /ml-cpp
+# WORKDIR /ml-cpp
+# ENV CPP_SRC_HOME=/ml-cpp
 ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 
-RUN --mount=type=cache,target=/root/.ccache \
-    . ./set_env.sh &&  \
-    cmake -B cmake-build-release && \
-    cmake --build cmake-build-release --config Release -t install -j`nproc` && \
-    find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
-    dev-tools/strip_binaries.sh 
+# RUN --mount=type=cache,target=/root/.ccache \
+#     . ./set_env.sh &&  \
+#     cmake -B cmake-build-release && \
+#     cmake --build cmake-build-release --config Release -t install -j`nproc` && \
+#     find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
+#     dev-tools/strip_binaries.sh 
 
 
 ##############################################
-FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:1
+FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:2
  
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
@@ -52,6 +52,6 @@ COPY jupyter/src /root/src
 RUN  source env/bin/activate &&  pip install -e /root/src
 COPY jupyter/scripts /root/scripts
 
-COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
+# COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
 
 ENTRYPOINT ["/root/env/bin/jupyter", "notebook"]
