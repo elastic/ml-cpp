@@ -731,7 +731,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.96);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
 // TODO #1744 test quality of MSLE on data with log-normal errors.
@@ -2844,13 +2844,13 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.0);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.1);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.45);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {
@@ -3737,8 +3737,8 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
     // on the optimisation objective.
 
     test::CRandomNumbers rng;
-    std::size_t rows{2000};
-    std::size_t cols{3};
+    std::size_t rows{2500};
+    std::size_t cols{4};
 
     std::size_t numberHoldoutRows{1500};
 
@@ -3773,11 +3773,11 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .numberHoldoutRows(numberHoldoutRows)
                 .buildForTrain(*frame, cols - 1);
-        return regression->hyperparameters().optimisationMakingNoProgress();
+        return regression->hyperparameters().fineTuneSearchNotFinished();
     };
 
-    BOOST_REQUIRE_EQUAL(verify(0.001), false);
-    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
+    BOOST_REQUIRE_EQUAL(verify(0.0), true);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), false);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {

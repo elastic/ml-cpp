@@ -264,7 +264,7 @@ private:
                                                         const TNodeVecVec& forest);
 
     //! Presize the collection to hold the per fold test errors.
-    void initializePerFoldTestLosses();
+    TDoubleVec initializePerFoldTestLosses();
 
     //! Compute the probability threshold at which to classify a row as class one.
     void computeClassificationWeights(const core::CDataFrame& frame);
@@ -279,7 +279,8 @@ private:
     template<typename F>
     SCrossValidationResult crossValidateForest(core::CDataFrame& frame,
                                                std::size_t maximumNumberTrees,
-                                               const F& trainForest);
+                                               const F& trainForest,
+                                               TDoubleVec& minTestLosses);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -288,10 +289,12 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    STrainForestResult trainForest(core::CDataFrame& frame,
-                                   const core::CPackedBitVector& trainingRowMask,
-                                   const core::CPackedBitVector& testingRowMask,
-                                   core::CLoopProgress& trainingProgress) const;
+    STrainForestResult
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress,
+                double minTestLoss = std::numeric_limits<double>::max()) const;
 
     //! Retrain a subset of the trees of one forest on the rows of \p frame in the
     //! mask \p trainingRowMask.

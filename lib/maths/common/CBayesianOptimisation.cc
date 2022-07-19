@@ -393,7 +393,8 @@ double CBayesianOptimisation::anovaTotalVariance() const {
 
 double CBayesianOptimisation::excessCoefficientOfVariation() {
     double errorVariance{this->meanErrorVariance() / CTools::pow2(m_RangeScale)};
-    return std::sqrt(std::max(this->anovaTotalVariance() - errorVariance, 0.0)) / m_RangeShift;
+    double excessVariance{std::max(this->anovaTotalVariance() - errorVariance, 0.0)};
+    return excessVariance == 0.0 ? 0.0 : std::sqrt(excessVariance) / m_RangeShift;
 }
 
 double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimension) const {
