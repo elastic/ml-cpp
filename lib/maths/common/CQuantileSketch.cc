@@ -186,6 +186,9 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
                        m_Knots.begin();
     LOG_TRACE(<< "k = " << k);
 
+    // This must make the same assumptions as quantile regarding the distribution
+    // of values for each histogram bucket. See that function for more details.
+
     switch (m_Interpolation) {
     case E_Linear: {
         if (k == 0) {
@@ -211,25 +214,16 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
                  i < m; ++i) {
                 partial += m_Knots[i].second;
             }
-            partial /= m_Count;
-            double dn;
-            if (loc) {
-                double xll = k > 1 ? static_cast<double>(m_Knots[k - 2].first)
-                                   : 2.0 * xl - xr;
-                xr = 0.5 * (xl + xr);
-                xl = 0.5 * (xll + xl);
-                dn = m_Knots[k - 1].second / m_Count;
-            } else {
-                double xrr = k + 1 < n ? static_cast<double>(m_Knots[k + 1].first)
-                                       : 2.0 * xr - xl;
-                xl = 0.5 * (xl + xr);
-                xr = 0.5 * (xr + xrr);
-                dn = m_Knots[k].second / m_Count;
-            }
+            partial = (left ? (partial + (loc ? 1.0 * m_Knots[k - 1].second : 0.0))
+                            : (partial + (loc ? 0.0 : 1.0 * m_Knots[k].second))) /
+                      m_Count;
+            double dn{0.5 * m_Knots[loc ? k - 1 : k].second / m_Count};
             LOG_TRACE(<< "left = " << left << ", loc = " << loc << ", partial = " << partial
                       << ", xl = " << xl << ", xr = " << xr << ", dn = " << dn);
-            result = left ? partial + dn * (x - xl) / (xr - xl)
-                          : 1.0 - partial - dn * (xr - x) / (xr - xl);
+            result = left ? partial + dn * (2.0 * x - xl - xr) / (xr - xl)
+                          : 1.0 - partial - dn * (xl + xr - 2.0 * x) / (xr - xl);
+            LOG_TRACE(<< "result = " << result << " "
+                      << dn * (2.0 * x - xl - xr) / (xr - xl));
         }
         return true;
     }
@@ -380,6 +374,23 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
                                double count,
                                double percentage,
                                double& result) {
+
+    // For linear interpolation we have to make some assumptions about how the
+    // merged bucket values are distributed.
+    //
+    //  We make the following assumptions:
+    //   1. The bucket centre bisects (in weight) the values it represents,
+    //   2. The bucket start and end point are the midpoints between the bucket
+    //      centre and the preceding and succeeding bucket centres, respectively,
+    //   3. Values are uniformly distributed on the intervals between the bucket
+    //      endpoints and its centre.
+    //
+    // Assumption 1 is consistent with how bucket centres are computed on merge
+    // and assumption 2 is consistent with how we decide to merge buckets. This
+    // scheme also has the highly desireable property that if the sketch contains
+    // the raw data, i.e. that the number of distinct values is less than the
+    // sketch size, it computes quantiles exactly.
+
     std::size_t n = knots.size();
 
     percentage /= 100.0;
@@ -401,12 +412,11 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
                     double xb = knots[i].first;
                     double xc = i + 1 == n ? 2.0 * xb - xa
                                            : static_cast<double>(knots[i + 1].first);
-                    xa += 0.5 * (xb - xa);
-                    xb += 0.5 * (xc - xb);
-                    double dx = (xb - xa);
                     double nb = knots[i].second;
-                    double m = nb / dx;
-                    result = xb + (cutoff - partial) / m;
+                    partial -= 0.5 * nb;
+                    result = xb + (cutoff - partial) * (cutoff - partial < 0.0
+                                                            ? (xb - xa) / nb
+                                                            : (xc - xb) / nb);
                 }
                 return;
 

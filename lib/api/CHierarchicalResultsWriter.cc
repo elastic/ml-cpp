@@ -154,7 +154,6 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
             : model_t::outputFunctionName(
                   node.s_AnnotatedProbability.s_AttributeProbabilities[0].s_Feature);
 
-    TOptionalDouble null;
     for (std::size_t i = 0;
          i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
         const model::SAttributeProbability& attributeProbability =
