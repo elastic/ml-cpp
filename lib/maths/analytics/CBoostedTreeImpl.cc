@@ -817,7 +817,7 @@ CBoostedTreeImpl::TDoubleVec CBoostedTreeImpl::initializePerFoldTestLosses() {
                              std::numeric_limits<double>::max());
     for (std::size_t fold = 0; fold < m_FoldRoundTestLosses.size(); ++fold) {
         for (const auto& loss : m_FoldRoundTestLosses[fold]) {
-            if (loss != boost::none) {
+            if (loss != std::nullopt) {
                 minTestLosses[fold] = std::min(minTestLosses[fold], *loss);
             }
         }
