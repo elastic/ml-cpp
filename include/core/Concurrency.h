@@ -84,10 +84,14 @@ public:
 
 //! Setup the global default executor for async.
 //!
+//! \p threadPoolSize is the upper bound on the number of threads in use.
+//! The threadpool can be resized to a smaller value but never greater than
+//! the size specified here. If called with \p threadPoolSize equal to zero
+//! it defaults to calling std::thread::hardware_concurrency to size the
+//! thread pool.
+//!
 //! \note This is not thread safe as the intention is that it is invoked once,
 //! usually at the beginning of main or in single threaded test code.
-//! \note If this is called with threads equal to zero it defaults to calling
-//! std::thread::hardware_concurrency to size the thread pool.
 CORE_EXPORT
 void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0);
 
