@@ -256,7 +256,7 @@ private:
     template<typename U, typename V>
     static std::string printElement(const std::pair<U, V>& value) {
         std::string result;
-        result.reserve(2 * (SIZE_OF_ELEMENT + 1) + 2);
+        result.reserve(2 * (SIZE_OF_ELEMENT + 2) + 2);
         result += "(";
         result += printElement(value.first);
         result += ", ";
@@ -269,7 +269,7 @@ private:
     template<typename... ARGS>
     static std::string printElement(const std::tuple<ARGS...>& value) {
         std::string result;
-        result.reserve((SIZE_OF_ELEMENT + 1) * sizeof...(ARGS) + 2);
+        result.reserve((SIZE_OF_ELEMENT + 2) * sizeof...(ARGS) + 2);
         std::apply(
             [&result](ARGS const&... args) {
                 result += '(';
@@ -302,7 +302,7 @@ public:
     template<typename ITR>
     static std::string print(ITR begin, ITR end) {
         std::string result;
-        result.reserve((SIZE_OF_ELEMENT + 1) * std::distance(begin, end) + 2);
+        result.reserve((SIZE_OF_ELEMENT + 2) * std::distance(begin, end) + 2);
         result += "[";
         if (begin != end) {
             for (;;) {
