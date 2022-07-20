@@ -18,9 +18,12 @@
 namespace ml {
 namespace torch {
 
-CThreadSettings::CThreadSettings(std::int32_t numThreadsPerAllocation, std::int32_t numAllocations)
-    : m_NumThreadsPerAllocation(numThreadsPerAllocation),
-      m_NumAllocations(numAllocations) {
+CThreadSettings::CThreadSettings(std::int32_t maxThreads,
+                                 std::int32_t numThreadsPerAllocation,
+                                 std::int32_t numAllocations)
+    : m_MaxThreads{maxThreads}, m_NumThreadsPerAllocation{numThreadsPerAllocation},
+      m_NumAllocations{numAllocations} {
+    validateThreadingParameters(m_MaxThreads, m_NumThreadsPerAllocation, m_NumAllocations);
 }
 
 std::int32_t CThreadSettings::numThreadsPerAllocation() const {
@@ -32,44 +35,52 @@ std::int32_t CThreadSettings::numAllocations() const {
 }
 
 void CThreadSettings::numAllocations(std::int32_t numAllocations) {
-    m_NumAllocations = numAllocations;
-}
-
-void CThreadSettings::validateThreadingParameters(std::int32_t maxThreads,
-                                                  std::int32_t& numThreadsPerAllocation,
-                                                  std::int32_t& numAllocations) {
-    if (maxThreads == 0) {
-        LOG_WARN(<< "Could not determine hardware concurrency; setting max threads to 1");
-        maxThreads = 1;
-    }
-    if (numThreadsPerAllocation < 1) {
-        LOG_WARN(<< "Setting number of threads per allocation to minimum value of 1; value was "
-                 << numThreadsPerAllocation);
-        numThreadsPerAllocation = 1;
-    } else if (numThreadsPerAllocation >= maxThreads) {
-        // leave one allocation thread
-        LOG_WARN(<< "Setting number of threads per allocation to maximum value of "
-                 << std::max(1, maxThreads - 1) << "; value was " << numThreadsPerAllocation);
-        numThreadsPerAllocation = std::max(1, maxThreads - 1);
-    }
+    std::int32_t maxAllocations{(m_MaxThreads + m_NumThreadsPerAllocation - 1) /
+                                m_NumThreadsPerAllocation};
     if (numAllocations < 1) {
         LOG_WARN(<< "Setting number of allocations to minimum value of 1; value was "
                  << numAllocations);
         numAllocations = 1;
-    } else if (numAllocations >= maxThreads) {
-        // leave one thread for inference
+    } else if (numAllocations > maxAllocations) {
         LOG_WARN(<< "Setting number of allocations to maximum value of "
-                 << std::max(1, maxThreads - 1) << "; value was " << numAllocations);
-        numAllocations = std::max(1, maxThreads - 1);
+                 << maxAllocations << " (given " << m_NumThreadsPerAllocation
+                 << " threads per allocation); value was " << numAllocations);
+        numAllocations = maxAllocations;
+    }
+    m_NumAllocations = numAllocations;
+}
+
+void CThreadSettings::validateThreadingParameters(std::int32_t& maxThreads,
+                                                  std::int32_t& numThreadsPerAllocation,
+                                                  std::int32_t& numAllocations) {
+    if (maxThreads < 1) {
+        LOG_WARN(<< "Could not determine hardware concurrency; setting max threads to 1");
+        maxThreads = 1;
     }
 
-    if (numAllocations + numThreadsPerAllocation > maxThreads) {
-        std::int32_t oldInferenceThreadCount{numThreadsPerAllocation};
-        numThreadsPerAllocation = std::max(1, maxThreads - numAllocations);
-        LOG_WARN(<< "Sum of allocation count [" << numAllocations << "] and inference threads ["
-                 << oldInferenceThreadCount << "] is greater than max threads ["
-                 << maxThreads << "]. Setting number of allocations to " << numAllocations
-                 << " and number of threads per allocation to " << numThreadsPerAllocation);
+    if (numAllocations < 1) {
+        LOG_WARN(<< "Setting number of allocations to minimum value of 1; value was "
+                 << numAllocations);
+        numAllocations = 1;
+    } else if (numAllocations > maxThreads) {
+        LOG_WARN(<< "Setting number of allocations to maximum value of "
+                 << maxThreads << "; value was " << numAllocations);
+        numAllocations = maxThreads;
+    }
+
+    // Max threads per allocation would ideally fit within the available
+    // concurrency when multiplied by the number of allocations, but we allow
+    // rounding up if there isn't a perfect fit.
+    std::int32_t maxThreadsPerAllocation{(maxThreads + numAllocations - 1) / numAllocations};
+    if (numThreadsPerAllocation < 1) {
+        LOG_WARN(<< "Setting number of threads per allocation to minimum value of 1; value was "
+                 << numThreadsPerAllocation);
+        numThreadsPerAllocation = 1;
+    } else if (numThreadsPerAllocation > maxThreadsPerAllocation) {
+        LOG_WARN(<< "Setting number of threads per allocation to maximum value of "
+                 << maxThreadsPerAllocation << " (given number of allocations "
+                 << numAllocations << "); value was " << numThreadsPerAllocation);
+        numThreadsPerAllocation = maxThreadsPerAllocation;
     }
 }
 }
