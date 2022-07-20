@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
     // Check that large items get evicted first.
 
     TStrTestValueCache cache{
-        32 * core::constants::BYTES_IN_KILOBYTES,
+        40 * core::constants::BYTES_IN_KILOBYTES,
         [](const TStrStrCache::TDictionary& dictionary,
            const std::string& key) { return dictionary.word(key); }};
 
