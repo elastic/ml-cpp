@@ -105,14 +105,13 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
     // than the data dimension.
 
     {
-
         CRandomProjectionClustererForTest<5> clusterer;
         BOOST_TEST_REQUIRE(clusterer.initialise(5, 3));
 
         const TVectorArrayVec& projections = clusterer.projections();
         LOG_DEBUG(<< "projections = " << projections);
 
-        BOOST_REQUIRE_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
+        BOOST_REQUIRE_EQUAL("[[[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 0], [0, 0, 0]]]",
                             core::CContainerPrinter::print(projections));
     }
 
