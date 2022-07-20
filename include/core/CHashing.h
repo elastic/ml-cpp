@@ -56,7 +56,7 @@ public:
         class CORE_EXPORT CUInt32Hash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero() { return true; }
+            static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         public:
             CUInt32Hash();
@@ -98,7 +98,7 @@ public:
         class CORE_EXPORT CUInt32UnrestrictedHash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero() { return true; }
+            static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         public:
             CUInt32UnrestrictedHash();
@@ -361,7 +361,7 @@ public:
     class CMurmurHash2BT {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         explicit CMurmurHash2BT(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
@@ -379,7 +379,7 @@ public:
     class CORE_EXPORT CMurmurHash2String {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:
@@ -409,7 +409,7 @@ public:
     class CORE_EXPORT CSafeMurmurHash2String64 {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:

@@ -282,7 +282,7 @@ private:
     class CAnomaly {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CAnomaly() = default;

@@ -107,7 +107,7 @@ public:
         static constexpr double SMALLEST_RELATIVE_CURVATURE{1e-20};
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CDerivatives(int n, double* storageGradients, double* storageCurvatures)

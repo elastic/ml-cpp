@@ -69,7 +69,7 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 class CORE_EXPORT CFloatStorage {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Default construction of the floating point value.

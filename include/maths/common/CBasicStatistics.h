@@ -158,7 +158,7 @@ public:
         using TValue = T;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 
@@ -740,7 +740,7 @@ public:
     template<typename POINT>
     struct SSampleCovariances {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
         }
 
@@ -1180,7 +1180,7 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 
@@ -1357,7 +1357,7 @@ public:
     class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>> {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 

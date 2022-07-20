@@ -55,7 +55,7 @@ struct SDistributionRestoreParams;
 class MATHS_COMMON_EXPORT CLogNormalMeanPrecConjugate : public CPrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TEqualWithTolerance = CEqualWithTolerance<double>;
 

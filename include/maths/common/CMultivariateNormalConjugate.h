@@ -81,7 +81,7 @@ template<std::size_t N>
 class CMultivariateNormalConjugate : public CMultivariatePrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TDoubleVec = std::vector<double>;
     using TPoint = CVectorNx1<double, N>;

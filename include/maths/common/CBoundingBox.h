@@ -33,7 +33,7 @@ template<typename POINT>
 class CBoundingBox {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
     }
     using TCoordinate = typename SCoordinate<POINT>::Type;

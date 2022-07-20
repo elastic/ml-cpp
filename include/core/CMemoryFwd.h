@@ -24,13 +24,13 @@ namespace memory_detail {
 //! \brief Base implementation checks for POD.
 template<typename T, typename = void>
 struct SDynamicSizeAlwaysZero {
-    static inline bool value() { return std::is_pod<T>::value; }
+    static constexpr inline bool value() { return std::is_pod<T>::value; }
 };
 
 //! \brief Checks types in pair.
 template<typename U, typename V>
 struct SDynamicSizeAlwaysZero<std::pair<U, V>> {
-    static inline bool value() {
+    static constexpr inline bool value() {
         return SDynamicSizeAlwaysZero<U>::value() && SDynamicSizeAlwaysZero<V>::value();
     }
 };
@@ -38,19 +38,21 @@ struct SDynamicSizeAlwaysZero<std::pair<U, V>> {
 //! \brief Specialisation for std::less always true.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::less<T>> {
-    static inline bool value() { return true; }
+    static constexpr inline bool value() { return true; }
 };
 
 //! \brief Specialisation for std::greater always true.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::greater<T>> {
-    static inline bool value() { return true; }
+    static constexpr inline bool value() { return true; }
 };
 
 //! \brief Checks type in optional.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::optional<T>> {
-    static inline bool value() { return SDynamicSizeAlwaysZero<T>::value(); }
+    static constexpr inline bool value() {
+        return SDynamicSizeAlwaysZero<T>::value();
+    }
 };
 
 //! \brief Check for member dynamicSizeAlwaysZero function.
@@ -58,7 +60,7 @@ struct SDynamicSizeAlwaysZero<std::optional<T>> {
 template<typename T>
 struct SDynamicSizeAlwaysZero<T, std::enable_if_t<
             std::is_same_v<decltype(&T::dynamicSizeAlwaysZero), bool (*)()>>> {
-    static inline bool value() { return T::dynamicSizeAlwaysZero(); }
+    static constexpr inline bool value() { return T::dynamicSizeAlwaysZero(); }
 };
 // clang-format on
 }

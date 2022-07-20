@@ -262,7 +262,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -954,7 +954,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
