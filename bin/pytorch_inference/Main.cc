@@ -283,6 +283,8 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
     // No need to check the control message type there is only 1
     threadSettings.numAllocations(controlMessage.s_NumAllocations);
     ml::core::defaultAsyncExecutor().numberThreadsInUse(controlMessage.s_NumAllocations);
+    LOG_DEBUG(<< "Updated number of allocations to ["
+              << controlMessage.s_NumAllocations << "]");
     writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
 }
 
