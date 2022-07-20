@@ -22,6 +22,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <map>
 
 namespace CResourceMonitorTest {
 class CTestFixture;
