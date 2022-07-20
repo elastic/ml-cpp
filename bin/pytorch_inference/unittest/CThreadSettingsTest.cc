@@ -17,81 +17,95 @@
 BOOST_AUTO_TEST_SUITE(CThreadSettingsTest)
 
 BOOST_AUTO_TEST_CASE(testValidationNoChanges) {
-    std::int32_t modelThreads{4};
-    std::int32_t inferenceThreads{4};
-    ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads, modelThreads);
-    BOOST_REQUIRE_EQUAL(4, modelThreads);
-    BOOST_REQUIRE_EQUAL(4, inferenceThreads);
+    std::int32_t maxThreads{16};
+    std::int32_t numAllocations{4};
+    std::int32_t numThreadsPerAllocation{4};
+    ml::torch::CThreadSettings::validateThreadingParameters(
+        maxThreads, numThreadsPerAllocation, numAllocations);
+    BOOST_REQUIRE_EQUAL(4, numAllocations);
+    BOOST_REQUIRE_EQUAL(4, numThreadsPerAllocation);
 }
 
 BOOST_AUTO_TEST_CASE(testValidationValuesAreCapped) {
-    std::int32_t modelThreads{1};
-    std::int32_t inferenceThreads{32};
-    ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, modelThreads);
-    BOOST_REQUIRE_EQUAL(15, inferenceThreads);
+    std::int32_t maxThreads{16};
+    std::int32_t numAllocations{1};
+    std::int32_t numThreadsPerAllocation{32};
+    ml::torch::CThreadSettings::validateThreadingParameters(
+        maxThreads, numThreadsPerAllocation, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numAllocations);
+    BOOST_REQUIRE_EQUAL(16, numThreadsPerAllocation);
 
-    modelThreads = 32;
-    inferenceThreads = 1;
-    ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads, modelThreads);
-    BOOST_REQUIRE_EQUAL(15, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, inferenceThreads);
+    numAllocations = 32;
+    numThreadsPerAllocation = 1;
+    ml::torch::CThreadSettings::validateThreadingParameters(
+        maxThreads, numThreadsPerAllocation, numAllocations);
+    BOOST_REQUIRE_EQUAL(16, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numThreadsPerAllocation);
 }
 
 BOOST_AUTO_TEST_CASE(testValidationNegativeValues) {
-    std::int32_t modelThreads{-1};
-    std::int32_t inferenceThreads{-2};
-    ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, inferenceThreads);
+    std::int32_t maxThreads{16};
+    std::int32_t numAllocations{-1};
+    std::int32_t numThreadsPerAllocation{-2};
+    ml::torch::CThreadSettings::validateThreadingParameters(
+        maxThreads, numThreadsPerAllocation, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numThreadsPerAllocation);
 }
 
 BOOST_AUTO_TEST_CASE(testValidationMaxThreadsUnknown) {
-    std::int32_t modelThreads{4};
-    std::int32_t inferenceThreads{4};
     // 0 == maxThreads is not known
-    ml::torch::CThreadSettings::validateThreadingParameters(0, inferenceThreads, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, modelThreads);
-    BOOST_REQUIRE_EQUAL(1, inferenceThreads);
+    std::int32_t maxThreads{0};
+    std::int32_t numAllocations{4};
+    std::int32_t numThreadsPerAllocation{4};
+    ml::torch::CThreadSettings::validateThreadingParameters(
+        maxThreads, numThreadsPerAllocation, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numAllocations);
+    BOOST_REQUIRE_EQUAL(1, numThreadsPerAllocation);
 }
 
 BOOST_AUTO_TEST_CASE(testValidationTotalGreaterThanMaxThreads) {
+    std::int32_t maxThreads{16};
     {
-        std::int32_t modelThreads{10};
-        std::int32_t inferenceThreads{10};
-        ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads,
-                                                                modelThreads);
-        BOOST_REQUIRE_EQUAL(10, modelThreads);
-        BOOST_REQUIRE_EQUAL(6, inferenceThreads);
+        std::int32_t numAllocations{10};
+        std::int32_t numThreadsPerAllocation{10};
+        ml::torch::CThreadSettings::validateThreadingParameters(
+            maxThreads, numThreadsPerAllocation, numAllocations);
+        BOOST_REQUIRE_EQUAL(10, numAllocations);
+        BOOST_REQUIRE_EQUAL(2, numThreadsPerAllocation);
     }
     {
-        std::int32_t modelThreads{1};
-        std::int32_t inferenceThreads{32};
-        ml::torch::CThreadSettings::validateThreadingParameters(16, inferenceThreads,
-                                                                modelThreads);
-        BOOST_REQUIRE_EQUAL(1, modelThreads);
-        BOOST_REQUIRE_EQUAL(15, inferenceThreads);
+        std::int32_t numAllocations{1};
+        std::int32_t numThreadsPerAllocation{32};
+        ml::torch::CThreadSettings::validateThreadingParameters(
+            maxThreads, numThreadsPerAllocation, numAllocations);
+        BOOST_REQUIRE_EQUAL(1, numAllocations);
+        BOOST_REQUIRE_EQUAL(16, numThreadsPerAllocation);
+    }
+    maxThreads = 4;
+    {
+        std::int32_t numAllocations{4};
+        std::int32_t numThreadsPerAllocation{1};
+        ml::torch::CThreadSettings::validateThreadingParameters(
+            maxThreads, numThreadsPerAllocation, numAllocations);
+        BOOST_REQUIRE_EQUAL(4, numAllocations);
+        BOOST_REQUIRE_EQUAL(1, numThreadsPerAllocation);
     }
     {
-        std::int32_t modelThreads{4};
-        std::int32_t inferenceThreads{1};
-        ml::torch::CThreadSettings::validateThreadingParameters(4, inferenceThreads, modelThreads);
-        BOOST_REQUIRE_EQUAL(3, modelThreads);
-        BOOST_REQUIRE_EQUAL(1, inferenceThreads);
+        std::int32_t numAllocations{1};
+        std::int32_t numThreadsPerAllocation{4};
+        ml::torch::CThreadSettings::validateThreadingParameters(
+            maxThreads, numThreadsPerAllocation, numAllocations);
+        BOOST_REQUIRE_EQUAL(1, numAllocations);
+        BOOST_REQUIRE_EQUAL(4, numThreadsPerAllocation);
     }
     {
-        std::int32_t modelThreads{1};
-        std::int32_t inferenceThreads{4};
-        ml::torch::CThreadSettings::validateThreadingParameters(4, inferenceThreads, modelThreads);
-        BOOST_REQUIRE_EQUAL(1, modelThreads);
-        BOOST_REQUIRE_EQUAL(3, inferenceThreads);
-    }
-    {
-        std::int32_t modelThreads{2};
-        std::int32_t inferenceThreads{4};
-        ml::torch::CThreadSettings::validateThreadingParameters(4, inferenceThreads, modelThreads);
-        BOOST_REQUIRE_EQUAL(2, modelThreads);
-        BOOST_REQUIRE_EQUAL(2, inferenceThreads);
+        std::int32_t numAllocations{2};
+        std::int32_t numThreadsPerAllocation{4};
+        ml::torch::CThreadSettings::validateThreadingParameters(
+            maxThreads, numThreadsPerAllocation, numAllocations);
+        BOOST_REQUIRE_EQUAL(2, numAllocations);
+        BOOST_REQUIRE_EQUAL(2, numThreadsPerAllocation);
     }
 }
 
