@@ -72,9 +72,9 @@ bool COrderings::simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const 
 
 template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
 bool COrderings::simultaneousSort(KEY_VECTOR& keys,
-                                 VALUE1_VECTOR& values1,
-                                 VALUE2_VECTOR& values2,
-                                 const COMP& comp) {
+                                  VALUE1_VECTOR& values1,
+                                  VALUE2_VECTOR& values2,
+                                  const COMP& comp) {
     if (keys.size() != values1.size() || values1.size() != values2.size()) {
         return false;
     }
@@ -95,11 +95,11 @@ bool COrderings::simultaneousSort(KEY_VECTOR& keys,
     swap(values1[j_], values1[j]);                                             \
     swap(values2[j_], values2[j]);                                             \
     swap(values3[j_], values3[j]);
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
+    if (keys.size() != values1.size() || values1.size() != values2.size() ||
+        values2.size() != values3.size()) {
+        return false;
+    }
+    SIMULTANEOUS_SORT_IMPL
 #undef CUSTOM_SWAP_VALUES
 }
 
@@ -119,7 +119,7 @@ bool COrderings::simultaneousSort(KEY_VECTOR& keys,
     swap(values2[j_], values2[j]);                                             \
     swap(values3[j_], values3[j]);                                             \
     swap(values4[j_], values4[j]);
-        SIMULTANEOUS_SORT_IMPL
+    SIMULTANEOUS_SORT_IMPL
 #undef CUSTOM_SWAP_VALUES
 }
 
