@@ -348,7 +348,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
         }
 
         minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
-        failed |= (status & maths_t::E_FpFailed);
+        failed |= (status & maths_t::E_FpFailed) != 0;
 
         // Update the component prior distribution.
         model.second->addSamples(samples, weights);
