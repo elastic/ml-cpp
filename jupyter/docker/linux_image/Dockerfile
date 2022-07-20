@@ -16,12 +16,22 @@ WORKDIR /root
 
 RUN --mount=type=cache,target=/var/cache/yum \
     yum install -y epel-release && \
-    yum install -y python3-pip python3-devel python3-virtualenv openssl htop tmux && \
-    yum groupinstall -y 'Development Tools' && \
-    curl -L -o ts-1.0.1.tar.gz http://viric.name/soft/ts/ts-1.0.1.tar.gz && \
-    tar -xzf ts-1.0.1.tar.gz && \
-    cd ts-1.0.1 && \
+    yum install -y wget make gcc openssl-devel bzip2-devel openssl htop tmux libffi-devel sqlite-devel && \
+    yum groupinstall -y 'Development Tools' 
+RUN --mount=type=cache,target=/root/.ccache \
+    curl -L -o Python-3.8.7.tgz https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tgz && \
+    tar -xzf Python-3.8.7.tgz && \ 
+    cd Python-3.8.7 && \
+    ./configure --enable-optimizations && \
+    make -j altinstall && \
+    ln -sfn /usr/local/bin/python3.8 /usr/bin/python3 && \
+    ln -sfn /usr/local/bin/pip3.8 /usr/bin/pip3 && \
+    cd .. && rm -rf Python-3.8.7 Python-3.8.7.tgz && \
+    curl -L -o ts-1.3.1.tar.gz https://github.com/justanhduc/task-spooler/archive/refs/tags/v1.3.1-cpu.tar.gz && \
+    tar -xzf ts-1.3.1.tar.gz && \
+    cd task-spooler-1.3.1-cpu && \
     make && make install PREFIX=/usr && \
+    cd .. && rm -rf task-spooler-1.3.1-cpu ts-1.3.1.tar.gz && \
     ln -s /usr/bin/ts /usr/bin/tsp && \
     tsp -S `nproc` && \
     mkdir -p /root/data/configs /root/data/datasets /root/data/jobs
