@@ -18,8 +18,10 @@
 
 #include <maths/common/ImportExport.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <utility>
 #include <vector>
 
