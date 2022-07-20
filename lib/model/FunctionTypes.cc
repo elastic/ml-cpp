@@ -15,6 +15,7 @@
 
 #include <boost/config.hpp>
 
+#include <map>
 #include <ostream>
 
 namespace ml {
