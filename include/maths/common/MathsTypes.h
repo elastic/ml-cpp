@@ -13,13 +13,15 @@
 #define INCLUDED_ml_maths_common_t_MathsTypes_h
 
 #include <core/CFloatStorage.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/ImportExport.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <utility>
 #include <vector>
 

@@ -12,7 +12,7 @@
 #include <maths/time_series/CSeasonalComponent.h>
 
 #include <core/CLogger.h>
-#include <core/CPersistUtils.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -20,7 +20,6 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CSampling.h>

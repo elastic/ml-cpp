@@ -79,7 +79,7 @@ public:
         : private boost::equality_comparable1<CWord, boost::less_than_comparable<CWord>> {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         //! Used for converting to and from a delimited string.
         static const char DELIMITER;

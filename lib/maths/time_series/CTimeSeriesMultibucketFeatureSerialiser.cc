@@ -11,6 +11,7 @@
 
 #include <maths/time_series/CTimeSeriesMultibucketFeatureSerialiser.h>
 
+#include <core/CMemory.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

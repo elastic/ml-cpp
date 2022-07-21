@@ -12,13 +12,10 @@
 #ifndef INCLUDED_ml_core_CSmallVector_h
 #define INCLUDED_ml_core_CSmallVector_h
 
-#include <core/CContainerPrinter.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <boost/container/small_vector.hpp>
-#include <boost/type_traits/has_minus_assign.hpp>
-#include <boost/type_traits/has_plus_assign.hpp>
 
-#include <algorithm>
 #include <initializer_list>
 #include <ostream>
 #include <type_traits>
@@ -26,36 +23,35 @@
 
 namespace ml {
 namespace core {
-
-//! Map boost::container::small_vector_base for consistent naming.
-template<typename T>
-using CSmallVectorBase = boost::container::small_vector_base<T>;
-
 namespace small_vector_detail {
 
-template<typename T, typename U>
+inline std::size_t min(std::size_t a, std::size_t b) {
+    return a < b ? a : b;
+}
+
+template<typename T, typename = void>
 struct SPlusAssign {
     static_assert(sizeof(T) < 0, "The contained type has no defined += operator");
 };
 
 template<typename T>
-struct SPlusAssign<T, boost::true_type> {
+struct SPlusAssign<T, std::void_t<decltype(std::declval<T&>() += std::declval<T>())>> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0, n = min(lhs.size(), rhs.size()); i < n; ++i) {
             lhs[i] += rhs[i];
         }
     }
 };
 
-template<typename T, typename U>
+template<typename T, typename = void>
 struct SMinusAssign {
     static_assert(sizeof(T) < 0, "The contained type has no defined -= operator");
 };
 
 template<typename T>
-struct SMinusAssign<T, boost::true_type> {
+struct SMinusAssign<T, std::void_t<decltype(std::declval<T&>() -= std::declval<T>())>> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0, n = min(lhs.size(), rhs.size()); i < n; ++i) {
             lhs[i] -= rhs[i];
         }
     }
@@ -65,18 +61,16 @@ struct SMinusAssign<T, boost::true_type> {
 //! \brief This inherits from boost::container::small_vector.
 //!
 //! DESCRIPTION:\n
-//! The reasons for this class are largely historical in that we
-//! didn't have boost::container::small_vector in the version of
-//! boost we were using when this was originally implemented.
-//! However, a lot of our code now uses this class and it is
-//! convenient to provide some non-standard extensions.
+//! The reasons for this class are largely historical in that we didn't have
+//! boost::container::small_vector in the version of boost we were using when
+//! this was originally implemented. However, a lot of our code now uses this
+//! class and it is convenient to provide some non-standard extensions.
 //!
 //! IMPLEMENTATION:\n
 //! Inherits from boost::container::small_vector.
 //!
 //! \tparam T The element type.
-//! \tparam N The maximum number of elements which are stored on
-//! the stack.
+//! \tparam N The maximum number of elements which are stored on the stack.
 template<typename T, std::size_t N>
 class CSmallVector : public boost::container::small_vector<T, N> {
 private:
@@ -138,15 +132,13 @@ public:
 
     // Non-standard plus assign for the case that T has operator+=.
     const CSmallVector& operator+=(const CSmallVectorBase<T>& rhs) {
-        using MaybeTrue = typename boost::has_plus_assign<T>::type;
-        small_vector_detail::SPlusAssign<T, MaybeTrue>::compute(*this, rhs);
+        small_vector_detail::SPlusAssign<T>::compute(*this, rhs);
         return *this;
     }
 
     // Non-standard minus assign for the case that T has operator-=.
     const CSmallVector& operator-=(const CSmallVectorBase<T>& rhs) {
-        using MaybeTrue = typename boost::has_minus_assign<T>::type;
-        small_vector_detail::SMinusAssign<T, MaybeTrue>::compute(*this, rhs);
+        small_vector_detail::SMinusAssign<T>::compute(*this, rhs);
         return *this;
     }
 
@@ -154,11 +146,6 @@ private:
     TBase& baseRef() { return *this; }
     const TBase& baseRef() const { return *this; }
 };
-
-template<typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& o, const CSmallVector<T, N>& v) {
-    return o << core::CContainerPrinter::print(v.begin(), v.end());
-}
 }
 }
 

@@ -9,13 +9,11 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CTriple.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CIntegerTools.h>
-#include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CModel.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CSpline.h>
@@ -62,17 +60,18 @@ public:
 public:
     ~CDebugGenerator() {
         if (ENABLED) {
-            std::ofstream file;
-            file.open("results.py");
+            std::ofstream file_;
+            file_.open("results.py");
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
-            file << "t = " << core::CContainerPrinter::print(m_ValueTimes) << ";\n";
-            file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
-            file << "tp = " << core::CContainerPrinter::print(m_PredictionTimes) << ";\n";
-            file << "fp = " << core::CContainerPrinter::print(m_Predictions) << ";\n";
-            file << "tf = " << core::CContainerPrinter::print(m_ForecastTimes) << ";\n";
-            file << "fl = " << core::CContainerPrinter::print(m_ForecastLower) << ";\n";
-            file << "fm = " << core::CContainerPrinter::print(m_ForecastMean) << ";\n";
-            file << "fu = " << core::CContainerPrinter::print(m_ForecastUpper) << ";\n";
+            file << "t = " << m_ValueTimes << ";\n";
+            file << "f = " << m_Values << ";\n";
+            file << "tp = " << m_PredictionTimes << ";\n";
+            file << "fp = " << m_Predictions << ";\n";
+            file << "tf = " << m_ForecastTimes << ";\n";
+            file << "fl = " << m_ForecastLower << ";\n";
+            file << "fm = " << m_ForecastMean << ";\n";
+            file << "fu = " << m_ForecastUpper << ";\n";
             file << "plt.plot(t, f);\n";
             file << "plt.plot(tp, fp, 'k');\n";
             file << "plt.plot(tf, fl, 'r');\n";

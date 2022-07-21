@@ -32,7 +32,7 @@ public:
     using TCoordinate = typename SCoordinate<VECTOR>::Type;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<VECTOR>::value() &&
                core::memory_detail::SDynamicSizeAlwaysZero<ANNOTATION>::value();
     }

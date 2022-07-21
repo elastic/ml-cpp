@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -249,10 +250,8 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
         TDoubleSizePrVec probabilities[]{
             nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}),
             nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
-        LOG_DEBUG(<< "Aged class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG(<< "Class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[1]));
+        LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
+        LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
         BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0][0].second);
         BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
         BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1][0].second);
@@ -262,10 +261,8 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
         TDoubleSizePrVec probabilities[]{
             nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}),
             nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
-        LOG_DEBUG(<< "Aged class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[0]));
-        LOG_DEBUG(<< "Class probabilities = "
-                  << core::CContainerPrinter::print(probabilities[1]));
+        LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
+        LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
         BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[0][0].second);
         BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
         BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[1][0].second);

@@ -11,7 +11,6 @@
 
 #include <maths/common/CStatisticalTests.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -255,7 +254,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     for (std::size_t i = 0; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
-    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));
+    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << tt);
 
     double t = CBasicStatistics::mean(m_T);
     LOG_TRACE(<< "t = " << t);

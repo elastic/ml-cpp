@@ -10,7 +10,6 @@
  */
 #include "CCommandProcessor.h"
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CProcess.h>
 #include <core/CStringUtils.h>
@@ -69,7 +68,7 @@ bool CCommandProcessor::handleCommand(const std::string& command) {
     // Split into ID, verb and other tokens
     std::uint32_t id{0};
     if (core::CStringUtils::stringToType(tokens[0], id) == false || id == 0) {
-        LOG_ERROR(<< "Invalid command ID in " << core::CContainerPrinter::print(tokens));
+        LOG_ERROR(<< "Invalid command ID in " << tokens);
         return false;
     }
 

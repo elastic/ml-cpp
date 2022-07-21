@@ -12,7 +12,7 @@
 #include <maths/time_series/CCalendarComponent.h>
 
 #include <core/CLogger.h>
-#include <core/CPersistUtils.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>

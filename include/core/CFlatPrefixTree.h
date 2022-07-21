@@ -59,7 +59,7 @@ public:
 private:
     struct SNode {
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         SNode(char c, char type, std::uint32_t next);
 

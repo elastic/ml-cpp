@@ -12,16 +12,12 @@
 #define INCLUDED_ml_core_CTriple_h
 
 #include <core/CMemory.h>
-#include <core/CMemoryUsage.h>
 
 #include <boost/functional/hash.hpp>
 #include <boost/operators.hpp>
-#include <boost/type_traits/is_pod.hpp>
 
 #include <cstddef>
 #include <ostream>
-
-#include <string.h>
 
 namespace ml {
 namespace core {
@@ -40,14 +36,14 @@ class CTriple
     : private boost::equality_comparable<CTriple<T1, T2, T3>, boost::partially_ordered<CTriple<T1, T2, T3>>> {
 public:
     //! See CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return memory_detail::SDynamicSizeAlwaysZero<T1>::value() &&
                memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
                memory_detail::SDynamicSizeAlwaysZero<T3>::value();
     }
 
 public:
-    CTriple() : first(), second(), third() {}
+    CTriple() = default;
     CTriple(const T1& first_, const T2& second_, const T3& third_)
         : first(first_), second(second_), third(third_) {}
 
@@ -66,7 +62,7 @@ public:
     }
 
     std::size_t hash() const {
-        std::size_t seed = 0;
+        std::size_t seed{0};
         boost::hash_combine(seed, first);
         boost::hash_combine(seed, second);
         boost::hash_combine(seed, third);

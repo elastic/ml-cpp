@@ -14,7 +14,6 @@
 
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
 #include <core/CRapidJsonPoolAllocator.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>

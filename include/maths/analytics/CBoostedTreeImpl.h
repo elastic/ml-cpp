@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeImpl_h
 
 #include <core/CDataFrame.h>
-#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -34,9 +33,7 @@
 
 #include <limits>
 #include <memory>
-#include <numeric>
 #include <optional>
-#include <sstream>
 #include <utility>
 #include <vector>
 

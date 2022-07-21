@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CSpline_h
 #define INCLUDED_ml_maths_common_CSpline_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/UnwrapRef.h>
@@ -404,8 +403,7 @@ public:
         }
         if (knots.size() != values.size()) {
             LOG_ERROR(<< "Number knots not equal to number of values: "
-                      << " knots = " << core::CContainerPrinter::print(knots)
-                      << " values = " << core::CContainerPrinter::print(values));
+                      << " knots = " << knots << " values = " << values);
             return false;
         }
 
@@ -445,8 +443,8 @@ public:
         this->valuesRef().erase(this->valuesRef().begin() + last + 1,
                                 this->valuesRef().end());
         n = this->knots().size();
-        LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(this->knots()));
-        LOG_TRACE(<< "values = " << core::CContainerPrinter::print(this->values()));
+        LOG_TRACE(<< "knots = " << this->knots());
+        LOG_TRACE(<< "values = " << this->values());
 
         if (this->knots().size() < 2) {
             LOG_ERROR(<< "Insufficient distinct knot points supplied");

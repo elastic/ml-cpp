@@ -36,7 +36,7 @@ class MATHS_TIME_SERIES_EXPORT CCalendarFeature
     : boost::less_than_comparable<CCalendarFeature, boost::equality_comparable<CCalendarFeature>> {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     static const std::uint16_t DAYS_SINCE_START_OF_MONTH = 1;
     static const std::uint16_t DAYS_BEFORE_END_OF_MONTH = 2;

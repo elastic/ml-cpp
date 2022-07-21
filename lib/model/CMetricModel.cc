@@ -11,9 +11,8 @@
 
 #include <model/CMetricModel.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
@@ -230,8 +229,7 @@ void CMetricModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(<< model_t::print(feature)
-                      << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << " data = " << data);
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
             for (const auto& data_ : data) {
@@ -294,9 +292,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                 double scaledCountWeight = emptyBucketWeight * countWeight;
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
-                          << ", feature = " << model_t::print(feature)
-                          << ", samples = " << core::CContainerPrinter::print(samples)
-                          << ", isInteger = " << data_.second.s_IsInteger
+                          << ", feature = " << model_t::print(feature) << ", samples = "
+                          << samples << ", isInteger = " << data_.second.s_IsInteger
                           << ", person = " << this->personName(pid)
                           << ", dimension = " << dimension << ", count weight = " << countWeight
                           << ", scaled count weight = " << scaledCountWeight
@@ -475,7 +472,7 @@ std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 #undef KEY
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }

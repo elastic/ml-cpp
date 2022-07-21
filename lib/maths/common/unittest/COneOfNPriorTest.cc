@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -184,8 +183,8 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
     TDoubleVec weights1 = filter1.weights();
     TDoubleVec weights2 = filter2.weights();
-    LOG_DEBUG(<< "weight1 = " << core::CContainerPrinter::print(weights1));
-    LOG_DEBUG(<< "weight2 = " << core::CContainerPrinter::print(weights2));
+    LOG_DEBUG(<< "weight1 = " << weights1);
+    LOG_DEBUG(<< "weight2 = " << weights2);
     BOOST_TEST_REQUIRE(weights1.size() == weights2.size());
     BOOST_TEST_REQUIRE(std::equal(weights1.begin(), weights1.end(), weights2.begin(), equal));
 
@@ -591,7 +590,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         filter.addSamples(TDouble1Vec(1, samples[i]));
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(99.0);
-        LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(interval));
+        LOG_DEBUG(<< "interval = " << interval);
 
         double x = interval.first;
         double dx = (interval.second - interval.first) / 20.0;
@@ -972,7 +971,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     }
 
     TDoubleVec weights = filter.weights();
-    LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
+    LOG_DEBUG(<< "weights = " << weights);
 
     TDouble1Vec sampled;
     filter.sampleMarginalLikelihood(10, sampled);
@@ -988,8 +987,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     expectedSampled.insert(expectedSampled.end(), logNormalSamples.begin(),
                            logNormalSamples.end());
 
-    LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
-              << ", samples = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "expected samples = " << expectedSampled << ", samples = " << sampled);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                         core::CContainerPrinter::print(sampled));
@@ -1001,7 +999,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     }
 
     weights = filter.weights();
-    LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
+    LOG_DEBUG(<< "weights = " << weights);
 
     filter.sampleMarginalLikelihood(20, sampled);
 
@@ -1014,8 +1012,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     expectedSampled.insert(expectedSampled.end(), logNormalSamples.begin(),
                            logNormalSamples.end());
 
-    LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
-              << ", samples = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "expected samples = " << expectedSampled << ", samples = " << sampled);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                         core::CContainerPrinter::print(sampled));
@@ -1114,8 +1111,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             expectedProbability += weight * modelProbability;
         }
 
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
-                  << ", expectedProbability = " << expectedProbability
+        LOG_TRACE(<< "weights = " << weights << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProbability, probability,
                                      1e-3 * std::max(expectedProbability, probability));

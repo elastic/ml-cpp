@@ -11,7 +11,6 @@
 
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
 #include <core/CStatePersistInserter.h>
@@ -26,7 +25,6 @@
 #include <maths/common/CLogTDistribution.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
@@ -376,8 +374,7 @@ public:
                 m_Offset + x, m_Shape, m_Rate, m_Mean, m_Precision, probability) ||
             !probability.calculate(result)) {
             LOG_ERROR(<< "Failed to compute probability of less likely samples (samples ="
-                      << core::CContainerPrinter::print(m_Samples)
-                      << ", weights = " << core::CContainerPrinter::print(m_Weights)
+                      << m_Samples << ", weights = " << m_Weights
                       << ", offset = " << m_Offset + x << ")");
             return false;
         }
@@ -733,9 +730,8 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
         return;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -816,8 +812,7 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
             double x = samples[i] + m_Offset;
             if (x <= 0.0 || !CMathsFuncs::isFinite(x) ||
                 !CMathsFuncs::isFinite(weights[i])) {
-                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                          << core::CContainerPrinter::print(weights[i]));
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights[i]);
                 continue;
             }
 
@@ -859,8 +854,7 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
             double x = samples[i] + m_Offset;
             if (x <= 0.0 || !CMathsFuncs::isFinite(x) ||
                 !CMathsFuncs::isFinite(weights[i])) {
-                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                          << core::CContainerPrinter::print(weights[i]));
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights[i]);
                 continue;
             }
             double n = maths_t::countForUpdate(weights[i]);
@@ -936,8 +930,8 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
 
     if (this->isBad()) {
         LOG_ERROR(<< "Update failed (" << this->debug() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -1152,9 +1146,8 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& sampl
         return maths_t::E_FpFailed;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -1185,12 +1178,12 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& sampl
         logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
     if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
     } else if ((status & maths_t::E_FpOverflowed) != 0) {
         LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "weights = " << weights);
     }
     return status;
 }
@@ -1324,9 +1317,8 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1336,9 +1328,8 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 
@@ -1366,9 +1357,8 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& 
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1378,9 +1368,8 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& 
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 

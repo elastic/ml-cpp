@@ -12,14 +12,13 @@
 #ifndef INCLUDED_ml_model_CPopulationModel_h
 #define INCLUDED_ml_model_CPopulationModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CNonCopyable.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBjkstUniqueValues.h>
 #include <maths/common/CMultivariatePrior.h>
-#include <maths/common/COrderings.h>
 
 #include <maths/time_series/CCountMinSketch.h>
 

@@ -849,10 +849,8 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(
             1, *frame, sampledRowMask, {0})[0];
 
-        LOG_TRACE(<< "Expected category count "
-                  << core::CContainerPrinter::print(expectedCategoryCounts));
-        LOG_TRACE(<< "Actual category count "
-                  << core::CContainerPrinter::print(actualCategoryCounts));
+        LOG_TRACE(<< "Expected category count " << expectedCategoryCounts);
+        LOG_TRACE(<< "Actual category count " << actualCategoryCounts);
 
         BOOST_REQUIRE_EQUAL(actualCategoryCounts.size(), expectedCategoryCounts.size());
         for (std::size_t i = 0; i < expectedCategoryCounts.size(); ++i) {
@@ -973,8 +971,8 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
             maths::analytics::CDataFrameUtils::CMetricColumnValue{3}, *frame,
             maskAll(numberRows), {0, 1, 2}));
 
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
-        LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                             core::CContainerPrinter::print(actual));
     }
@@ -1048,8 +1046,8 @@ BOOST_AUTO_TEST_CASE(testMicWithColumnWithMissing) {
             maths::analytics::CDataFrameUtils::CMetricColumnValue{3}, *frame,
             maskAll(numberRows), {0, 1, 2}));
 
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
-        LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                             core::CContainerPrinter::print(actual));
     }
@@ -1389,8 +1387,8 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
                   },
                   0.01}})[0];
 
-            LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
-            LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
+            LOG_DEBUG(<< "mics[0] = " << mics[0]);
+            LOG_DEBUG(<< "mics[2] = " << mics[2]);
 
             BOOST_REQUIRE_EQUAL(std::size_t{4}, mics.size());
             for (const auto& mic : mics) {
@@ -1484,8 +1482,8 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumnWithMissing) {
               },
               0.01}})[0];
 
-        LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
-        LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
+        LOG_DEBUG(<< "mics[0] = " << mics[0]);
+        LOG_DEBUG(<< "mics[2] = " << mics[2]);
 
         BOOST_REQUIRE_EQUAL(std::size_t{4}, mics.size());
         for (const auto& mic : mics) {
@@ -1611,8 +1609,8 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
                 core::startDefaultAsyncExecutor();
             }
 
-            LOG_DEBUG(<< "min recalls = " << core::CContainerPrinter::print(minRecalls));
-            LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
+            LOG_DEBUG(<< "min recalls = " << minRecalls);
+            LOG_DEBUG(<< "max recalls = " << maxRecalls);
 
             // Threaded and non-threaded results are close.
             BOOST_REQUIRE_CLOSE(minRecalls[0][0], minRecalls[1][0], 1.5); // 1.5 %
@@ -1712,8 +1710,8 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeightsBadInputs) {
         minRecalls[1] = correct[1].cwiseQuotient(counts).minCoeff();
         maxRecalls[1] = correct[1].cwiseQuotient(counts).maxCoeff();
 
-        LOG_DEBUG(<< "min recalls = " << core::CContainerPrinter::print(minRecalls));
-        LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
+        LOG_DEBUG(<< "min recalls = " << minRecalls);
+        LOG_DEBUG(<< "max recalls = " << maxRecalls);
 
         // We improved the minimum class recall by at least 10%.
         BOOST_TEST_REQUIRE(minRecalls[0] > 1.1 * minRecalls[1]);

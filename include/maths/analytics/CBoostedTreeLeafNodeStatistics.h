@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
@@ -21,7 +21,6 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
-#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -108,7 +107,7 @@ public:
         static constexpr double SMALLEST_RELATIVE_CURVATURE{1e-20};
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CDerivatives(int n, double* storageGradients, double* storageCurvatures)

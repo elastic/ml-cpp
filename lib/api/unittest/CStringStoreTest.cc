@@ -346,7 +346,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
                             model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        LOG_DEBUG(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
+        LOG_DEBUG(<< model::CStringStore::names().m_Strings);
         BOOST_TEST_REQUIRE(this->nameExists("count"));
         BOOST_TEST_REQUIRE(this->nameExists("distinct_count"));
         BOOST_TEST_REQUIRE(this->nameExists("notes"));
@@ -525,9 +525,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
         LOG_DEBUG(<< "Running 20 buckets");
         time = playData(time, BUCKET_SPAN, 20, 7, 5, 99, job);
 
-        LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
-        LOG_TRACE(<< core::CContainerPrinter::print(
-                      model::CStringStore::influencers().m_Strings));
+        LOG_TRACE(<< model::CStringStore::names().m_Strings);
+        LOG_TRACE(<< model::CStringStore::influencers().m_Strings);
 
         BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
         BOOST_TEST_REQUIRE(this->influencerExists("Walton"));

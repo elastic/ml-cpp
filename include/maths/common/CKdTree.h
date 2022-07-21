@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CKdTree_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/CAnnotatedVector.h>
@@ -22,6 +22,7 @@
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTypeTraits.h>
 
 #include <boost/operators.hpp>

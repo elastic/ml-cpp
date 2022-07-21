@@ -12,6 +12,7 @@
 #include <maths/common/CMultivariateConstantPrior.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -129,8 +130,8 @@ CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 1) {
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                  << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                  << ", condition '" << core::CContainerPrinter::print(condition) << "'");
+                  << "marginalize '" << marginalize << "'"
+                  << ", condition '" << condition << "'");
         return {};
     }
 
@@ -155,8 +156,8 @@ CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 2) {
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                  << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                  << ", condition '" << core::CContainerPrinter::print(condition) << "'");
+                  << "marginalize '" << marginalize << "'"
+                  << ", condition '" << condition << "'");
         return {};
     }
 
@@ -224,9 +225,8 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& s
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 

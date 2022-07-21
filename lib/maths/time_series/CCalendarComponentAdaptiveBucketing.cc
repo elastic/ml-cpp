@@ -11,8 +11,8 @@
 
 #include <maths/time_series/CCalendarComponentAdaptiveBucketing.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -183,7 +183,7 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
         RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()))
         RESTORE(TIME_ZONE_OFFSET_TAG,
                 core::CStringUtils::stringToType(traverser.value(), m_TimeZoneOffset))
-        RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
+        RESTORE_WITH_UTILS(VALUES_TAG, m_Values)
     } while (traverser.next());
 
     this->checkRestoredInvariants();
@@ -323,10 +323,10 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         }
     }
 
-    LOG_TRACE(<< "old endpoints = " << core::CContainerPrinter::print(oldEndpoints));
-    LOG_TRACE(<< "old centres   = " << core::CContainerPrinter::print(oldCentres));
-    LOG_TRACE(<< "new endpoints = " << core::CContainerPrinter::print(newEndpoints));
-    LOG_TRACE(<< "new centres   = " << core::CContainerPrinter::print(newCentres));
+    LOG_TRACE(<< "old endpoints = " << oldEndpoints);
+    LOG_TRACE(<< "old centres   = " << oldCentres);
+    LOG_TRACE(<< "new endpoints = " << newEndpoints);
+    LOG_TRACE(<< "new centres   = " << newCentres);
     m_Values.swap(newValues);
     this->centres().swap(newCentres);
     this->largeErrorCounts().swap(newLargeErrorCounts);

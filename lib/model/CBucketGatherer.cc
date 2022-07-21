@@ -11,8 +11,8 @@
 
 #include <model/CBucketGatherer.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CProgramCounters.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -283,8 +283,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         const CEventData::TOptionalStrVec& influences = data.influences();
         auto& influencerCounts = m_InfluencerCounts.get(time);
         if (influences.size() != influencerCounts.size()) {
-            LOG_ERROR(<< "Unexpected influences: "
-                      << core::CContainerPrinter::print(influences) << " expected "
+            LOG_ERROR(<< "Unexpected influences: " << influences << " expected "
                       << core::CContainerPrinter::print(this->beginInfluencers(),
                                                         this->endInfluencers()));
             return false;

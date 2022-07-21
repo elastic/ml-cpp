@@ -13,6 +13,7 @@
 #include <maths/common/CModelDetail.h>
 
 #include <core/CLogger.h>
+#include <core/CTriple.h>
 #include <core/Constants.h>
 
 #include <maths/common/CTools.h>

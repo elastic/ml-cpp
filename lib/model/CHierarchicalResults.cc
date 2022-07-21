@@ -138,7 +138,7 @@ void aggregateLayer(ITR beginLayer,
     newLayer.reserve(aggregation.size());
 
     for (const auto& children : aggregation) {
-        LOG_TRACE(<< "aggregating = " << core::CContainerPrinter::print(children.second));
+        LOG_TRACE(<< "aggregating = " << children.second);
         if (children.second.size() > 1) {
             SNode& aggregate = (results.*newNode)();
             bool population = false;
@@ -399,7 +399,7 @@ void CHierarchicalResults::buildHierarchy() {
     {
         aggregateLayer<SPersonValueLess>(m_Nodes.begin(), m_Nodes.end(), *this,
                                          &CHierarchicalResults::newNode, layer);
-        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << layer);
     }
 
     LOG_TRACE(<< "Distinct person field names");
@@ -408,7 +408,7 @@ void CHierarchicalResults::buildHierarchy() {
         aggregateLayer<SPersonNameLess>(layer.begin(), layer.end(), *this,
                                         &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << layer);
     }
 
     LOG_TRACE(<< "Distinct partition field values");
@@ -417,7 +417,7 @@ void CHierarchicalResults::buildHierarchy() {
         aggregateLayer<SPartitionValueLess>(layer.begin(), layer.end(), *this,
                                             &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << layer);
     }
 
     LOG_TRACE(<< "Distinct partition field names");
@@ -426,7 +426,7 @@ void CHierarchicalResults::buildHierarchy() {
         aggregateLayer<SPartitionNameLess>(layer.begin(), layer.end(), *this,
                                            &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << layer);
     }
 
     if (layer.size() > 1) {

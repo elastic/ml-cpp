@@ -217,7 +217,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
     }
 
     anomalies.sort();
-    LOG_DEBUG(<< "Anomalies = " << anomalies.print());
+    LOG_DEBUG(<< "Anomalies = " << anomalies);
 
     for (std::size_t i = 0; i < anomalies.count(); ++i) {
         orderedAnomalies.push_back(anomalies[i].second);

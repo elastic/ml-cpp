@@ -10,7 +10,6 @@
  */
 #include <model/CCategoryExamplesCollector.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
@@ -141,8 +140,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
     } while (traverser.next());
 
     if (categoryId.isValid()) {
-        LOG_TRACE(<< "Restoring examples for category " << categoryId << ": "
-                  << core::CContainerPrinter::print(examples));
+        LOG_TRACE(<< "Restoring examples for category " << categoryId << ": " << examples);
         m_ExamplesByCategory[categoryId].swap(examples);
     }
 

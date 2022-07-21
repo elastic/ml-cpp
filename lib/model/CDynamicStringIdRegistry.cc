@@ -12,6 +12,7 @@
 #include <model/CDynamicStringIdRegistry.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/common/CChecksum.h>

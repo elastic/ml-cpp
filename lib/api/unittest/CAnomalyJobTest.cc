@@ -69,18 +69,14 @@ public:
 
 class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CSingleResultVisitor() : m_LastResult(0.0) {}
-
-    ~CSingleResultVisitor() override {}
-
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (!this->isSimpleCount(node) && this->isLeaf(node)) {
-            if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
+        if (!isSimpleCount(node) && isLeaf(node)) {
+            if (node.s_AnnotatedProbability.s_AttributeProbabilities.empty()) {
                 return;
             }
-            if (!node.s_Model) {
+            if (node.s_Model == nullptr) {
                 return;
             }
             const ml::model::SAttributeProbability& attribute =
@@ -94,23 +90,19 @@ public:
     double lastResults() const { return m_LastResult; }
 
 private:
-    double m_LastResult;
+    double m_LastResult{0.0};
 };
 
 class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CMultiResultVisitor() : m_LastResult(0.0) {}
-
-    ~CMultiResultVisitor() override {}
-
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (!this->isSimpleCount(node) && this->isLeaf(node)) {
-            if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
+        if (!isSimpleCount(node) && isLeaf(node)) {
+            if (node.s_AnnotatedProbability.s_AttributeProbabilities.empty()) {
                 return;
             }
-            if (!node.s_Model) {
+            if (node.s_Model == nullptr) {
                 return;
             }
             std::size_t pid;
@@ -132,19 +124,17 @@ public:
     double lastResults() const { return m_LastResult; }
 
 private:
-    double m_LastResult;
+    double m_LastResult{0.0};
 };
 
 class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CResultsScoreVisitor(int score) : m_Score(score) {}
-
-    ~CResultsScoreVisitor() override {}
+    explicit CResultsScoreVisitor(int score) : m_Score(score) {}
 
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (this->isRoot(node)) {
+        if (isRoot(node)) {
             node.s_NormalizedAnomalyScore = m_Score;
         }
     }
@@ -161,7 +151,7 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     BOOST_TEST_REQUIRE(doc.IsArray());
 
     const rapidjson::Value& allRecords = doc.GetArray();
-    for (auto& r : allRecords.GetArray()) {
+    for (const auto& r : allRecords.GetArray()) {
         rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
         if (recordsIt != r.GetObject().MemberEnd()) {
             ++count;
@@ -175,8 +165,8 @@ bool findLine(const std::string& regex, const ml::core::CRegex::TStrVec& lines) 
     ml::core::CRegex rx;
     rx.init(regex);
     std::size_t pos = 0;
-    for (ml::core::CRegex::TStrVecCItr i = lines.begin(); i != lines.end(); ++i) {
-        if (rx.search(*i, pos)) {
+    for (const auto& line : lines) {
+        if (rx.search(line, pos)) {
             return true;
         }
     }
@@ -844,7 +834,6 @@ BOOST_AUTO_TEST_CASE(testParsePersistControlMessageArgs) {
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
-    using TStrVec = std::vector<std::string>;
     using TStrIntMap = std::map<std::string, int>;
     // map of names of state files to the number of times the fatal error message
     // "Failed to restore time series decomposition." occurs in the output

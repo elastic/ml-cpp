@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_maths_common_CSphericalCluster_h
 #define INCLUDED_ml_maths_common_CSphericalCluster_h
 
+#include <core/CLoggerTrace.h>
+
 #include <maths/common/CAnnotatedVector.h>
 #include <maths/common/CBasicStatisticsCovariances.h>
 #include <maths/common/CLinearAlgebra.h>

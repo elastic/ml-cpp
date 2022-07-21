@@ -194,12 +194,9 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
         }
 
         if (t % 20 == 0) {
-            LOG_DEBUG(<< "outliers at 0.1 = "
-                      << core::CContainerPrinter::print(outliers[0]));
-            LOG_DEBUG(<< "outliers at 0.5 = "
-                      << core::CContainerPrinter::print(outliers[1]));
-            LOG_DEBUG(<< "outliers at 0.9 = "
-                      << core::CContainerPrinter::print(outliers[2]));
+            LOG_DEBUG(<< "outliers at 0.1 = " << outliers[0]);
+            LOG_DEBUG(<< "outliers at 0.5 = " << outliers[1]);
+            LOG_DEBUG(<< "outliers at 0.9 = " << outliers[2]);
         }
 
         for (std::size_t i = 0; i < 3; ++i) {
@@ -268,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testLof) {
         std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
                        [](const TDoubleSizePr& value) { return value.second; });
         std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+        LOG_DEBUG(<< "outliers = " << outliers);
         TDoubleVec indicator(numberInliers + numberOutliers, 1);
         for (auto outlier : outliers) {
             indicator[outlier] = -1;
@@ -290,7 +287,7 @@ BOOST_AUTO_TEST_CASE(testDlof) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::ldof(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -311,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testDlof) {
         ldof.push_back(maths::common::CBasicStatistics::mean(d) /
                        maths::common::CBasicStatistics::mean(D));
     }
-    LOG_DEBUG(<< "ldof = " << core::CContainerPrinter::print(ldof));
+    LOG_DEBUG(<< "ldof = " << ldof);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(ldof[i], scores[i], 1e-5);
@@ -331,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testDistancekNN) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::distancekNN(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -344,7 +341,7 @@ BOOST_AUTO_TEST_CASE(testDistancekNN) {
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(maths::common::las::distance(point, neighbours.back()));
     }
-    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << distances);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
@@ -364,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::totalDistancekNN(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -382,7 +379,7 @@ BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
                             }) /
             static_cast<double>(k));
     }
-    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << distances);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
@@ -767,7 +764,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
             }
         });
 
-        LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
+        LOG_DEBUG(<< "outlier scores = " << outlierScores);
         for (auto score : outlierScores) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.98, score, 0.02);
         }

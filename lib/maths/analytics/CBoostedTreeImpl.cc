@@ -11,7 +11,6 @@
 
 #include <maths/analytics/CBoostedTreeImpl.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 #include <core/CMemory.h>
@@ -873,8 +872,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                         m_ClassificationWeights(i) = j->second;
                     } else {
                         LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
-                                 << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
-                                 << ".");
+                                 << m_ClassificationWeightsOverride << ".");
                     }
                 }
                 LOG_TRACE(<< "classification weights = "
@@ -1382,8 +1380,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
     for (auto i : features) {
         if (m_Encoder->isBinary(i)) {
             m_FixedCandidateSplits[i] = TFloatVec{0.5F};
-            LOG_TRACE(<< "feature '" << i << "' splits = "
-                      << core::CContainerPrinter::print(m_FixedCandidateSplits[i]));
+            LOG_TRACE(<< "feature '" << i << "' splits = " << m_FixedCandidateSplits[i]);
         }
     }
 
@@ -1392,7 +1389,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
                                       return m_Encoder->isBinary(index);
                                   }),
                    features.end());
-    LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
+    LOG_TRACE(<< "candidate features = " << features);
 
     auto allTrainingRowMask = this->allTrainingRowMask();
     auto result = frame.readRows(
@@ -1432,8 +1429,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
             for (std::size_t j = 1; j < values.size(); ++j) {
                 featureCandidateSplits.emplace_back(0.5 * (values[j] + values[j - 1]));
             }
-            LOG_TRACE(<< "feature '" << features[i] << "' splits = "
-                      << core::CContainerPrinter::print(featureCandidateSplits));
+            LOG_TRACE(<< "feature '" << features[i] << "' splits = " << featureCandidateSplits);
         }
     }
 
@@ -1458,7 +1454,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                       return m_FixedCandidateSplits[index].empty() == false;
                                   }),
                    features.end());
-    LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
+    LOG_TRACE(<< "candidate features = " << features);
 
     if (features.empty()) {
         return candidateSplits;
@@ -1583,8 +1579,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     workspace.reinitialize(m_NumberThreads, candidateSplits);
     TSizeVec featuresToInclude{workspace.featuresToInclude()};
-    LOG_TRACE(<< "features to include = "
-              << core::CContainerPrinter::print(featuresToInclude));
+    LOG_TRACE(<< "features to include = " << featuresToInclude);
 
     TNodeVec tree(1);
     // Since number of leaves in a perfect binary tree is (numberInternalNodes+1)
@@ -1598,7 +1593,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TSizeVec nodeFeatureBag;
     this->treeFeatureBag(featureSampleProbabilities, treeFeatureBag);
     treeFeatureBag = merge(featuresToInclude, std::move(treeFeatureBag));
-    LOG_TRACE(<< "tree bag = " << core::CContainerPrinter::print(treeFeatureBag));
+    LOG_TRACE(<< "tree bag = " << treeFeatureBag);
 
     featureSampleProbabilities = m_FeatureSampleProbabilities;
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
@@ -1805,7 +1800,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     TSizeVec ordered{missing};
     std::sort(ordered.begin(), ordered.end());
     common::CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
-    LOG_TRACE(<< "present = " << core::CContainerPrinter::print(present));
+    LOG_TRACE(<< "present = " << present);
 
     // Get the current round feature vector. Fixed so computed outside the loop.
     TVector x(2 * present.size());
@@ -2133,7 +2128,7 @@ CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
             losses[i] += result.s_FunctionState[i];
         }
     }
-    LOG_TRACE(<< "losses = " << core::CContainerPrinter::print(losses));
+    LOG_TRACE(<< "losses = " << losses);
 
     TMeanVarAccumulator lossMoments;
     for (const auto& loss : losses) {
@@ -2384,8 +2379,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     if (std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
                   traverser.name()) == SUPPORTED_VERSIONS.end()) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
-                  << "Currently supported versions: "
-                  << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
+                  << "Currently supported versions: " << SUPPORTED_VERSIONS << ".");
         return false;
     }
 

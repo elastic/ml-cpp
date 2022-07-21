@@ -12,7 +12,9 @@
 #ifndef INCLUDED_ml_core_CFloatStorage_h
 #define INCLUDED_ml_core_CFloatStorage_h
 
+#ifdef CFLOATSTORAGE_BOUNDS_CHECK
 #include <core/CLogger.h>
+#endif
 #include <core/CStringUtils.h>
 
 #include <maths/common/ImportExport.h>
@@ -67,7 +69,7 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 class CORE_EXPORT CFloatStorage {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Default construction of the floating point value.

@@ -440,7 +440,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
+                     << " data " << frame.columnNames());
         return;
     }
 

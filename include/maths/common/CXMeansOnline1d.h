@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CXMeansOnline1d_h
 #define INCLUDED_ml_maths_common_CXMeansOnline1d_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <maths/common/CClusterer.h>
 #include <maths/common/CNaturalBreaksClassifier.h>

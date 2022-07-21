@@ -324,8 +324,7 @@ BOOST_AUTO_TEST_CASE(testCutSearch) {
         TBoolVec parities;
         clusterer.cutSearch(0, 1, graph, 0.0, cost, parities);
 
-        LOG_DEBUG(<< "cost = " << cost
-                  << ", parities = " << core::CContainerPrinter::print(parities));
+        LOG_DEBUG(<< "cost = " << cost << ", parities = " << parities);
 
         double sparsestCut = static_cast<double>(connections[t]) /
                              static_cast<double>(20 - splits[t]) /
@@ -384,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testSeparate) {
 
         TBoolVec parities;
         bool separable = clusterer.separate(graph, parities);
-        LOG_DEBUG(<< "parities = " << core::CContainerPrinter::print(parities));
+        LOG_DEBUG(<< "parities = " << parities);
 
         double a = 0.0;
         double b = 0.0;
@@ -476,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testThickets) {
         TBootstrapClustererForTest2 clusterer(0.3, 3.0);
 
         c = clusterer.thickets(c, graph, components);
-        LOG_DEBUG(<< "components = " << core::CContainerPrinter::print(components));
+        LOG_DEBUG(<< "components = " << components);
 
         error += std::abs(3 - static_cast<int>(c));
         if (c == 3) {
@@ -617,7 +616,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             jaccard.push_back(jmax);
         }
         LOG_DEBUG(<< "# clusters bootstrap = " << bootstrap.size()
-                  << ", Jaccard bootstrap = " << core::CContainerPrinter::print(jaccard));
+                  << ", Jaccard bootstrap = " << jaccard);
         numberClustersBootstrap.add(static_cast<double>(bootstrap.size()));
         jaccardBootstrapToPerfect.add(jaccard);
 
@@ -647,7 +646,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             jaccard.push_back(jmax);
         }
         LOG_DEBUG(<< "# clusters vanilla   = " << vanilla.size()
-                  << ", Jaccard vanilla   = " << core::CContainerPrinter::print(jaccard));
+                  << ", Jaccard vanilla   = " << jaccard);
         numberClustersVanilla.add(static_cast<double>(vanilla.size()));
         jaccardVanillaToPerfect.add(jaccard);
     }
@@ -746,7 +745,7 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
                 std::sort(bootstrap[i].begin(), bootstrap[i].end());
             }
 
-            LOG_DEBUG(<< "clusters = " << core::CContainerPrinter::print(bootstrap));
+            LOG_DEBUG(<< "clusters = " << bootstrap);
             for (std::size_t i = 0; i < bootstrap.size(); ++i) {
                 double Jmax = 0.0;
                 std::size_t cluster = 0;
@@ -773,7 +772,7 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
         }
     }
 
-    LOG_DEBUG(<< "consistency = " << core::CContainerPrinter::print(consistency));
+    LOG_DEBUG(<< "consistency = " << consistency);
 
     TMeanAccumulator meanConsistency;
     meanConsistency.add(consistency);

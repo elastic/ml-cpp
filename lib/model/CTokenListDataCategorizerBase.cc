@@ -258,8 +258,7 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
             baseTokenIds.begin(), baseTokenIds.end(), CSizePairFirstElementEquals(tokenId)))};
         const CTokenInfoItem& info{m_TokenIdLookup[tokenId]};
         std::size_t cost{m_ReverseSearchCreator->costOfToken(info.str(), occurrences)};
-        rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(
-            info.categoryCount(), TSizeSizePr(tokenId, cost)));
+        rareIdsWithCost.emplace(info.categoryCount(), TSizeSizePr(tokenId, cost));
         if (lowestCost > cost) {
             lowestCost = cost;
             lowestCostTokenId = tokenId;

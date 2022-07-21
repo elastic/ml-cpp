@@ -234,9 +234,8 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
         filter.marginalLikelihoodConfidenceInterval(90.0)};
 
     LOG_DEBUG(<< "mean = " << mean << ", propagatedMean = " << propagatedMean);
-    LOG_DEBUG(<< "percentiles           = " << core::CContainerPrinter::print(percentiles));
-    LOG_DEBUG(<< "propagatedPercentiles = "
-              << core::CContainerPrinter::print(propagatedPercentiles));
+    LOG_DEBUG(<< "percentiles           = " << percentiles);
+    LOG_DEBUG(<< "propagatedPercentiles = " << propagatedPercentiles);
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(mean, propagatedMean, eps * mean);
     for (std::size_t i = 0; i < boost::size(percentiles); ++i) {
@@ -998,7 +997,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
                 TDoubleDoublePr interval =
                     filter.marginalLikelihoodConfidenceInterval(percentages[j]);
                 LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                          << ", interval = " << core::CContainerPrinter::print(interval));
+                          << ", interval = " << interval);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.1);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.05);
                 error.add(std::fabs(interval.first - q1));
@@ -1021,7 +1020,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
             TDoubleDoublePr interval =
                 filter.marginalLikelihoodConfidenceInterval(percentages[i]);
             LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                      << ", interval = " << core::CContainerPrinter::print(interval));
+                      << ", interval = " << interval);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, std::max(0.1 * q1, 0.15));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.1 * q2);
             error.add(std::fabs(interval.first - q1) / q1);
@@ -1054,7 +1053,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
             90, maths_t::CUnitWeights::UNIT);
 
         LOG_DEBUG(<< "median = " << maths::common::CBasicStatistics::mean(median));
-        LOG_DEBUG(<< "confidence interval = " << core::CContainerPrinter::print(i90));
+        LOG_DEBUG(<< "confidence interval = " << i90);
 
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(median) > i90.first);
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(median) < i90.second);
@@ -1090,9 +1089,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
             90.0, maths_t::countWeight(1.0))};
         TDoubleDoublePr weightedInterval{filter.marginalLikelihoodConfidenceInterval(
             90.0, maths_t::countWeight(0.3))};
-        LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(interval));
-        LOG_DEBUG(<< "weightedInterval = "
-                  << core::CContainerPrinter::print(weightedInterval));
+        LOG_DEBUG(<< "interval = " << interval);
+        LOG_DEBUG(<< "weightedInterval = " << weightedInterval);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(interval),
                             core::CContainerPrinter::print(weightedInterval));
     }

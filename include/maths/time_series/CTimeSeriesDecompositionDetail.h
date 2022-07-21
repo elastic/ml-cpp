@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionDetail_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionDetail_h
 
-#include <core/CSmallVector.h>
 #include <core/CStateMachine.h>
 #include <core/CoreTypes.h>
 

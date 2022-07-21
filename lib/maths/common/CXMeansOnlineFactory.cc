@@ -11,6 +11,7 @@
 
 #include <maths/common/CXMeansOnlineFactory.h>
 
+#include <core/CMemory.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CXMeansOnline.h>

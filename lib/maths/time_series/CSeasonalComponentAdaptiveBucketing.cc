@@ -11,8 +11,8 @@
 
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -337,8 +337,7 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
                 return CSeasonalTimeStateSerializer::acceptRestoreTraverser(m_Time, traverser_);
             }))
-            RESTORE(BUCKETS_6_3_TAG,
-                    core::CPersistUtils::restore(BUCKETS_6_3_TAG, m_Buckets, traverser))
+            RESTORE_WITH_UTILS(BUCKETS_6_3_TAG, m_Buckets)
         }
     } else {
         return false;
@@ -499,10 +498,10 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         }
     }
 
-    LOG_TRACE(<< "old endpoints   = " << core::CContainerPrinter::print(oldEndpoints));
-    LOG_TRACE(<< "old centres     = " << core::CContainerPrinter::print(oldCentres));
-    LOG_TRACE(<< "new endpoints   = " << core::CContainerPrinter::print(newEndpoints));
-    LOG_TRACE(<< "new centres     = " << core::CContainerPrinter::print(newCentres));
+    LOG_TRACE(<< "old endpoints   = " << oldEndpoints);
+    LOG_TRACE(<< "old centres     = " << oldCentres);
+    LOG_TRACE(<< "new endpoints   = " << newEndpoints);
+    LOG_TRACE(<< "new centres     = " << newCentres);
     m_Buckets.swap(buckets);
     this->centres().swap(newCentres);
     this->largeErrorCounts().swap(newLargeErrorCounts);

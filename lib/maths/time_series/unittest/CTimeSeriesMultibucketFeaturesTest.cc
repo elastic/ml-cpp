@@ -9,11 +9,11 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CSmallVector.h>
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>

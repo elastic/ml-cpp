@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CLinearAlgebra.h>
@@ -51,7 +50,7 @@ void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vect
 void debug(const TDoubleVecVec& x) {
     LOG_DEBUG(<< "x =");
     for (std::size_t i = 0; i < x.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(x[i]));
+        LOG_DEBUG(<< "  " << x[i]);
     }
 }
 
@@ -227,8 +226,8 @@ BOOST_AUTO_TEST_CASE(testSpan) {
                 }
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG(<< "x(i)       = " << core::CContainerPrinter::print(x[i]));
-                    LOG_DEBUG(<< "projection = " << core::CContainerPrinter::print(r));
+                    LOG_DEBUG(<< "x(i)       = " << x[i]);
+                    LOG_DEBUG(<< "projection = " << r);
                 }
 
                 subtract(r, x[i]);
@@ -287,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         std::size_t p[]{0, 1, 2};
 
         do {
-            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << p);
 
             TDoubleVecVec x{x_};
             //debug(x);
@@ -309,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         std::size_t p[]{0, 1, 2, 3, 4};
 
         do {
-            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << p);
 
             TDoubleVecVec x{x_};
 

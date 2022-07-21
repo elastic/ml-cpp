@@ -12,9 +12,8 @@
 #ifndef INCLUDED_ml_maths_common_CClusterer_h
 #define INCLUDED_ml_maths_common_CClusterer_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CPersistUtils.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
