@@ -149,12 +149,19 @@ public:
 
             // Update the item counts using the Space-Saving algorithm.
             std::size_t count{1};
-            if (this->full(itemMemoryUsage)) {
+            std::size_t maxEvictedCount{0};
+            while (this->full(itemMemoryUsage)) {
                 auto itemToEvict = m_ItemStats.begin();
-                count += itemToEvict->count();
+                // It's possible that the cache is empty yet isn't big enough
+                // to hold this new item.
+                if (itemToEvict == m_ItemStats.end()) {
+                    readValue(value);
+                    return;
+                }
+                maxEvictedCount = itemToEvict->count();
                 this->removeFromCache(itemToEvict);
             }
-            readValue(this->insert(compressedKey, value, itemMemoryUsage, count));
+            readValue(this->insert(compressedKey, value, itemMemoryUsage, count + maxEvictedCount));
         });
 
         return false;
