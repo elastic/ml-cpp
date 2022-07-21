@@ -438,8 +438,8 @@ std::size_t CPackedBitVector::popRunLength(TUInt8VecCItr& runLengthBytes) {
 
 void CPackedBitVector::writeRunLength(std::size_t runLength, TUInt8VecItr runLengthBytes) {
     std::size_t lowestBits{runLength & ((0xFF ^ NUMBER_BYTES_MASK) >> NUMBER_BYTES_MASK_BITS)};
-    *runLengthBytes = (bytes(runLength) - 1) +
-                      static_cast<std::uint8_t>(lowestBits << NUMBER_BYTES_MASK_BITS);
+    *runLengthBytes = static_cast<std::uint8_t>(
+        (bytes(runLength) - 1) + (lowestBits << NUMBER_BYTES_MASK_BITS));
     ++runLengthBytes;
     for (runLength /= 256 >> NUMBER_BYTES_MASK_BITS; runLength > 0; runLength /= 256) {
         *runLengthBytes = static_cast<std::uint8_t>(runLength & 0xFF);
