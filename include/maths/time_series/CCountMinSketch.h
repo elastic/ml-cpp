@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CCountMinSketch_h
 
 #include <core/CHashing.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 

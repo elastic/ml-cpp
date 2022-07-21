@@ -12,9 +12,8 @@
 #ifndef INCLUDED_ml_model_CMetricMultivariateStatistic_h
 #define INCLUDED_ml_model_CMetricMultivariateStatistic_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CChecksum.h>
@@ -158,7 +157,7 @@ public:
     //! Print partial statistic
     std::string print() const {
         std::ostringstream result;
-        result << core::CContainerPrinter::print(m_Values);
+        result << m_Values;
         return result.str();
     }
 

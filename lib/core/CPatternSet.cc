@@ -11,7 +11,6 @@
 
 #include <core/CPatternSet.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <rapidjson/document.h>

@@ -13,7 +13,6 @@
 #define INCLUDED_ml_core_CCompressedLfuCache_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -303,7 +302,7 @@ private:
     //! \brief A cache item hit frequency and memory usage.
     class CCacheItemStats {
     public:
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CCacheItemStats() = default;
@@ -358,7 +357,7 @@ private:
         //! we want to avoid quadratic complexity using core::CMemory::dynamicSize.
         //! Instead we estimate memory usage for each item we add and remove from
         //! the cache and maintain a running total.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CCacheItem() = default;
@@ -504,8 +503,7 @@ private:
             }
         }
 
-        LOG_TRACE(<< "bucket sequence = "
-                  << core::CContainerPrinter::print(m_BucketCountSequence));
+        LOG_TRACE(<< "bucket sequence = " << m_BucketCountSequence);
     }
 
     void checkRestoredInvariants() const {

@@ -11,8 +11,8 @@
 
 #include <maths/analytics/COutliers.h>
 
-#include <core/CAlignment.h>
 #include <core/CDataFrame.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 

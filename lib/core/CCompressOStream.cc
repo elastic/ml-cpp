@@ -8,10 +8,11 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #include <core/CCompressOStream.h>
 
 #include <core/CBase64Filter.h>
-#include <core/CLogger.h>
+#include <core/CLoggerTrace.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 
@@ -69,6 +70,7 @@ void CCompressOStream::CCompressThread::run() {
         }
     }
     LOG_TRACE(<< "CompressThread complete, written: " << bytesDone << ", bytes");
+    SUPPRESS_USAGE_WARNING(bytesDone);
     boost::iostreams::close(m_OutFilter);
 }
 

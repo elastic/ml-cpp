@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_model_CBucketQueue_h
 #define INCLUDED_ml_model_CBucketQueue_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -109,7 +108,7 @@ public:
     //! internally and from clients that perform restoration of the queue.
     void push(const T& item) {
         m_Queue.push_front(item);
-        LOG_TRACE(<< "Queue after push -> " << core::CContainerPrinter::print(*this));
+        LOG_TRACE(<< "Queue after push -> " << *this);
     }
 
     //! Returns the item in the queue that corresponds to the bucket

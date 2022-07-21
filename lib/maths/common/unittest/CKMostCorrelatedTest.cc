@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -17,12 +18,12 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CLinearAlgebra.h>
+#include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CSampling.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
@@ -256,12 +257,12 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     std::size_t variables = samples.size() / 20;
 
     CKMostCorrelatedForTest mostCorrelated(10, 0.01);
-    mostCorrelated.addVariables((variables * boost::size(combinations)) / 2);
+    mostCorrelated.addVariables((variables * std::size(combinations)) / 2);
 
     CKMostCorrelatedForTest::TVectorVec p1 = mostCorrelated.projections();
     LOG_DEBUG(<< "projections 1 = ");
     for (std::size_t i = 0; i < p1.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p1[i]));
+        LOG_DEBUG(<< "  " << p1[i]);
     }
     BOOST_TEST_REQUIRE(!p1.empty());
     BOOST_REQUIRE_EQUAL(std::size_t(10), p1[0].dimension());
@@ -283,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
 
     for (std::size_t i = 0; i < 19; ++i) {
         for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
-            for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
+            for (std::size_t k = 0; k < std::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
                 mostCorrelated.add(X, x);
@@ -294,7 +295,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
 
     // This should trigger the next projection to be generated.
     for (std::size_t i = 0u, X = 0; i < variables; i += 2) {
-        for (std::size_t j = 0; j < boost::size(combinations); ++j, ++X) {
+        for (std::size_t j = 0; j < std::size(combinations); ++j, ++X) {
             double x = combinations[j][0] * samples[19 * variables + i] +
                        combinations[j][1] * samples[19 * variables + i + 1];
             mostCorrelated.add(X, x);
@@ -312,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     CKMostCorrelatedForTest::TVectorVec p2 = mostCorrelated.projections();
     LOG_DEBUG(<< "projections 2 = ");
     for (std::size_t i = 0; i < p2.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p2[i]));
+        LOG_DEBUG(<< "  " << p2[i]);
     }
     BOOST_TEST_REQUIRE(!p2.empty());
     BOOST_REQUIRE_EQUAL(std::size_t(10), p2[0].dimension());
@@ -370,11 +371,11 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     std::size_t variables = samples.size() / 19;
 
     CKMostCorrelatedForTest mostCorrelated(100, 0.0);
-    mostCorrelated.addVariables((variables * boost::size(combinations)) / 2);
+    mostCorrelated.addVariables((variables * std::size(combinations)) / 2);
 
     for (std::size_t i = 0; i < 19; ++i) {
         for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
-            for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
+            for (std::size_t k = 0; k < std::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
                 mostCorrelated.add(X, x);
@@ -442,13 +443,13 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
 
     CKMostCorrelatedForTest::TSizeSizePrVec correlatedPairs;
     mostCorrelated.mostCorrelated(correlatedPairs);
-    LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
+    LOG_DEBUG(<< "correlatedPairs = " << correlatedPairs);
 
     std::size_t remove_[] = {2, 5};
     CKMostCorrelatedForTest::TSizeVec remove(std::begin(remove_), std::end(remove_));
     mostCorrelated.removeVariables(remove);
     mostCorrelated.mostCorrelated(correlatedPairs);
-    LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
+    LOG_DEBUG(<< "correlatedPairs = " << correlatedPairs);
 
     for (std::size_t i = 0; i < correlatedPairs.size(); ++i) {
         BOOST_TEST_REQUIRE(std::find(remove.begin(), remove.end(),
@@ -555,9 +556,8 @@ BOOST_AUTO_TEST_CASE(testStability) {
             mostCorrelated.mostCorrelated(correlatedPairs);
             TDoubleVec correlations;
             mostCorrelated.correlations(correlations);
-            LOG_DEBUG(<< "correlatedPairs = "
-                      << core::CContainerPrinter::print(correlatedPairs));
-            LOG_DEBUG(<< "correlations = " << core::CContainerPrinter::print(correlations));
+            LOG_DEBUG(<< "correlatedPairs = " << correlatedPairs);
+            LOG_DEBUG(<< "correlations = " << correlations);
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
             std::sort(correlatedPairs.begin() + 5, correlatedPairs.begin() + 10);
             BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
@@ -603,8 +603,7 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
         }
         mostCorrelated.capture();
     }
-    LOG_DEBUG(<< "correlations = "
-              << core::CContainerPrinter::print(mostCorrelated.correlations()));
+    LOG_DEBUG(<< "correlations = " << mostCorrelated.correlations());
 
     bool present = false;
     for (std::size_t i = 0; i < mostCorrelated.correlations().size(); ++i) {
@@ -693,7 +692,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     std::size_t n[] = {200, 400, 800, 1600, 3200};
     std::uint64_t elapsed[5];
 
-    for (std::size_t s = 0; s < boost::size(n); ++s) {
+    for (std::size_t s = 0; s < std::size(n); ++s) {
         double proportions[] = {0.2, 0.3, 0.5};
         std::size_t b = 200;
         std::size_t ns[] = {
@@ -751,11 +750,11 @@ BOOST_AUTO_TEST_CASE(testScale) {
         LOG_DEBUG(<< "elapsed time = " << elapsed[s] << "ms");
     }
 
-    LOG_DEBUG(<< "elapsed times = " << core::CContainerPrinter::print(elapsed));
+    LOG_DEBUG(<< "elapsed times = " << elapsed);
 
     // Test that the slope is subquadratic
     TMeanVarAccumulator slope;
-    for (std::size_t i = 1; i < boost::size(elapsed); ++i) {
+    for (std::size_t i = 1; i < std::size(elapsed); ++i) {
         slope.add(static_cast<double>(elapsed[i]) / static_cast<double>(elapsed[i - 1]));
     }
     double exponent = std::log(maths::common::CBasicStatistics::mean(slope)) /

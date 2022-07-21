@@ -12,6 +12,7 @@
 #include <maths/common/CMultivariatePrior.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
@@ -265,8 +266,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         !lowerBound_[1].calculate(lb[1]) || !upperBound_[1].calculate(ub[1])) {
         return false;
     }
-    LOG_TRACE(<< "lb = " << core::CContainerPrinter::print(lb)
-              << ", ub = " << core::CContainerPrinter::print(ub));
+    LOG_TRACE(<< "lb = " << lb << ", ub = " << ub);
 
     lowerBound = std::sqrt(lb[0] * lb[1]);
     upperBound = std::sqrt(ub[0] * ub[1]);

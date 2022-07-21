@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -566,7 +566,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
     BOOST_REQUIRE_EQUAL(11, probabilities.size());
     BOOST_TEST_REQUIRE(probabilities[lowNonZeroCountBucket] < 0.06);
     BOOST_TEST_REQUIRE(probabilities[highNonZeroCountBucket] > 0.9);
@@ -612,7 +612,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixt
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
     BOOST_REQUIRE_EQUAL(11, probabilities.size());
     BOOST_TEST_REQUIRE(probabilities[lowNonZeroCountBucket] < 0.06);
     BOOST_TEST_REQUIRE(probabilities[highNonZeroCountBucket] > 0.9);
@@ -697,7 +697,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         TStrVec expectedResults{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
                                 "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
         for (std::size_t i = 0; i < probabilities.size(); ++i) {
-            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            LOG_DEBUG(<< "probabilities = " << probabilities[i]);
             std::string results[2];
             for (std::size_t j = 0; j < 2; ++j) {
                 results[j] =
@@ -795,7 +795,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         TStrVecVec expectedResults{
             {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
         for (std::size_t i = 0; i < probabilities.size(); ++i) {
-            LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+            LOG_DEBUG(<< "probabilities = " << probabilities[i]);
             TStrVec results;
             for (const auto& result : probabilities[i]) {
                 results.push_back(core::CStringUtils::typeToString(result.second) +
@@ -902,7 +902,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
                                {"2400,p4", "2700,p4"},
                                {"2400,p3", "2700,p3"}};
     for (std::size_t i = 0; i < 4; ++i) {
-        LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
+        LOG_DEBUG(<< "probabilities = " << probabilities[i]);
         TStrVec results;
         for (const auto& result : probabilities[i]) {
             results.push_back(core::CStringUtils::typeToString(result.second) +
@@ -1261,8 +1261,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1320,8 +1319,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1383,8 +1381,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1450,8 +1447,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1516,8 +1512,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1582,8 +1577,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                                                      bucketEndTime, partitioningFields,
                                                      1, annotatedProbability));
         LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        LOG_DEBUG(<< "influencers = "
-                  << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+        LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
         BOOST_REQUIRE_EQUAL(false, annotatedProbability.s_Influences.empty());
     }
 }
@@ -1653,8 +1647,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1731,8 +1724,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1812,8 +1804,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1895,8 +1886,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields,
                 1, annotatedProbability));
             LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG(<< "influencers = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
             BOOST_TEST_REQUIRE(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1970,8 +1960,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
         BOOST_TEST_REQUIRE(model->computeProbability(
             pid, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
         LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        LOG_DEBUG(<< "influencers = "
-                  << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+        LOG_DEBUG(<< "influencers = " << annotatedProbability.s_Influences);
         lastInfluencersResult = annotatedProbability.s_Influences;
         probabilities.push_back(annotatedProbability.s_Probability);
     }
@@ -1984,7 +1973,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     BOOST_TEST_REQUIRE(probabilities[3] > 50.0 * probabilities[4]);
 
     // Expect the influence for this anomaly to be "INF1":"inf2"
-    LOG_DEBUG(<< core::CContainerPrinter::print(lastInfluencersResult));
+    LOG_DEBUG(<< lastInfluencersResult);
     BOOST_REQUIRE_EQUAL(1, lastInfluencersResult.size());
     BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.75);
     BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);

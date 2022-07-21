@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CVectorRange.h>
 
@@ -222,16 +221,16 @@ BOOST_AUTO_TEST_CASE(testComparisons) {
 
     TDoubleRng range103{values1, 0, 3};
     TDoubleRng range202{values2, 0, 2};
-    LOG_DEBUG(<< "range103 = " << core::CContainerPrinter::print(range103));
-    LOG_DEBUG(<< "range202 = " << core::CContainerPrinter::print(range202));
+    LOG_DEBUG(<< "range103 = " << range103);
+    LOG_DEBUG(<< "range202 = " << range202);
 
     BOOST_TEST_REQUIRE(range103 != range202);
     BOOST_TEST_REQUIRE(!(range103 == range202));
 
     TDoubleRng range114{values1, 1, 4};
     TDoubleRng range214{values2, 1, 4};
-    LOG_DEBUG(<< "range114 = " << core::CContainerPrinter::print(range114));
-    LOG_DEBUG(<< "range214 = " << core::CContainerPrinter::print(range214));
+    LOG_DEBUG(<< "range114 = " << range114);
+    LOG_DEBUG(<< "range214 = " << range214);
 
     BOOST_TEST_REQUIRE(range114 == range214);
     BOOST_TEST_REQUIRE(!(range114 < range214));

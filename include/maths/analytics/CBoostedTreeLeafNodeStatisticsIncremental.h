@@ -12,29 +12,16 @@
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsIncremental_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsIncremental_h
 
-#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
-#include <maths/common/CChecksum.h>
-#include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/CLinearAlgebraShims.h>
-#include <maths/common/CMathsFuncs.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/operators.hpp>
-
 #include <cstddef>
-#include <cstdint>
 #include <functional>
-#include <limits>
-#include <numeric>
-#include <vector>
+#include <optional>
 
 namespace CBoostedTreeLeafNodeStatisticsTest {
 struct testComputeBestSplitStatisticsThreading;

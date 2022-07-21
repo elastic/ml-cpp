@@ -11,6 +11,8 @@
 
 #include <maths/common/CClusterer.h>
 
+#include <core/CMemory.h>
+
 namespace ml {
 namespace maths {
 namespace common {

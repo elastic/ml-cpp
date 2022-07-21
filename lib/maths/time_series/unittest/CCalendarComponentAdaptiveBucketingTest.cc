@@ -401,8 +401,8 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
         TDoubleVec variances;
         bucketing.knots(86400, maths::common::CSplineTypes::E_Periodic, knots,
                         values, variances);
-        LOG_DEBUG(<< "knots  = " << core::CContainerPrinter::print(knots));
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "knots  = " << knots);
+        LOG_DEBUG(<< "values = " << values);
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanValue;
@@ -447,8 +447,8 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
         TDoubleVec variances;
         bucketing.knots(13996800, maths::common::CSplineTypes::E_Periodic,
                         knots, values, variances);
-        LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
-        LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+        LOG_DEBUG(<< "knots     = " << knots);
+        LOG_DEBUG(<< "variances = " << variances);
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanVariance;

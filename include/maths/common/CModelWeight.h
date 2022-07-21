@@ -38,7 +38,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CModelWeight {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     explicit CModelWeight(double weight);

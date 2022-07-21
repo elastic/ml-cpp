@@ -13,7 +13,6 @@
 #define INCLUDED_ml_core_CConcurrentWrapper_h
 
 #include <core/CConcurrentQueue.h>
-#include <core/CMemory.h>
 #include <core/CNonCopyable.h>
 
 #include <functional>
@@ -40,7 +39,8 @@ public:
     //!
     //! The object has to wrapped once and only once, pass the reference around in your code.
     //! This starts a background thread.
-    CConcurrentWrapper(T& resource) : m_Resource(resource), m_Done(false) {
+    explicit CConcurrentWrapper(T& resource)
+        : m_Resource(resource), m_Done(false) {
         m_Worker = std::thread([this] {
             while (!m_Done) {
                 m_Queue.pop()();
@@ -87,4 +87,4 @@ private:
 }
 }
 
-#endif /* INCLUDED_ml_core_CConcurrentWrapper_h */
+#endif // INCLUDED_ml_core_CConcurrentWrapper_h

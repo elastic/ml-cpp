@@ -11,7 +11,6 @@
 
 #include <model/CAnomalyDetector.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CProgramCounters.h>
@@ -19,7 +18,6 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CSampling.h>
 
 #include <model/CAnnotation.h>

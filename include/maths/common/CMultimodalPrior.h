@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultimodalPrior_h
 #define INCLUDED_ml_maths_common_CMultimodalPrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CClusterer.h>

@@ -67,18 +67,6 @@ class ContainerRestore {};
 class MemberRestore {};
 class MemberFromDelimited {};
 
-//! Auxiliary type used by has_const_iterator to test for a nested typedef.
-template<typename T, typename R = void>
-struct enable_if {
-    using type = R;
-};
-
-//! Auxiliary type used by has_persist_function to test for a nested member function.
-template<typename T, T, typename R = void>
-struct enable_if_is {
-    using type = R;
-};
-
 //! \name Class used to select the appropriate persist implementation for containers.
 //@{
 template<typename T, typename ITR = void>
@@ -86,25 +74,29 @@ struct persist_container_selector {
     using value = BasicPersist;
 };
 template<typename T>
-struct persist_container_selector<T, typename enable_if<typename T::const_iterator>::type> {
+struct persist_container_selector<T, std::void_t<typename T::const_iterator>> {
     using value = ContainerPersist;
 };
 //@}
 
 //! \name Class used to select the appropriate persist implementation.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct persist_selector {
     using value = typename persist_container_selector<T>::value;
 };
 template<typename T>
-struct persist_selector<T, typename enable_if_is<void (T::*)(CStatePersistInserter&) const, &T::acceptPersistInserter>::type> {
+struct persist_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::acceptPersistInserter), void (T::*)(CStatePersistInserter&) const>>> {
     using value = MemberPersist;
 };
 template<typename T>
-struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T::toDelimited>::type> {
+struct persist_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::toDelimited), std::string (T::*)() const>>> {
     using value = MemberToDelimited;
 };
+// clang-format on
 //@}
 
 //! \brief Specialisations of this class implement persist methods based on object features.
@@ -125,25 +117,29 @@ struct restore_container_selector {
     using value = BasicRestore;
 };
 template<typename T>
-struct restore_container_selector<T, typename enable_if<typename T::iterator>::type> {
+struct restore_container_selector<T, std::void_t<typename T::iterator>> {
     using value = ContainerRestore;
 };
 //@}
 
 //! \name Class used to select appropriate restore implementation.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct restore_selector {
     using value = typename restore_container_selector<T>::value;
 };
 template<typename T>
-struct restore_selector<T, typename enable_if_is<bool (T::*)(CStateRestoreTraverser&), &T::acceptRestoreTraverser>::type> {
+struct restore_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::acceptRestoreTraverser), bool (T::*)(CStateRestoreTraverser&)>>> {
     using value = MemberRestore;
 };
 template<typename T>
-struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&), &T::fromDelimited>::type> {
+struct restore_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::fromDelimited), bool (T::*)(const std::string&)>>> {
     using value = MemberFromDelimited;
 };
+// clang-format on
 //@}
 
 //! \brief Specialisations of this class implement restore methods based on object features.
@@ -161,14 +157,17 @@ class CanReserve {};
 
 //! \name Class used to check for the reserve function.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct reserve_selector {
     using value = ENABLE;
 };
 template<typename T>
-struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::reserve>::type> {
+struct reserve_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::reserve), void (T::*)(std::size_t)>>> {
     using value = CanReserve;
 };
+// clang-format on
 //@}
 
 //! \brief Implementation of the pre-allocation class for objects which don't
@@ -357,8 +356,7 @@ public:
 
         template<typename... T>
         bool operator()(const std::string& token, std::tuple<T...>& value) const {
-            if (std::count(token.begin(), token.end(), m_PairDelimiter) !=
-                std::tuple_size_v<std::tuple<T...>>) {
+            if (std::count(token.begin(), token.end(), m_PairDelimiter) != sizeof...(T)) {
                 return false;
             }
 
@@ -981,7 +979,7 @@ public:
                            << traverser_.value();
                     return false;
                 }
-                if (pos + 1 < std::tuple_size_v<std::tuple<T...>>) {
+                if (pos + 1 < sizeof...(T)) {
                     if (traverser_.next() == false) {
                         errors << "Restore error at " << traverser_.name()
                                << ": " << traverser_.value();

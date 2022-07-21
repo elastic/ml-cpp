@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
 #define INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
 
+#include <core/CNonCopyable.h>
 #include <core/CStoredStringPtr.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -44,7 +45,7 @@ public:
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
 public:
-    CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability);
+    explicit CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability);
 
     CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability,
                                  std::size_t numberAttributeProbabilities,

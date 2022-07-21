@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cmath>
 #include <exception>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -89,7 +90,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&> f(logf, m_LogFx);
 
     try {
         double xr = m_A;
@@ -132,7 +133,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&> f(logf, m_LogFx);
 
     try {
         double xl = m_B;
@@ -176,8 +177,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     for (std::size_t i = 0; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
                 kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
-            LOG_ERROR(<< "Couldn't integrate kernel over "
-                      << core::CContainerPrinter::print(intervals[i]));
+            LOG_ERROR(<< "Couldn't integrate kernel over " << intervals[i]);
         }
     }
 
@@ -211,7 +211,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
                                         quantile(modes[i], 1.0 - EPS)));
     }
     std::sort(range.begin(), range.end(), COrderings::SFirstLess());
-    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << range);
     std::size_t left = 0;
     for (std::size_t i = 1; i < range.size(); ++i) {
         if (range[left].second < range[i].first) {
@@ -222,15 +222,13 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
         }
     }
     range.erase(range.begin() + left + 1, range.end());
-    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << range);
 
     double result = 0.0;
 
     CDifferentialEntropyKernel<T> kernel(mixture);
-    for (std::size_t i = 0; i < range.size(); ++i) {
-        double a = range[i].first;
-        double d = (range[i].second - range[i].first) / static_cast<double>(INTERVALS);
-
+    for (auto[a, b] : range) {
+        double d = (b - a) / static_cast<double>(INTERVALS);
         for (std::size_t j = 0; j < INTERVALS; ++j, a += d) {
             double integral;
             if (CIntegration::gaussLegendre<CIntegration::OrderFive>(kernel, a, a + d, integral)) {
@@ -241,6 +239,33 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
 
     LOG_TRACE(<< "result = " << result);
     return result;
+}
+
+template<typename COLLECTION>
+void CTools::inplaceSoftmax(COLLECTION& z) {
+    double Z{0.0};
+    double zmax{*std::max_element(z.begin(), z.end())};
+    for (auto& zi : z) {
+        zi = stableExp(zi - zmax);
+        Z += zi;
+    }
+    for (auto& zi : z) {
+        zi /= Z;
+    }
+}
+
+template<typename COLLECTION>
+void CTools::inplaceLogSoftmax(COLLECTION& z) {
+    double zmax{*std::max_element(z.begin(), z.end())};
+    for (auto& zi : z) {
+        zi -= zmax;
+    }
+    double logZ{std::log(std::accumulate(z.begin(), z.end(), 0.0, [](double sum, const auto& zi) {
+        return sum + std::exp(zi);
+    }))};
+    for (auto& zi : z) {
+        zi -= logZ;
+    }
 }
 
 template<typename T>

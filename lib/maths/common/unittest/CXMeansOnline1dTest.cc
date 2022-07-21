@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -122,7 +121,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     TDoubleVec samples;
     cluster.sample(10, 0.0, 5.0, samples);
-    LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_DEBUG(<< "samples = " << samples);
 
     maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator sampleMoments;
     for (std::size_t i = 0; i < samples.size(); ++i) {
@@ -256,7 +255,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             const TClusterVec& clusters = clusterer.clusters();
 
             debug(clusters);
-            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+            LOG_DEBUG(<< "expected = " << expectedClusters);
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
             BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
@@ -450,7 +449,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
@@ -540,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
@@ -620,7 +619,7 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
 
         if (clusters.size() != 2)

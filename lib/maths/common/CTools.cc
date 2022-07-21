@@ -11,7 +11,6 @@
 
 #include <maths/common/CTools.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/Constants.h>
@@ -1215,8 +1214,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
         std::swap(fBracket.first, fBracket.second);
     }
 
-    LOG_TRACE(<< "Initial bracket = " << core::CContainerPrinter::print(bracket)
-              << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+    LOG_TRACE(<< "Initial bracket = " << bracket << ", f(bracket) = " << fBracket);
 
     try {
         double eps = 0.05 / fx;
@@ -1227,9 +1225,9 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
         CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second,
                         makePdf(beta_, fx), maxIterations, equal, candidate);
 
-        LOG_TRACE(<< "bracket = " << core::CContainerPrinter::print(bracket)
-                  << ", iterations = " << maxIterations << ", f(candidate) = "
-                  << safePdf(beta_, candidate) - fx << ", eps = " << eps);
+        LOG_TRACE(<< "bracket = " << bracket << ", iterations = " << maxIterations
+                  << ", f(candidate) = " << safePdf(beta_, candidate) - fx
+                  << ", eps = " << eps);
 
         if (std::fabs(safePdf(beta_, candidate) - fx) < std::fabs(fy - fx)) {
             y[i % 2] = candidate;
@@ -1241,8 +1239,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
             y[i % 2] = bracket.second;
         } else {
             LOG_ERROR(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
-                      << ", bracket " << core::CContainerPrinter::print(bracket)
-                      << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+                      << ", bracket " << bracket << ", f(bracket) = " << fBracket);
             return 1.0;
         }
     }
@@ -1354,7 +1351,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec
     for (std::size_t i = 1; i < m_Endpoints.size(); ++i) {
         intervals.emplace_back(m_Endpoints[i - 1], m_Endpoints[i]);
     }
-    LOG_TRACE(<< "intervals = " << core::CContainerPrinter::print(intervals));
+    LOG_TRACE(<< "intervals = " << intervals);
 }
 
 const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI =

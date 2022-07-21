@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateMultimodalPrior_h
 #define INCLUDED_ml_maths_common_CMultivariateMultimodalPrior_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -741,8 +740,8 @@ public:
         maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
         if ((status & maths_t::E_FpFailed) != 0) {
             LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "samples = " << samples);
+            LOG_ERROR(<< "weights = " << weights);
         }
         return status;
     }
@@ -920,7 +919,7 @@ private:
                         leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
                 }
-                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << samples);
 
                 double wl = pLeft * numberSamples;
                 double ws = std::min(wl, static_cast<double>(N + 2));
@@ -950,7 +949,7 @@ private:
                         rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex);
                 }
-                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << samples);
 
                 double wr = pRight * numberSamples;
                 double ws = std::min(wr, static_cast<double>(N + 2));

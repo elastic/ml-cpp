@@ -12,10 +12,13 @@
 #include <model/CCountingModel.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>

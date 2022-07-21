@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CMetricPopulationModel_h
 #define INCLUDED_ml_model_CMetricPopulationModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <model/CMemoryUsageEstimator.h>
 #include <model/CModelTools.h>

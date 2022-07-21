@@ -137,8 +137,8 @@ void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults& result
 
 void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchicalResults& results,
                                                        const TNode& node) {
-    if (this->isSimpleCount(node) || !this->isLeaf(node) || !this->isPopulation(node) ||
-        !this->shouldWriteResult(m_Limits, results, node, false)) {
+    if (isSimpleCount(node) || !isLeaf(node) || !isPopulation(node) ||
+        !shouldWriteResult(m_Limits, results, node, false)) {
         return;
     }
 
@@ -154,7 +154,6 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
             : model_t::outputFunctionName(
                   node.s_AnnotatedProbability.s_AttributeProbabilities[0].s_Feature);
 
-    TOptionalDouble null;
     for (std::size_t i = 0;
          i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
         const model::SAttributeProbability& attributeProbability =
@@ -267,20 +266,19 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
 
 void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResults& results,
                                                   const TNode& node) {
-    if (this->isSimpleCount(node) ||
-        !this->shouldWriteResult(m_Limits, results, node, true)) {
+    if (isSimpleCount(node) || !shouldWriteResult(m_Limits, results, node, true)) {
         return;
     }
 
     LOG_TRACE(<< "bucket start time " << m_BucketTime);
-    if (!m_PivotWriterFunc(m_BucketTime, node, this->isRoot(node))) {
+    if (!m_PivotWriterFunc(m_BucketTime, node, isRoot(node))) {
         LOG_ERROR(<< "Failed to write influencer result for " << node.s_Spec.print());
         return;
     }
 }
 
 void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
-    if (!this->isSimpleCount(node)) {
+    if (!isSimpleCount(node)) {
         return;
     }
 

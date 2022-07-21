@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 
-#include <core/CSmallVector.h>
 #include <core/CVectorRange.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>

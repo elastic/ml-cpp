@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 
@@ -590,10 +589,10 @@ BOOST_AUTO_TEST_CASE(testOneBitIterators) {
         }
 
         if (actualIndices != expectedIndices) {
-            LOG_ERROR(<< "expected = " << core::CContainerPrinter::print(expectedIndices));
-            LOG_ERROR(<< "actual   = " << core::CContainerPrinter::print(actualIndices));
+            LOG_ERROR(<< "expected = " << expectedIndices);
+            LOG_ERROR(<< "actual   = " << actualIndices);
         } else if (t % 200 == 0) {
-            LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(expectedIndices));
+            LOG_DEBUG(<< "indices = " << expectedIndices);
         }
         BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }

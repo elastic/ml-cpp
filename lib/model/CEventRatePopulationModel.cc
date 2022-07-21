@@ -12,8 +12,8 @@
 #include <model/CEventRatePopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
 
@@ -336,8 +336,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -385,8 +384,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
 
             if (feature == model_t::E_PopulationUniquePersonCountByAttribute) {
                 TDoubleVec categories;
@@ -855,7 +853,7 @@ std::uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }

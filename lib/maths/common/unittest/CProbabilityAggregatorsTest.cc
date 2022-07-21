@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CIntegration.h>
@@ -562,8 +561,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
                 for (std::size_t j = 0; j < index.size(); ++j) {
                     extremeSampleProbabilities.push_back(probabilities[index[j]]);
                 }
-                LOG_DEBUG(<< "extreme samples probabilities = "
-                          << core::CContainerPrinter::print(extremeSampleProbabilities));
+                LOG_DEBUG(<< "extreme samples probabilities = " << extremeSampleProbabilities);
 
                 CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(i);
 

@@ -11,7 +11,6 @@
 
 #include <maths/analytics/CDataFrameUtils.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
@@ -145,13 +144,11 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
 
     TDoubleVec categoryFrequencies{CDataFrameUtils::categoryFrequencies(
         numberThreads, frame, rowMask, {targetColumn})[targetColumn]};
-    LOG_TRACE(<< "category frequencies = "
-              << core::CContainerPrinter::print(categoryFrequencies));
+    LOG_TRACE(<< "category frequencies = " << categoryFrequencies);
 
     TSizeVec categoryCounts;
     common::CSampling::weightedSample(desiredCount, categoryFrequencies, categoryCounts);
-    LOG_TRACE(<< "desired category counts per test fold = "
-              << core::CContainerPrinter::print(categoryCounts));
+    LOG_TRACE(<< "desired category counts per test fold = " << categoryCounts);
 
     auto sampler = std::make_unique<CStratifiedSampler>(categoryCounts.size());
     for (auto categoryCount : categoryCounts) {
@@ -190,7 +187,7 @@ regressionStratifiedCrossValidationRowSampler(std::size_t numberThreads,
     }
     buckets.erase(std::unique(buckets.begin(), buckets.end()), buckets.end());
     buckets.push_back(std::numeric_limits<double>::max());
-    LOG_TRACE(<< "buckets = " << core::CContainerPrinter::print(buckets));
+    LOG_TRACE(<< "buckets = " << buckets);
 
     auto bucketSelector = [buckets, targetColumn](const TRowRef& row) mutable {
         return static_cast<std::size_t>(
@@ -225,8 +222,7 @@ regressionStratifiedCrossValidationRowSampler(std::size_t numberThreads,
 
     TSizeVec bucketCounts;
     common::CSampling::weightedSample(desiredCount, bucketFrequencies, bucketCounts);
-    LOG_TRACE(<< "desired bucket counts per fold = "
-              << core::CContainerPrinter::print(bucketCounts));
+    LOG_TRACE(<< "desired bucket counts per fold = " << bucketCounts);
 
     auto sampler = std::make_unique<CStratifiedSampler>(buckets.size());
     for (std::size_t i = 0; i < buckets.size(); ++i) {
@@ -395,8 +391,8 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
         scale[i] = variance == 0.0 ? 1.0 : 1.0 / std::sqrt(variance);
     }
 
-    LOG_TRACE(<< "means = " << core::CContainerPrinter::print(mean));
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scale));
+    LOG_TRACE(<< "means = " << mean);
+    LOG_TRACE(<< "scales = " << scale);
 
     auto standardiseColumns = [&mean, &scale](const TRowItr& beginRows,
                                               const TRowItr& endRows) {
@@ -886,7 +882,7 @@ CDataFrameUtils::categoricalMicWithColumn(const CColumnValue& target,
                                        : categoricalMicWithColumnDataFrameOnDisk;
 
     TDoubleVecVec frequencies(categoryFrequencies(numberThreads, frame, rowMask, columnMask));
-    LOG_TRACE(<< "frequencies = " << core::CContainerPrinter::print(frequencies));
+    LOG_TRACE(<< "frequencies = " << frequencies);
 
     TSizeDoublePrVecVecVec mics(
         method(target, frame, rowMask, columnMask, encoderFactories, frequencies,
@@ -1176,7 +1172,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
                 static_cast<double>(missingCount.s_FunctionState[i]) / numberMaskedRows;
         }
     }
-    LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));
+    LOG_TRACE(<< "Fraction missing = " << fractionMissing);
 
     // Compute MICe
 
@@ -1212,15 +1208,12 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                             common::CTools::inplaceSoftmax(probabilities);
                             quantiles[actualClass].add(probabilities(1));
                         } else {
-                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
-                                     << core::CContainerPrinter::print(probabilities));
+                            LOG_WARN(<< "Ignoring unexpected probabilities " << probabilities);
                         }
                     } else {
                         LOG_WARN(<< "Ignoring class " << actualClass << " which is out-of-range. "
                                  << "Should be less than " << quantiles.size() << ". Classes "
-                                 << core::CContainerPrinter::print(
-                                        frame.categoricalColumnValues()[targetColumn])
-                                 << ".");
+                                 << frame.categoricalColumnValues()[targetColumn] << ".");
                     }
                 }
             }
@@ -1349,7 +1342,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     std::sort(recallOrder.begin(), recallOrder.end(), [&](std::size_t lhs, std::size_t rhs) {
         return classRecalls(lhs) > classRecalls(rhs);
     });
-    LOG_TRACE(<< "decreasing recall order = " << core::CContainerPrinter::print(recallOrder));
+    LOG_TRACE(<< "decreasing recall order = " << recallOrder);
 
     // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
     // where c_j(w) and n_j are correct predictions for weight w and count of class_j
@@ -1380,8 +1373,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                             common::CTools::inplaceSoftmax(scores);
                             state(j) += (1.0 - scores(j)) / classCounts(j);
                         } else {
-                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
-                                     << core::CContainerPrinter::print(probabilities));
+                            LOG_WARN(<< "Ignoring unexpected probabilities " << probabilities);
                         }
                     }
                 }
@@ -1422,8 +1414,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                                     .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
                                     .cwiseQuotient(classCounts);
                         } else {
-                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
-                                     << core::CContainerPrinter::print(probabilities));
+                            LOG_WARN(<< "Ignoring unexpected probabilities " << probabilities);
                         }
                     }
                 }

@@ -137,8 +137,8 @@ BOOST_AUTO_TEST_CASE(testOptimizeXAxis) {
 
     TDoubleVec actual(mic.optimizeXAxis(q, q.size(), 5));
 
-    LOG_DEBUG(<< "MI expected = " << core::CContainerPrinter::print(expected));
-    LOG_DEBUG(<< "MI actual   = " << core::CContainerPrinter::print(actual));
+    LOG_DEBUG(<< "MI expected = " << expected);
+    LOG_DEBUG(<< "MI actual   = " << actual);
     for (std::size_t i = 0; i < expected.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], actual[i], 1e-4);
     }
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE(testVsMutualInformation) {
         for (std::size_t i = 0; i < p.size(); ++i) {
             p[i] /= Z;
         }
-        LOG_TRACE(<< "p = " << core::CContainerPrinter::print(p));
+        LOG_TRACE(<< "p = " << p);
 
         double expected{0.0};
         TDoubleVec px(nx, 0.0);
@@ -377,8 +377,8 @@ BOOST_AUTO_TEST_CASE(testVsMutualInformation) {
                 py[j] += p[i * ny + j];
             }
         }
-        LOG_TRACE(<< "p(x) = " << core::CContainerPrinter::print(px));
-        LOG_TRACE(<< "p(y) = " << core::CContainerPrinter::print(py));
+        LOG_TRACE(<< "p(x) = " << px);
+        LOG_TRACE(<< "p(y) = " << py);
 
         for (std::size_t i = 0; i < nx; ++i) {
             for (std::size_t j = 0; j < ny; ++j) {

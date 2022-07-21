@@ -18,7 +18,6 @@
 
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/ProbabilityAggregators.h>

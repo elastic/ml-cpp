@@ -12,11 +12,7 @@
 
 namespace ml {
 namespace core {
-
-const std::string CMemory::EMPTY_STRING;
 CMemory::CAnyVisitor CMemory::ms_AnyVisitor = CMemory::CAnyVisitor();
-
-const std::string CMemoryDebug::EMPTY_STRING;
 CMemoryDebug::CAnyVisitor CMemoryDebug::ms_AnyVisitor = CMemoryDebug::CAnyVisitor();
 }
 }

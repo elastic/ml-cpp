@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CLogNormalMeanPrecConjugate_h
 #define INCLUDED_ml_maths_common_CLogNormalMeanPrecConjugate_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CPrior.h>
@@ -55,7 +55,7 @@ struct SDistributionRestoreParams;
 class MATHS_COMMON_EXPORT CLogNormalMeanPrecConjugate : public CPrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TEqualWithTolerance = CEqualWithTolerance<double>;
 

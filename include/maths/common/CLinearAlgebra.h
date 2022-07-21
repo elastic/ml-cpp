@@ -14,15 +14,14 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CMemoryFwd.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/std_array.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
@@ -263,7 +262,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -955,7 +954,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 

@@ -13,7 +13,7 @@
 
 #include <core/CConcurrentQueue.h>
 #include <core/CConcurrentWrapper.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CRapidJsonLineWriter.h>
 #include <core/ImportExport.h>

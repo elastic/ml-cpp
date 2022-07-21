@@ -385,7 +385,7 @@ private:
 class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
     using TParams = CProbabilityAndInfluenceCalculator::SParams;
     using TCorrelateParams = CProbabilityAndInfluenceCalculator::SCorrelateParams;
 

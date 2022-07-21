@@ -11,7 +11,6 @@
 
 #include <maths/common/CQuantileSketch.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -134,7 +133,7 @@ const CQuantileSketch& CQuantileSketch::operator+=(const CQuantileSketch& rhs) {
     std::sort(m_Knots.begin(), m_Knots.end());
     m_Unsorted = 0;
     m_Count += rhs.m_Count;
-    LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(m_Knots));
+    LOG_TRACE(<< "knots = " << m_Knots);
 
     this->reduce(m_MaxSize);
 
@@ -291,7 +290,7 @@ bool CQuantileSketch::mad(double& result) const {
         knot.first = std::fabs(knot.first - median);
     });
     std::sort(knots.begin(), knots.end(), COrderings::SFirstLess());
-    LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(knots));
+    LOG_TRACE(<< "knots = " << knots);
 
     quantile(E_Linear, knots, m_Count, 50.0, result);
 
@@ -448,7 +447,7 @@ void CQuantileSketch::reduce(std::size_t target) {
             mergeCosts.emplace_back(cost(m_Knots[i + 1], m_Knots[i + 2]), u01(rng));
             mergeCandidates.push_back(i);
         }
-        LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(mergeCosts));
+        LOG_TRACE(<< "merge costs = " << mergeCosts);
         this->reduceWithSuppliedCosts(target, mergeCosts, mergeCandidates, stale);
     }
 }
@@ -469,13 +468,13 @@ void CQuantileSketch::reduceWithSuppliedCosts(std::size_t target,
     std::ptrdiff_t numberMergeCandidates{static_cast<std::ptrdiff_t>(m_Knots.size()) - 3};
 
     while (numberToMerge > 0) {
-        LOG_TRACE(<< "merge candidates = " << core::CContainerPrinter::print(mergeCandidates));
+        LOG_TRACE(<< "merge candidates = " << mergeCandidates);
 
         std::size_t l{mergeCandidates.front() + 1};
         std::pop_heap(mergeCandidates.begin(), mergeCandidates.end(), mergeCostGreater);
         mergeCandidates.pop_back();
 
-        LOG_TRACE(<< "stale = " << core::CContainerPrinter::print(stale));
+        LOG_TRACE(<< "stale = " << stale);
         if (stale[l] == false) {
             std::size_t r{static_cast<std::size_t>(nextDifferent(m_Knots, l))};
             LOG_TRACE(<< "Merging " << l << " and " << r
@@ -489,8 +488,8 @@ void CQuantileSketch::reduceWithSuppliedCosts(std::size_t target,
             std::ptrdiff_t ll{previousDifferent(m_Knots, l)};
             std::ptrdiff_t rr{nextDifferent(m_Knots, r) - 1};
             std::fill_n(m_Knots.begin() + ll + 1, rr - ll, mergedKnot);
-            LOG_TRACE(<< "merged = " << core::CContainerPrinter::print(mergedKnot));
-            LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(m_Knots[rr + 1]));
+            LOG_TRACE(<< "merged = " << mergedKnot);
+            LOG_TRACE(<< "right  = " << m_Knots[rr + 1]);
 
             if (ll > 0) {
                 stale[ll] = true;
@@ -511,7 +510,7 @@ void CQuantileSketch::reduceWithSuppliedCosts(std::size_t target,
     }
 
     m_Knots.erase(std::unique(m_Knots.begin(), m_Knots.end()), m_Knots.end());
-    LOG_TRACE(<< "final = " << core::CContainerPrinter::print(m_Knots));
+    LOG_TRACE(<< "final = " << m_Knots);
 }
 
 void CQuantileSketch::orderAndDeduplicate() {
@@ -519,7 +518,7 @@ void CQuantileSketch::orderAndDeduplicate() {
         std::sort(m_Knots.end() - m_Unsorted, m_Knots.end());
         std::inplace_merge(m_Knots.begin(), m_Knots.end() - m_Unsorted, m_Knots.end());
     }
-    LOG_TRACE(<< "sorted = " << core::CContainerPrinter::print(m_Knots));
+    LOG_TRACE(<< "sorted = " << m_Knots);
 
     // Combine any duplicate points.
     auto end = m_Knots.begin();
@@ -532,7 +531,7 @@ void CQuantileSketch::orderAndDeduplicate() {
         }
     }
     m_Knots.erase(end, m_Knots.end());
-    LOG_TRACE(<< "de-duplicated = " << core::CContainerPrinter::print(m_Knots));
+    LOG_TRACE(<< "de-duplicated = " << m_Knots);
 
     m_Unsorted = 0;
 }
@@ -623,7 +622,7 @@ void CFastQuantileSketch::fastReduce() {
             m_MergeCosts[i].first = cost(knots[i + 1], knots[i + 2]);
             m_MergeCandidates[i] = i;
         }
-        LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(m_MergeCosts));
+        LOG_TRACE(<< "merge costs = " << m_MergeCosts);
 
         std::size_t numberToMerge{knots.size() - this->fastReduceTargetSize()};
 
@@ -645,8 +644,8 @@ void CFastQuantileSketch::fastReduce() {
             std::ptrdiff_t ll{previousDifferent(knots, l)};
             std::ptrdiff_t rr{nextDifferent(knots, r) - 1};
             std::fill_n(knots.begin() + ll + 1, rr - ll, mergedKnot);
-            LOG_TRACE(<< "merged = " << core::CContainerPrinter::print(mergedKnot));
-            LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(knots[rr + 1]));
+            LOG_TRACE(<< "merged = " << mergedKnot);
+            LOG_TRACE(<< "right  = " << knots[rr + 1]);
         }
         knots.erase(std::unique(knots.begin(), knots.end()), knots.end());
     }

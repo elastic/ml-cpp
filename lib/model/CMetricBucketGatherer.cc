@@ -11,15 +11,14 @@
 
 #include <model/CMetricBucketGatherer.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
 #include <model/CGathererTools.h>
 #include <model/CResourceMonitor.h>
@@ -1132,8 +1131,8 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
     using TOptionalStr = std::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size()) {
-        LOG_ERROR(<< "Unexpected field values: " << core::CContainerPrinter::print(fieldValues)
-                  << ", for field names: " << core::CContainerPrinter::print(m_FieldNames));
+        LOG_ERROR(<< "Unexpected field values: " << fieldValues
+                  << ", for field names: " << m_FieldNames);
         return false;
     }
 
@@ -1329,7 +1328,7 @@ std::uint64_t CMetricBucketGatherer::checksum() const {
         hash(category, data, *this, hashes);
     });
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
     return maths::common::CChecksum::calculate(seed, hashes);
 }
 

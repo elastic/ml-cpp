@@ -11,8 +11,8 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 
@@ -99,8 +99,7 @@ CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
 }
 
 void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t memory) {
-    LOG_TRACE(<< "Add Value for " << core::CContainerPrinter::print(predictors)
-              << ": " << memory);
+    LOG_TRACE(<< "Add Value for " << predictors << ": " << memory);
 
     m_NumEstimatesSinceValue = 0;
 

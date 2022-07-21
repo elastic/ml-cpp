@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CDataGatherer_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 

@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CSeasonalComponentAdaptiveBucketing_h
 #define INCLUDED_ml_maths_time_series_CSeasonalComponentAdaptiveBucketing_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>

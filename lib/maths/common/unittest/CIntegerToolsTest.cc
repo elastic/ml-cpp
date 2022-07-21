@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CIntegerTools.h>
@@ -167,8 +166,9 @@ BOOST_AUTO_TEST_CASE(testGcd) {
         for (std::size_t j = 6; j < indices.size(); ++j) {
             n[2] *= primes[indices[j]];
         }
-        LOG_TRACE(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = "
-                  << gcd << ", gcd = " << maths::common::CIntegerTools::gcd(n));
+        LOG_TRACE(<< "n = " << n << " - expected gcd = " << gcd
+                  << ", gcd = " << maths::common::CIntegerTools::gcd(n));
+        BOOST_REQUIRE_EQUAL(gcd, maths::common::CIntegerTools::gcd(n));
     }
 
     LOG_DEBUG(<< "--- gcd(a, b, c, d) ---");
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     n[1] = 19 * 97;
     n[2] = 17 * 19 * 83;
     n[3] = 17 * 19 * 29 * 83;
-    LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
+    LOG_DEBUG(<< "n = " << n << " - expected gcd = 19"
               << ", gcd = " << maths::common::CIntegerTools::gcd(n));
     BOOST_REQUIRE_EQUAL(std::size_t(19), maths::common::CIntegerTools::gcd(n));
 }

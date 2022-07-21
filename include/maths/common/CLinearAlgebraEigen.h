@@ -12,9 +12,9 @@
 #ifndef INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 #define INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CPersistUtils.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -385,7 +385,7 @@ public:
     using TIndexType = typename TBase::Index;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Forwarding constructor.
@@ -504,7 +504,7 @@ public:
     using TIndexType = typename TBase::Index;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Forwarding constructor.

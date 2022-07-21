@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
@@ -298,7 +297,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
                 if (result.print() != core::CContainerPrinter::print(expected[index[0]])) {
                     LOG_DEBUG(<< "got " << result.print() << ", expected "
-                              << core::CContainerPrinter::print(expected[index[0]]));
+                              << expected[index[0]]);
                 }
 
                 TSizeVec found{0, 0};
@@ -869,7 +868,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                 FP += static_cast<double>(found[1]);
                 if (found[0] < 2 || found[1] > 0) {
                     LOG_DEBUG(<< "got " << result.print() << ", expected "
-                              << core::CContainerPrinter::print(expected[index[0]]));
+                              << expected[index[0]]);
                 }
             }
         }
@@ -1244,7 +1243,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
             if (result.print() != core::CContainerPrinter::print(expected[index[0]])) {
                 LOG_DEBUG(<< "got " << result.print() << ", expected "
-                          << core::CContainerPrinter::print(expected[index[0]]));
+                          << expected[index[0]]);
             }
 
             std::size_t found[]{0, 0};

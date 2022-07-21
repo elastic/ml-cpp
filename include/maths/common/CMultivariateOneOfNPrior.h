@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateOneOfNPrior_h
 #define INCLUDED_ml_maths_common_CMultivariateOneOfNPrior_h
 
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <maths/common/CModelWeight.h>
 #include <maths/common/CMultivariatePrior.h>

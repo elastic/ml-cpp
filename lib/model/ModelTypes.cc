@@ -11,6 +11,7 @@
 
 #include <model/ModelTypes.h>
 
+#include <core/CMemory.h>
 #include <core/Constants.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>

@@ -334,9 +334,7 @@ bool CCategoricalTools::probabilityOfLessLikelyMultinomialSample(const TDoubleVe
     result = 1.0;
 
     if (i.size() != ni.size()) {
-        LOG_ERROR(<< "Inconsistent categories and counts: "
-                  << core::CContainerPrinter::print(i) << " "
-                  << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: " << i << " " << ni);
         return false;
     }
 
@@ -427,9 +425,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     result.clear();
 
     if (i.size() != ni.size()) {
-        LOG_ERROR(<< "Inconsistent categories and counts: "
-                  << core::CContainerPrinter::print(i) << " "
-                  << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: " << i << " " << ni);
         return false;
     }
 
@@ -572,9 +568,7 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
     result = 0.0;
 
     if (probabilities.size() != ni.size()) {
-        LOG_ERROR(<< "Inconsistent categories and counts: "
-                  << core::CContainerPrinter::print(probabilities) << " "
-                  << core::CContainerPrinter::print(ni));
+        LOG_ERROR(<< "Inconsistent categories and counts: " << probabilities << " " << ni);
         return maths_t::E_FpFailed;
     }
 
