@@ -281,8 +281,6 @@ BOOST_AUTO_TEST_CASE(testUsage) {
     using TDoubleUPtr = std::unique_ptr<double>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TDoubleSet = std::set<double>;
-    using TDoubleVecSet = std::set<TDoubleVec>;
     using TDoubleVecMultiset = std::multiset<TDoubleVec>;
     using TDoubleDoubleVecMap = std::map<double, TDoubleVec>;
     using TDoubleDoubleVecMultimap = std::multimap<double, TDoubleVec>;
@@ -330,25 +328,6 @@ BOOST_AUTO_TEST_CASE(testUsage) {
             core::CMemory::dynamicSize(v2[1]) + core::CMemory::dynamicSize(v2[2])};
 
         LOG_DEBUG(<< "*** TDoubleVecVec ***");
-        LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
-        LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
-
-        BOOST_REQUIRE_EQUAL(expectedMemoryUsage, actualMemoryUsage);
-    }
-    {
-        TDoubleSet s1{1.0, 2.0, 3.0};
-        TDoubleVec v1{1.0};
-        TDoubleVec v2{2.0, 2.0};
-        TDoubleVec v3{3.0, 3.0, 3.0};
-        TDoubleVecSet s2{v1, v2, v3};
-
-        std::size_t actualMemoryUsage{core::CMemory::dynamicSize(s2)};
-        std::size_t expectedMemoryUsage{
-            core::CMemory::dynamicSize(s1) + core::CMemory::dynamicSize(&v1) +
-            core::CMemory::dynamicSize(&v2) + core::CMemory::dynamicSize(&v3) -
-            3 * sizeof(double)};
-
-        LOG_DEBUG(<< "*** TDoubleVecSet ***");
         LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
         LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
 
