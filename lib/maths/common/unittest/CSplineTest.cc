@@ -17,7 +17,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CSplineTest)
@@ -260,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
         double y_[] = {0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0};
         TDoubleVec y(std::begin(y_), std::end(y_));
 
-        for (std::size_t t = 0; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < std::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::common::CSpline<> spline(types[t]);
@@ -300,7 +299,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
             LOG_DEBUG(<< "n = " << n[0]);
             LOG_DEBUG(<< "x = " << x);
             LOG_DEBUG(<< "y = " << y);
-            for (std::size_t t = 0; t < boost::size(types); ++t) {
+            for (std::size_t t = 0; t < std::size(types); ++t) {
                 LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
                 maths::common::CSpline<> spline(types[t]);
@@ -335,7 +334,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
                                  static_cast<double>(i) / 10.0));
         }
 
-        for (std::size_t t = 0; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < std::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::common::CSpline<> spline(types[t]);
@@ -359,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
     maths::common::CSplineTypes::EType types[] = {
         maths::common::CSplineTypes::E_Linear, maths::common::CSplineTypes::E_Cubic};
 
-    for (std::size_t t = 0; t < boost::size(types); ++t) {
+    for (std::size_t t = 0; t < std::size(types); ++t) {
         LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
         maths::common::CSpline<> spline(types[t]);
@@ -399,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
         TDoubleVec y(std::begin(y_), std::end(y_));
         double range = x[n] - x[0];
 
-        for (std::size_t t = 0; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < std::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::common::CSpline<> spline(types[t]);
@@ -434,7 +433,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
             LOG_DEBUG(<< "n = " << n[0]);
             LOG_DEBUG(<< "x = " << x);
             LOG_DEBUG(<< "y = " << y);
-            for (std::size_t t = 0; t < boost::size(types); ++t) {
+            for (std::size_t t = 0; t < std::size(types); ++t) {
                 if (i % 10 == 0) {
                     LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
                 }
@@ -471,7 +470,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
         }
         double range = x[x.size() - 1] - x[0];
 
-        for (std::size_t t = 0; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < std::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::common::CSpline<> spline(types[t]);
@@ -546,7 +545,7 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
     BOOST_REQUIRE_EQUAL(spline.absSlope(), splineRef.absSlope());
 
     LOG_DEBUG(<< "splineRef.memoryUsage = " << splineRef.memoryUsage());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), splineRef.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, splineRef.memoryUsage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

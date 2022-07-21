@@ -31,10 +31,6 @@
 #include <maths/common/ProbabilityAggregators.h>
 
 #include <boost/math/distributions/beta.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -193,7 +189,7 @@ private:
 //! in the calculation of the less likely probabilities.
 std::size_t numberPriorSamples(double x) {
     static const double THRESHOLDS[] = {100.0, 1000.0, 10000.0,
-                                        boost::numeric::bounds<double>::highest()};
+                                        std::numeric_limits<double>::max()};
     static const std::size_t NUMBERS[] = {7u, 5u, 3u, 1u};
     return NUMBERS[std::lower_bound(std::begin(THRESHOLDS), std::end(THRESHOLDS), x) - std::begin(THRESHOLDS)];
 }
@@ -243,7 +239,7 @@ void generateBetaSamples(double a, double b, std::size_t numberSamples, TDouble7
 
 using TDoubleDoubleMap = std::map<double, double>;
 using TDoubleDoubleMapCItr = TDoubleDoubleMap::const_iterator;
-using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
+using TDoubleDoubleSizeTr = std::tuple<double, double, std::size_t>;
 using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -497,8 +493,7 @@ CMultinomialConjugate::TDoubleDoublePr CMultinomialConjugate::marginalLikelihood
     // in the support for the possible discrete values which can
     // be any real numbers.
 
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 double CMultinomialConjugate::marginalLikelihoodMean() const {
@@ -544,7 +539,7 @@ double CMultinomialConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just E_{p(i)}[Var[X | p(i)]] and
@@ -628,7 +623,7 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -781,7 +776,7 @@ bool CMultinomialConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
 
-    static const double MAX_DOUBLE = boost::numeric::bounds<double>::highest();
+    static const double MAX_DOUBLE = std::numeric_limits<double>::max();
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
@@ -813,7 +808,7 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TDouble1Vec& sample
 
     detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
 
-    static const double MAX_DOUBLE = boost::numeric::bounds<double>::highest();
+    static const double MAX_DOUBLE = std::numeric_limits<double>::max();
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
@@ -998,20 +993,20 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             double pCumulative = 0.0;
             for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
                 // Find the probability equal range [i, j).
-                double p = pCategories[i].get<1>();
+                double p = std::get<1>(pCategories[i]);
                 pCumulative += p;
-                while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
+                while (++j < pCategories.size() && std::get<1>(pCategories[j]) == p) {
                     pCumulative += p;
                 }
 
                 // Update the equal range probabilities [i, j).
                 for (/**/; i < j; ++i) {
-                    pCategories[i].get<1>() = pCumulative;
+                    std::get<1>(pCategories[i]) = pCumulative;
                 }
             }
 
             if (l < pCategories.size()) {
-                pl = pCategories[l].get<1>();
+                pl = std::get<1>(pCategories[l]);
             }
         }
 
@@ -1039,13 +1034,13 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                 // marginal for p. The constants a and b are a(i) and
                 // Sum_j( a(j) ) - a(i), respectively.
 
-                std::size_t j = pCategories[i].get<2>();
+                std::size_t j = std::get<2>(pCategories[i]);
                 if (std::binary_search(categoryIndices.begin(), categoryIndices.end(), j)) {
                     TDouble7Vec marginalSamples;
                     double a = m_Concentrations[j];
                     double b = m_TotalConcentration - m_Concentrations[j];
                     detail::generateBetaSamples(a, b, nSamples, marginalSamples);
-                    LOG_TRACE(<< "E[p] = " << pCategories[i].get<0>()
+                    LOG_TRACE(<< "E[p] = " << std::get<0>(pCategories[i])
                               << ", mean = " << CBasicStatistics::mean(marginalSamples)
                               << ", samples = " << marginalSamples);
 
@@ -1057,12 +1052,12 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                 pCategories.begin(),
                             static_cast<std::ptrdiff_t>(pCategories.size()) - 1);
 
-                        double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
-                        double fr = pCategories[r].get<0>();
-                        double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
-                        double pr_ = pCategories[r].get<1>();
+                        double fl = r > 0 ? std::get<0>(pCategories[r - 1]) : 0.0;
+                        double fr = std::get<0>(pCategories[r]);
+                        double pl_ = r > 0 ? std::get<1>(pCategories[r - 1]) : 0.0;
+                        double pr_ = std::get<1>(pCategories[r]);
                         double alpha = std::min(
-                            (fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
+                            (fr - fl == 0.0) ? 0.0 : (std::get<0>(x) - fl) / (fr - fl), 1.0);
                         double px = (1.0 - alpha) * pl_ + alpha * pr_;
                         LOG_TRACE(<< "E[p(l)] = " << fl << ", P(l) = " << pl_
                                   << ", E[p(r)] = " << fr << ", P(r) = " << pr_
@@ -1070,7 +1065,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
                         pAcc.add(px);
                     }
-                    pCategories[i].get<1>() = CBasicStatistics::mean(pAcc);
+                    std::get<1>(pCategories[i]) = CBasicStatistics::mean(pAcc);
                 }
             }
         }
@@ -1083,10 +1078,10 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         // at least one extra probability is in its correct position
         // so it will necessarily terminate in at most n iterations.
         for (std::size_t i = 0; i < pCategories.size(); /**/) {
-            if (i == pCategories[i].get<2>()) {
+            if (i == std::get<2>(pCategories[i])) {
                 ++i;
             } else {
-                std::swap(pCategories[i], pCategories[pCategories[i].get<2>()]);
+                std::swap(pCategories[i], pCategories[std::get<2>(pCategories[i])]);
             }
         }
 
@@ -1099,7 +1094,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                 m_Categories.begin();
 
             if (index < m_Categories.size() && m_Categories[index] == samples[0]) {
-                double p = pCategories[index].get<1>();
+                double p = std::get<1>(pCategories[index]);
                 lowerBound = p + (p >= pU ? pU : 0.0);
                 upperBound = p + pU;
             } else {
@@ -1136,7 +1131,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                                  m_Categories.end(), category) -
                                 m_Categories.begin();
 
-            double p = pCategories[index].get<1>();
+            double p = std::get<1>(pCategories[index]);
             if (index < m_Categories.size() && m_Categories[index] == category) {
                 jointLowerBound.add(p + (p >= pU ? pU : 0.0), count);
                 jointUpperBound.add(p + pU, count);
@@ -1289,7 +1284,7 @@ void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {
     std::size_t end = 0;
 
     std::sort(categoriesToRemove.begin(), categoriesToRemove.end());
-    categoriesToRemove.push_back(boost::numeric::bounds<double>::highest());
+    categoriesToRemove.push_back(std::numeric_limits<double>::max());
     for (std::size_t i = 0, j = 0; i < m_Categories.size(); /**/) {
         if (m_Categories[i] < categoriesToRemove[j]) {
             std::swap(m_Categories[end], m_Categories[i]);
@@ -1404,15 +1399,15 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
         double pCumulative = 0.0;
         for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
             // Find the probability equal range [i, j).
-            double p = pCategories[i].get<1>();
+            double p = std::get<1>(pCategories[i]);
             pCumulative += p;
-            while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
+            while (++j < pCategories.size() && std::get<1>(pCategories[j]) == p) {
                 pCumulative += p;
             }
 
             // Update the equal range probabilities [i, j).
             for (/**/; i < j; ++i) {
-                pCategories[i].get<1>() = pCumulative;
+                std::get<1>(pCategories[i]) = pCumulative;
             }
         }
         LOG_TRACE(<< "pCategories = " << pCategories);
@@ -1426,7 +1421,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
         std::size_t n = detail::numberPriorSamples(m_TotalConcentration);
         LOG_TRACE(<< "n = " << n);
         for (std::size_t i = 0; i < pCategories.size(); ++i) {
-            std::size_t j = pCategories[i].get<2>();
+            std::size_t j = std::get<2>(pCategories[i]);
 
             // We compute the average probability over a set of
             // independent samples from the marginal prior for this
@@ -1435,12 +1430,12 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
             // a and b are a(i) and Sum_j( a(j) ) - a(i), respectively.
             // See confidenceIntervalProbabilities for a discussion.
 
-            if (pCategories[i].get<0>() != pLast) {
+            if (std::get<0>(pCategories[i]) != pLast) {
                 TDouble7Vec samples;
                 double a = m_Concentrations[j];
                 double b = m_TotalConcentration - m_Concentrations[j];
                 detail::generateBetaSamples(a, b, n, samples);
-                LOG_TRACE(<< "E[p] = " << pCategories[i].get<0>()
+                LOG_TRACE(<< "E[p] = " << std::get<0>(pCategories[i])
                           << ", mean = " << CBasicStatistics::mean(samples)
                           << ", samples = " << samples);
 
@@ -1452,12 +1447,12 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                             pCategories.begin(),
                         static_cast<std::ptrdiff_t>(pCategories.size()) - 1);
 
-                    double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
-                    double fr = pCategories[r].get<0>();
-                    double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
-                    double pr_ = pCategories[r].get<1>();
+                    double fl = r > 0 ? std::get<0>(pCategories[r - 1]) : 0.0;
+                    double fr = std::get<0>(pCategories[r]);
+                    double pl_ = r > 0 ? std::get<1>(pCategories[r - 1]) : 0.0;
+                    double pr_ = std::get<1>(pCategories[r]);
                     double alpha = std::min(
-                        (fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
+                        (fr - fl == 0.0) ? 0.0 : (std::get<0>(x) - fl) / (fr - fl), 1.0);
                     double px = (1.0 - alpha) * pl_ + alpha * pr_;
                     LOG_TRACE(<< "E[p(l)] = " << fl << ", P(l) = " << pl_
                               << ", E[p(r)] = " << fr << ", P(r) = " << pr_
@@ -1466,7 +1461,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                     pAcc.add(px);
                 }
                 p = CBasicStatistics::mean(pAcc);
-                pLast = pCategories[i].get<0>();
+                pLast = std::get<0>(pCategories[i]);
             }
 
             LOG_TRACE(<< "p = " << p);

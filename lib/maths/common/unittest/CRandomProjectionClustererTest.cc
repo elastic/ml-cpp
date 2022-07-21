@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
         BOOST_TEST_REQUIRE(clusterer.initialise(6, t));
 
         const TVectorArrayVec& projections = clusterer.projections();
-        BOOST_REQUIRE_EQUAL(std::size_t(6), projections.size());
+        BOOST_REQUIRE_EQUAL(6, projections.size());
 
         for (std::size_t i = 0; i < projections.size(); ++i) {
             for (std::size_t j = 0; j < 5; ++j) {
@@ -252,9 +252,9 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
                                      maths::common::CKMeans<TVector5>(), 2, 5),
                                  weights_, means, covariances, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), weights_.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(4), means.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(4), covariances.size());
+    BOOST_REQUIRE_EQUAL(4, weights_.size());
+    BOOST_REQUIRE_EQUAL(4, means.size());
+    BOOST_REQUIRE_EQUAL(4, covariances.size());
     BOOST_TEST_REQUIRE(samples.size() >= std::size_t(8));
 
     TDoubleVec weights(2, 0.0);
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
     std::size_t dimension = 30;
     std::size_t n[] = {30, 50, 40};
     TDoubleVec means[3] = {};
-    for (std::size_t i = 0; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < std::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
         LOG_DEBUG(<< "mean = " << means[i]);
     }
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0))};
-    for (std::size_t i = 0; i < boost::size(covariances); ++i) {
+    for (std::size_t i = 0; i < std::size(covariances); ++i) {
         for (std::size_t j = 0; j < 30; ++j) {
             covariances[i][j][j] = 1.0 + static_cast<double>(i);
         }
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
 
     CRandomProjectionClustererForTest<5> clusterer;
     clusterer.initialise(4, dimension);
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(means[i], covariances[i], n[i], samples);
         for (std::size_t j = 0; j < samples.size(); ++j) {
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
         std::size_t dimension = 30;
         std::size_t n[] = {30, 50, 40};
         TDoubleVec means[3] = {};
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
             rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
             LOG_TRACE(<< "mean = " << means[i]);
         }
@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
             TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
             TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
             TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0))};
-        for (std::size_t i = 0; i < boost::size(covariances); ++i) {
+        for (std::size_t i = 0; i < std::size(covariances); ++i) {
             for (std::size_t j = 0; j < 30; ++j) {
                 covariances[i][j][j] = 1.0 + static_cast<double>(i);
             }
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
 
         CRandomProjectionClustererForTest<5> clusterer(1.5);
         clusterer.initialise(4, dimension);
-        for (std::size_t i = 0; i < boost::size(n); ++i) {
+        for (std::size_t i = 0; i < std::size(n); ++i) {
             TDoubleVecVec samples;
             rng.generateMultivariateNormalSamples(means[i], covariances[i], n[i], samples);
             for (std::size_t j = 0; j < samples.size(); ++j) {
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     std::size_t dimension = 30;
     std::size_t n[] = {30, 50, 40};
     TDoubleVec means[3] = {};
-    for (std::size_t i = 0; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < std::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
         LOG_DEBUG(<< "mean = " << means[i]);
     }
@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0)),
         TDoubleVecVec(dimension, TDoubleVec(dimension, 0.0))};
-    for (std::size_t i = 0; i < boost::size(covariances); ++i) {
+    for (std::size_t i = 0; i < std::size(covariances); ++i) {
         for (std::size_t j = 0; j < 30; ++j) {
             covariances[i][j][j] = 1.0 + static_cast<double>(i);
         }
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
 
     CRandomProjectionClustererForTest<5> clusterer(1.5);
     clusterer.initialise(4, dimension);
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(means[i], covariances[i], n[i], samples);
         for (std::size_t j = 0; j < samples.size(); ++j) {
@@ -517,9 +517,9 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     clusterer.similarities(weights, clusterMeans, clusterCovariances,
                            neighbourhoods, similarities);
 
-    TSizeVecVec expectedClustering(boost::size(n));
+    TSizeVecVec expectedClustering(std::size(n));
     LOG_DEBUG(<< "expected clustering =");
-    for (std::size_t i = 0, j = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0, j = 0; i < std::size(n); ++i) {
         for (std::size_t ni = j + n[i]; j < ni; ++j) {
             expectedClustering[i].push_back(j);
         }

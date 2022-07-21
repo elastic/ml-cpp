@@ -42,8 +42,6 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <algorithm>
@@ -51,6 +49,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -83,7 +82,7 @@ public:
         // There are 100 buckets.
 
         using TStrVec = std::vector<std::string>;
-        using TSizeSizeSizeTr = boost::tuple<std::size_t, std::size_t, size_t>;
+        using TSizeSizeSizeTr = std::tuple<std::size_t, std::size_t, size_t>;
 
         const std::size_t numberBuckets = 100;
         const std::size_t numberAttributes = 5;

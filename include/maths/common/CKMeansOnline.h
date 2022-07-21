@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CKMeansOnline_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

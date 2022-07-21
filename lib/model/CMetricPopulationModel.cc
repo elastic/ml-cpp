@@ -472,7 +472,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
-                core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
+                core_t::TTime latest = std::numeric_limits<core_t::TTime>::lowest();
                 for (const auto& value : attribute.second.s_Values) {
                     latest = std::max(latest, value.first);
                 }

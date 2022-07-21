@@ -21,7 +21,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/normal.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <set>
@@ -132,13 +131,13 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             }
         }
 
-        for (size_t i = 0; i < boost::size(totalErrors); ++i) {
+        for (size_t i = 0; i < std::size(totalErrors); ++i) {
             totalErrors[i] /= static_cast<double>(samples.size());
         }
 
         LOG_DEBUG(<< "total errors = " << totalErrors);
 
-        for (size_t i = 0; i < boost::size(totalErrors); ++i) {
+        for (size_t i = 0; i < std::size(totalErrors); ++i) {
             BOOST_TEST_REQUIRE(totalErrors[i] < expectedMaxErrors[i]);
         }
     }
@@ -479,7 +478,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
         CRandomNumbers generator;
         generator.generateNormalSamples(50.0, 5.0, 500u, samples);
 
-        for (std::size_t i = 0; i < boost::size(scales); ++i) {
+        for (std::size_t i = 0; i < std::size(scales); ++i) {
             LOG_DEBUG(<< "*** Testing scale = " << scales[i] << " ***");
 
             CQDigest qDigest(20u);

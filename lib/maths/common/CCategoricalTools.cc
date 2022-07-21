@@ -19,7 +19,6 @@
 #include <maths/common/MathsTypes.h>
 
 #include <boost/math/distributions/binomial.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <cmath>
 #include <iterator>
@@ -47,14 +46,14 @@ logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, dou
     }
     if (p == 0.0) {
         if (m > 0) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
     }
     if (p == 1.0) {
         if (m < n) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
@@ -89,7 +88,7 @@ maths_t::EFloatingPointErrorStatus
 logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -104,7 +103,7 @@ logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double
     }
     if (p == 0.0) {
         if (m > 0) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
@@ -149,7 +148,7 @@ maths_t::EFloatingPointErrorStatus
 logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -164,7 +163,7 @@ logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double
     }
     if (p == 0.0) {
         if (m > 0) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
@@ -243,7 +242,7 @@ maths_t::EFloatingPointErrorStatus
 logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR(<< "Invalid sample: " << m << " > " << n);
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -258,7 +257,7 @@ logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) 
     }
     if (p == 0.0) {
         if (m > 0) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
@@ -285,7 +284,7 @@ logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) 
             logRightTailProbabilityLowerBound(n, p, m, lb);
         if (status & maths_t::E_FpAllErrors) {
             result = status == maths_t::E_FpOverflowed
-                         ? boost::numeric::bounds<double>::lowest()
+                         ? std::numeric_limits<double>::lowest()
                          : 0.0;
             return status;
         }
@@ -293,7 +292,7 @@ logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) 
         status = logRightTailProbabilityUpperBound(n, p, m, ub);
         if (status & maths_t::E_FpAllErrors) {
             result = status == maths_t::E_FpOverflowed
-                         ? boost::numeric::bounds<double>::lowest()
+                         ? std::numeric_limits<double>::lowest()
                          : 0.0;
             return status;
         }
@@ -516,7 +515,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
 maths_t::EFloatingPointErrorStatus
 CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -528,14 +527,14 @@ CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m
     }
     if (p == 0.0) {
         if (m > 0) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
         return maths_t::E_FpNoErrors;
     }
     if (p == 1.0) {
         if (m < n) {
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpFailed;
         }
         return maths_t::E_FpNoErrors;
@@ -593,7 +592,7 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
                 return maths_t::E_FpFailed;
             }
             if (pi_ == 0.0) {
-                result = boost::numeric::bounds<double>::lowest();
+                result = std::numeric_limits<double>::lowest();
                 return maths_t::E_FpOverflowed;
             }
 

@@ -24,7 +24,6 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CXMeans.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -394,7 +393,7 @@ protected:
                 fij.clear();
                 pij.reserve(nij);
                 fij.reserve(nij);
-                double pmax = boost::numeric::bounds<double>::lowest();
+                double pmax = std::numeric_limits<double>::lowest();
                 for (std::size_t k = 0; k < nij; ++k) {
                     std::size_t index = lookup[std::cref(points[k])];
                     if (I.count(index) == 0) {

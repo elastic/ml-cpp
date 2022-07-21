@@ -15,7 +15,6 @@
 #include <core/CAlignment.h>
 #include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
-#include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
@@ -35,6 +34,8 @@ namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
 class CTemporaryDirectory;
+template<typename VECTOR>
+class CVectorRange;
 
 namespace data_frame_detail {
 

@@ -22,7 +22,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -112,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < std::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -159,7 +158,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
                         75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < std::size(points); ++i) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
@@ -169,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < std::size(cdf); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -189,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < std::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -292,7 +291,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
         maths::common::CQuantileSketch sketch1(maths::common::CQuantileSketch::E_Linear, 10);
         maths::common::CQuantileSketch sketch2(maths::common::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0; i < boost::size(points); i += 2) {
+        for (std::size_t i = 0; i < std::size(points); i += 2) {
             sketch1.add(points[i]);
             sketch2.add(points[i + 1]);
         }
@@ -304,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < std::size(cdf); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch3.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);

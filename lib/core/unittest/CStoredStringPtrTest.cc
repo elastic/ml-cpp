@@ -87,15 +87,15 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     {
         ml::core::CStoredStringPtr null;
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(null));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), null.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(null));
+        BOOST_REQUIRE_EQUAL(0, null.actualMemoryUsage());
     }
     {
         std::string str1("short");
 
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr1));
+        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(ptr1));
         BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
     }
     {
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(str2);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr2));
+        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(ptr2));
         BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
     }
 }
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testHash) {
     TStoredStringPtrUSet s;
     BOOST_TEST_REQUIRE(s.insert(key).second);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), s.count(key));
+    BOOST_REQUIRE_EQUAL(1, s.count(key));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

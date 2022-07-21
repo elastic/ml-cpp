@@ -13,8 +13,11 @@
 #define INCLUDED_ml_model_CModelTools_h
 
 #include <core/CAllocationStrategy.h>
+#include <core/CHashing.h>
 #include <core/CLogger.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>

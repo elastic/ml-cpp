@@ -12,14 +12,13 @@
 #ifndef INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 #define INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CPersistUtils.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CAnnotatedVector.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraFwd.h>
@@ -108,6 +107,9 @@ void swap(Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
 namespace ml {
 namespace maths {
 namespace common {
+template<typename VECTOR, typename ANNOTATION>
+class CAnnotatedVector;
+
 //! Rename to follow our conventions and add to ml::maths.
 template<typename SCALAR, int FLAGS = 0>
 using CSparseMatrix = Eigen::SparseMatrix<SCALAR, FLAGS, std::ptrdiff_t>;

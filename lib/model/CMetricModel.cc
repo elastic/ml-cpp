@@ -532,7 +532,7 @@ void CMetricModel::currentBucketStartTime(core_t::TTime time) {
     m_CurrentBucketStats.s_StartTime = time;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CMetricModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -648,7 +648,7 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

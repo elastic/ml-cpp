@@ -29,7 +29,6 @@
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -392,7 +391,7 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr CPoissonMeanConjugate::marginalLikelihoodSupport() const {
-    return {-m_Offset, boost::numeric::bounds<double>::highest()};
+    return {-m_Offset, std::numeric_limits<double>::max()};
 }
 
 double CPoissonMeanConjugate::marginalLikelihoodMean() const {
@@ -440,7 +439,7 @@ double CPoissonMeanConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& /*
 double CPoissonMeanConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // We use the fact that E[X} = E_{R}[Var[X | R]]
@@ -506,7 +505,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -550,7 +549,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             // and pollute the floating point environment. This
             // may cause issues for some library function
             // implementations (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -931,7 +930,7 @@ double CPoissonMeanConjugate::priorMean() const {
 
 double CPoissonMeanConjugate::priorVariance() const {
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     try {
@@ -942,7 +941,7 @@ double CPoissonMeanConjugate::priorVariance() const {
                   << ", prior shape = " << m_Shape << ", prior rate = " << m_Rate);
     }
 
-    return boost::numeric::bounds<double>::highest();
+    return std::numeric_limits<double>::max();
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr

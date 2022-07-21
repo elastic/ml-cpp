@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone2{
             model.clone(2)};
-        BOOST_REQUIRE_EQUAL(std::size_t(2), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(2, clone2->identifier());
     }
     {
         maths::time_series::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
             model.clone(2)};
         std::uint64_t checksum3 = clone2->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum3);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(0, clone2->identifier());
     }
 }
 
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_EQUAL(1, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_EQUAL(1, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
@@ -554,7 +554,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_EQUAL(3, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
@@ -625,7 +625,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_EQUAL(3, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);

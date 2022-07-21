@@ -744,8 +744,8 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
     std::size_t j;
     if (!core::CStringUtils::stringToType(loadedVersion, i) ||
         !core::CStringUtils::stringToType(currentVersion, j) ||
-        i - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR) ||
-        j - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
+        i - 1 >= std::size(HIGH_SCORE_UPGRADE_FACTOR) ||
+        j - 1 >= std::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
         LOG_ERROR(<< "Don't know how to upgrade quantiles from version "
                   << loadedVersion << " to version " << currentVersion);
         return false;

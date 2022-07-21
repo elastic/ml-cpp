@@ -12,6 +12,7 @@
 #include <maths/time_series/CSignal.h>
 
 #include <core/CLogger.h>
+#include <core/CVectorRange.h>
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>

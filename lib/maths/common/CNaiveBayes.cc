@@ -18,6 +18,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CPriorStateSerialiser.h>
@@ -90,7 +91,7 @@ double CNaiveBayesFeatureDensityFromPrior::logValue(const TDouble1Vec& x) const 
     if (m_Prior->jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
         LOG_ERROR(<< "Bad density value at " << x << " for " << m_Prior->print());
-        return boost::numeric::bounds<double>::lowest();
+        return std::numeric_limits<double>::lowest();
     }
     return result;
 }
@@ -101,7 +102,7 @@ double CNaiveBayesFeatureDensityFromPrior::logMaximumValue() const {
                                             maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
         LOG_ERROR(<< "Bad density value for " << m_Prior->print());
-        return boost::numeric::bounds<double>::lowest();
+        return std::numeric_limits<double>::lowest();
     }
     return result;
 }

@@ -21,7 +21,6 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -29,6 +28,7 @@
 #include <iterator>
 #include <limits>
 #include <sstream>
+#include <tuple>
 
 namespace ml {
 namespace maths {
@@ -156,7 +156,7 @@ void CQDigest::propagateForwardsByTime(double time) {
 }
 
 bool CQDigest::scale(double factor) {
-    using TUInt32UInt32UInt64Tr = boost::tuple<std::uint32_t, std::uint32_t, std::uint64_t>;
+    using TUInt32UInt32UInt64Tr = std::tuple<std::uint32_t, std::uint32_t, std::uint64_t>;
     using TUInt32UInt32UInt64TrVec = std::vector<TUInt32UInt32UInt64Tr>;
 
     if (factor <= 0.0) {
@@ -192,11 +192,11 @@ bool CQDigest::scale(double factor) {
     for (std::size_t i = 0; i < sketch.size(); ++i) {
         const TUInt32UInt32UInt64Tr& node = sketch[i];
 
-        std::uint32_t min = node.get<0>();
-        std::uint32_t max = node.get<1>();
+        std::uint32_t min = std::get<0>(node);
+        std::uint32_t max = std::get<1>(node);
         std::uint32_t span = max - min + 1;
-        std::uint64_t count = node.get<2>() / span;
-        std::uint64_t remainder = node.get<2>() - count * span;
+        std::uint64_t count = std::get<2>(node) / span;
+        std::uint64_t remainder = std::get<2>(node) - count * span;
         LOG_TRACE(<< "min = " << min << ", max = " << max
                   << ", count = " << count << ", remainder = " << remainder);
 

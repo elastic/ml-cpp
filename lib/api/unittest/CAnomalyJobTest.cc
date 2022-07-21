@@ -31,7 +31,6 @@
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <cstdio>
 #include <fstream>
@@ -449,7 +448,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
     }
 
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(9, countBuckets("bucket", outputStrm.str() + "]"));
 
     // Now let's skip time to Thursday, June 29, 2017 12:00:00 AM
     time = 1498694400;
@@ -459,7 +458,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 
     // Check no new bucket results were written
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(9, countBuckets("bucket", outputStrm.str() + "]"));
 
     // Let's send a few buckets after skip time
     for (std::size_t i = 0; i < 3; ++i, time += BUCKET_SIZE) {
@@ -471,7 +470,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 
     // Assert only 2 new buckets were written
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(11, countBuckets("bucket", outputStrm.str() + "]"));
 }
 
 BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {

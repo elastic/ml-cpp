@@ -586,10 +586,10 @@ void CIndividualModel::correctBaselineForInterim(model_t::EFeature feature,
                                                  std::size_t pid,
                                                  model_t::CResultType type,
                                                  const TSizeDoublePr1Vec& correlated,
-                                                 const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+                                                 const TFeatureSizeSizeTrDouble1VecUMap& corrections,
                                                  TDouble1Vec& result) const {
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
-        TFeatureSizeSizeTriple key(feature, pid, pid);
+        TFeatureSizeSizeTr key(feature, pid, pid);
         switch (type.asConditionalOrUnconditional()) {
         case model_t::CResultType::E_Unconditional:
             break;

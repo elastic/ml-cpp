@@ -16,7 +16,7 @@
 #include <core/CHashing.h>
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
@@ -101,7 +101,7 @@ public:
     using TThreading = CBoostedTreeLeafNodeStatisticsThreading;
 
     //! \brief Accumulates aggregate derivatives.
-    class MATHS_ANALYTICS_EXPORT CDerivatives {
+    class CDerivatives {
     public:
         //! Bounds the minimum diagonal of the Hessian.
         static constexpr double SMALLEST_RELATIVE_CURVATURE{1e-20};
@@ -207,7 +207,7 @@ public:
     };
 
     //! \brief A collection of aggregate derivatives for candidate feature splits.
-    class MATHS_ANALYTICS_EXPORT CSplitsDerivatives {
+    class CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
         using TLoopBodyVec = std::vector<std::function<void(std::size_t)>>;
@@ -560,7 +560,7 @@ public:
     //! times they need to be allocated. This has the added advantage of keeping
     //! the cache warm since the critical path is always working on the derivatives
     //! objects stored in this class.
-    class MATHS_ANALYTICS_EXPORT CWorkspace {
+    class CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
@@ -749,8 +749,7 @@ protected:
     using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
-    struct MATHS_ANALYTICS_EXPORT SSplitStatistics
-        : private boost::less_than_comparable<SSplitStatistics> {
+    struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
         SSplitStatistics() = default;
         SSplitStatistics(double gain,
                          double curvature,

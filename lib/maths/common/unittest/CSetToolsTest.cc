@@ -16,7 +16,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -37,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(std::begin(a), std::end(a));
 
-        for (std::size_t i = 0; i < boost::size(a); ++i) {
+        for (std::size_t i = 0; i < std::size(a); ++i) {
             TDoubleVec left;
             for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
@@ -53,7 +52,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
                                 core::CContainerPrinter::print(test));
 
             TDoubleVec right;
-            for (std::size_t j = i; j < boost::size(a); ++j) {
+            for (std::size_t j = i; j < std::size(a); ++j) {
                 right.push_back(a[j]);
             }
             expected.clear();
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(std::begin(a), std::end(a));
 
-        for (std::size_t i = 0; i < boost::size(a); ++i) {
+        for (std::size_t i = 0; i < std::size(a); ++i) {
             TDoubleVec left;
             for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
@@ -127,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             TDoubleVec right;
-            for (std::size_t j = i; j < boost::size(a); ++j) {
+            for (std::size_t j = i; j < std::size(a); ++j) {
                 right.push_back(a[j]);
             }
             expected.clear();

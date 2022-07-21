@@ -38,9 +38,9 @@ public:
     enum ERuleScopeFilterType { E_Include, E_Exclude };
 
     using TPatternSetCRef = std::reference_wrapper<const core::CPatternSet>;
-    using TStrPatternSetCRefFilterTypeTriple =
+    using TStrPatternSetCRefFilterTypeTr =
         core::CTriple<std::string, TPatternSetCRef, ERuleScopeFilterType>;
-    using TStrPatternSetCRefFilterTypeTripleVec = std::vector<TStrPatternSetCRefFilterTypeTriple>;
+    using TStrPatternSetCRefFilterTypeTrVec = std::vector<TStrPatternSetCRefFilterTypeTr>;
 
 public:
     //! Default constructor.
@@ -60,7 +60,7 @@ public:
 
 private:
     //! A vector that holds the triple of the field, filter and its type.
-    TStrPatternSetCRefFilterTypeTripleVec m_Scope;
+    TStrPatternSetCRefFilterTypeTrVec m_Scope;
 };
 }
 }

@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenMultiValueAndMultiMode) {
 
     corrector.currentBucketCount(now, 50);
     TDouble10Vec correction = corrector.corrections(mode, value);
-    BOOST_REQUIRE_EQUAL(std::size_t(10), correction.size());
+    BOOST_REQUIRE_EQUAL(10, correction.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction[0], EPSILON);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[1], EPSILON);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[2], EPSILON);

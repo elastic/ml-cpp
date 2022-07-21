@@ -21,7 +21,6 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/distributions/fisher_f.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -148,10 +147,10 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
     std::size_t ny = y.size();
 
     std::sort(x.begin(), x.end());
-    x.push_back(boost::numeric::bounds<double>::highest());
+    x.push_back(std::numeric_limits<double>::max());
 
     std::sort(y.begin(), y.end());
-    y.push_back(boost::numeric::bounds<double>::highest());
+    y.push_back(std::numeric_limits<double>::max());
 
     double D = 0.0;
     for (std::size_t i = 0, j = 0; i < nx && j < ny; /**/) {

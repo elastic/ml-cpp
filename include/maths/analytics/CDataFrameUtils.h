@@ -103,7 +103,7 @@ public:
     using TDataTypeVec = std::vector<SDataType>;
 
     //! \brief Used to extract the value from a specific column of the data frame.
-    class MATHS_ANALYTICS_EXPORT CColumnValue {
+    class CColumnValue {
     public:
         explicit CColumnValue(std::size_t column) : m_Column{column} {}
         virtual ~CColumnValue() = default;
@@ -119,7 +119,7 @@ public:
     };
 
     //! \brief Used to extract the value from a metric column of the data frame.
-    class MATHS_ANALYTICS_EXPORT CMetricColumnValue final : public CColumnValue {
+    class CMetricColumnValue final : public CColumnValue {
     public:
         explicit CMetricColumnValue(std::size_t column)
             : CColumnValue{column} {}
@@ -134,7 +134,7 @@ public:
 
     //! \brief Used to extract the value from a one-hot encoded categorical column
     //! of the data frame.
-    class MATHS_ANALYTICS_EXPORT COneHotCategoricalColumnValue final : public CColumnValue {
+    class COneHotCategoricalColumnValue final : public CColumnValue {
     public:
         COneHotCategoricalColumnValue(std::size_t column, std::size_t category)
             : CColumnValue{column}, m_Category{category} {}
@@ -158,7 +158,7 @@ public:
 
     //! \brief Used to extract the value from a "is rare" encoded categorical column
     //! of the data frame.
-    class MATHS_ANALYTICS_EXPORT CFrequencyCategoricalColumnValue final : public CColumnValue {
+    class CFrequencyCategoricalColumnValue final : public CColumnValue {
     public:
         CFrequencyCategoricalColumnValue(std::size_t column, const TDoubleVec& frequencies)
             : CColumnValue{column}, m_Frequencies{&frequencies} {}
@@ -184,7 +184,7 @@ public:
 
     //! \brief Used to extract the value from a mean target encoded categorical
     //! column of the data frame.
-    class MATHS_ANALYTICS_EXPORT CTargetMeanCategoricalColumnValue final : public CColumnValue {
+    class CTargetMeanCategoricalColumnValue final : public CColumnValue {
     public:
         using TSizeUSet = boost::unordered_set<std::size_t>;
 

@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
 
         // expect there to be 2 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(2), highAnomalyTimes.size());
+        BOOST_REQUIRE_EQUAL(2, highAnomalyTimes.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(99.0, highAnomalyFactors[1], 2.0);
     }
     {
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
 
         // expect there to be 1 anomaly
-        BOOST_REQUIRE_EQUAL(std::size_t(1), highAnomalyTimes.size());
+        BOOST_REQUIRE_EQUAL(1, highAnomalyTimes.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
     }
 }

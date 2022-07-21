@@ -11,6 +11,7 @@
 #ifndef INCLUDED_ml_model_CAnomalyDetector_h
 #define INCLUDED_ml_model_CAnomalyDetector_h
 
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>

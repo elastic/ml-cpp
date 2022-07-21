@@ -25,7 +25,6 @@
 #include "TestUtils.h"
 
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -157,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testMeanEstimation) {
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
-    for (std::size_t i = 0; i < boost::size(decayRates); ++i) {
+    for (std::size_t i = 0; i < std::size(decayRates); ++i) {
         test::CRandomNumbers rng;
 
         double errors[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -175,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testMeanEstimation) {
                 filter.propagateForwardsByTime(1.0);
             }
 
-            for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
+            for (std::size_t j = 0; j < std::size(testIntervals); ++j) {
                 TDoubleDoublePr confidenceInterval =
                     filter.meanConfidenceInterval(testIntervals[j]);
 
@@ -185,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testMeanEstimation) {
             }
         }
 
-        for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
+        for (std::size_t j = 0; j < std::size(testIntervals); ++j) {
             double interval = 100.0 * errors[j] / static_cast<double>(nTests);
 
             LOG_DEBUG(<< "interval = " << interval
@@ -216,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
         const double decayRates[] = {0.0, 0.001, 0.01};
 
-        for (std::size_t i = 0; i < boost::size(decayRates); ++i) {
+        for (std::size_t i = 0; i < std::size(decayRates); ++i) {
             CPoissonMeanConjugate filter(
                 CPoissonMeanConjugate::nonInformativePrior(0.0, decayRates[i]));
 
@@ -252,16 +251,16 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
         const double shapes[] = {25.0, 80.0, 600.0, 1200.0};
         const double rates[] = {5.0, 4.0, 10.0, 3.0};
-        BOOST_TEST_REQUIRE(boost::size(shapes) == boost::size(rates));
+        BOOST_TEST_REQUIRE(std::size(shapes) == std::size(rates));
 
         // We'll sample the c.d.f. at mean -2, -1, 0, 1 and 2 s.t.d.
         const double sampleStds[] = {-2.0, -1.0, 0.0, 1.0, 2.0};
 
-        for (std::size_t i = 0; i < boost::size(shapes); ++i) {
+        for (std::size_t i = 0; i < std::size(shapes); ++i) {
             CPoissonMeanConjugate filter(
                 maths::common::CPoissonMeanConjugate(0.0, shapes[i], rates[i]));
 
-            for (std::size_t j = 0; j < boost::size(sampleStds); ++j) {
+            for (std::size_t j = 0; j < std::size(sampleStds); ++j) {
                 double mean = filter.marginalLikelihoodMean();
                 unsigned int sample =
                     static_cast<unsigned int>(mean + sampleStds[j] * std::sqrt(mean));
@@ -349,7 +348,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(rates); ++i) {
+    for (std::size_t i = 0; i < std::size(rates); ++i) {
         LOG_DEBUG(<< "*** rate = " << rates[i] << " ***");
 
         boost::math::poisson_distribution<> poisson(rates[i]);
@@ -363,7 +362,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
         maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
 
-        for (std::size_t j = 0; j < boost::size(varianceScales); ++j) {
+        for (std::size_t j = 0; j < std::size(varianceScales); ++j) {
             double vs = varianceScales[j];
             maths_t::setCountVarianceScale(vs, weight);
             double expectedMode = boost::math::mode(poisson);
@@ -380,7 +379,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(rates); ++i) {
+    for (std::size_t i = 0; i < std::size(rates); ++i) {
         LOG_DEBUG(<< "*** rate = " << rates[i] << " ***");
         CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
 
@@ -430,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
 
     const double eps = 1e-3;
 
-    for (std::size_t i = 0; i < boost::size(rates); ++i) {
+    for (std::size_t i = 0; i < std::size(rates); ++i) {
         test::CRandomNumbers rng;
 
         TUIntVec samples;
@@ -566,7 +565,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
     CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TUIntVec samples;
         rng.generatePoissonSamples(rate, n[i], samples);
 
@@ -616,7 +615,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
     TMeanAccumulator meanError;
 
-    for (size_t i = 0; i < boost::size(rates); ++i) {
+    for (size_t i = 0; i < std::size(rates); ++i) {
         LOG_DEBUG(<< "rate = " << rates[i]);
 
         TUIntVec samples;
@@ -663,7 +662,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             meanError.add(std::fabs(px - (lb + ub) / 2.0));
         }
 
-        for (std::size_t k = 0; k < boost::size(vs); ++k) {
+        for (std::size_t k = 0; k < std::size(vs); ++k) {
             double mode = filter.marginalLikelihoodMode(
                 maths_t::countVarianceScaleWeight(vs[k]));
             double ss[] = {0.9 * mode, 1.1 * mode};
@@ -757,7 +756,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     double totalFalsePositiveRate = 0.0;
     std::size_t totalPositives[] = {0u, 0u, 0u};
 
-    for (std::size_t i = 0; i < boost::size(processRates); ++i) {
+    for (std::size_t i = 0; i < std::size(processRates); ++i) {
         LOG_DEBUG(<< "processRate = " << processRates[i]);
 
         boost::math::poisson_distribution<> poisson(processRates[i]);
@@ -765,7 +764,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
         TUIntVec samples;
         rng.generatePoissonSamples(processRates[i], 500, samples);
 
-        for (std::size_t j = 0; j < boost::size(decayRates); ++j) {
+        for (std::size_t j = 0; j < std::size(decayRates); ++j) {
             CPoissonMeanConjugate filter(
                 CPoissonMeanConjugate::nonInformativePrior(0.0, decayRates[j]));
 
@@ -836,7 +835,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     totalFalsePositiveRate /= static_cast<double>(test);
     LOG_DEBUG(<< "totalFalsePositiveRate = " << totalFalsePositiveRate);
 
-    for (std::size_t i = 0; i < boost::size(totalPositives); ++i) {
+    for (std::size_t i = 0; i < std::size(totalPositives); ++i) {
         LOG_DEBUG(<< "positives = " << totalPositives[i]);
 
         // Should detect all but one anomaly.
@@ -863,8 +862,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
     TUIntVec samples;
     rng.generatePoissonSamples(rate, 100, samples);
 
-    for (std::size_t i = 0; i < boost::size(offsets); ++i) {
-        for (std::size_t j = 0; j < boost::size(decayRates); ++j) {
+    for (std::size_t i = 0; i < std::size(offsets); ++i) {
+        for (std::size_t j = 0; j < std::size(decayRates); ++j) {
             CPoissonMeanConjugate filter1(CPoissonMeanConjugate::nonInformativePrior(
                 offsets[i], decayRates[j]));
             CPoissonMeanConjugate filter2(

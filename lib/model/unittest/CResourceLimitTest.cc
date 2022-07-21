@@ -31,10 +31,9 @@
 #include <model/CResourceMonitor.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
 
 #include <fstream>
+#include <tuple>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CResourceLimitTest)
@@ -47,7 +46,7 @@ using TStrVec = std::vector<std::string>;
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 public:
     using TResultsTp =
-        boost::tuple<core_t::TTime, double /* probability */, std::string /* byFieldName*/, std::string /* overFieldName */, std::string /* partitionFieldName */>;
+        std::tuple<core_t::TTime, double /* probability */, std::string /* byFieldName*/, std::string /* overFieldName */, std::string /* partitionFieldName */>;
     using TResultsVec = std::vector<TResultsTp>;
 
 public:
@@ -379,13 +378,13 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     // Check that the models can create the right number of people/attributes
     personAdder(0, 400, time, *gatherer, resourceMonitor);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(400, gatherer->numberActivePeople());
 
     LOG_DEBUG(<< "Testing for 1st time");
     model->test(time);
-    BOOST_REQUIRE_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(400), model->getNewPeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(400, gatherer->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(400, model->getNewPeople());
+    BOOST_REQUIRE_EQUAL(0, model->getNewAttributes());
     time += BUCKET_LENGTH;
 
     personAdder(400, 1000, time, *gatherer, resourceMonitor);
@@ -399,7 +398,7 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     LOG_DEBUG(<< "# new people = " << model->getNewPeople());
     BOOST_TEST_REQUIRE(model->getNewPeople() > param.m_NewPeopleLowerBound);
     BOOST_TEST_REQUIRE(model->getNewPeople() < param.m_NewPeopleUpperBound);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(0, model->getNewAttributes());
     BOOST_REQUIRE_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 
     // Adding a small number of new people should be fine though,
@@ -412,7 +411,7 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     LOG_DEBUG(<< "Testing for 3rd time");
     model->test(time);
     BOOST_REQUIRE_EQUAL(oldNumberPeople + 10, model->getNewPeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(0, model->getNewAttributes());
     BOOST_REQUIRE_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 }
 
@@ -502,10 +501,10 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
         results = writer.results();
 
         // expect there to be 2 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(2), results.size());
-        BOOST_REQUIRE_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
-        BOOST_REQUIRE_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
-        BOOST_REQUIRE_EQUAL(std::size_t(8), detector.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(2, results.size());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407571200), std::get<0>(results[0]));
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407715200), std::get<0>(results[1]));
+        BOOST_REQUIRE_EQUAL(8, detector.numberActivePeople());
     }
     {
         // This time, repeat the test but set a resource limit to prevent
@@ -526,7 +525,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
 
         const CResultWriter::TResultsVec& secondResults = writer.results();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
+        BOOST_REQUIRE_EQUAL(0, secondResults.size());
     }
 }
 
@@ -559,9 +558,9 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
         results = writer.results();
 
         // check we have the expected 4 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(4), results.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(2), detector.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(3), detector.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(4, results.size());
+        BOOST_REQUIRE_EQUAL(2, detector.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(3, detector.numberActiveAttributes());
     }
 
     // Now limit after 1 sample, so only expect no results
@@ -582,7 +581,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
     const CResultWriter::TResultsVec& secondResults = writer.results();
 
     // should only have red flowers as results now
-    BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
+    BOOST_REQUIRE_EQUAL(0, secondResults.size());
 }
 
 BOOST_FIXTURE_TEST_CASE(testLargeAllocations, CTestFixture) {

@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualCount) {
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), result.s_AttributeProbabilities.size());
+    BOOST_REQUIRE_EQUAL(1, result.s_AttributeProbabilities.size());
     BOOST_REQUIRE_EQUAL(EMPTY_STRING, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.68, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationCount) {
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), result.s_AttributeProbabilities.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
 
     BOOST_REQUIRE_EQUAL(C2, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.04, result.s_AttributeProbabilities[0].s_Probability);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualRare) {
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), result.s_AttributeProbabilities.size());
+    BOOST_REQUIRE_EQUAL(1, result.s_AttributeProbabilities.size());
     BOOST_TEST_REQUIRE(result.s_AttributeProbabilities[0].s_DescriptiveData.empty());
 }
 
@@ -175,9 +175,9 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), result.s_AttributeProbabilities.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), result.s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(3, result.s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_PERSON_COUNT,
                         result.s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(42.0, result.s_DescriptiveData[0].second);
@@ -192,8 +192,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
     BOOST_REQUIRE_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
-    BOOST_REQUIRE_EQUAL(std::size_t(2),
-                        result.s_AttributeProbabilities[0].s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities[0].s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(
@@ -207,8 +206,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
     BOOST_REQUIRE_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[1].s_Feature);
-    BOOST_REQUIRE_EQUAL(std::size_t(2),
-                        result.s_AttributeProbabilities[1].s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities[1].s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(
@@ -256,9 +254,9 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), result.s_AttributeProbabilities.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), result.s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(3, result.s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_PERSON_COUNT,
                         result.s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(70.0, result.s_DescriptiveData[0].second);
@@ -273,8 +271,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
     BOOST_REQUIRE_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
-    BOOST_REQUIRE_EQUAL(std::size_t(2),
-                        result.s_AttributeProbabilities[0].s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities[0].s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(
@@ -288,8 +285,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
     BOOST_REQUIRE_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[1].s_Feature);
-    BOOST_REQUIRE_EQUAL(std::size_t(2),
-                        result.s_AttributeProbabilities[1].s_DescriptiveData.size());
+    BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities[1].s_DescriptiveData.size());
     BOOST_REQUIRE_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     BOOST_REQUIRE_EQUAL(
@@ -317,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testPersonFrequencyGivenIndividualRare) {
 
         builder.personFrequency(0.3, false);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), result.s_DescriptiveData.size());
+        BOOST_REQUIRE_EQUAL(1, result.s_DescriptiveData.size());
         BOOST_REQUIRE_EQUAL(annotated_probability::E_PERSON_NEVER_SEEN_BEFORE,
                             result.s_DescriptiveData[0].first);
         BOOST_REQUIRE_EQUAL(1.0, result.s_DescriptiveData[0].second);
@@ -329,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testPersonFrequencyGivenIndividualRare) {
 
         builder.personFrequency(0.2, true);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), result.s_DescriptiveData.size());
+        BOOST_REQUIRE_EQUAL(1, result.s_DescriptiveData.size());
         BOOST_REQUIRE_EQUAL(annotated_probability::E_PERSON_PERIOD,
                             result.s_DescriptiveData[0].first);
         BOOST_REQUIRE_EQUAL(5.0, result.s_DescriptiveData[0].second);

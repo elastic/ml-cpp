@@ -20,8 +20,6 @@
 #include <Eigen/Dense>
 #include <Eigen/SVD>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <iostream>
 
 namespace ml {
@@ -106,7 +104,7 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
     if (m_Values.size() == m_Values.capacity()) {
         // Replace closest.
         std::size_t closest = 0;
-        std::size_t closestDistance = boost::numeric::bounds<std::size_t>::highest();
+        std::size_t closestDistance = std::numeric_limits<std::size_t>::max();
         for (std::size_t i = 0; closestDistance > 0 && i < m_Values.size(); ++i) {
             std::size_t distance = 0;
             for (std::size_t j = 0; j < predictors.size(); ++j) {
@@ -152,8 +150,8 @@ bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser&
 }
 
 std::size_t CMemoryUsageEstimator::maximumExtrapolation(EComponent component) const {
-    std::size_t min = boost::numeric::bounds<std::size_t>::highest();
-    std::size_t max = boost::numeric::bounds<std::size_t>::lowest();
+    std::size_t min = std::numeric_limits<std::size_t>::max();
+    std::size_t max = std::numeric_limits<std::size_t>::lowest();
     for (std::size_t i = 0; i < m_Values.size(); ++i) {
         min = std::max(min, m_Values[i].first[component]);
         max = std::max(max, m_Values[i].first[component]);

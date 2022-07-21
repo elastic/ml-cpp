@@ -27,7 +27,6 @@
 
 #include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <cmath>
 #include <limits>
@@ -102,7 +101,7 @@ double CNaturalBreaksClassifier::percentile(double p) const {
             double q = (count - percentileCount) / count;
             double x = q > 0.0 && q < 1.0
                            ? boost::math::quantile(normal, q)
-                           : (2.0 * q - 1.0) * boost::numeric::bounds<double>::highest();
+                           : (2.0 * q - 1.0) * std::numeric_limits<double>::max();
             LOG_TRACE(<< "N(" << mean << "," << deviation << ")"
                       << ", q = " << q << ", x = " << x);
 
@@ -146,7 +145,7 @@ double CNaturalBreaksClassifier::percentile(double p) const {
         percentileCount -= count;
     }
 
-    return (p <= 0.5 ? -1.0 : 1.0) * boost::numeric::bounds<double>::highest();
+    return (p <= 0.5 ? -1.0 : 1.0) * std::numeric_limits<double>::max();
 }
 
 std::size_t CNaturalBreaksClassifier::size() const {
@@ -558,7 +557,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categ
 
     result.clear();
 
-    static const double INF = boost::numeric::bounds<double>::highest();
+    static const double INF = std::numeric_limits<double>::max();
 
     double pp = static_cast<double>(p);
 
@@ -674,7 +673,7 @@ CNaturalBreaksClassifier::TSizeSizePr CNaturalBreaksClassifier::closestPair() co
 
     TSizeSizePr result;
 
-    double dDeviationMin = boost::numeric::bounds<double>::highest();
+    double dDeviationMin = std::numeric_limits<double>::max();
     for (std::size_t i = 1; i < m_Categories.size(); ++i) {
         double dDeviation = deviation(m_Categories[i] + m_Categories[i - 1]) -
                             deviation(m_Categories[i]) - deviation(m_Categories[i - 1]);

@@ -70,7 +70,7 @@ public:
     using TVector = common::CDenseVector<double>;
     using TRowRef = core::CDataFrame::TRowRef;
 
-    class MATHS_ANALYTICS_EXPORT CVisitor {
+    class CVisitor {
     public:
         virtual ~CVisitor() noexcept = default;
         //! Adds to last added tree.
@@ -268,8 +268,8 @@ public:
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
-    class MATHS_ANALYTICS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
-                                            public CBoostedTreeNode::CVisitor {
+    class CVisitor : public CDataFrameCategoryEncoder::CVisitor,
+                     public CBoostedTreeNode::CVisitor {
     public:
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CSampleGatherer_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStoredStringPtr.h>

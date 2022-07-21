@@ -30,6 +30,8 @@ CStoredStringPtr::CStoredStringPtr(std::string&& str)
     : m_String{std::make_shared<const std::string>(std::move(str))} {
 }
 
+CStoredStringPtr::~CStoredStringPtr() = default;
+
 void CStoredStringPtr::swap(CStoredStringPtr& other) noexcept {
     m_String.swap(other.m_String);
 }

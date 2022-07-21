@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CStateMachineTest)
@@ -61,7 +60,7 @@ using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread {
 public:
-    CTestThread(const TMachineVec& machines)
+    explicit CTestThread(const TMachineVec& machines)
         : m_Machines(machines), m_Failures(0) {}
 
     std::size_t failures() const { return m_Failures; }
@@ -96,28 +95,28 @@ private:
 };
 
 void randomMachines(std::size_t n, TMachineVec& result) {
-    std::string states[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-    std::string alphabet[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    TStrVec states{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+    TStrVec alphabet{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
     test::CRandomNumbers rng;
 
     TSizeVec ns;
-    rng.generateUniformSamples(2, boost::size(states), n, ns);
+    rng.generateUniformSamples(2, states.size(), n, ns);
 
     TSizeVec na;
-    rng.generateUniformSamples(1, boost::size(alphabet), n, na);
+    rng.generateUniformSamples(1, alphabet.size(), n, na);
 
     result.resize(n);
     for (std::size_t i = 0; i < n; ++i) {
-        result[i].s_States.assign(states, states + ns[i]);
-        result[i].s_Alphabet.assign(alphabet, alphabet + na[i]);
+        result[i].s_States.assign(states.begin(), states.begin() + ns[i]);
+        result[i].s_Alphabet.assign(alphabet.begin(), alphabet.begin() + na[i]);
         result[i].s_TransitionFunction.resize(na[i]);
         for (std::size_t j = 0; j < na[i]; ++j) {
             rng.generateUniformSamples(0, ns[i], ns[i], result[i].s_TransitionFunction[j]);
         }
 
-        std::next_permutation(std::begin(states), std::end(states));
-        std::next_permutation(std::begin(alphabet), std::end(alphabet));
+        std::next_permutation(states.begin(), states.end());
+        std::next_permutation(alphabet.begin(), alphabet.end());
     }
 }
 }
@@ -220,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testMultithreaded) {
     }
     for (std::size_t i = 0; i < threads.size(); ++i) {
         // No failed reads.
-        BOOST_REQUIRE_EQUAL(std::size_t(0), threads[i]->failures());
+        BOOST_REQUIRE_EQUAL(0, threads[i]->failures());
     }
     for (std::size_t i = 1; i < threads.size(); ++i) {
         // No wrong reads.

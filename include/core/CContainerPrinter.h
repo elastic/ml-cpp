@@ -17,7 +17,6 @@
 #include <core/ImportExport.h>
 
 #include <boost/log/sources/record_ostream.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <functional>
 #include <iterator>
@@ -92,10 +91,10 @@ private:
     template<typename T>
     inline static std::string print_(T value, true_ /*is arithmetic*/) {
         // For signed types only.
-        if (value != T(0) && value == boost::numeric::bounds<T>::lowest()) {
+        if (value != T(0) && value == std::numeric_limits<T>::lowest()) {
             return "\"min\"";
         }
-        if (value == boost::numeric::bounds<T>::highest()) {
+        if (value == std::numeric_limits<T>::max()) {
             return "\"max\"";
         }
         return CStringUtils::typeToStringPretty(value);

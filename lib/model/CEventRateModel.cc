@@ -587,7 +587,7 @@ CEventRateModel::TSizeUInt64PrVec& CEventRateModel::currentBucketPersonCounts() 
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -699,7 +699,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

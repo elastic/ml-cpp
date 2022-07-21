@@ -15,14 +15,11 @@
 #include <core/CContainerPrinter.h>
 
 #include <boost/current_function.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 
 #include <cstddef>
 #include <sstream>
 #include <string>
-#include <tuple>
 
 // Location info
 #ifdef LOG_LOCATION_INFO

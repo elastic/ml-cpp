@@ -35,8 +35,6 @@
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -565,7 +563,7 @@ public:
             return maths_t::E_FpFailed;
         }
 
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
 
         if (this->isNonInformative()) {
             // The non-informative likelihood is improper and effectively

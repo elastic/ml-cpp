@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateConstantPrior_h
 #define INCLUDED_ml_maths_common_CMultivariateConstantPrior_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CMultivariatePrior.h>
 

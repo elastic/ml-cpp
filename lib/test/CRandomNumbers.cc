@@ -22,7 +22,6 @@
 #include <boost/random/student_t_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
-#include <boost/range.hpp>
 
 #include <numeric>
 
@@ -184,7 +183,7 @@ void CRandomNumbers::generateWords(std::size_t length, std::size_t numberSamples
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z', '-',
         '_', ' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
 
-    boost::random::uniform_int_distribution<size_t> uniform(0u, boost::size(characterSet) - 1);
+    boost::random::uniform_int_distribution<size_t> uniform(0, std::size(characterSet) - 1);
 
     samples.resize(numberSamples);
     for (std::size_t i = 0; i < numberSamples; ++i) {

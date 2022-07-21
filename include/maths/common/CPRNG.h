@@ -60,7 +60,7 @@ public:
 
     public:
         CSplitMix64();
-        CSplitMix64(result_type seed);
+        explicit CSplitMix64(result_type seed);
 
         //! Compare for equality.
         bool operator==(CSplitMix64 other) const;

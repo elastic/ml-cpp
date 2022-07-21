@@ -18,6 +18,7 @@
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStringUtils.h>
+#include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/Constants.h>
 

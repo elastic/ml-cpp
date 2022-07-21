@@ -41,7 +41,6 @@ struct testLimit;
 
 namespace ml {
 namespace model {
-
 class CMonitoredResource;
 
 //! \brief Assess memory used by models and decide on further memory allocations.
@@ -50,32 +49,27 @@ class CMonitoredResource;
 //! Assess memory used by models and decide on further memory allocations.
 class MODEL_EXPORT CResourceMonitor {
 public:
-    struct MODEL_EXPORT SModelSizeStats {
-        std::size_t s_Usage = 0;
-        std::size_t s_AdjustedUsage = 0;
-        std::size_t s_PeakUsage = 0;
-        std::size_t s_AdjustedPeakUsage = 0;
-        std::size_t s_ByFields = 0;
-        std::size_t s_PartitionFields = 0;
-        std::size_t s_OverFields = 0;
-        std::size_t s_AllocationFailures = 0;
-        model_t::EMemoryStatus s_MemoryStatus = model_t::E_MemoryStatusOk;
-        model_t::EAssignmentMemoryBasis s_AssignmentMemoryBasis = model_t::E_AssignmentBasisUnknown;
-        core_t::TTime s_BucketStartTime = 0;
-        std::size_t s_BytesExceeded = 0;
-        std::size_t s_BytesMemoryLimit = 0;
+    struct SModelSizeStats {
+        std::size_t s_Usage{0};
+        std::size_t s_AdjustedUsage{0};
+        std::size_t s_PeakUsage{0};
+        std::size_t s_AdjustedPeakUsage{0};
+        std::size_t s_ByFields{0};
+        std::size_t s_PartitionFields{0};
+        std::size_t s_OverFields{0};
+        std::size_t s_AllocationFailures{0};
+        model_t::EMemoryStatus s_MemoryStatus{model_t::E_MemoryStatusOk};
+        model_t::EAssignmentMemoryBasis s_AssignmentMemoryBasis{model_t::E_AssignmentBasisUnknown};
+        core_t::TTime s_BucketStartTime{0};
+        std::size_t s_BytesExceeded{0};
+        std::size_t s_BytesMemoryLimit{0};
         SCategorizerStats s_OverallCategorizerStats;
     };
 
-public:
-    using TMonitoredResourcePtrSizeUMap =
-        boost::unordered_map<CMonitoredResource*, std::size_t>;
     using TMemoryUsageReporterFunc =
         std::function<void(const CResourceMonitor::SModelSizeStats&)>;
-    using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
-    using TMeanVarAccumulator =
-        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
+public:
     //! The minimum time between prunes
     static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
     //! Default memory limit for resource monitor
@@ -181,6 +175,13 @@ public:
     //! usage at this point. This safety margin is gradually decreased over time
     //! by calling this once per bucket processed until the initially requested memory limit is reached.
     void decreaseMargin(core_t::TTime elapsedTime);
+
+private:
+    using TMonitoredResourcePtrSizeUMap =
+        boost::unordered_map<CMonitoredResource*, std::size_t>;
+    using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
+    using TMeanVarAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 private:
     //! Updates the memory limit fields and the prune threshold
@@ -307,17 +308,16 @@ private:
     core_t::TTime m_LastMomentsUpdateTime{0};
 
     //! Test friends
+    friend class CResourceLimitTest::CTestFixture;
     friend class CResourceMonitorTest::CTestFixture;
     friend struct CResourceMonitorTest::testMonitor;
     friend struct CResourceMonitorTest::testPeakUsage;
     friend struct CResourceMonitorTest::testPruning;
     friend struct CResourceMonitorTest::testUpdateMoments;
-    friend class CResourceLimitTest::CTestFixture;
     friend struct CAnomalyJobLimitTest::testAccuracy;
     friend struct CAnomalyJobLimitTest::testLimit;
 };
-
-} // model
-} // ml
+}
+}
 
 #endif // INCLUDED_ml_model_CResourceMonitor_h

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CPrior_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
 
@@ -53,7 +53,7 @@ public:
     using TStrStrPr = std::pair<std::string, std::string>;
 
     //! \brief Data for plotting a series
-    struct MATHS_COMMON_EXPORT SPlot {
+    struct SPlot {
         TDouble1Vec s_Abscissa;
         TDouble1Vec s_Ordinates;
     };
@@ -71,7 +71,7 @@ public:
     };
 
     //! \brief Defines a filter for removing models from selection.
-    class MATHS_COMMON_EXPORT CModelFilter {
+    class CModelFilter {
     public:
         CModelFilter();
 
@@ -91,10 +91,7 @@ public:
     //! DESCRIPTION:\n
     //! This adapts the jointLogMarginalLikelihood function for use with
     //! CIntegration.
-    class MATHS_COMMON_EXPORT CLogMarginalLikelihood {
-    public:
-        using result_type = double;
-
+    class CLogMarginalLikelihood {
     public:
         CLogMarginalLikelihood(const CPrior& prior,
                                const TDoubleWeightsAry1Vec& weights = TWeights::SINGLE_UNIT);
@@ -447,7 +444,7 @@ public:
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
     //! of those priors with non-negative support.
-    class MATHS_COMMON_EXPORT COffsetParameters {
+    class COffsetParameters {
     public:
         explicit COffsetParameters(CPrior& prior);
         virtual ~COffsetParameters() = default;
@@ -478,10 +475,7 @@ protected:
     //!
     //! This is used to maximize the data likelihood w.r.t. the choice
     //! of offset.
-    class MATHS_COMMON_EXPORT COffsetCost : public COffsetParameters {
-    public:
-        using result_type = double;
-
+    class COffsetCost : public COffsetParameters {
     public:
         explicit COffsetCost(CPrior& prior);
 

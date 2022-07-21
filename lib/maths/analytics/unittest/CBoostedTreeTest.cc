@@ -17,6 +17,7 @@
 #include <core/CPackedBitVector.h>
 #include <core/CRegex.h>
 #include <core/CStopWatch.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>

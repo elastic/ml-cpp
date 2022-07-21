@@ -24,7 +24,6 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -464,14 +463,14 @@ void sampleQuantiles(const DISTRIBUTION& distribution, std::size_t n, TDoubleVec
     CTools::SIntervalExpectation expectation;
     double dq = 1.0 / static_cast<double>(n);
 
-    double a = boost::numeric::bounds<double>::lowest();
+    double a = std::numeric_limits<double>::lowest();
     for (std::size_t i = 1; i < n; ++i) {
         double q = static_cast<double>(i) * dq;
         double b = boost::math::quantile(distribution, q);
         result.push_back(expectation(distribution, a, b));
         a = b;
     }
-    double b = boost::numeric::bounds<double>::highest();
+    double b = std::numeric_limits<double>::max();
     result.push_back(expectation(distribution, a, b));
 }
 

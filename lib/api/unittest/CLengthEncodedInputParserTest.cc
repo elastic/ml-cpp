@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
     // First read to a map
     ml::api::CLengthEncodedInputParser parser1(input);
     BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
-    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 
     // Now re-read to vectors
     ifs.clear();
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
 
     ml::api::CCsvInputParser parser2(ifs);
     BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
-    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_CASE(testThroughput) {

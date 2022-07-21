@@ -17,6 +17,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>

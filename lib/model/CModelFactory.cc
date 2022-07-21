@@ -166,7 +166,7 @@ CModelFactory::defaultCorrelatePrior(model_t::EFeature feature) const {
 
 maths::common::CMultinomialConjugate CModelFactory::defaultCategoricalPrior() const {
     return maths::common::CMultinomialConjugate::nonInformativePrior(
-        boost::numeric::bounds<std::size_t>::highest(), m_ModelParams.s_DecayRate);
+        std::numeric_limits<std::size_t>::max(), m_ModelParams.s_DecayRate);
 }
 
 CModelFactory::TDecompositionCPtr

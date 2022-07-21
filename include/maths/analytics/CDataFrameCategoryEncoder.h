@@ -109,7 +109,7 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
     //! \brief Base type of category encodings.
-    class MATHS_ANALYTICS_EXPORT CEncoding {
+    class CEncoding {
     public:
         CEncoding(std::size_t inputColumnIndex, double mic);
         virtual ~CEncoding() = default;
@@ -151,7 +151,7 @@ public:
     using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
 
     //! \brief Returns the supplied value.
-    class MATHS_ANALYTICS_EXPORT CIdentityEncoding final : public CEncoding {
+    class CIdentityEncoding final : public CEncoding {
     public:
         CIdentityEncoding(std::size_t inputColumnIndex, double mic);
         EEncoding type() const override;
@@ -166,7 +166,7 @@ public:
     };
 
     //! \brief One-hot encoding.
-    class MATHS_ANALYTICS_EXPORT COneHotEncoding final : public CEncoding {
+    class COneHotEncoding final : public CEncoding {
     public:
         COneHotEncoding(std::size_t inputColumnIndex, double mic, std::size_t hotCategory);
         EEncoding type() const override;
@@ -185,7 +185,7 @@ public:
     };
 
     //! \brief Looks up the encoding in a map.
-    class MATHS_ANALYTICS_EXPORT CMappedEncoding final : public CEncoding {
+    class CMappedEncoding final : public CEncoding {
     public:
         CMappedEncoding(std::size_t inputColumnIndex,
                         double mic,
@@ -212,7 +212,7 @@ public:
     };
 
     //! \brief Visits each encoding type.
-    class MATHS_ANALYTICS_EXPORT CVisitor {
+    class CVisitor {
     public:
         virtual ~CVisitor() noexcept = default;
         virtual void addIdentityEncoding(std::size_t inputColumnIndex) = 0;

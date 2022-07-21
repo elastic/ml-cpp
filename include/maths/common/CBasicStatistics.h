@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CBasicStatistics_h
 #define INCLUDED_ml_maths_common_CBasicStatistics_h
 
-#include <core/CHashing.h>
 #include <core/CLoggerTrace.h>
 #include <core/CMemoryFwd.h>
 #include <core/CSmallVectorFwd.h>
@@ -1423,9 +1422,7 @@ public:
         }
 
         //! Get a checksum for this object.
-        std::uint64_t checksum() const {
-            return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
-        }
+        std::uint64_t checksum() const;
 
     private:
         //! The set minimum.

@@ -20,7 +20,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CDetectorEqualizerTest)
@@ -44,7 +43,7 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < std::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
@@ -58,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < std::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
@@ -98,7 +97,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < std::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
@@ -142,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < std::size(scales); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
         for (std::size_t j = 0; j < logp.size(); ++j) {

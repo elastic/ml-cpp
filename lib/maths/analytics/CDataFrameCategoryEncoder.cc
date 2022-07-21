@@ -17,7 +17,6 @@
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
-#include <core/CTriple.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
 

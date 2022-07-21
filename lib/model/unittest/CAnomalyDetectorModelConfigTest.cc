@@ -77,22 +77,18 @@ BOOST_AUTO_TEST_CASE(testNormal) {
         BOOST_REQUIRE_EQUAL(0.1, config.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.01, config.factory(1, POPULATION_COUNT)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.01, config.factory(1, POPULATION_METRIC)->minimumModeFraction());
-        BOOST_REQUIRE_EQUAL(std::size_t(10),
-                            config.factory(1, INDIVIDUAL_COUNT)->componentSize());
-        BOOST_REQUIRE_EQUAL(std::size_t(10),
-                            config.factory(1, INDIVIDUAL_METRIC)->componentSize());
-        BOOST_REQUIRE_EQUAL(std::size_t(10),
-                            config.factory(1, POPULATION_COUNT)->componentSize());
-        BOOST_REQUIRE_EQUAL(std::size_t(10),
-                            config.factory(1, POPULATION_METRIC)->componentSize());
-        BOOST_REQUIRE_EQUAL(std::size_t(20),
-                            config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(std::size_t(20),
-                            config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(std::size_t(20),
-                            config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_REQUIRE_EQUAL(std::size_t(20),
-                            config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
+        BOOST_REQUIRE_EQUAL(10, config.factory(1, INDIVIDUAL_COUNT)->componentSize());
+        BOOST_REQUIRE_EQUAL(10, config.factory(1, INDIVIDUAL_METRIC)->componentSize());
+        BOOST_REQUIRE_EQUAL(10, config.factory(1, POPULATION_COUNT)->componentSize());
+        BOOST_REQUIRE_EQUAL(10, config.factory(1, POPULATION_METRIC)->componentSize());
+        BOOST_REQUIRE_EQUAL(
+            20, config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
+        BOOST_REQUIRE_EQUAL(
+            20, config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
+        BOOST_REQUIRE_EQUAL(
+            20, config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
+        BOOST_REQUIRE_EQUAL(
+            20, config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
         for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
             for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {

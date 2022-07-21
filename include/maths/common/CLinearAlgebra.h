@@ -24,7 +24,6 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/std_array.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/operators.hpp>
 
 #include <cmath>
@@ -1169,13 +1168,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVectorNx1& smallest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::lowest());
+        static const CVectorNx1 result(std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVectorNx1& largest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::highest());
+        static const CVectorNx1 result(std::numeric_limits<T>::max());
         return result;
     }
 };
@@ -1476,13 +1475,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::lowest());
+        static const CVector result(d, std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVector& largest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::highest());
+        static const CVector result(d, std::numeric_limits<T>::max());
         return result;
     }
 };

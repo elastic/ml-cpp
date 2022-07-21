@@ -29,8 +29,6 @@
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <iterator>
@@ -51,12 +49,12 @@ using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 double logn(std::size_t n) {
     static const double LOG_N[] = {0.0, std::log(2.0), std::log(3.0),
                                    std::log(4.0), std::log(5.0)};
-    return n < boost::size(LOG_N) ? LOG_N[n - 1] : std::log(static_cast<double>(n));
+    return n < std::size(LOG_N) ? LOG_N[n - 1] : std::log(static_cast<double>(n));
 }
 
 const double DERATE = 0.99999;
-const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
-const double INF = DERATE * boost::numeric::bounds<double>::highest();
+const double MINUS_INF = DERATE * std::numeric_limits<double>::lowest();
+const double INF = DERATE * std::numeric_limits<double>::max();
 const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e8);
 const double MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR = 9.0;
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;

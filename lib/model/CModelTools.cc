@@ -21,8 +21,6 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 
-//#include <model/CSample.h>
-
 #include <algorithm>
 #include <functional>
 #include <numeric>

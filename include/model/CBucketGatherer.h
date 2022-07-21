@@ -15,7 +15,7 @@
 #include <core/CCompressedDictionary.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 

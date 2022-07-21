@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     }
 
     LOG_DEBUG(<< "****** Test vanilla ******");
-    for (std::size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (std::size_t i = 0; i < std::size(dataTypes); ++i) {
         LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::common::CMultivariateOneOfNPrior filter1(makeOneOfN<2>(dataTypes[i]));
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     }
 
     LOG_DEBUG(<< "****** Test with variance scale ******");
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::common::CMultivariateOneOfNPrior filter1(makeOneOfN<2>(dataTypes[i]));
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(testWeightUpdate) {
         TEqual equal(maths::common::CToleranceTypes::E_AbsoluteTolerance, 1e-10);
         const double decayRates[] = {0.0, 0.004, 0.04};
 
-        for (std::size_t i = 0; i < boost::size(decayRates); ++i) {
+        for (std::size_t i = 0; i < std::size(decayRates); ++i) {
             maths::common::CMultivariateOneOfNPrior filter(
                 makeOneOfN<2>(maths_t::E_ContinuousData, decayRates[i]));
             for (std::size_t j = 0; j < samples.size(); ++j) {
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(testWeightUpdate) {
 
         double previousLogWeightRatio = -6700;
 
-        for (std::size_t i = 0; i < boost::size(decayRates); ++i) {
+        for (std::size_t i = 0; i < std::size(decayRates); ++i) {
             maths::common::CMultivariateOneOfNPrior filter(
                 makeOneOfN<2>(maths_t::E_ContinuousData, decayRates[i]));
 
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(testModelUpdate) {
 
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
 
-    for (std::size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (std::size_t i = 0; i < std::size(dataTypes); ++i) {
         maths::common::CMultivariateNormalConjugate<2> normal =
             maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(dataTypes[i]);
         maths::common::CMultivariateMultimodalPrior<2> multimodal =
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                     double z = 0.0;
                     TVector2 actualMean(0.0);
                     TMatrix2 actualCovariance(0.0);
-                    for (std::size_t j = 0; j < boost::size(intervals); ++j) {
+                    for (std::size_t j = 0; j < std::size(intervals); ++j) {
                         TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                         TDoubleVec b(a);
                         b[0] += 2.0 * std::sqrt(trace);
@@ -590,7 +590,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 CMeanKernel<2> meanKernel(filter);
                 CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
 
-                for (std::size_t j = 0; j < boost::size(intervals); ++j) {
+                for (std::size_t j = 0; j < std::size(intervals); ++j) {
                     TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                     TDoubleVec b(a);
                     b[0] += 2.0 * std::sqrt(trace);
@@ -735,8 +735,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         };
         double learnRates[] = {0.1, 0.3};
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
-            for (std::size_t j = 0; j < boost::size(covariances); ++j) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
+            for (std::size_t j = 0; j < std::size(covariances); ++j) {
                 const TSizeVec n{100};
                 const double mean[][2] = {{means[i][0], means[i][1]}};
                 const double covariance[][3] = {

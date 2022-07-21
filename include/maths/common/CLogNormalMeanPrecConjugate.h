@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CLogNormalMeanPrecConjugate_h
 #define INCLUDED_ml_maths_common_CLogNormalMeanPrecConjugate_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CPrior.h>

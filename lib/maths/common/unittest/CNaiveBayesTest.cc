@@ -97,11 +97,11 @@ BOOST_AUTO_TEST_CASE(testClassification) {
         double P1{(initialCount + 100.0) / (2.0 * initialCount + 300.0)};
         double P2{(initialCount + 200.0) / (2.0 * initialCount + 300.0)};
 
-        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities.size());
+        BOOST_REQUIRE_EQUAL(2, probabilities.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(P1, probabilities[1].first, 1e-5);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1].second);
+        BOOST_REQUIRE_EQUAL(1, probabilities[1].second);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(P2, probabilities[0].first, 1e-5);
-        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0].second);
+        BOOST_REQUIRE_EQUAL(2, probabilities[0].second);
 
         // If we supply feature values we should approximately
         // get these modulated by the product of the true density
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
                               << " got P(1) = " << p1_ << ", P(2) = " << p2_);
                 }
 
-                BOOST_REQUIRE_EQUAL(std::size_t(2), p.size());
+                BOOST_REQUIRE_EQUAL(2, p.size());
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p1_, 0.03);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(p2, p2_, 0.03);
                 if (p1 > 0.001) {
@@ -252,9 +252,9 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
             nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
         LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
         LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
-        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0][0].second);
+        BOOST_REQUIRE_EQUAL(2, probabilities[0][0].second);
         BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1][0].second);
+        BOOST_REQUIRE_EQUAL(1, probabilities[1][0].second);
         BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
     {
@@ -263,9 +263,9 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
             nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
         LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
         LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[0][0].second);
+        BOOST_REQUIRE_EQUAL(1, probabilities[0][0].second);
         BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
-        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[1][0].second);
+        BOOST_REQUIRE_EQUAL(2, probabilities[1][0].second);
         BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
 }

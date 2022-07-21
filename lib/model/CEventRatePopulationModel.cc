@@ -84,10 +84,10 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_NewAttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_AttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
@@ -398,7 +398,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                         CDataGatherer::extractData(tuple).s_Count));
                 }
                 maths::common::CMultinomialConjugate prior(
-                    boost::numeric::bounds<int>::highest(), categories, concentrations);
+                    std::numeric_limits<int>::max(), categories, concentrations);
                 m_AttributeProbabilityPrior.swap(prior);
                 continue;
             }

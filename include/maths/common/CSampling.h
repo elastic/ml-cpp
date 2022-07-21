@@ -15,7 +15,6 @@
 #include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/CNonInstantiatable.h>
-#include <core/CScopedFastLock.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CLinearAlgebraShims.h>

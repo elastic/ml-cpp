@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
 
         // Individual event rate features
         model_t::EFeature feature = model_t::E_IndividualCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualNonZeroCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualTotalBucketCountByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualIndicatorOfBucketPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isConstant(feature));
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowCountsByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighCountsByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualArrivalTimesByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLongArrivalTimesByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualShortArrivalTimesByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowNonZeroCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighNonZeroCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualUniqueCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowUniqueCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighUniqueCountByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualInfoContentByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowInfoContentByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighInfoContentByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualTimeOfDayByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualTimeOfWeekByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         // Individual metric features
 
         feature = model_t::E_IndividualMeanByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -453,7 +453,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualMedianByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualMinByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualMaxByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -538,7 +538,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_REQUIRE_EQUAL(std::string("'bucket sum by person'"), model_t::print(feature));
 
         feature = model_t::E_IndividualLowMeanByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighMeanByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -626,7 +626,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualNonNullSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -647,7 +647,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualLowNonNullSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -669,7 +669,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualHighNonNullSumByBucketAndPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_IndividualMeanLatLongByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(2), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(2, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -714,7 +714,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         // Population event rate features
 
         feature = model_t::E_PopulationAttributeTotalCountByPerson;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -734,7 +734,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationCountByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationIndicatorOfBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isConstant(feature));
@@ -776,7 +776,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationUniquePersonCountByAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -796,7 +796,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationUniqueCountByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowCountsByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -840,7 +840,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationHighCountsByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -862,7 +862,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationInfoContentByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -884,7 +884,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -907,7 +907,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -930,7 +930,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -953,7 +953,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -976,7 +976,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -997,7 +997,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(true, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1020,7 +1020,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         // Population metric features
 
         feature = model_t::E_PopulationMeanByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1041,7 +1041,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationMedianByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1062,7 +1062,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationMinByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1084,7 +1084,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationMaxByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1106,7 +1106,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationSumByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1127,7 +1127,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowMeanByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1149,7 +1149,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationHighMeanByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1171,7 +1171,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationLowSumByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1193,7 +1193,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationHighSumByBucketPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(1), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(1, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));
@@ -1215,7 +1215,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             model_t::print(feature));
 
         feature = model_t::E_PopulationMeanLatLongByPersonAndAttribute;
-        BOOST_REQUIRE_EQUAL(std::size_t(2), model_t::dimension(feature));
+        BOOST_REQUIRE_EQUAL(2, model_t::dimension(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isCategorical(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isDiurnal(feature));
         BOOST_REQUIRE_EQUAL(false, model_t::isConstant(feature));

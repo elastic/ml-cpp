@@ -330,6 +330,11 @@ CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(std::uint64
     core::CHashing::CSafeMurmurHash2String64 hasher(seed);
     return hasher(raw.str());
 }
+
+template<typename T, typename LESS, typename GREATER>
+std::uint64_t CBasicStatistics::CMinMax<T, LESS, GREATER>::checksum() const {
+    return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
+}
 }
 }
 }

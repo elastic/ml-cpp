@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     // The number of unique hashes varies for 32 bit and 64 bit versions of
     // this code, so this will need changing if we ever build 32 bit again.
-    BOOST_REQUIRE_EQUAL(std::size_t(460438) /* for 64 bit code */, uniqueHashes.size());
+    BOOST_REQUIRE_EQUAL(460438 /* for 64 bit code */, uniqueHashes.size());
     BOOST_TEST_REQUIRE(maxCollisions < 7);
 }
 
@@ -439,12 +439,12 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
     {
         CHashing::CUniversalHash::TUInt32UnrestrictedHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(5, hashVec);
-        BOOST_REQUIRE_EQUAL(std::size_t(5), hashVec.size());
+        BOOST_REQUIRE_EQUAL(5, hashVec.size());
     }
     {
         CHashing::CUniversalHash::TUInt32VecHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(50, 6666, 7777, hashVec);
-        BOOST_REQUIRE_EQUAL(std::size_t(50), hashVec.size());
+        BOOST_REQUIRE_EQUAL(50, hashVec.size());
     }
 }
 
