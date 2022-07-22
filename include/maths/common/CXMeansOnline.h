@@ -856,7 +856,7 @@ public:
                 closest.add({m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i});
             }
             closest.sort();
-            LOG_TRACE(<< "closest = " << closest.print());
+            LOG_TRACE(<< "closest = " << closest);
 
             double likelihood0 = closest[0].first;
             double likelihood1 = closest[1].first;

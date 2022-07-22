@@ -40,24 +40,29 @@
 #ifdef LOG_TRACE
 #undef LOG_TRACE
 #endif
-#if defined(PROMOTE_LOGGING_TO_INFO)
-// When this option is set all LOG_TRACE macros are promoted to LOG_INFO
-#define LOG_TRACE(message)                                                                  \
-    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
-    LOG_LOCATION_INFO                                                                       \
-    message
-#elif defined(EXCLUDE_TRACE_LOGGING)
+#ifdef SUPPRESS_USAGE_WARNING
+#undef SUPPRESS_USAGE_WARNING
+#endif
+#ifdef EXCLUDE_TRACE_LOGGING
 // Compiling trace logging is expensive so if we don't want it just discard
 // the code in the preprocessor.
 #define LOG_TRACE(message)
 // Avoids compiler warning in the case a variable is only used in LOG_TRACE.
 #define SUPPRESS_USAGE_WARNING(variable) static_cast<void>(&(variable))
-
+#else
+#ifdef PROMOTE_LOGGING_TO_INFO
+// When this option is set all LOG_TRACE macros are promoted to LOG_INFO
+#define LOG_TRACE(message)                                                                  \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
+    LOG_LOCATION_INFO                                                                       \
+    message
 #else
 #define LOG_TRACE(message)                                                                   \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
     LOG_LOCATION_INFO                                                                        \
     message
+#endif
+#define SUPPRESS_USAGE_WARNING(variable)
 #endif
 #ifdef LOG_DEBUG
 #undef LOG_DEBUG
