@@ -2465,7 +2465,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 30.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
