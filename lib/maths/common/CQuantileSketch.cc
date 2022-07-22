@@ -159,7 +159,7 @@ void CQuantileSketch::age(double factor) {
     m_Count *= factor;
 }
 
-bool CQuantileSketch::cdf(double x_, double& result) const {
+bool CQuantileSketch::cdf(double x_, double& result, TOptionalInterpolation interpolation) const {
     result = 0.0;
     if (m_Knots.empty()) {
         LOG_ERROR(<< "No values added to quantile sketch");
@@ -188,7 +188,7 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
     // This must make the same assumptions as quantile regarding the distribution
     // of values for each histogram bucket. See that function for more details.
 
-    switch (this->cdfAndQuantileInterpolation()) {
+    switch (interpolation.value_or(this->cdfAndQuantileInterpolation())) {
     case E_Linear: {
         if (k == 0) {
             double xl = m_Knots[0].first;
@@ -291,7 +291,9 @@ bool CQuantileSketch::mad(double& result) const {
     return true;
 }
 
-bool CQuantileSketch::quantile(double percentage, double& result) const {
+bool CQuantileSketch::quantile(double percentage,
+                               double& result,
+                               TOptionalInterpolation interpolation) const {
     if (m_Knots.empty()) {
         LOG_ERROR(<< "No values added to quantile sketch");
         return false;
@@ -307,7 +309,8 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         return false;
     }
 
-    quantile(this->cdfAndQuantileInterpolation(), m_Knots, m_Count, percentage, result);
+    quantile(interpolation.value_or(this->cdfAndQuantileInterpolation()),
+             m_Knots, m_Count, percentage, result);
 
     return true;
 }
@@ -318,10 +321,6 @@ const CQuantileSketch::TFloatFloatPrVec& CQuantileSketch::knots() const {
 
 double CQuantileSketch::count() const {
     return m_Count;
-}
-
-bool CQuantileSketch::isExact() const {
-    return m_Knots.size() < this->fastReduceTargetSize();
 }
 
 std::uint64_t CQuantileSketch::checksum(std::uint64_t seed) const {
@@ -440,7 +439,7 @@ CQuantileSketch::EInterpolation CQuantileSketch::cdfAndQuantileInterpolation() c
     // never have combined any distinct values into a single bucket and the
     // quantile and empircal cdf are computed exactly using piecewise constant
     // interpolation.
-    return this->isExact() ? E_PiecewiseConstant : m_Interpolation;
+    return m_Knots.size() < this->fastReduceTargetSize() ? E_PiecewiseConstant : m_Interpolation;
 }
 
 std::size_t CQuantileSketch::fastReduceTargetSize() const {

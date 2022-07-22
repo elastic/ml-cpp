@@ -1478,29 +1478,18 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 
         auto& featureCandidateSplits = candidateSplits[features[i]];
 
-        if (featureQuantiles[i].count() == 0.0) {
-            // Because we compute candidate splits for downsamples of the rows it's
-            // possible that all values are missing for a particular feature. In this
-            // case, we can happily initialize the candidate splits to an empty set
-            // since we'll only be choosing how to assign missing values.
-
-        } else if (featureQuantiles[i].isExact()) {
-            // In this case the sketch holds every distinct value and it's sufficient
-            // to consider splits only at the interval midpoints.
-            const auto& knots = featureQuantiles[i].knots();
-            featureCandidateSplits.reserve(knots.size() - 1);
-            for (std::size_t j = 1; j < knots.size(); ++j) {
-                featureCandidateSplits.push_back((knots[j].first + knots[j - 1].first) / 2.0);
-            }
-
-        } else {
+        // Because we compute candidate splits for downsamples of the rows it's
+        // possible that all values are missing for a particular feature. In this
+        // case, we can happily initialize the candidate splits to an empty set
+        // since we'll only be choosing how to assign missing values.
+        if (featureQuantiles[i].count() > 0.0) {
             featureCandidateSplits.reserve(m_NumberSplitsPerFeature - 1);
             for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
                 double rank{100.0 * static_cast<double>(j) /
                                 static_cast<double>(m_NumberSplitsPerFeature) +
                             common::CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
-                if (featureQuantiles[i].quantile(rank, q)) {
+                if (featureQuantiles[i].quantile(rank, q, common::CFastQuantileSketch::E_Linear)) {
                     featureCandidateSplits.emplace_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");

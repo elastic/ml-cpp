@@ -21,6 +21,7 @@
 #include <boost/operators.hpp>
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -57,6 +58,8 @@ public:
     //! The types of interpolation used for computing the quantile.
     enum EInterpolation { E_Linear, E_PiecewiseConstant };
 
+    using TOptionalInterpolation = std::optional<EInterpolation>;
+
 public:
     CQuantileSketch(EInterpolation interpolation, std::size_t size);
     virtual ~CQuantileSketch() = default;
@@ -80,7 +83,7 @@ public:
     void age(double factor);
 
     //! Get the c.d.f at \p x.
-    bool cdf(double x, double& result) const;
+    bool cdf(double x, double& result, TOptionalInterpolation interpolation = std::nullopt) const;
 
     //! Get the minimum value added.
     bool minimum(double& result) const;
@@ -92,16 +95,15 @@ public:
     bool mad(double& result) const;
 
     //! Get the quantile corresponding to \p percentage.
-    bool quantile(double percentage, double& result) const;
+    bool quantile(double percentage,
+                  double& result,
+                  TOptionalInterpolation interpolation = std::nullopt) const;
 
     //! Get the knot values as (value, count) pairs.
     const TFloatFloatPrVec& knots() const;
 
     //! Get the total count of points added.
     double count() const;
-
-    //! Check if this holds all distinct values supplied to the sketch.
-    bool isExact() const;
 
     //! Get a checksum of this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
