@@ -1457,15 +1457,13 @@ std::ostream& operator<<(std::ostream& o,
 template<typename T, std::size_t N, typename LESS>
 std::ostream& operator<<(std::ostream& o,
                          const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
-    o << core::CScopePrintContainers{} << accumulator;
-    return o;
+    return o << core::CContainerPrinter::print(accumulator);
 }
 
 template<typename T, typename LESS>
 std::ostream& operator<<(std::ostream& o,
                          const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
-    o << core::CScopePrintContainers{} << accumulator;
-    return o;
+    return o << core::CContainerPrinter::print(accumulator);
 }
 
 namespace basic_statistics_detail {

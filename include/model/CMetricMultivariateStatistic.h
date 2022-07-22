@@ -163,8 +163,7 @@ private:
 
     friend std::ostream&
     operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
-        o << core::CScopePrintContainers{} << statistic.m_Values;
-        return o;
+        return o << core::CContainerPrinter::print(statistic.m_Values);
     }
 };
 
