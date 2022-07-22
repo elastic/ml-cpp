@@ -12,6 +12,7 @@
 #include <model/CEventRateBucketGatherer.h>
 
 #include <core/CFunctional.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -27,7 +28,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CResourceMonitor.h>
-#include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 
@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <atomic>
 #include <functional>
-#include <limits>
 #include <map>
 #include <string>
 #include <tuple>
@@ -848,8 +847,8 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
     using TOptionalStr = std::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size()) {
-        LOG_ERROR(<< "Unexpected field values: " << core::CContainerPrinter::print(fieldValues)
-                  << ", for field names: " << core::CContainerPrinter::print(m_FieldNames));
+        LOG_ERROR(<< "Unexpected field values: " << fieldValues
+                  << ", for field names: " << m_FieldNames);
         return false;
     }
 
@@ -1007,7 +1006,7 @@ std::uint64_t CEventRateBucketGatherer::checksum() const {
         checksum(data, m_DataGatherer, hashes);
     });
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
     core::CHashing::CSafeMurmurHash2String64 hasher;
     return core::CHashing::hashCombine(seed, hasher(core::CContainerPrinter::print(hashes)));
 }

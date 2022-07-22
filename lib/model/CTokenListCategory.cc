@@ -217,6 +217,7 @@ bool CTokenListCategory::addString(bool isDryRun,
     if (rawStringLen > m_MaxStringLen) {
         LOG_TRACE(<< "Growing max string length from " << m_MaxStringLen
                   << " to " << rawStringLen << " due to '" << str << '\'');
+        SUPPRESS_USAGE_WARNING(str);
         m_MaxStringLen = rawStringLen;
         changed = true;
     }

@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CBoundingBox_h
 #define INCLUDED_ml_maths_common_CBoundingBox_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CTypeTraits.h>
@@ -33,7 +33,7 @@ template<typename POINT>
 class CBoundingBox {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
     }
     using TCoordinate = typename SCoordinate<POINT>::Type;
@@ -41,7 +41,7 @@ public:
 
 public:
     CBoundingBox() : m_Empty(true), m_A(), m_B() {}
-    CBoundingBox(const POINT& x) : m_Empty(false), m_A(x), m_B(x) {}
+    explicit CBoundingBox(const POINT& x) : m_Empty(false), m_A(x), m_B(x) {}
 
     //! Clear the bounding box.
     void clear() {

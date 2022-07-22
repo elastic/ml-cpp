@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/CInferenceModelMetadata.h>

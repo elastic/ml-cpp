@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CSetTools.h>
@@ -49,9 +48,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
             TDoubleVec test = A;
             maths::common::CSetTools::inplace_set_difference(test, left.begin(),
                                                              left.end());
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
-                      << ", B = " << core::CContainerPrinter::print(left)
-                      << ", A - B = " << core::CContainerPrinter::print(test));
+            LOG_DEBUG(<< "A = " << A << ", B = " << left << ", A - B = " << test);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                                 core::CContainerPrinter::print(test));
 
@@ -65,9 +62,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
             test = A;
             maths::common::CSetTools::inplace_set_difference(test, right.begin(),
                                                              right.end());
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
-                      << ", B = " << core::CContainerPrinter::print(right)
-                      << ", A - B = " << core::CContainerPrinter::print(test));
+            LOG_DEBUG(<< "A = " << A << ", B = " << right << ", A - B = " << test);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                                 core::CContainerPrinter::print(test));
         }
@@ -96,14 +91,14 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
                             std::back_inserter(expected));
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A));
-            LOG_DEBUG(<< "B = " << core::CContainerPrinter::print(B));
+            LOG_DEBUG(<< "A = " << A);
+            LOG_DEBUG(<< "B = " << B);
         }
 
         maths::common::CSetTools::inplace_set_difference(A, B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG(<< "A - B = " << core::CContainerPrinter::print(A));
+            LOG_DEBUG(<< "A - B = " << A);
         }
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
@@ -128,9 +123,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
                                   std::back_inserter(expected));
             std::size_t test = maths::common::CSetTools::setIntersectSize(
                 A.begin(), A.end(), left.begin(), left.end());
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
-                      << ", B = " << core::CContainerPrinter::print(left)
-                      << ", |A ^ B| = " << test);
+            LOG_DEBUG(<< "A = " << A << ", B = " << left << ", |A ^ B| = " << test);
             BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             TDoubleVec right;
@@ -142,9 +135,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
                                   right.end(), std::back_inserter(expected));
             test = maths::common::CSetTools::setIntersectSize(
                 A.begin(), A.end(), right.begin(), right.end());
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
-                      << ", B = " << core::CContainerPrinter::print(right)
-                      << ", |A ^ B| = " << test);
+            LOG_DEBUG(<< "A = " << A << ", B = " << right << ", |A ^ B| = " << test);
             BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             expected.clear();
@@ -152,9 +143,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
                            std::back_inserter(expected));
             test = maths::common::CSetTools::setUnionSize(
                 left.begin(), left.end(), right.begin(), right.end());
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(left)
-                      << ", B = " << core::CContainerPrinter::print(right)
-                      << ", |A U B| = " << test);
+            LOG_DEBUG(<< "A = " << left << ", B = " << right << ", |A U B| = " << test);
             BOOST_REQUIRE_EQUAL(expected.size(), test);
         }
     }
@@ -182,8 +171,8 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
                               std::back_inserter(expected));
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A));
-            LOG_DEBUG(<< "B = " << core::CContainerPrinter::print(B));
+            LOG_DEBUG(<< "A = " << A);
+            LOG_DEBUG(<< "B = " << B);
         }
 
         std::size_t test = maths::common::CSetTools::setIntersectSize(

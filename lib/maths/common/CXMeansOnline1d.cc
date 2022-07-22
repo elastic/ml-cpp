@@ -11,7 +11,6 @@
 
 #include <maths/common/CXMeansOnline1d.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
@@ -518,18 +517,18 @@ bool splitSearch(double minimumCount,
     // same constraints (to avoid merging the split straight away).
 
     for (;;) {
-        LOG_TRACE(<< "node = " << core::CContainerPrinter::print(node));
-        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
+        LOG_TRACE(<< "node = " << node);
+        LOG_TRACE(<< "categories = " << categories);
 
         nodeCategories.assign(categories.begin() + node.first,
                               categories.begin() + node.second);
 
         CNaturalBreaksClassifier::naturalBreaks(
             nodeCategories, 2, 0, CNaturalBreaksClassifier::E_TargetDeviation, candidate);
-        LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
+        LOG_TRACE(<< "candidate = " << candidate);
 
         if (candidate.size() != 2) {
-            LOG_ERROR(<< "Expected 2-split: " << core::CContainerPrinter::print(candidate));
+            LOG_ERROR(<< "Expected 2-split: " << candidate);
             break;
         }
         if (candidate[0] == 0 || candidate[0] == nodeCategories.size()) {

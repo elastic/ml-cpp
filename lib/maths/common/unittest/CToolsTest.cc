@@ -9,9 +9,7 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-
 #include <maths/common/CCompositeFunctions.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebra.h>

@@ -10,8 +10,6 @@
  */
 #include <model/CSimpleCountDetector.h>
 
-#include <maths/common/CIntegerTools.h>
-
 #include <model/CAnomalyDetectorModelConfig.h>
 
 namespace ml {

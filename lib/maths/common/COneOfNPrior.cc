@@ -11,8 +11,8 @@
 
 #include <maths/common/COneOfNPrior.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -305,9 +305,8 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
         return;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -414,7 +413,7 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
         }
 
         minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
-        failed |= (status & maths_t::E_FpFailed);
+        failed |= (status & maths_t::E_FpFailed) != 0;
 
         // Update the component prior distribution.
         model.second->addSamples(samples, weights);
@@ -434,7 +433,7 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
     if (failed) {
         LOG_ERROR(<< "Failed to compute log-likelihood");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "samples = " << samples);
         return;
     }
     if (isNonInformative) {
@@ -443,10 +442,9 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
     maxLogBayesFactor += m * MAXIMUM_LOG_BAYES_FACTOR;
 
-    LOG_TRACE(<< "BICs = " << core::CContainerPrinter::print(minusBics));
+    LOG_TRACE(<< "BICs = " << minusBics);
     LOG_TRACE(<< "max Bayes Factor = " << maxLogBayesFactor);
-    LOG_TRACE(<< "variance penalties = "
-              << core::CContainerPrinter::print(varianceMismatchPenalties));
+    LOG_TRACE(<< "variance penalties = " << varianceMismatchPenalties);
 
     double maxLogModelWeight{MINUS_INF + m * MAXIMUM_LOG_BAYES_FACTOR};
     double maxMinusBic{*std::max_element(minusBics.begin(), minusBics.end())};
@@ -467,8 +465,8 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
     if (this->badWeights()) {
         LOG_ERROR(<< "Update failed (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -658,9 +656,8 @@ COneOfNPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -718,15 +715,15 @@ COneOfNPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
-        LOG_ERROR(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
+        LOG_ERROR(<< "logLikelihoods = " << logLikelihoods);
         LOG_ERROR(<< "maxLogLikelihood = " << maxLogLikelihood[0]);
     } else if ((status & maths_t::E_FpOverflowed) != 0) {
         LOG_ERROR(<< "Log likelihood overflowed for (" << this->debugWeights() << ")");
-        LOG_TRACE(<< "likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "likelihoods = " << logLikelihoods);
+        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "weights = " << weights);
     }
     return status;
 }
@@ -752,8 +749,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
-    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
-              << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "weights = " << weights << ", sampling = " << sampling);
 
     if (sampling.size() != m_Models.size()) {
         LOG_ERROR(<< "Failed to sample marginal likelihood");
@@ -773,7 +769,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
 }
 
 bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
@@ -808,7 +804,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     //   and o denotes the outer product.
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
-    LOG_TRACE(<< "logWeights = " << core::CContainerPrinter::print(logWeights));
+    LOG_TRACE(<< "logWeights = " << logWeights);
 
     TDouble5Vec logLowerBounds;
     TDouble5Vec logUpperBounds;
@@ -822,13 +818,11 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
         double li = 0.0;
         double ui = 0.0;
         if (complement && !model.minusLogJointCdfComplement(samples, weights, li, ui)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement for " << samples);
             return false;
         }
         if (!complement && !model.minusLogJointCdf(samples, weights, li, ui)) {
-            LOG_ERROR(<< "Failed computing c.d.f. for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. for " << samples);
             return false;
         }
         li = wi - li;
@@ -957,7 +951,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     if (!(lowerBound >= 0.0 && lowerBound <= 1.001) ||
         !(upperBound >= 0.0 && upperBound <= 1.001)) {
         LOG_ERROR(<< "Bad probability bounds = [" << lowerBound << ", " << upperBound << "]"
-                  << ", " << core::CContainerPrinter::print(logWeights));
+                  << ", " << logWeights);
     }
 
     if (CMathsFuncs::isNan(lowerBound)) {

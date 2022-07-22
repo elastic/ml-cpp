@@ -11,9 +11,9 @@
 
 #include <maths/common/CGradientDescent.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CLinearAlgebraTools.h>
 
@@ -75,7 +75,7 @@ bool CGradientDescent::run(std::size_t n,
         x += m_PreviousStep;
     }
 
-    LOG_TRACE(<< "fi = " << core::CContainerPrinter::print(fi));
+    LOG_TRACE(<< "fi = " << fi);
     return true;
 }
 

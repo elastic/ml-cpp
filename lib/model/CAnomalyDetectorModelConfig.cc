@@ -17,6 +17,7 @@
 #include <core/Constants.h>
 
 #include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
@@ -303,14 +304,12 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
     }
     if (!std::is_sorted(points.begin(), points.end(),
                         maths::common::COrderings::SFirstLess())) {
-        LOG_ERROR(<< "Percentiles must be monotonic increasing "
-                  << core::CContainerPrinter::print(points));
+        LOG_ERROR(<< "Percentiles must be monotonic increasing " << points);
         return false;
     }
     if (!std::is_sorted(points.begin(), points.end(),
                         maths::common::COrderings::SSecondLess())) {
-        LOG_ERROR(<< "Scores must be monotonic increasing "
-                  << core::CContainerPrinter::print(points));
+        LOG_ERROR(<< "Scores must be monotonic increasing " << points);
         return false;
     }
 
@@ -626,8 +625,7 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
 
     TFactoryTypeFactoryPtrMapCItr prototype = m_Factories.find(factory);
     if (prototype == m_Factories.end()) {
-        LOG_ABORT(<< "No factory for features = "
-                  << core::CContainerPrinter::print(features));
+        LOG_ABORT(<< "No factory for features = " << features);
     }
 
     TModelFactoryPtr result(prototype->second->clone());
@@ -957,8 +955,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 strings.push_back(remainder);
             }
             if (strings.empty() || (strings.size() % 2) != 0) {
-                LOG_ERROR(<< "Expected even number of values for property " << propName
-                          << " " << core::CContainerPrinter::print(strings));
+                LOG_ERROR(<< "Expected even number of values for property "
+                          << propName << " " << strings);
                 result = false;
                 continue;
             }

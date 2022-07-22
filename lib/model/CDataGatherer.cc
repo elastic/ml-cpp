@@ -11,7 +11,8 @@
 
 #include <model/CDataGatherer.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

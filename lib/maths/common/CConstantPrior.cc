@@ -153,9 +153,8 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -310,8 +309,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
-              << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
+    LOG_TRACE(<< "samples = " << samples << ", constant = " << *m_Constant
+              << ", lowerBound = " << lowerBound
               << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);

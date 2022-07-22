@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -17,6 +16,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "3) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "3) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "4) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "4) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "5) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "5) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
 
-        LOG_DEBUG(<< "6) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "6) probabilities = " << probabilities);
         LOG_DEBUG(<< "   overallScore = " << overallScore);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(86.995953, overallScore, 5e-7);
     }
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     //f.open("scores.m");
     //f << raw.str() << "\n" << normalized.str();
 
-    LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
+    LOG_DEBUG(<< "maxScores = " << maxScores);
 
     TSizeVec times;
 
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     }
     std::sort(times.begin(), times.end());
 
-    LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
+    LOG_DEBUG(<< "times = " << times);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
                         core::CContainerPrinter::print(times));
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
         actualAALScores.push_back(sampleAAL);
     }
     std::sort(actualAALScores.begin(), actualAALScores.end());
-    LOG_DEBUG(<< "actualAALScores = " << core::CContainerPrinter::print(actualAALScores));
+    LOG_DEBUG(<< "actualAALScores = " << actualAALScores);
 
     for (std::size_t i = 0; i < boost::size(expectedAALScores); ++i) {
         double pctChange = 100.0 *
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
         scores.push_back(sample);
     }
     std::sort(scores.begin(), scores.end());
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     for (std::size_t i = 0; i + 1 < anomalies.size(); ++i) {
         double change = 100.0 * anomalies[i] / anomalies[anomalies.size() - 1];
@@ -555,7 +555,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
             normalizer.normalize({"", "", "bucket_time", ""}, sample);
             maxScores.push_back(sample);
         }
-        LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
+        LOG_DEBUG(<< "maxScores = " << maxScores);
 
         BOOST_REQUIRE_EQUAL(expectedScores[i], core::CContainerPrinter::print(maxScores));
     }
@@ -712,8 +712,7 @@ BOOST_AUTO_TEST_CASE(testNoiseForDifferentBucketLengths) {
     TDoubleVec rateLimits{9000 * 0.0025, 9000 * 0.0025, 9000 * 0.0025,
                           9000 * 0.0025, 9000 * 0.001};
     for (const auto& averageCountsForBucketLength : averageCounts) {
-        LOG_DEBUG(<< "averageCountsForBucketLength = "
-                  << core::CContainerPrinter::print(averageCountsForBucketLength));
+        LOG_DEBUG(<< "averageCountsForBucketLength = " << averageCountsForBucketLength);
         for (std::size_t i = 0; i < rateLimits.size(); ++i) {
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(
                                    averageCountsForBucketLength[i]) < 1.1 * rateLimits[i]);

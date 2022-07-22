@@ -13,6 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CExpandingWindow_h
 
 #include <core/CFloatStorage.h>
+#include <core/CNonCopyable.h>
 #include <core/CVectorRange.h>
 #include <core/CoreTypes.h>
 

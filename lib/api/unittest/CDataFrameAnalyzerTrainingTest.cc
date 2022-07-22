@@ -23,7 +23,6 @@
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
@@ -1887,8 +1886,8 @@ BOOST_AUTO_TEST_CASE(testParsingOfCategoricalFields) {
                 passed &= (expected[0] == (*row)[0]);
                 passed &= (expected[1] == (*row)[1]);
                 if (wasPassed && passed == false) {
-                    LOG_ERROR(<< "expected " << core::CContainerPrinter::print(expected)
-                              << ", got [" << (*row)[0] << ", " << (*row)[1] << "]");
+                    LOG_ERROR(<< "expected " << expected << ", got ["
+                              << (*row)[0] << ", " << (*row)[1] << "]");
                 }
             }
         });
@@ -2041,7 +2040,7 @@ BOOST_AUTO_TEST_CASE(testNoRegressors) {
     analyzer.handleRecord(fieldNames, {"2.0", "2", ""});
     analyzer.handleRecord(fieldNames, {"", "", "$"});
 
-    LOG_DEBUG(<< "Errors = " << core::CContainerPrinter::print(errors));
+    LOG_DEBUG(<< "Errors = " << errors);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
     BOOST_REQUIRE_EQUAL(errors[0], "Input error: analysis need at least one regressor.");

@@ -13,6 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CMemory.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/analytics/CBoostedTreeImpl.h>

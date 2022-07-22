@@ -26,7 +26,6 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/filesystem.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <atomic>
@@ -246,10 +245,6 @@ private:
     //! Check for new jobs, blocks while waiting
     bool tryGetJob(SForecast& forecastJob);
 
-    //! check for sufficient disk space
-    static bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
-                                             const boost::filesystem::path& path);
-
     //! pushes new jobs into the internal 'queue' (thread boundary)
     bool push(SForecast& forecastJob);
 
@@ -265,6 +260,10 @@ private:
     //! send a message using \p write
     template<typename WRITE>
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
+
+    //! Check for sufficient disk space.
+    static bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                             const char* path);
 
     //! parse and validate a forecast request and turn it into a forecast job
     static bool parseAndValidateForecastRequest(

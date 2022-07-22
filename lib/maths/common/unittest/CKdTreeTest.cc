@@ -15,7 +15,6 @@
 #include <maths/common/CKdTree.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraTools.h>
-#include <maths/common/COrderings.h>
 
 #include <test/CRandomNumbers.h>
 

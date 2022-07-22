@@ -12,12 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_Constants_h
 #define INCLUDED_ml_maths_common_Constants_h
 
-#include <core/CSmallVector.h>
-
-#include <maths/common/ImportExport.h>
-#include <maths/common/MathsTypes.h>
-
-#include <cmath>
+#include <cstddef>
 
 namespace ml {
 namespace maths {

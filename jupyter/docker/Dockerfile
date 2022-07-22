@@ -24,13 +24,13 @@ ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 RUN --mount=type=cache,target=/root/.ccache \
     . ./set_env.sh &&  \
     cmake -B cmake-build-relwithdebinfo && \
-    cmake --build cmake-build-relwithdebinfo --config Release -t install -j`nproc` && \
+    cmake --build cmake-build-relwithdebinfo --config RelWithDebInfo -t install -j`nproc` && \
     find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
     dev-tools/strip_binaries.sh 
 
 
 ##############################################
-FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:1
+FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:3
  
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/

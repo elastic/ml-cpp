@@ -29,7 +29,6 @@
 
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CTools.h>
 
 #include <model/CAnomalyScore.h>
 #include <model/CForecastDataSink.h>
@@ -67,7 +66,7 @@ using TStrCRef = std::reference_wrapper<const std::string>;
 //! Convert a (string, key) pair to something readable.
 template<typename T>
 inline std::string pairDebug(const T& t) {
-    return ml::core::unwrap_ref(t.second).debug() + '/' + ml::core::unwrap_ref(t.first);
+    return core::unwrap_ref(t.second).debug() + '/' + core::unwrap_ref(t.first);
 }
 
 const std::string TOP_LEVEL_DETECTOR_TAG("detector"); // do not shorten this
@@ -763,7 +762,7 @@ void CAnomalyJob::writeOutResults(bool interim,
                   << " / " << results.root()->s_NormalizedAnomalyScore
                   << ", count " << results.resultCount() << " at " << bucketTime);
 
-        using TScopedAllocator = ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
+        using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 

@@ -53,17 +53,12 @@ namespace {
 class BasicCompare {};
 class ContainerCompare {};
 
-template<typename T, typename R = void>
-struct enable_if_type {
-    using type = R;
-};
-
-template<typename T, typename ITR = void>
+template<typename T, typename = void>
 struct compare_container_selector {
     using value = BasicCompare;
 };
 template<typename T>
-struct compare_container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
+struct compare_container_selector<T, std::void_t<typename T::const_iterator>> {
     using value = ContainerCompare;
 };
 

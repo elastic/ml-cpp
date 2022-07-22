@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -137,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             totalErrors[i] /= static_cast<double>(samples.size());
         }
 
-        LOG_DEBUG(<< "total errors = " << core::CContainerPrinter::print(totalErrors));
+        LOG_DEBUG(<< "total errors = " << totalErrors);
 
         for (size_t i = 0; i < boost::size(totalErrors); ++i) {
             BOOST_TEST_REQUIRE(totalErrors[i] < expectedMaxErrors[i]);
@@ -170,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
     TUInt32UInt64PrVec summary;
     qDigest.summary(summary);
-    LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
+    LOG_DEBUG(<< "summary = " << summary);
 
     for (std::size_t i = 0; i < summary.size(); ++i) {
         double lowerBound;
@@ -192,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     }
 
     qDigest.summary(summary);
-    LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
+    LOG_DEBUG(<< "summary = " << summary);
 
     for (std::size_t i = 0; i < summary.size(); ++i) {
         double lowerBound;
@@ -233,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
 
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
-        LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
+        LOG_DEBUG(<< "summary = " << summary);
 
         for (std::size_t i = 0; i < summary.size(); ++i) {
             double q = static_cast<double>(summary[i].second) / 100.0;

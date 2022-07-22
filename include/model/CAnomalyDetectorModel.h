@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModel_h
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CProgramCounters.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>

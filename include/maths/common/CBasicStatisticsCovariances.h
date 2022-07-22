@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CBasicStatisticsDetail_h
 #define INCLUDED_ml_maths_common_CBasicStatisticsDetail_h
 
-#include <core/CLogger.h>
+#include <core/CLoggerTrace.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraShims.h>

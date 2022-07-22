@@ -11,8 +11,8 @@
 
 #include <maths/time_series/CAdaptiveBucketing.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -418,7 +418,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     for (std::size_t i = 0; i < n; ++i) {
         values.emplace_back(this->bucketCount(i), this->predict(i, time, m_Centres[i]));
     }
-    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(values));
+    LOG_TRACE(<< "values = " << values);
 
     // Compute the function range in each bucket, imposing periodic
     // boundary conditions at the start and end of the interval.
@@ -472,7 +472,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     }
     double totalAveragingError{
         std::accumulate(averagingErrors.begin(), averagingErrors.end(), 0.0)};
-    LOG_TRACE(<< "averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
+    LOG_TRACE(<< "averagingErrors = " << averagingErrors);
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
@@ -541,7 +541,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // and "b" so that the total interval is unchanged.
         m_Endpoints[0] = a;
         m_Endpoints[n] = b;
-        LOG_TRACE(<< "refinedEndpoints = " << core::CContainerPrinter::print(m_Endpoints));
+        LOG_TRACE(<< "refinedEndpoints = " << m_Endpoints);
 
         m_MeanDesiredDisplacement.add(displacement);
         m_MeanAbsDesiredDisplacement.add(std::fabs(displacement));
@@ -871,8 +871,7 @@ double CAdaptiveBucketing::bucketLargeErrorCountPValue(double totalLargeErrorCou
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate splitting significance: '" << e.what()
                       << "' interval = " << interval << " period = " << period
-                      << " buckets = " << core::CContainerPrinter::print(m_Endpoints)
-                      << " type = " << this->name());
+                      << " buckets = " << m_Endpoints << " type = " << this->name());
         }
     }
     return 1.0;

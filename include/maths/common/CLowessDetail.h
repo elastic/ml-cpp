@@ -14,7 +14,7 @@
 
 #include <maths/common/CLowess.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLoggerTrace.h>
 
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
@@ -85,7 +85,7 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
         for (std::size_t i = 0; i < K.size(); ++i) {
             K[i] = 2.0 * static_cast<double>(i) / range;
         }
-        LOG_TRACE(<< "range = " << range << ", K = " << core::CContainerPrinter::print(K));
+        LOG_TRACE(<< "range = " << range << ", K = " << K);
 
         double kmax;
         double likelihoodMax;
@@ -263,8 +263,8 @@ void CLowess<N>::setupMasks(std::size_t numberFolds,
         }
     }
 
-    LOG_TRACE(<< "training masks = " << core::CContainerPrinter::print(trainingMasks));
-    LOG_TRACE(<< "testing masks = " << core::CContainerPrinter::print(testingMasks));
+    LOG_TRACE(<< "training masks = " << trainingMasks);
+    LOG_TRACE(<< "testing masks = " << testingMasks);
 }
 
 template<std::size_t N>

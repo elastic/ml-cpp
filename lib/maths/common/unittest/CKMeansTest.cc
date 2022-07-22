@@ -110,8 +110,8 @@ public:
         closest.sort();
         if (std::find(filtered.begin(), filtered.end(), closest[0].second) ==
             filtered.end()) {
-            LOG_DEBUG(<< "filtered = " << core::CContainerPrinter::print(filtered));
-            LOG_DEBUG(<< "closest  = " << closest.print());
+            LOG_DEBUG(<< "filtered = " << filtered);
+            LOG_DEBUG(<< "closest  = " << closest);
             BOOST_TEST_REQUIRE(false);
         }
         if (filtered.size() > 1) {
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             for (std::size_t j = 0; j < samples2.size(); j += 2) {
                 centres.push_back(TVector2(&samples2[j], &samples2[j + 2]));
             }
-            LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "centres = " << centres);
             tree.postorderDepthFirst(CKMeansForTest<TVector2>::TDataPropagator());
 
             std::size_t numberAdmitted = 0;
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             for (std::size_t j = 0; j < samples2.size(); j += 4) {
                 centres.push_back(TVector4(&samples2[j], &samples2[j + 4]));
             }
-            LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "centres = " << centres);
             tree.postorderDepthFirst(CKMeansForTest<TVector4>::TDataPropagator());
 
             std::size_t numberAdmitted = 0;
@@ -321,10 +321,8 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             for (std::size_t j = 0; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
-            LOG_TRACE(<< "expected centroids = "
-                      << core::CContainerPrinter::print(expectedCentroids));
-            LOG_TRACE(<< "centroids          = "
-                      << core::CContainerPrinter::print(centroids));
+            LOG_TRACE(<< "expected centroids = " << expectedCentroids);
+            LOG_TRACE(<< "centroids          = " << centroids);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                 core::CContainerPrinter::print(centroids));
         }
@@ -351,10 +349,8 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             for (std::size_t j = 0; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
-            LOG_TRACE(<< "expected centroids = "
-                      << core::CContainerPrinter::print(expectedCentroids));
-            LOG_TRACE(<< "centroids          = "
-                      << core::CContainerPrinter::print(centroids));
+            LOG_TRACE(<< "expected centroids = " << expectedCentroids);
+            LOG_TRACE(<< "centroids          = " << centroids);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                 core::CContainerPrinter::print(centroids));
         }
@@ -461,9 +457,8 @@ BOOST_AUTO_TEST_CASE(testRun) {
 
             LOG_TRACE(<< "converged      = " << converged);
             LOG_TRACE(<< "fast converged = " << fastConverged);
-            LOG_TRACE(<< "centres      = " << core::CContainerPrinter::print(centres));
-            LOG_TRACE(<< "fast centres = "
-                      << core::CContainerPrinter::print(kmeansFast.centres()));
+            LOG_TRACE(<< "centres      = " << centres);
+            LOG_TRACE(<< "fast centres = " << kmeansFast.centres());
             BOOST_REQUIRE_EQUAL(converged, fastConverged);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(centres),
                                 core::CContainerPrinter::print(kmeansFast.centres()));
@@ -518,7 +513,7 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         TSphericalCluster2Vec centresClusters;
         centresClusters.push_back(TVector2(&coordinates[0], &coordinates[2]));
         centresClusters.push_back(TVector2(&coordinates[2], &coordinates[4]));
-        LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centresClusters));
+        LOG_TRACE(<< "centres = " << centresClusters);
 
         maths::common::CKMeans<TVector2> kmeansPoints;
         kmeansPoints.setPoints(points);
@@ -537,10 +532,8 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         std::sort(kmeansPointsCentres.begin(), kmeansPointsCentres.end());
         std::sort(kmeansClustersCentres.begin(), kmeansClustersCentres.end());
 
-        LOG_TRACE(<< "k-means points   = "
-                  << core::CContainerPrinter::print(kmeansPointsCentres));
-        LOG_TRACE(<< "k-means clusters = "
-                  << core::CContainerPrinter::print(kmeansClustersCentres));
+        LOG_TRACE(<< "k-means points   = " << kmeansPointsCentres);
+        LOG_TRACE(<< "k-means clusters = " << kmeansClustersCentres);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
                             core::CContainerPrinter::print(kmeansClustersCentres));
     }
@@ -589,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         TVector2Vec randomCentres;
         TSizeVec random;
         rng.generateUniformSamples(0, flatPoints.size(), k, random);
-        LOG_TRACE(<< "random = " << core::CContainerPrinter::print(random));
+        LOG_TRACE(<< "random = " << random);
         for (std::size_t i = 0; i < k; ++i) {
             randomCentres.push_back(flatPoints[random[i]]);
         }

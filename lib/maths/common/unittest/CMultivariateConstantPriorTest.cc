@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -209,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
         BOOST_REQUIRE_EQUAL(1.0, lb);
         BOOST_REQUIRE_EQUAL(1.0, ub);
-        LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
+        LOG_DEBUG(<< "tail = " << tail);
         BOOST_REQUIRE_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
     }
 
@@ -225,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
         BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, lb);
         BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, ub);
-        LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
+        LOG_DEBUG(<< "tail = " << tail);
         BOOST_REQUIRE_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
     }
 }

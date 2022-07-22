@@ -238,8 +238,7 @@ int main(int argc, char** argv) {
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
-                  << "' argument "
-                     "unless a place to persist to has been specified using the 'persist' argument");
+                  << "' argument unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
 

@@ -282,7 +282,9 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
 
     // No need to check the control message type there is only 1
     threadSettings.numAllocations(controlMessage.s_NumAllocations);
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(controlMessage.s_NumAllocations);
+    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    LOG_DEBUG(<< "Updated number of allocations to [" << threadSettings.numAllocations()
+              << "] ([" << controlMessage.s_NumAllocations << "] requested)");
     writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
 }
 
@@ -312,20 +314,20 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::torch::CThreadSettings::validateThreadingParameters(
+    ml::torch::CThreadSettings threadSettings{
         static_cast<std::int32_t>(std::thread::hardware_concurrency()),
-        numThreadsPerAllocation, numAllocations);
-
-    ml::torch::CThreadSettings threadSettings{numThreadsPerAllocation, numAllocations};
+        numThreadsPerAllocation, numAllocations};
 
     // Setting the number of threads used by libtorch also sets
     // the number of threads used by MKL or OMP libs. However,
-    // this doesn't address the Accelerated.Framework found on macs.
+    // this doesn't address the Accelerate framework found on Macs.
     // Thus, we set the environment variable that controls threading for that one.
     // It doesn't hurt to set variables that won't have any effect on some platforms.
     ml::core::CSetEnv::setEnv(
         "VECLIB_MAXIMUM_THREADS",
-        ml::core::CStringUtils::typeToString(numThreadsPerAllocation).c_str(), 0);
+        ml::core::CStringUtils::typeToString(threadSettings.numThreadsPerAllocation())
+            .c_str(),
+        0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -377,6 +379,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    // On Linux we use libgomp (GNU's OMP implementation) for threading and have
+    // found that setting this to "threads per allocation" really does allow
+    // that number of threads to be used per allocation. On other platforms,
+    // particularly macOS where we use the Accelerate framework instead of OMP,
+    // it may be that this sets a number of threads to be shared across all
+    // allocations rather than per allocation. But macOS is not supported for
+    // production, but just as a convenience for developers. So the most
+    // important thing is that the threading works as intended on Linux.
     at::set_num_threads(threadSettings.numThreadsPerAllocation());
 
     // This is not used as we don't call at::launch anywhere.
@@ -409,13 +419,11 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
-    // Starting the executor with 1 thread will use an extra thread that isn't necessary
-    // so we only start it when more than 1 threads are set.
-    if (numAllocations > 1) {
-        ml::core::startDefaultAsyncExecutor(numAllocations);
-    } else {
-        ml::core::stopDefaultAsyncExecutor();
-    }
+    // Size the threadpool to the number of hardware threads
+    // so we can grow and shrink the threadpool dynamically
+    ml::core::startDefaultAsyncExecutor();
+    // Set the number of threads to use
+    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
 
     commandParser.ioLoop(
         [&module_, &wrappedOutputStream](ml::torch::CCommandParser::CRequestCacheInterface& cache,

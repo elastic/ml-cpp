@@ -11,7 +11,6 @@
 
 #include <api/CDataFrameAnalyzer.h>
 
-#include <boost/unordered/unordered_map_fwd.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CFloatStorage.h>
@@ -21,6 +20,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -193,8 +193,7 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
                posControlMessage != fieldNames.end() - 1) {
 
         HANDLE_FATAL(<< "Input error: expected exactly two special "
-                     << "fields in last two positions but got '"
-                     << core::CContainerPrinter::print(fieldNames)
+                     << "fields in last two positions but got '" << fieldNames
                      << "'. Please report this problem.");
         return false;
 
@@ -217,8 +216,7 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
         HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field"
-                     << " values and got " << core::CContainerPrinter::print(fieldValues)
-                     << ". Please report this problem.");
+                     << " values and got " << fieldValues << ". Please report this problem.");
         return false;
     }
     return true;
@@ -289,7 +287,7 @@ void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
                         std::back_inserter(extraColumnNames));
     if (extraColumnNames.empty() == false) {
         HANDLE_FATAL(<< "Input error: supplying additional columns "
-                     << core::CContainerPrinter::print(extraColumnNames) << ".");
+                     << extraColumnNames << ".");
     }
 
     m_DataFrameColumnMap = std::make_unique<TPtrdiffVec>();
@@ -304,7 +302,7 @@ void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
             m_DataFrameColumnMap->push_back(positions[i - columnNames.begin()]);
         }
     }
-    LOG_TRACE(<< "mapping = " << core::CContainerPrinter::print(*m_DataFrameColumnMap));
+    LOG_TRACE(<< "mapping = " << *m_DataFrameColumnMap);
 }
 
 void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
@@ -319,9 +317,8 @@ void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
     std::sort(originalCategoricalColumns.begin(), originalCategoricalColumns.end());
     std::sort(categoricalColumns.begin(), categoricalColumns.end());
     if (categoricalColumns != originalCategoricalColumns) {
-        HANDLE_FATAL(<< "Input error: mismatch in categorical columns "
-                     << core::CContainerPrinter::print(categoricalColumns) << " doesn't match "
-                     << core::CContainerPrinter::print(originalCategoricalColumns) << ".");
+        HANDLE_FATAL(<< "Input error: mismatch in categorical columns " << categoricalColumns
+                     << " doesn't match " << originalCategoricalColumns << ".");
     }
 }
 

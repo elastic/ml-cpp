@@ -13,7 +13,6 @@
 
 #include <core/ImportExport.h>
 
-#include <algorithm>
 #include <vector>
 
 namespace ml {

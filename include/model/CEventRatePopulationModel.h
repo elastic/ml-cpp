@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CEventRatePopulationModel_h
 #define INCLUDED_ml_model_CEventRatePopulationModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 
 #include <maths/common/CMultinomialConjugate.h>
 

@@ -9,9 +9,7 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -221,9 +219,9 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         const TFloatVec& endpoints = bucketing.endpoints();
         TDoubleVec values = bucketing.values(5100);
         TDoubleVec variances = bucketing.variances();
-        LOG_DEBUG(<< "endpoints = " << core::CContainerPrinter::print(endpoints));
-        LOG_DEBUG(<< "values    = " << core::CContainerPrinter::print(values));
-        LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+        LOG_DEBUG(<< "endpoints = " << endpoints);
+        LOG_DEBUG(<< "values    = " << values);
+        LOG_DEBUG(<< "variances = " << variances);
 
         TMeanAccumulator meanError;
         TMeanAccumulator varianceError;
@@ -502,8 +500,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                             maths::common::CSplineTypes::E_Periodic, knots,
                             values, variances);
-            LOG_DEBUG(<< "knots  = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+            LOG_DEBUG(<< "knots  = " << knots);
+            LOG_DEBUG(<< "values = " << values);
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
@@ -548,8 +546,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
                 bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                                 maths::common::CSplineTypes::E_Periodic, knots,
                                 values, variances);
-                LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
-                LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+                LOG_DEBUG(<< "knots     = " << knots);
+                LOG_DEBUG(<< "variances = " << variances);
 
                 TMeanAccumulator meanError;
                 TMeanAccumulator meanVariance;
@@ -608,9 +606,9 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                             maths::common::CSplineTypes::E_Periodic, knots,
                             values, variances);
-            LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
-            LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+            LOG_DEBUG(<< "knots     = " << knots);
+            LOG_DEBUG(<< "values = " << values);
+            LOG_DEBUG(<< "variances = " << variances);
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;

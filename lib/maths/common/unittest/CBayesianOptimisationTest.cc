@@ -9,9 +9,9 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBayesianOptimisation.h>
@@ -710,11 +710,10 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
         totalCoefficientOfVariationResults.push_back(bopt.excessCoefficientOfVariation());
     }
 
-    LOG_DEBUG(<< "evaluate      = " << core::CContainerPrinter::print(evaluateResults));
-    LOG_DEBUG(<< "evaluate1D    = " << core::CContainerPrinter::print(evaluate1DResults));
-    LOG_DEBUG(<< "totalVariance = " << core::CContainerPrinter::print(totalVarianceResults));
-    LOG_DEBUG(<< "totalCoefficientOfVariationResults = "
-              << core::CContainerPrinter::print(totalCoefficientOfVariationResults));
+    LOG_DEBUG(<< "evaluate      = " << evaluateResults);
+    LOG_DEBUG(<< "evaluate1D    = " << evaluate1DResults);
+    LOG_DEBUG(<< "totalVariance = " << totalVarianceResults);
+    LOG_DEBUG(<< "totalCoefficientOfVariationResults = " << totalCoefficientOfVariationResults);
 
     for (std::size_t i = 1; i < tests.size(); ++i) {
         double f0{tests[i].s_F0};

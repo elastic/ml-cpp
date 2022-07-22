@@ -11,8 +11,8 @@
 
 #include <maths/common/CMultivariateOneOfNPrior.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -348,7 +348,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
         }
 
         minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
-        failed |= (status & maths_t::E_FpFailed);
+        failed |= (status & maths_t::E_FpFailed) != 0;
 
         // Update the component prior distribution.
         model.second->addSamples(samples, weights);
@@ -361,8 +361,8 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 
     if (failed) {
         LOG_ERROR(<< "Failed to compute log-likelihood");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         return;
     }
     if (isNonInformative) {
@@ -371,7 +371,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 
     maxLogBayesFactor += m * MAXIMUM_LOG_BAYES_FACTOR;
 
-    LOG_TRACE(<< "BICs = " << core::CContainerPrinter::print(minusBics));
+    LOG_TRACE(<< "BICs = " << minusBics);
     LOG_TRACE(<< "max Bayes Factor = " << maxLogBayesFactor);
 
     double maxLogModelWeight{MINUS_INF + m * MAXIMUM_LOG_BAYES_FACTOR};
@@ -391,8 +391,8 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 
     if (this->badWeights()) {
         LOG_ERROR(<< "Update failed (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -656,15 +656,15 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& sam
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if (status & maths_t::E_FpFailed) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
-        LOG_ERROR(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
+        LOG_ERROR(<< "logLikelihoods = " << logLikelihoods);
         LOG_ERROR(<< "maxLogLikelihood = " << maxLogLikelihood[0]);
     } else if (status & maths_t::E_FpOverflowed) {
         LOG_ERROR(<< "Log likelihood overflowed for (" << this->debugWeights() << ")");
-        LOG_TRACE(<< "likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "likelihoods = " << logLikelihoods);
+        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "weights = " << weights);
     }
     return status;
 }
@@ -689,8 +689,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
-    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
-              << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "weights = " << weights << ", sampling = " << sampling);
 
     if (sampling.size() != m_Models.size()) {
         LOG_ERROR(<< "Failed to sample marginal likelihood");
@@ -712,7 +711,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
 }
 
 bool CMultivariateOneOfNPrior::isNonInformative() const {

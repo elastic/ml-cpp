@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <maths/common/CClusterer.h>
 
@@ -55,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testIndexGenerator) {
     for (std::size_t i = 0; i < numberOperations; ++i) {
         if (i % 1000 == 0) {
             LOG_DEBUG(<< "maxSetSize = " << maxSetSize);
-            LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));
+            LOG_DEBUG(<< "indices = " << indices);
         }
         if (nexts[i] == 1) {
             BOOST_TEST_REQUIRE(indices.insert(generator.next()).second);

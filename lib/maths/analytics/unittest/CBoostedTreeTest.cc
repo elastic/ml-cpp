@@ -25,6 +25,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CSpline.h>
@@ -357,8 +358,8 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             modelRSquared[test].push_back(rSquared);
         }
     }
-    LOG_DEBUG(<< "bias = " << core::CContainerPrinter::print(modelBias));
-    LOG_DEBUG(<< " R^2 = " << core::CContainerPrinter::print(modelRSquared));
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
 
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
 }
@@ -409,8 +410,8 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
         modelBias.push_back(bias);
         modelRSquared.push_back(rSquared);
     }
-    LOG_DEBUG(<< "bias = " << core::CContainerPrinter::print(modelBias));
-    LOG_DEBUG(<< " R^2 = " << core::CContainerPrinter::print(modelRSquared));
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
 
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
 }
@@ -689,7 +690,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             }
         }
     }
-    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+    LOG_DEBUG(<< "outliers = " << outliers);
 
     auto generateLinearPlusOutliers = [&](test::CRandomNumbers& rng, std::size_t cols) {
         TDoubleVec m;
@@ -731,7 +732,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.96);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
 // TODO #1744 test quality of MSLE on data with log-normal errors.
@@ -759,7 +760,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
             outliers.push_back(i);
         }
     }
-    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+    LOG_DEBUG(<< "outliers = " << outliers);
 
     auto target = [&] {
         TDoubleVec m;
@@ -1747,8 +1748,7 @@ BOOST_AUTO_TEST_CASE(testConstantFeatures) {
 
     TDoubleVec featureWeightsForTraining(regression->featureWeightsForTraining());
 
-    LOG_DEBUG(<< "feature weights = "
-              << core::CContainerPrinter::print(featureWeightsForTraining));
+    LOG_DEBUG(<< "feature weights = " << featureWeightsForTraining);
     BOOST_TEST_REQUIRE(featureWeightsForTraining[cols - 2] < 1e-4);
 }
 
@@ -2695,8 +2695,8 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         recalls.push_back(truePositives[1] / (truePositives[1] + falseNegatives[1]));
     }
 
-    LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
-    LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
+    LOG_DEBUG(<< "precisions = " << precisions);
+    LOG_DEBUG(<< "recalls    = " << recalls);
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
     BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.16);
@@ -2844,13 +2844,13 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.0);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.1);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.45);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {
@@ -3169,8 +3169,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         for (const auto& task : instrumentation.taskProgress()) {
             LOG_DEBUG(<< "task = " << task.s_Name);
             LOG_DEBUG(<< "monotonic = " << task.s_Monotonic);
-            LOG_DEBUG(<< "progress points = "
-                      << core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            LOG_DEBUG(<< "progress points = " << task.s_TenPercentProgressPoints);
             if (task.s_Name == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 // We don't do feature selection (we have enough data to use all of them).
             } else if (task.s_Name == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
@@ -3737,8 +3736,8 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
     // on the optimisation objective.
 
     test::CRandomNumbers rng;
-    std::size_t rows{2000};
-    std::size_t cols{3};
+    std::size_t rows{2500};
+    std::size_t cols{4};
 
     std::size_t numberHoldoutRows{1500};
 
@@ -3773,11 +3772,11 @@ BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .numberHoldoutRows(numberHoldoutRows)
                 .buildForTrain(*frame, cols - 1);
-        return regression->hyperparameters().optimisationMakingNoProgress();
+        return regression->hyperparameters().fineTuneSearchNotFinished();
     };
 
-    BOOST_REQUIRE_EQUAL(verify(0.001), false);
-    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
+    BOOST_REQUIRE_EQUAL(verify(0.0), true);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), false);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {

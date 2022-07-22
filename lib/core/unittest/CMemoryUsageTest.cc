@@ -10,7 +10,6 @@
  */
 
 #include <core/CAlignment.h>
-#include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -56,7 +55,7 @@ struct SPod {
 };
 
 struct SFoo {
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     explicit SFoo(std::size_t key = 0) : s_Key(key) {}
     bool operator<(const SFoo& rhs) const { return s_Key < rhs.s_Key; }
@@ -158,7 +157,7 @@ struct SHash {
 
 class CBase {
 public:
-    CBase(std::size_t i) : m_Vec(i, 0) {}
+    explicit CBase(std::size_t i) : m_Vec(i, 0) {}
 
     virtual ~CBase() = default;
 
@@ -182,7 +181,7 @@ private:
 
 class CDerived : public CBase {
 public:
-    CDerived(std::size_t i)
+    explicit CDerived(std::size_t i)
         : CBase(i), m_Strings(i, "This is a secret string") {}
 
     ~CDerived() override = default;
@@ -234,7 +233,7 @@ public:
     CTrackingAllocator(const CTrackingAllocator&) = default;
 
     template<typename U>
-    inline CTrackingAllocator(const CTrackingAllocator<U>&) {}
+    CTrackingAllocator(const CTrackingAllocator<U>&) {}
 
     // address
     inline pointer address(reference r) { return &r; }
@@ -279,6 +278,12 @@ std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
 }
 
 BOOST_AUTO_TEST_CASE(testUsage) {
+    using TDoubleUPtr = std::unique_ptr<double>;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TDoubleVecMultiset = std::multiset<TDoubleVec>;
+    using TDoubleDoubleVecMap = std::map<double, TDoubleVec>;
+    using TDoubleDoubleVecMultimap = std::multimap<double, TDoubleVec>;
     using TFooVec = std::vector<SFoo>;
     using TFooWithMemoryVec = std::vector<SFooWithMemoryUsage>;
     using TFooList = std::list<SFoo>;
@@ -301,6 +306,87 @@ BOOST_AUTO_TEST_CASE(testUsage) {
     using TBasePtr = std::shared_ptr<CBase>;
     using TDerivedVec = std::vector<CDerived>;
     using TBasePtrVec = std::vector<TBasePtr>;
+    using TAnyVec = std::vector<boost::any>;
+
+    // Check std::unique_ptr behaves as expected.
+
+    {
+        BOOST_REQUIRE_EQUAL(0, core::CMemory::dynamicSize(TDoubleUPtr{}));
+        BOOST_REQUIRE_EQUAL(sizeof(double),
+                            core::CMemory::dynamicSize(std::make_unique<double>(1.0)));
+    }
+
+    // Check that containers of containers work as expected.
+
+    {
+        TDoubleVecVec v1{{}, {}, {}};
+        TDoubleVecVec v2{{1.0}, {2.0, 2.0}, {3.0, 3.0, 3.0}};
+
+        std::size_t actualMemoryUsage{core::CMemory::dynamicSize(v2)};
+        std::size_t expectedMemoryUsage{
+            core::CMemory::dynamicSize(v1) + core::CMemory::dynamicSize(v2[0]) +
+            core::CMemory::dynamicSize(v2[1]) + core::CMemory::dynamicSize(v2[2])};
+
+        LOG_DEBUG(<< "*** TDoubleVecVec ***");
+        LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
+        LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
+
+        BOOST_REQUIRE_EQUAL(expectedMemoryUsage, actualMemoryUsage);
+    }
+    {
+        TDoubleVecMultiset s1{{}, {}, {}};
+        TDoubleVec v1{1.0};
+        TDoubleVec v2{2.0, 2.0};
+        TDoubleVec v3{3.0, 3.0, 3.0};
+        TDoubleVecMultiset s2{v1, v2, v3};
+
+        std::size_t actualMemoryUsage{core::CMemory::dynamicSize(s2)};
+        std::size_t expectedMemoryUsage{
+            core::CMemory::dynamicSize(s1) + core::CMemory::dynamicSize(v1) +
+            core::CMemory::dynamicSize(v2) + core::CMemory::dynamicSize(v3)};
+
+        LOG_DEBUG(<< "*** TDoubleVecMultiset ***");
+        LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
+        LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
+
+        BOOST_REQUIRE_EQUAL(expectedMemoryUsage, actualMemoryUsage);
+    }
+    {
+        TDoubleDoubleVecMap m1{{1.0, {}}, {2.0, {}}, {3.0, {}}};
+        TDoubleVec v1{1.0};
+        TDoubleVec v2{2.0, 2.0};
+        TDoubleVec v3{3.0, 3.0, 3.0};
+        TDoubleDoubleVecMap m2{{1.0, v1}, {2.0, v2}, {3.0, v3}};
+
+        std::size_t actualMemoryUsage{core::CMemory::dynamicSize(m2)};
+        std::size_t expectedMemoryUsage{
+            core::CMemory::dynamicSize(m1) + core::CMemory::dynamicSize(v1) +
+            core::CMemory::dynamicSize(v2) + core::CMemory::dynamicSize(v3)};
+
+        LOG_DEBUG(<< "*** TDoubleDoubleVecMap ***");
+        LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
+        LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
+
+        BOOST_REQUIRE_EQUAL(expectedMemoryUsage, actualMemoryUsage);
+    }
+    {
+        TDoubleDoubleVecMultimap m1{{1.0, {}}, {2.0, {}}, {3.0, {}}};
+        TDoubleVec v1{1.0};
+        TDoubleVec v2{2.0, 2.0};
+        TDoubleVec v3{3.0, 3.0, 3.0};
+        TDoubleDoubleVecMultimap m2{{1.0, v1}, {2.0, v2}, {3.0, v3}};
+
+        std::size_t actualMemoryUsage{core::CMemory::dynamicSize(m2)};
+        std::size_t expectedMemoryUsage{
+            core::CMemory::dynamicSize(m1) + core::CMemory::dynamicSize(v1) +
+            core::CMemory::dynamicSize(v2) + core::CMemory::dynamicSize(v3)};
+
+        LOG_DEBUG(<< "*** TDoubleDoubleVecMap ***");
+        LOG_DEBUG(<< "expected = " << expectedMemoryUsage);
+        LOG_DEBUG(<< "actual   = " << actualMemoryUsage);
+
+        BOOST_REQUIRE_EQUAL(expectedMemoryUsage, actualMemoryUsage);
+    }
 
     // We want various invariants to hold for dynamic size:
     //   1) The dynamic size is not affected by adding a memoryUsage
@@ -360,10 +446,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TFooFooMap foos;
         TFooWithMemoryFooWithMemoryMap foosWithMemory;
 
-        std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0; i < boost::size(keys); ++i) {
-            foos[SFoo(keys[i])] = SFoo(keys[i]);
-            foosWithMemory[SFooWithMemoryUsage(keys[i])] = SFooWithMemoryUsage(keys[i]);
+        for (auto key : {0, 1, 2, 3, 4, 5}) {
+            foos[SFoo(key)] = SFoo(key);
+            foosWithMemory[SFooWithMemoryUsage(key)] = SFooWithMemoryUsage(key);
         }
 
         LOG_DEBUG(<< "*** TFooFooMap ***");
@@ -524,12 +609,8 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                             sizeof(long) + sizeof(SBar) +
                                 sizeof(SFoo) * value.s_State.capacity());
     }
-
     {
         LOG_DEBUG(<< "*** boost::any ***");
-
-        using TDoubleVec = std::vector<double>;
-        using TAnyVec = std::vector<boost::any>;
 
         TDoubleVec a(10);
         TFooVec b(20);
@@ -542,7 +623,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t),
                             core::CMemory::dynamicSize(variables));
 
-        core::CMemory::CAnyVisitor& visitor = core::CMemory::anyVisitor();
+        auto& visitor = core::CMemory::anyVisitor();
         visitor.registerCallback<TDoubleVec>();
         visitor.registerCallback<TFooVec>();
 
@@ -556,7 +637,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                                 sizeof(b) + core::CMemory::dynamicSize(b),
                             core::CMemory::dynamicSize(variables));
 
-        core::CMemoryDebug::CAnyVisitor& debugVisitor = core::CMemoryDebug::anyVisitor();
+        auto& debugVisitor = core::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
         debugVisitor.registerCallback<TFooVec>();
 
@@ -1008,8 +1089,7 @@ BOOST_AUTO_TEST_CASE(testStringBehaviour, *boost::unit_test::disabled()) {
         }
     }
 
-    LOG_INFO(<< "Capacities during growth from 0 to 50000 characters are: "
-             << core::CContainerPrinter::print(capacities));
+    LOG_INFO(<< "Capacities during growth from 0 to 50000 characters are: " << capacities);
 
     std::string toBeShrunk(100, 'a');
     toBeShrunk = "a lot smaller than it was";

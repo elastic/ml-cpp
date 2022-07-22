@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CIndividualModel_h
 #define INCLUDED_ml_model_CIndividualModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryFwd.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 

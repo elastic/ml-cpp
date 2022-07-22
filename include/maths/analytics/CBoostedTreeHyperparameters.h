@@ -28,7 +28,6 @@
 
 #include <cstddef>
 #include <functional>
-#include <locale>
 #include <memory>
 #include <optional>
 #include <string>

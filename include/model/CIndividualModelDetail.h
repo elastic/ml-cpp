@@ -87,8 +87,7 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
         gatherer.featureData(time, bucketLength, featureData);
         for (auto& feature_ : featureData) {
             T& data = feature_.second;
-            LOG_TRACE(<< model_t::print(feature_.first)
-                      << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature_.first) << " data = " << data);
             this->applyFilter(model_t::E_XF_By, false, filter, data);
         }
     }

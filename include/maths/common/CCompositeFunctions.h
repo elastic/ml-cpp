@@ -12,85 +12,15 @@
 #ifndef INCLUDED_ml_maths_common_CCompositeFunctions_h
 #define INCLUDED_ml_maths_common_CCompositeFunctions_h
 
+#include <core/Constants.h>
+
 #include <maths/common/ImportExport.h>
 
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/remove_reference.hpp>
-
 #include <cmath>
-#include <limits>
 
 namespace ml {
 namespace maths {
 namespace common {
-namespace composition_detail {
-
-//! Type used to deduce the result type for a function.
-template<typename T>
-struct function_result_type {};
-
-//! Vanilla function type 1: "result type" is the return type.
-template<typename R, typename A1>
-struct function_result_type<R (*)(A1)> {
-    using type = typename boost::remove_reference<R>::type;
-};
-
-//! Vanilla function type 2: "result type" is the second argument type.
-template<typename R, typename A1, typename A2>
-struct function_result_type<R (*)(A1, A2)> {
-    using type = typename boost::remove_reference<A2>::type;
-};
-
-using true_ = boost::true_type;
-using false_ = boost::false_type;
-
-//! \brief Auxiliary type used by has_result_type to test for
-//! a nested typedef.
-template<typename T, typename R = void>
-struct enable_if_type {
-    using type = R;
-};
-
-//! Checks for a nested typedef called result_type.
-template<typename T, typename ENABLE = void>
-struct has_result_type {
-    using value = false_;
-};
-
-//! Has a nested typedef called result_type.
-template<typename T>
-struct has_result_type<T, typename enable_if_type<typename T::result_type>::type> {
-    using value = true_;
-};
-
-//! Extracts the result type of a function (object) for composition.
-template<typename F, typename SELECTOR>
-struct result_type_impl {};
-
-//! \brief Read the typedef from the function.
-//!
-//! This is needed to get result type for function objects: they must
-//! define a nested typedef called result_type as per our compositions.
-template<typename F>
-struct result_type_impl<F, true_> {
-    using type = typename F::result_type;
-};
-
-//! Deduce result type from function (object).
-template<typename F>
-struct result_type_impl<F, false_> {
-    using type = typename function_result_type<F>::type;
-};
-
-//! \brief Tries to deduce the result type of a function (object)
-//! in various ways.
-template<typename F>
-struct result_type
-    : public result_type_impl<typename boost::remove_reference<F>::type,
-                              typename has_result_type<typename boost::remove_reference<F>::type>::value> {
-};
-
-} // composition_detail::
 
 //! \brief A collection of useful compositions of functions for the solver
 //! and numerical integration functions.
@@ -118,20 +48,20 @@ struct result_type
 class MATHS_COMMON_EXPORT CCompositeFunctions {
 public:
     //! Function composition with minus a constant.
-    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_>
     class CMinusConstant {
     public:
-        using F = typename boost::remove_reference<F_>::type;
-        using result_type = T;
+        using F = std::remove_reference_t<F_>;
 
     public:
         CMinusConstant(const F& f, double offset) : m_F(f), m_Offset(offset) {}
 
         //! For function returning value.
-        inline T operator()(double x) const { return m_F(x) - m_Offset; }
+        inline auto operator()(double x) const { return m_F(x) - m_Offset; }
 
         //! For function return success/fail and taking result as argument.
-        inline bool operator()(double x, T& result) const {
+        template<typename R>
+        inline bool operator()(double x, R& result) const {
             if (m_F(x, result)) {
                 result -= m_Offset;
                 return true;
@@ -145,20 +75,20 @@ public:
     };
 
     //! Function composition with negation.
-    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_>
     class CMinus {
     public:
-        using F = typename boost::remove_reference<F_>::type;
-        using result_type = T;
+        using F = std::remove_reference_t<F_>;
 
     public:
         explicit CMinus(const F& f = F()) : m_F(f) {}
 
         //! For function returning value.
-        inline T operator()(double x) const { return -m_F(x); }
+        inline auto operator()(double x) const { return -m_F(x); }
 
         //! For function return success/fail and taking result as argument.
-        inline bool operator()(double x, T& result) const {
+        template<typename R>
+        inline bool operator()(double x, R& result) const {
             if (m_F(x, result)) {
                 result = -result;
                 return true;
@@ -171,29 +101,25 @@ public:
     };
 
     //! Composition with exponentiation.
-    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_>
     class CExp {
     public:
-        using F = typename boost::remove_reference<F_>::type;
-        using result_type = T;
+        using F = std::remove_reference_t<F_>;
 
     public:
         explicit CExp(const F& f = F()) : m_F(f) {}
 
         //! For function returning value.
-        inline T operator()(double x) const {
-            static const double LOG_MIN_DOUBLE =
-                std::log(std::numeric_limits<double>::min());
+        inline auto operator()(double x) const {
             double fx = m_F(x);
-            return fx < LOG_MIN_DOUBLE ? 0.0 : std::exp(fx);
+            return fx < core::constants::LOG_MIN_DOUBLE ? 0.0 : std::exp(fx);
         }
 
         //! For function return success/fail and taking result as argument.
-        inline bool operator()(double x, T& result) const {
-            static const double LOG_MIN_DOUBLE =
-                std::log(std::numeric_limits<double>::min());
+        template<typename R>
+        inline bool operator()(double x, R& result) const {
             if (m_F(x, result)) {
-                result = result < LOG_MIN_DOUBLE ? 0.0 : std::exp(result);
+                result = result < core::constants::LOG_MIN_DOUBLE ? 0.0 : std::exp(result);
                 return true;
             }
             return false;
@@ -204,27 +130,24 @@ public:
     };
 
     //! Composition of two functions by multiplication.
-    template<typename F_,
-             typename G_,
-             typename U = typename composition_detail::result_type<F_>::type,
-             typename V = typename composition_detail::result_type<G_>::type>
+    template<typename F_, typename G_>
     class CProduct {
     public:
-        using F = typename boost::remove_reference<F_>::type;
-        using G = typename boost::remove_reference<G_>::type;
-        using result_type = U;
+        using F = std::remove_reference_t<F_>;
+        using G = std::remove_reference_t<G_>;
 
     public:
         explicit CProduct(const F& f = F(), const G& g = G())
             : m_F(f), m_G(g) {}
 
         //! For function returning value.
-        inline U operator()(double x) const { return m_F(x) * m_G(x); }
+        inline auto operator()(double x) const { return m_F(x) * m_G(x); }
 
         //! For function return success/fail and taking result as argument.
-        inline bool operator()(double x, U& result) const {
-            U fx;
-            V gx;
+        template<typename R>
+        inline bool operator()(double x, R& result) const {
+            R fx;
+            R gx;
             if (m_F(x, fx) && m_G(x, gx)) {
                 result = fx * gx;
                 return true;

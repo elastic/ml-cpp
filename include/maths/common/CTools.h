@@ -13,6 +13,7 @@
 #define INCLUDED_ml_maths_common_CTools_h
 
 #include <core/CIEEE754.h>
+#include <core/CNonCopyable.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 
@@ -30,7 +31,6 @@
 #include <cstring>
 #include <iosfwd>
 #include <limits>
-#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -603,32 +603,11 @@ public:
     //! \tparam COLLECTION Is assumed to be a collection type, i.e. it
     //! must support iterator based access.
     template<typename COLLECTION>
-    static void inplaceSoftmax(COLLECTION& z) {
-        double Z{0.0};
-        double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& zi : z) {
-            zi = stableExp(zi - zmax);
-            Z += zi;
-        }
-        for (auto& zi : z) {
-            zi /= Z;
-        }
-    }
+    static void inplaceSoftmax(COLLECTION& z);
 
     //! Compute the log of the softmax for the multinomial logit values \p logit.
     template<typename COLLECTION>
-    static void inplaceLogSoftmax(COLLECTION& z) {
-        double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& zi : z) {
-            zi -= zmax;
-        }
-        double logZ{std::log(std::accumulate(
-            z.begin(), z.end(), 0.0,
-            [](double sum, const auto& zi) { return sum + std::exp(zi); }))};
-        for (auto& zi : z) {
-            zi -= logZ;
-        }
-    }
+    static void inplaceLogSoftmax(COLLECTION& z);
 
     //! Specialize the softmax for CDenseVector.
     template<typename T>

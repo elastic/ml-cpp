@@ -215,6 +215,7 @@ void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWrit
         })};
     LOG_TRACE(<< numWritten << " changed categories written for categorizer "
               << m_CategoryIdMapper->categorizerKey());
+    SUPPRESS_USAGE_WARNING(numWritten);
     this->writeStatsIfChanged(jsonOutputWriter, annotationJsonWriter);
 }
 

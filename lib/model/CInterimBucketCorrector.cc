@@ -9,7 +9,10 @@
  * limitation.
  */
 
+#include <model/CInterimBucketCorrector.h>
+
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -19,7 +22,6 @@
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CInterimBucketCorrector.h>
 
 #include <cmath>
 

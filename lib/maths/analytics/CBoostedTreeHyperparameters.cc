@@ -11,7 +11,8 @@
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -188,25 +189,29 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(
     double intervalRightEnd,
     TDoubleDoubleDoubleSizeTupleVec& testLosses) const {
 
+    auto& tree = args.tree();
     testLosses.reserve(maxLineSearchIterations());
+    double minTestLoss{std::numeric_limits<double>::max()};
 
     for (auto parameter :
          {intervalLeftEnd, (2.0 * intervalLeftEnd + intervalRightEnd) / 3.0,
           (intervalLeftEnd + 2.0 * intervalRightEnd) / 3.0, intervalRightEnd}) {
 
-        if (args.updateParameter()(args.tree(), parameter) == false) {
-            args.tree().m_TrainingProgress.increment(
+        if (args.updateParameter()(tree, parameter) == false) {
+            tree.m_TrainingProgress.increment(
                 (maxLineSearchIterations() - testLosses.size()) *
-                args.tree().m_Hyperparameters.maximumNumberTrees().value());
+                tree.m_Hyperparameters.maximumNumberTrees().value());
             break;
         }
 
-        auto result = args.tree().trainForest(
-            args.frame(), args.tree().m_TrainingRowMasks[0],
-            args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
-        args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
-        testLosses.emplace_back(parameter, common::CBasicStatistics::mean(result.s_TestLoss),
-                                result.s_LossGap, result.s_Forest.size());
+        auto result = tree.trainForest(args.frame(), tree.m_TrainingRowMasks[0],
+                                       tree.m_TestingRowMasks[0],
+                                       tree.m_TrainingProgress, minTestLoss);
+        tree.hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
+        double meanTestLoss{common::CBasicStatistics::mean(result.s_TestLoss)};
+        testLosses.emplace_back(parameter, meanTestLoss, result.s_LossGap,
+                                result.s_Forest.size());
+        minTestLoss = std::min(minTestLoss, meanTestLoss);
     }
 }
 
@@ -236,6 +241,7 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
         testLoss = adjustedTestLoss;
     }
 
+    auto& tree = args.tree();
     // Ensure we choose one value based on expected improvement.
     std::size_t minNumberTestLosses{6};
 
@@ -244,32 +250,31 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
         common::CBayesianOptimisation::TOptionalDouble EI;
         std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
         double threshold{LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE * minTestLoss[0]};
-        LOG_TRACE(<< "EI = " << core::CContainerPrinter::print(EI)
-                  << " threshold to continue = " << threshold);
+        LOG_TRACE(<< "EI = " << EI << " threshold to continue = " << threshold);
         if ((testLosses.size() >= minNumberTestLosses && EI != std::nullopt && *EI < threshold) ||
-            args.updateParameter()(args.tree(), parameter(0)) == false) {
-            args.tree().m_TrainingProgress.increment(
+            args.updateParameter()(tree, parameter(0)) == false) {
+            tree.m_TrainingProgress.increment(
                 (maxLineSearchIterations() - testLosses.size()) *
-                args.tree().m_Hyperparameters.maximumNumberTrees().value());
+                tree.m_Hyperparameters.maximumNumberTrees().value());
             break;
         }
 
-        auto result = args.tree().trainForest(
-            args.frame(), args.tree().m_TrainingRowMasks[0],
-            args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
+        auto result = tree.trainForest(args.frame(), tree.m_TrainingRowMasks[0],
+                                       tree.m_TestingRowMasks[0],
+                                       tree.m_TrainingProgress, minTestLoss[0]);
 
         minTestLoss.add(common::CBasicStatistics::mean(result.s_TestLoss));
 
         double adjustedTestLoss{adjustTestLoss(
             parameter(0), common::CBasicStatistics::mean(result.s_TestLoss))};
         bopt.add(parameter, adjustedTestLoss, 0.0);
-        args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
+        tree.hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
         testLosses.emplace_back(parameter(0), adjustedTestLoss,
                                 result.s_LossGap, result.s_Forest.size());
     }
 
     std::sort(testLosses.begin(), testLosses.end());
-    LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
+    LOG_TRACE(<< "test losses = " << testLosses);
 }
 
 CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
@@ -367,8 +372,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
     this->foreachTunableParameter([&](std::size_t, const auto& parameter) {
         boundingBox.push_back(parameter.searchRange());
     });
-    LOG_TRACE(<< "hyperparameter search bounding box = "
-              << core::CContainerPrinter::print(boundingBox));
+    LOG_TRACE(<< "hyperparameter search bounding box = " << boundingBox);
 
     m_BayesianOptimization = std::make_unique<common::CBayesianOptimisation>(
         std::move(boundingBox),
@@ -478,16 +482,24 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
 
+    // We don't stop early for incremental training because iterations are fast.
+    bool canStopEarly{m_CurrentRound > 3 && m_IncrementalTraining == false};
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
-    } else if (this->optimisationMakingNoProgress()) {
-        m_StopHyperparameterOptimizationEarly = true;
-        return false;
+        if (canStopEarly) {
+            m_BayesianOptimization->maximumLikelihoodKernel(3);
+        }
     } else {
         std::tie(parameters, std::ignore) =
             m_BayesianOptimization->maximumExpectedImprovement(3);
+    }
+
+    if (canStopEarly && this->optimisationMakingNoProgress()) {
+        m_StopHyperparameterOptimizationEarly = true;
+        return false;
     }
 
     this->setHyperparameterValues(std::move(parameters));

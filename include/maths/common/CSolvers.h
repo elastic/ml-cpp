@@ -12,13 +12,11 @@
 #ifndef INCLUDED_ml_maths_common_CSolvers_h
 #define INCLUDED_ml_maths_common_CSolvers_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/ImportExport.h>
 
 #include <boost/math/tools/roots.hpp>
@@ -439,8 +437,7 @@ public:
             return;
         } catch (const std::exception& e) {
             LOG_TRACE(<< "Falling back to Brent's solver: " << e.what());
-            // Avoid compiler warning in the case of LOG_TRACE being compiled out
-            static_cast<void>(&e);
+            SUPPRESS_USAGE_WARNING(e);
         }
         if (!brent(a, b, fa, fb, f, maxIterations, equal, bestGuess)) {
             throw std::invalid_argument("doesn't bracket root");
@@ -845,8 +842,8 @@ public:
             moments.add(fi);
         }
         fsd = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(moments));
-        LOG_TRACE(<< "p    = " << core::CContainerPrinter::print(p));
-        LOG_TRACE(<< "f(p) = " << core::CContainerPrinter::print(fp));
+        LOG_TRACE(<< "p    = " << p);
+        LOG_TRACE(<< "f(p) = " << fp);
 
         std::size_t i = min[0].second;
         std::size_t maxIterations = 5;

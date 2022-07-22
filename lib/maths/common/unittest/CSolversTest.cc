@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -414,7 +413,7 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
     // Should converge immediately to minimum of quadratic.
     TDoubleDoublePr sublevelSet;
     CSolvers::sublevelSet(0.0, 8.0, 2.0, 42.0, &f2, 0.0, 10, sublevelSet);
-    LOG_DEBUG(<< "sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
+    LOG_DEBUG(<< "sublevelSet = " << sublevelSet);
 
     LOG_DEBUG(<< "*** f(x) = 1.1 * exp(-(x-4)^2) + 0.4 * exp(-(x-10)^2/4) ***");
 
@@ -428,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
         } else {
             BOOST_TEST_REQUIRE(sublevelSet.second - sublevelSet.first < 1e-4);
         }
-        LOG_DEBUG(<< "sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
+        LOG_DEBUG(<< "sublevelSet = " << sublevelSet);
         LOG_DEBUG(<< "f(a) = " << f5(sublevelSet.first)
                   << ", f(b) = " << f5(sublevelSet.second));
     }
@@ -442,7 +441,7 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
         bool found = CSolvers::sublevelSet(4.0, 10.0, f6(4.0), f6(10.0), &f6,
                                            fmax, 15, sublevelSet);
 
-        LOG_DEBUG(<< "sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
+        LOG_DEBUG(<< "sublevelSet = " << sublevelSet);
         LOG_DEBUG(<< "f(a) = " << f6(sublevelSet.first)
                   << ", f(b) = " << f6(sublevelSet.second));
 

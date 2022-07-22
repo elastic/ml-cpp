@@ -11,10 +11,10 @@
 
 #include <maths/analytics/CBoostedTreeFactory.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
-#include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -30,7 +30,6 @@
 #include <maths/common/CBayesianOptimisation.h>
 #include <maths/common/CLowess.h>
 #include <maths/common/CLowessDetail.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/CSampling.h>
 
@@ -627,7 +626,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
     }
     std::size_t numberTrainingRows{
         static_cast<std::size_t>(m_TreeImpl->allTrainingRowMask().manhattan())};
-    LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
+    LOG_TRACE(<< "candidate regressors = " << regressors);
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
         CMakeDataFrameCategoryEncoder{m_TreeImpl->m_NumberThreads, frame,
@@ -676,7 +675,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
     // Compute feature sample probabilities.
 
     TDoubleVec mics(m_TreeImpl->m_Encoder->encodedColumnMics());
-    LOG_TRACE(<< "candidate regressors MICe = " << core::CContainerPrinter::print(mics));
+    LOG_TRACE(<< "candidate regressors MICe = " << mics);
 
     if (mics.empty() == false) {
         double Z{std::accumulate(mics.begin(), mics.end(), 0.0,
@@ -686,8 +685,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
             mic /= Z;
         }
         m_TreeImpl->m_FeatureSampleProbabilities = std::move(mics);
-        LOG_TRACE(<< "P(sample) = "
-                  << core::CContainerPrinter::print(m_TreeImpl->m_FeatureSampleProbabilities));
+        LOG_TRACE(<< "P(sample) = " << m_TreeImpl->m_FeatureSampleProbabilities);
     }
 }
 
@@ -798,8 +796,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
         LOG_TRACE(<< "max depth = " << softTreeDepthLimitParameter.print());
         LOG_TRACE(<< "tolerance = " << softTreeDepthToleranceParameter.print());
-        LOG_TRACE(<< "gains and total curvatures per node = "
-                  << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
+        LOG_TRACE(<< "gains and total curvatures per node = " << gainAndTotalCurvaturePerNode);
     });
 
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
