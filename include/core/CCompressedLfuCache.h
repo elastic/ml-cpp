@@ -138,7 +138,7 @@ public:
 
         auto value = computeValue(std::move(key));
 
-        std::size_t itemMemoryUsage{core::CMemory::dynamicSize(value)};
+        std::size_t itemMemoryUsage{CMemory::dynamicSize(value)};
 
         if (this->guardWrite(TIME_OUT, [&] {
                 // It is possible that two values with the same key check the cache
@@ -257,8 +257,8 @@ public:
             // We may be missing counts if a single addition caused multiple
             // evictions, or if updates can time out
             if (m_NumberLookups - m_LostCount != totalCount) {
-                LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load()
-                          << " vs " << totalCount << ".");
+                LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load() << " (less "
+                          << m_LostCount.load() << " lost) vs " << totalCount << ".");
                 result = false;
             }
             return true;
@@ -471,22 +471,25 @@ private:
     bool full(std::size_t itemMemoryUsage) const {
         std::size_t memory{this->unguardedMemoryUsage() + itemMemoryUsage +
                            sizeof(typename TCompressedKeyCacheItemUMap::value_type) +
-                           sizeof(typename TCacheItemStatsSet::value_type)};
+                           CMemory::storageNodeOverhead(m_ItemCache) +
+                           sizeof(typename TCacheItemStatsSet::value_type) +
+                           CMemory::storageNodeOverhead(m_ItemStats)};
         if (this->needToResizeItemCache()) {
             memory += static_cast<std::size_t>(
                 (static_cast<double>(this->nextItemCacheBucketCount()) /
                      static_cast<double>(m_ItemCache.bucket_count()) -
                  1.0) *
-                static_cast<double>(core::CMemory::dynamicSize(m_ItemCache)));
+                static_cast<double>(CMemory::dynamicSize(m_ItemCache) -
+                                    m_ItemCache.size() *
+                                        sizeof(typename TCompressedKeyCacheItemUMap::value_type)));
         }
         return memory > m_MaximumMemory;
     }
 
     std::size_t unguardedMemoryUsage() const {
         return m_ItemsMemoryUsage + // overheads
-               core::CMemory::dynamicSize(m_ItemCache) +
-               core::CMemory::dynamicSize(m_ItemStats) +
-               core::CMemory::dynamicSize(m_BucketCountSequence);
+               CMemory::dynamicSize(m_ItemCache) + CMemory::dynamicSize(m_ItemStats) +
+               CMemory::dynamicSize(m_BucketCountSequence);
     }
 
     bool needToResizeItemCache() const {

@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
     for (std::size_t i = 0; i < 200; ++i) {
         if (i < 100) {
             cache.lookup("large_key_" + std::to_string(i),
-                         [i](std::string) { return CTestValue{5 + i}; },
+                         [i](std::string) { return CTestValue{10 + i}; },
                          [&](const CTestValue&) {});
             auto stats = cache.stats("large_key_" + std::to_string(i));
             BOOST_TEST_REQUIRE(stats.first > 0);
