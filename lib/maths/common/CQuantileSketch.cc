@@ -320,6 +320,10 @@ double CQuantileSketch::count() const {
     return m_Count;
 }
 
+bool CQuantileSketch::isExact() const {
+    return m_Knots.size() < this->fastReduceTargetSize();
+}
+
 std::uint64_t CQuantileSketch::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_Knots);
@@ -428,7 +432,7 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
         }
     }
 
-    result = knots[n - 1].second;
+    result = knots[n - 1].first;
 }
 
 CQuantileSketch::EInterpolation CQuantileSketch::cdfAndQuantileInterpolation() const {
@@ -436,7 +440,7 @@ CQuantileSketch::EInterpolation CQuantileSketch::cdfAndQuantileInterpolation() c
     // never have combined any distinct values into a single bucket and the
     // quantile and empircal cdf are computed exactly using piecewise constant
     // interpolation.
-    return m_Knots.size() < this->fastReduceTargetSize() ? E_PiecewiseConstant : m_Interpolation;
+    return this->isExact() ? E_PiecewiseConstant : m_Interpolation;
 }
 
 std::size_t CQuantileSketch::fastReduceTargetSize() const {

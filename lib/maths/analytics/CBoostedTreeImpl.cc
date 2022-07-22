@@ -1478,11 +1478,22 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 
         auto& featureCandidateSplits = candidateSplits[features[i]];
 
-        // Because we compute candidate splits for downsamples of the rows it's
-        // possible that all values are missing for a particular feature. In this
-        // case, we can happily initialize the candidate splits to an empty set
-        // since we'll only be choosing how to assign missing values.
-        if (featureQuantiles[i].count() > 0.0) {
+        if (featureQuantiles[i].count() == 0.0) {
+            // Because we compute candidate splits for downsamples of the rows it's
+            // possible that all values are missing for a particular feature. In this
+            // case, we can happily initialize the candidate splits to an empty set
+            // since we'll only be choosing how to assign missing values.
+
+        } else if (featureQuantiles[i].isExact()) {
+            // In this case the sketch holds every distinct value and it's sufficient
+            // to consider splits only at the interval midpoints.
+            const auto& knots = featureQuantiles[i].knots();
+            featureCandidateSplits.reserve(knots.size() - 1);
+            for (std::size_t j = 1; j < knots.size(); ++j) {
+                featureCandidateSplits.push_back((knots[j].first + knots[j - 1].first) / 2.0);
+            }
+
+        } else {
             featureCandidateSplits.reserve(m_NumberSplitsPerFeature - 1);
             for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
                 double rank{100.0 * static_cast<double>(j) /
@@ -1495,7 +1506,6 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
             }
-            std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         }
 
         const auto& dataType = m_FeatureDataTypes[features[i]];
@@ -1511,13 +1521,14 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                               split = std::floor(split) + 0.5;
                           });
         }
+        std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         featureCandidateSplits.erase(std::unique(featureCandidateSplits.begin(),
                                                  featureCandidateSplits.end()),
                                      featureCandidateSplits.end());
         featureCandidateSplits.erase(std::remove_if(featureCandidateSplits.begin(),
                                                     featureCandidateSplits.end(),
                                                     [&dataType](double split) {
-                                                        return split < dataType.s_Min ||
+                                                        return split <= dataType.s_Min ||
                                                                split > dataType.s_Max;
                                                     }),
                                      featureCandidateSplits.end());

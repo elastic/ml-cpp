@@ -94,11 +94,14 @@ public:
     //! Get the quantile corresponding to \p percentage.
     bool quantile(double percentage, double& result) const;
 
-    //! Get the knot values.
+    //! Get the knot values as (value, count) pairs.
     const TFloatFloatPrVec& knots() const;
 
     //! Get the total count of points added.
     double count() const;
+
+    //! Check if this holds all distinct values supplied to the sketch.
+    bool isExact() const;
 
     //! Get a checksum of this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
