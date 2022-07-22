@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CBasicStatistics_h
 #define INCLUDED_ml_maths_common_CBasicStatistics_h
 
+#include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLoggerTrace.h>
 #include <core/CMemoryFwd.h>
@@ -1451,6 +1452,18 @@ template<typename T>
 std::ostream& operator<<(std::ostream& o,
                          const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename T, std::size_t N, typename LESS>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
+    return o << core::CContainerPrinter::print(accumulator);
+}
+
+template<typename T, typename LESS>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
+    return o << core::CContainerPrinter::print(accumulator);
 }
 
 namespace basic_statistics_detail {

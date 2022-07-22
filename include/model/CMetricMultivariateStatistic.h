@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CMetricMultivariateStatistic_h
 #define INCLUDED_ml_model_CMetricMultivariateStatistic_h
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CMemoryFwd.h>
 #include <core/CSmallVector.h>
@@ -154,28 +155,20 @@ public:
         return sizeof(*this) + core::CMemory::dynamicSize(m_Values);
     }
 
-    //! Print partial statistic
-    std::string print() const {
-        std::ostringstream result;
-        result << m_Values;
-        return result.str();
-    }
-
 private:
     using TStatistic2Vec = core::CSmallVector<STATISTIC, 2>;
 
 private:
     TStatistic2Vec m_Values;
+
+    friend std::ostream&
+    operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
+        return o << core::CContainerPrinter::print(statistic.m_Values);
+    }
 };
 
 template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
-
-template<class STATISTIC>
-std::ostream& operator<<(std::ostream& o,
-                         const CMetricMultivariateStatistic<STATISTIC>& statistic) {
-    return o << statistic.print();
-}
 }
 }
 
