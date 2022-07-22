@@ -1518,7 +1518,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                                     featureCandidateSplits.end(),
                                                     [&dataType](double split) {
                                                         return split <= dataType.s_Min ||
-                                                               split > dataType.s_Max;
+                                                               split >= dataType.s_Max;
                                                     }),
                                      featureCandidateSplits.end());
     }
