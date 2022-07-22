@@ -240,6 +240,11 @@ public:
         return 0;
     }
 
+    template<typename T>
+    static constexpr std::size_t storageNodeSize(const T&) {
+        return 0;
+    }
+
     //! Default implementation for pointer types.
     template<typename T>
     static std::size_t
@@ -295,38 +300,47 @@ public:
         // These are hard-coded here, on the assumption that they will not
         // change frequently - but checked by unittests that do runtime
         // verification
-        // See http://linux/wiki/index.php/Technical_design_issues#std::string
 #ifdef MacOSX
         if (capacity <= 22) {
             // For lengths up to 22 bytes there is no allocation
             return 0;
         }
-        return capacity + 1;
-
-#else // Linux with C++11 ABI and Windows
+#else // Linux (with C++11 ABI) and Windows
         if (capacity <= 15) {
             // For lengths up to 15 bytes there is no allocation
             return 0;
         }
-        return capacity + 1;
 #endif
+        return capacity + 1;
     }
 
     //! Overload for boost::unordered_map.
     template<typename K, typename V, typename H, typename P, typename A>
     static std::size_t dynamicSize(const boost::unordered_map<K, V, H, P, A>& t) {
-        return elementDynamicSize(t) + (t.bucket_count() * sizeof(std::size_t) * 2) +
-               (t.size() * (sizeof(K) + sizeof(V) + 2 * sizeof(std::size_t)));
+        return elementDynamicSize(t) +
+               (t.bucket_count() * CMemory::storageNodeOverhead(t)) +
+               (t.size() * (sizeof(K) + sizeof(V) + storageNodeOverhead(t)));
+    }
+
+    template<typename K, typename V, typename H, typename P, typename A>
+    static constexpr std::size_t
+    storageNodeOverhead(const boost::unordered_map<K, V, H, P, A>&) {
+        return 2 * sizeof(std::size_t);
     }
 
     //! Overload for std::map.
     template<typename K, typename V, typename C, typename A>
     static std::size_t dynamicSize(const std::map<K, V, C, A>& t) {
-        // std::map appears to use 4 pointers/size_ts per tree node
-        // (colour, parent, left and right child pointers).
         return elementDynamicSize(t) +
                (memory_detail::EXTRA_NODES + t.size()) *
-                   (sizeof(K) + sizeof(V) + 4 * sizeof(std::size_t));
+                   (sizeof(K) + sizeof(V) + storageNodeOverhead(t));
+    }
+
+    template<typename K, typename V, typename C, typename A>
+    static constexpr std::size_t storageNodeOverhead(const std::map<K, V, C, A>&) {
+        // std::map appears to use 4 pointers/size_ts per tree node
+        // (colour, parent, left and right child pointers).
+        return 4 * sizeof(std::size_t);
     }
 
     //! Overload for std::multimap.
@@ -336,7 +350,14 @@ public:
         // rb tree implementation.
         return elementDynamicSize(t) +
                (memory_detail::EXTRA_NODES + t.size()) *
-                   (sizeof(K) + sizeof(V) + 4 * sizeof(std::size_t));
+                   (sizeof(K) + sizeof(V) + storageNodeOverhead(t));
+    }
+
+    template<typename K, typename V, typename C, typename A>
+    static constexpr std::size_t storageNodeOverhead(const std::multimap<K, V, C, A>&) {
+        // In practice, both std::multimap and std::map use the same
+        // rb tree implementation.
+        return 4 * sizeof(std::size_t);
     }
 
     //! Overload for boost::container::flat_map.
@@ -349,16 +370,27 @@ public:
     template<typename T, typename H, typename P, typename A>
     static std::size_t dynamicSize(const boost::unordered_set<T, H, P, A>& t) {
         return elementDynamicSize(t) + (t.bucket_count() * sizeof(std::size_t) * 2) +
-               (t.size() * (sizeof(T) + 2 * sizeof(std::size_t)));
+               (t.size() * (sizeof(T) + storageNodeOverhead(t)));
+    }
+
+    template<typename T, typename H, typename P, typename A>
+    static constexpr std::size_t
+    storageNodeOverhead(const boost::unordered_set<T, H, P, A>&) {
+        return 2 * sizeof(std::size_t);
     }
 
     //! Overload for std::set.
     template<typename T, typename C, typename A>
     static std::size_t dynamicSize(const std::set<T, C, A>& t) {
+        return elementDynamicSize(t) + (memory_detail::EXTRA_NODES + t.size()) *
+                                           (sizeof(T) + storageNodeOverhead(t));
+    }
+
+    template<typename T, typename C, typename A>
+    static constexpr std::size_t storageNodeOverhead(const std::set<T, C, A>&) {
         // std::set appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers).
-        return elementDynamicSize(t) + (memory_detail::EXTRA_NODES + t.size()) *
-                                           (sizeof(T) + 4 * sizeof(std::size_t));
+        return 4 * sizeof(std::size_t);
     }
 
     //! Overload for std::multiset.
@@ -367,7 +399,14 @@ public:
         // In practice, both std::multiset and std::set use the same
         // rb tree implementation.
         return elementDynamicSize(t) + (memory_detail::EXTRA_NODES + t.size()) *
-                                           (sizeof(T) + 4 * sizeof(std::size_t));
+                                           (sizeof(T) + storageNodeOverhead(t));
+    }
+
+    template<typename T, typename C, typename A>
+    static constexpr std::size_t storageNodeOverhead(const std::multiset<T, C, A>&) {
+        // In practice, both std::multiset and std::set use the same
+        // rb tree implementation.
+        return 4 * sizeof(std::size_t);
     }
 
     //! Overload for boost::container::flat_set.
@@ -379,10 +418,15 @@ public:
     //! Overload for std::list.
     template<typename T, typename A>
     static std::size_t dynamicSize(const std::list<T, A>& t) {
+        return elementDynamicSize(t) + (memory_detail::EXTRA_NODES + t.size()) *
+                                           (sizeof(T) + storageNodeOverhead(t));
+    }
+
+    template<typename T, typename A>
+    static constexpr std::size_t storageNodeOverhead(const std::list<T, A>&) {
         // std::list appears to use 2 pointers per list node
         // (prev and next pointers).
-        return elementDynamicSize(t) + (memory_detail::EXTRA_NODES + t.size()) *
-                                           (sizeof(T) + 2 * sizeof(std::size_t));
+        return 2 * sizeof(std::size_t);
     }
 
     //! Overload for std::deque.
@@ -404,6 +448,12 @@ public:
     template<typename T, typename I, typename A>
     static std::size_t
     dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t) {
+        return elementDynamicSize(t) + t.size() * (sizeof(T) + storageNodeOverhead(t));
+    }
+
+    template<typename T, typename I, typename A>
+    static std::size_t
+    storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>& t) {
         // It's tricky to determine the container overhead of a multi-index
         // container.  It can have an arbitrary number of indices, each of which
         // can be of a different type.  To accurately determine the overhead
@@ -415,8 +465,7 @@ public:
         using TMultiIndex = boost::multi_index::multi_index_container<T, I, A>;
         constexpr std::size_t indexCount{
             boost::mpl::size<typename TMultiIndex::index_type_list>::value};
-        return elementDynamicSize(t) +
-               t.size() * (sizeof(T) + 2 * indexCount * sizeof(std::size_t));
+        return 2 * indexCount * sizeof(std::size_t);
     }
 
     //! Overload for boost::circular_buffer.
@@ -737,8 +786,7 @@ public:
             // For lengths up to 22 bytes there is no allocation
             capacity = 0;
         }
-
-#else // Linux with C++11 ABI and Windows
+#else // Linux (with C++11 ABI) and Windows
         if (capacity > 15) {
             unused = capacity - length;
             ++capacity;
@@ -782,7 +830,7 @@ public:
         componentName += "_map";
 
         std::size_t mapSize = (memory_detail::EXTRA_NODES + t.size()) *
-                              (sizeof(K) + sizeof(V) + 4 * sizeof(std::size_t));
+                              (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -802,7 +850,7 @@ public:
         componentName += "_map";
 
         std::size_t mapSize = (memory_detail::EXTRA_NODES + t.size()) *
-                              (sizeof(K) + sizeof(V) + 4 * sizeof(std::size_t));
+                              (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -840,8 +888,8 @@ public:
         std::string componentName(name);
         componentName += "_uset";
 
-        std::size_t setSize = (t.bucket_count() * sizeof(std::size_t) * 2) +
-                              (t.size() * (sizeof(T) + 2 * sizeof(std::size_t)));
+        std::size_t setSize = (t.bucket_count() * CMemory::storageNodeOverhead(t)) +
+                              (t.size() * (sizeof(T) + CMemory::storageNodeOverhead(t)));
 
         CMemoryUsage::SMemoryUsage usage(componentName, setSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -861,7 +909,7 @@ public:
         componentName += "_set";
 
         std::size_t setSize = (memory_detail::EXTRA_NODES + t.size()) *
-                              (sizeof(T) + 4 * sizeof(std::size_t));
+                              (sizeof(T) + CMemory::storageNodeOverhead(t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, setSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -881,7 +929,7 @@ public:
         componentName += "_set";
 
         std::size_t setSize = (memory_detail::EXTRA_NODES + t.size()) *
-                              (sizeof(T) + 4 * sizeof(std::size_t));
+                              (sizeof(T) + CMemory::storageNodeOverhead(t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, setSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -921,7 +969,7 @@ public:
         componentName += "_list";
 
         std::size_t listSize = (memory_detail::EXTRA_NODES + t.size()) *
-                               (sizeof(T) + 2 * sizeof(std::size_t));
+                               (sizeof(T) + CMemory::storageNodeOverhead(t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, listSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -961,23 +1009,12 @@ public:
     static void dynamicSize(const char* name,
                             const boost::multi_index::multi_index_container<T, I, A>& t,
                             const CMemoryUsage::TMemoryUsagePtr& mem) {
-        // It's tricky to determine the container overhead of a multi-index
-        // container.  It can have an arbitrary number of indices, each of which
-        // can be of a different type.  To accurately determine the overhead
-        // would require some serious template metaprogramming to interpret the
-        // "typename I" template argument, and it's just not worth it given the
-        // infrequent and relatively simple usage (generally just two indices
-        // in our current codebase).  Therefore there's an approximation here
-        // that the overhead is 2 pointers per entry per index.
-        using TMultiIndex = boost::multi_index::multi_index_container<T, I, A>;
-        constexpr std::size_t indexCount{
-            boost::mpl::size<typename TMultiIndex::index_type_list>::value};
         std::string componentName(name);
 
         std::size_t items = t.size();
         CMemoryUsage::SMemoryUsage usage(
             componentName + "::" + typeid(T).name(),
-            items * (sizeof(T) + 2 * indexCount * sizeof(std::size_t)));
+            items * (sizeof(T) + CMemory::storageNodeOverhead(t)));
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
         ptr->setName(usage);
 

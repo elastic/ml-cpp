@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
                      });
         BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
         BOOST_TEST_REQUIRE(cache.size() <= i + 1);
-        BOOST_TEST_REQUIRE(cache.memoryUsage() < 64 * core::constants::BYTES_IN_KILOBYTES);
+        BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
     }
     // This is sensitive to the exact memory limit and the item size because memory
     // is consumed in chunks by the hash map.
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testResize) {
     }
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
                        static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 64 * core::constants::BYTES_IN_KILOBYTES);
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
     BOOST_TEST_REQUIRE(cache.size() < 500);
 
     LOG_DEBUG(<< "64KB size = " << cache.size());
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testResize) {
     // Check the cache is around twice as large.
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
                        static_cast<std::size_t>(0.98 * 128 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 128 * core::constants::BYTES_IN_KILOBYTES);
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 128 * core::constants::BYTES_IN_KILOBYTES);
     BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(1.95 * size64KB));
     BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(2.05 * size64KB));
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(testResize) {
 
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
                        static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 64 * core::constants::BYTES_IN_KILOBYTES);
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
     BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(0.95 * size64KB));
     BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(1.05 * size64KB));
 
@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
     for (std::size_t i = 0; i < 200; ++i) {
         if (i < 100) {
             cache.lookup("large_key_" + std::to_string(i),
-                         [i](std::string) { return CTestValue{5 + i}; },
+                         [i](std::string) { return CTestValue{10 + i}; },
                          [&](const CTestValue&) {});
             auto stats = cache.stats("large_key_" + std::to_string(i));
             BOOST_TEST_REQUIRE(stats.first > 0);
