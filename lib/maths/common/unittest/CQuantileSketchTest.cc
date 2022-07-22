@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
-        LOG_DEBUG(<< "sketch = " <<sketch.knots());
+        LOG_DEBUG(<< "sketch = " << sketch.knots());
         BOOST_REQUIRE_EQUAL("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]",
                             core::CContainerPrinter::print(sketch.knots()));
 
