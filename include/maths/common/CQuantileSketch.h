@@ -161,6 +161,9 @@ private:
                          double percentage,
                          double& result);
 
+    //! The interpolation scheme to use for the cdf and quantile calculation.
+    EInterpolation cdfAndQuantileInterpolation() const;
+
 private:
     //! The style of interpolation to use.
     EInterpolation m_Interpolation;

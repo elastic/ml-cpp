@@ -600,7 +600,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
         if (i == anomalousBucket) {
             values.push_back(0.0);
             values.push_back(mean * 3.0);
-            values.push_back(mean * 6.0);
+            values.push_back(mean * 3.0);
         } else {
             rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         }

@@ -189,7 +189,7 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
     // This must make the same assumptions as quantile regarding the distribution
     // of values for each histogram bucket. See that function for more details.
 
-    switch (m_Interpolation) {
+    switch (this->cdfAndQuantileInterpolation()) {
     case E_Linear: {
         if (k == 0) {
             double xl = m_Knots[0].first;
@@ -308,7 +308,7 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         return false;
     }
 
-    quantile(m_Interpolation, m_Knots, m_Count, percentage, result);
+    quantile(this->cdfAndQuantileInterpolation(), m_Knots, m_Count, percentage, result);
 
     return true;
 }
@@ -405,9 +405,7 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
                 if (n == 1) {
                     result = knots[0].first;
                 } else {
-                    double x0 = knots[0].first;
-                    double x1 = knots[1].first;
-                    double xa = i == 0 ? 2.0 * x0 - x1
+                    double xa = i == 0 ? 2.0 * knots[0].first - knots[1].first
                                        : static_cast<double>(knots[i - 1].first);
                     double xb = knots[i].first;
                     double xc = i + 1 == n ? 2.0 * xb - xa
@@ -432,6 +430,14 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
     }
 
     result = knots[n - 1].second;
+}
+
+CQuantileSketch::EInterpolation CQuantileSketch::cdfAndQuantileInterpolation() const {
+    // If the number of knots is less than the target size for reduce we must
+    // never have combined any distinct values into a single bucket and the
+    // quantile and empircal cdf are computed exactly using piecewise constant
+    // interpolation.
+    return m_Knots.size() < this->fastReduceTargetSize() ? E_PiecewiseConstant : m_Interpolation;
 }
 
 std::size_t CQuantileSketch::fastReduceTargetSize() const {
