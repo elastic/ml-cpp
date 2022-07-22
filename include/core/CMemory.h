@@ -465,8 +465,7 @@ public:
         using TMultiIndex = boost::multi_index::multi_index_container<T, I, A>;
         constexpr std::size_t indexCount{
             boost::mpl::size<typename TMultiIndex::index_type_list>::value};
-        return elementDynamicSize(t) +
-               t.size() * (sizeof(T) + 2 * indexCount * sizeof(std::size_t));
+        return 2 * indexCount * sizeof(std::size_t);
     }
 
     //! Overload for boost::circular_buffer.
