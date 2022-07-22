@@ -21,6 +21,8 @@
 #include <model/CResourceMonitor.h>
 #include <model/CStringStore.h>
 
+#include <boost/unordered_set.hpp>
+
 #include <algorithm>
 
 namespace ml {

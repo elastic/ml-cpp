@@ -21,6 +21,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <map>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -471,24 +472,24 @@ public:
     private:
         const COneHotEncoding& m_Encoding;
     };
-    using TStringStringUMap = std::map<std::string, std::string>;
+    using TStrStrMap = std::map<std::string, std::string>;
 
     static const std::string JSON_HOT_MAP_TAG;
     static const std::string JSON_ONE_HOT_ENCODING_TAG;
 
 public:
     ~COneHotEncoding() override = default;
-    COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
+    COneHotEncoding(const std::string& field, TStrStrMap hotMap);
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
-    const TStringStringUMap& hotMap() const;
-    TStringStringUMap& hotMap();
+    const TStrStrMap& hotMap() const;
+    TStrStrMap& hotMap();
     const std::string& typeString() const override;
     //! Get the object for model size with information for estimation.
     TSizeInfoUPtr sizeInfo() const override;
 
 private:
-    TStringStringUMap m_HotMap;
+    TStrStrMap m_HotMap;
 };
 
 //! \brief Mapping from categorical columns to numerical values related to the target value.

@@ -38,7 +38,10 @@
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {

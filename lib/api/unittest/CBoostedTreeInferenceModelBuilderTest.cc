@@ -41,10 +41,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
+#include <map>
 #include <string>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CFrequencyEncoding::TStringDoubleUMap::const_iterator)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::COneHotEncoding::TStringStringUMap::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::COneHotEncoding::TStrStrMap::const_iterator)
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeInferenceModelBuilderTest)
 

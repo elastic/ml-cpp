@@ -39,6 +39,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <map>
 #include <optional>
 
 namespace ml {

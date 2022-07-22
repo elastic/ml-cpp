@@ -33,6 +33,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <set>
 #include <sstream>
 #include <stdio.h>
 

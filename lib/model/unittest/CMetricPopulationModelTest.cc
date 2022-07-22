@@ -41,9 +41,11 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>

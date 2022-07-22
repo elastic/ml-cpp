@@ -24,9 +24,11 @@
 #include <boost/unordered_map.hpp>
 
 #include <cstdlib>
+#include <deque>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <type_traits>
 

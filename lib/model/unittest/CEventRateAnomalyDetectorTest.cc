@@ -29,6 +29,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
+#include <map>
+#include <set>
 
 BOOST_AUTO_TEST_SUITE(CEventRateAnomalyDetectorTest)
 

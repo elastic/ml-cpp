@@ -25,6 +25,8 @@
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 
+#include <boost/unordered_set.hpp>
+
 namespace ml {
 namespace model {
 namespace {

@@ -26,6 +26,7 @@
 #include <model/CStringStore.h>
 
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {

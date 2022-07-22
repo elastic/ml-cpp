@@ -19,6 +19,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <set>
+
 BOOST_AUTO_TEST_SUITE(CBucketQueueTest)
 
 using namespace ml;

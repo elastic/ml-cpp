@@ -42,6 +42,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 
 #include <algorithm>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>

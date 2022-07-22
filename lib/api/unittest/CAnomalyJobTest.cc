@@ -34,6 +34,7 @@
 
 #include <cstdio>
 #include <fstream>
+#include <map>
 #include <sstream>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::ConstMemberIterator)

@@ -22,6 +22,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <iterator>
+#include <map>
 #include <set>
 
 BOOST_AUTO_TEST_SUITE(CHashingTest)

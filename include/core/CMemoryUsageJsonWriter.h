@@ -18,7 +18,6 @@
 #include <rapidjson/ostreamwrapper.h>
 
 #include <iosfwd>
-#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -39,7 +38,7 @@ namespace core {
 class CORE_EXPORT CMemoryUsageJsonWriter {
 public:
     //! Constructor
-    CMemoryUsageJsonWriter(std::ostream& outStream);
+    explicit CMemoryUsageJsonWriter(std::ostream& outStream);
 
     //! Destructor
     ~CMemoryUsageJsonWriter();
@@ -74,8 +73,7 @@ private:
     //! Have we finalised the stream?
     bool m_Finalised;
 };
-
-} // core
-} // ml
+}
+}
 
 #endif // INCLUDED_ml_core_CMemoryUsageJsonWriter_h

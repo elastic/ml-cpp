@@ -19,8 +19,6 @@
 #include <model/CMemoryUsageEstimator.h>
 #include <model/ImportExport.h>
 
-#include <boost/unordered_set.hpp>
-
 #include <cstddef>
 #include <cstdint>
 #include <utility>

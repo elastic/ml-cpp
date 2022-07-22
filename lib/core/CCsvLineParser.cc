@@ -11,7 +11,7 @@
 #include <core/CCsvLineParser.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 namespace ml {

@@ -26,6 +26,8 @@
 
 #include <model/CStringStore.h>
 
+#include <boost/unordered_map.hpp>
+
 namespace ml {
 namespace model {
 

@@ -15,6 +15,8 @@
 
 #include <maths/common/CSampling.h>
 
+#include <set>
+
 namespace ml {
 namespace maths {
 namespace common {

@@ -21,6 +21,8 @@
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <algorithm>
 #include <sstream>
 

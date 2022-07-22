@@ -31,6 +31,7 @@
 #include <model/CResourceMonitor.h>
 
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {

@@ -26,9 +26,8 @@
 
 #include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 
-#include <set>
+#include <map>
 #include <string>
 #include <vector>
 

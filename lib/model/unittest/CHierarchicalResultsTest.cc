@@ -47,6 +47,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
+#include <set>
 #include <sstream>
 #include <string>
 

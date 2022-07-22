@@ -23,7 +23,10 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 
+#include <boost/unordered_set.hpp>
+
 #include <algorithm>
+#include <list>
 #include <numeric>
 
 namespace ml {

@@ -44,6 +44,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>

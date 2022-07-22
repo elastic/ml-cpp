@@ -31,6 +31,8 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
+
 BOOST_AUTO_TEST_SUITE(CModelToolsTest)
 
 using namespace ml;

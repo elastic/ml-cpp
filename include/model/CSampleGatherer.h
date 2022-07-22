@@ -34,6 +34,8 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <functional>
 #include <vector>
 

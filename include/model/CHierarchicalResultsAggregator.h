@@ -19,6 +19,8 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <cstddef>
 
 namespace ml {

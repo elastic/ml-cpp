@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CEventRatePopulationDataGathererTest)

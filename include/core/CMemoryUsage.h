@@ -13,18 +13,12 @@
 
 #include <core/ImportExport.h>
 
-#include <list>
 #include <memory>
+#include <ostream>
 #include <string>
-#include <vector>
 
 namespace ml {
 namespace core {
-
-namespace memory_detail {
-class CMemoryUsageComparison;
-class CMemoryUsageComparisonTwo;
-}
 
 class CMemoryUsageJsonWriter;
 
@@ -38,7 +32,7 @@ class CORE_EXPORT CMemoryUsage {
 public:
     //! A collection of data to record memory usage information for
     //! arbitrary components
-    struct CORE_EXPORT SMemoryUsage {
+    struct SMemoryUsage {
         SMemoryUsage(const std::string& name, std::size_t memory)
             : s_Name(name), s_Memory(memory), s_Unused(0) {}
 
@@ -57,12 +51,12 @@ public:
     };
 
     using TMemoryUsagePtr = std::shared_ptr<CMemoryUsage>;
-    using TMemoryUsagePtrList = std::list<TMemoryUsagePtr>;
-    using TMemoryUsageVec = std::vector<SMemoryUsage>;
 
 public:
-    //! Constructor
     CMemoryUsage();
+    ~CMemoryUsage();
+    CMemoryUsage(const CMemoryUsage&) = delete;
+    CMemoryUsage& operator=(const CMemoryUsage&) = delete;
 
     //! Create a child node
     TMemoryUsagePtr addChild();
@@ -92,32 +86,21 @@ public:
     //! Get the unused memory wasted by this node and all child nodes
     std::size_t unusage() const;
 
+    //! Aggregate big collections of child items together
+    void compress();
+
     //! Format the memory used by this node and all child nodes
     //! into a JSON stream
     void print(std::ostream& outStream) const;
 
-    //! Aggregate big collections of child items together
-    void compress();
+private:
+    class CImpl;
+    using TImplPtr = std::unique_ptr<CImpl>;
 
 private:
-    //! Give out data to the JSON writer to format, recursively
-    void summary(CMemoryUsageJsonWriter& writer) const;
-
-    //! Collection of child items
-    TMemoryUsagePtrList m_Children;
-
-    //! Collection of component items within this node
-    TMemoryUsageVec m_Items;
-
-    //! Description of this item
-    SMemoryUsage m_Description;
-
-    friend class memory_detail::CMemoryUsageComparison;
-    friend class memory_detail::CMemoryUsageComparisonTwo;
+    TImplPtr m_Impl;
 };
-
-} // core
-
-} // ml
+}
+}
 
 #endif // INCLUDED_ml_core_CMemoryUsage_h

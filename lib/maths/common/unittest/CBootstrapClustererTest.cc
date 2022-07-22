@@ -19,6 +19,7 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <vector>
 

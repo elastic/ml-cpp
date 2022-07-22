@@ -23,6 +23,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <optional>
 #include <utility>
