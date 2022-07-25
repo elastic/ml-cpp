@@ -13,7 +13,7 @@
 #define INCLUDED_ml_core_CVectorRange_h
 
 #include <algorithm>
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 
