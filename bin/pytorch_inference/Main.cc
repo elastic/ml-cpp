@@ -199,15 +199,16 @@ void writePrediction(const torch::Tensor& prediction,
     }
 }
 
-rapidjson::Document updateRequestIdAndCacheHit(const std::string& responseJson,
-                                               const std::string& requestId) {
+rapidjson::Document updateCachedResponse(const std::string& responseJson,
+                                         const std::string& requestId,
+                                         std::uint64_t timeMs) {
     rapidjson::Document response;
     response.Parse(responseJson.c_str());
     if (response.HasMember(RESULT)) {
-        auto& id = response[RESULT][ml::torch::CCommandParser::REQUEST_ID];
-        id.SetString(requestId.c_str(), static_cast<unsigned int>(requestId.size()));
-        auto& cacheHit = response[RESULT][CACHE_HIT];
-        cacheHit.SetBool(true);
+        response[RESULT][ml::torch::CCommandParser::REQUEST_ID].SetString(
+            requestId.c_str(), static_cast<unsigned int>(requestId.size()));
+        response[RESULT][TIME_MS].SetUint64(timeMs);
+        response[RESULT][CACHE_HIT].SetBool(true);
         return response;
     }
     if (response.HasMember(ERROR)) {
@@ -220,9 +221,9 @@ rapidjson::Document updateRequestIdAndCacheHit(const std::string& responseJson,
 
 void inferAndWriteResult(ml::torch::CCommandParser::SRequest& request,
                          torch::jit::script::Module& module_,
+                         ml::core::CStopWatch& stopWatch,
                          TRapidJsonLineWriter& jsonWriter) {
     try {
-        ml::core::CStopWatch stopWatch(true);
         torch::Tensor results = infer(module_, request);
         std::uint64_t timeMs = stopWatch.stop();
         auto sizes = results.sizes();
@@ -259,18 +260,21 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
     ]() mutable {
         std::string requestId{capturedRequest.s_RequestId};
         std::string responseJson;
-        if (cache.lookup(std::move(capturedRequest),
-                         [&](auto request_) -> std::string {
-                             rapidjson::StringBuffer stringBuffer;
-                             TRapidJsonLineWriter jsonWriter;
-                             jsonWriter.Reset(stringBuffer);
-                             inferAndWriteResult(request_, module_, jsonWriter);
-                             return stringBuffer.GetString();
-                         },
-                         [&](const auto& responseJson_) {
-                             responseJson = responseJson_;
-                         })) {
-            rapidjson::Document response{updateRequestIdAndCacheHit(responseJson, requestId)};
+        // We time the combination of the cache lookup and (if necessary)
+        // the inference.
+        ml::core::CStopWatch stopWatch(true);
+        if (cache.lookup(
+                std::move(capturedRequest),
+                [&](auto request_) -> std::string {
+                    rapidjson::StringBuffer stringBuffer;
+                    TRapidJsonLineWriter jsonWriter;
+                    jsonWriter.Reset(stringBuffer);
+                    inferAndWriteResult(request_, module_, stopWatch, jsonWriter);
+                    return stringBuffer.GetString();
+                },
+                [&](const auto& responseJson_) { responseJson = responseJson_; })) {
+            rapidjson::Document response{
+                updateCachedResponse(responseJson, requestId, stopWatch.stop())};
             ml::core::CRapidJsonConcurrentLineWriter jsonWriter{wrappedOutputStream};
             jsonWriter.write(response);
         } else {
