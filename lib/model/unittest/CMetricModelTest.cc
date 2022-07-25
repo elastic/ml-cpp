@@ -639,7 +639,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     const CMetricModel::TFeatureData* fd = model.featureData(
         ml::model_t::E_IndividualMedianByPerson, pid, time - bucketLength);
 
-    // assert there is only 1 value in the last bucket and its the median
+    // Assert there is only 1 value in the last bucket and its the median.
     BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value()[0], mean * 3.0);
     BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value().size(), 1);
 }
