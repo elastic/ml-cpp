@@ -81,6 +81,61 @@ struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
     EType s_Type;
 };
 
+//! \brief An extremely fast ordered search tree.
+//!
+//! DESCRIPTION:\n
+//! This provides a single query upperBound(x), i.e. find the smallest value in
+//! an ordered set greater than the specified query point x. Where possible it
+//! uses SSE instructions to perform the 4 way comparison. This means it achieves
+//! a branch factor of 5 and complexity ceil(log(n) / log(5)) in the set size n.
+//!
+//! IMPLEMENTATION DECISIONS:\n
+//! We align the storage to 16 bytes so we can use aligned loads for the data to
+//! compare at each node in the tree. We also pad the data slightly, with infinity,
+//! so we can always safely load four values at once and to maintain the spacing.
+//! In total though this only adds up to 16 bytes overhead.
+//!
+//! How does this compare to std::upper_bound performance-wise?
+//!
+//! The following are representative figures for bare metal for 10000000 lookups:
+//!
+//!  collection size | std::upper_bound | CSearchTree::upperBound | speedup
+//!  --------------- | ---------------- | ----------------------- | -------
+//!        100       |      325 ms      |          39 ms          |  8.3 X
+//!       10000      |      601 ms      |         135 ms          |  4.5 X
+//!
+//! One might reasonably expect larger speedups for larger data set sizes because
+//! of the higher branch factor. We posit that one pays fixed overheads due to
+//! cache misses traversing larger data sets and this reduces the % improve from
+//! executing fewer instructions.
+class MATHS_ANALYTICS_EXPORT CSearchTree {
+public:
+    using TFloatVec = std::vector<float>;
+
+public:
+    explicit CSearchTree(const TFloatVec& values);
+
+    //! A drop in replacement for std::upper_bound on a sorted collection.
+    std::size_t upperBound(float x) const;
+
+private:
+    using TAlignedFloatVec = std::vector<float, core::CAlignedAllocator<float>>;
+
+private:
+    static constexpr float INF{std::numeric_limits<float>::infinity()};
+
+private:
+    void build(const TFloatVec& values, std::size_t a, std::size_t b);
+    std::string printNode(std::size_t node) const;
+    static std::size_t nextPow5(std::size_t n);
+
+private:
+    std::size_t m_Size;
+    std::size_t m_InitialTreeSize;
+    float m_Min;
+    TAlignedFloatVec m_Values;
+};
+
 //! Get the index of the root node in a canonical tree node vector.
 inline std::size_t rootIndex() {
     return 0;
