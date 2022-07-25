@@ -223,7 +223,7 @@ template<typename T>
 std::string CBasicStatistics::print(const SSampleCentralMoments<T, 2>& accumulator) {
     std::ostringstream result;
     result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-            << variance(accumulator) << ')';
+           << variance(accumulator) << ')';
     return result.str();
 }
 
@@ -231,7 +231,7 @@ template<typename T>
 inline std::string CBasicStatistics::print(const SSampleCentralMoments<T, 3>& accumulator) {
     std::ostringstream result;
     result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-            << variance(accumulator) << ", " << skewness(accumulator) << ')';
+           << variance(accumulator) << ", " << skewness(accumulator) << ')';
     return result.str();
 }
 
@@ -247,9 +247,9 @@ template<typename POINT>
 inline std::string CBasicStatistics::print(const SSampleCovariances<POINT>& accumulator) {
     std::ostringstream result;
     result << "\n{\n"
-            << count(accumulator) << ",\n"
-            << mean(accumulator) << ",\n"
-            << covariances(accumulator) << "\n}";
+           << count(accumulator) << ",\n"
+           << mean(accumulator) << ",\n"
+           << covariances(accumulator) << "\n}";
     return result.str();
 }
 
