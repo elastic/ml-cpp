@@ -25,7 +25,7 @@ CMemory::dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t
 
 template<typename T, typename I, typename A>
 std::size_t
-CMemory::storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>& t) {
+CMemory::storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>&) {
     // It's tricky to determine the container overhead of a multi-index
     // container.  It can have an arbitrary number of indices, each of which
     // can be of a different type.  To accurately determine the overhead
