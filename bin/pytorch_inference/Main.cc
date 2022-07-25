@@ -47,6 +47,7 @@ const std::string RESULT{"result"};
 const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
+const std::string CACHE_HIT{"cache_hit"};
 const std::string THREAD_SETTINGS{"thread_settings"};
 const std::string NUM_ALLOCATIONS{"num_allocations"};
 const std::string NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
@@ -143,6 +144,8 @@ void writeInferenceResultOpening(const std::string& requestId,
     jsonWriter.String(requestId);
     jsonWriter.Key(TIME_MS);
     jsonWriter.Uint64(timeMs);
+    jsonWriter.Key(CACHE_HIT);
+    jsonWriter.Bool(false);
 }
 
 void writeInferenceResultClosing(TRapidJsonLineWriter& jsonWriter) {
@@ -196,13 +199,15 @@ void writePrediction(const torch::Tensor& prediction,
     }
 }
 
-rapidjson::Document updateRequestId(const std::string& responseJson,
-                                    const std::string& requestId) {
+rapidjson::Document updateRequestIdAndCacheHit(const std::string& responseJson,
+                                               const std::string& requestId) {
     rapidjson::Document response;
     response.Parse(responseJson.c_str());
     if (response.HasMember(RESULT)) {
         auto& id = response[RESULT][ml::torch::CCommandParser::REQUEST_ID];
         id.SetString(requestId.c_str(), static_cast<unsigned int>(requestId.size()));
+        auto& cacheHit = response[RESULT][CACHE_HIT];
+        cacheHit.SetBool(true);
         return response;
     }
     if (response.HasMember(ERROR)) {
@@ -265,7 +270,7 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                          [&](const auto& responseJson_) {
                              responseJson = responseJson_;
                          })) {
-            rapidjson::Document response{updateRequestId(responseJson, requestId)};
+            rapidjson::Document response{updateRequestIdAndCacheHit(responseJson, requestId)};
             ml::core::CRapidJsonConcurrentLineWriter jsonWriter{wrappedOutputStream};
             jsonWriter.write(response);
         } else {
