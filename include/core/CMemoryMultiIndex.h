@@ -20,6 +20,12 @@ namespace core {
 template<typename T, typename I, typename A>
 std::size_t
 CMemory::dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t) {
+    return elementDynamicSize(t) + t.size() * (sizeof(T) + storageNodeOverhead(t));
+}
+
+template<typename T, typename I, typename A>
+std::size_t
+CMemory::storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>& t) {
     // It's tricky to determine the container overhead of a multi-index
     // container.  It can have an arbitrary number of indices, each of which
     // can be of a different type.  To accurately determine the overhead
@@ -31,8 +37,7 @@ CMemory::dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t
     using TMultiIndex = boost::multi_index::multi_index_container<T, I, A>;
     constexpr std::size_t indexCount{
         boost::mpl::size<typename TMultiIndex::index_type_list>::value};
-    return elementDynamicSize(t) +
-            t.size() * (sizeof(T) + 2 * indexCount * sizeof(std::size_t));
+    return 2 * indexCount * sizeof(std::size_t);
 }
 
 template<typename T, typename I, typename A>

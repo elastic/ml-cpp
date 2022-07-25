@@ -27,6 +27,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -127,34 +128,48 @@ public:
                 }
                 return false;
             })) {
-            this->guardWrite(TIME_OUT,
-                             [&] { this->incrementCount(compressedKey); });
+            if (this->guardWrite(TIME_OUT, [&] {
+                    this->incrementCount(compressedKey);
+                }) == false) {
+                ++m_LostCount;
+            }
             return true;
         }
 
         auto value = computeValue(std::move(key));
 
-        std::size_t itemMemoryUsage{core::CMemory::dynamicSize(value)};
+        std::size_t itemMemoryUsage{CMemory::dynamicSize(value)};
 
-        this->guardWrite(TIME_OUT, [&] {
-            // It is possible that two values with the same key check the cache
-            // before either takes the write lock. So check if this is already
-            // in the cache before going any further.
-            if (m_ItemCache.find(compressedKey) != m_ItemCache.end()) {
-                readValue(value);
-                this->incrementCount(compressedKey);
-                return;
-            }
+        if (this->guardWrite(TIME_OUT, [&] {
+                // It is possible that two values with the same key check the cache
+                // before either takes the write lock. So check if this is already
+                // in the cache before going any further.
+                if (m_ItemCache.find(compressedKey) != m_ItemCache.end()) {
+                    readValue(value);
+                    this->incrementCount(compressedKey);
+                    return;
+                }
 
-            // Update the item counts using the Space-Saving algorithm.
-            std::size_t count{1};
-            if (this->full(itemMemoryUsage)) {
-                auto itemToEvict = m_ItemStats.begin();
-                count += itemToEvict->count();
-                this->removeFromCache(itemToEvict);
-            }
-            readValue(this->insert(compressedKey, value, itemMemoryUsage, count));
-        });
+                // Update the item counts using the Space-Saving algorithm.
+                std::size_t count{1};
+                std::size_t lastEvictedCount{0};
+                while (this->full(itemMemoryUsage)) {
+                    auto itemToEvict = m_ItemStats.begin();
+                    // It's possible that the cache is empty yet isn't big
+                    // enough to hold this new item.
+                    if (itemToEvict == m_ItemStats.end()) {
+                        readValue(value);
+                        return;
+                    }
+                    m_LostCount += lastEvictedCount;
+                    lastEvictedCount = itemToEvict->count();
+                    this->removeFromCache(itemToEvict);
+                }
+                readValue(this->insert(compressedKey, value, itemMemoryUsage,
+                                       count + lastEvictedCount));
+            }) == false) {
+            ++m_LostCount;
+        }
 
         return false;
     }
@@ -168,7 +183,7 @@ public:
 
     //! Get the number of items currently stored in the cache.
     std::size_t size() const {
-        std::size_t result;
+        std::size_t result{std::numeric_limits<std::size_t>::max()};
         this->guardRead(DONT_TIME_OUT, [&] {
             result = m_ItemCache.size();
             return true;
@@ -196,7 +211,7 @@ public:
 
     //! Get the amount of memory the cache is consuming.
     std::size_t memoryUsage() const {
-        std::size_t result;
+        std::size_t result{std::numeric_limits<std::size_t>::max()};
         this->guardRead(DONT_TIME_OUT, [&] {
             result = this->unguardedMemoryUsage();
             return true;
@@ -239,10 +254,11 @@ public:
                           << m_ItemsMemoryUsage << ".");
                 result = false;
             }
-            if (this->updatesCanTimeOut() == false && // We may be missing counts
-                m_NumberLookups != totalCount) {
-                LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load()
-                          << " vs " << totalCount << ".");
+            // We may be missing counts if a single addition caused multiple
+            // evictions, or if updates can time out
+            if (m_NumberLookups - m_LostCount != totalCount) {
+                LOG_ERROR(<< "Count mismatch " << m_NumberLookups.load() << " (less "
+                          << m_LostCount.load() << " lost) vs " << totalCount << ".");
                 result = false;
             }
             return true;
@@ -396,7 +412,7 @@ private:
 
 private:
     virtual bool guardRead(bool timeOut, TReadFunc func) const = 0;
-    virtual void guardWrite(bool timeOut, TWriteFunc func) = 0;
+    virtual bool guardWrite(bool timeOut, TWriteFunc func) = 0;
     virtual bool updatesCanTimeOut() const = 0;
 
     void maybeReallocateCache() {
@@ -453,22 +469,27 @@ private:
     }
 
     bool full(std::size_t itemMemoryUsage) const {
-        double memory{static_cast<double>(this->unguardedMemoryUsage() + itemMemoryUsage)};
+        std::size_t memory{this->unguardedMemoryUsage() + itemMemoryUsage +
+                           sizeof(typename TCompressedKeyCacheItemUMap::value_type) +
+                           CMemory::storageNodeOverhead(m_ItemCache) +
+                           sizeof(typename TCacheItemStatsSet::value_type) +
+                           CMemory::storageNodeOverhead(m_ItemStats)};
         if (this->needToResizeItemCache()) {
-            memory += (static_cast<double>(this->nextItemCacheBucketCount()) /
-                           static_cast<double>(m_ItemCache.bucket_count()) -
-                       1.0) *
-                      static_cast<double>(core::CMemory::dynamicSize(m_ItemCache));
+            memory += static_cast<std::size_t>(
+                (static_cast<double>(this->nextItemCacheBucketCount()) /
+                     static_cast<double>(m_ItemCache.bucket_count()) -
+                 1.0) *
+                static_cast<double>(CMemory::dynamicSize(m_ItemCache) -
+                                    m_ItemCache.size() *
+                                        sizeof(typename TCompressedKeyCacheItemUMap::value_type)));
         }
-        // Use a 1% tolerance.
-        return memory > 0.99 * static_cast<double>(m_MaximumMemory);
+        return memory > m_MaximumMemory;
     }
 
     std::size_t unguardedMemoryUsage() const {
         return m_ItemsMemoryUsage + // overheads
-               core::CMemory::dynamicSize(m_ItemCache) +
-               core::CMemory::dynamicSize(m_ItemStats) +
-               core::CMemory::dynamicSize(m_BucketCountSequence);
+               CMemory::dynamicSize(m_ItemCache) + CMemory::dynamicSize(m_ItemStats) +
+               CMemory::dynamicSize(m_BucketCountSequence);
     }
 
     bool needToResizeItemCache() const {
@@ -533,6 +554,12 @@ private:
     // fully supported.
     alignas(64) std::atomic<std::uint64_t> m_NumberLookups{0};
     alignas(64) std::atomic<std::uint64_t> m_NumberHits{0};
+    //! We can lose count for two reasons:
+    //! 1. If we fail to obtain a write lock within the timeout period
+    //!    when trying to increment cache item counts
+    //! 2. If we have to evict multiple items to make space to add a single
+    //!    new item
+    alignas(64) std::atomic<std::uint64_t> m_LostCount{0};
     std::uint64_t m_RemovedCount{0};
     std::size_t m_MaximumMemory{0};
     std::size_t m_ItemsMemoryUsage{0};
@@ -628,20 +655,24 @@ private:
     bool guardRead(bool timeOut, TReadFunc func) const override {
         if (timeOut) {
             std::shared_lock<std::shared_timed_mutex> lock{m_Mutex, m_MaximumWait};
-            return func();
+            return lock.owns_lock() && func();
         }
         std::shared_lock<std::shared_timed_mutex> lock{m_Mutex};
         return func();
     }
 
-    void guardWrite(bool timeOut, TWriteFunc func) override {
+    bool guardWrite(bool timeOut, TWriteFunc func) override {
         if (timeOut) {
             std::unique_lock<std::shared_timed_mutex> lock{m_Mutex, m_MaximumWait};
-            func();
-            return;
+            if (lock.owns_lock()) {
+                func();
+                return true;
+            }
+            return false;
         }
         std::unique_lock<std::shared_timed_mutex> lock{m_Mutex};
         func();
+        return true;
     }
 
     bool updatesCanTimeOut() const override { return true; }
@@ -699,7 +730,10 @@ private:
 
 private:
     bool guardRead(bool, TReadFunc func) const override { return func(); }
-    void guardWrite(bool, TWriteFunc func) override { func(); }
+    bool guardWrite(bool, TWriteFunc func) override {
+        func();
+        return true;
+    }
     bool updatesCanTimeOut() const override { return false; }
 };
 }

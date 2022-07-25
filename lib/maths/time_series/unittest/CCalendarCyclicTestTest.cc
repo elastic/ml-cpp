@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                                                                   : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 790);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 790);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 790);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 790);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -409,7 +409,6 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
 
     double trueNegatives{0.0};
     double falsePositives{0.0};
-
     LOG_DEBUG(<< "Normal");
     for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "test = " << t + 1);
@@ -427,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 880);
             }
         }
     }
@@ -451,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 880);
             }
         }
     }
@@ -477,7 +476,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != std::nullopt) {
                     LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 880);
             }
         }
     }

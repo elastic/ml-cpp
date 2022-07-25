@@ -28,7 +28,6 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -676,27 +675,13 @@ public:
     //@{
     //! Print a mean accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator);
     //! Print a mean and variance accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator);
     //! Print a mean, variance and skew accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ", " << skewness(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator);
     //@}
 
     //! Get a copy of \p moments with count scaled by \p scale.
@@ -893,14 +878,7 @@ public:
 
     //! Print a covariances accumulator.
     template<typename POINT>
-    static inline std::string print(const SSampleCovariances<POINT>& accumulator) {
-        std::ostringstream result;
-        result << "\n{\n"
-               << count(accumulator) << ",\n"
-               << mean(accumulator) << ",\n"
-               << covariances(accumulator) << "\n}";
-        return result.str();
-    }
+    static inline std::string print(const SSampleCovariances<POINT>& accumulator);
 
     //! Interface for Ledoit Wolf shrinkage estimator of the sample
     //! covariance matrix.

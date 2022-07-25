@@ -26,10 +26,8 @@ BOOST_AUTO_TEST_SUITE(CDetectorEqualizerTest)
 
 using namespace ml;
 
-using TDoubleVec = std::vector<double>;
-
 namespace {
-
+using TDoubleVec = std::vector<double>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 const double THRESHOLD = std::log(0.05);
 }
@@ -37,19 +35,19 @@ const double THRESHOLD = std::log(0.05);
 BOOST_AUTO_TEST_CASE(testCorrect) {
     // Test that the distribution of scores are more similar after correcting.
 
-    double scales[] = {1.0, 2.1, 3.2};
+    TDoubleVec scales{1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer equalizer;
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < std::size(scales); ++i) {
+    for (std::size_t i = 0; i < scales.size(); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0; j < logp.size(); ++j) {
-            if (-logp[j] <= THRESHOLD) {
-                double p = std::exp(-logp[j]);
+        for (double pj : logp) {
+            if (-pj <= THRESHOLD) {
+                double p = std::exp(-pj);
                 equalizer.add(static_cast<int>(i), p);
             }
         }
@@ -57,13 +55,13 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0; i < std::size(scales); ++i) {
+    for (std::size_t i = 0; i < scales.size(); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0; j < logp.size(); ++j) {
-            if (-logp[j] <= THRESHOLD) {
-                double p = std::exp(-logp[j]);
+        for (double logpj : logp) {
+            if (-logpj <= THRESHOLD) {
+                double p = std::exp(-logpj);
                 raw[i].push_back(p);
                 corrected[i].push_back(equalizer.correct(static_cast<int>(i), p));
             }
@@ -71,7 +69,7 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
     }
 
     TMeanAccumulator similarityIncrease;
-    for (std::size_t i = 1u, k = 0; i < 3; ++i) {
+    for (std::size_t i = 1, k = 0; i < 3; ++i) {
         for (std::size_t j = 0; j < i; ++j, ++k) {
             double increase =
                 maths::common::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
@@ -90,20 +88,20 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 BOOST_AUTO_TEST_CASE(testAge) {
     // Test that propagation doesn't introduce a bias into the corrections.
 
-    double scales[] = {1.0, 2.1, 3.2};
+    TDoubleVec scales{1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer equalizer;
     model::CDetectorEqualizer equalizerAged;
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < std::size(scales); ++i) {
+    for (std::size_t i = 0; i < scales.size(); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0; j < logp.size(); ++j) {
-            if (-logp[j] <= THRESHOLD) {
-                double p = std::exp(-logp[j]);
+        for (double logpj : logp) {
+            if (-logpj <= THRESHOLD) {
+                double p = std::exp(-logpj);
                 equalizer.add(static_cast<int>(i), p);
                 equalizerAged.add(static_cast<int>(i), p);
                 equalizerAged.age(0.995);
@@ -122,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
             double error = std::fabs((std::log(pca) - std::log(pc)) / std::log(pc));
             meanError.add(error);
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
-            BOOST_TEST_REQUIRE(error < 0.18);
+            BOOST_TEST_REQUIRE(error < 0.2);
         }
         LOG_DEBUG(<< "mean bias  = " << maths::common::CBasicStatistics::mean(meanBias));
         LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(meanError));
@@ -132,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
-    double scales[] = {1.0, 2.1, 3.2};
+    TDoubleVec scales{1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer origEqualizer;
 
@@ -141,12 +139,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0; i < std::size(scales); ++i) {
+    for (std::size_t i = 0; i < scales.size(); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0; j < logp.size(); ++j) {
-            if (-logp[j] <= THRESHOLD) {
-                double p = std::exp(-logp[j]);
+        for (double logpj : logp) {
+            if (-logpj <= THRESHOLD) {
+                double p = std::exp(-logpj);
                 origEqualizer.add(static_cast<int>(i), p);
             }
         }
@@ -166,9 +164,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
-            std::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
-                      &restoredEqualizer, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](auto& traverser_) {
+            return restoredEqualizer.acceptRestoreTraverser(traverser_);
+        }));
     }
 
     // Checksums should agree.
