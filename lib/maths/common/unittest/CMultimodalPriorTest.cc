@@ -14,6 +14,8 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CGammaRateConjugate.h>
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMixtureDistribution.h>

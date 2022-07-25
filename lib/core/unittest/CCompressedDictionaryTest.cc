@@ -15,6 +15,7 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_set.hpp>
 
 using namespace ml;
 using namespace core;

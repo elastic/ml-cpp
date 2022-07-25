@@ -15,6 +15,7 @@
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 
 #include <maths/time_series/CExpandingWindow.h>
 
