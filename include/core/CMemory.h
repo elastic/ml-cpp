@@ -24,9 +24,14 @@
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <array>
 #include <cstddef>
+#include <deque>
 #include <functional>
+#include <list>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
