@@ -76,6 +76,13 @@ using TDoubleVector = common::CDenseVector<double>;
 using TDoubleVectorVec = std::vector<TDoubleVector>;
 using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
 
+class CFloatStorageAccessor : core::CFloatStorage {
+public:
+    explicit CFloatStorageAccessor(core::CFloatStorage storage)
+        : core::CFloatStorage{storage} {}
+    float storage() const { return core::CFloatStorage::storage(); }
+};
+
 constexpr std::array<std::size_t, 16> BRANCH{4, 0, 0, 0, 0, 0, 0, 0,
                                              3, 0, 0, 0, 2, 0, 1, 0};
 
@@ -105,7 +112,7 @@ void propagateLossGradients(std::size_t node,
 }
 
 CSearchTree::CSearchTree(const TFloatVec& values)
-    : m_Size{values.size()}, m_Min{values[0]} {
+    : m_Size{values.size()}, m_Min{CFloatStorageAccessor{values[0]}.storage()} {
     LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_PaddedSize);
     std::size_t n{nextPow5(values.size())};
     m_InitialTreeSize = n / 5;
@@ -161,7 +168,8 @@ void CSearchTree::build(const TFloatVec& values, std::size_t a, std::size_t b) {
     }
     LOG_TRACE(<< "stride = " << stride);
     for (std::size_t i = a + stride; i < b; i += stride) {
-        m_Values.push_back(i < values.size() ? values[i] : INF);
+        m_Values.push_back(
+            i < values.size() ? CFloatStorageAccessor{values[i]}.storage() : INF);
     }
     for (std::size_t i = a; i < b; i += stride) {
         if (i < values.size()) {

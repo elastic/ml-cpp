@@ -110,10 +110,14 @@ struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
 //! executing fewer instructions.
 class MATHS_ANALYTICS_EXPORT CSearchTree {
 public:
-    using TFloatVec = std::vector<float>;
-
-public:
+    CSearchTree() = default;
     explicit CSearchTree(const TFloatVec& values);
+
+    //! Check if it's empty.
+    bool empty() const { return m_Size == 0; }
+
+    //! Get the number of items in the set.
+    std::size_t size() const { return m_Size; }
 
     //! A drop in replacement for std::upper_bound on a sorted collection.
     std::size_t upperBound(float x) const;
@@ -130,9 +134,9 @@ private:
     static std::size_t nextPow5(std::size_t n);
 
 private:
-    std::size_t m_Size;
-    std::size_t m_InitialTreeSize;
-    float m_Min;
+    std::size_t m_Size{0};
+    std::size_t m_InitialTreeSize{0};
+    float m_Min{-INF};
     TAlignedFloatVec m_Values;
 };
 
@@ -151,6 +155,11 @@ CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree);
 
 //! Get the split used for storing missing values.
 inline std::size_t missingSplit(const TFloatVec& candidateSplits) {
+    return candidateSplits.size() + 1;
+}
+
+//! Get the split used for storing missing values.
+inline std::size_t missingSplit(const CSearchTree& candidateSplits) {
     return candidateSplits.size() + 1;
 }
 

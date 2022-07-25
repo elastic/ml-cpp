@@ -827,13 +827,11 @@ CBoostedTreeImpl::TDoubleVec CBoostedTreeImpl::initializePerFoldTestLosses() {
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
 
-    using TFloatStorageVec = std::vector<common::CFloatStorage>;
-
     if (m_Loss->type() == E_BinaryClassification || m_Loss->type() == E_MulticlassClassification) {
 
         std::size_t numberClasses{
             m_Loss->type() == E_BinaryClassification ? 2 : m_Loss->numberParameters()};
-        TFloatStorageVec storage(2);
+        TFloatVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
@@ -1535,6 +1533,15 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
         return;
     }
 
+    using TSearchTreeVec = std::vector<CSearchTree>;
+
+    TSearchTreeVec candidateSplitsTrees(candidateSplits.size());
+    for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
+        if (featureMask[i]) {
+            candidateSplitsTrees[i] = CSearchTree{candidateSplits[i]};
+        }
+    }
+
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
@@ -1550,12 +1557,10 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                             packedSplits[j] =
                                 CDataFrameUtils::isMissing(feature)
                                     ? static_cast<std::uint8_t>(
-                                          missingSplit(candidateSplits[i]))
+                                          missingSplit(candidateSplitsTrees[i]))
                                     : static_cast<std::uint8_t>(
-                                          std::upper_bound(candidateSplits[i].begin(),
-                                                           candidateSplits[i].end(),
-                                                           common::CFloatStorage{feature}) -
-                                          candidateSplits[i].begin());
+                                          candidateSplitsTrees[i].upperBound(
+                                              static_cast<float>(feature)));
                         }
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};

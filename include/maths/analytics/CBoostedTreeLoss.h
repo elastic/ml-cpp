@@ -24,6 +24,8 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/MathsTypes.h>
 
+#include <maths/analytics/CBoostedTreeUtils.h>
+
 #include <algorithm>
 #include <functional>
 #include <limits>

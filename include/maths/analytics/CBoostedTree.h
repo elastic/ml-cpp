@@ -16,8 +16,6 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFramePredictiveModel.h>
 #include <maths/analytics/ImportExport.h>
@@ -40,6 +38,10 @@ namespace analytics {
 namespace boosted_tree {
 class CLoss;
 }
+namespace boosted_tree_detail {
+struct SHyperparameterImportance;
+}
+class CBoostedTreeHyperparameters;
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
 class CBoostedTreeImpl;
