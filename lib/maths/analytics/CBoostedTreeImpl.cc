@@ -1489,13 +1489,12 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                 static_cast<double>(m_NumberSplitsPerFeature) +
                             common::CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
-                if (featureQuantiles[i].quantile(rank, q)) {
+                if (featureQuantiles[i].quantile(rank, q, common::CFastQuantileSketch::E_Linear)) {
                     featureCandidateSplits.emplace_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
             }
-            std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         }
 
         const auto& dataType = m_FeatureDataTypes[features[i]];
@@ -1511,14 +1510,15 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                               split = std::floor(split) + 0.5;
                           });
         }
+        std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         featureCandidateSplits.erase(std::unique(featureCandidateSplits.begin(),
                                                  featureCandidateSplits.end()),
                                      featureCandidateSplits.end());
         featureCandidateSplits.erase(std::remove_if(featureCandidateSplits.begin(),
                                                     featureCandidateSplits.end(),
                                                     [&dataType](double split) {
-                                                        return split < dataType.s_Min ||
-                                                               split > dataType.s_Max;
+                                                        return split <= dataType.s_Min ||
+                                                               split >= dataType.s_Max;
                                                     }),
                                      featureCandidateSplits.end());
     }

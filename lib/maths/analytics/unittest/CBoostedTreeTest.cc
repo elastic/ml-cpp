@@ -844,7 +844,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
-    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
+    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.25 * std::fabs(biasWithoutWeights));
     BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
@@ -1984,8 +1984,8 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
 
     LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
               << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.017);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.017);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -2465,7 +2465,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 30.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {

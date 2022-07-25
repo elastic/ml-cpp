@@ -647,7 +647,7 @@ BOOST_AUTO_TEST_CASE(testRegressionTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2100000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -1215,7 +1215,7 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2100000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
