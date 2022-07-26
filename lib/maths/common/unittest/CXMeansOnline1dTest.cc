@@ -16,6 +16,8 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CXMeansOnline1d.h>
 
