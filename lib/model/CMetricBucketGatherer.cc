@@ -385,7 +385,7 @@ private:
                  const CMetricBucketGatherer& gatherer,
                  std::any& result) const {
         using Type = typename SDataType<CATEGORY>::Type;
-        if (result.has_value()) {
+        if (!result.has_value()) {
             result = Type();
         }
         Type& data = *std::any_cast<Type>(&result);

@@ -325,7 +325,7 @@ public:
     //! Calculate the dynamic size of x if a callback has been
     //! registered for its type.
     std::size_t dynamicSize(const std::any& x) const {
-        if (!x.has_value()) {
+        if (x.has_value()) {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
                                       std::cref(x.type()),
                                       memory_detail::STypeInfoLess());
@@ -677,7 +677,7 @@ public:
     void dynamicSize(const char* name,
                      const std::any& x,
                      const CMemoryUsage::TMemoryUsagePtr& mem) const {
-        if (!x.has_value()) {
+        if (x.has_value()) {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
                                       std::cref(x.type()),
                                       memory_detail::STypeInfoLess());
