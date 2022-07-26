@@ -11,7 +11,6 @@
 
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
-#include <core/CTriple.h>
 #include <core/Constants.h>
 
 #include <maths/common/CMultimodalPrior.h>
