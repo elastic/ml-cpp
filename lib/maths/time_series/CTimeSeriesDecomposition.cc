@@ -15,16 +15,12 @@
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>

@@ -51,7 +51,7 @@ class CMemoryUsageEstimationResultJsonWriter;
 //! object. It provides common interface for reporting progress and errors back to
 //! calling code and starting an analysis.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Particular analyses are specified by a JSON object which is passed as a header
 //! to the data_frame_analyzer command before any data. It is the responsibility of
 //! the CDataFrameAnalysisSpecification to parse this header although it passes off

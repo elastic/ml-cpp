@@ -41,7 +41,7 @@ namespace core {
 //! the same line scan so this is also supported by supplying the predicate to the
 //! inner product.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The space optimal vector depends on the average run length. In particular, it
 //! is optimum to use around log2(E[run length]) bits to encode each run. This
 //! approach uses run length encoding of the run lengths for efficiency over a

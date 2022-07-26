@@ -34,7 +34,6 @@ class CStateRestoreTraverser;
 }
 namespace maths {
 namespace common {
-class CPrior;
 struct STimeSeriesDecompositionRestoreParams;
 }
 namespace time_series {

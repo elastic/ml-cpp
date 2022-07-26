@@ -77,7 +77,7 @@ class CMixtureMode;
 //! It is used to support mixtures with different distributions describing
 //! each mode.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This uses a variant because we know the distributions we can use to model
 //! a mode up front and it avoids heap allocation. The complement concept is
 //! encoded in a type parameter to avoid condition checking.

@@ -44,7 +44,7 @@ class CModelFactory;
 //! Responsible for configuring classes for performing anomaly detection.
 //! It also defines all parameter defaults.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This wraps up the configuration of anomaly detection to encapsulate
 //! the details from calling code. It is anticipated that:
 //!   -# Some of this information will be exposed to the user via a

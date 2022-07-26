@@ -33,7 +33,7 @@ namespace common {
 //!
 //! SplitMix is intended mainly for seeding the other two generators.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The generators all implement the contract for a boost pseudo-
 //! random number generator, so they can be used freely with the
 //! boost::random library.

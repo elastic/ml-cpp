@@ -46,7 +46,7 @@ struct SUserSuppliedMemoryUsageFunction<T, std::enable_if_t<
 //! Check if we expect an overloaded dynamicSize function.
 template<typename T>
 constexpr bool expectMemoryOverload() {
-    return (SContainerLike<T>::value || std::is_same<T, boost::any>::value) &&
+    return (SContainerLike<T>::value || std::is_same<T, std::any>::value) &&
            !SUserSuppliedMemoryUsageFunction<T>::value &&
            !SDynamicSizeAlwaysZero<T>::value();
 }
@@ -82,7 +82,7 @@ struct SUserSuppliedDebugMemoryUsageFunction<T, std::enable_if_t<
 //! Check if we expect an overloaded dynamicSize function.
 template<typename T>
 constexpr bool expectDebugMemoryOverload() {
-    return (SContainerLike<T>::value || std::is_same<T, boost::any>::value) &&
+    return (SContainerLike<T>::value || std::is_same<T, std::any>::value) &&
            !SUserSuppliedDebugMemoryUsageFunction<T>::value &&
            !SDynamicSizeAlwaysZero<T>::value();
 }
@@ -256,7 +256,7 @@ std::size_t dynamicSize(const std::pair<T, V>& t) {
 
 std::size_t dynamicSize(const std::string& t);
 
-std::size_t dynamicSize(const boost::any& t);
+std::size_t dynamicSize(const std::any& t);
 
 template<typename T, typename I, typename A>
 std::size_t dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t);
@@ -273,17 +273,17 @@ std::size_t elementDynamicSize(const CONTAINER& t) {
 }
 
 //! Implements a visitor pattern for computing the size of types stored in
-//! boost::any.
+//! std::any.
 //!
 //! DESCRIPTION:\n
 //! The idea of this class is a place for users of dynamicSize to register
-//! callbacks to compute the size of objects stored in boost::any. The user
+//! callbacks to compute the size of objects stored in std::any. The user
 //! must ensure that all types have registered callbacks before trying to
 //! compute their memory usage. It will warn if a type is visited which is
 //! not registered. Example usage:
 //! \code{.cpp}
 //!   CMemory::anyVisitor().insertCallback<std::vector<double>>();
-//!   std::vector<boost::any> variables;
+//!   std::vector<std::any> variables;
 //!   variables.push_back(TDoubleVec(10));
 //!   std::size_t size{CMemory::dynamicSize(variables, visitor)};
 //! \endcode
@@ -293,7 +293,7 @@ std::size_t elementDynamicSize(const CONTAINER& t) {
 //! callbacks are registered once as part of static initialisation.
 class CORE_EXPORT CAnyVisitor {
 public:
-    using TDynamicSizeFunc = std::size_t (*)(const boost::any& any);
+    using TDynamicSizeFunc = std::size_t (*)(const std::any& any);
     using TTypeInfoDynamicSizeFuncPr = std::pair<TTypeInfoCRef, TDynamicSizeFunc>;
     using TTypeInfoDynamicSizeFuncPrVec = std::vector<TTypeInfoDynamicSizeFuncPr>;
 
@@ -308,7 +308,7 @@ public:
     CAnyVisitor& operator=(const CAnyVisitor&) = delete;
 
     //! Insert a callback to compute the size of the type T
-    //! if it is stored in boost::any.
+    //! if it is stored in std::any.
     template<typename T>
     bool registerCallback() {
         auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
@@ -328,8 +328,8 @@ public:
 
     //! Calculate the dynamic size of x if a callback has been
     //! registered for its type.
-    std::size_t dynamicSize(const boost::any& x) const {
-        if (!x.empty()) {
+    std::size_t dynamicSize(const std::any& x) const {
+        if (!x.has_value()) {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
                                       std::cref(x.type()),
                                       memory_detail::STypeInfoLess());
@@ -347,9 +347,9 @@ private:
 private:
     //! Wraps up call to any_cast and dynamicSize.
     template<typename T>
-    static std::size_t dynamicSizeCallback(const boost::any& any) {
+    static std::size_t dynamicSizeCallback(const std::any& any) {
         try {
-            return sizeof(T) + CMemory::dynamicSize(boost::any_cast<const T&>(any));
+            return sizeof(T) + CMemory::dynamicSize(std::any_cast<const T&>(any));
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate size " << e.what());
         }
@@ -635,14 +635,14 @@ void elementDynamicSize(std::string name,
 }
 
 //! Implements a visitor pattern for computing the size of types
-//! stored in boost::any.
+//! stored in std::any.
 //!
 //! DESCRIPTION:\n
 //! See CMemory::CAnyVisitor for details.
 class CORE_EXPORT CAnyVisitor {
 public:
     using TDynamicSizeFunc = void (*)(const char*,
-                                      const boost::any& any,
+                                      const std::any& any,
                                       const CMemoryUsage::TMemoryUsagePtr& mem);
     using TTypeInfoDynamicSizeFuncPr = std::pair<TTypeInfoCRef, TDynamicSizeFunc>;
     using TTypeInfoDynamicSizeFuncPrVec = std::vector<TTypeInfoDynamicSizeFuncPr>;
@@ -658,7 +658,7 @@ public:
     CAnyVisitor& operator=(const CAnyVisitor&) = delete;
 
     //! Insert a callback to compute the size of the type T
-    //! if it is stored in boost::any.
+    //! if it is stored in std::any.
     template<typename T>
     bool registerCallback() {
         auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
@@ -679,9 +679,9 @@ public:
     //! Calculate the dynamic size of x if a callback has been
     //! registered for its type.
     void dynamicSize(const char* name,
-                     const boost::any& x,
+                     const std::any& x,
                      const CMemoryUsage::TMemoryUsagePtr& mem) const {
-        if (!x.empty()) {
+        if (!x.has_value()) {
             auto i = std::lower_bound(m_Callbacks.begin(), m_Callbacks.end(),
                                       std::cref(x.type()),
                                       memory_detail::STypeInfoLess());
@@ -700,11 +700,11 @@ private:
     //! Wraps up call to any_cast and dynamicSize.
     template<typename T>
     static void dynamicSizeCallback(const char* name,
-                                    const boost::any& any,
+                                    const std::any& any,
                                     const CMemoryUsage::TMemoryUsagePtr& mem) {
         try {
             mem->addItem(name, sizeof(T));
-            CMemoryDebug::dynamicSize(name, boost::any_cast<const T&>(any), mem);
+            CMemoryDebug::dynamicSize(name, std::any_cast<const T&>(any), mem);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate size " << e.what());
         }

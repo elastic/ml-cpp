@@ -372,7 +372,7 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! \brief Decorates an Eigen::Map of a dense matrix with some useful methods
 //! and changes default copy semantics to shallow copy.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This effectively acts like a std::reference_wrapper of an Eigen::Map for
 //! an Eigen matrix. In particular, all copying is shallow unlike Eigen::Map
 //! that acts directly on the referenced memory. This is to match the behaviour
@@ -469,7 +469,7 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
 //! \brief Decorates an Eigen::Map of a dense vector with some useful methods
 //! and changes default copy semantics to shallow.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This effectively acts like a std::reference_wrapper of an Eigen::Map for
 //! an Eigen vector. In particular, all copying is shallow unlike Eigen::Map
 //! that acts directly on the referenced memory, i.e.
@@ -663,7 +663,7 @@ CDenseVector<double> toDynamicDenseVector(const VECTOR& vector) {
 //! \brief The default type for converting Eigen matrices to our
 //! internal symmetric matrices.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This type is needed to get Eigen GEMM expressions to play nicely
 //! with our symmetric matrix type constructors. Also, I think it is
 //! useful to flag explicitly when a conversion is taking place, the
@@ -694,7 +694,7 @@ CDenseMatrixInitializer<MATRIX> fromDenseMatrix(const MATRIX& type) {
 //! \brief The default type for converting Eigen vectors to our
 //! internal vectors.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This type is needed to get Eigen GEMM expressions to play nicely
 //! with our vector type constructors. Also, I think it is useful to
 //! flag explicitly when a conversion is taking place, the fromDenseVector

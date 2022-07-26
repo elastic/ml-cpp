@@ -46,7 +46,7 @@ class CInfluenceCalculator;
 //! and influences on this can be computed, after all probabilities and
 //! influencer field values have been added, using the calculate function.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This uses a plug-in pattern to support different influence calculations
 //! which are selected at runtime. This is necessary because different features
 //! use different influence calculations, but the features are selected based

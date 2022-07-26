@@ -24,9 +24,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <map>
 #include <string>
 #include <vector>
@@ -95,7 +95,7 @@ private:
 //! \sa CDataGatherer.
 class MODEL_EXPORT CEventRateBucketGatherer final : public CBucketGatherer {
 public:
-    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
+    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, std::any>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
     using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;

@@ -40,8 +40,8 @@ CAnyVisitor& anyVisitor() {
     return CAnyVisitor::instance();
 }
 
-std::size_t dynamicSize(const boost::any& t) {
-    // boost::any holds a pointer to a new'd item.
+std::size_t dynamicSize(const std::any& t) {
+    // std::any holds a pointer to a new'd item.
     return anyVisitor().dynamicSize(t);
 }
 }
@@ -80,8 +80,8 @@ CAnyVisitor& anyVisitor() {
     return CAnyVisitor::instance();
 }
 
-void dynamicSize(const char* name, const boost::any& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
-    // boost::any holds a pointer to a new'd item.
+void dynamicSize(const char* name, const std::any& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
+    // std::any holds a pointer to a new'd item.
     anyVisitor().dynamicSize(name, t, mem);
 }
 }

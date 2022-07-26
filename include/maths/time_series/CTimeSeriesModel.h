@@ -344,7 +344,7 @@ public:
 //! pairs. Note that the allocator (supplied to refresh) defines how many correlates
 //! can be modeled.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The individual time series models hold a reference to this and update it with
 //! their samples, add and remove themselves as part of their life-cycle management
 //! and use it to correct their predictions and probability calculation as appropriate.

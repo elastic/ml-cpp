@@ -182,7 +182,7 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
                         core::CStatePersistInserter& inserter) {
     for (const auto& data_ : featureData) {
         model_t::EEventRateCategory category = data_.first;
-        const boost::any& data = data_.second;
+        const std::any& data = data_.second;
         try {
             switch (category) {
             case model_t::E_DiurnalTimes:
@@ -190,7 +190,7 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
                     TIMES_OF_DAY_TAG,
                     std::bind<void>(
                         TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<STimesBucketSerializer>(),
-                        std::cref(boost::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(data)),
+                        std::cref(std::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(data)),
                         std::placeholders::_1));
                 break;
             case model_t::E_MeanArrivalTimes:
@@ -200,7 +200,7 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
                 inserter.insertLevel(
                     ATTRIBUTE_PEOPLE_TAG,
                     std::bind(&persistAttributePeopleData,
-                              std::cref(boost::any_cast<const TSizeUSetVec&>(data)),
+                              std::cref(std::any_cast<const TSizeUSetVec&>(data)),
                               std::placeholders::_1));
                 break;
             case model_t::E_UniqueValues:
@@ -208,7 +208,7 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
                     UNIQUE_VALUES_TAG,
                     std::bind<void>(
                         TSizeSizePrStrDataUMapQueue::CSerializer<SStrDataBucketSerializer>(),
-                        std::cref(boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(data)),
+                        std::cref(std::any_cast<const TSizeSizePrStrDataUMapQueue&>(data)),
                         std::placeholders::_1));
                 break;
             }
@@ -259,7 +259,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                         core_t::TTime currentBucketStartTime) {
     const std::string& name = traverser.name();
     if (name == ATTRIBUTE_PEOPLE_TAG) {
-        auto* data{boost::unsafe_any_cast<TSizeUSetVec>(
+        auto* data{std::any_cast<TSizeUSetVec>(
             &featureData.emplace(model_t::E_AttributePeople, TSizeUSetVec())
                  .first->second)};
         if (traverser.traverseSubLevel(std::bind(&restoreAttributePeopleData, std::placeholders::_1,
@@ -269,7 +269,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         }
     } else if (name == UNIQUE_VALUES_TAG) {
         featureData.erase(model_t::E_UniqueValues);
-        auto* data{boost::unsafe_any_cast<TSizeSizePrStrDataUMapQueue>(
+        auto* data{std::any_cast<TSizeSizePrStrDataUMapQueue>(
             &featureData
                  .emplace(model_t::E_UniqueValues,
                           TSizeSizePrStrDataUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime,
@@ -284,7 +284,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         }
     } else if (name == TIMES_OF_DAY_TAG) {
         featureData.erase(model_t::E_DiurnalTimes);
-        auto* data{boost::unsafe_any_cast<TSizeSizePrMeanAccumulatorUMapQueue>(
+        auto* data{std::any_cast<TSizeSizePrMeanAccumulatorUMapQueue>(
             &featureData
                  .emplace(model_t::E_DiurnalTimes,
                           TSizeSizePrMeanAccumulatorUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime))
@@ -328,7 +328,7 @@ void applyFunc(ITR begin, ITR end, const F& f) {
         try {
             switch (category) {
             case model_t::E_DiurnalTimes: {
-                f(boost::any_cast<typename SMaybeConst<ITR, TSizeSizePrMeanAccumulatorUMapQueue>::TRef>(
+                f(std::any_cast<typename SMaybeConst<ITR, TSizeSizePrMeanAccumulatorUMapQueue>::TRef>(
                     itr->second));
                 break;
             }
@@ -337,11 +337,11 @@ void applyFunc(ITR begin, ITR end, const F& f) {
                 break;
             }
             case model_t::E_AttributePeople: {
-                f(boost::any_cast<typename SMaybeConst<ITR, TSizeUSetVec>::TRef>(itr->second));
+                f(std::any_cast<typename SMaybeConst<ITR, TSizeUSetVec>::TRef>(itr->second));
                 break;
             }
             case model_t::E_UniqueValues:
-                f(boost::any_cast<typename SMaybeConst<ITR, TSizeSizePrStrDataUMapQueue>::TRef>(
+                f(std::any_cast<typename SMaybeConst<ITR, TSizeSizePrStrDataUMapQueue>::TRef>(
                     itr->second));
                 break;
             }
@@ -1153,8 +1153,7 @@ void CEventRateBucketGatherer::personCounts(model_t::EFeature feature,
     }
 
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
     result.reserve(m_DataGatherer.numberActivePeople());
 
     for (std::size_t pid = 0, n = m_DataGatherer.numberPeople(); pid < n; ++pid) {
@@ -1180,8 +1179,7 @@ void CEventRateBucketGatherer::nonZeroPersonCounts(model_t::EFeature feature,
                                                    core_t::TTime time,
                                                    TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
 
     const TSizeSizePrUInt64UMap& personAttributeCounts = this->bucketCounts(time);
     result.reserve(personAttributeCounts.size());
@@ -1198,8 +1196,7 @@ void CEventRateBucketGatherer::personIndicator(model_t::EFeature feature,
                                                core_t::TTime time,
                                                TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
 
     const TSizeSizePrUInt64UMap& personAttributeCounts = this->bucketCounts(time);
     result.reserve(personAttributeCounts.size());
@@ -1222,8 +1219,7 @@ void CEventRateBucketGatherer::nonZeroAttributeCounts(model_t::EFeature feature,
                                                       core_t::TTime time,
                                                       TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     const TSizeSizePrUInt64UMap& personAttributeCounts = this->bucketCounts(time);
     result.reserve(personAttributeCounts.size());
@@ -1240,8 +1236,7 @@ void CEventRateBucketGatherer::nonZeroAttributeCounts(model_t::EFeature feature,
 void CEventRateBucketGatherer::peoplePerAttribute(model_t::EFeature feature,
                                                   TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_AttributePeople);
     if (i == m_FeatureData.end()) {
@@ -1249,7 +1244,7 @@ void CEventRateBucketGatherer::peoplePerAttribute(model_t::EFeature feature,
     }
 
     try {
-        const auto& attributePeople = boost::any_cast<const TSizeUSetVec&>(i->second);
+        const auto& attributePeople = std::any_cast<const TSizeUSetVec&>(i->second);
         result.reserve(attributePeople.size());
         for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (m_DataGatherer.isAttributeActive(cid)) {
@@ -1267,8 +1262,7 @@ void CEventRateBucketGatherer::attributeIndicator(model_t::EFeature feature,
                                                   core_t::TTime time,
                                                   TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     const TSizeSizePrUInt64UMap& counts = this->bucketCounts(time);
     result.reserve(counts.size());
@@ -1294,8 +1288,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPerson(model_t::EFeature fea
                                                            core_t::TTime time,
                                                            TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_UniqueValues);
     if (i == m_FeatureData.end()) {
@@ -1304,7 +1297,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPerson(model_t::EFeature fea
 
     try {
         const auto& personAttributeUniqueValues =
-            boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
+            std::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
         result.reserve(personAttributeUniqueValues.size());
         for (const auto& uniques : personAttributeUniqueValues) {
             result.emplace_back(CDataGatherer::extractPersonId(uniques), 0);
@@ -1323,8 +1316,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPersonAttribute(model_t::EFe
                                                                     core_t::TTime time,
                                                                     TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_UniqueValues);
     if (i == m_FeatureData.end()) {
@@ -1333,7 +1325,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPersonAttribute(model_t::EFe
 
     try {
         const auto& personAttributeUniqueValues =
-            boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
+            std::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
         result.reserve(personAttributeUniqueValues.size());
         for (const auto& uniques : personAttributeUniqueValues) {
             result.emplace_back(uniques.first, 0);
@@ -1352,8 +1344,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPerson(model_t::EFeature
                                                                core_t::TTime time,
                                                                TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_UniqueValues);
     if (i == m_FeatureData.end()) {
@@ -1362,7 +1353,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPerson(model_t::EFeature
 
     try {
         const auto& personAttributeUniqueValues =
-            boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
+            std::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
         result.reserve(personAttributeUniqueValues.size());
         for (const auto& uniques : personAttributeUniqueValues) {
             result.emplace_back(CDataGatherer::extractPersonId(uniques), 0);
@@ -1382,8 +1373,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPersonAttribute(
     core_t::TTime time,
     TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_UniqueValues);
     if (i == m_FeatureData.end()) {
@@ -1392,7 +1382,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPersonAttribute(
 
     try {
         const auto& personAttributeUniqueValues =
-            boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
+            std::any_cast<const TSizeSizePrStrDataUMapQueue&>(i->second).get(time);
         result.reserve(personAttributeUniqueValues.size());
         for (const auto& uniques : personAttributeUniqueValues) {
             result.emplace_back(uniques.first, 0);
@@ -1411,8 +1401,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPerson(model_t::EFeature featur
                                                         core_t::TTime time,
                                                         TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_DiurnalTimes);
     if (i == m_FeatureData.end()) {
@@ -1421,8 +1410,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPerson(model_t::EFeature featur
 
     try {
         const auto& arrivalTimes =
-            boost::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(i->second)
-                .get(time);
+            std::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(i->second).get(time);
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(CDataGatherer::extractPersonId(time_),
@@ -1454,8 +1442,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
                                                                  core_t::TTime time,
                                                                  TFeatureAnyPrVec& result_) const {
     result_.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-    auto& result =
-        *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
+    auto& result = *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result_.back().second);
 
     auto i = m_FeatureData.find(model_t::E_DiurnalTimes);
     if (i == m_FeatureData.end()) {
@@ -1464,8 +1451,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
 
     try {
         const auto& arrivalTimes =
-            boost::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(i->second)
-                .get(time);
+            std::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(i->second).get(time);
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(time_.first,

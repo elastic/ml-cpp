@@ -20,8 +20,7 @@
 #include <model/CDataGatherer.h>
 #include <model/ImportExport.h>
 
-#include <boost/any.hpp>
-
+#include <any>
 #include <map>
 #include <string>
 #include <vector>
@@ -45,7 +44,7 @@ class CResourceMonitor;
 class MODEL_EXPORT CMetricBucketGatherer final : public CBucketGatherer {
 public:
     using TCategorySizePr = std::pair<model_t::EMetricCategory, std::size_t>;
-    using TCategorySizePrAnyMap = std::map<TCategorySizePr, boost::any>;
+    using TCategorySizePrAnyMap = std::map<TCategorySizePr, std::any>;
     using TCategorySizePrAnyMapItr = TCategorySizePrAnyMap::iterator;
     using TCategorySizePrAnyMapCItr = TCategorySizePrAnyMap::const_iterator;
 

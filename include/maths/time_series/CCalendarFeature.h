@@ -29,7 +29,7 @@ namespace time_series {
 
 //! \brief A light weight encoding of a calendar feature.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Note that this purposely doesn't use an enum for encoding the feature
 //! so that the member size is only 16 bits rather than sizeof(int).
 class MATHS_TIME_SERIES_EXPORT CCalendarFeature

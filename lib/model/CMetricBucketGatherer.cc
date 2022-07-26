@@ -26,10 +26,10 @@
 #include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 
-#include <boost/any.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <atomic>
 #include <map>
 #include <utility>
@@ -202,7 +202,7 @@ void registerMemoryCallbacks() {
 template<model_t::EMetricCategory CATEGORY, typename ITR, typename F>
 void applyFunc(ITR i, const F& f) {
     using TDataType = typename SDataType<CATEGORY>::Type;
-    f(i->first, boost::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
+    f(i->first, std::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
 }
 
 //! Apply a function \p f to all the gatherers held in [\p begin, \p end).
@@ -373,7 +373,7 @@ public:
                     bool isNewVersion,
                     const CMetricBucketGatherer& gatherer,
                     TCategorySizePrAnyMap& result) const {
-        boost::any& data = result[{CATEGORY, dimension}];
+        std::any& data = result[{CATEGORY, dimension}];
         return this->restore(traverser, dimension, isNewVersion, gatherer, data);
     }
 
@@ -383,12 +383,12 @@ private:
                  std::size_t dimension,
                  bool isNewVersion,
                  const CMetricBucketGatherer& gatherer,
-                 boost::any& result) const {
+                 std::any& result) const {
         using Type = typename SDataType<CATEGORY>::Type;
-        if (result.empty()) {
+        if (result.has_value()) {
             result = Type();
         }
-        Type& data = *boost::unsafe_any_cast<Type>(&result);
+        Type& data = *std::any_cast<Type>(&result);
 
         // An empty sub-level implies a person with 100% invalid data.
         if (!traverser.hasSubLevel()) {
@@ -709,7 +709,7 @@ public:
 //! Extracts feature data from a collection of gatherers.
 struct SExtractFeatureData {
 public:
-    using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
+    using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
 
 public:
@@ -723,14 +723,14 @@ public:
                     TFeatureAnyPrVec& result) const {
         if (gatherer.dataGatherer().isPopulation()) {
             result.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-            this->featureData(data, gatherer, time, bucketLength, this->isSum(feature),
-                              *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(
-                                  &result.back().second));
+            this->featureData(
+                data, gatherer, time, bucketLength, this->isSum(feature),
+                *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result.back().second));
         } else {
             result.emplace_back(feature, TSizeFeatureDataPrVec());
             this->featureData(
                 data, gatherer, time, bucketLength, this->isSum(feature),
-                *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result.back().second));
+                *std::any_cast<TSizeFeatureDataPrVec>(&result.back().second));
         }
     }
 

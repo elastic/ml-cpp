@@ -589,7 +589,7 @@ private:
 
 //! \brief A composite method.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is used in conjunction with CEnsemble so we can share nearest
 //! neighbour lookups for all methods in an ensemble model.
 template<typename POINT, typename NEAREST_NEIGHBOURS>

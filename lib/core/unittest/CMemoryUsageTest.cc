@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
     using TBasePtr = std::shared_ptr<CBase>;
     using TDerivedVec = std::vector<CDerived>;
     using TBasePtrVec = std::vector<TBasePtr>;
-    using TAnyVec = std::vector<boost::any>;
+    using TAnyVec = std::vector<std::any>;
 
     // Check std::unique_ptr behaves as expected.
 
@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                                 sizeof(SFoo) * value.s_State.capacity());
     }
     {
-        LOG_DEBUG(<< "*** boost::any ***");
+        LOG_DEBUG(<< "*** std::any ***");
 
         TDoubleVec a(10);
         TFooVec b(20);

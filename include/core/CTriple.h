@@ -24,7 +24,7 @@ namespace core {
 
 //! \brief A tuple with three elements.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This implements a lightweight version of boost::tuple with syntax
 //! similar to std::pair for the case of three elements.
 //!

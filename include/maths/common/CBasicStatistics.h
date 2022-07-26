@@ -903,7 +903,7 @@ private:
     //! This implements the underlying algorithm for determining the first
     //! n order statistics online.
     //!
-    //! IMPLEMENTATION:\n
+    //! IMPLEMENTATION DECISIONS:\n
     //! This maintains the statistics in a heap for worst case complexity
     //! \f$O(N log(n))\f$ and typical complexity \f$O(N)\f$ (by checking
     //! against the maximum value) for \f$n << N\f$.

@@ -14,13 +14,11 @@
 
 #include <core/CMemoryUsage.h>
 
-#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
-
-#include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CAdaptiveBucketing.h>
 #include <maths/time_series/CSeasonalTime.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
 #include <cstdint>

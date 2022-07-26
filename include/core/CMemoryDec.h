@@ -14,13 +14,13 @@
 
 #include <core/CMemoryFwd.h>
 
-#include <boost/any.hpp>
 #include <boost/circular_buffer_fwd.hpp>
 #include <boost/container/container_fwd.hpp>
 #include <boost/multi_index_container_fwd.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <any>
 #include <array>
 #include <cstddef>
 #include <functional>
@@ -146,7 +146,7 @@ CORE_EXPORT
 std::size_t dynamicSize(const std::string& t);
 
 CORE_EXPORT
-std::size_t dynamicSize(const boost::any& t);
+std::size_t dynamicSize(const std::any& t);
 
 template<typename T, typename I, typename A>
 std::size_t dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t);
@@ -254,7 +254,7 @@ CORE_EXPORT
 void dynamicSize(const char* name, const std::string& t, const CMemoryUsage::TMemoryUsagePtr& mem);
 
 CORE_EXPORT
-void dynamicSize(const char* name, const boost::any& t, const CMemoryUsage::TMemoryUsagePtr& mem);
+void dynamicSize(const char* name, const std::any& t, const CMemoryUsage::TMemoryUsagePtr& mem);
 
 template<typename T, typename I, typename A>
 void dynamicSize(const char* name,

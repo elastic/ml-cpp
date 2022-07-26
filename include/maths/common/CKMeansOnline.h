@@ -50,7 +50,7 @@ namespace common {
 //! the within class variance). See also CNaturalBreaksClassifier for a
 //! discussion of the sketch strategy.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This class is templated on the point type for greater flexibility.
 //! It must support addition, subtraction, have free functions for
 //! coordinate-wise min and max, satisfy the constraints imposed by

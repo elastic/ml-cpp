@@ -195,7 +195,7 @@ std::ostream& stream(boost::log::basic_record_ostream<CHAR_T>& stream) {
 //! types. It also handles containers of containers (checks if they
 //! have a nested const_iterator typedef).
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is implemented using CStringUtils if possible and otherwise
 //! std::ostringstream. It doesn't attempt to be high performance and
 //! is primarily intended for testing and debugging.
@@ -336,7 +336,7 @@ public:
 //! Note that this only works for the scope of the current log line after the
 //! CScopePrintContainers variable is defined.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Libraries have a tendency to overload operator<< for std::ostream (for
 //! example PyTorch does this) for STL types. In such cases, we get a violation
 //! of the ODR if we do the same. However, we can simply wrap the std::ostream
