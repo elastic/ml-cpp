@@ -31,7 +31,6 @@ class CStateRestoreTraverser;
 }
 namespace maths {
 namespace time_series {
-class CSeasonalTime;
 
 //! \brief An adaptive bucketing of the value of a calendar component.
 //!

@@ -21,8 +21,6 @@
 
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/array.hpp>
-
 #include <cstddef>
 #include <cstdint>
 #include <limits>

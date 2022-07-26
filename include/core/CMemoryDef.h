@@ -254,10 +254,6 @@ std::size_t dynamicSize(const std::pair<T, V>& t) {
     return mem;
 }
 
-std::size_t dynamicSize(const std::string& t);
-
-std::size_t dynamicSize(const std::any& t);
-
 template<typename T, typename I, typename A>
 std::size_t dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t);
 

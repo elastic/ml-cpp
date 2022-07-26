@@ -19,7 +19,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/unordered_map.hpp>
 
