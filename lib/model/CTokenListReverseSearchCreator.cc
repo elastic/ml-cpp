@@ -10,7 +10,7 @@
  */
 #include <model/CTokenListReverseSearchCreator.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CRegex.h>
 
 namespace ml {

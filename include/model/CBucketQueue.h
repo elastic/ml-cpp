@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CBucketQueue_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CPersistUtils.h>
 #include <core/CoreTypes.h>
 

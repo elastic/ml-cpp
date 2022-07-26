@@ -12,7 +12,7 @@
 #include <maths/analytics/COutliers.h>
 
 #include <core/CDataFrame.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 

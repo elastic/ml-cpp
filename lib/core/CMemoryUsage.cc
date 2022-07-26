@@ -11,7 +11,7 @@
 #include <core/CMemoryUsage.h>
 
 #include <core/CLoggerTrace.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CMemoryUsageJsonWriter.h>
 
 #include <list>

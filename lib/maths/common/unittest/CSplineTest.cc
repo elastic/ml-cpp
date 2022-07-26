@@ -10,6 +10,8 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryDefStd.h>
+
 #include <maths/common/CIntegration.h>
 #include <maths/common/CSpline.h>
 

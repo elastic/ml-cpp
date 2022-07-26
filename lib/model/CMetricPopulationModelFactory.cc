@@ -12,7 +12,7 @@
 #include <model/CMetricPopulationModelFactory.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CConstantPrior.h>

@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/common/CBasicStatistics.h>
 

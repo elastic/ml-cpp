@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_SMultimodalPriorMode_h
 #define INCLUDED_ml_maths_common_SMultimodalPriorMode_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>

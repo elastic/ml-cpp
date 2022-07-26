@@ -12,6 +12,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 
 #include <model/CBucketQueue.h>

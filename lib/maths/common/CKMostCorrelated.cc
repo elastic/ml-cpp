@@ -12,7 +12,7 @@
 #include <maths/common/CKMostCorrelated.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>

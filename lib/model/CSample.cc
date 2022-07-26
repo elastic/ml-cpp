@@ -13,7 +13,7 @@
 
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 

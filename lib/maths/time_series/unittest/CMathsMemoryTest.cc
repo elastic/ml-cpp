@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <core/CMemoryDef.h>
+
 #include <maths/common/CBjkstUniqueValues.h>
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CGammaRateConjugate.h>
@@ -94,18 +96,9 @@ BOOST_AUTO_TEST_CASE(testPriors) {
 
     BOOST_TEST_REQUIRE(clusterer.memoryUsage() >= clustererSize);
 
-    CClusterer1d::TPointPreciseDoublePrVec clusters;
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.1, 0.7));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.01, 0.6));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.9, 0.5));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.6, 0.2));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.3));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.4, 0.9));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.7, 0.8));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.8, 0.9));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.2, 0.4));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.5));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.5));
+    CClusterer1d::TPointPreciseDoublePrVec clusters{
+        {0.1, 0.7}, {0.01, 0.6}, {0.9, 0.5}, {0.6, 0.2}, {0.3, 0.3}, {0.4, 0.9},
+        {0.7, 0.8}, {0.8, 0.9},  {0.2, 0.4}, {0.3, 0.5}, {0.3, 0.5}};
     clusterer.add(clusters);
 
     // Check that the CMultimodalPrior increases in size

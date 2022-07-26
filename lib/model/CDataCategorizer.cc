@@ -10,7 +10,7 @@
  */
 #include <model/CDataCategorizer.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <model/CLimits.h>

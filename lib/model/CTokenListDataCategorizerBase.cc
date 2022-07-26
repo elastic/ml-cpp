@@ -11,7 +11,7 @@
 #include <model/CTokenListDataCategorizerBase.h>
 
 #include <core/CLogger.h>
-#include <core/CMemoryMultiIndex.h>
+#include <core/CMemoryDefMultiIndex.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>

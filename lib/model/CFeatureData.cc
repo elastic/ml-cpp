@@ -12,7 +12,7 @@
 #include <model/CFeatureData.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <boost/iterator/counting_iterator.hpp>
 

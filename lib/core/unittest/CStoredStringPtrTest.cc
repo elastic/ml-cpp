@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStoredStringPtr.h>
 
 #include <boost/test/unit_test.hpp>

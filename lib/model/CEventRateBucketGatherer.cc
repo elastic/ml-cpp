@@ -12,7 +12,7 @@
 #include <model/CEventRateBucketGatherer.h>
 
 #include <core/CFunctional.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>

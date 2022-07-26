@@ -15,7 +15,7 @@
 #include <core/CDataFrameRowSlice.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStringUtils.h>
 #include <core/CVectorRange.h>

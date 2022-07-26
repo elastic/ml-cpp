@@ -12,7 +12,7 @@
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/Constants.h>

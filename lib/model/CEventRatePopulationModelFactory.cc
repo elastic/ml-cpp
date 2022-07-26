@@ -11,6 +11,7 @@
 
 #include <model/CEventRatePopulationModelFactory.h>
 
+#include <core/CMemoryDefStd.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CConstantPrior.h>

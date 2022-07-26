@@ -13,7 +13,7 @@
 
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>

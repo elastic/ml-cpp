@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>

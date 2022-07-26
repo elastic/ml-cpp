@@ -12,7 +12,7 @@
 #include <maths/common/CMultivariateConstantPrior.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>

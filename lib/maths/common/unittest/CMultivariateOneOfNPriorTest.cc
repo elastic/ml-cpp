@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>

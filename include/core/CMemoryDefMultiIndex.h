@@ -9,23 +9,21 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CMemoryMultiIndex_h
-#define INCLUDED_ml_core_CMemoryMultiIndex_h
+#ifndef INCLUDED_ml_core_CMemoryDefMultiIndex_h
+#define INCLUDED_ml_core_CMemoryDefMultiIndex_h
 
 #include <core/BoostMultiIndex.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
+#include <core/CMemoryDecStd.h>
+#include <core/CMemoryDef.h>
+#include <core/CMemoryDefStd.h>
 
 namespace ml {
 namespace core {
+namespace CMemory {
 template<typename T, typename I, typename A>
 std::size_t
-CMemory::dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t) {
-    return elementDynamicSize(t) + t.size() * (sizeof(T) + storageNodeOverhead(t));
-}
-
-template<typename T, typename I, typename A>
-std::size_t
-CMemory::storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>&) {
+storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>&) {
     // It's tricky to determine the container overhead of a multi-index
     // container.  It can have an arbitrary number of indices, each of which
     // can be of a different type.  To accurately determine the overhead
@@ -41,9 +39,17 @@ CMemory::storageNodeOverhead(const boost::multi_index::multi_index_container<T, 
 }
 
 template<typename T, typename I, typename A>
-void CMemoryDebug::dynamicSize(const char* name,
-                               const boost::multi_index::multi_index_container<T, I, A>& t,
-                               const CMemoryUsage::TMemoryUsagePtr& mem) {
+std::size_t dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t) {
+    return CMemory::elementDynamicSize(t) +
+           t.size() * (sizeof(T) + CMemory::storageNodeOverhead(t));
+}
+}
+
+namespace CMemoryDebug {
+template<typename T, typename I, typename A>
+void dynamicSize(const char* name,
+                 const boost::multi_index::multi_index_container<T, I, A>& t,
+                 const CMemoryUsage::TMemoryUsagePtr& mem) {
     std::string componentName(name);
 
     std::size_t items = t.size();
@@ -52,9 +58,10 @@ void CMemoryDebug::dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    elementDynamicSize(std::move(componentName), t, mem);
+    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+}
 }
 }
 }
 
-#endif // INCLUDED_ml_core_CMemoryMultiIndex_h
+#endif // INCLUDED_ml_core_CMemoryDefMultiIndex_h

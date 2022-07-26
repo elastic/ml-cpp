@@ -10,7 +10,7 @@
  */
 #include <core/CStoredStringPtr.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <boost/functional/hash.hpp>
 

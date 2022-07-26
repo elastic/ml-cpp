@@ -13,7 +13,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CRegex.h>
 #include <core/CStopWatch.h>

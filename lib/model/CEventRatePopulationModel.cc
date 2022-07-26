@@ -13,7 +13,7 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
 

@@ -12,7 +12,7 @@
 #include <core/CAlignment.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CSmallVector.h>
 
 #include <test/CRandomNumbers.h>

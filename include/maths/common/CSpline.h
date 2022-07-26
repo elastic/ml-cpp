@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CSpline_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/CBasicStatistics.h>

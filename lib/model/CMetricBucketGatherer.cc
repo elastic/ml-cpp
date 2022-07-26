@@ -12,7 +12,7 @@
 #include <model/CMetricBucketGatherer.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CProgramCounters.h>
 
 #include <maths/common/CBasicStatistics.h>

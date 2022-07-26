@@ -13,7 +13,7 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CFunctional.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CTriple.h>
 #include <core/RestoreMacros.h>

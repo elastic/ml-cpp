@@ -11,7 +11,7 @@
 
 #include <model/SModelParams.h>
 
-#include <core/CMemoryMultiIndex.h>
+#include <core/CMemoryDefMultiIndex.h>
 #include <core/Constants.h>
 
 #include <maths/common/CChecksum.h>

@@ -11,7 +11,7 @@
 #include <core/CompressUtils.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <string.h>
 

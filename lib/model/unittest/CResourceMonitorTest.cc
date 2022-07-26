@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CWordDictionary.h>
 #include <core/Constants.h>
 
