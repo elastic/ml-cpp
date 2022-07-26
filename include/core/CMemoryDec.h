@@ -35,13 +35,6 @@ template<typename T, std::size_t N>
 class CSmallVector;
 
 namespace memory_detail {
-// Windows creates an extra map/list node per map/list
-#ifdef Windows
-const std::size_t EXTRA_NODES = 1;
-#else
-const std::size_t EXTRA_NODES = 0;
-#endif
-
 //! \brief Default template for classes that don't sport a staticSize member.
 template<typename T, typename ENABLE = void>
 struct SMemoryStaticSize {
@@ -149,8 +142,10 @@ std::size_t dynamicSize(const std::reference_wrapper<T>& /*t*/);
 template<typename T, typename V>
 std::size_t dynamicSize(const std::pair<T, V>& t);
 
+CORE_EXPORT
 std::size_t dynamicSize(const std::string& t);
 
+CORE_EXPORT
 std::size_t dynamicSize(const boost::any& t);
 
 template<typename T, typename I, typename A>
@@ -255,8 +250,10 @@ void dynamicSize(const char* name,
                  const std::pair<U, V>& t,
                  const CMemoryUsage::TMemoryUsagePtr& mem);
 
+CORE_EXPORT
 void dynamicSize(const char* name, const std::string& t, const CMemoryUsage::TMemoryUsagePtr& mem);
 
+CORE_EXPORT
 void dynamicSize(const char* name, const boost::any& t, const CMemoryUsage::TMemoryUsagePtr& mem);
 
 template<typename T, typename I, typename A>

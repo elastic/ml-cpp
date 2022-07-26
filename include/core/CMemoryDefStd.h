@@ -19,16 +19,23 @@
 namespace ml {
 namespace core {
 namespace memory_detail {
+// Windows creates an extra map/list node per map/list
+#ifdef Windows
+constexpr std::size_t EXTRA_NODES{1};
+#else
+constexpr std::size_t EXTRA_NODES{0};
+#endif
+
 // Big variations in deque page size!
 #ifdef Windows
-const std::size_t MIN_DEQUE_PAGE_SIZE = 16;
-const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
+constexpr std::size_t MIN_DEQUE_PAGE_SIZE{16};
+constexpr std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES{8};
 #elif defined(MacOSX)
-const std::size_t MIN_DEQUE_PAGE_SIZE = 4096;
-const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 1;
+constexpr std::size_t MIN_DEQUE_PAGE_SIZE{4096};
+constexpr std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES{1};
 #else
-const std::size_t MIN_DEQUE_PAGE_SIZE = 512;
-const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
+constexpr std::size_t MIN_DEQUE_PAGE_SIZE{512};
+constexpr std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES{8};
 #endif
 }
 
