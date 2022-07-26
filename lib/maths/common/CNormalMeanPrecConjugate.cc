@@ -32,13 +32,10 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/math/special_functions/gamma.hpp>
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <limits>
-#include <numeric>
 #include <sstream>
 #include <string>
 

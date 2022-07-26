@@ -12,7 +12,6 @@
 #include <maths/common/CMultinomialConjugate.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>

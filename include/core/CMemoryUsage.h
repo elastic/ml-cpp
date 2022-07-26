@@ -32,7 +32,7 @@ class CORE_EXPORT CMemoryUsage {
 public:
     //! A collection of data to record memory usage information for
     //! arbitrary components
-    struct SMemoryUsage {
+    struct CORE_EXPORT SMemoryUsage {
         SMemoryUsage(const std::string& name, std::size_t memory)
             : s_Name(name), s_Memory(memory), s_Unused(0) {}
 

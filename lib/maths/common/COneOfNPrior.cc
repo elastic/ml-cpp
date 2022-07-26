@@ -27,7 +27,6 @@
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
-#include <maths/common/Constants.h>
 
 #include <algorithm>
 #include <cmath>

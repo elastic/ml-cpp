@@ -25,9 +25,9 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 
-#include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/math/distributions/normal.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <numeric>

@@ -12,6 +12,7 @@
 #include <maths/common/CClusterer.h>
 
 #include <core/CMemoryDef.h>
+#include <core/CPersistUtils.h>
 
 namespace ml {
 namespace maths {

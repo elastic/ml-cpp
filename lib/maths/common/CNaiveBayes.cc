@@ -27,8 +27,10 @@
 #include <maths/common/MathsTypes.h>
 
 #include <algorithm>
-#include <numeric>
+#include <functional>
+#include <iterator>
 #include <string>
+#include <utility>
 
 namespace ml {
 namespace maths {

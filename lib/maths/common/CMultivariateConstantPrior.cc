@@ -13,6 +13,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CMemoryDef.h>
+#include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -20,15 +21,11 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CConstantPrior.h>
-#include <maths/common/CLinearAlgebraPersist.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 
-#include <iomanip>
 #include <ios>
 #include <limits>
 #include <optional>
-#include <sstream>
 
 namespace ml {
 namespace maths {

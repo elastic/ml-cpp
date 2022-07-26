@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_common_COneOfNPrior_h
 
 #include <core/CMemoryUsage.h>
-#include <core/CNonCopyable.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CModelWeight.h>

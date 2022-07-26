@@ -18,7 +18,6 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraTools.h>
@@ -37,8 +36,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
-#include <numeric>
 #include <sstream>
 #include <string>
 

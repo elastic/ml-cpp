@@ -21,7 +21,8 @@
 #include <boost/math/distributions/binomial.hpp>
 
 #include <cmath>
-#include <iterator>
+#include <functional>
+#include <limits>
 #include <numeric>
 
 namespace ml {

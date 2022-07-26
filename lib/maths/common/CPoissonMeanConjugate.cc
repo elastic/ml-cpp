@@ -16,8 +16,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
@@ -28,13 +26,11 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/math/distributions/poisson.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include <limits>
-#include <numeric>
 #include <sstream>
 #include <string>
 

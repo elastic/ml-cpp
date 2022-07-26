@@ -49,7 +49,7 @@ class CMonitoredResource;
 //! Assess memory used by models and decide on further memory allocations.
 class MODEL_EXPORT CResourceMonitor {
 public:
-    struct SModelSizeStats {
+    struct MODEL_EXPORT SModelSizeStats {
         std::size_t s_Usage{0};
         std::size_t s_AdjustedUsage{0};
         std::size_t s_PeakUsage{0};

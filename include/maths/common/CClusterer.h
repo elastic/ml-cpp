@@ -14,23 +14,24 @@
 
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
-#include <core/CPersistUtils.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CTypeTraits.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CStateRestoreTraverser;
+}
 namespace maths {
 namespace common {
 //! \brief Factors out the non-template part of CClusterer for improved
@@ -206,7 +207,7 @@ public:
         TPointPreciseDoublePrVec weightedPoints;
         weightedPoints.reserve(points.size());
         for (std::size_t i = 0; i < points.size(); ++i) {
-            weightedPoints.push_back(TPointPreciseDoublePr(points[i], 1.0));
+            weightedPoints.emplace_back(points[i], 1.0);
         }
         this->add(weightedPoints);
     }

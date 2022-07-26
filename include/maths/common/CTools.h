@@ -67,7 +67,7 @@ public:
 
     //! \brief Computes minus the log of the c.d.f. of a specified sample
     //! of an R.V. for various distributions.
-    struct SMinusLogCdf {
+    struct MATHS_COMMON_EXPORT SMinusLogCdf {
         double operator()(const SImproperDistribution&, double x) const;
         double operator()(const normal& normal_, double x) const;
         double operator()(const students_t& students, double x) const;
@@ -83,7 +83,7 @@ public:
     //! precision, i.e. these do not lose precision when the result is
     //! close to 1 and the smallest value is the minimum double rather
     //! than epsilon.
-    struct SMinusLogCdfComplement {
+    struct MATHS_COMMON_EXPORT SMinusLogCdfComplement {
         double operator()(const SImproperDistribution&, double) const;
         double operator()(const normal& normal_, double x) const;
         double operator()(const students_t& students, double x) const;
@@ -120,7 +120,7 @@ public:
     //!
     //! and normalizes the result so that it equals one at the distribution
     //! median.
-    class CProbabilityOfLessLikelySample {
+    class MATHS_COMMON_EXPORT CProbabilityOfLessLikelySample {
     public:
         explicit CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
 
@@ -150,7 +150,7 @@ public:
     //! from a mixture model.
     //!
     //! \sa CProbabilityOfLessLikelySample
-    class CMixtureProbabilityOfLessLikelySample;
+    class MATHS_COMMON_EXPORT CMixtureProbabilityOfLessLikelySample;
 
     //! \brief Computes the expectation conditioned on a particular interval.
     //!
@@ -161,7 +161,7 @@ public:
     //! <pre class="fragment">
     //!   \f$E[ X 1{[a,b]} ] / E[ 1{a,b]} ]\f$
     //! </pre>
-    struct SIntervalExpectation {
+    struct MATHS_COMMON_EXPORT SIntervalExpectation {
         double operator()(const normal& normal_, double a, double b) const;
         double operator()(const lognormal& logNormal, double a, double b) const;
         double operator()(const gamma& gamma_, double a, double b) const;
@@ -257,9 +257,9 @@ public:
     static double differentialEntropy(const lognormal& logNormal);
     static double differentialEntropy(const gamma& gamma_);
     template<typename T>
-    class CDifferentialEntropyKernel {
+    class MATHS_COMMON_EXPORT CDifferentialEntropyKernel {
     public:
-        CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
+        explicit CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
             : m_Mixture(&mixture) {}
 
         inline bool operator()(double x, double& result) const {

@@ -20,7 +20,6 @@
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -53,7 +52,7 @@ public:
     using TStrStrPr = std::pair<std::string, std::string>;
 
     //! \brief Data for plotting a series
-    struct SPlot {
+    struct MATHS_COMMON_EXPORT SPlot {
         TDouble1Vec s_Abscissa;
         TDouble1Vec s_Ordinates;
     };
@@ -71,10 +70,8 @@ public:
     };
 
     //! \brief Defines a filter for removing models from selection.
-    class CModelFilter {
+    class MATHS_COMMON_EXPORT CModelFilter {
     public:
-        CModelFilter();
-
         //! Mark a model to be removed.
         CModelFilter& remove(EPrior model);
 
@@ -83,7 +80,7 @@ public:
 
     private:
         //! A binary representation of the filter.
-        int m_Filter;
+        int m_Filter{0};
     };
 
     //! \brief Wrapper around the jointLogMarginalLikelihood function.
@@ -91,7 +88,7 @@ public:
     //! DESCRIPTION:\n
     //! This adapts the jointLogMarginalLikelihood function for use with
     //! CIntegration.
-    class CLogMarginalLikelihood {
+    class MATHS_COMMON_EXPORT CLogMarginalLikelihood {
     public:
         CLogMarginalLikelihood(const CPrior& prior,
                                const TDoubleWeightsAry1Vec& weights = TWeights::SINGLE_UNIT);

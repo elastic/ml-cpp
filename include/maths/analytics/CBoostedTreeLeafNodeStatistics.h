@@ -101,7 +101,7 @@ public:
     using TThreading = CBoostedTreeLeafNodeStatisticsThreading;
 
     //! \brief Accumulates aggregate derivatives.
-    class CDerivatives {
+    class MATHS_ANALYTICS_EXPORT CDerivatives {
     public:
         //! Bounds the minimum diagonal of the Hessian.
         static constexpr double SMALLEST_RELATIVE_CURVATURE{1e-20};
@@ -207,7 +207,7 @@ public:
     };
 
     //! \brief A collection of aggregate derivatives for candidate feature splits.
-    class CSplitsDerivatives {
+    class MATHS_ANALYTICS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
         using TLoopBodyVec = std::vector<std::function<void(std::size_t)>>;
@@ -560,7 +560,7 @@ public:
     //! times they need to be allocated. This has the added advantage of keeping
     //! the cache warm since the critical path is always working on the derivatives
     //! objects stored in this class.
-    class CWorkspace {
+    class MATHS_ANALYTICS_EXPORT CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;

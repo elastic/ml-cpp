@@ -365,7 +365,7 @@ public:
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
     //! \brief The arguments to the initial search we perform for each parameter.
-    class CInitializeFineTuneArguments {
+    class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
     public:
         using TUpdateParameter = std::function<bool(CBoostedTreeImpl&, double)>;
         using TTruncateParameter = std::function<void(TVector3x1&)>;

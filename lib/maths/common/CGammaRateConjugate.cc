@@ -35,7 +35,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
