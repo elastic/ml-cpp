@@ -13,6 +13,7 @@
 #define INCLUDED_ml_model_CIndividualModel_h
 
 #include <core/CMemoryUsage.h>
+#include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
@@ -25,10 +26,6 @@
 #include <vector>
 
 namespace ml {
-namespace core {
-template<typename T1, typename T2, typename T3>
-class CTriple;
-}
 namespace model {
 class CAnnotatedProbabilityBuilder;
 class CProbabilityAndInfluenceCalculator;

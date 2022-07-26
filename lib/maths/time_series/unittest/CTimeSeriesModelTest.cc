@@ -14,7 +14,6 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CTriple.h>
 
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMultimodalPrior.h>

@@ -14,6 +14,7 @@
 
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
+#include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/ImportExport.h>
@@ -28,8 +29,6 @@ namespace ml {
 namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
-template<typename T1, typename T2, typename T3>
-class CTriple;
 }
 namespace maths {
 namespace time_series {
