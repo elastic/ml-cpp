@@ -488,7 +488,7 @@ protected:
     };
 
     //! \brief Apply a specified offset to a prior.
-    class MATHS_COMMON_EXPORT CApplyOffset : public COffsetParameters {
+    class CApplyOffset : public COffsetParameters {
     public:
         explicit CApplyOffset(CPrior& prior);
 
