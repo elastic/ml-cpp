@@ -23,9 +23,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <cstdlib>
 #include <deque>
 #include <limits>
+#include <list>
 #include <memory>
 #include <optional>
 #include <set>
@@ -619,7 +621,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         variables.push_back(b);
 
         LOG_DEBUG(<< "wrong dynamic size = " << core::CMemory::dynamicSize(variables));
-        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t),
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::any),
                             core::CMemory::dynamicSize(variables));
 
         auto& visitor = core::CMemory::anyVisitor();
@@ -628,10 +630,10 @@ BOOST_AUTO_TEST_CASE(testUsage) {
 
         LOG_DEBUG(<< "dynamic size = " << core::CMemory::dynamicSize(variables));
         LOG_DEBUG(<< "expected dynamic size = "
-                  << variables.capacity() * sizeof(std::size_t) + sizeof(a) +
+                  << variables.capacity() * sizeof(std::any) + sizeof(a) +
                          core::CMemory::dynamicSize(a) + sizeof(b) +
                          core::CMemory::dynamicSize(b));
-        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t) +
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::any) +
                                 sizeof(a) + core::CMemory::dynamicSize(a) +
                                 sizeof(b) + core::CMemory::dynamicSize(b),
                             core::CMemory::dynamicSize(variables));
