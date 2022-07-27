@@ -12,6 +12,7 @@
 #include <core/CRegex.h>
 
 #include <maths/common/CIntegerTools.h>
+#include <maths/common/CMultivariatePrior.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
