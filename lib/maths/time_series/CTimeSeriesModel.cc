@@ -1692,6 +1692,8 @@ CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations& 
     }
 }
 
+CTimeSeriesCorrelations::~CTimeSeriesCorrelations() = default;
+
 CTimeSeriesCorrelations* CTimeSeriesCorrelations::clone() const {
     return new CTimeSeriesCorrelations(*this);
 }
@@ -2186,8 +2188,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const common::SModelR
     }
 }
 
-CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() {
-}
+CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() = default;
 
 std::size_t CMultivariateTimeSeriesModel::identifier() const {
     return 0;

@@ -268,8 +268,8 @@ public:
 protected:
     //! Swap the CClusterer state of two derived objects.
     void swap(CClusterer& other) {
-        boost::swap(m_SplitFunc, other.m_SplitFunc);
-        boost::swap(m_MergeFunc, other.m_MergeFunc);
+        std::swap(m_SplitFunc, other.m_SplitFunc);
+        std::swap(m_MergeFunc, other.m_MergeFunc);
     }
 
 private:

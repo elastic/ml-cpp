@@ -521,8 +521,8 @@ public:
                 std::size_t size{number(splits[i])};
                 m_Derivatives[i].reserve(size);
                 for (std::size_t j = 0; j < size; ++j, storage += numberDerivatives) {
-                    m_Derivatives[i].emplace_back(m_NumberLossParameters, storage,
-                                                  storage + numberGradients);
+                    m_Derivatives[i].emplace_back(static_cast<int>(m_NumberLossParameters),
+                                                  storage, storage + numberGradients);
                 }
             }
         }

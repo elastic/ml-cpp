@@ -391,6 +391,8 @@ public:
 
 public:
     CTimeSeriesCorrelations(double minimumSignificantCorrelation, double decayRate);
+    ~CTimeSeriesCorrelations();
+
     const CTimeSeriesCorrelations& operator=(const CTimeSeriesCorrelations&) = delete;
 
     //! Create a copy of this model passing ownership to the caller.
