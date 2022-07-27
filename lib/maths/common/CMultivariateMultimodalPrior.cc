@@ -15,6 +15,7 @@
 
 #include <maths/common/CSampling.h>
 
+#include <numeric>
 #include <set>
 
 namespace ml {

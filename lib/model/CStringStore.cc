@@ -14,8 +14,6 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CScopedFastLock.h>
-#include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
 
 namespace ml {
 namespace model {

@@ -10,7 +10,6 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
 #include <boost/unordered_map.hpp>

@@ -20,7 +20,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
-#include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>

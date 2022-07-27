@@ -12,12 +12,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
-#include <core/CProgramCounters.h>
-#include <core/CStatePersistInserter.h>
-
-#include <api/CDataFrameAnalysisInstrumentation.h>
-#include <api/CInferenceModelDefinition.h>
-#include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -35,13 +29,18 @@ namespace core {
 class CDataFrame;
 class CPackedBitVector;
 class CRapidJsonConcurrentLineWriter;
+class CStatePersistInserter;
+class CTemporaryDirectory;
 namespace data_frame_detail {
 class CRowRef;
 }
 }
 namespace api {
+class CDataFrameAnalysisInstrumentation;
 class CDataFrameAnalysisSpecification;
 class CDataSummarizationJsonWriter;
+class CInferenceModelDefinition;
+class CInferenceModelMetadata;
 class CMemoryUsageEstimationResultJsonWriter;
 
 //! \brief Hierarchy for running a specific core::CDataFrame analyses.

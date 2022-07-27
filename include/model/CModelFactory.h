@@ -12,13 +12,11 @@
 #ifndef INCLUDED_ml_model_CModelFactory_h
 #define INCLUDED_ml_model_CModelFactory_h
 
-#include <core/CNonCopyable.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
-#include <model/CSearchKey.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -50,7 +48,6 @@ class CTimeSeriesDecompositionInterface;
 namespace model {
 class CAnomalyDetectorModel;
 class CDataGatherer;
-class CDetectionRule;
 class CInfluenceCalculator;
 class CInterimBucketCorrector;
 class CSearchKey;

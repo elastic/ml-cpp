@@ -25,14 +25,12 @@
 
 #include "TestUtils.h"
 
-#include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <iterator>
 
 BOOST_AUTO_TEST_SUITE(CNormalMeanPrecConjugateTest)

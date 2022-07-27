@@ -19,7 +19,6 @@
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/ImportExport.h>
-#include <model/ModelTypes.h>
 
 #include <cstdint>
 

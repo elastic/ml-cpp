@@ -20,7 +20,6 @@
 #include <model/CBucketGatherer.h>
 #include <model/CBucketQueue.h>
 #include <model/CDynamicStringIdRegistry.h>
-#include <model/CEventData.h>
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>

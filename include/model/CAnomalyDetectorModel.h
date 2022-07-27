@@ -17,13 +17,11 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/MathsTypes.h>
+#include <maths/common/CMultivariatePrior.h>
 
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
-#include <model/CMemoryUsageEstimator.h>
-#include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -44,21 +42,20 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-
 namespace maths {
 namespace common {
 class CMultivariatePrior;
 }
 }
-
 namespace model {
-
+class CAnnotation;
 class CAttributeFrequencyGreaterThan;
-class CInterimBucketCorrector;
 class CDataGatherer;
 class CHierarchicalResults;
-class CAnnotation;
+class CInterimBucketCorrector;
+class CMemoryUsageEstimator;
 class CModelDetailsView;
+class CPartitioningFields;
 class CPersonFrequencyGreaterThan;
 class CResourceMonitor;
 struct SAnnotatedProbability;

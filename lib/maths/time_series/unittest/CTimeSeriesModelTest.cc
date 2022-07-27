@@ -43,6 +43,7 @@
 #include <cmath>
 #include <fstream>
 #include <memory>
+#include <numeric>
 
 using TSizeVec = std::vector<std::size_t>;
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TSizeVec::iterator)

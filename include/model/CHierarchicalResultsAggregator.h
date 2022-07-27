@@ -12,8 +12,6 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 #define INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 
-#include <maths/common/CQuantileSketch.h>
-
 #include <model/CDetectorEqualizer.h>
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/ImportExport.h>
@@ -30,7 +28,6 @@ class CStateRestoreTraverser;
 }
 namespace model {
 class CAnomalyDetectorModelConfig;
-class CLimits;
 
 //! \brief Aggregates the probabilities up a collection hierarchical
 //! results.

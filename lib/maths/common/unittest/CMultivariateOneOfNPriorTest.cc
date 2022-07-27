@@ -32,6 +32,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <numeric>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CMultivariateOneOfNPriorTest)

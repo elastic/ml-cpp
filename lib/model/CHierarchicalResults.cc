@@ -12,7 +12,6 @@
 #include <model/CHierarchicalResults.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -25,7 +24,6 @@
 #include <model/CStringStore.h>
 
 #include <algorithm>
-#include <limits>
 
 namespace ml {
 namespace model {

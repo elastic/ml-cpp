@@ -27,6 +27,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <numeric>
+
 BOOST_AUTO_TEST_SUITE(CXMeansOnlineTest)
 
 using namespace ml;

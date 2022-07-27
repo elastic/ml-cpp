@@ -11,11 +11,9 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
-#include <model/ModelTypes.h>
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>

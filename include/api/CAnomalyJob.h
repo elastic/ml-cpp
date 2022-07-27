@@ -11,13 +11,9 @@
 #ifndef INCLUDED_ml_api_CAnomalyJob_h
 #define INCLUDED_ml_api_CAnomalyJob_h
 
-#include <core/CJsonOutputStreamWrapper.h>
-#include <core/CStopWatch.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetector.h>
-#include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CHierarchicalResults.h>
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/CInterimBucketCorrector.h>
@@ -47,16 +43,18 @@ namespace ml {
 namespace core {
 class CDataAdder;
 class CDataSearcher;
+class CJsonOutputStreamWrapper;
+class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
+class CAnomalyDetectorModelConfig;
 class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
 class CAnomalyJobConfig;
 class CPersistenceManager;
-class CModelPlotDataJsonWriter;
 
 //! \brief
 //! The Ml anomaly detector.

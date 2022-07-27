@@ -13,15 +13,14 @@
 
 #include <core/CSmallVector.h>
 
-#include <maths/common/CBasicStatistics.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/common/CTools.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventRateModel.h>
 #include <model/CEventRatePopulationModel.h>
 #include <model/CMetricModel.h>
 #include <model/CMetricPopulationModel.h>
+#include <model/CModelPlotData.h>
 
 namespace ml {
 namespace model {

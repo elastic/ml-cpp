@@ -18,9 +18,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
@@ -32,14 +30,9 @@
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
-#include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
-
-#include <boost/iterator/counting_iterator.hpp>
 
 #include <algorithm>
 #include <map>

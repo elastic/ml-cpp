@@ -12,24 +12,18 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CStrCaseCmp.h>
 #include <core/CStreamUtils.h>
 #include <core/Constants.h>
 
-#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/CModel.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
-#include <maths/time_series/CTimeSeriesModel.h>
-
-#include <core/CRegex.h>
 #include <model/CCountingModelFactory.h>
-#include <model/CDetectionRule.h>
 #include <model/CEventRateModelFactory.h>
 #include <model/CEventRatePopulationModelFactory.h>
 #include <model/CInterimBucketCorrector.h>
-#include <model/CLimits.h>
 #include <model/CMetricModelFactory.h>
 #include <model/CMetricPopulationModelFactory.h>
 #include <model/CSearchKey.h>

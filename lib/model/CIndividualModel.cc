@@ -19,16 +19,10 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-
-#include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
-#include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 

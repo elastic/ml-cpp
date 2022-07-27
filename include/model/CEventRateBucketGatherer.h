@@ -17,9 +17,7 @@
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CChecksum.h>
-
-#include <model/CDataGatherer.h>
+#include <model/CBucketGatherer.h>
 #include <model/CFeatureData.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>

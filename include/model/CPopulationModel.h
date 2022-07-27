@@ -13,16 +13,13 @@
 #define INCLUDED_ml_model_CPopulationModel_h
 
 #include <core/CMemoryUsage.h>
-#include <core/CNonCopyable.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBjkstUniqueValues.h>
-#include <maths/common/CMultivariatePrior.h>
 
 #include <maths/time_series/CCountMinSketch.h>
 
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CFeatureData.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -36,12 +33,9 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths {
-namespace common {
-class CPrior;
-}
-}
 namespace model {
+struct SEventRateFeatureData;
+struct SMetricFeatureData;
 
 //! \brief The most basic population model interface.
 //!

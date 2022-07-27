@@ -15,7 +15,6 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
-#include <core/RestoreMacros.h>
 
 #include <functional>
 

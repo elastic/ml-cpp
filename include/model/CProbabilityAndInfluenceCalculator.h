@@ -17,7 +17,6 @@
 #include <maths/common/CModel.h>
 
 #include <model/CModelTools.h>
-#include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -29,6 +28,7 @@ namespace ml {
 namespace model {
 class CAnnotatedProbabilityBuilder;
 class CInfluenceCalculator;
+class CPartitioningFields;
 
 //! \brief Computes the overall probability and influences on a collection
 //! of feature values and corresponding influencer field value feature

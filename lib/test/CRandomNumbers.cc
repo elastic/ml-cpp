@@ -23,8 +23,6 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 
-#include <numeric>
-
 namespace ml {
 namespace test {
 

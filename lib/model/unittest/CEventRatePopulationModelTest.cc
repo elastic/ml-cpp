@@ -30,6 +30,7 @@
 #include <model/CEventData.h>
 #include <model/CEventRatePopulationModel.h>
 #include <model/CEventRatePopulationModelFactory.h>
+#include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPartitioningFields.h>

@@ -21,12 +21,9 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CEventData.h>
-#include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
-#include <model/SModelParams.h>
 
-#include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 

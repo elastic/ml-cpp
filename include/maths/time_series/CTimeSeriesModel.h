@@ -14,7 +14,6 @@
 
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
-#include <maths/common/CMultivariatePrior.h>
 
 #include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
 #include <maths/time_series/ImportExport.h>
@@ -27,6 +26,7 @@
 namespace ml {
 namespace maths {
 namespace common {
+class CMultivariatePrior;
 class CPrior;
 struct SModelRestoreParams;
 struct SDistributionRestoreParams;

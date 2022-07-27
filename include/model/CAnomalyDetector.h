@@ -17,13 +17,9 @@
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CForecastDataSink.h>
-#include <model/CHierarchicalResults.h>
-#include <model/CLimits.h>
-#include <model/CModelFactory.h>
 #include <model/CModelPlotData.h>
 #include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
-#include <model/ModelTypes.h>
 
 #include <functional>
 #include <memory>
@@ -36,7 +32,9 @@ class CStateRestoreTraverser;
 }
 namespace model {
 class CDataGatherer;
-class CModel;
+class CHierarchicalResults;
+class CLimits;
+class CModelFactory;
 class CSearchKey;
 
 //! \brief

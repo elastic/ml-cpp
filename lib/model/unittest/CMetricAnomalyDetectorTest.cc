@@ -23,6 +23,7 @@
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
+#include <model/CLimits.h>
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 

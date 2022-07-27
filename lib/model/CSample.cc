@@ -20,7 +20,6 @@
 #include <maths/common/CChecksum.h>
 
 #include <model/CFeatureData.h>
-#include <model/ModelTypes.h>
 
 namespace ml {
 namespace model {

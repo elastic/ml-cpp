@@ -13,8 +13,6 @@
 #define INCLUDED_ml_core_CPackedBitVector_h
 
 #include <core/CMemoryUsage.h>
-#include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
 #include <core/ImportExport.h>
 
 #include <boost/operators.hpp>
@@ -22,6 +20,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <ostream>
 #include <string>
 #include <vector>
 

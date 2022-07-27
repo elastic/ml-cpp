@@ -15,7 +15,6 @@
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
-#include <model/CLimits.h>
 
 namespace ml {
 namespace model {

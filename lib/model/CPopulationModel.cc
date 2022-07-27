@@ -21,13 +21,9 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/common/CTools.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 
 #include <algorithm>

@@ -20,6 +20,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
+#include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSampleCounts.h>

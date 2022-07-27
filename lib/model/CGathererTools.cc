@@ -22,7 +22,6 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/Constants.h>
 
 #include <model/CStringStore.h>
 

@@ -34,7 +34,6 @@ namespace model {
 class CDetectionRule;
 class CInterimBucketCorrector;
 class CSearchKey;
-class CModelAutoConfigurer;
 class CModelFactory;
 
 //! \brief Responsible for configuring anomaly detection models.

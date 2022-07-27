@@ -15,10 +15,9 @@
 #include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CBasicStatistics.h>
-
-#include <model/CDataGatherer.h>
+#include <model/CBucketGatherer.h>
 #include <model/ImportExport.h>
+#include <model/ModelTypes.h>
 
 #include <any>
 #include <map>

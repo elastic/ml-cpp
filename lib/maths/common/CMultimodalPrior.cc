@@ -40,6 +40,7 @@
 
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <set>
 
 namespace ml {

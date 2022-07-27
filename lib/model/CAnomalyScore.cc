@@ -23,18 +23,14 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMathsFuncs.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 #include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CLimits.h>
 
 #include <cstdint>
-#include <numeric>
-#include <ostream>
 #include <sstream>
 #include <vector>
 

@@ -23,15 +23,13 @@
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
-
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>

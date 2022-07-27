@@ -35,7 +35,6 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
-class CModelFactory;
 
 //! \brief The metric model common functionality.
 //!

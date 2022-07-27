@@ -35,6 +35,7 @@
 
 #include <cmath>
 #include <memory>
+#include <numeric>
 
 namespace ml {
 namespace maths {

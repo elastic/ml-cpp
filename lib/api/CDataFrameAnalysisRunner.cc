@@ -17,6 +17,7 @@
 #include <core/CStateCompressor.h>
 #include <core/Constants.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataSummarizationJsonWriter.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>

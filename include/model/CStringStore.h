@@ -35,14 +35,7 @@ struct testPersonStringPruning;
 struct testAttributeStringPruning;
 struct testInfluencerStringPruning;
 }
-
 namespace ml {
-
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
-
 namespace model {
 
 //! \brief

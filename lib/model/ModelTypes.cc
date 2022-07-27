@@ -14,7 +14,6 @@
 #include <core/CMemoryDef.h>
 #include <core/Constants.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetector.h>
