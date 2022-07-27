@@ -357,6 +357,7 @@ private:
 };
 
 //! Get the any visitor singleton.
+CORE_EXPORT
 CAnyVisitor& anyVisitor();
 }
 
@@ -711,6 +712,7 @@ private:
 };
 
 //! Get the any visitor singleton.
+CORE_EXPORT
 CAnyVisitor& anyVisitor();
 }
 }
