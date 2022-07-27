@@ -44,6 +44,8 @@ CMultivariatePrior::CMultivariatePrior()
     : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
+CMultivariatePrior::~CMultivariatePrior() = default;
+
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
     : m_DataType(dataType), m_NumberSamples(0) {
     setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
