@@ -85,7 +85,7 @@ public:
     //! informative.
     CMultivariatePrior(maths_t::EDataType dataType, double decayRate);
 
-    virtual ~CMultivariatePrior() = default;
+    virtual ~CMultivariatePrior();
 
     //! Swap the contents of this prior and \p other.
     void swap(CMultivariatePrior& other) noexcept;
