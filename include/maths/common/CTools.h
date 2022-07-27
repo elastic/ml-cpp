@@ -257,7 +257,7 @@ public:
     static double differentialEntropy(const lognormal& logNormal);
     static double differentialEntropy(const gamma& gamma_);
     template<typename T>
-    class MATHS_COMMON_EXPORT CDifferentialEntropyKernel {
+    class CDifferentialEntropyKernel {
     public:
         explicit CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
             : m_Mixture(&mixture) {}
