@@ -19,6 +19,7 @@
 //! Standalone program.
 //!
 #include <core/CBlockingCallCancellingTimer.h>
+#include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
