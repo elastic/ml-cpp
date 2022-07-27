@@ -583,7 +583,6 @@ public:
     static const std::string JSON_TRAINED_MODEL_TAG;
 
 public:
-    ~CInferenceModelDefinition();
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const { return m_Preprocessors; }
     TApiCustomEncodingUPtrVec& customPreprocessors();

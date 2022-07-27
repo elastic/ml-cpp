@@ -555,6 +555,11 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
 }
 
+CAnomalyDetectorModel::SFeatureCorrelateModels::~SFeatureCorrelateModels() = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels& CAnomalyDetectorModel::SFeatureCorrelateModels::
+operator=(SFeatureCorrelateModels&&) = default;
+
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     const SModelParams& params_,
     core::CStateRestoreTraverser& traverser) {

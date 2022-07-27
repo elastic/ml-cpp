@@ -331,8 +331,6 @@ const CTree::TStringVec& CTree::removeUnusedFeatures() {
     return this->featureNames();
 }
 
-CInferenceModelDefinition::~CInferenceModelDefinition() = default;
-
 void CInferenceModelDefinition::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
     this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
         JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG, writer);

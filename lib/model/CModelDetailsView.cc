@@ -14,6 +14,7 @@
 #include <core/CSmallVector.h>
 
 #include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventRateModel.h>

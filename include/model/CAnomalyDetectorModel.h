@@ -17,8 +17,6 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CMultivariatePrior.h>
-
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
@@ -536,10 +534,11 @@ protected:
         SFeatureCorrelateModels(model_t::EFeature feature,
                                 const TMultivariatePriorSPtr& modelPrior,
                                 TCorrelationsPtr&& model);
+        ~SFeatureCorrelateModels();
         SFeatureCorrelateModels(const SFeatureCorrelateModels&) = delete;
         SFeatureCorrelateModels& operator=(const SFeatureCorrelateModels&) = delete;
-        SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
-        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&) = default;
+        SFeatureCorrelateModels(SFeatureCorrelateModels&&);
+        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,
