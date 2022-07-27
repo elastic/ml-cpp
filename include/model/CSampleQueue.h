@@ -22,8 +22,8 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
-#include <model/CSample.h>
 #include <model/CMetricPartialStatistic.h>
+#include <model/CSample.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
