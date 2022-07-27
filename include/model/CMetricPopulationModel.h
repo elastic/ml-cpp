@@ -14,6 +14,7 @@
 
 #include <core/CMemoryUsage.h>
 
+#include <model/CFeatureData.h>
 #include <model/CMemoryUsageEstimator.h>
 #include <model/CModelTools.h>
 #include <model/CPopulationModel.h>

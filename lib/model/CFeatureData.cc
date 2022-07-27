@@ -70,6 +70,8 @@ SEventRateFeatureData::SEventRateFeatureData(std::uint64_t count)
     : s_Count(count) {
 }
 
+SEventRateFeatureData::~SEventRateFeatureData() = default;
+
 void SEventRateFeatureData::swap(SEventRateFeatureData& other) {
     std::swap(s_Count, other.s_Count);
     s_InfluenceValues.swap(other.s_InfluenceValues);
@@ -113,6 +115,8 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
 SMetricFeatureData::SMetricFeatureData(bool isInteger, bool isNonNegative, const TSampleVec& samples)
     : s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
 }
+
+SMetricFeatureData::~SMetricFeatureData() = default;
 
 std::string SMetricFeatureData::print() const {
     std::ostringstream result;

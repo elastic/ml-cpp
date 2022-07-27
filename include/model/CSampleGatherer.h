@@ -26,6 +26,7 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CDataClassifier.h>
+#include <model/CFeatureData.h>
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
 #include <model/CSampleQueue.h>
@@ -116,12 +117,12 @@ public:
         inserter.insertLevel(CLASSIFIER_TAG,
                              std::bind(&CDataClassifier::acceptPersistInserter,
                                        &m_Classifier, std::placeholders::_1));
-        if (m_SampleStats.size() > 0) {
+        if (m_SampleStats.empty() == false) {
             inserter.insertLevel(SAMPLE_STATS_TAG,
                                  std::bind(&TSampleQueue::acceptPersistInserter,
                                            &m_SampleStats, std::placeholders::_1));
         }
-        if (m_BucketStats.size() > 0) {
+        if (m_BucketStats.empty() == false) {
             inserter.insertLevel(
                 BUCKET_STATS_TAG,
                 std::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
