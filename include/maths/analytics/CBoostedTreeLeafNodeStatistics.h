@@ -70,7 +70,7 @@ public:
     }
     TUInt8Ary readBytes() const {
         TUInt8Ary bytes;
-        std::memcpy(&bytes[0], &this->storage(), sizeof(common::CFloatStorage));
+        std::memcpy(&bytes[0], &this->cstorage(), sizeof(common::CFloatStorage));
         return bytes;
     }
 };

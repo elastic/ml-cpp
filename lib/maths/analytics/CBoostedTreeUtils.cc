@@ -48,13 +48,14 @@ static inline __attribute__((always_inline)) int _mm_movemask_ps(__m128 a) {
     uint32x4_t tmp = vshrq_n_u32(input, 31);
     return vaddvq_u32(vshlq_u32(tmp, _MM_MOVEMASK_PS_SHIFT));
 }
+
 #else
 
-using __m128 = std::array<float, 4>
+using __m128 = std::array<float, 4>;
 
-#define _mm_load_ps1(x) _m128{*(x), *(x), *(x), *(x)};
+#define _mm_load_ps1(x) __m128{*(x), *(x), *(x), *(x)};
 
-#define _mm_load_ps(x) _m128{*(x), *((x) + 1), *((x) + 2), *((x) + 3)};
+#define _mm_load_ps(x) __m128{*(x), *((x) + 1), *((x) + 2), *((x) + 3)};
 
 #define _mm_cmplt_ps(lhs, rhs)                                                   \
     std::array<int, 4>{(lhs)[0] < (rhs)[0] ? 1 : 0, (lhs)[1] < (rhs)[1] ? 1 : 0, \
@@ -70,58 +71,31 @@ namespace maths {
 namespace analytics {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
+using TSizeAry = std::array<std::size_t, 16>;
 
 namespace {
-using TDoubleVector = common::CDenseVector<double>;
-using TDoubleVectorVec = std::vector<TDoubleVector>;
-using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
-
-class CFloatStorageAccessor : core::CFloatStorage {
-public:
-    explicit CFloatStorageAccessor(core::CFloatStorage storage)
-        : core::CFloatStorage{storage} {}
-    float storage() const { return core::CFloatStorage::storage(); }
-};
-
-constexpr std::array<std::size_t, 16> BRANCH{4, 0, 0, 0, 0, 0, 0, 0,
-                                             3, 0, 0, 0, 2, 0, 1, 0};
-
+constexpr TSizeAry BRANCH{4, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 2, 0, 1, 0};
 std::size_t selectBranch(const float* values, __m128 vecx) {
     auto vecv = _mm_load_ps(values);
     auto less = _mm_cmplt_ps(vecx, vecv);
     auto mask = _mm_movemask_ps(less);
     return BRANCH[mask];
 }
+}
 
-void propagateLossGradients(std::size_t node,
-                            const std::vector<CBoostedTreeNode>& tree,
-                            TDoubleVectorVec& lossGradients) {
-
-    if (tree[node].isLeaf()) {
-        return;
+CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
+    if (m_Size > 0) {
+        m_Min = values[0].cstorage();
+        std::size_t n{nextPow5(values.size())};
+        m_InitialTreeSize = n / 5;
+        m_Values.reserve(m_Size + 4);
+        this->build(values, 0, n);
+        LOG_TRACE(<< "flat tree = " << m_Values);
     }
-
-    propagateLossGradients(tree[node].leftChildIndex(), tree, lossGradients);
-    propagateLossGradients(tree[node].rightChildIndex(), tree, lossGradients);
-
-    // A post order depth first traversal means that loss gradients are written
-    // to child nodes before they are read here.
-    lossGradients[node] += lossGradients[tree[node].leftChildIndex()];
-    lossGradients[node] += lossGradients[tree[node].rightChildIndex()];
-}
+    LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_InitialTreeSize);
 }
 
-CSearchTree::CSearchTree(const TFloatVec& values)
-    : m_Size{values.size()}, m_Min{CFloatStorageAccessor{values[0]}.storage()} {
-    LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_PaddedSize);
-    std::size_t n{nextPow5(values.size())};
-    m_InitialTreeSize = n / 5;
-    m_Values.reserve(m_Size + 4);
-    this->build(values, 0, n);
-    LOG_TRACE(<< "flat tree = " << m_Values);
-}
-
-std::size_t CSearchTree::upperBound(float x) const {
+std::size_t CSearchTree::upperBound(common::CFloatStorage x) const {
     // These branch should be predictably false most of the time and so almost free.
     if (m_Size == 0 || x < m_Min) {
         return 0;
@@ -132,7 +106,7 @@ std::size_t CSearchTree::upperBound(float x) const {
 
     std::size_t node{0};
     std::size_t offset{0};
-    auto vecx = _mm_load_ps1(&x);
+    auto vecx = _mm_load_ps1(&x.cstorage());
 
     for (std::size_t treeSize = m_InitialTreeSize; treeSize > 1; treeSize /= 5) {
         std::size_t branch{selectBranch(&m_Values[node], vecx)};
@@ -168,8 +142,7 @@ void CSearchTree::build(const TFloatVec& values, std::size_t a, std::size_t b) {
     }
     LOG_TRACE(<< "stride = " << stride);
     for (std::size_t i = a + stride; i < b; i += stride) {
-        m_Values.push_back(
-            i < values.size() ? CFloatStorageAccessor{values[i]}.storage() : INF);
+        m_Values.push_back(i < values.size() ? values[i].cstorage() : INF);
     }
     for (std::size_t i = a; i < b; i += stride) {
         if (i < values.size()) {
@@ -267,106 +240,6 @@ void writeLossCurvature(const TRowRef& row,
     // of std::function small size optimization to avoid heap allocations.
     loss.curvature(encodedRow, newExample, prediction, actual,
                    [&writer](std::size_t i, double value) { writer(i, value); }, weight);
-}
-
-TDoubleVec
-retrainTreeSelectionProbabilities(std::size_t numberThreads,
-                                  const core::CDataFrame& frame,
-                                  const TSizeVec& extraColumns,
-                                  std::size_t dependentVariable,
-                                  const CDataFrameCategoryEncoder& encoder,
-                                  const core::CPackedBitVector& trainingDataRowMask,
-                                  const CLoss& loss,
-                                  const std::vector<std::vector<CBoostedTreeNode>>& forest) {
-
-    using TRowItr = core::CDataFrame::TRowItr;
-
-    // The first tree is used to centre the data and we never retrain this.
-
-    if (forest.size() < 2) {
-        return {};
-    }
-
-    std::size_t numberLossParameters{loss.numberParameters()};
-    LOG_TRACE(<< "dependent variable " << dependentVariable);
-    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
-
-    auto makeComputeTotalLossGradient = [&]() {
-        return [&](TDoubleVectorVecVec& leafLossGradients,
-                   const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = readPrediction(*row, extraColumns, numberLossParameters);
-                double actual{readActual(*row, dependentVariable)};
-                double weight{readExampleWeight(*row, extraColumns)};
-                for (std::size_t i = 0; i < forest.size(); ++i) {
-                    auto encodedRow = encoder.encode(*row);
-                    std::size_t leaf{root(forest[i]).leafIndex(encodedRow, forest[i])};
-                    auto writer = [&](std::size_t j, double gradient) {
-                        leafLossGradients[i][leaf](j) = gradient;
-                    };
-                    loss.gradient(encodedRow, true, prediction, actual, writer, weight);
-                }
-            }
-        };
-    };
-
-    auto makeZeroLeafLossGradients = [&] {
-        TDoubleVectorVecVec leafLossGradients;
-        leafLossGradients.reserve(forest.size());
-        for (const auto& tree : forest) {
-            leafLossGradients.emplace_back(tree.size(), TDoubleVector::Zero(numberLossParameters));
-        }
-        return leafLossGradients;
-    };
-
-    auto computeLeafLossGradients = [&](const core::CPackedBitVector& rowMask) {
-        auto results = frame.readRows(
-            numberThreads, 0, frame.numberRows(),
-            core::bindRetrievableState(makeComputeTotalLossGradient(),
-                                       makeZeroLeafLossGradients()),
-            &rowMask);
-
-        TDoubleVectorVecVec leafLossGradients{std::move(results.first[0].s_FunctionState)};
-        for (std::size_t i = 1; i < results.first.size(); ++i) {
-            auto& resultsForWorker = results.first[i].s_FunctionState;
-            for (std::size_t j = 0; j < resultsForWorker.size(); ++j) {
-                for (std::size_t k = 0; k < resultsForWorker[j].size(); ++k) {
-                    leafLossGradients[j][k] += resultsForWorker[j][k];
-                }
-            }
-        }
-
-        return leafLossGradients;
-    };
-
-    // Compute the sum of loss gradients for each node.
-    auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
-    for (std::size_t i = 0; i < forest.size(); ++i) {
-        propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
-    }
-    LOG_TRACE(<< "loss gradients = " << trainingDataLossGradients);
-
-    // We are interested in choosing trees for which the total gradient of the
-    // loss at the current predictions for all nodes is the largest. These trees,
-    // at least locally, give the largest gain in loss by adjusting. Gradients
-    // of internal nodes are defined as the sum of the leaf gradients below them.
-    // We include these because they capture the fact that certain branches of
-    // specific trees may be retrained for greater effect.
-
-    TDoubleVec result(forest.size(), 0.0);
-    double Z{0.0};
-    for (std::size_t i = 1; i < forest.size(); ++i) {
-        for (std::size_t j = 1; j < forest[i].size(); ++j) {
-            result[i] += trainingDataLossGradients[i][j].lpNorm<1>();
-        }
-        Z += result[i];
-    }
-    for (auto& p : result) {
-        p /= Z;
-    }
-    LOG_TRACE(<< "probabilities = " << result);
-
-    return result;
 }
 }
 }

@@ -38,6 +38,9 @@
 #include <vector>
 
 class CBoostedTreeImplForTest;
+namespace CBoostedTreeUtilsTest {
+struct testRetrainTreeSelectionProbabilities;
+}
 
 namespace ml {
 namespace maths {
@@ -271,6 +274,11 @@ private:
 
     //! Select the trees of the best forest to retrain.
     void selectTreesToRetrain(const core::CDataFrame& frame);
+
+    //! Compute the probabilities with which to select each tree for retraining.
+    TDoubleVec retrainTreeSelectionProbabilities(const core::CDataFrame& frame,
+                                                 const core::CPackedBitVector& trainingDataRowMask,
+                                                 const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
     template<typename F>
@@ -547,6 +555,7 @@ private:
     friend class CBoostedTreeFactory;
     friend class CBoostedTreeHyperparameters;
     friend class ::CBoostedTreeImplForTest;
+    friend struct CBoostedTreeUtilsTest::testRetrainTreeSelectionProbabilities;
 };
 }
 }

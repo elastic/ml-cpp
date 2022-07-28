@@ -101,8 +101,8 @@ struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
 //!
 //!  collection size | std::upper_bound | CSearchTree::upperBound | speedup
 //!  --------------- | ---------------- | ----------------------- | -------
-//!        100       |      325 ms      |          39 ms          |  8.3 X
-//!       10000      |      601 ms      |         135 ms          |  4.5 X
+//!        100       |      215 ms      |          59 ms          |  3.6 X
+//!       10000      |      580 ms      |         130 ms          |  4.5 X
 //!
 //! One might reasonably expect larger speedups for larger data set sizes because
 //! of the higher branch factor. We posit that one pays fixed overheads due to
@@ -120,7 +120,7 @@ public:
     std::size_t size() const { return m_Size; }
 
     //! A drop in replacement for std::upper_bound on a sorted collection.
-    std::size_t upperBound(float x) const;
+    std::size_t upperBound(common::CFloatStorage x) const;
 
 private:
     using TAlignedFloatVec = std::vector<float, core::CAlignedAllocator<float>>;
@@ -297,20 +297,6 @@ inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extr
 inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
 }
-
-//! Compute the probabilities with which to select each tree for retraining.
-//!
-//! TODO should this be a member of CBoostedTreeImpl.
-MATHS_ANALYTICS_EXPORT
-TDoubleVec
-retrainTreeSelectionProbabilities(std::size_t numberThreads,
-                                  const core::CDataFrame& frame,
-                                  const TSizeVec& extraColumns,
-                                  std::size_t dependentVariable,
-                                  const CDataFrameCategoryEncoder& encoder,
-                                  const core::CPackedBitVector& trainingDataRowMask,
-                                  const boosted_tree::CLoss& loss,
-                                  const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};
 }
