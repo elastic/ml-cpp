@@ -14,7 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CVectorRange.h>
 
-#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>

@@ -102,8 +102,8 @@ public:
             TStrSizeMap itemsByName;
             for (const auto& child : m_Children) {
                 ++itemsByName[impl(child).m_Description.s_Name];
-                LOG_TRACE(<< "Item " << child->m_Description.s_Name << " : "
-                          << itemsByName[child->m_Description.s_Name]);
+                LOG_TRACE(<< "Item " << impl(child).m_Description.s_Name << " : "
+                          << itemsByName[impl(child).m_Description.s_Name]);
             }
 
             for (const auto & [ name, count ] : itemsByName) {
@@ -182,6 +182,7 @@ private:
 
 CMemoryUsage::CMemoryUsage() : m_Impl{std::make_unique<CImpl>()} {
 }
+
 CMemoryUsage::~CMemoryUsage() = default;
 
 CMemoryUsage::TMemoryUsagePtr CMemoryUsage::addChild() {

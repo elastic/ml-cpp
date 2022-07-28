@@ -19,6 +19,7 @@
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CTools.h>

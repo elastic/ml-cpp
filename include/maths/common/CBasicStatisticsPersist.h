@@ -235,6 +235,24 @@ inline std::string CBasicStatistics::print(const SSampleCentralMoments<T, 3>& ac
     return result.str();
 }
 
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
 template<typename POINT>
 std::string CBasicStatistics::SSampleCovariances<POINT>::toDelimited() const {
     return core::CStringUtils::typeToString(s_Count.dimension()) +
@@ -251,6 +269,12 @@ inline std::string CBasicStatistics::print(const SSampleCovariances<POINT>& accu
            << mean(accumulator) << ",\n"
            << covariances(accumulator) << "\n}";
     return result.str();
+}
+
+template<typename POINT>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCovariances<POINT>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename POINT>

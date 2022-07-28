@@ -12,7 +12,6 @@
 #include <core/CLogger.h>
 
 #include <maths/common/CBoundingBox.h>
-#include <maths/common/CLinearAlgebra.h>
 
 #include <test/CRandomNumbers.h>
 

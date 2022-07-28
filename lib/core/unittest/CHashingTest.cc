@@ -105,7 +105,6 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
     using TUInt32Pr = std::pair<std::uint32_t, std::uint32_t>;
     using TUInt32PrSet = std::set<TUInt32Pr>;
     using TUint32PrUIntMap = std::map<TUInt32Pr, unsigned int>;
-    using TUint32PrUIntMapCItr = TUint32PrUIntMap::const_iterator;
 
     {
         LOG_DEBUG(<< "**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
@@ -242,7 +241,6 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     using TStrVec = std::vector<std::string>;
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
-    using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
     const std::size_t stringSize = 32;
     const std::size_t numberStrings = 500000;
@@ -325,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     }
 
     std::size_t maxCollisions = 0;
-    for (TSizeSizeMapCItr i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
+    for (auto i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
         maxCollisions = std::max(maxCollisions, i->second);
     }
 

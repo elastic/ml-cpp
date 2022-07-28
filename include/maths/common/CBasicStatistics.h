@@ -1410,24 +1410,6 @@ public:
     };
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
 namespace basic_statistics_detail {
 
 //! \brief Default custom add function for values to the central
