@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testResponseCache) {
                                     ml::core::CContainerPrinter::print(request_.s_Tokens) +
                                     ml::core::CContainerPrinter::print(request_.s_SecondaryArguments);
                          },
-                         [&](const std::string& response) {
+                         [&](const std::string& response, bool) {
                              parsedInferenceRequests.push_back(response);
                          });
             return true;

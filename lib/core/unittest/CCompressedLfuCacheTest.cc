@@ -65,24 +65,27 @@ BOOST_AUTO_TEST_CASE(testLookup) {
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_1", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
 
-    BOOST_REQUIRE_EQUAL(true, cache.lookup("key_1",
-                                           [](std::string key_) { return key_; },
-                                           [&](const std::string& value) {
-                                               BOOST_REQUIRE_EQUAL("key_1", value);
-                                           }));
+    BOOST_REQUIRE_EQUAL(
+        true, cache.lookup("key_1", [](std::string key_) { return key_; },
+                           [&](const std::string& value, bool isCacheHit) {
+                               BOOST_REQUIRE_EQUAL("key_1", value);
+                               BOOST_REQUIRE_EQUAL(true, isCacheHit);
+                           }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 2.0, cache.hitFraction());
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_2", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(2, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
@@ -113,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
                          result.shrink_to_fit();
                          return result;
                      },
-                     [&](const std::string& value) {
+                     [&](const std::string& value, bool) {
                          BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
                                                  std::string(50, 'p'),
                                              value);
@@ -153,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testResize) {
                          result.shrink_to_fit();
                          return result;
                      },
-                     [&](const std::string& value) {
+                     [&](const std::string& value, bool) {
                          BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
                                                  std::string(50, 'p'),
                                              value);
@@ -180,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testResize) {
                          result.shrink_to_fit();
                          return result;
                      },
-                     [&](const std::string& value) {
+                     [&](const std::string& value, bool) {
                          BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
                                                  std::string(50, 'p'),
                                              value);
@@ -225,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
     TTaskVec tasks;
     tasks.resize(10, [&] {
         cache.lookup("a_long_key_0", [](std::string key) { return key; },
-                     [&](const std::string& value) {
+                     [&](const std::string& value, bool) {
                          if (value != "a_long_key_0") {
                              ++errorCount;
                          }
@@ -240,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
                              std::this_thread::sleep_for(pause);
                              return key_;
                          },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              if (value != key) {
                                  ++errorCount;
                              }
@@ -270,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
                              std::this_thread::sleep_for(pause);
                              return key_;
                          },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              if (value != key) {
                                  ++errorCount;
                              }
@@ -310,14 +313,14 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
             std::string key{"key_" + std::to_string(i % 10)};
             cache.lookup(key, // Don't move because we want to retain the value to compare.
                          [](std::string key_) { return key_; },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              BOOST_REQUIRE_EQUAL(key, value);
                          });
         } else {
             std::string key{"key_" + std::to_string(i)};
             cache.lookup(key, // Don't move because we want to retain the value to compare.
                          [](std::string key_) { return key_; },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              BOOST_REQUIRE_EQUAL(key, value);
                          });
         }
@@ -354,14 +357,14 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
         if (i < 100) {
             cache.lookup("large_key_" + std::to_string(i),
                          [i](std::string) { return CTestValue{10 + i}; },
-                         [&](const CTestValue&) {});
+                         [&](const CTestValue&, bool) {});
             auto stats = cache.stats("large_key_" + std::to_string(i));
             BOOST_TEST_REQUIRE(stats.first > 0);
             BOOST_TEST_REQUIRE(stats.second > 0);
         } else {
             cache.lookup("small_key_" + std::to_string(i),
                          [](std::string) { return CTestValue{}; },
-                         [&](const CTestValue&) {});
+                         [&](const CTestValue&, bool) {});
         }
     }
 
@@ -413,11 +416,11 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
         if (u01[i] < 0.2) {
             cache.lookup("key_" + std::to_string(i % 10),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
         } else {
             cache.lookup("key_" + std::to_string(i),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
         }
     }
 
@@ -427,11 +430,11 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
         if (u01[i] < 0.2) {
             concurrentCache.lookup("key_" + std::to_string(i % 10),
                                    [](std::string key_) { return key_; },
-                                   [&](const std::string&) {});
+                                   [&](const std::string&, bool) {});
         } else {
             concurrentCache.lookup("key_" + std::to_string(i),
                                    [](std::string key_) { return key_; },
-                                   [&](const std::string&) {});
+                                   [&](const std::string&, bool) {});
         }
     }
 
@@ -464,7 +467,7 @@ BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
                              ++numberComputes;
                              return key;
                          },
-                         [&](const std::string&) { ++numberReads; });
+                         [&](const std::string&, bool) { ++numberReads; });
         }
     }
 
@@ -488,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
                                  ++numberComputes;
                                  return key;
                              },
-                             [&](const std::string&) { ++numberReads; });
+                             [&](const std::string&, bool) { ++numberReads; });
             });
         }
     }
@@ -509,7 +512,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     for (std::size_t i = 0; i < 500; ++i) {
         origCache.lookup("key_" + std::to_string(i),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
     }
 
     std::stringstream origJsonStream;
@@ -559,24 +562,27 @@ BOOST_AUTO_TEST_CASE(testClear) {
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_1", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
 
-    BOOST_REQUIRE_EQUAL(true, cache.lookup("key_1",
-                                           [](std::string key_) { return key_; },
-                                           [&](const std::string& value) {
-                                               BOOST_REQUIRE_EQUAL("key_1", value);
-                                           }));
+    BOOST_REQUIRE_EQUAL(
+        true, cache.lookup("key_1", [](std::string key_) { return key_; },
+                           [&](const std::string& value, bool isCacheHit) {
+                               BOOST_REQUIRE_EQUAL("key_1", value);
+                               BOOST_REQUIRE_EQUAL(true, isCacheHit);
+                           }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 2.0, cache.hitFraction());
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_2", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(2, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
@@ -587,16 +593,18 @@ BOOST_AUTO_TEST_CASE(testClear) {
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_1", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_2", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(2, cache.size());
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());

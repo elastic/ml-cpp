@@ -31,7 +31,6 @@
 #include "CThreadSettings.h"
 
 #include <ATen/Parallel.h>
-#include <rapidjson/document.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
@@ -50,6 +49,7 @@ const std::string TIME_MS{"time_ms"};
 const std::string CACHE_HIT{"cache_hit"};
 const std::string THREAD_SETTINGS{"thread_settings"};
 const std::string ACK{"ack"};
+const std::string ACKNOWLEDGED{"acknowledged"};
 const std::string NUM_ALLOCATIONS{"num_allocations"};
 const std::string NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
 }
@@ -106,52 +106,54 @@ template<typename T>
 void writeInferenceResults(const torch::TensorAccessor<T, 3UL>& accessor,
                            TRapidJsonLineWriter& jsonWriter) {
 
+    jsonWriter.Key(RESULT);
+    jsonWriter.StartObject();
     jsonWriter.Key(INFERENCE);
     writeTensor(accessor, jsonWriter);
+    jsonWriter.EndObject();
 }
 
 template<typename T>
 void writeInferenceResults(const torch::TensorAccessor<T, 2UL>& accessor,
                            TRapidJsonLineWriter& jsonWriter) {
 
+    jsonWriter.Key(RESULT);
+    jsonWriter.StartObject();
     jsonWriter.Key(INFERENCE);
     // Output must be a 3D array so wrap the 2D result in an outer array.
     jsonWriter.StartArray();
     writeTensor(accessor, jsonWriter);
     jsonWriter.EndArray();
+    jsonWriter.EndObject();
+}
+
+void writeInnerError(const std::string& message, TRapidJsonLineWriter& jsonWriter) {
+    jsonWriter.Key(ERROR);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ERROR);
+    jsonWriter.String(message);
+    jsonWriter.EndObject();
 }
 
 void writeError(const std::string& requestId,
                 const std::string& message,
                 TRapidJsonLineWriter& jsonWriter) {
     jsonWriter.StartObject();
-    jsonWriter.Key(ERROR);
-    jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
-    jsonWriter.Key(ERROR);
-    jsonWriter.String(message);
-    jsonWriter.EndObject();
+    writeInnerError(message, jsonWriter);
     jsonWriter.EndObject();
 }
 
-void writeInferenceResultOpening(const std::string& requestId,
-                                 std::uint64_t timeMs,
-                                 TRapidJsonLineWriter& jsonWriter) {
-    jsonWriter.StartObject();
-    jsonWriter.Key(RESULT);
-    jsonWriter.StartObject();
-    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(TIME_MS);
-    jsonWriter.Uint64(timeMs);
-    jsonWriter.Key(CACHE_HIT);
-    jsonWriter.Bool(false);
-}
-
-void writeInferenceResultClosing(TRapidJsonLineWriter& jsonWriter) {
-    jsonWriter.EndObject();
-    jsonWriter.EndObject();
+std::string wrapInnerResponse(const std::string& innerResponse,
+                              const std::string& requestId,
+                              bool isCacheHit,
+                              std::uint64_t timeMs) {
+    std::ostringstream strm;
+    strm << "{\"" << ml::torch::CCommandParser::REQUEST_ID << "\":" << requestId
+         << "\",\"" << CACHE_HIT << std::boolalpha << isCacheHit << ",\""
+         << TIME_MS << "\":" << timeMs << "," << innerResponse << "}";
+    return strm.str();
 }
 
 void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
@@ -159,10 +161,10 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
                          const ml::torch::CThreadSettings& threadSettings) {
     ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
     jsonWriter.StartObject();
-    jsonWriter.Key(THREAD_SETTINGS);
-    jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
+    jsonWriter.Key(THREAD_SETTINGS);
+    jsonWriter.StartObject();
     jsonWriter.Key(NUM_THREADS_PER_ALLOCATION);
     jsonWriter.Uint(threadSettings.numThreadsPerAllocation());
     jsonWriter.Key(NUM_ALLOCATIONS);
@@ -175,19 +177,18 @@ void writeSimpleAck(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
                     const std::string& requestId) {
     ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
     jsonWriter.StartObject();
-    jsonWriter.Key(ACK);
-    jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
+    jsonWriter.Key(ACK);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ACKNOWLEDGED);
+    jsonWriter.Bool(true);
     jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
 
 template<std::size_t N>
-void writePrediction(const torch::Tensor& prediction,
-                     const std::string& requestId,
-                     std::uint64_t timeMs,
-                     TRapidJsonLineWriter& jsonWriter) {
+void writePrediction(const torch::Tensor& prediction, TRapidJsonLineWriter& jsonWriter) {
 
     // Creating the accessor will throw if the tensor does not have exactly
     // N dimensions. Do this before writing any output so the error message
@@ -195,70 +196,44 @@ void writePrediction(const torch::Tensor& prediction,
 
     if (prediction.dtype() == torch::kFloat32) {
         auto accessor = prediction.accessor<float, N>();
-        writeInferenceResultOpening(requestId, timeMs, jsonWriter);
         writeInferenceResults(accessor, jsonWriter);
-        writeInferenceResultClosing(jsonWriter);
 
     } else if (prediction.dtype() == torch::kFloat64) {
         auto accessor = prediction.accessor<double, N>();
-        writeInferenceResultOpening(requestId, timeMs, jsonWriter);
         writeInferenceResults(accessor, jsonWriter);
-        writeInferenceResultClosing(jsonWriter);
 
     } else {
         std::ostringstream ss;
         ss << "Cannot process result tensor of type [" << prediction.dtype() << "]";
-        writeError(requestId, ss.str(), jsonWriter);
+        writeInnerError(ss.str(), jsonWriter);
     }
 }
 
-rapidjson::Document updateCachedResponse(const std::string& responseJson,
-                                         const std::string& requestId,
-                                         std::uint64_t timeMs) {
-    rapidjson::Document response;
-    response.Parse(responseJson.c_str());
-    if (response.HasMember(RESULT)) {
-        response[RESULT][ml::torch::CCommandParser::REQUEST_ID].SetString(
-            requestId.c_str(), static_cast<unsigned int>(requestId.size()));
-        response[RESULT][TIME_MS].SetUint64(timeMs);
-        response[RESULT][CACHE_HIT].SetBool(true);
-        return response;
-    }
-    if (response.HasMember(ERROR)) {
-        auto& id = response[ERROR][ml::torch::CCommandParser::REQUEST_ID];
-        id.SetString(requestId.c_str(), static_cast<unsigned int>(requestId.size()));
-        return response;
-    }
-    return response;
-}
-
-void inferAndWriteResult(ml::torch::CCommandParser::SRequest& request,
-                         torch::jit::script::Module& module_,
-                         ml::core::CStopWatch& stopWatch,
-                         TRapidJsonLineWriter& jsonWriter) {
+void inferAndWriteInnerResult(ml::torch::CCommandParser::SRequest& request,
+                              torch::jit::script::Module& module_,
+                              TRapidJsonLineWriter& jsonWriter) {
     try {
         torch::Tensor results = infer(module_, request);
-        std::uint64_t timeMs = stopWatch.stop();
         auto sizes = results.sizes();
 
         switch (sizes.size()) {
         case 3:
-            writePrediction<3>(results, request.s_RequestId, timeMs, jsonWriter);
+            writePrediction<3>(results, jsonWriter);
             break;
         case 2:
-            writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
+            writePrediction<2>(results, jsonWriter);
             break;
         default: {
             std::ostringstream ss;
             ss << "Cannot convert results tensor of size [" << sizes << "]";
-            writeError(request.s_RequestId, ss.str(), jsonWriter);
+            writeInnerError(ss.str(), jsonWriter);
             break;
         }
         }
     } catch (const c10::Error& e) {
-        writeError(request.s_RequestId, e.what(), jsonWriter);
-    } catch (std::runtime_error& e) {
-        writeError(request.s_RequestId, e.what(), jsonWriter);
+        writeInnerError(e.what(), jsonWriter);
+    } catch (const std::runtime_error& e) {
+        writeInnerError(e.what(), jsonWriter);
     }
     jsonWriter.Flush();
 }
@@ -276,24 +251,21 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
         // We time the combination of the cache lookup and (if necessary)
         // the inference.
         ml::core::CStopWatch stopWatch(true);
-        if (cache.lookup(
-                std::move(capturedRequest),
-                [&](auto request_) -> std::string {
-                    rapidjson::StringBuffer stringBuffer;
-                    TRapidJsonLineWriter jsonWriter;
-                    jsonWriter.Reset(stringBuffer);
-                    inferAndWriteResult(request_, module_, stopWatch, jsonWriter);
-                    return stringBuffer.GetString();
-                },
-                [&](const auto& responseJson_) { responseJson = responseJson_; })) {
-            rapidjson::Document response{
-                updateCachedResponse(responseJson, requestId, stopWatch.stop())};
-            ml::core::CRapidJsonConcurrentLineWriter jsonWriter{wrappedOutputStream};
-            jsonWriter.write(response);
-        } else {
-            wrappedOutputStream.writeJson(std::move(responseJson));
-            wrappedOutputStream.flush();
-        }
+        cache.lookup(std::move(capturedRequest),
+                     [&](auto request_) -> std::string {
+                         rapidjson::StringBuffer stringBuffer;
+                         TRapidJsonLineWriter jsonWriter;
+                         jsonWriter.Reset(stringBuffer);
+                         inferAndWriteInnerResult(request_, module_, jsonWriter);
+                         return stringBuffer.GetString();
+                     },
+                     [&](const auto& innerResponseJson_, bool isCacheHit) {
+                         responseJson = wrapInnerResponse(innerResponseJson_,
+                                                          requestId, isCacheHit,
+                                                          stopWatch.stop());
+                     });
+        wrappedOutputStream.writeJson(responseJson);
+        wrappedOutputStream.flush();
     });
     return true;
 }
@@ -478,7 +450,7 @@ int main(int argc, char** argv) {
     // Stopping the executor forces this to block until all work is done
     ml::core::stopDefaultAsyncExecutor();
 
-    LOG_DEBUG(<< "ML Torch model prototype exiting");
+    LOG_DEBUG(<< "ML PyTorch inference process exiting");
 
     return EXIT_SUCCESS;
 }
