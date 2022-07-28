@@ -298,8 +298,7 @@ CBoostedTreeLeafNodeStatistics::candidateSplits() const {
     return m_CandidateSplits;
 }
 
-std::uint64_t
-CBoostedTreeLeafNodeStatistics::CDerivatives::checksum(std::uint64_t seed) const {
+std::uint64_t CBoostedTreeLeafNodeStatistics::CDerivatives::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Count);
     seed = common::CChecksum::calculate(seed, m_Gradient);
     return common::CChecksum::calculate(seed, m_Curvature);
@@ -324,8 +323,7 @@ std::size_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::estimateMemoryUs
 }
 
 //! Get a checksum of this object.
-std::uint64_t
-CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::checksum(std::uint64_t seed) const {
+std::uint64_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_NumberLossParameters);
     seed = common::CChecksum::calculate(seed, m_PositiveDerivativesSum);
     seed = common::CChecksum::calculate(seed, m_NegativeDerivativesSum);
