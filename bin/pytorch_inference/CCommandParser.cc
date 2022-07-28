@@ -11,9 +11,7 @@
 
 #include "CCommandParser.h"
 
-#include <core/CCompressedLfuCache.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
 #include <rapidjson/error/en.h>
