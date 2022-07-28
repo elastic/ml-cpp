@@ -15,13 +15,9 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/FunctionTypes.h>
-
-#include <rapidjson/document.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>

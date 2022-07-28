@@ -43,9 +43,9 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <cmath>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>

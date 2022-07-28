@@ -13,10 +13,11 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CRegex.h>
 #include <core/CStopWatch.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -24,6 +25,7 @@
 #include <maths/analytics/CBoostedTreeLoss.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPRNG.h>

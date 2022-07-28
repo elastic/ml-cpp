@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <core/CMemoryDef.h>
+
 #include <maths/common/CBjkstUniqueValues.h>
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CGammaRateConjugate.h>
@@ -49,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
 BOOST_AUTO_TEST_CASE(testPriors) {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), constantPrior.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, constantPrior.memoryUsage());
 
     CGammaRateConjugate::TDoubleVec samples;
     samples.push_back(0.996);
@@ -57,31 +59,31 @@ BOOST_AUTO_TEST_CASE(testPriors) {
     maths_t::TDoubleWeightsAry1Vec weights{weight};
 
     CGammaRateConjugate gammaRateConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, gammaRateConjugate.memoryUsage());
     gammaRateConjugate.addSamples(samples, weights);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, gammaRateConjugate.memoryUsage());
 
     CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData,
                                                    0.0, 0.9, 0.8, 0.7, 0.2);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, logNormalConjugate.memoryUsage());
     logNormalConjugate.addSamples(samples, weights);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, logNormalConjugate.memoryUsage());
 
     CPoissonMeanConjugate poissonConjugate(0.0, 0.8, 0.7, 0.3);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, poissonConjugate.memoryUsage());
     poissonConjugate.addSamples(samples, weights);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, poissonConjugate.memoryUsage());
 
     CNormalMeanPrecConjugate normalConjugate(maths_t::E_ContinuousData, 0.0,
                                              0.9, 0.8, 0.7, 0.2);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, normalConjugate.memoryUsage());
     normalConjugate.addSamples(samples, weights);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, normalConjugate.memoryUsage());
 
     CMultinomialConjugate multinomialConjugate;
-    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, multinomialConjugate.memoryUsage());
     multinomialConjugate.addSamples(samples, weights);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(0, multinomialConjugate.memoryUsage());
 
     CXMeansOnline1d clusterer(maths_t::E_ContinuousData, CAvailableModeDistributions::ALL,
                               maths_t::E_ClustersEqualWeight);
@@ -94,18 +96,9 @@ BOOST_AUTO_TEST_CASE(testPriors) {
 
     BOOST_TEST_REQUIRE(clusterer.memoryUsage() >= clustererSize);
 
-    CClusterer1d::TPointPreciseDoublePrVec clusters;
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.1, 0.7));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.01, 0.6));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.9, 0.5));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.6, 0.2));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.3));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.4, 0.9));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.7, 0.8));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.8, 0.9));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.2, 0.4));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.5));
-    clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.3, 0.5));
+    CClusterer1d::TPointPreciseDoublePrVec clusters{
+        {0.1, 0.7}, {0.01, 0.6}, {0.9, 0.5}, {0.6, 0.2}, {0.3, 0.3}, {0.4, 0.9},
+        {0.7, 0.8}, {0.8, 0.9},  {0.2, 0.4}, {0.3, 0.5}, {0.3, 0.5}};
     clusterer.add(clusters);
 
     // Check that the CMultimodalPrior increases in size

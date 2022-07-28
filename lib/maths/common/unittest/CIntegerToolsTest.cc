@@ -16,8 +16,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
@@ -42,7 +40,7 @@ std::string printBits(std::uint64_t x) {
 }
 
 BOOST_AUTO_TEST_CASE(testNextPow2) {
-    BOOST_REQUIRE_EQUAL(std::size_t(0), maths::common::CIntegerTools::nextPow2(0));
+    BOOST_REQUIRE_EQUAL(0, maths::common::CIntegerTools::nextPow2(0));
 
     test::CRandomNumbers rng;
 
@@ -67,8 +65,7 @@ BOOST_AUTO_TEST_CASE(testReverseBits) {
     test::CRandomNumbers rng;
 
     TSizeVec values;
-    rng.generateUniformSamples(0, boost::numeric::bounds<std::size_t>::highest(),
-                               10000, values);
+    rng.generateUniformSamples(0, std::numeric_limits<std::size_t>::max(), 10000, values);
 
     std::string expected;
     std::string actual;
@@ -92,12 +89,12 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     std::size_t n1 = 3 * 17 * 29;
     std::size_t n2 = 5 * 17;
     LOG_DEBUG(<< "gcd = " << maths::common::CIntegerTools::gcd(n2, n1));
-    BOOST_REQUIRE_EQUAL(std::size_t(17), maths::common::CIntegerTools::gcd(n2, n1));
+    BOOST_REQUIRE_EQUAL(17, maths::common::CIntegerTools::gcd(n2, n1));
 
     n1 = 19 * 97;
     n2 = 5 * 7 * 97;
     LOG_DEBUG(<< "gcd = " << maths::common::CIntegerTools::gcd(n1, n2));
-    BOOST_REQUIRE_EQUAL(std::size_t(97), maths::common::CIntegerTools::gcd(n2, n1));
+    BOOST_REQUIRE_EQUAL(97, maths::common::CIntegerTools::gcd(n2, n1));
 
     test::CRandomNumbers rng;
 
@@ -107,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     for (std::size_t i = 0; i < 1000; ++i) {
         TSizeVec indices;
         TSizeVec split;
-        rng.generateUniformSamples(0, boost::size(primes), 7, indices);
+        rng.generateUniformSamples(0, std::size(primes), 7, indices);
         rng.generateUniformSamples(2, indices.size() - 2, 1, split);
         std::sort(indices.begin(), indices.begin() + split[0]);
         std::sort(indices.begin() + split[0], indices.end());
@@ -179,7 +176,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     n[3] = 17 * 19 * 29 * 83;
     LOG_DEBUG(<< "n = " << n << " - expected gcd = 19"
               << ", gcd = " << maths::common::CIntegerTools::gcd(n));
-    BOOST_REQUIRE_EQUAL(std::size_t(19), maths::common::CIntegerTools::gcd(n));
+    BOOST_REQUIRE_EQUAL(19, maths::common::CIntegerTools::gcd(n));
 }
 
 BOOST_AUTO_TEST_CASE(testLcm) {
@@ -234,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testLcm) {
 BOOST_AUTO_TEST_CASE(testBinomial) {
     unsigned int n[] = {1u, 2u, 5u, 7u, 10u};
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         for (unsigned int j = 0; j <= n[i]; ++j) {
             LOG_DEBUG(<< "j = " << j << ", n = " << n[i] << ", (n j) = "
                       << maths::common::CIntegerTools::binomial(n[i], j));

@@ -12,14 +12,13 @@
 #ifndef INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 #define INCLUDED_ml_maths_common_CLinearAlgebraEigen_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CPersistUtils.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CAnnotatedVector.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraFwd.h>
@@ -108,6 +107,9 @@ void swap(Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lhs,
 namespace ml {
 namespace maths {
 namespace common {
+template<typename VECTOR, typename ANNOTATION>
+class CAnnotatedVector;
+
 //! Rename to follow our conventions and add to ml::maths.
 template<typename SCALAR, int FLAGS = 0>
 using CSparseMatrix = Eigen::SparseMatrix<SCALAR, FLAGS, std::ptrdiff_t>;
@@ -370,7 +372,7 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! \brief Decorates an Eigen::Map of a dense matrix with some useful methods
 //! and changes default copy semantics to shallow copy.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This effectively acts like a std::reference_wrapper of an Eigen::Map for
 //! an Eigen matrix. In particular, all copying is shallow unlike Eigen::Map
 //! that acts directly on the referenced memory. This is to match the behaviour
@@ -467,7 +469,7 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
 //! \brief Decorates an Eigen::Map of a dense vector with some useful methods
 //! and changes default copy semantics to shallow.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This effectively acts like a std::reference_wrapper of an Eigen::Map for
 //! an Eigen vector. In particular, all copying is shallow unlike Eigen::Map
 //! that acts directly on the referenced memory, i.e.
@@ -661,7 +663,7 @@ CDenseVector<double> toDynamicDenseVector(const VECTOR& vector) {
 //! \brief The default type for converting Eigen matrices to our
 //! internal symmetric matrices.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This type is needed to get Eigen GEMM expressions to play nicely
 //! with our symmetric matrix type constructors. Also, I think it is
 //! useful to flag explicitly when a conversion is taking place, the
@@ -692,7 +694,7 @@ CDenseMatrixInitializer<MATRIX> fromDenseMatrix(const MATRIX& type) {
 //! \brief The default type for converting Eigen vectors to our
 //! internal vectors.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This type is needed to get Eigen GEMM expressions to play nicely
 //! with our vector type constructors. Also, I think it is useful to
 //! flag explicitly when a conversion is taking place, the fromDenseVector

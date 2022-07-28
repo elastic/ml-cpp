@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(testOperators) {
         ml::core::CTriple<std::string, std::size_t, std::size_t> triple2("bar", 5, 4);
         triple1 = triple2;
         BOOST_REQUIRE_EQUAL(std::string("bar"), triple1.first);
-        BOOST_REQUIRE_EQUAL(std::size_t(5), triple1.second);
-        BOOST_REQUIRE_EQUAL(std::size_t(4), triple1.third);
+        BOOST_REQUIRE_EQUAL(5, triple1.second);
+        BOOST_REQUIRE_EQUAL(4, triple1.third);
         BOOST_REQUIRE_EQUAL(std::string("bar"), triple2.first);
-        BOOST_REQUIRE_EQUAL(std::size_t(5), triple2.second);
-        BOOST_REQUIRE_EQUAL(std::size_t(4), triple2.third);
+        BOOST_REQUIRE_EQUAL(5, triple2.second);
+        BOOST_REQUIRE_EQUAL(4, triple2.third);
     }
     {
         // Test equality

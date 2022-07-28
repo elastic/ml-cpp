@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CKMeansOnline_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -50,7 +50,7 @@ namespace common {
 //! the within class variance). See also CNaturalBreaksClassifier for a
 //! discussion of the sketch strategy.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This class is templated on the point type for greater flexibility.
 //! It must support addition, subtraction, have free functions for
 //! coordinate-wise min and max, satisfy the constraints imposed by

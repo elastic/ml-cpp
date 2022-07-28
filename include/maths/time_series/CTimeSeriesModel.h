@@ -14,13 +14,10 @@
 
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
-#include <maths/common/CMultivariatePrior.h>
 
 #include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/array.hpp>
-#include <boost/circular_buffer.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
@@ -29,6 +26,7 @@
 namespace ml {
 namespace maths {
 namespace common {
+class CMultivariatePrior;
 class CPrior;
 struct SModelRestoreParams;
 struct SDistributionRestoreParams;
@@ -344,7 +342,7 @@ public:
 //! pairs. Note that the allocator (supplied to refresh) defines how many correlates
 //! can be modeled.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The individual time series models hold a reference to this and update it with
 //! their samples, add and remove themselves as part of their life-cycle management
 //! and use it to correct their predictions and probability calculation as appropriate.
@@ -393,6 +391,8 @@ public:
 
 public:
     CTimeSeriesCorrelations(double minimumSignificantCorrelation, double decayRate);
+    ~CTimeSeriesCorrelations();
+
     const CTimeSeriesCorrelations& operator=(const CTimeSeriesCorrelations&) = delete;
 
     //! Create a copy of this model passing ownership to the caller.

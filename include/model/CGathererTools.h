@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CGathererTools_h
 #define INCLUDED_ml_model_CGathererTools_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>

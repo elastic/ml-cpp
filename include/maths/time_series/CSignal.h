@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_time_series_CSignal_h
 
 #include <core/CContainerPrinter.h>
-#include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
@@ -31,6 +30,10 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace time_series {
 

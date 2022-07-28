@@ -18,8 +18,6 @@
 #include <maths/common/COrderings.h>
 #include <maths/common/CSetTools.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -39,9 +37,8 @@ using TDoubleVec = CAgglomerativeClusterer::TDoubleVec;
 using TDoubleVecVec = CAgglomerativeClusterer::TDoubleVecVec;
 using TNode = CAgglomerativeClusterer::CNode;
 using TNodeVec = CAgglomerativeClusterer::TNodeVec;
-using TNodePtrVec = std::vector<TNode*>;
 
-const double INF = boost::numeric::bounds<double>::highest();
+const double INF = std::numeric_limits<double>::max();
 
 //! Get the distance between node \p i and \p j.
 inline double& distance(TDoubleVecVec& distanceMatrix, std::size_t i, std::size_t j) {

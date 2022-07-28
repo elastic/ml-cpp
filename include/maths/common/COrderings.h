@@ -14,17 +14,17 @@
 
 #include <core/CNonInstantiatable.h>
 #include <core/CStoredStringPtr.h>
-#include <core/CVectorRange.h>
 #include <core/UnwrapRef.h>
-
-#include <boost/tuple/tuple.hpp>
 
 #include <memory>
 #include <optional>
 #include <utility>
-#include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace common {
 //! \brief A collection of useful functionality to order collections
@@ -47,8 +47,6 @@ public:
     //! less than null values and otherwise compares using the type
     //! operator <.
     struct SOptionalLess {
-        using result_type = bool;
-
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator <.
         template<typename U, typename V>
@@ -78,8 +76,6 @@ public:
     //! than non-null values and otherwise compares using the type
     //! operator >.
     struct SOptionalGreater {
-        using result_type = bool;
-
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator >.
         template<typename U, typename V>
@@ -110,8 +106,6 @@ public:
     //! than null values and otherwise compares using the type
     //! operator <.
     struct SPtrLess {
-        using result_type = bool;
-
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
             return less(lhs, rhs);
@@ -131,8 +125,6 @@ public:
     //! than non-null values and otherwise compares using
     //! the type operator >.
     struct SPtrGreater {
-        using result_type = bool;
-
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
             return greater(lhs, rhs);
@@ -151,8 +143,6 @@ public:
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator <.
     struct SReferenceLess {
-        using result_type = bool;
-
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return less(lhs, rhs);
@@ -167,8 +157,6 @@ public:
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator >.
     struct SReferenceGreater {
-        using result_type = bool;
-
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return greater(lhs, rhs);
@@ -302,8 +290,6 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SLess {
-        using result_type = bool;
-
         template<typename T>
         bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalLess::less(lhs, rhs);
@@ -347,8 +333,6 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SGreater {
-        using result_type = bool;
-
         template<typename T>
         bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalGreater::greater(lhs, rhs);
@@ -393,8 +377,8 @@ public:
     //! Lexicographical comparison of various common types.
     //!
     //! IMPLEMENTATION DECISIONS:\n
-    //! Although these objects provide their own comparison operators
-    //! This also tuples of handles reference wrapped types.
+    //! Although pair provides its own comparison operator it doesn't properly
+    //! handle pairs of reference wrapped types.
     struct SLexicographicalCompare {
         template<typename T1, typename T2>
         inline bool operator()(const std::pair<T1, T2>& lhs,
@@ -403,39 +387,10 @@ public:
                                            rhs.second, s_Less);
         }
 
-        template<typename T1, typename T2, typename T3>
-        inline bool operator()(const boost::tuple<T1, T2, T3>& lhs,
-                               const boost::tuple<T1, T2, T3>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(),
-                lhs.template get<2>(), rhs.template get<0>(),
-                rhs.template get<1>(), rhs.template get<2>(), s_Less);
-        }
-
-        template<typename T1, typename T2, typename T3, typename T4>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4>& lhs,
-                               const boost::tuple<T1, T2, T3, T4>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(), lhs.template get<2>(),
-                lhs.template get<3>(), rhs.template get<0>(), rhs.template get<1>(),
-                rhs.template get<2>(), rhs.template get<3>(), s_Less);
-        }
-
-        template<typename T1, typename T2, typename T3, typename T4, typename T5>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4, T5>& lhs,
-                               const boost::tuple<T1, T2, T3, T4, T5>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(),
-                lhs.template get<2>(), lhs.template get<3>(), lhs.template get<4>(),
-                rhs.template get<0>(), rhs.template get<1>(), rhs.template get<2>(),
-                rhs.template get<3>(), rhs.template get<4>(), s_Less);
-        }
-
         SLess s_Less;
     };
 
-    //! \brief Partial ordering of std::pairs and some boost::tuples based
-    //! on smaller first element.
+    //! \brief Partial ordering of std::pairs on smaller first element.
     //!
     //! \note That while this functionality can be implemented by boost
     //! bind, since it overloads the comparison operators, the resulting
@@ -456,46 +411,12 @@ public:
             return s_Less(lhs.first, rhs);
         }
 
-#define TUPLE_FIRST_LESS                                                                  \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs,                        \
-                           const boost::tuple<TEMPLATE_ARGS>& rhs) const {                \
-        return s_Less(lhs.template get<0>(), rhs.template get<0>());                      \
-    }                                                                                     \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const T1& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const { \
-        return s_Less(lhs, rhs.template get<0>());                                        \
-    }                                                                                     \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const T1& rhs) const { \
-        return s_Less(lhs.template get<0>(), rhs);                                        \
-    }
-
-#define TEMPLATE_ARGS_DECL typename T1, typename T2, typename T3
-#define TEMPLATE_ARGS T1, T2, T3
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#define TEMPLATE_ARGS_DECL typename T1, typename T2, typename T3, typename T4
-#define TEMPLATE_ARGS T1, T2, T3, T4
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#define TEMPLATE_ARGS_DECL                                                     \
-    typename T1, typename T2, typename T3, typename T4, typename T5
-#define TEMPLATE_ARGS T1, T2, T3, T4, T5
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#undef TUPLE_FIRST_LESS
-
         SLess s_Less;
     };
 
-    //! \brief Partial ordering of std::pairs and some boost::tuples based
-    //! on larger first element.
+    //! \brief Partial ordering of std::pairs based on larger first element.
     //!
-    //! \note That while this functionality can be implemented by boost
+    //! \note That while this functionality can be implemented by bind
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
     struct SFirstGreater {

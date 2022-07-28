@@ -37,9 +37,9 @@ void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColum
     std::string featureName{
         m_FeatureNameProvider.oneHotEncodingName(inputColumnIndex, hotCategory)};
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
-        m_OneHotEncodingMaps.emplace(
-            fieldName, std::make_unique<COneHotEncoding>(
-                           fieldName, COneHotEncoding::TStringStringUMap()));
+        m_OneHotEncodingMaps.emplace(fieldName,
+                                     std::make_unique<COneHotEncoding>(
+                                         fieldName, COneHotEncoding::TStrStrMap()));
     }
     m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, featureName);
     m_FeatureNames.push_back(std::move(featureName));

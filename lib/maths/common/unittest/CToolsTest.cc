@@ -27,7 +27,6 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <array>
@@ -263,9 +262,6 @@ double numericalProbabilityOfLessLikelySample(const boost::math::beta_distributi
 template<typename DISTRIBUTION>
 class CPdf {
 public:
-    using result_type = double;
-
-public:
     CPdf(const DISTRIBUTION& distribution) : m_Distribution(distribution) {}
 
     bool operator()(double x, double& result) const {
@@ -278,9 +274,6 @@ private:
 };
 
 class CIdentity {
-public:
-    using result_type = double;
-
 public:
     bool operator()(double x, double& result) const {
         result = x;
@@ -449,8 +442,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         double successFraction[] = {0.5, 1.0, 10.0, 100.0, 1000.0};
         double successProbability[] = {1e-3, 0.25, 0.5, 0.75, 1.0 - 1e-3};
 
-        for (size_t i = 0; i < boost::size(successFraction); ++i) {
-            for (size_t j = 0; j < boost::size(successProbability); ++j) {
+        for (size_t i = 0; i < std::size(successFraction); ++i) {
+            for (size_t j = 0; j < std::size(successProbability); ++j) {
                 LOG_DEBUG(<< "**** r = " << successFraction[i]
                           << ", p = " << successProbability[j] << " ****");
 
@@ -587,9 +580,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         double locations[] = {-0.5, 0.1, 1.0, 5.0};
         double scales[] = {0.1, 1.0, 5.0};
 
-        for (size_t i = 0; i < boost::size(degreesFreedom); ++i) {
-            for (size_t j = 0; j < boost::size(locations); ++j) {
-                for (size_t k = 0; k < boost::size(scales); ++k) {
+        for (size_t i = 0; i < std::size(degreesFreedom); ++i) {
+            for (size_t j = 0; j < std::size(locations); ++j) {
+                for (size_t k = 0; k < std::size(scales); ++k) {
                     LOG_DEBUG(<< "**** v = " << degreesFreedom[i] << ", l = "
                               << locations[j] << ", s = " << scales[k] << " ****");
 
@@ -674,8 +667,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         double shapes[] = {0.1, 1.0, 1.1, 100.0, 10000.0};
         double scales[] = {0.0001, 0.01, 1.0, 10.0};
 
-        for (size_t i = 0; i < boost::size(shapes); ++i) {
-            for (size_t j = 0; j < boost::size(scales); ++j) {
+        for (size_t i = 0; i < std::size(shapes); ++i) {
+            for (size_t j = 0; j < std::size(scales); ++j) {
                 LOG_DEBUG(<< "***** shape = " << shapes[i]
                           << ", scale = " << scales[j] << " *****");
 
@@ -769,8 +762,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         double alphas[] = {0.01, 0.98, 1.0, 1.01, 1000.0};
         double betas[] = {0.01, 0.98, 1.0, 1.01, 1000.0};
 
-        for (size_t i = 0; i < boost::size(alphas); ++i) {
-            for (size_t j = 0; j < boost::size(betas); ++j) {
+        for (size_t i = 0; i < std::size(alphas); ++i) {
+            for (size_t j = 0; j < std::size(betas); ++j) {
                 LOG_DEBUG(<< "**** alpha = " << alphas[i]
                           << ", beta = " << betas[j] << " ****");
 
@@ -898,7 +891,7 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(normal, -40.0, 13.0);
-        actual = expectation(normal, boost::numeric::bounds<double>::lowest(), 13.0);
+        actual = expectation(normal, std::numeric_limits<double>::lowest(), 13.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
@@ -923,7 +916,7 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(logNormal, 0.0, 9.0);
-        actual = expectation(logNormal, boost::numeric::bounds<double>::lowest(), 9.0);
+        actual = expectation(logNormal, std::numeric_limits<double>::lowest(), 9.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
@@ -948,7 +941,7 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(gamma, 0.0, 5.0);
-        actual = expectation(gamma, boost::numeric::bounds<double>::lowest(), 5.0);
+        actual = expectation(gamma, std::numeric_limits<double>::lowest(), 5.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 

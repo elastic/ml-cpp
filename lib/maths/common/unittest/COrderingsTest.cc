@@ -13,6 +13,7 @@
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -637,7 +638,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         BOOST_REQUIRE_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            BOOST_REQUIRE_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_REQUIRE_EQUAL(0, value.ms_Copies);
         }
 
         maths::common::COrderings::simultaneousSort(keys, values1, values2, values3);
@@ -649,7 +650,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         BOOST_REQUIRE_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            BOOST_REQUIRE_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_REQUIRE_EQUAL(0, value.ms_Copies);
         }
     }
     {

@@ -11,7 +11,7 @@
 #include <api/CCsvInputParser.h>
 
 #include <core/CLogger.h>
-#include <core/CTimeUtils.h>
+#include <core/CoreTypes.h>
 
 #include <algorithm>
 #include <cstring>

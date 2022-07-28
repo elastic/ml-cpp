@@ -12,7 +12,7 @@
 #define INCLUDED_ml_model_CStringStore_h
 
 #include <core/CFastMutex.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CStoredStringPtr.h>
 
@@ -35,14 +35,7 @@ struct testPersonStringPruning;
 struct testAttributeStringPruning;
 struct testInfluencerStringPruning;
 }
-
 namespace ml {
-
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
-
 namespace model {
 
 //! \brief

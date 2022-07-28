@@ -15,6 +15,7 @@
 #include <core/CMemoryFwd.h>
 
 #include <maths/common/CLinearAlgebraShims.h>
+#include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CTypeTraits.h>
 
 #include <cstddef>

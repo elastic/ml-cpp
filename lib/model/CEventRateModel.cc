@@ -12,14 +12,13 @@
 #include <model/CEventRateModel.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
@@ -33,12 +32,12 @@
 #include <model/CModelDetailsView.h>
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <string>
 #include <utility>
 
@@ -587,7 +586,7 @@ CEventRateModel::TSizeUInt64PrVec& CEventRateModel::currentBucketPersonCounts() 
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -699,7 +698,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

@@ -13,6 +13,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
 #include <maths/analytics/COutliers.h>
@@ -81,7 +82,7 @@ void addOutlierTestData(TStrVec fieldNames,
                 inliers[i][j], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
-        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
+        frame->parseAndWriteRow(core::make_const_range(fieldValues, 0, 5));
     }
     for (std::size_t i = 0; i < outliers.size(); i += 5) {
         for (std::size_t j = 0; j < 5; ++j) {
@@ -89,7 +90,7 @@ void addOutlierTestData(TStrVec fieldNames,
                 outliers[i + j], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
-        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
+        frame->parseAndWriteRow(core::make_const_range(fieldValues, 0, 5));
     }
 
     frame->finishWritingRows();

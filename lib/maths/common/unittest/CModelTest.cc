@@ -79,13 +79,13 @@ BOOST_AUTO_TEST_CASE(testAll) {
             .mostAnomalousCorrelate(1)
             .addCoordinate(1)
             .addCoordinate(0);
-        BOOST_REQUIRE_EQUAL(std::size_t(2), params.calculations());
+        BOOST_REQUIRE_EQUAL(2, params.calculations());
         BOOST_REQUIRE_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         BOOST_REQUIRE_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         BOOST_REQUIRE_EQUAL(50.0, params.seasonalConfidenceInterval());
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(weights),
                             core::CContainerPrinter::print(params.weights()));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
+        BOOST_REQUIRE_EQUAL(1, *params.mostAnomalousCorrelate());
         BOOST_REQUIRE_EQUAL(std::string("[1, 0]"),
                             core::CContainerPrinter::print(params.coordinates()));
     }

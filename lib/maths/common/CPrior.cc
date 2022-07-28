@@ -16,8 +16,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CEqualWithTolerance.h>
-#include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CPriorDetail.h>
 #include <maths/common/CSolvers.h>
@@ -326,9 +324,6 @@ const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50;
 const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";
 
 ////////// CPrior::CModelFilter Implementation //////////
-
-CPrior::CModelFilter::CModelFilter() : m_Filter(0) {
-}
 
 CPrior::CModelFilter& CPrior::CModelFilter::remove(EPrior model) {
     m_Filter = m_Filter | model;

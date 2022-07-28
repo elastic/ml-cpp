@@ -15,6 +15,9 @@
 
 #include <maths/common/CSampling.h>
 
+#include <numeric>
+#include <set>
+
 namespace ml {
 namespace maths {
 namespace common {
@@ -51,7 +54,7 @@ jointLogMarginalLikelihood(const TModeVec& modes,
         // We re-normalize so that the maximum log likelihood is one
         // to avoid underflow.
         modeLogLikelihoods.clear();
-        double maxLogLikelihood = boost::numeric::bounds<double>::lowest();
+        double maxLogLikelihood = std::numeric_limits<double>::lowest();
 
         for (std::size_t i = 0; i < modes.size(); ++i) {
             double modeLogLikelihood;
@@ -77,7 +80,7 @@ jointLogMarginalLikelihood(const TModeVec& modes,
             // and pollute the floating point environment. This
             // may cause issues for some library function
             // implementations (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 

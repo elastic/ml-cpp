@@ -14,6 +14,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CPackedBitVector.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CBoostedTreeLoss.h>
 
@@ -160,8 +161,7 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     expectedFrame->columnNames(columnNames);
     expectedFrame->categoricalColumns(categoricalColumns);
     for (const auto& row : rows) {
-        expectedFrame->parseAndWriteRow(
-            core::CVectorRange<const TStrVec>(row, 0, row.size()));
+        expectedFrame->parseAndWriteRow(core::make_const_range(row, 0, row.size()));
     }
     expectedFrame->finishWritingRows();
 

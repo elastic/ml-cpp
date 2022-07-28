@@ -13,22 +13,19 @@
 #define INCLUDED_ml_model_CEventRateBucketGatherer_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CChecksum.h>
-
-#include <model/CDataGatherer.h>
+#include <model/CBucketGatherer.h>
 #include <model/CFeatureData.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 
-#include <set>
+#include <any>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -96,7 +93,7 @@ private:
 //! \sa CDataGatherer.
 class MODEL_EXPORT CEventRateBucketGatherer final : public CBucketGatherer {
 public:
-    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
+    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, std::any>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
     using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;

@@ -22,6 +22,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <iterator>
+#include <map>
 #include <set>
 
 BOOST_AUTO_TEST_SUITE(CHashingTest)
@@ -104,7 +105,6 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
     using TUInt32Pr = std::pair<std::uint32_t, std::uint32_t>;
     using TUInt32PrSet = std::set<TUInt32Pr>;
     using TUint32PrUIntMap = std::map<TUInt32Pr, unsigned int>;
-    using TUint32PrUIntMapCItr = TUint32PrUIntMap::const_iterator;
 
     {
         LOG_DEBUG(<< "**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
@@ -241,7 +241,6 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     using TStrVec = std::vector<std::string>;
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
-    using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
     const std::size_t stringSize = 32;
     const std::size_t numberStrings = 500000;
@@ -324,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     }
 
     std::size_t maxCollisions = 0;
-    for (TSizeSizeMapCItr i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
+    for (auto i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
         maxCollisions = std::max(maxCollisions, i->second);
     }
 
@@ -333,7 +332,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     // The number of unique hashes varies for 32 bit and 64 bit versions of
     // this code, so this will need changing if we ever build 32 bit again.
-    BOOST_REQUIRE_EQUAL(std::size_t(460438) /* for 64 bit code */, uniqueHashes.size());
+    BOOST_REQUIRE_EQUAL(460438 /* for 64 bit code */, uniqueHashes.size());
     BOOST_TEST_REQUIRE(maxCollisions < 7);
 }
 
@@ -439,12 +438,12 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
     {
         CHashing::CUniversalHash::TUInt32UnrestrictedHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(5, hashVec);
-        BOOST_REQUIRE_EQUAL(std::size_t(5), hashVec.size());
+        BOOST_REQUIRE_EQUAL(5, hashVec.size());
     }
     {
         CHashing::CUniversalHash::TUInt32VecHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(50, 6666, 7777, hashVec);
-        BOOST_REQUIRE_EQUAL(std::size_t(50), hashVec.size());
+        BOOST_REQUIRE_EQUAL(50, hashVec.size());
     }
 }
 

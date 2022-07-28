@@ -66,7 +66,7 @@ struct SMinusAssign<T, std::void_t<decltype(std::declval<T&>() -= std::declval<T
 //! this was originally implemented. However, a lot of our code now uses this
 //! class and it is convenient to provide some non-standard extensions.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Inherits from boost::container::small_vector.
 //!
 //! \tparam T The element type.

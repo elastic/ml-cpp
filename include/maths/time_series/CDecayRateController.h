@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CDecayRateController_h
 #define INCLUDED_ml_maths_time_series_CDecayRateController_h
 
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 

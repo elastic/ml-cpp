@@ -16,7 +16,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CMixtureDistributionTest)
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {0.0, 6.0},  {0.0, 5.0}, {0.0, 4.0}, {0.0, 3.0},
                              {0.0, 2.0},  {0.0, 1.0}};
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
             LOG_DEBUG(<< "means = " << means[i]);
             TDoubleVec weights;
             weights.push_back(0.6);
@@ -180,10 +179,10 @@ BOOST_AUTO_TEST_CASE(testPdf) {
             {0.3, 10.0}, {1.0, 0.4}, {1.4, 6.0}, {3.0, 1.1}, {3.0, 3.5},
             {1.0, 5.0},  {2.3, 4.0}, {3.0, 1.0}, {1.1, 1.0}, {3.0, 3.2}};
 
-        BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(means));
-        BOOST_REQUIRE_EQUAL(boost::size(means), boost::size(variances));
+        BOOST_REQUIRE_EQUAL(std::size(weights), std::size(means));
+        BOOST_REQUIRE_EQUAL(std::size(means), std::size(variances));
 
-        for (size_t i = 0; i < boost::size(weights); ++i) {
+        for (size_t i = 0; i < std::size(weights); ++i) {
             LOG_TRACE(<< "*** Test Case " << i << " ***");
 
             TDoubleVec w;
@@ -224,12 +223,12 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         {10.0, 30.0}, {5.0, 25.0}, {20.0, 25.0}, {4.0, 50.0}, {11.0, 33.0}};
     const double scales[][2] = {{0.3, 0.2}, {1.0, 1.1}, {0.9, 0.95}, {0.4, 1.2}, {2.3, 2.1}};
 
-    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(shapes));
-    BOOST_REQUIRE_EQUAL(boost::size(shapes), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(std::size(weights), std::size(shapes));
+    BOOST_REQUIRE_EQUAL(std::size(shapes), std::size(scales));
 
     CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(weights); ++i) {
+    for (std::size_t i = 0; i < std::size(weights); ++i) {
         LOG_TRACE(<< "*** Test Case " << i << " ***");
 
         TDoubleVec samples1;
@@ -284,10 +283,10 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
     const double scales[][3] = {
         {0.1, 0.04, 0.5}, {0.8, 0.3, 0.6}, {0.5, 0.3, 0.4}, {0.3, 0.08, 0.9}, {0.1, 0.2, 1.0}};
 
-    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(locations));
-    BOOST_REQUIRE_EQUAL(boost::size(locations), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(std::size(weights), std::size(locations));
+    BOOST_REQUIRE_EQUAL(std::size(locations), std::size(scales));
 
-    for (std::size_t i = 0; i < boost::size(weights); ++i) {
+    for (std::size_t i = 0; i < std::size(weights); ++i) {
         LOG_TRACE(<< "*** Test " << i << " ***");
 
         TDoubleVec w;

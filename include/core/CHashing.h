@@ -13,7 +13,6 @@
 #define INCLUDED_ml_core_CHashing_h
 
 #include <core/CNonInstantiatable.h>
-#include <core/CStoredStringPtr.h>
 #include <core/ImportExport.h>
 
 #include <cstdint>
@@ -23,6 +22,7 @@
 
 namespace ml {
 namespace core {
+class CStoredStringPtr;
 
 //! \brief Hashing functionality.
 //!
@@ -390,12 +390,7 @@ public:
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const {
-            if (key) {
-                return this->operator()(*key);
-            }
-            return m_Seed;
-        }
+        std::size_t operator()(const CStoredStringPtr& key) const;
 
     private:
         std::size_t m_Seed;
@@ -420,12 +415,7 @@ public:
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const {
-            if (key) {
-                return this->operator()(*key);
-            }
-            return m_Seed;
-        }
+        std::size_t operator()(const CStoredStringPtr& key) const;
 
     private:
         std::uint64_t m_Seed;
@@ -464,16 +454,6 @@ template<typename T>
 inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
     return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
         &key, static_cast<int>(sizeof(key)), m_Seed);
-}
-
-inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-        key.data(), static_cast<int>(key.size()), m_Seed);
-}
-
-inline std::uint64_t CHashing::CSafeMurmurHash2String64::
-operator()(const std::string& key) const {
-    return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 }
 }

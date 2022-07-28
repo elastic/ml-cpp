@@ -21,8 +21,6 @@
 #include <core/RestoreMacros.h>
 #include <core/UnwrapRef.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <sstream>
 
 namespace ml {
@@ -38,7 +36,7 @@ const std::string ALPHABET_TAG("a");
 const std::string STATES_TAG("b");
 const std::string TRANSITION_FUNCTION_TAG("c");
 
-std::size_t BAD_MACHINE = boost::numeric::bounds<std::size_t>::highest();
+std::size_t BAD_MACHINE = std::numeric_limits<std::size_t>::max();
 CFastMutex mutex;
 }
 

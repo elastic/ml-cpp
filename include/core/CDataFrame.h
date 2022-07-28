@@ -15,7 +15,6 @@
 #include <core/CAlignment.h>
 #include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
-#include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
@@ -35,6 +34,8 @@ namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
 class CTemporaryDirectory;
+template<typename VECTOR>
+class CVectorRange;
 
 namespace data_frame_detail {
 
@@ -194,7 +195,7 @@ private:
 //! to hold one or more additional columns. Resizing is a heavyweight operation
 //! and should be minimized.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is a fairly lightweight container which is essentially responsible
 //! for managing the read and write process to some underlying store format.
 //! The store format is determined by the user implementing functionality to

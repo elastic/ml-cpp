@@ -17,6 +17,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/COrderings.h>
@@ -25,6 +26,8 @@
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataSummarizationJsonWriter.h>
+#include <api/CInferenceModelDefinition.h>
+#include <api/CInferenceModelMetadata.h>
 
 #include <algorithm>
 #include <cmath>

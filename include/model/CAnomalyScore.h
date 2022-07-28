@@ -39,14 +39,8 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths {
-namespace common {
-class CPrior;
-}
-}
 namespace model {
 class CAnomalyDetectorModelConfig;
-class CLimits;
 
 //! \brief An anomaly score calculator.
 //!

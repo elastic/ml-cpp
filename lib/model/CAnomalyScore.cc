@@ -23,18 +23,14 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMathsFuncs.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 #include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CLimits.h>
 
 #include <cstdint>
-#include <numeric>
-#include <ostream>
 #include <sstream>
 #include <vector>
 
@@ -744,8 +740,8 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
     std::size_t j;
     if (!core::CStringUtils::stringToType(loadedVersion, i) ||
         !core::CStringUtils::stringToType(currentVersion, j) ||
-        i - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR) ||
-        j - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
+        i - 1 >= std::size(HIGH_SCORE_UPGRADE_FACTOR) ||
+        j - 1 >= std::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
         LOG_ERROR(<< "Don't know how to upgrade quantiles from version "
                   << loadedVersion << " to version " << currentVersion);
         return false;

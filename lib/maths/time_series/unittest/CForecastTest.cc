@@ -27,7 +27,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -114,8 +113,8 @@ private:
 
 const double DECAY_RATE{0.0005};
 const std::size_t TAG{0};
-const TDouble2Vec MINIMUM_VALUE{boost::numeric::bounds<double>::lowest()};
-const TDouble2Vec MAXIMUM_VALUE{boost::numeric::bounds<double>::highest()};
+const TDouble2Vec MINIMUM_VALUE{std::numeric_limits<double>::lowest()};
+const TDouble2Vec MAXIMUM_VALUE{std::numeric_limits<double>::max()};
 
 maths::common::CModelParams params(core_t::TTime bucketLength) {
     using TTimeDoubleMap = std::map<core_t::TTime, double>;

@@ -12,7 +12,7 @@
 #include <model/CAnomalyDetector.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -24,9 +24,9 @@
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
 #include <model/CForecastModelPersist.h>
+#include <model/CLimits.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelPlotData.h>
-#include <model/CSampleCounts.h>
+#include <model/CModelFactory.h>
 #include <model/CSearchKey.h>
 
 #include <sstream>

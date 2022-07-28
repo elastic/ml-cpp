@@ -15,7 +15,6 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
-#include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 

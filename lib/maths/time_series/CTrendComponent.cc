@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <cmath>
 #include <exception>
-#include <numeric>
 
 namespace ml {
 namespace maths {

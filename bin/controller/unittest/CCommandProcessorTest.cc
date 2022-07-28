@@ -14,7 +14,6 @@
 
 #include "../CCommandProcessor.h"
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
@@ -62,7 +61,7 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
         ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
         std::string command{"1\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
-        for (std::size_t index = 0; index < boost::size(PROCESS_ARGS1); ++index) {
+        for (std::size_t index = 0; index < std::size(PROCESS_ARGS1); ++index) {
             command += '\t';
             command += PROCESS_ARGS1[index];
         }
@@ -99,7 +98,7 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
         ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
         std::string command{"2\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
-        for (std::size_t index = 0; index < boost::size(PROCESS_ARGS2); ++index) {
+        for (std::size_t index = 0; index < std::size(PROCESS_ARGS2); ++index) {
             command += '\t';
             command += PROCESS_ARGS2[index];
         }

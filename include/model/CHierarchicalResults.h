@@ -221,7 +221,7 @@ class CHierarchicalResultsVisitor;
 //! aggregate the probabilities up the tree. Both bottom up depth and
 //! breadth first visiting strategies have been implemented.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This loosely implements a builder pattern: each simple search result
 //! is added and the intention is that all results are first added and
 //! then the hierarchical object is built (although buildHierarchy can

@@ -14,18 +14,19 @@
 
 #include <core/CHashing.h>
 #include <core/CMemoryUsage.h>
-#include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/ImportExport.h>
 
 #include <cstddef>
 #include <cstdint>
-#include <utility>
 #include <variant>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
 namespace maths {
 namespace common {
 //! \brief The BJSKT algorithm for estimating the number of unique values

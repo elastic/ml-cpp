@@ -11,7 +11,6 @@
 
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
-#include <core/CTriple.h>
 #include <core/Constants.h>
 
 #include <maths/common/CMultimodalPrior.h>
@@ -30,6 +29,8 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <map>
 
 BOOST_AUTO_TEST_SUITE(CModelToolsTest)
 

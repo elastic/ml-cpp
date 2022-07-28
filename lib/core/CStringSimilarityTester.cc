@@ -10,7 +10,7 @@
  */
 #include <core/CStringSimilarityTester.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <limits>
 

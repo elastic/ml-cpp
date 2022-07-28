@@ -23,7 +23,6 @@
 #include <model/ModelTypes.h>
 
 #include <utility>
-#include <vector>
 
 namespace ml {
 namespace maths {
@@ -32,7 +31,6 @@ class CMultinomialConjugate;
 }
 }
 namespace model {
-class CModel;
 
 //! \brief Manages the creation of annotated probabilities using the
 //! builder pattern.

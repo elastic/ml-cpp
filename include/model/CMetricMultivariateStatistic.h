@@ -14,7 +14,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CChecksum.h>

@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
     double means_[][2] = {{10.0, 20.0}, {12.0, 30.0}};
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
-    for (std::size_t i = 0; i < boost::size(means_); ++i) {
+    for (std::size_t i = 0; i < std::size(means_); ++i) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
     double means_[][2] = {{10.0, 20.0}, {12.0, 30.0}};
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
-    for (std::size_t i = 0; i < boost::size(means_); ++i) {
+    for (std::size_t i = 0; i < std::size(means_); ++i) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));

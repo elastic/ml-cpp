@@ -23,7 +23,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <numeric>
 #include <sstream>
 #include <vector>
 

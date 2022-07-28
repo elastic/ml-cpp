@@ -12,7 +12,7 @@
 #include <maths/common/CMultivariatePrior.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
@@ -43,6 +43,8 @@ void setDecayRate(double value, double fallback, double& result) {
 CMultivariatePrior::CMultivariatePrior()
     : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
+
+CMultivariatePrior::~CMultivariatePrior() = default;
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
     : m_DataType(dataType), m_NumberSamples(0) {

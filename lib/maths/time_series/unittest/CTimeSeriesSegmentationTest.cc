@@ -15,6 +15,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>

@@ -12,6 +12,7 @@
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
 #include <core/CLogger.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>

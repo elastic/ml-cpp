@@ -27,6 +27,7 @@
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/property_map/property_map.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 #include <cstddef>

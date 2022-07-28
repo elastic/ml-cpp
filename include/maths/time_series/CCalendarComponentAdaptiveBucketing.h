@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CCalendarComponentAdaptiveBucketing_h
 #define INCLUDED_ml_maths_time_series_CCalendarComponentAdaptiveBucketing_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 
@@ -31,7 +31,6 @@ class CStateRestoreTraverser;
 }
 namespace maths {
 namespace time_series {
-class CSeasonalTime;
 
 //! \brief An adaptive bucketing of the value of a calendar component.
 //!

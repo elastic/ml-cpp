@@ -13,9 +13,8 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CFunctional.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
-#include <core/CTriple.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -1693,6 +1692,8 @@ CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations& 
     }
 }
 
+CTimeSeriesCorrelations::~CTimeSeriesCorrelations() = default;
+
 CTimeSeriesCorrelations* CTimeSeriesCorrelations::clone() const {
     return new CTimeSeriesCorrelations(*this);
 }
@@ -2187,8 +2188,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const common::SModelR
     }
 }
 
-CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() {
-}
+CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() = default;
 
 std::size_t CMultivariateTimeSeriesModel::identifier() const {
     return 0;

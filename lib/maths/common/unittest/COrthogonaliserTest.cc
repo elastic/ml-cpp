@@ -18,7 +18,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -293,8 +292,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
             maths::common::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_REQUIRE_EQUAL(std::size_t(2), x.size());
-        } while (std::next_permutation(p, p + boost::size(p)));
+            BOOST_REQUIRE_EQUAL(2, x.size());
+        } while (std::next_permutation(p, p + std::size(p)));
     }
     {
         LOG_DEBUG(<< "");
@@ -316,8 +315,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
             maths::common::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_REQUIRE_EQUAL(std::size_t(3), x.size());
-        } while (std::next_permutation(p, p + boost::size(p)));
+            BOOST_REQUIRE_EQUAL(3, x.size());
+        } while (std::next_permutation(p, p + std::size(p)));
     }
 }
 

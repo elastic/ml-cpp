@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
-#include <core/CMemoryFwd.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
@@ -21,7 +20,6 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
-#include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CMathsFuncs.h>
@@ -187,11 +185,7 @@ public:
         }
 
         //! Get a checksum of this object.
-        std::uint64_t checksum(std::uint64_t seed = 0) const {
-            seed = common::CChecksum::calculate(seed, m_Count);
-            seed = common::CChecksum::calculate(seed, m_Gradient);
-            return common::CChecksum::calculate(seed, m_Curvature);
-        }
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     private:
         TMemoryMappedDoubleVector flatView() {
@@ -443,34 +437,17 @@ public:
         }
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Derivatives) +
-                   core::CMemory::dynamicSize(m_Storage);
-        }
+        std::size_t memoryUsage() const;
 
         //! Estimate the split derivatives' memory usage for a data frame with
         //! \p numberCols columns using \p numberSplitsPerFeature for a loss
         //! function with \p numberLossParameters parameters.
         static std::size_t estimateMemoryUsage(std::size_t numberFeatures,
                                                std::size_t numberSplitsPerFeature,
-                                               std::size_t numberLossParameters) {
-            std::size_t derivativesSize{numberFeatures * (numberSplitsPerFeature + 1) *
-                                        sizeof(CDerivatives)};
-            std::size_t storageSize{numberFeatures * (numberSplitsPerFeature + 1) * numberLossParameters *
-                                    (numberLossParameters + 1) * sizeof(double)};
-            return sizeof(CSplitsDerivatives) + derivativesSize + storageSize;
-        }
+                                               std::size_t numberLossParameters);
 
         //! Get a checksum of this object.
-        std::uint64_t checksum(std::uint64_t seed = 0) const {
-            seed = common::CChecksum::calculate(seed, m_NumberLossParameters);
-            seed = common::CChecksum::calculate(seed, m_PositiveDerivativesSum);
-            seed = common::CChecksum::calculate(seed, m_NegativeDerivativesSum);
-            seed = common::CChecksum::calculate(seed, m_PositiveDerivativesMax);
-            seed = common::CChecksum::calculate(seed, m_PositiveDerivativesMin);
-            seed = common::CChecksum::calculate(seed, m_NegativeDerivativesMin);
-            return common::CChecksum::calculate(seed, m_Derivatives);
-        }
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Get the number of loss function parameters.
         std::size_t numberLossParameters() const {
@@ -521,8 +498,8 @@ public:
                 std::size_t size{number(splits[i])};
                 m_Derivatives[i].reserve(size);
                 for (std::size_t j = 0; j < size; ++j, storage += numberDerivatives) {
-                    m_Derivatives[i].emplace_back(m_NumberLossParameters, storage,
-                                                  storage + numberGradients);
+                    m_Derivatives[i].emplace_back(static_cast<int>(m_NumberLossParameters),
+                                                  storage, storage + numberGradients);
                 }
             }
         }
@@ -651,10 +628,7 @@ public:
         TSplitsDerivativesVec& derivatives() { return m_Derivatives; }
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Masks) +
-                   core::CMemory::dynamicSize(m_Derivatives);
-        }
+        std::size_t memoryUsage() const;
 
     private:
         const TNodeVec* m_TreeToRetrain{nullptr};
@@ -749,8 +723,7 @@ protected:
     using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
-    struct MATHS_ANALYTICS_EXPORT SSplitStatistics
-        : private boost::less_than_comparable<SSplitStatistics> {
+    struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
         SSplitStatistics() = default;
         SSplitStatistics(double gain,
                          double curvature,

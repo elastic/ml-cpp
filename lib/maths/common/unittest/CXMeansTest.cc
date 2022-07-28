@@ -11,6 +11,8 @@
 
 #include <core/CLogger.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
 #include <maths/common/CLinearAlgebraTools.h>
@@ -183,8 +185,8 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             maths::common::CXMeans<TVector2>::CCluster cluster1;
             maths::common::CXMeans<TVector2>::CCluster cluster2;
 
-            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster1.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
+            BOOST_REQUIRE_EQUAL(0, cluster1.size());
+            BOOST_REQUIRE_EQUAL(0, cluster2.size());
 
             TVector2Vec points;
             for (std::size_t i = 0; i < samples.size(); i += 2) {
@@ -206,8 +208,8 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             maths::common::CXMeans<TVector4>::CCluster cluster1;
             maths::common::CXMeans<TVector4>::CCluster cluster2;
 
-            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster1.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
+            BOOST_REQUIRE_EQUAL(0, cluster1.size());
+            BOOST_REQUIRE_EQUAL(0, cluster2.size());
 
             TVector4Vec points;
             for (std::size_t i = 0; i < samples.size(); i += 4) {
