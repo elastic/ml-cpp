@@ -49,6 +49,7 @@ const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
 const std::string CACHE_HIT{"cache_hit"};
 const std::string THREAD_SETTINGS{"thread_settings"};
+const std::string ACK{"ack"};
 const std::string NUM_ALLOCATIONS{"num_allocations"};
 const std::string NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
 }
@@ -170,6 +171,18 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
     jsonWriter.EndObject();
 }
 
+void writeSimpleAck(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
+                    const std::string& requestId) {
+    ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ACK);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.EndObject();
+    jsonWriter.EndObject();
+}
+
 template<std::size_t N>
 void writePrediction(const torch::Tensor& prediction,
                      const std::string& requestId,
@@ -287,14 +300,25 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
 
 void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& controlMessage,
                           ml::torch::CThreadSettings& threadSettings,
+                          ml::torch::CCommandParser::CRequestCacheInterface& cache,
                           ml::core::CJsonOutputStreamWrapper& wrappedOutputStream) {
 
-    // No need to check the control message type there is only 1
-    threadSettings.numAllocations(controlMessage.s_NumAllocations);
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
-    LOG_DEBUG(<< "Updated number of allocations to [" << threadSettings.numAllocations()
-              << "] ([" << controlMessage.s_NumAllocations << "] requested)");
-    writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
+    switch (controlMessage.s_MessageType) {
+    case ml::torch::CCommandParser::E_NumberOfAllocations:
+        threadSettings.numAllocations(controlMessage.s_NumAllocations);
+        ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+        LOG_DEBUG(<< "Updated number of allocations to [" << threadSettings.numAllocations()
+                  << "] ([" << controlMessage.s_NumAllocations << "] requested)");
+        writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
+        break;
+    case ml::torch::CCommandParser::E_ClearCache:
+        cache.clear();
+        writeSimpleAck(wrappedOutputStream, controlMessage.s_RequestId);
+        break;
+    case ml::torch::CCommandParser::E_Unknown:
+        LOG_ERROR(<< "Attempt to handle unknown control message");
+        break;
+    }
 }
 
 int main(int argc, char** argv) {
@@ -435,13 +459,16 @@ int main(int argc, char** argv) {
     ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
 
     commandParser.ioLoop(
-        [&module_, &wrappedOutputStream](ml::torch::CCommandParser::CRequestCacheInterface& cache,
-                                         ml::torch::CCommandParser::SRequest request) {
+        [&module_, &wrappedOutputStream](
+            ml::torch::CCommandParser::CRequestCacheInterface& cache,
+            ml::torch::CCommandParser::SRequest request) -> bool {
             return handleRequest(cache, std::move(request), module_, wrappedOutputStream);
         },
         [&wrappedOutputStream, &threadSettings](
+            ml::torch::CCommandParser::CRequestCacheInterface& cache,
             const ml::torch::CCommandParser::SControlMessage& controlMessage) {
-            return handleControlMessage(controlMessage, threadSettings, wrappedOutputStream);
+            return handleControlMessage(controlMessage, threadSettings, cache,
+                                        wrappedOutputStream);
         },
         [&wrappedOutputStream](const std::string& requestId, const std::string& message) {
             ml::core::CRapidJsonConcurrentLineWriter errorWriter(wrappedOutputStream);
