@@ -152,7 +152,8 @@ public:
 
     //! A drop in replacement for std::upper_bound on a sorted collection.
     std::size_t upperBound(common::CFloatStorage x) const {
-        // These branch should be predictably false most of the time and so almost free.
+        // These branches should be predictably false most of the time for our
+        // usage and so almost free.
         if (m_Size == 0 || x < m_Min) {
             return 0;
         }
