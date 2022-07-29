@@ -14,7 +14,7 @@
 
 #include <core/CCompressedDictionary.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -41,7 +41,7 @@ namespace compressed_lfu_cache_detail {
 
 //! \brief Implements a memory limited least frequently used cache.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! To make the implementation less complex we assume cached values are small
 //! compared to the memory budget.
 //
@@ -161,7 +161,7 @@ public:
                         readValue(value);
                         return;
                     }
-                    m_LostCount += lastEvictedCount;
+                    m_RemovedCount += lastEvictedCount;
                     lastEvictedCount = itemToEvict->count();
                     this->removeFromCache(itemToEvict);
                 }
@@ -172,6 +172,18 @@ public:
         }
 
         return false;
+    }
+
+    void clear() {
+        this->guardWrite(DONT_TIME_OUT, [&] {
+            m_NumberLookups = 0;
+            m_NumberHits = 0;
+            m_LostCount = 0;
+            m_RemovedCount = 0;
+            m_ItemsMemoryUsage = 0;
+            m_ItemCache.clear();
+            m_ItemStats.clear();
+        });
     }
 
     //! Get the proportion of requests which result in a hit.
@@ -554,11 +566,8 @@ private:
     // fully supported.
     alignas(64) std::atomic<std::uint64_t> m_NumberLookups{0};
     alignas(64) std::atomic<std::uint64_t> m_NumberHits{0};
-    //! We can lose count for two reasons:
-    //! 1. If we fail to obtain a write lock within the timeout period
-    //!    when trying to increment cache item counts
-    //! 2. If we have to evict multiple items to make space to add a single
-    //!    new item
+    //! We can lose count if we fail to obtain a write lock within the timeout
+    //! period when trying to increment cache item counts.
     alignas(64) std::atomic<std::uint64_t> m_LostCount{0};
     std::uint64_t m_RemovedCount{0};
     std::size_t m_MaximumMemory{0};
@@ -627,7 +636,7 @@ const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CCacheIt
 //! }
 //! \endcode
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! \see compressed_lfu_cache_detail::CCompressedLfuCache.
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS = 128>
 class CConcurrentCompressedLfuCache final

@@ -19,7 +19,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <limits>
@@ -77,7 +76,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                         filter.jointLogMarginalLikelihood(
                             {TDouble10Vec(std::begin(constant), std::end(constant))},
                             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(std::numeric_limits<double>::lowest(), likelihood);
 
     filter.addSamples(
         TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
@@ -87,14 +86,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                         filter.jointLogMarginalLikelihood(
                             {TDouble10Vec(std::begin(constant), std::end(constant))},
                             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_REQUIRE_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
+    BOOST_REQUIRE_EQUAL(std::log(std::numeric_limits<double>::max()), likelihood);
 
     BOOST_REQUIRE_EQUAL(
         maths_t::E_FpOverflowed,
         filter.jointLogMarginalLikelihood(
             {TDouble10Vec(std::begin(different), std::end(different))},
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(std::numeric_limits<double>::lowest(), likelihood);
 }
 
 BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
@@ -140,10 +139,10 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
     maths::common::CMultivariateConstantPrior filter(4);
 
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
-    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(4, covariance.size());
     for (std::size_t i = 0; i < 4; ++i) {
-        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
-        BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
+        BOOST_REQUIRE_EQUAL(4, covariance[i].size());
+        BOOST_REQUIRE_EQUAL(std::numeric_limits<double>::max(), covariance[i][i]);
         for (std::size_t j = 0; j < i; ++j) {
             BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
@@ -157,9 +156,9 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     covariance = filter.marginalLikelihoodCovariance();
-    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(4, covariance.size());
     for (std::size_t i = 0; i < 4; ++i) {
-        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
+        BOOST_REQUIRE_EQUAL(4, covariance[i].size());
         for (std::size_t j = 0; j < 4; ++j) {
             BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
@@ -174,7 +173,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
 
     TDouble10Vec1Vec samples;
     filter.sampleMarginalLikelihood(3, samples);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), samples.size());
+    BOOST_REQUIRE_EQUAL(0, samples.size());
 
     double constant[] = {1.2, 4.1};
 
@@ -182,7 +181,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     filter.sampleMarginalLikelihood(4, samples);
-    BOOST_REQUIRE_EQUAL(std::size_t(4), samples.size());
+    BOOST_REQUIRE_EQUAL(4, samples.size());
     for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_EQUAL(std::string("[1.2, 4.1]"),
                             core::CContainerPrinter::print(samples[i]));
@@ -200,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[0]), std::end(samples_[0]))),
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[1]), std::end(samples_[1]))),
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[2]), std::end(samples_[2])))};
-    for (std::size_t i = 0; i < boost::size(samples); ++i) {
+    for (std::size_t i = 0; i < std::size(samples); ++i) {
         double lb, ub;
         maths::common::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(
@@ -216,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     BOOST_TEST_REQUIRE(!filter.isNonInformative());
 
     std::string expectedTails[] = {"[0, 0]", "[1, 2]", "[1, 2]"};
-    for (std::size_t i = 0; i < boost::size(samples); ++i) {
+    for (std::size_t i = 0; i < std::size(samples); ++i) {
         double lb, ub;
         maths::common::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(

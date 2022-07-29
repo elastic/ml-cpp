@@ -13,9 +13,6 @@
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
 
-#include <model/CDataCategorizer.h>
-
-#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <set>

@@ -17,6 +17,7 @@
 #include <core/CTimeUtils.h>
 
 #include <fstream>
+#include <map>
 
 namespace ml {
 namespace test {

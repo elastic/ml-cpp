@@ -12,7 +12,7 @@
 #include <maths/common/CMultivariateOneOfNPrior.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -27,12 +27,11 @@
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iterator>
+#include <limits>
 
 namespace ml {
 namespace maths {
@@ -164,8 +163,8 @@ void modelAcceptPersistInserter(const CModelWeight& weight,
 }
 
 const double DERATE = 0.99999;
-const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
-const double INF = DERATE * boost::numeric::bounds<double>::highest();
+const double MINUS_INF = DERATE * std::numeric_limits<double>::lowest();
+const double INF = DERATE * std::numeric_limits<double>::max();
 const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e6);
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 }

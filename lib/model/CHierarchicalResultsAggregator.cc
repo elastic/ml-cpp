@@ -19,13 +19,9 @@
 
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CTools.h>
-#include <maths/common/Constants.h>
-#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CAnomalyScore.h>
-#include <model/CLimits.h>
-#include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>

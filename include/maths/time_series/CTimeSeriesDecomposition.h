@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecomposition_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecomposition_h
 
+#include <core/CMemoryUsage.h>
 #include <core/WindowsSafe.h>
 
 #include <maths/common/Constants.h>
@@ -33,7 +34,6 @@ class CStateRestoreTraverser;
 }
 namespace maths {
 namespace common {
-class CPrior;
 struct STimeSeriesDecompositionRestoreParams;
 }
 namespace time_series {

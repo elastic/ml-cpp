@@ -12,7 +12,7 @@
 #include <model/CDataGatherer.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -20,12 +20,10 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
-#include <model/CResourceMonitor.h>
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>

@@ -28,7 +28,7 @@ namespace core {
 //! of a container defined by a mask containing their offsets in that
 //! container.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! A reference to the mask is taken to keep the iterator lightweight,
 //! as such it's the responsibility of the caller to ensure it remains
 //! valid for the lifetime of the iterator. Two iterators are only

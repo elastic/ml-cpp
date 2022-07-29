@@ -12,7 +12,7 @@
 #include <model/CResourceMonitor.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 

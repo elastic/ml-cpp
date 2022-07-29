@@ -34,8 +34,7 @@
 #include <maths/common/CSetTools.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
-
-#include <boost/numeric/conversion/bounds.hpp>
+#include <maths/common/MathsTypesForVectorTypes.h>
 
 #include <algorithm>
 #include <cmath>
@@ -676,7 +675,7 @@ public:
             // underflow and pollute the floating point environment. This
             // may cause issues for some library function implementations
             // (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -722,7 +721,7 @@ public:
                 maths_t::EFloatingPointErrorStatus status = detail::jointLogMarginalLikelihood(
                     m_Modes, sample, weight, modeLogLikelihoods, sampleLogLikelihood);
                 if ((status & maths_t::E_FpOverflowed) != 0) {
-                    result = boost::numeric::bounds<double>::lowest();
+                    result = std::numeric_limits<double>::lowest();
                     return status;
                 }
                 if ((status & maths_t::E_FpFailed) != 0) {

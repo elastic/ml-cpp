@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -61,8 +62,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(0), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), weight.size());
+    BOOST_REQUIRE_EQUAL(0, mean.size());
+    BOOST_REQUIRE_EQUAL(0, weight.size());
     BOOST_REQUIRE_EQUAL(1.0, feature.correlationWithBucketValue());
 
     feature.add(1, 100, {7.0}, {maths_t::countWeight(0.3)});
@@ -70,8 +71,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(4.6252, mean[0], 5e-5);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
@@ -84,8 +85,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, mean[0], 5e-5);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
@@ -122,8 +123,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_EQUAL(2.5, mean[0]);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
@@ -135,8 +136,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_EQUAL(2.5, mean[0]);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0]));
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countVarianceScale(weight[0]));
@@ -150,8 +151,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(4.5119, mean[0], 5e-5);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(2.476, maths_t::countForUpdate(weight[0]), 5e-5);
 
@@ -163,8 +164,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(5.54, mean[0], 5e-5);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countForUpdate(weight[0]));
 
@@ -174,8 +175,8 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_EQUAL(1.0, mean[0]);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(5.54, maths_t::countForUpdate(weight[0]), 5e-5);
 
@@ -267,10 +268,10 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), mean[0].size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), maths_t::countForUpdate(weight[0]).size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
+    BOOST_REQUIRE_EQUAL(2, mean[0].size());
+    BOOST_REQUIRE_EQUAL(2, maths_t::countForUpdate(weight[0]).size());
     double expectedMean[]{4.6252, 3.6252};
     for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean[i], mean[0][i], 5e-5);
@@ -310,8 +311,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     expectedMean[0] = 2.5;
     expectedMean[1] = 5.0;
     for (std::size_t i = 0; i < 2; ++i) {
@@ -327,8 +328,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(expectedMean[i], mean[0][i]);
         BOOST_REQUIRE_EQUAL(1.0, maths_t::seasonalVarianceScale(weight[0])[i]);
@@ -344,8 +345,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(4.5119, mean[0][0], 5e-5);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(4.4039, mean[0][1], 5e-5);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(2.476, maths_t::countForUpdate(weight[0])[0], 5e-5);
@@ -359,8 +360,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(5.54, mean[0][0], 5e-5);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(4.54, mean[0][1], 5e-5);
     BOOST_REQUIRE_EQUAL(1.0, maths_t::countForUpdate(weight[0])[0]);
@@ -372,8 +373,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     std::tie(mean, weight) = feature.value();
     LOG_DEBUG(<< "mean = " << mean << " weight = " << weight);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), mean.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), weight.size());
+    BOOST_REQUIRE_EQUAL(1, mean.size());
+    BOOST_REQUIRE_EQUAL(1, weight.size());
     BOOST_REQUIRE_EQUAL(1.0, mean[0][0]);
     BOOST_REQUIRE_EQUAL(1.0, mean[0][1]);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(5.54, maths_t::countForUpdate(weight[0])[0], 5e-5);

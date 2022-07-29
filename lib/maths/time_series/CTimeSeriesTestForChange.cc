@@ -35,13 +35,9 @@
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 #include <maths/time_series/CTrendComponent.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-#include <boost/math/constants/constants.hpp>
-
 #include <algorithm>
 #include <limits>
 #include <memory>
-#include <numeric>
 #include <vector>
 
 namespace ml {

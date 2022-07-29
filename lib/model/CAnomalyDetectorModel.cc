@@ -13,25 +13,28 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CModelStateSerialiser.h>
-#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CDetectionRule.h>
 #include <model/CHierarchicalResults.h>
+#include <model/CMemoryUsageEstimator.h>
+#include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
+
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 
@@ -551,6 +554,11 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     TCorrelationsPtr&& model)
     : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
 }
+
+CAnomalyDetectorModel::SFeatureCorrelateModels::~SFeatureCorrelateModels() = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels& CAnomalyDetectorModel::SFeatureCorrelateModels::
+operator=(SFeatureCorrelateModels&&) = default;
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     const SModelParams& params_,

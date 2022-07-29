@@ -550,4 +550,58 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_TEST_REQUIRE(restoredCache.checkInvariants());
 }
 
+BOOST_AUTO_TEST_CASE(testClear) {
+
+    TStrStrCache cache{32 * core::constants::BYTES_IN_KILOBYTES,
+                       [](const TStrStrCache::TDictionary& dictionary, const std::string& key) {
+                           return dictionary.word(key);
+                       }};
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_1", [](std::string key_) { return key_; },
+                            [&](const std::string& value) {
+                                BOOST_REQUIRE_EQUAL("key_1", value);
+                            }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(true, cache.lookup("key_1",
+                                           [](std::string key_) { return key_; },
+                                           [&](const std::string& value) {
+                                               BOOST_REQUIRE_EQUAL("key_1", value);
+                                           }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(1.0 / 2.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_2", [](std::string key_) { return key_; },
+                            [&](const std::string& value) {
+                                BOOST_REQUIRE_EQUAL("key_2", value);
+                            }));
+    BOOST_REQUIRE_EQUAL(2, cache.size());
+    BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+    cache.clear();
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_1", [](std::string key_) { return key_; },
+                            [&](const std::string& value) {
+                                BOOST_REQUIRE_EQUAL("key_1", value);
+                            }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_2", [](std::string key_) { return key_; },
+                            [&](const std::string& value) {
+                                BOOST_REQUIRE_EQUAL("key_2", value);
+                            }));
+    BOOST_REQUIRE_EQUAL(2, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

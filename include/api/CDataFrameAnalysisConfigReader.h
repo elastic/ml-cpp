@@ -51,7 +51,7 @@ class CDataFrameAnalysisParameters;
 //! double bar{parameters["bar"].as<double>()};
 //! \endcode
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Not understanding a parameter is likely to result in the wrong analysis being
 //! performed so any errors are treated as fatal causing the process to terminate
 //! immediately. For the same reason this treats unexpected parameters as an error.

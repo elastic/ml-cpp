@@ -13,11 +13,12 @@
 
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CPriorStateSerialiser.h>
@@ -26,8 +27,10 @@
 #include <maths/common/MathsTypes.h>
 
 #include <algorithm>
-#include <numeric>
+#include <functional>
+#include <iterator>
 #include <string>
+#include <utility>
 
 namespace ml {
 namespace maths {
@@ -90,7 +93,7 @@ double CNaiveBayesFeatureDensityFromPrior::logValue(const TDouble1Vec& x) const 
     if (m_Prior->jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
         LOG_ERROR(<< "Bad density value at " << x << " for " << m_Prior->print());
-        return boost::numeric::bounds<double>::lowest();
+        return std::numeric_limits<double>::lowest();
     }
     return result;
 }
@@ -101,7 +104,7 @@ double CNaiveBayesFeatureDensityFromPrior::logMaximumValue() const {
                                             maths_t::CUnitWeights::SINGLE_UNIT,
                                             result) != maths_t::E_FpNoErrors) {
         LOG_ERROR(<< "Bad density value for " << m_Prior->print());
-        return boost::numeric::bounds<double>::lowest();
+        return std::numeric_limits<double>::lowest();
     }
     return result;
 }

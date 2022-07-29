@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression/description", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("description"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string("Transport node error"), nodes[0].value());
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("token"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string(""), nodes[0].value());
@@ -159,11 +159,11 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("regex"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string("^[[:space:]]*"), nodes[0].value());
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes[0].attributes().size());
+    BOOST_REQUIRE_EQUAL(2, nodes[0].attributes().size());
     BOOST_TEST_REQUIRE(testAttribute(nodes[0], "function", "default"));
     BOOST_TEST_REQUIRE(testAttribute(nodes[0], "local", "BZ"));
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression/description", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("description"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string("Transport node error"), nodes[0].value());
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression[1]/regexes/varbind/token", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("token"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string(""), nodes[0].value());
@@ -247,11 +247,11 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/syslog_parser/parsetree/expression[1]/regexes/varbind/regex", nodes));
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes.size());
+    BOOST_REQUIRE_EQUAL(2, nodes.size());
 
     BOOST_REQUIRE_EQUAL(std::string("regex"), nodes[0].name());
     BOOST_REQUIRE_EQUAL(std::string("^[[:space:]]*"), nodes[0].value());
-    BOOST_REQUIRE_EQUAL(size_t(2), nodes[0].attributes().size());
+    BOOST_REQUIRE_EQUAL(2, nodes[0].attributes().size());
     BOOST_TEST_REQUIRE(testAttribute(nodes[0], "function", "default"));
     BOOST_TEST_REQUIRE(testAttribute(nodes[0], "local", "BZ"));
 
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testParse3) {
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
         "/ItemSearchResponse/OperationRequest/Arguments/Argument", arguments));
-    BOOST_REQUIRE_EQUAL(size_t(7), arguments.size());
+    BOOST_REQUIRE_EQUAL(7, arguments.size());
 
     for (ml::core::CXmlParser::TXmlNodeVecItr itr = arguments.begin();
          itr != arguments.end(); ++itr) {

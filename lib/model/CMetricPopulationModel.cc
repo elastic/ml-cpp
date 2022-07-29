@@ -13,18 +13,16 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
@@ -32,6 +30,7 @@
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>
@@ -39,6 +38,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <map>
 #include <optional>
 
 namespace ml {
@@ -472,7 +472,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
-                core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
+                core_t::TTime latest = std::numeric_limits<core_t::TTime>::lowest();
                 for (const auto& value : attribute.second.s_Values) {
                     latest = std::max(latest, value.first);
                 }

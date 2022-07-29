@@ -12,7 +12,6 @@
 
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
-#include <core/CFunctional.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -22,20 +21,19 @@
 #include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
+#include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
-#include <core/Constants.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
-#include <model/CAnomalyScore.h>
-#include <model/CForecastDataSink.h>
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
 #include <model/CLimits.h>
+#include <model/CModelFactory.h>
 #include <model/CSearchKey.h>
 #include <model/CSimpleCountDetector.h>
 #include <model/CStringStore.h>
@@ -48,12 +46,8 @@
 #include <api/CModelPlotDataJsonWriter.h>
 #include <api/CPersistenceManager.h>
 
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
+#include <algorithm>
 #include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 namespace ml {

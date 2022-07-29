@@ -33,7 +33,7 @@ namespace common {
 //!
 //! SplitMix is intended mainly for seeding the other two generators.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The generators all implement the contract for a boost pseudo-
 //! random number generator, so they can be used freely with the
 //! boost::random library.
@@ -60,7 +60,7 @@ public:
 
     public:
         CSplitMix64();
-        CSplitMix64(result_type seed);
+        explicit CSplitMix64(result_type seed);
 
         //! Compare for equality.
         bool operator==(CSplitMix64 other) const;

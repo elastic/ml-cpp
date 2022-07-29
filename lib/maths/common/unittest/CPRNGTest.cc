@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     maths::common::CPRNG::CXorOShiro128Plus rng4(rng1);
     maths::common::CPRNG::CXorOShiro128Plus rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < std::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     maths::common::CPRNG::CXorShift1024Mult rng4(rng1);
     maths::common::CPRNG::CXorShift1024Mult rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < std::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);

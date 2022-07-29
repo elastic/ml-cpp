@@ -59,7 +59,7 @@ public:
 //! \brief Interface for writing the inference model and training data summarization
 //! JSON descriptions to a stream which first compresses, base64 encodes and chunks.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This splits large state objects across multiple documents which can be reassembled
 //! by CSerializableFromCompressedChunkedJson. Typically this writes documents of the
 //! form

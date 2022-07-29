@@ -651,7 +651,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     kmeans.clusters(clusters);
     LOG_DEBUG(<< "clusters after  = " << clusters);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), clusters.size());
+    BOOST_REQUIRE_EQUAL(4, clusters.size());
     for (std::size_t i = 0; i < clusters.size(); ++i) {
         BOOST_TEST_REQUIRE(clusters[i] != outlier);
     }

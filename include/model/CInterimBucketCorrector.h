@@ -12,14 +12,13 @@
 #ifndef INCLUDED_ml_model_CInterimBucketCorrector_h
 #define INCLUDED_ml_model_CInterimBucketCorrector_h
 
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/ImportExport.h>
-#include <model/ModelTypes.h>
 
 #include <cstdint>
 

@@ -10,7 +10,7 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         TDoubleVecVec points{{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                              {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (auto& point : points) {
+        for (const auto& point : points) {
             sketch.add(point[0], point[1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         TDoubleVecVec points{{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                              {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (auto& point : points) {
+        for (const auto& point : points) {
             sketch.add(point[0], point[1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }

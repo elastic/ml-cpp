@@ -27,6 +27,7 @@
 #include <atomic>
 #include <cmath>
 #include <functional>
+#include <map>
 #include <numeric>
 
 namespace ml {

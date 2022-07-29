@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenQueueIsEmptyShouldCreateNewSubSample) {
 
     queue.add(1, {1.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(1), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(1), queue[0].s_End);
     BOOST_REQUIRE_EQUAL(core_t::TTime(1), queue[0].s_Statistic.time());
@@ -83,32 +83,32 @@ BOOST_AUTO_TEST_CASE(testAddGivenQueueIsFullShouldResize) {
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(1, {1.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.capacity());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.capacity());
 
     queue.add(2, {2.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.capacity());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.capacity());
 
     queue.add(3, {3.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.capacity());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.capacity());
 
     queue.add(4, {4.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.capacity());
+    BOOST_REQUIRE_EQUAL(4, queue.size());
+    BOOST_REQUIRE_EQUAL(4, queue.capacity());
 
     queue.add(5, {5.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(5), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(6), queue.capacity());
+    BOOST_REQUIRE_EQUAL(5, queue.size());
+    BOOST_REQUIRE_EQUAL(6, queue.capacity());
 
     queue.add(6, {6.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(6), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(6), queue.capacity());
+    BOOST_REQUIRE_EQUAL(6, queue.size());
+    BOOST_REQUIRE_EQUAL(6, queue.capacity());
 
     queue.add(7, {7.0}, 1, sampleCount);
-    BOOST_REQUIRE_EQUAL(std::size_t(7), queue.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(9), queue.capacity());
+    BOOST_REQUIRE_EQUAL(7, queue.size());
+    BOOST_REQUIRE_EQUAL(9, queue.capacity());
 }
 
 BOOST_AUTO_TEST_CASE(testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample) {
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample) 
 
     queue.add(3, {2.5}, 2, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[0].s_End);
     BOOST_REQUIRE_EQUAL(2.0, queue[0].s_Statistic.value()[0]);
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleBu
     queue.add(9, {1.0}, 1, sampleCount);
     queue.add(10, {2.5}, 2, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(10), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(10), queue[0].s_End);
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample) {
 
     queue.add(3, {2.5}, 2, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[0].s_End);
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsInOrderAndFarFromLatestSubSample) {
 
     queue.add(5, {2.5}, 2, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[0].s_End);
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsWithinFullLatestSubSample) {
 
     queue.add(3, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(4), queue[0].s_End);
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample) 
 
     queue.add(3, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[2].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[2].s_End);
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSa
 
     queue.add(5, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[2].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[2].s_End);
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSu
 
     queue.add(6, {6.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(6), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(9), queue[1].s_End);
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSu
 
     queue.add(9, {6.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(11), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(11), queue[0].s_End);
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndWithinSomeSubSample) {
 
     queue.add(7, {6.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(6), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(8), queue[1].s_End);
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLates
 
     queue.add(12, {6.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
+    BOOST_REQUIRE_EQUAL(4, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(10), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(12), queue[1].s_End);
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLates
 
     queue.add(10, {6.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
+    BOOST_REQUIRE_EQUAL(4, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples) {
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSub
 
     queue.add(3, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[2].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[2].s_End);
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamp
 
     queue.add(5, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(8), queue[1].s_End);
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSam
 
     queue.add(3, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[2].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[2].s_End);
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples
 
     queue.add(5, {8.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(8), queue[1].s_End);
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleBut
 
     queue.add(2, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(2), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(5), queue[1].s_End);
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnly
 
     queue.add(3, {8.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[2].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), queue[2].s_End);
@@ -537,7 +537,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap) {
 
     queue.add(6, {8.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(6), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(6), queue[1].s_End);
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE(testAddGivenTimeIsHistoricalAndFallsInTooSmallGap) {
 
     queue.add(6, {7.0}, 1, sampleCount);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(6), queue[1].s_End);
@@ -612,12 +612,12 @@ BOOST_AUTO_TEST_CASE(testSampleGivenExactlyOneSampleOfExactCountToBeCreated) {
 
     queue.sample(0, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), samples.size());
+    BOOST_REQUIRE_EQUAL(1, samples.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), samples[0].time());
     BOOST_REQUIRE_EQUAL(2.0, samples[0].value()[0]);
     BOOST_REQUIRE_EQUAL(1.0, samples[0].varianceScale());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_End);
     BOOST_REQUIRE_EQUAL(5.0, queue[0].s_Statistic.value()[0]);
@@ -641,12 +641,12 @@ BOOST_AUTO_TEST_CASE(testSampleGivenExactlyOneSampleOfOverCountToBeCreated) {
 
     queue.sample(0, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), samples.size());
+    BOOST_REQUIRE_EQUAL(1, samples.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(4), samples[0].time());
     BOOST_REQUIRE_EQUAL(2.0, samples[0].value()[0]);
     BOOST_TEST_REQUIRE(samples[0].varianceScale() < 1.0);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), queue.size());
+    BOOST_REQUIRE_EQUAL(1, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_End);
     BOOST_REQUIRE_EQUAL(5.0, queue[0].s_Statistic.value()[0]);
@@ -671,12 +671,12 @@ BOOST_AUTO_TEST_CASE(testSampleGivenOneSampleToBeCreatedAndRemainder) {
 
     queue.sample(0, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), samples.size());
+    BOOST_REQUIRE_EQUAL(1, samples.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(3), samples[0].time());
     BOOST_REQUIRE_EQUAL(2.0, samples[0].value()[0]);
     BOOST_REQUIRE_EQUAL(1.0, samples[0].varianceScale());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(7), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(8), queue[1].s_End);
@@ -709,7 +709,7 @@ BOOST_AUTO_TEST_CASE(testSampleGivenTwoSamplesToBeCreatedAndRemainder) {
 
     queue.sample(0, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), samples.size());
+    BOOST_REQUIRE_EQUAL(2, samples.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(1), samples[0].time());
     BOOST_REQUIRE_EQUAL(2.5, samples[0].value()[0]);
@@ -719,7 +719,7 @@ BOOST_AUTO_TEST_CASE(testSampleGivenTwoSamplesToBeCreatedAndRemainder) {
     BOOST_REQUIRE_EQUAL(3.5, samples[1].value()[0]);
     BOOST_REQUIRE_EQUAL(1.0, samples[1].varianceScale());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(9), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(9), queue[1].s_End);
@@ -750,7 +750,7 @@ BOOST_AUTO_TEST_CASE(testSampleGivenNoSampleToBeCreated) {
 
     BOOST_TEST_REQUIRE(samples.empty());
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess) {
@@ -769,7 +769,7 @@ BOOST_AUTO_TEST_CASE(testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsin
 
     queue.sample(0, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), samples.size());
+    BOOST_REQUIRE_EQUAL(1, samples.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(1), samples[0].time());
     BOOST_REQUIRE_EQUAL(2.0, samples[0].value()[0]);
     BOOST_REQUIRE_EQUAL(1.25, samples[0].varianceScale());
@@ -804,7 +804,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketBeforeEarliestSubSample) {
 
     queue.resetBucket(0);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(6), queue.size());
+    BOOST_REQUIRE_EQUAL(6, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAtEarliestSubSample) {
@@ -825,7 +825,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAtEarliestSubSample) {
 
     queue.resetBucket(10);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
+    BOOST_REQUIRE_EQUAL(4, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(29), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(24), queue[2].s_Start);
@@ -846,7 +846,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketInBetweenWithoutAnySubSamples) {
 
     queue.resetBucket(20);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAtInBetweenSubSample) {
@@ -866,7 +866,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAtInBetweenSubSample) {
 
     queue.resetBucket(20);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(30), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(15), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(10), queue[2].s_Start);
@@ -889,7 +889,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAtLatestSubSample) {
 
     queue.resetBucket(30);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(5), queue.size());
+    BOOST_REQUIRE_EQUAL(5, queue.size());
     BOOST_REQUIRE_EQUAL(core_t::TTime(29), queue[0].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(24), queue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(20), queue[2].s_Start);
@@ -914,7 +914,7 @@ BOOST_AUTO_TEST_CASE(testResetBucketGivenBucketAfterLatestSubSample) {
 
     queue.resetBucket(40);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(6), queue.size());
+    BOOST_REQUIRE_EQUAL(6, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testSubSamplesNeverSpanOverDifferentBuckets) {
@@ -980,7 +980,7 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
     traverser.traverseSubLevel(std::bind(&TTestSampleQueue::acceptRestoreTraverser,
                                          &restoredQueue, std::placeholders::_1));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), restoredQueue.size());
+    BOOST_REQUIRE_EQUAL(2, restoredQueue.size());
 
     BOOST_REQUIRE_EQUAL(core_t::TTime(0), restoredQueue[1].s_Start);
     BOOST_REQUIRE_EQUAL(core_t::TTime(2), restoredQueue[1].s_End);

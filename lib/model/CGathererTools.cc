@@ -12,7 +12,7 @@
 #include <model/CGathererTools.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -22,9 +22,10 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/Constants.h>
 
 #include <model/CStringStore.h>
+
+#include <boost/unordered_map.hpp>
 
 namespace ml {
 namespace model {

@@ -32,14 +32,10 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/math/special_functions/gamma.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <limits>
-#include <numeric>
 #include <sstream>
 #include <string>
 
@@ -740,8 +736,7 @@ void CNormalMeanPrecConjugate::propagateForwardsByTime(double time) {
 
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::marginalLikelihoodSupport() const {
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 double CNormalMeanPrecConjugate::marginalLikelihoodMean() const {
@@ -755,7 +750,7 @@ double CNormalMeanPrecConjugate::marginalLikelihoodMode(const TDoubleWeightsAry&
 double CNormalMeanPrecConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative() || m_GammaShape <= 1.0) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just E_{B}[Var(X | M, P)] where M and P are the mean and
@@ -857,7 +852,7 @@ CNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -1314,8 +1309,7 @@ double CNormalMeanPrecConjugate::precision() const {
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::confidenceIntervalMean(double percentage) const {
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     // Compute the symmetric confidence interval around the median of the
@@ -1354,8 +1348,7 @@ CNormalMeanPrecConjugate::confidenceIntervalMean(double percentage) const {
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::confidenceIntervalPrecision(double percentage) const {
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     percentage /= 100.0;

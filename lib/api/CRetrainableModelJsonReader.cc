@@ -14,6 +14,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
@@ -131,8 +132,7 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
         for (const auto& column : getAsArrayFrom(row)) {
             rowVec.emplace_back(getAsStringFrom(column));
         }
-        frame.parseAndWriteRow(
-            core::CVectorRange<const TStrVec>(rowVec, 0, rowVec.size()));
+        frame.parseAndWriteRow(core::make_const_range(rowVec, 0, rowVec.size()));
         rowVec.clear();
     }
     frame.finishWritingRows();

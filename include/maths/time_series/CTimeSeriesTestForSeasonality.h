@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 
-#include <core/CVectorRange.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -36,6 +35,10 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace time_series {
 

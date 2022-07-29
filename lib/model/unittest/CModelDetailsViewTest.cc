@@ -110,8 +110,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
             BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
                 BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
-                BOOST_REQUIRE_EQUAL(std::size_t(1),
-                                    byFieldData.second.s_ValuesPerOverField.size());
+                BOOST_REQUIRE_EQUAL(1, byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
                 }
@@ -138,8 +137,7 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
             BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
                 BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
-                BOOST_REQUIRE_EQUAL(std::size_t(1),
-                                    byFieldData.second.s_ValuesPerOverField.size());
+                BOOST_REQUIRE_EQUAL(1, byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
                 }

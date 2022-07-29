@@ -15,6 +15,7 @@
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTools.h>
@@ -30,10 +31,10 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <set>
 #include <sstream>
 #include <stdio.h>
 
@@ -374,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
         //raw << " " << samples[i];
         //normalized << " " << sample;
 
-        if (maxScores.size() < boost::size(largeAnomalyTimes)) {
+        if (maxScores.size() < std::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
         } else if (sample > maxScores.begin()->first) {
             LOG_TRACE(<< "normalized = " << sample << " removing "
@@ -441,7 +442,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     }
 
     TDoubleVec actualAALScores;
-    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < std::size(anomalyTimes); ++i) {
         double sampleAAL = samplesAAL[anomalyTimes[i]];
         double sampleKLM = samplesKLM[anomalyTimes[i]];
         LOG_DEBUG(<< "sampleAAL = " << sampleAAL);
@@ -453,7 +454,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     std::sort(actualAALScores.begin(), actualAALScores.end());
     LOG_DEBUG(<< "actualAALScores = " << actualAALScores);
 
-    for (std::size_t i = 0; i < boost::size(expectedAALScores); ++i) {
+    for (std::size_t i = 0; i < std::size(expectedAALScores); ++i) {
         double pctChange = 100.0 *
                            (std::fabs(actualAALScores[i] - expectedAALScores[i])) /
                            expectedAALScores[i];
@@ -490,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     }
 
     TDoubleVec scores;
-    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < std::size(anomalyTimes); ++i) {
         double sample = samples[anomalyTimes[i]];
         normalizer.normalize({"", "", "bucket_time", ""}, sample);
         scores.push_back(sample);
@@ -536,7 +537,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
                 samples[j] += 0.0055;
             }
         }
-        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < std::size(anomalyTimes); ++j) {
             samples[anomalyTimes[j]] += anomalies[j];
         }
 
@@ -550,7 +551,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         }
 
         TDoubleVec maxScores;
-        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < std::size(anomalyTimes); ++j) {
             double sample = samples[anomalyTimes[j]];
             normalizer.normalize({"", "", "bucket_time", ""}, sample);
             maxScores.push_back(sample);

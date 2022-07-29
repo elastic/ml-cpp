@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CSampleGatherer_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStoredStringPtr.h>
@@ -26,6 +26,7 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CDataClassifier.h>
+#include <model/CFeatureData.h>
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
 #include <model/CSampleQueue.h>
@@ -33,6 +34,8 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
+
+#include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <vector>
@@ -114,12 +117,12 @@ public:
         inserter.insertLevel(CLASSIFIER_TAG,
                              std::bind(&CDataClassifier::acceptPersistInserter,
                                        &m_Classifier, std::placeholders::_1));
-        if (m_SampleStats.size() > 0) {
+        if (m_SampleStats.empty() == false) {
             inserter.insertLevel(SAMPLE_STATS_TAG,
                                  std::bind(&TSampleQueue::acceptPersistInserter,
                                            &m_SampleStats, std::placeholders::_1));
         }
-        if (m_BucketStats.size() > 0) {
+        if (m_BucketStats.empty() == false) {
             inserter.insertLevel(
                 BUCKET_STATS_TAG,
                 std::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),

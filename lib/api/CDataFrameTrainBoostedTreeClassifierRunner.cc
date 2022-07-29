@@ -13,7 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>

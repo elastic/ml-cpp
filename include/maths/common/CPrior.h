@@ -13,14 +13,13 @@
 #define INCLUDED_ml_maths_common_CPrior_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -73,8 +72,6 @@ public:
     //! \brief Defines a filter for removing models from selection.
     class MATHS_COMMON_EXPORT CModelFilter {
     public:
-        CModelFilter();
-
         //! Mark a model to be removed.
         CModelFilter& remove(EPrior model);
 
@@ -83,7 +80,7 @@ public:
 
     private:
         //! A binary representation of the filter.
-        int m_Filter;
+        int m_Filter{0};
     };
 
     //! \brief Wrapper around the jointLogMarginalLikelihood function.
@@ -92,9 +89,6 @@ public:
     //! This adapts the jointLogMarginalLikelihood function for use with
     //! CIntegration.
     class MATHS_COMMON_EXPORT CLogMarginalLikelihood {
-    public:
-        using result_type = double;
-
     public:
         CLogMarginalLikelihood(const CPrior& prior,
                                const TDoubleWeightsAry1Vec& weights = TWeights::SINGLE_UNIT);
@@ -447,7 +441,7 @@ public:
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
     //! of those priors with non-negative support.
-    class MATHS_COMMON_EXPORT COffsetParameters {
+    class COffsetParameters {
     public:
         explicit COffsetParameters(CPrior& prior);
         virtual ~COffsetParameters() = default;
@@ -478,10 +472,7 @@ protected:
     //!
     //! This is used to maximize the data likelihood w.r.t. the choice
     //! of offset.
-    class MATHS_COMMON_EXPORT COffsetCost : public COffsetParameters {
-    public:
-        using result_type = double;
-
+    class COffsetCost : public COffsetParameters {
     public:
         explicit COffsetCost(CPrior& prior);
 
@@ -494,7 +485,7 @@ protected:
     };
 
     //! \brief Apply a specified offset to a prior.
-    class MATHS_COMMON_EXPORT CApplyOffset : public COffsetParameters {
+    class CApplyOffset : public COffsetParameters {
     public:
         explicit CApplyOffset(CPrior& prior);
 

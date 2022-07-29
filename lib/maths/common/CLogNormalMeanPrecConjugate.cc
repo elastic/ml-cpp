@@ -18,7 +18,6 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraTools.h>
@@ -34,12 +33,9 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
-#include <numeric>
 #include <sstream>
 #include <string>
 
@@ -469,7 +465,7 @@ public:
                     // and pollute the floating point environment. This
                     // may cause issues for some library function
                     // implementations (see fe*exceptflag for more details).
-                    result = boost::numeric::bounds<double>::lowest();
+                    result = std::numeric_limits<double>::lowest();
                     this->addErrorStatus(maths_t::E_FpOverflowed);
                     return false;
                 }
@@ -977,7 +973,7 @@ void CLogNormalMeanPrecConjugate::propagateForwardsByTime(double time) {
 
 CLogNormalMeanPrecConjugate::TDoubleDoublePr
 CLogNormalMeanPrecConjugate::marginalLikelihoodSupport() const {
-    return {-m_Offset, boost::numeric::bounds<double>::highest()};
+    return {-m_Offset, std::numeric_limits<double>::max()};
 }
 
 double CLogNormalMeanPrecConjugate::marginalLikelihoodMean() const {
@@ -1027,7 +1023,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TDoubleWeightsA
 double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just
@@ -1160,7 +1156,7 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& sampl
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -1580,8 +1576,7 @@ CLogNormalMeanPrecConjugate::TDoubleDoublePr
 CLogNormalMeanPrecConjugate::confidenceIntervalNormalMean(double percentage) const {
 
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     // Compute the symmetric confidence interval around the median of the
@@ -1623,8 +1618,7 @@ CLogNormalMeanPrecConjugate::TDoubleDoublePr
 CLogNormalMeanPrecConjugate::confidenceIntervalNormalPrecision(double percentage) const {
 
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     percentage /= 100.0;

@@ -14,6 +14,8 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CGammaRateConjugate.h>
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMixtureDistribution.h>
@@ -34,7 +36,6 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -168,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     TDoubleVec samples;
     rng.generateNormalSamples(shape, scale, 100, samples);
 
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         maths::common::CXMeansOnline1d clusterer(
             dataTypes[i], maths::common::CAvailableModeDistributions::ALL,
             maths_t::E_ClustersFractionWeight);
@@ -238,7 +239,7 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
     LOG_DEBUG(<< "propagatedPercentiles = " << propagatedPercentiles);
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(mean, propagatedMean, eps * mean);
-    for (std::size_t i = 0; i < boost::size(percentiles); ++i) {
+    for (std::size_t i = 0; i < std::size(percentiles); ++i) {
         BOOST_TEST_REQUIRE(propagatedPercentiles[i].first < percentiles[i].first);
         BOOST_TEST_REQUIRE(propagatedPercentiles[i].second > percentiles[i].second);
     }
@@ -460,7 +461,7 @@ BOOST_AUTO_TEST_CASE(testMultipleModes) {
                 BOOST_TEST_REQUIRE(filter1.checkInvariants());
             }
 
-            BOOST_REQUIRE_EQUAL(std::size_t(2), filter1.numberModes());
+            BOOST_REQUIRE_EQUAL(2, filter1.numberModes());
 
             TMeanAccumulator loss1G;
             TMeanAccumulator loss12;
@@ -556,7 +557,7 @@ BOOST_AUTO_TEST_CASE(testMultipleModes) {
                 BOOST_TEST_REQUIRE(filter1.checkInvariants());
             }
 
-            BOOST_REQUIRE_EQUAL(std::size_t(3), filter1.numberModes());
+            BOOST_REQUIRE_EQUAL(3, filter1.numberModes());
 
             TMeanAccumulator loss1G;
             TMeanAccumulator loss12;
@@ -651,7 +652,7 @@ BOOST_AUTO_TEST_CASE(testMultipleModes) {
                 BOOST_TEST_REQUIRE(filter1.checkInvariants());
             }
 
-            BOOST_REQUIRE_EQUAL(std::size_t(3), filter1.numberModes());
+            BOOST_REQUIRE_EQUAL(3, filter1.numberModes());
 
             TMeanAccumulator loss1G;
             TMeanAccumulator loss12;
@@ -711,8 +712,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                    static_cast<TWeightFunc>(maths_t::outlierWeight)};
         double weights[]{0.1, 1.0, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(weightsFuncs); ++i) {
-            for (std::size_t j = 0; j < boost::size(weights); ++j) {
+        for (std::size_t i = 0; i < std::size(weightsFuncs); ++i) {
+            for (std::size_t j = 0; j < std::size(weights); ++j) {
                 double lb, ub;
                 filter.minusLogJointCdf({20000.0}, {weightsFuncs[i](weights[j])}, lb, ub);
                 LOG_DEBUG(<< "-log(c.d.f) = " << (lb + ub) / 2.0);
@@ -757,8 +758,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     samples.insert(samples.end(), samples3.begin(), samples3.end());
     rng.random_shuffle(samples.begin(), samples.end());
 
-    for (size_t i = 0; i < boost::size(numberSamples); ++i) {
-        for (size_t j = 0; j < boost::size(decayRates); ++j) {
+    for (size_t i = 0; i < std::size(numberSamples); ++i) {
+        for (size_t j = 0; j < std::size(decayRates); ++j) {
             CMultimodalPrior filter(makePrior(decayRates[j]));
 
             for (std::size_t k = 0; k < samples.size(); ++k) {
@@ -899,7 +900,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
 
     std::size_t totalCount = 0;
-    for (std::size_t i = 0; i < boost::size(varianceScales); ++i) {
+    for (std::size_t i = 0; i < std::size(varianceScales); ++i) {
         double vs = varianceScales[i];
         maths_t::setCountVarianceScale(vs, weight);
         LOG_DEBUG(<< "*** vs = " << vs << " ***");
@@ -984,10 +985,10 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);
 
-        for (std::size_t i = 0; i < boost::size(varianceScales); ++i) {
+        for (std::size_t i = 0; i < std::size(varianceScales); ++i) {
             LOG_DEBUG(<< "*** vs = " << varianceScales[i] << " ***");
             TMeanAccumulator error;
-            for (std::size_t j = 0; j < boost::size(percentages); ++j) {
+            for (std::size_t j = 0; j < std::size(percentages); ++j) {
                 LOG_DEBUG(<< "** percentage = " << percentages[j] << " **");
                 double q1, q2;
                 filter.marginalLikelihoodQuantileForTest(50.0 - percentages[j] / 2.0,
@@ -1009,7 +1010,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
 
         std::sort(samples.begin(), samples.end());
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(percentages); ++i) {
+        for (std::size_t i = 0; i < std::size(percentages); ++i) {
             LOG_DEBUG(<< "** percentage = " << percentages[i] << " **");
             std::size_t i1 = static_cast<std::size_t>(
                 static_cast<double>(samples.size()) * (50.0 - percentages[i] / 2.0) / 100.0 + 0.5);
@@ -1083,7 +1084,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(2), filter.numberModes());
+        BOOST_REQUIRE_EQUAL(2, filter.numberModes());
 
         TDoubleDoublePr interval{filter.marginalLikelihoodConfidenceInterval(
             90.0, maths_t::countWeight(1.0))};
@@ -1269,7 +1270,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     COneOfNPrior modePrior(maths::common::COneOfNPrior(priors, maths_t::E_ContinuousData));
     CMultimodalPrior filter(makePrior(&modePrior));
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TDoubleVec samples;
         rng.generateLogNormalSamples(locations[i], squareScales[i], n[i], samples);
         filter.addSamples(samples);
@@ -1344,7 +1345,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         double error = 0.0;
 
-        for (std::size_t i = 0; i < boost::size(x); ++i) {
+        for (std::size_t i = 0; i < std::size(x); ++i) {
             double expectedProbability;
             double deviation;
             probabilityOfLessLikelySample(mixture, x[i], expectedProbability, deviation);
@@ -1368,7 +1369,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                                          std::max(3.0 * deviation, 3e-5));
         }
 
-        error /= static_cast<double>(boost::size(x));
+        error /= static_cast<double>(std::size(x));
         LOG_DEBUG(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < 0.001);
 
@@ -1394,7 +1395,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         TDoubleVec samples;
         samples.reserve(20000u);
-        for (std::size_t i = 0; i < boost::size(weights); ++i) {
+        for (std::size_t i = 0; i < std::size(weights); ++i) {
             TDoubleVec modeSamples;
             rng.generateLogNormalSamples(
                 locations[i], squareScales[i],
@@ -1422,7 +1423,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         double error = 0.0;
 
-        for (std::size_t i = 0; i < boost::size(x); ++i) {
+        for (std::size_t i = 0; i < std::size(x); ++i) {
             double expectedProbability;
             double deviation;
             probabilityOfLessLikelySample(mixture, x[i], expectedProbability, deviation);
@@ -1447,7 +1448,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 std::min(0.2 * expectedProbability + std::max(3.0 * deviation, 1e-10), 0.06));
         }
 
-        error /= static_cast<double>(boost::size(x));
+        error /= static_cast<double>(std::size(x));
         LOG_DEBUG(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < 0.009);
     }
@@ -1458,7 +1459,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         TDoubleVec samples;
         samples.reserve(20000u);
-        for (std::size_t i = 0; i < boost::size(weights); ++i) {
+        for (std::size_t i = 0; i < std::size(weights); ++i) {
             TDoubleVec modeSamples;
             rng.generateGammaSamples(shapes[i], scales[i],
                                      static_cast<std::size_t>(20000.0 * weights[i]),
@@ -1483,7 +1484,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         double error = 0.0;
 
-        for (std::size_t i = 0; i < boost::size(x); ++i) {
+        for (std::size_t i = 0; i < std::size(x); ++i) {
             double expectedProbability;
             double deviation;
             probabilityOfLessLikelySample(mixture, x[i], expectedProbability, deviation);
@@ -1508,7 +1509,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                                              std::max(2.5 * deviation, 1e-3));
         }
 
-        error /= static_cast<double>(boost::size(x));
+        error /= static_cast<double>(std::size(x));
         LOG_DEBUG(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < 0.02);
     }
@@ -1726,7 +1727,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(v, unscaledExpectationVariance,
                                      1e-2 * unscaledExpectationVariance);
 
-        for (std::size_t i = 0; i < boost::size(varianceScales); ++i) {
+        for (std::size_t i = 0; i < std::size(varianceScales); ++i) {
             double vs = varianceScales[i];
             maths_t::setSeasonalVarianceScale(vs, weight);
             LOG_DEBUG(<< "*** variance scale = " << vs << " ***");
@@ -1748,7 +1749,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
                 1e-3 * filter.marginalLikelihoodVariance(weight));
 
             TDouble1Vec sample(1, 0.0);
-            for (std::size_t j = 0; j < boost::size(points); ++j) {
+            for (std::size_t j = 0; j < std::size(points); ++j) {
                 TDouble1Vec x(1, points[j]);
                 double fx;
                 filter.jointLogMarginalLikelihood(x, {weight}, fx);
@@ -1805,7 +1806,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
             }
         }
     }
-    for (std::size_t i = 0; i < boost::size(varianceScales); ++i) {
+    for (std::size_t i = 0; i < std::size(varianceScales); ++i) {
         double vs = varianceScales[i];
 
         TDouble1Vec samples(samples1.begin(), samples1.end());

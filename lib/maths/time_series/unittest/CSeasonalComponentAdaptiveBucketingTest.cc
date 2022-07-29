@@ -21,7 +21,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -335,9 +334,9 @@ BOOST_AUTO_TEST_CASE(testMinimumBucketLength) {
     using TSizeVec = std::vector<std::size_t>;
 
     const double bucketLength{3600.0};
-    const double function[]{0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
-                            15.0, 1.0, 0.0,  0.0,  0.0,  0.0};
-    std::size_t n = boost::size(function);
+    const TDoubleVec function{0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
+                              15.0, 1.0, 0.0,  0.0,  0.0,  0.0};
+    std::size_t n{function.size()};
 
     test::CRandomNumbers rng;
 

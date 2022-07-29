@@ -26,6 +26,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <utility>

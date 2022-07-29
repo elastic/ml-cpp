@@ -11,6 +11,7 @@
 
 #include <api/CModelSizeStatsJsonWriter.h>
 
+#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CTimeUtils.h>
 
 #include <model/SCategorizerStats.h>

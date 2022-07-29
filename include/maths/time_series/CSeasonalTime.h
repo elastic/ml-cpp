@@ -35,7 +35,7 @@ public:
 
 public:
     CSeasonalTime() = default;
-    CSeasonalTime(core_t::TTime period);
+    explicit CSeasonalTime(core_t::TTime period);
     virtual ~CSeasonalTime() = default;
 
     //! Check for equality with \p other.
@@ -200,7 +200,7 @@ private:
 class MATHS_TIME_SERIES_EXPORT CGeneralPeriodTime : public CSeasonalTime {
 public:
     CGeneralPeriodTime() = default;
-    CGeneralPeriodTime(core_t::TTime period);
+    explicit CGeneralPeriodTime(core_t::TTime period);
 
     //! Get a copy of this time.
     CGeneralPeriodTime* clone() const override;

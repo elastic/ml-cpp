@@ -14,6 +14,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CModelFactory.h>
+#include <model/CPartitioningFields.h>
 
 #include <string>
 

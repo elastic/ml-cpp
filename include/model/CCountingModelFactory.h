@@ -13,6 +13,7 @@
 #define INCLUDED_ml_model_CCountingModelFactory_h
 
 #include <model/CModelFactory.h>
+#include <model/CSearchKey.h>
 #include <model/ImportExport.h>
 
 namespace ml {

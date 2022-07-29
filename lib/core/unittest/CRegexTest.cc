@@ -99,17 +99,17 @@ BOOST_AUTO_TEST_CASE(testSearch) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
         BOOST_TEST_REQUIRE(regex.search("671", position, length));
-        BOOST_REQUIRE_EQUAL(size_t(0), position);
-        BOOST_REQUIRE_EQUAL(size_t(3), length);
+        BOOST_REQUIRE_EQUAL(0, position);
+        BOOST_REQUIRE_EQUAL(3, length);
         BOOST_TEST_REQUIRE(regex.search("abc 76371", position, length));
-        BOOST_REQUIRE_EQUAL(size_t(4), position);
-        BOOST_REQUIRE_EQUAL(size_t(5), length);
+        BOOST_REQUIRE_EQUAL(4, position);
+        BOOST_REQUIRE_EQUAL(5, length);
         BOOST_TEST_REQUIRE(regex.search("68 abc", position, length));
-        BOOST_REQUIRE_EQUAL(size_t(0), position);
-        BOOST_REQUIRE_EQUAL(size_t(2), length);
+        BOOST_REQUIRE_EQUAL(0, position);
+        BOOST_REQUIRE_EQUAL(2, length);
         BOOST_TEST_REQUIRE(regex.search("abc 6371 def", position, length));
-        BOOST_REQUIRE_EQUAL(size_t(4), position);
-        BOOST_REQUIRE_EQUAL(size_t(4), length);
+        BOOST_REQUIRE_EQUAL(4, position);
+        BOOST_REQUIRE_EQUAL(4, length);
         BOOST_TEST_REQUIRE(!regex.search("test", position, length));
     }
 
@@ -121,13 +121,13 @@ BOOST_AUTO_TEST_CASE(testSearch) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
         BOOST_TEST_REQUIRE(regex.search("03 Nov 2009 09:22:58,289", position));
-        BOOST_REQUIRE_EQUAL(size_t(0), position);
+        BOOST_REQUIRE_EQUAL(0, position);
         BOOST_TEST_REQUIRE(regex.search("abc 03 Nov 2009 09:22:58,289", position));
-        BOOST_REQUIRE_EQUAL(size_t(4), position);
+        BOOST_REQUIRE_EQUAL(4, position);
         BOOST_TEST_REQUIRE(regex.search("03 Nov 2009 09:22:58,289 abc", position));
-        BOOST_REQUIRE_EQUAL(size_t(0), position);
+        BOOST_REQUIRE_EQUAL(0, position);
         BOOST_TEST_REQUIRE(regex.search("abc 03 Nov 2009 09:22:58,289 def", position));
-        BOOST_REQUIRE_EQUAL(size_t(4), position);
+        BOOST_REQUIRE_EQUAL(4, position);
         BOOST_TEST_REQUIRE(!regex.search("test", position));
     }
 }
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
     {
         // Uninitialised
         ml::core::CRegex regex;
-        BOOST_REQUIRE_EQUAL(size_t(0), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(0, regex.literalCount());
     }
     {
         std::string regexStr = "[[:digit:]]a*[a-z]";
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(0), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(0, regex.literalCount());
     }
     {
         std::string regexStr = "hello";
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(5), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(5, regex.literalCount());
     }
     {
         std::string regexStr = "hello.*";
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(5), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(5, regex.literalCount());
     }
     {
         std::string regexStr = "(hello.*|goodbye.*)my friend";
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(14), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(14, regex.literalCount());
     }
     {
         std::string regexStr = "number\\s+(\\d+,\\d+\\.\\d+|\\d+\\.\\d+)";
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
         ml::core::CRegex regex;
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
-        BOOST_REQUIRE_EQUAL(size_t(7), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(7, regex.literalCount());
     }
     {
         std::string regexStr = "(cpu\\d+)";
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(3), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(3, regex.literalCount());
     }
     {
         std::string regexStr = "ip = (\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(8), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(8, regex.literalCount());
     }
     {
         std::string regexStr = "[[:space:][:alpha:]_]+(\\d+)";
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(0), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(0, regex.literalCount());
     }
     {
         std::string regexStr = "[[:space:][:alpha:]_]+(abc|\\*)";
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(1), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(1, regex.literalCount());
     }
     {
         std::string regexStr = "[[:space:][:alpha:]_]+(\\d+|\\*)";
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testLiteralCount) {
 
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
-        BOOST_REQUIRE_EQUAL(size_t(0), regex.literalCount());
+        BOOST_REQUIRE_EQUAL(0, regex.literalCount());
     }
 }
 

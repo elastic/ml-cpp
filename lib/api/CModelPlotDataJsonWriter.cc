@@ -10,7 +10,6 @@
  */
 #include <api/CModelPlotDataJsonWriter.h>
 #include <core/CLogger.h>
-#include <core/CTimeUtils.h>
 
 namespace ml {
 namespace api {

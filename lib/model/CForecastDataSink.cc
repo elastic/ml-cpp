@@ -15,6 +15,7 @@
 #include <core/CScopedRapidJsonPoolAllocator.h>
 
 #include <maths/common/CIntegerTools.h>
+#include <maths/common/CModel.h>
 
 #include <vector>
 

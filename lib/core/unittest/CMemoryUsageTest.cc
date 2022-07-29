@@ -12,7 +12,7 @@
 #include <core/CAlignment.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CSmallVector.h>
 
 #include <test/CRandomNumbers.h>
@@ -20,14 +20,17 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <cstdlib>
+#include <deque>
 #include <limits>
+#include <list>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <type_traits>
 
@@ -306,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
     using TBasePtr = std::shared_ptr<CBase>;
     using TDerivedVec = std::vector<CDerived>;
     using TBasePtrVec = std::vector<TBasePtr>;
-    using TAnyVec = std::vector<boost::any>;
+    using TAnyVec = std::vector<std::any>;
 
     // Check std::unique_ptr behaves as expected.
 
@@ -462,10 +465,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TFooFooUMap foos;
         TFooWithMemoryFooWithMemoryUMap foosWithMemory;
 
-        std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0; i < boost::size(keys); ++i) {
-            foos[SFoo(keys[i])] = SFoo(keys[i]);
-            foosWithMemory[SFooWithMemoryUsage(keys[i])] = SFooWithMemoryUsage(keys[i]);
+        for (auto key : {0, 1, 2, 3, 4, 5}) {
+            foos[SFoo(key)] = SFoo(key);
+            foosWithMemory[SFooWithMemoryUsage(key)] = SFooWithMemoryUsage(key);
         }
 
         LOG_DEBUG(<< "*** TFooFooUMap ***");
@@ -478,9 +480,8 @@ BOOST_AUTO_TEST_CASE(testUsage) {
     {
         TFooFSet foos;
 
-        std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0; i < boost::size(keys); ++i) {
-            foos.insert(SFoo(keys[i]));
+        for (auto key : {0, 1, 2, 3, 4, 5}) {
+            foos.insert(SFoo(key));
         }
 
         LOG_DEBUG(<< "*** TFooFSet ***");
@@ -610,7 +611,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                                 sizeof(SFoo) * value.s_State.capacity());
     }
     {
-        LOG_DEBUG(<< "*** boost::any ***");
+        LOG_DEBUG(<< "*** std::any ***");
 
         TDoubleVec a(10);
         TFooVec b(20);
@@ -620,7 +621,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         variables.push_back(b);
 
         LOG_DEBUG(<< "wrong dynamic size = " << core::CMemory::dynamicSize(variables));
-        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t),
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::any),
                             core::CMemory::dynamicSize(variables));
 
         auto& visitor = core::CMemory::anyVisitor();
@@ -629,10 +630,10 @@ BOOST_AUTO_TEST_CASE(testUsage) {
 
         LOG_DEBUG(<< "dynamic size = " << core::CMemory::dynamicSize(variables));
         LOG_DEBUG(<< "expected dynamic size = "
-                  << variables.capacity() * sizeof(std::size_t) + sizeof(a) +
+                  << variables.capacity() * sizeof(std::any) + sizeof(a) +
                          core::CMemory::dynamicSize(a) + sizeof(b) +
                          core::CMemory::dynamicSize(b));
-        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t) +
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::any) +
                                 sizeof(a) + core::CMemory::dynamicSize(a) +
                                 sizeof(b) + core::CMemory::dynamicSize(b),
                             core::CMemory::dynamicSize(variables));
@@ -690,7 +691,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         }
         // boost:reference_wrapper should give zero
         std::reference_wrapper<CBase> baseRef(std::ref(*base));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
+        BOOST_REQUIRE_EQUAL(0, core::CMemory::dynamicSize(baseRef));
         {
             auto mem = std::make_shared<core::CMemoryUsage>();
             core::CMemoryDebug::dynamicSize("", baseRef, mem);
@@ -897,7 +898,7 @@ BOOST_AUTO_TEST_CASE(testCompress) {
         mem.addItem("item4", 94);
         mem.addItem("item5", 95);
         mem.addItem("item6", 96);
-        BOOST_REQUIRE_EQUAL(std::size_t(656), mem.usage());
+        BOOST_REQUIRE_EQUAL(656, mem.usage());
         std::string before;
         {
             std::ostringstream ss;
@@ -905,7 +906,7 @@ BOOST_AUTO_TEST_CASE(testCompress) {
             before = ss.str();
         }
         mem.compress();
-        BOOST_REQUIRE_EQUAL(std::size_t(656), mem.usage());
+        BOOST_REQUIRE_EQUAL(656, mem.usage());
         std::string after;
         {
             std::ostringstream ss;
@@ -932,10 +933,10 @@ BOOST_AUTO_TEST_CASE(testCompress) {
         mem.addChild()->setName("child", 17);
         mem.addChild()->setName("child", 19);
         mem.addChild()->setName("child", 21);
-        BOOST_REQUIRE_EQUAL(std::size_t(227), mem.usage());
+        BOOST_REQUIRE_EQUAL(227, mem.usage());
 
         mem.compress();
-        BOOST_REQUIRE_EQUAL(std::size_t(227), mem.usage());
+        BOOST_REQUIRE_EQUAL(227, mem.usage());
         std::string after;
         {
             std::ostringstream ss;
@@ -1113,7 +1114,7 @@ BOOST_AUTO_TEST_CASE(testStringMemory) {
     using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     for (std::size_t i = 0; i < 1500; ++i) {
-        BOOST_REQUIRE_EQUAL(std::size_t(0), TAllocator::usage());
+        BOOST_REQUIRE_EQUAL(0, TAllocator::usage());
         TString trackingString;
         std::string normalString;
         for (std::size_t j = 0; j < i; ++j) {
@@ -1227,7 +1228,7 @@ BOOST_AUTO_TEST_CASE(testSharedPointer) {
 
 BOOST_AUTO_TEST_CASE(testRawPointer) {
     std::string* strPtr = nullptr;
-    BOOST_REQUIRE_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
+    BOOST_REQUIRE_EQUAL(0, core::CMemory::dynamicSize(strPtr));
 
     std::string foo = "abcdefghijklmnopqrstuvwxyz";
     std::size_t fooMem = core::CMemory::dynamicSize(foo);
@@ -1272,10 +1273,10 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     // Test growing and shrinking
     TDouble6Vec growShrink;
     std::size_t extraMem{core::CMemory::dynamicSize(growShrink)};
-    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(0, extraMem);
     growShrink.resize(6);
     extraMem = core::CMemory::dynamicSize(growShrink);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(0, extraMem);
     growShrink.resize(10);
     extraMem = core::CMemory::dynamicSize(growShrink);
     BOOST_TEST_REQUIRE(extraMem > 0);
@@ -1284,7 +1285,7 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     BOOST_TEST_REQUIRE(extraMem > 0);
     growShrink.shrink_to_fit();
     extraMem = core::CMemory::dynamicSize(growShrink);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(0, extraMem);
     growShrink.push_back(1.7);
     extraMem = core::CMemory::dynamicSize(growShrink);
     // Interesting (shocking?) result: once a boost::small_vector has switched

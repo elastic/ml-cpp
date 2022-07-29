@@ -248,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimumBucketLength, CTestFixture) {
     TDoubleVec function{0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
-    std::size_t n{boost::size(function)};
+    std::size_t n{function.size()};
 
     test::CRandomNumbers rng;
 

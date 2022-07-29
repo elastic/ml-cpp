@@ -11,6 +11,8 @@
 
 #include <core/CLogger.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CKMeans.h>
 #include <maths/common/CKdTree.h>
 #include <maths/common/CLinearAlgebra.h>
@@ -488,7 +490,7 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         TVector2Vec points;
         TSphericalCluster2Vec clusters;
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
             TVector2Vec pointsi;
             TVector2 mean(&means[i][0], &means[i][2]);
             TMatrix2 covariances(&lowerTriangle[0], &lowerTriangle[3]);

@@ -17,8 +17,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <cstdint>
 
 namespace ml {

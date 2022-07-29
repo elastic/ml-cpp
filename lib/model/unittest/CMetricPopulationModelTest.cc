@@ -18,6 +18,7 @@
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
@@ -41,9 +42,11 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>

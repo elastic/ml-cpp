@@ -13,32 +13,34 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CCategoricalTools.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
-
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
-#include <model/CEventRateBucketGatherer.h>
+#include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {
@@ -84,10 +86,10 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_NewAttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_AttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
@@ -398,7 +400,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                         CDataGatherer::extractData(tuple).s_Count));
                 }
                 maths::common::CMultinomialConjugate prior(
-                    boost::numeric::bounds<int>::highest(), categories, concentrations);
+                    std::numeric_limits<int>::max(), categories, concentrations);
                 m_AttributeProbabilityPrior.swap(prior);
                 continue;
             }

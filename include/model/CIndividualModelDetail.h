@@ -17,6 +17,8 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CStringStore.h>
 
+#include <boost/unordered_set.hpp>
+
 namespace ml {
 namespace model {
 

@@ -15,15 +15,12 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CModel.h>
-#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesModel.h>
-
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
+#include <model/CPartitioningFields.h>
 #include <model/CStringStore.h>
 
 namespace ml {

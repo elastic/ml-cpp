@@ -12,8 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_COneOfNPrior_h
 #define INCLUDED_ml_maths_common_COneOfNPrior_h
 
-#include <core/CMemoryFwd.h>
-#include <core/CNonCopyable.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CModelWeight.h>

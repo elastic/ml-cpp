@@ -22,6 +22,8 @@
 
 #include <maths/common/CLinearAlgebra.h>
 
+#include <boost/unordered/unordered_map_fwd.hpp>
+
 #include <memory>
 #include <optional>
 #include <utility>

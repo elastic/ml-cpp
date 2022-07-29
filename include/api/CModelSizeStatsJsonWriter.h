@@ -11,8 +11,6 @@
 #ifndef INCLUDED_ml_api_CModelSizeStatsJsonWriter_h
 #define INCLUDED_ml_api_CModelSizeStatsJsonWriter_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
-
 #include <model/CResourceMonitor.h>
 
 #include <api/ImportExport.h>
@@ -20,6 +18,9 @@
 #include <string>
 
 namespace ml {
+namespace core {
+class CRapidJsonConcurrentLineWriter;
+}
 namespace model {
 struct SCategorizerStats;
 }

@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionOnActual) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000 AND ACTUAL <= 2.300000"),
                         rules[0].print());
 }
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionsOnTypicalAndDiffFromTypical) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL > 5.000000 AND DIFF_FROM_TYPICAL >= 2.300000"),
                         rules[0].print());
 }
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleRules) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), rules.size());
+    BOOST_REQUIRE_EQUAL(2, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"),
                         rules[0].print());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_MODEL_UPDATE IF TYPICAL < 2.000000"),
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenIncludeScope) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER"), rules[0].print());
 }
 
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenExcludeScope) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' NOT IN FILTER"),
                         rules[0].print());
 }
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleScopedFields) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND 'bar' NOT IN FILTER"),
                         rules[0].print());
 }
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeAndConditions) {
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND ACTUAL < 2.000000"),
                         rules[0].print());
 }
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenTimeRule) {
     rulesJson += "]";
 
     BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(1, rules.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TIME >= 5000.000000 AND TIME < 10000.000000"),
                         rules[0].print());
 }
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(1, rules.size());
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000"),
                             rules[0].print());
     }
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(1, rules.size());
         BOOST_REQUIRE_EQUAL(std::string("SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                             rules[0].print());
     }
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(1, rules.size());
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                             rules[0].print());
     }

@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_core_CTriple_h
 #define INCLUDED_ml_core_CTriple_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 
 #include <boost/functional/hash.hpp>
 #include <boost/operators.hpp>
@@ -24,7 +24,7 @@ namespace core {
 
 //! \brief A tuple with three elements.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This implements a lightweight version of boost::tuple with syntax
 //! similar to std::pair for the case of three elements.
 //!

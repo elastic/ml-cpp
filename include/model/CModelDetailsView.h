@@ -12,9 +12,10 @@
 #ifndef INCLUDED_ml_model_CModelDetailsView_h
 #define INCLUDED_ml_model_CModelDetailsView_h
 
-#include <model/CAnomalyDetectorModel.h>
-#include <model/CModelPlotData.h>
+#include <core/CoreTypes.h>
+
 #include <model/ImportExport.h>
+#include <model/ModelTypes.h>
 
 #include <cstddef>
 #include <set>
@@ -23,12 +24,17 @@
 #include <vector>
 
 namespace ml {
+namespace maths {
+namespace common {
+class CModel;
+}
+}
 namespace model {
+class CAnomalyDetectorModel;
+class CModelPlotData;
 class CEventRateModel;
-class CEventRateOnlineModel;
 class CEventRatePopulationModel;
 class CMetricModel;
-class CMetricOnlineModel;
 class CMetricPopulationModel;
 
 //! \brief A view into the model details.
@@ -117,7 +123,7 @@ private:
 //! \sa CModelDetailsView.
 class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView {
 public:
-    CEventRateModelDetailsView(const CEventRateModel& model);
+    explicit CEventRateModelDetailsView(const CEventRateModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
@@ -142,7 +148,7 @@ private:
 //! \sa CModelDetailsView.
 class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsView {
 public:
-    CEventRatePopulationModelDetailsView(const CEventRatePopulationModel& model);
+    explicit CEventRatePopulationModelDetailsView(const CEventRatePopulationModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
@@ -167,7 +173,7 @@ private:
 //! \sa CModelDetailsView.
 class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView {
 public:
-    CMetricModelDetailsView(const CMetricModel& model);
+    explicit CMetricModelDetailsView(const CMetricModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
@@ -192,7 +198,7 @@ private:
 //! \sa CModelDetailsView.
 class MODEL_EXPORT CMetricPopulationModelDetailsView : public CModelDetailsView {
 public:
-    CMetricPopulationModelDetailsView(const CMetricPopulationModel& model);
+    explicit CMetricPopulationModelDetailsView(const CMetricPopulationModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;

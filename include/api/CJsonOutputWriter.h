@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CJsonOutputWriter_h
 #define INCLUDED_ml_api_CJsonOutputWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
@@ -24,8 +23,6 @@
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
-
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -35,6 +32,9 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace model {
 class CHierarchicalResultsNormalizer;
 }

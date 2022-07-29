@@ -119,7 +119,7 @@ public:
 //! usage. The intention is to provide a speed optimized implementation
 //! suitable for small data frames which comfortably fit into memory.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is basically a wrapper around a single std::vector storing all
 //! rows to adapt it for use by the data frame.
 class CORE_EXPORT CMainMemoryDataFrameRowSlice final : public CDataFrameRowSlice {
@@ -165,7 +165,7 @@ private:
 //! the data frame. It is the task responsibility to decide how best to do this
 //! whilst meeting some specified memory constraint.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! A temporary directory is created to hold the data frame files. It is the
 //! calling code's responsibility to provide a suitable path for this.
 //!

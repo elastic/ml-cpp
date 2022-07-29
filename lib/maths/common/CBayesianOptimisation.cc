@@ -14,7 +14,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>

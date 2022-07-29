@@ -13,7 +13,6 @@
 
 #include <core/CDataAdder.h>
 
-#include <map>
 #include <string>
 #include <vector>
 

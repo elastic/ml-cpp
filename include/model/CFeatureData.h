@@ -20,6 +20,7 @@
 #include <model/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
@@ -49,7 +50,8 @@ struct MODEL_EXPORT SEventRateFeatureData {
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
     using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
 
-    SEventRateFeatureData(uint64_t count);
+    SEventRateFeatureData(std::uint64_t count);
+    ~SEventRateFeatureData();
 
     //! Efficiently swap the contents of this and \p other.
     void swap(SEventRateFeatureData& other);
@@ -63,7 +65,7 @@ struct MODEL_EXPORT SEventRateFeatureData {
     //! Get the memory usage of this component in a tree structure.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
-    uint64_t s_Count;
+    std::uint64_t s_Count;
     TStrCRefDouble1VecDoublePrPrVecVec s_InfluenceValues;
 };
 
@@ -86,8 +88,8 @@ struct MODEL_EXPORT SMetricFeatureData {
                        bool isInteger,
                        bool isNonNegative,
                        const TSampleVec& samples);
-
     SMetricFeatureData(bool isInteger, bool isNonNegative, const TSampleVec& samples);
+    ~SMetricFeatureData();
 
     //! Print the data for debug.
     std::string print() const;

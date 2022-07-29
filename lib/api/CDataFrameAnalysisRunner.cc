@@ -17,8 +17,10 @@
 #include <core/CStateCompressor.h>
 #include <core/Constants.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataSummarizationJsonWriter.h>
+#include <api/CInferenceModelDefinition.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>

@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CModelPlotDataJsonWriter_h
 #define INCLUDED_ml_api_CModelPlotDataJsonWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CNonCopyable.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CoreTypes.h>
@@ -22,12 +21,13 @@
 
 #include <rapidjson/document.h>
 
-#include <cstdint>
 #include <iosfwd>
-#include <sstream>
 #include <string>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace api {
 
 //! \brief

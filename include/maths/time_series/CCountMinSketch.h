@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CCountMinSketch_h
 
 #include <core/CHashing.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
@@ -58,7 +58,7 @@ public:
     CCountMinSketch(std::size_t rows, std::size_t columns);
 
     //! Create by traversing a state document.
-    CCountMinSketch(core::CStateRestoreTraverser& traverser);
+    explicit CCountMinSketch(core::CStateRestoreTraverser& traverser);
 
     //! Efficient swap the contents of two sketches.
     void swap(CCountMinSketch& sketch) noexcept;
@@ -126,7 +126,7 @@ private:
     using TFloatVecVec = std::vector<TFloatVec>;
 
     //! Wraps up the sketch data.
-    struct MATHS_TIME_SERIES_EXPORT SSketch {
+    struct SSketch {
         SSketch() = default;
         SSketch(std::size_t rows, std::size_t columns);
 

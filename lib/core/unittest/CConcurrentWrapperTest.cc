@@ -11,7 +11,7 @@
 
 #include <core/CConcurrentWrapper.h>
 #include <core/CLogger.h>
-#include <core/CMemoryUsage.h>
+#include <core/CMemoryDef.h>
 #include <core/CStaticThreadPool.h>
 
 #include <boost/test/unit_test.hpp>

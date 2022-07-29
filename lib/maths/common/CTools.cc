@@ -49,7 +49,7 @@ namespace policies {
 
 template<class T>
 T user_overflow_error(const char* /*function*/, const char* /*message*/, const T& /*val*/) {
-    return boost::numeric::bounds<T>::highest();
+    return std::numeric_limits<T>::max();
 }
 }
 }
@@ -206,8 +206,8 @@ inline double discreteSafeCdfComplement(const Distribution& distribution, double
 
 const double EPSILON = std::numeric_limits<double>::epsilon();
 const double MIN_DOUBLE = std::numeric_limits<double>::min();
-const double NEG_INF = boost::numeric::bounds<double>::lowest();
-const double POS_INF = boost::numeric::bounds<double>::highest();
+const double NEG_INF = std::numeric_limits<double>::lowest();
+const double POS_INF = std::numeric_limits<double>::max();
 
 } // unnamed::
 
@@ -1892,7 +1892,7 @@ namespace {
 const double EPS{0.1};
 const double COEFFS[]{-1.0,        +1.0 / 2.0,   -1.0 / 6.0,
                       +1.0 / 24.0, -1.0 / 120.0, +1.0 / 720.0};
-const std::size_t N{boost::size(COEFFS)};
+const std::size_t N{std::size(COEFFS)};
 }
 
 double CTools::shiftLeft(double x, double eps) {
