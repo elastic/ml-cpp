@@ -11,6 +11,7 @@
 
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
+
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>

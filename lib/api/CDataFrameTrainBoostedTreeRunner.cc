@@ -24,7 +24,6 @@
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>

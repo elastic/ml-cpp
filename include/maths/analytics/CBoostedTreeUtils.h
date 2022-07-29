@@ -22,6 +22,50 @@
 #include <cmath>
 #include <cstddef>
 
+#if defined(__SSE4_2__)
+
+#include <xmmintrin.h>
+
+#elif defined(__ARM_NEON__)
+
+#include <arm_neon.h>
+
+using __m128 = float32x4_t;
+
+#define _mm_load_ps1 _mm_load1_ps
+
+#define _mm_load_ps(x) vreinterpretq_m128_f32(vld1q_f32(x))
+
+#define _mm_cmplt_ps(lhs, rhs)                                                 \
+    vreinterpretq_m128_u32(                                                    \
+        vcltq_f32(vreinterpretq_f32_m128(lhs), vreinterpretq_f32_m128(rhs)))
+
+static constexpr int32x4_t _MM_MOVEMASK_PS_SHIFT{0, 1, 2, 3};
+
+static inline __attribute__((always_inline)) int _mm_movemask_ps(__m128 a) {
+    // We only build for aarch 64.
+    uint32x4_t input = vreinterpretq_u32_m128(a);
+    uint32x4_t tmp = vshrq_n_u32(input, 31);
+    return vaddvq_u32(vshlq_u32(tmp, _MM_MOVEMASK_PS_SHIFT));
+}
+
+#else
+
+using __m128 = std::array<float, 4>;
+
+#define _mm_load_ps1(x) __m128{*(x), *(x), *(x), *(x)};
+
+#define _mm_load_ps(x) __m128{*(x), *((x) + 1), *((x) + 2), *((x) + 3)};
+
+#define _mm_cmplt_ps(lhs, rhs)                                                   \
+    std::array<int, 4>{(lhs)[0] < (rhs)[0] ? 1 : 0, (lhs)[1] < (rhs)[1] ? 1 : 0, \
+                       (lhs)[2] < (rhs)[2] ? 1 : 0, (lhs)[3] < (rhs)[3] ? 1 : 0};
+
+#define _mm_movemask_ps(x)                                                     \
+    (((x)[0] << 3) + ((x)[1] << 2) + ((x)[2] << 1) + (x)[3])
+
+#endif
+
 namespace ml {
 namespace maths {
 namespace analytics {
@@ -50,36 +94,8 @@ enum EExtraColumnTag {
     E_BeginSplits
 };
 
-enum EHyperparameter {
-    E_DownsampleFactor = 0,
-    E_Alpha,
-    E_Lambda,
-    E_Gamma,
-    E_SoftTreeDepthLimit,
-    E_SoftTreeDepthTolerance,
-    E_Eta,
-    E_EtaGrowthRatePerTree,
-    E_MaximumNumberTrees, //!< Train only.
-    E_FeatureBagFraction,
-    E_PredictionChangeCost,     //!< Incremental train only.
-    E_RetrainedTreeEta,         //!< Incremental train only.
-    E_TreeTopologyChangePenalty //!< Incremental train only.
-};
-
 constexpr std::size_t NUMBER_EXTRA_COLUMNS{E_BeginSplits + 1}; // This must be last extra column
-constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; // This must be last hyperparameter
 constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
-
-//! \brief Hyperparameter importance information.
-struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
-    enum EType { E_Double = 0, E_Uint64 };
-    EHyperparameter s_Hyperparameter;
-    double s_Value;
-    double s_AbsoluteImportance;
-    double s_RelativeImportance;
-    bool s_Supplied;
-    EType s_Type;
-};
 
 //! \brief An extremely fast ordered search tree.
 //!
@@ -120,10 +136,48 @@ public:
     std::size_t size() const { return m_Size; }
 
     //! A drop in replacement for std::upper_bound on a sorted collection.
-    std::size_t upperBound(common::CFloatStorage x) const;
+    std::size_t upperBound(common::CFloatStorage x) const {
+        // These branch should be predictably false most of the time and so almost free.
+        if (m_Size == 0 || x < m_Min) {
+            return 0;
+        }
+        if (x >= INF) {
+            return m_Size;
+        }
+
+        std::size_t node{0};
+        std::size_t offset{0};
+        auto vecx = _mm_load_ps1(&x.cstorage());
+
+        for (std::size_t treeSize = m_InitialTreeSize; treeSize > 1; treeSize /= 5) {
+            std::size_t branch{selectBranch(&m_Values[node], vecx)};
+            LOG_TRACE(<< node << " = " << this->printNode(node) << ", branch = " << branch);
+
+            // Note that node is a multiple of 4. This follows from the fact that
+            // the step size 4 + 5^n - 1 is a multiple of 4 which can be shown by
+            // induction:
+            //
+            //   5^n - 1 = 5 * (5^(n - 1) - 1) + 4 and 5 - 1 = 1 * 4.
+            //
+            // This means that since m_Values are 16 byte aligned the values at node
+            // are 16 byte aligned and we can safely read them using an aligned load.
+            node += 4 + (treeSize - 1) * branch;
+
+            // Each branch point which is greater than x is out of order w.r.t. this
+            // point and must be subtracted from node to get the correct upper bound.
+            offset += 4 - branch;
+        }
+
+        std::size_t branch{selectBranch(&m_Values[node], vecx)};
+        LOG_TRACE(<< "x = " << x << ", node = " << node << "/" << this->printNode(node)
+                  << ", branch = " << branch << ", offset = " << offset);
+
+        return node + branch + 1 - offset;
+    }
 
 private:
     using TAlignedFloatVec = std::vector<float, core::CAlignedAllocator<float>>;
+    using TSizeAry = std::array<std::size_t, 16>;
 
 private:
     static constexpr float INF{std::numeric_limits<float>::infinity()};
@@ -132,6 +186,14 @@ private:
     void build(const TFloatVec& values, std::size_t a, std::size_t b);
     std::string printNode(std::size_t node) const;
     static std::size_t nextPow5(std::size_t n);
+    static constexpr TSizeAry BRANCH{4, 0, 0, 0, 0, 0, 0, 0,
+                                     3, 0, 0, 0, 2, 0, 1, 0};
+    static std::size_t selectBranch(const float* values, __m128 vecx) {
+        auto vecv = _mm_load_ps(values);
+        auto less = _mm_cmplt_ps(vecx, vecv);
+        auto mask = _mm_movemask_ps(less);
+        return BRANCH[mask];
+    }
 
 private:
     std::size_t m_Size{0};
@@ -297,8 +359,6 @@ inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extr
 inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
 }
-
-constexpr double INF{std::numeric_limits<double>::max()};
 }
 }
 }

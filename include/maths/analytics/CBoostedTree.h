@@ -38,13 +38,11 @@ namespace analytics {
 namespace boosted_tree {
 class CLoss;
 }
-namespace boosted_tree_detail {
-struct SHyperparameterImportance;
-}
 class CBoostedTreeHyperparameters;
+class CBoostedTreeImpl;
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
-class CBoostedTreeImpl;
+struct SHyperparameterImportance;
 
 //! \brief A node of a regression tree.
 //!
@@ -267,8 +265,7 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using THyperparameterImportanceVec =
-        std::vector<boosted_tree_detail::SHyperparameterImportance>;
+    using THyperparameterImportanceVec = std::vector<SHyperparameterImportance>;
 
     class MATHS_ANALYTICS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                             public CBoostedTreeNode::CVisitor {

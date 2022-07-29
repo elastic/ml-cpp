@@ -21,6 +21,7 @@
 #include <test/CRandomNumbers.h>
 
 #include "BoostedTreeTestData.h"
+#include <core/CStopWatch.h>
 
 #include <boost/test/unit_test.hpp>
 

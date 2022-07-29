@@ -102,11 +102,11 @@ private:
     using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics used to compute the gain bound.
-    struct MATHS_ANALYTICS_EXPORT SChildrenGainStatistics {
-        double s_MinLossLeft{-boosted_tree_detail::INF};
-        double s_MinLossRight{-boosted_tree_detail::INF};
-        double s_GainLeft{-boosted_tree_detail::INF};
-        double s_GainRight{-boosted_tree_detail::INF};
+    struct SChildrenGainStatistics {
+        double s_MinLossLeft{-INF};
+        double s_MinLossRight{-INF};
+        double s_GainLeft{-INF};
+        double s_GainRight{-INF};
     };
 
 private:

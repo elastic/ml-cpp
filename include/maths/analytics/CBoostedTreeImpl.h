@@ -249,6 +249,9 @@ private:
     };
 
 private:
+    static constexpr double INF{CBoostedTreeHyperparameters::INF};
+
+private:
     CBoostedTreeImpl();
 
     //! Get the loss gap we expect after incremental training.

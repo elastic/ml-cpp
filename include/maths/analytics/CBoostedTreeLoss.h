@@ -24,8 +24,6 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/MathsTypes.h>
 
-#include <maths/analytics/CBoostedTreeUtils.h>
-
 #include <algorithm>
 #include <functional>
 #include <limits>
@@ -343,6 +341,9 @@ public:
              double actual,
              double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
+
+private:
+    using TDoubleVec = std::vector<double>;
 
 private:
     TObjective objective() const override;

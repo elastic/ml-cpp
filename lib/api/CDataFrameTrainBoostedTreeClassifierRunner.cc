@@ -18,8 +18,8 @@
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
-#include <maths/analytics/CDataFramePredictiveModel.h>
 #include <maths/analytics/CDataFrameUtils.h>
 #include <maths/analytics/CTreeShapFeatureImportance.h>
 
