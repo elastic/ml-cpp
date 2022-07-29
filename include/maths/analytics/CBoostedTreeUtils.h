@@ -13,6 +13,7 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeUtils_h
 
 #include <core/CDataFrame.h>
+#include <core/CLoggerTrace.h>
 
 #include <maths/analytics/ImportExport.h>
 
@@ -26,23 +27,30 @@
 
 #include <xmmintrin.h>
 
+// Redefine macros to avoid name collisions testing defaults.
+#define ml_vec_128 __m128
+#define ml_broadcast_load_128 _mm_load_ps1
+#define ml_load_128 _mm_load_ps
+#define ml_less_than_128 _mm_cmplt_ps
+#define ml_read_bits_128 _mm_movemask_ps
+
 #elif defined(__ARM_NEON__)
 
 #include <arm_neon.h>
 
-using __m128 = float32x4_t;
+using ml_vec_128 = float32x4_t;
 
-#define _mm_load_ps1 _mm_load1_ps
+#define ml_broadcast_load_128 _mm_load1_ps
 
-#define _mm_load_ps(x) vreinterpretq_m128_f32(vld1q_f32(x))
+#define ml_load_128(x) vreinterpretq_m128_f32(vld1q_f32(x))
 
-#define _mm_cmplt_ps(lhs, rhs)                                                 \
+#define ml_less_than_128(lhs, rhs)                                             \
     vreinterpretq_m128_u32(                                                    \
         vcltq_f32(vreinterpretq_f32_m128(lhs), vreinterpretq_f32_m128(rhs)))
 
 static constexpr int32x4_t _MM_MOVEMASK_PS_SHIFT{0, 1, 2, 3};
 
-static inline __attribute__((always_inline)) int _mm_movemask_ps(__m128 a) {
+static inline __attribute__((always_inline)) int ml_read_bits_128(ml_vec_128 a) {
     // We only build for aarch 64.
     uint32x4_t input = vreinterpretq_u32_m128(a);
     uint32x4_t tmp = vshrq_n_u32(input, 31);
@@ -51,18 +59,22 @@ static inline __attribute__((always_inline)) int _mm_movemask_ps(__m128 a) {
 
 #else
 
-using __m128 = std::array<float, 4>;
+using ml_vec_128 = std::array<float, 4>;
 
-#define _mm_load_ps1(x) __m128{*(x), *(x), *(x), *(x)};
+#define ml_broadcast_load_128(x)                                               \
+    ml_vec_128 { *(x), *(x), *(x), *(x) }
 
-#define _mm_load_ps(x) __m128{*(x), *((x) + 1), *((x) + 2), *((x) + 3)};
+#define ml_load_128(x) x
 
-#define _mm_cmplt_ps(lhs, rhs)                                                   \
-    std::array<int, 4>{(lhs)[0] < (rhs)[0] ? 1 : 0, (lhs)[1] < (rhs)[1] ? 1 : 0, \
-                       (lhs)[2] < (rhs)[2] ? 1 : 0, (lhs)[3] < (rhs)[3] ? 1 : 0};
+// clang-format off
+#define ml_less_than_128(lhs, rhs)                                             \
+        (static_cast<int>((lhs)[0] < (rhs)[0]))      |                         \
+        (static_cast<int>((lhs)[1] < (rhs)[1]) << 1) |                         \
+        (static_cast<int>((lhs)[2] < (rhs)[2]) << 2) |                         \
+        (static_cast<int>((lhs)[3] < (rhs)[3]) << 3)
+// clang-format on
 
-#define _mm_movemask_ps(x)                                                     \
-    (((x)[0] << 3) + ((x)[1] << 2) + ((x)[2] << 1) + (x)[3])
+#define ml_read_bits_128(x) x
 
 #endif
 
@@ -147,11 +159,12 @@ public:
 
         std::size_t node{0};
         std::size_t offset{0};
-        auto vecx = _mm_load_ps1(&x.cstorage());
+        auto vecx = ml_broadcast_load_128(&x.cstorage());
 
         for (std::size_t treeSize = m_InitialTreeSize; treeSize > 1; treeSize /= 5) {
             std::size_t branch{selectBranch(&m_Values[node], vecx)};
-            LOG_TRACE(<< node << " = " << this->printNode(node) << ", branch = " << branch);
+            LOG_TRACE(<< "node = " << node << "/" << this->printNode(node)
+                      << ", branch = " << branch);
 
             // Note that node is a multiple of 4. This follows from the fact that
             // the step size 4 + 5^n - 1 is a multiple of 4 which can be shown by
@@ -188,10 +201,10 @@ private:
     static std::size_t nextPow5(std::size_t n);
     static constexpr TSizeAry BRANCH{4, 0, 0, 0, 0, 0, 0, 0,
                                      3, 0, 0, 0, 2, 0, 1, 0};
-    static std::size_t selectBranch(const float* values, __m128 vecx) {
-        auto vecv = _mm_load_ps(values);
-        auto less = _mm_cmplt_ps(vecx, vecv);
-        auto mask = _mm_movemask_ps(less);
+    static std::size_t selectBranch(const float* values, ml_vec_128 vecx) {
+        auto vecv = ml_load_128(values);
+        auto less = ml_less_than_128(vecx, vecv);
+        auto mask = ml_read_bits_128(less);
         return BRANCH[mask];
     }
 
@@ -201,6 +214,22 @@ private:
     float m_Min{-INF};
     TAlignedFloatVec m_Values;
 };
+
+#ifdef ml_vec_128
+#undef ml_vec_128
+#endif
+#ifdef ml_broadcast_load_128
+#undef ml_broadcast_load_128
+#endif
+#ifdef ml_load_128
+#undef ml_load_128
+#endif
+#ifdef ml_less_than_128
+#undef ml_less_than_128
+#endif
+#ifdef ml_read_bits_128
+#undef ml_read_bits_128
+#endif
 
 //! Get the index of the root node in a canonical tree node vector.
 inline std::size_t rootIndex() {
