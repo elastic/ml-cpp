@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
 
 BOOST_AUTO_TEST_CASE(testSearchTree) {
 
-    // Check that the result of upperBound is identical to std::upper_bound on some
-    // edge cases and random data.
+    // Check that the result of CSearchTree::upperBound is identical to std::upper_bound
+    // on some edge cases and random data.
 
     using TFloatVec = std::vector<maths::common::CFloatStorage>;
 

@@ -30,7 +30,7 @@
 // Redefine macros to avoid name collisions testing defaults.
 #define ml_vec_128 __m128
 #define ml_broadcast_load_128 _mm_load_ps1
-#define ml_load_128 _mm_load_ps
+#define ml_aligned_load_128 _mm_load_ps
 #define ml_less_than_128 _mm_cmplt_ps
 #define ml_read_bits_128 _mm_movemask_ps
 
@@ -42,7 +42,7 @@ using ml_vec_128 = float32x4_t;
 
 #define ml_broadcast_load_128 _mm_load1_ps
 
-#define ml_load_128(x) vreinterpretq_m128_f32(vld1q_f32(x))
+#define ml_aligned_load_128(x) vreinterpretq_m128_f32(vld1q_f32(x))
 
 #define ml_less_than_128(lhs, rhs)                                             \
     vreinterpretq_m128_u32(                                                    \
@@ -64,7 +64,8 @@ using ml_vec_128 = std::array<float, 4>;
 #define ml_broadcast_load_128(x)                                               \
     ml_vec_128 { *(x), *(x), *(x), *(x) }
 
-#define ml_load_128(x) x
+// The temporary variable should be optimised away by any decent compiler.
+#define ml_aligned_load_128(x) x
 
 // clang-format off
 #define ml_less_than_128(lhs, rhs)                                             \
@@ -74,6 +75,7 @@ using ml_vec_128 = std::array<float, 4>;
         (static_cast<int>((lhs)[3] < (rhs)[3]) << 3)
 // clang-format on
 
+// The temporary variable should be optimised away by any decent compiler.
 #define ml_read_bits_128(x) x
 
 #endif
@@ -109,13 +111,14 @@ enum EExtraColumnTag {
 constexpr std::size_t NUMBER_EXTRA_COLUMNS{E_BeginSplits + 1}; // This must be last extra column
 constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
 
-//! \brief An extremely fast ordered search tree.
+//! \brief A fast ordered search tree.
 //!
 //! DESCRIPTION:\n
 //! This provides a single query upperBound(x), i.e. find the smallest value in
-//! an ordered set greater than the specified query point x. Where possible it
-//! uses SSE instructions to perform the 4 way comparison. This means it achieves
-//! a branch factor of 5 and complexity ceil(log(n) / log(5)) in the set size n.
+//! an ordered set greater than the specified query point x. When possible it
+//! uses SSE-like instructions to perform a 4 way comparison between the query
+//! point and candidate split points. This means it achieves a branch factor of
+//! 5 and complexity O(ceil(log(n) / log(5))) in the set size n.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! We align the storage to 16 bytes so we can use aligned loads for the data to
@@ -199,13 +202,13 @@ private:
     void build(const TFloatVec& values, std::size_t a, std::size_t b);
     std::string printNode(std::size_t node) const;
     static std::size_t nextPow5(std::size_t n);
-    static constexpr TSizeAry BRANCH{4, 0, 0, 0, 0, 0, 0, 0,
-                                     3, 0, 0, 0, 2, 0, 1, 0};
+    static constexpr TSizeAry MASK_TO_BRANCH_MAP{4, 0, 0, 0, 0, 0, 0, 0,
+                                                 3, 0, 0, 0, 2, 0, 1, 0};
     static std::size_t selectBranch(const float* values, ml_vec_128 vecx) {
-        auto vecv = ml_load_128(values);
+        auto vecv = ml_aligned_load_128(values);
         auto less = ml_less_than_128(vecx, vecv);
         auto mask = ml_read_bits_128(less);
-        return BRANCH[mask];
+        return MASK_TO_BRANCH_MAP[mask];
     }
 
 private:
@@ -221,8 +224,8 @@ private:
 #ifdef ml_broadcast_load_128
 #undef ml_broadcast_load_128
 #endif
-#ifdef ml_load_128
-#undef ml_load_128
+#ifdef ml_aligned_load_128
+#undef ml_aligned_load_128
 #endif
 #ifdef ml_less_than_128
 #undef ml_less_than_128

@@ -173,7 +173,7 @@ public:
     //! Implicit conversion to a double.
     operator double() const { return static_cast<double>(m_Value); }
 
-    //! Constant refernce access to the underlying storage.
+    //! Constant reference access to the underlying storage.
     const float& cstorage() const { return m_Value; }
 
 protected:
