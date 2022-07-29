@@ -288,11 +288,11 @@ std::uint64_t CMultivariateConstantPrior::checksum(std::uint64_t seed) const {
 
 void CMultivariateConstantPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateConstantPrior");
-    core::CMemoryDebug::dynamicSize("m_Constant", m_Constant, mem);
+    core::memory_debug::dynamicSize("m_Constant", m_Constant, mem);
 }
 
 std::size_t CMultivariateConstantPrior::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Constant);
+    return core::memory::dynamicSize(m_Constant);
 }
 
 std::size_t CMultivariateConstantPrior::staticSize() const {

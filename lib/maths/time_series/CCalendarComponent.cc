@@ -194,13 +194,13 @@ std::uint64_t CCalendarComponent::checksum(std::uint64_t seed) const {
 
 void CCalendarComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarComponent");
-    core::CMemoryDebug::dynamicSize("m_Bucketing", m_Bucketing, mem);
-    core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);
+    core::memory_debug::dynamicSize("m_Bucketing", m_Bucketing, mem);
+    core::memory_debug::dynamicSize("m_Splines", this->splines(), mem);
 }
 
 std::size_t CCalendarComponent::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Bucketing) +
-           core::CMemory::dynamicSize(this->splines());
+    return core::memory::dynamicSize(m_Bucketing) +
+           core::memory::dynamicSize(this->splines());
 }
 
 bool CCalendarComponent::isBad() const {

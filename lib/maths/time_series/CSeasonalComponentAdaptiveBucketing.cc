@@ -315,14 +315,14 @@ std::uint64_t CSeasonalComponentAdaptiveBucketing::checksum(std::uint64_t seed) 
 void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonalComponentAdaptiveBucketing");
-    core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
-    core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
-    core::CMemoryDebug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
-    core::CMemoryDebug::dynamicSize("m_Buckets", m_Buckets, mem);
+    core::memory_debug::dynamicSize("m_Endpoints", this->endpoints(), mem);
+    core::memory_debug::dynamicSize("m_Centres", this->centres(), mem);
+    core::memory_debug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
+    core::memory_debug::dynamicSize("m_Buckets", m_Buckets, mem);
 }
 
 std::size_t CSeasonalComponentAdaptiveBucketing::memoryUsage() const {
-    return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Buckets);
+    return this->CAdaptiveBucketing::memoryUsage() + core::memory::dynamicSize(m_Buckets);
 }
 
 bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

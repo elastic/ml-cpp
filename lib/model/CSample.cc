@@ -106,11 +106,11 @@ std::string CSample::print() const {
 
 void CSample::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSample");
-    core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
+    core::memory_debug::dynamicSize("m_Value", m_Value, mem);
 }
 
 std::size_t CSample::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Value);
+    return core::memory::dynamicSize(m_Value);
 }
 }
 }

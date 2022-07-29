@@ -522,17 +522,17 @@ std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
 void CEventRateModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CEventRateModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
-    core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("s_Probabilities", m_Probabilities, mem);
+    core::memory_debug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
@@ -546,13 +546,13 @@ std::size_t CEventRateModel::staticSize() const {
 
 std::size_t CEventRateModel::computeMemoryUsage() const {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_Probabilities);
-    mem += core::CMemory::dynamicSize(m_ProbabilityPrior);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_Probabilities);
+    mem += core::memory::dynamicSize(m_ProbabilityPrior);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 

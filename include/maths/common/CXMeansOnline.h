@@ -337,12 +337,12 @@ public:
         //! Debug the memory used by this component.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("CXMeansOnline");
-            core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
+            core::memory_debug::dynamicSize("m_Structure", m_Structure, mem);
         }
 
         //! Get the memory used by this component.
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Structure);
+            return core::memory::dynamicSize(m_Structure);
         }
 
         //! Get Bayes Information Criterion decrease in going from one
@@ -967,15 +967,15 @@ public:
     //! Debug the memory used by the object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CXMeansOnline");
-        core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator",
+        core::memory_debug::dynamicSize("m_ClusterIndexGenerator",
                                         m_ClusterIndexGenerator, mem);
-        core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+        core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
     }
 
     //! Get the memory used by the object.
     std::size_t memoryUsage() const override {
-        std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
-        mem += core::CMemory::dynamicSize(m_Clusters);
+        std::size_t mem = core::memory::dynamicSize(m_ClusterIndexGenerator);
+        mem += core::memory::dynamicSize(m_Clusters);
         return mem;
     }
 

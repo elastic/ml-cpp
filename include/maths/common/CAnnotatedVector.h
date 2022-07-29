@@ -58,13 +58,13 @@ public:
     //! Debug the memory usage of this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CAnnotatedVector");
-        mem->addItem("vector", core::CMemory::dynamicSize(static_cast<VECTOR>(*this)));
-        mem->addItem("annotation", core::CMemory::dynamicSize(m_Annotation));
+        mem->addItem("vector", core::memory::dynamicSize(static_cast<VECTOR>(*this)));
+        mem->addItem("annotation", core::memory::dynamicSize(m_Annotation));
     }
     //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(static_cast<VECTOR>(*this)) +
-               core::CMemory::dynamicSize(m_Annotation);
+        return core::memory::dynamicSize(static_cast<VECTOR>(*this)) +
+               core::memory::dynamicSize(m_Annotation);
     }
 
 private:

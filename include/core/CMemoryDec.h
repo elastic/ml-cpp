@@ -62,7 +62,7 @@ struct SMemoryStaticSize<T, std::enable_if_t<
 //! \code{.cpp}
 //!     std::size_t memoryUsage() const;
 //! \endcode
-//! which should call CMemory::dynamicSize(t); on all its dynamic members.
+//! which should call memory::dynamicSize(t); on all its dynamic members.
 //!
 //! For virtual hierarchies, the compiler can not determine the size
 //! of derived classes from the base pointer, so wherever the afore-
@@ -71,7 +71,7 @@ struct SMemoryStaticSize<T, std::enable_if_t<
 //!     std::size_t staticSize() const;
 //! \endcode
 //! should be declared, returning sizeof(*this).
-namespace CMemory {
+namespace memory {
 
 //! Default implementation.
 template<typename T>
@@ -167,9 +167,9 @@ std::size_t elementDynamicSize(const CONTAINER& t);
 //! \code{.cpp}
 //!     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr&) const;
 //! \endcode
-//! which should call CMemoryDebug::dynamicSize("t_name", t, memUsagePtr)
+//! which should call memory_debug::dynamicSize("t_name", t, memUsagePtr)
 //! on all its dynamic members.
-namespace CMemoryDebug {
+namespace memory_debug {
 
 //! Default implementation for non-pointer types.
 template<typename T>

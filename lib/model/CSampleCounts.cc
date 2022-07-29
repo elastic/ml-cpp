@@ -232,17 +232,17 @@ std::uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
 
 void CSampleCounts::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSampleCounts");
-    core::CMemoryDebug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_MeanNonZeroBucketCounts",
+    core::memory_debug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
+    core::memory_debug::dynamicSize("m_MeanNonZeroBucketCounts",
                                     m_MeanNonZeroBucketCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_EffectiveSampleVariances",
+    core::memory_debug::dynamicSize("m_EffectiveSampleVariances",
                                     m_EffectiveSampleVariances, mem);
 }
 
 std::size_t CSampleCounts::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_SampleCounts);
-    mem += core::CMemory::dynamicSize(m_MeanNonZeroBucketCounts);
-    mem += core::CMemory::dynamicSize(m_EffectiveSampleVariances);
+    std::size_t mem = core::memory::dynamicSize(m_SampleCounts);
+    mem += core::memory::dynamicSize(m_MeanNonZeroBucketCounts);
+    mem += core::memory::dynamicSize(m_EffectiveSampleVariances);
     return mem;
 }
 

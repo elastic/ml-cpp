@@ -316,19 +316,19 @@ public:
     //! Debug the memory used by this gatherer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSampleGatherer", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_SampleStats", m_SampleStats, mem);
-        core::CMemoryDebug::dynamicSize("m_BucketStats", m_BucketStats, mem);
-        core::CMemoryDebug::dynamicSize("m_InfluencerBucketStats",
+        core::memory_debug::dynamicSize("m_SampleStats", m_SampleStats, mem);
+        core::memory_debug::dynamicSize("m_BucketStats", m_BucketStats, mem);
+        core::memory_debug::dynamicSize("m_InfluencerBucketStats",
                                         m_InfluencerBucketStats, mem);
-        core::CMemoryDebug::dynamicSize("m_Samples", m_Samples, mem);
+        core::memory_debug::dynamicSize("m_Samples", m_Samples, mem);
     }
 
     //! Get the memory used by this gatherer.
     std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_SampleStats) +
-               core::CMemory::dynamicSize(m_BucketStats) +
-               core::CMemory::dynamicSize(m_InfluencerBucketStats) +
-               core::CMemory::dynamicSize(m_Samples);
+        return sizeof(*this) + core::memory::dynamicSize(m_SampleStats) +
+               core::memory::dynamicSize(m_BucketStats) +
+               core::memory::dynamicSize(m_InfluencerBucketStats) +
+               core::memory::dynamicSize(m_Samples);
     }
 
     //! Print this gatherer for debug.

@@ -86,11 +86,11 @@ CInterimBucketCorrector::corrections(const TDouble10Vec& modes,
 
 void CInterimBucketCorrector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CInterimBucketCorrector");
-    core::CMemoryDebug::dynamicSize("m_CountTrend", m_FinalCountTrend, mem);
+    core::memory_debug::dynamicSize("m_CountTrend", m_FinalCountTrend, mem);
 }
 
 std::size_t CInterimBucketCorrector::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_FinalCountTrend);
+    return core::memory::dynamicSize(m_FinalCountTrend);
 }
 
 void CInterimBucketCorrector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

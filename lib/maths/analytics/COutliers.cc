@@ -55,7 +55,7 @@ double shift(double score) {
 
 template<typename T>
 std::int64_t signedMemoryUsage(const T& obj) {
-    return static_cast<std::int64_t>(core::CMemory::dynamicSize(obj));
+    return static_cast<std::int64_t>(core::memory::dynamicSize(obj));
 }
 
 //! \brief This encapsulates creating a collection of models used for outlier
@@ -139,7 +139,7 @@ public:
         TDouble1Vec compute(double pOutlier) const;
 
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_State);
+            return core::memory::dynamicSize(m_State);
         }
 
         static std::size_t estimateMemoryUsage(std::size_t numberInfluences) {
@@ -226,11 +226,11 @@ private:
                               const TMemoryUsageCallback& recordMemoryUsage) const;
 
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Lookup) +
-                   core::CMemory::dynamicSize(m_Projection) +
-                   core::CMemory::dynamicSize(m_RowNormalizedProjection) +
-                   core::CMemory::dynamicSize(m_Method) +
-                   core::CMemory::dynamicSize(m_LogScoreMoments);
+            return core::memory::dynamicSize(m_Lookup) +
+                   core::memory::dynamicSize(m_Projection) +
+                   core::memory::dynamicSize(m_RowNormalizedProjection) +
+                   core::memory::dynamicSize(m_Method) +
+                   core::memory::dynamicSize(m_LogScoreMoments);
         }
 
         static std::size_t estimateMemoryUsage(TMethodSize methodSize,
@@ -331,7 +331,7 @@ CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories,
         model.proportionOfRuntimePerMethod(1.0 / static_cast<double>(m_Models.size()));
     }
 
-    m_RecordMemoryUsage(core::CMemory::dynamicSize(m_Models));
+    m_RecordMemoryUsage(core::memory::dynamicSize(m_Models));
 }
 
 template<typename POINT>
@@ -395,7 +395,7 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     LOG_TRACE(<< "Computing outlier scores for\n" << this->print());
 
     TScorerVec scores(points.size());
-    m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
+    m_RecordMemoryUsage(core::memory::dynamicSize(scores));
 
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);

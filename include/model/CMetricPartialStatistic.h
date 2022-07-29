@@ -46,8 +46,8 @@ namespace model {
 //!   -# Implementations for every function in CMetricStatisticsWrapper
 //!   -# Member operator +=
 //!   -# Supported by maths::common::CChecksum::calculate
-//!   -# Supported by core::CMemoryDebug::dynamicSize
-//!   -# Supported by core::CMemory::dynamicSize
+//!   -# Supported by core::memory_debug::dynamicSize
+//!   -# Supported by core::memory::dynamicSize
 //!   -# Have overload of operator<<
 template<class STATISTIC>
 class CMetricPartialStatistic {
@@ -130,14 +130,14 @@ public:
     //! Debug the memory used by the statistic.
     inline void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMetricPartialStatistic", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
-        core::CMemoryDebug::dynamicSize("m_Time", m_Time, mem);
+        core::memory_debug::dynamicSize("m_Value", m_Value, mem);
+        core::memory_debug::dynamicSize("m_Time", m_Time, mem);
     }
 
     //! Get the memory used by the statistic.
     inline std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Value) +
-               core::CMemory::dynamicSize(m_Time);
+        return sizeof(*this) + core::memory::dynamicSize(m_Value) +
+               core::memory::dynamicSize(m_Time);
     }
 
     //! Print partial statistic

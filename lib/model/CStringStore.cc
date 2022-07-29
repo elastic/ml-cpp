@@ -157,8 +157,8 @@ void CStringStore::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& m
                                                              : "unknown StringStore"));
     mem->addItem("empty string ptr", m_EmptyString.actualMemoryUsage());
     core::CScopedFastLock lock(m_Mutex);
-    core::CMemoryDebug::dynamicSize("stored strings", m_Strings, mem);
-    core::CMemoryDebug::dynamicSize("removed strings", m_Removed, mem);
+    core::memory_debug::dynamicSize("stored strings", m_Strings, mem);
+    core::memory_debug::dynamicSize("removed strings", m_Removed, mem);
     mem->addItem("stored string ptr memory", m_StoredStringsMemUse);
 }
 
@@ -169,12 +169,12 @@ std::size_t CStringStore::memoryUsage() const {
     // core::CStoredStringPtr::dynamicSizeAlwaysZero() combined with dead code
     // elimination will make calculating the size of m_Strings boil down to a
     // couple of simple multiplications and additions
-    mem += core::CMemory::dynamicSize(m_Strings);
+    mem += core::memory::dynamicSize(m_Strings);
     // This one could be more expensive, but the assumption is that there won't
     // be many memory usage calculations while m_Removed is populated
-    mem += core::CMemory::dynamicSize(m_Removed);
+    mem += core::memory::dynamicSize(m_Removed);
     // This adds back the size that was excluded from
-    // core::CMemory::dynamicSize(m_Strings)
+    // core::memory::dynamicSize(m_Strings)
     mem += m_StoredStringsMemUse;
     return mem;
 }

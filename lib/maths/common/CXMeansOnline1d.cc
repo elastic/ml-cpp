@@ -1016,13 +1016,13 @@ double CXMeansOnline1d::probability(std::size_t index) const {
 
 void CXMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d");
-    core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
-    core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+    core::memory_debug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
+    core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
 std::size_t CXMeansOnline1d::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
-    mem += core::CMemory::dynamicSize(m_Clusters);
+    std::size_t mem = core::memory::dynamicSize(m_ClusterIndexGenerator);
+    mem += core::memory::dynamicSize(m_Clusters);
     return mem;
 }
 
@@ -1561,13 +1561,13 @@ std::uint64_t CXMeansOnline1d::CCluster::checksum(std::uint64_t seed) const {
 
 void CXMeansOnline1d::CCluster::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d::CCluster");
-    core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
-    core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
+    core::memory_debug::dynamicSize("m_Prior", m_Prior, mem);
+    core::memory_debug::dynamicSize("m_Structure", m_Structure, mem);
 }
 
 std::size_t CXMeansOnline1d::CCluster::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Prior);
-    mem += core::CMemory::dynamicSize(m_Structure);
+    std::size_t mem = core::memory::dynamicSize(m_Prior);
+    mem += core::memory::dynamicSize(m_Structure);
     return mem;
 }
 

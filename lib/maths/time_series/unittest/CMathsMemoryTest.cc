@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         TBjkstValuesVec values;
         auto mem = std::make_shared<core::CMemoryUsage>();
         mem->setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
+        core::memory_debug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::memory::dynamicSize(values), mem->usage());
     }
     {
         // Test adding values to the vector part
@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         }
         auto mem = std::make_shared<core::CMemoryUsage>();
         mem->setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
+        core::memory_debug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::memory::dynamicSize(values), mem->usage());
     }
     {
         // Test adding values to the sketch part
@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         }
         auto mem = std::make_shared<core::CMemoryUsage>();
         mem->setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
+        core::memory_debug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::memory::dynamicSize(values), mem->usage());
     }
 }
 

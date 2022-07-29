@@ -293,17 +293,17 @@ std::size_t CDecayRateController::dimension() const {
 
 void CDecayRateController::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDecayRateController");
-    core::CMemoryDebug::dynamicSize("m_PredictionMean", m_PredictionMean, mem);
-    core::CMemoryDebug::dynamicSize("m_Bias", m_Bias, mem);
-    core::CMemoryDebug::dynamicSize("m_RecentAbsError", m_RecentAbsError, mem);
-    core::CMemoryDebug::dynamicSize("m_HistoricalAbsError", m_HistoricalAbsError, mem);
+    core::memory_debug::dynamicSize("m_PredictionMean", m_PredictionMean, mem);
+    core::memory_debug::dynamicSize("m_Bias", m_Bias, mem);
+    core::memory_debug::dynamicSize("m_RecentAbsError", m_RecentAbsError, mem);
+    core::memory_debug::dynamicSize("m_HistoricalAbsError", m_HistoricalAbsError, mem);
 }
 
 std::size_t CDecayRateController::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_PredictionMean)};
-    mem += core::CMemory::dynamicSize(m_Bias);
-    mem += core::CMemory::dynamicSize(m_RecentAbsError);
-    mem += core::CMemory::dynamicSize(m_HistoricalAbsError);
+    std::size_t mem{core::memory::dynamicSize(m_PredictionMean)};
+    mem += core::memory::dynamicSize(m_Bias);
+    mem += core::memory::dynamicSize(m_RecentAbsError);
+    mem += core::memory::dynamicSize(m_HistoricalAbsError);
     return mem;
 }
 

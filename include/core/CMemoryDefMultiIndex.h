@@ -20,7 +20,7 @@
 
 namespace ml {
 namespace core {
-namespace CMemory {
+namespace memory {
 template<typename T, typename I, typename A>
 std::size_t
 storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>&) {
@@ -40,12 +40,12 @@ storageNodeOverhead(const boost::multi_index::multi_index_container<T, I, A>&) {
 
 template<typename T, typename I, typename A>
 std::size_t dynamicSize(const boost::multi_index::multi_index_container<T, I, A>& t) {
-    return CMemory::elementDynamicSize(t) +
-           t.size() * (sizeof(T) + CMemory::storageNodeOverhead(t));
+    return memory::elementDynamicSize(t) +
+           t.size() * (sizeof(T) + memory::storageNodeOverhead(t));
 }
 }
 
-namespace CMemoryDebug {
+namespace memory_debug {
 template<typename T, typename I, typename A>
 void dynamicSize(const char* name,
                  const boost::multi_index::multi_index_container<T, I, A>& t,
@@ -54,11 +54,11 @@ void dynamicSize(const char* name,
 
     std::size_t items = t.size();
     CMemoryUsage::SMemoryUsage usage(componentName + "::" + typeid(T).name(),
-                                     items * (sizeof(T) + CMemory::storageNodeOverhead(t)));
+                                     items * (sizeof(T) + memory::storageNodeOverhead(t)));
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 }
 }
