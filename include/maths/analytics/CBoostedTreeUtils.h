@@ -40,21 +40,16 @@
 
 using ml_vec_128 = float32x4_t;
 
-#define ml_broadcast_load_128 _mm_load1_ps
+#define ml_broadcast_load_128(x) vld1q_dup_f32(x)
 
-#define ml_aligned_load_128(x) vreinterpretq_m128_f32(vld1q_f32(x))
+#define ml_aligned_load_128(x) vld1q_f32(x)
 
-#define ml_less_than_128(lhs, rhs)                                             \
-    vreinterpretq_m128_u32(                                                    \
-        vcltq_f32(vreinterpretq_f32_m128(lhs), vreinterpretq_f32_m128(rhs)))
+#define ml_less_than_128(lhs, rhs) vcltq_f32(lhs, rhs)
 
-static constexpr int32x4_t _MM_MOVEMASK_PS_SHIFT{0, 1, 2, 3};
+alignas(16) const std::uint32_t READ_BITS_128_SHIFTS[]{0, 1, 2, 3};
 
-static inline __attribute__((always_inline)) int ml_read_bits_128(ml_vec_128 a) {
-    // We only build for aarch 64.
-    uint32x4_t input = vreinterpretq_u32_m128(a);
-    uint32x4_t tmp = vshrq_n_u32(input, 31);
-    return vaddvq_u32(vshlq_u32(tmp, _MM_MOVEMASK_PS_SHIFT));
+inline __attribute__((always_inline)) std::uint32_t ml_read_bits_128(uint32x4_t a) {
+    return vaddvq_u32(vshlq_u32(vshrq_n_u32(a, 31), vld1q_u32(&READ_BITS_128_SHIFTS[0])));
 }
 
 #else
