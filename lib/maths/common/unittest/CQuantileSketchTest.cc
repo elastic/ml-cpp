@@ -32,6 +32,7 @@ using namespace ml;
 namespace {
 
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 void testSketch(maths::common::CQuantileSketch::EInterpolation interpolation,
@@ -234,16 +235,16 @@ BOOST_AUTO_TEST_CASE(testReduce) {
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
 
-        double points[] = {1.0,  2.0,  40.0, 13.0, 5.0,  6.0,  4.0,
-                           7.0,  15.0, 17.0, 19.0, 44.0, 42.0, 3.0,
-                           46.0, 48.0, 50.0, 21.0, 23.0, 52.0};
-        double cdf[] = {5.0,  10.0, 15.0, 20.0, 25.0, 30.0, 35.0,
-                        40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
-                        75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
+        TDoubleVec points{1.0,  2.0,  40.0, 13.0, 5.0,  6.0,  4.0,
+                          7.0,  15.0, 17.0, 19.0, 44.0, 42.0, 3.0,
+                          46.0, 48.0, 50.0, 21.0, 23.0, 52.0};
+        TDoubleVec cdf{5.0,  10.0, 15.0, 20.0, 25.0, 30.0, 35.0,
+                       40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
+                       75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::common::CQuantileSketch sketch(
             maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
-        for (std::size_t i = 0; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
@@ -254,7 +255,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < cdf.size(); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -615,7 +616,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
     LOG_DEBUG(<< "*** Exact ***");
     {
-        double values[] = {1.3, 5.2, 0.3, 0.7, 6.9, 10.3, 0.1, -2.9, 9.3, 0.0};
+        TDoubleVec values{1.3, 5.2, 0.3, 0.7, 6.9, 10.3, 0.1, -2.9, 9.3, 0.0};
 
         {
             maths::common::CQuantileSketch sketch(
@@ -680,16 +681,8 @@ BOOST_AUTO_TEST_CASE(testCdf) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 100.0, f, 1e-6);
                 }
             }
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 100.0, f, 1e-6);
-            meanBias.add(f - exactCdf(samples, x));
-            meanError.add(std::fabs(f - exactCdf(samples, x)));
         }
     }
-
-    LOG_DEBUG(<< "mean bias  = " << maths::common::CBasicStatistics::mean(meanBias));
-    LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(meanError));
-    BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0002);
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0025);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -698,9 +691,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     test::CRandomNumbers generator;
     TDoubleVec samples;
-    generator.generateUniformSamples(0.0, 5000.0, 500u, samples);
+    generator.generateUniformSamples(0.0, 5000.0, 500, samples);
 
-    maths::common::CQuantileSketch origSketch(maths::common::CQuantileSketch::E_Linear, 100u);
+    maths::common::CQuantileSketch origSketch(maths::common::CQuantileSketch::E_Linear, 100);
     for (std::size_t i = 0; i < samples.size(); ++i) {
         origSketch.add(samples[i]);
     }
@@ -715,7 +708,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "quantile sketch XML representation:\n" << origXml);
 
     maths::common::CQuantileSketch restoredSketch(
-        maths::common::CQuantileSketch::E_Linear, 100u);
+        maths::common::CQuantileSketch::E_Linear, 100);
     {
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
