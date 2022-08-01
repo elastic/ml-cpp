@@ -32,6 +32,13 @@
 
 === Enhancements
 
+* Performance improvement training classification and regression models, particularly
+  for data sets with many numeric features. (See {ml-pull}2380[#2380].)
+
+== {es} version 8.4.0
+
+=== Enhancements
+
 * Fairer application of size penalty for model selection for training classification
   and regression models. (See {ml-pull}2291[#2291].)
 * Accelerate training for data frame analytics by skipping fine parameter tuning if it 
