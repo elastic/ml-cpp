@@ -46,11 +46,11 @@ using ml_vec_128 = float32x4_t;
 
 #define ml_less_than_128(lhs, rhs) vcltq_f32(lhs, rhs)
 
-alignas(16) const std::uint32_t READ_BITS_128_SHIFTS[]{0, 1, 2, 3};
+alignas(16) const std::uint32_t BITS_MOV_MASK_128_SHIFTS[]{0, 1, 2, 3};
 
 inline __attribute__((always_inline)) std::uint32_t ml_bits_mov_mask_128(uint32x4_t less) {
-    return vaddvq_u32(
-        vshlq_u32(vshrq_n_u32(less, 31), vld1q_u32(&READ_BITS_128_SHIFTS[0])));
+    return vaddvq_u32(vshlq_u32(vshrq_n_u32(less, 31),
+                                vld1q_u32(&BITS_MOV_MASK_128_SHIFTS[0])));
 }
 
 #else
