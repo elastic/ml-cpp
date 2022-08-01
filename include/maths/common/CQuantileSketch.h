@@ -19,6 +19,7 @@
 #include <maths/common/MathsTypes.h>
 
 #include <boost/operators.hpp>
+#include <boost/optional.hpp>
 
 #include <cstddef>
 #include <optional>
@@ -58,7 +59,7 @@ public:
     //! The types of interpolation used for computing the quantile.
     enum EInterpolation { E_Linear, E_PiecewiseConstant };
 
-    using TOptionalInterpolation = std::optional<EInterpolation>;
+    using TOptionalInterpolation = boost::optional<EInterpolation>;
 
 public:
     CQuantileSketch(EInterpolation interpolation, std::size_t size);
@@ -83,7 +84,7 @@ public:
     void age(double factor);
 
     //! Get the c.d.f at \p x.
-    bool cdf(double x, double& result, TOptionalInterpolation interpolation = std::nullopt) const;
+    bool cdf(double x, double& result, TOptionalInterpolation interpolation = boost::none) const;
 
     //! Get the minimum value added.
     bool minimum(double& result) const;
@@ -97,7 +98,7 @@ public:
     //! Get the quantile corresponding to \p percentage.
     bool quantile(double percentage,
                   double& result,
-                  TOptionalInterpolation interpolation = std::nullopt) const;
+                  TOptionalInterpolation interpolation = boost::none) const;
 
     //! Get the knot values as (value, count) pairs.
     const TFloatFloatPrVec& knots() const;
