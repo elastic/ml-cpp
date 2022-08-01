@@ -434,7 +434,7 @@ CQuantileSketch::EInterpolation CQuantileSketch::cdfAndQuantileInterpolation() c
     // never have combined any distinct values into a single bucket and the
     // quantile and empircal cdf are computed exactly using piecewise constant
     // interpolation.
-    return m_Knots.size() < this->fastReduceTargetSize() ? E_PiecewiseConstant : m_Interpolation;
+    return m_Knots.size() < this->target() ? E_PiecewiseConstant : m_Interpolation;
 }
 
 void CQuantileSketch::reduce() {
