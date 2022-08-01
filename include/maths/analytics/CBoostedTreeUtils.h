@@ -32,7 +32,7 @@
 #define ml_broadcast_load_128 _mm_load_ps1
 #define ml_aligned_load_128 _mm_load_ps
 #define ml_less_than_128 _mm_cmplt_ps
-#define ml_read_bits_128 _mm_movemask_ps
+#define ml_bits_mov_mask_128 _mm_movemask_ps
 
 #elif defined(__ARM_NEON__)
 
@@ -48,8 +48,9 @@ using ml_vec_128 = float32x4_t;
 
 alignas(16) const std::uint32_t READ_BITS_128_SHIFTS[]{0, 1, 2, 3};
 
-inline __attribute__((always_inline)) std::uint32_t ml_read_bits_128(uint32x4_t a) {
-    return vaddvq_u32(vshlq_u32(vshrq_n_u32(a, 31), vld1q_u32(&READ_BITS_128_SHIFTS[0])));
+inline __attribute__((always_inline)) std::uint32_t ml_bits_mov_mask_128(uint32x4_t less) {
+    return vaddvq_u32(
+        vshlq_u32(vshrq_n_u32(less, 31), vld1q_u32(&READ_BITS_128_SHIFTS[0])));
 }
 
 #else
@@ -71,7 +72,7 @@ using ml_vec_128 = std::array<float, 4>;
 // clang-format on
 
 // The temporary variable should be optimised away by any decent compiler.
-#define ml_read_bits_128(x) x
+#define ml_bits_mov_mask_128(x) x
 
 #endif
 
@@ -203,7 +204,7 @@ private:
     static std::size_t selectBranch(const float* values, ml_vec_128 vecx) {
         auto vecv = ml_aligned_load_128(values);
         auto less = ml_less_than_128(vecx, vecv);
-        auto mask = ml_read_bits_128(less);
+        auto mask = ml_bits_mov_mask_128(less);
         return MASK_TO_BRANCH_MAP[mask];
     }
 
@@ -226,8 +227,8 @@ private:
 #ifdef ml_less_than_128
 #undef ml_less_than_128
 #endif
-#ifdef ml_read_bits_128
-#undef ml_read_bits_128
+#ifdef ml_bits_mov_mask_128
+#undef ml_bits_mov_mask_128
 #endif
 
 //! Get the index of the root node in a canonical tree node vector.
