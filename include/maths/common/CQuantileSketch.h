@@ -22,7 +22,6 @@
 #include <boost/optional.hpp>
 
 #include <cstddef>
-#include <optional>
 #include <vector>
 
 namespace ml {
