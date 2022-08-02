@@ -149,17 +149,27 @@ std::string wrapInnerResponse(const std::string& innerResponse,
                               const std::string& requestId,
                               bool isCacheHit,
                               std::uint64_t timeMs) {
-    std::ostringstream strm;
-    strm << "{\"" << ml::torch::CCommandParser::REQUEST_ID << "\":\"" << requestId
-         << "\",\"" << CACHE_HIT << "\":" << std::boolalpha << isCacheHit
-         << ",\"" << TIME_MS << "\":" << timeMs << "," << innerResponse << "}";
-    return strm.str();
+    rapidjson::StringBuffer stringBuffer;
+    {
+        TRapidJsonLineWriter jsonWriter{stringBuffer};
+        jsonWriter.StartObject();
+        jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+        jsonWriter.String(requestId);
+        jsonWriter.Key(CACHE_HIT);
+        jsonWriter.Bool(isCacheHit);
+        jsonWriter.Key(TIME_MS);
+        jsonWriter.Uint64(timeMs);
+        jsonWriter.RawValue(innerResponse.c_str(), innerResponse.length(),
+                            rapidjson::kObjectType);
+        jsonWriter.EndObject();
+    }
+    return std::string{stringBuffer.GetString(), stringBuffer.GetLength()};
 }
 
 void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
                          const std::string& requestId,
                          const ml::torch::CThreadSettings& threadSettings) {
-    ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
+    ml::core::CRapidJsonConcurrentLineWriter jsonWriter{wrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -175,7 +185,7 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
 
 void writeSimpleAck(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
                     const std::string& requestId) {
-    ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
+    ml::core::CRapidJsonConcurrentLineWriter jsonWriter{wrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -235,7 +245,6 @@ void inferAndWriteInnerResult(ml::torch::CCommandParser::SRequest& request,
     } catch (const std::runtime_error& e) {
         writeInnerError(e.what(), jsonWriter);
     }
-    jsonWriter.Flush();
 }
 
 bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
@@ -254,10 +263,20 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
         cache.lookup(std::move(capturedRequest),
                      [&](auto request_) -> std::string {
                          rapidjson::StringBuffer stringBuffer;
-                         TRapidJsonLineWriter jsonWriter;
-                         jsonWriter.Reset(stringBuffer);
-                         inferAndWriteInnerResult(request_, module_, jsonWriter);
-                         return stringBuffer.GetString();
+                         {
+                             TRapidJsonLineWriter jsonWriter{stringBuffer};
+                             // Even though we don't really want the outer braces on the
+                             // inner result we have to write them or else the JSON
+                             // writer will not put commas in the correct places.
+                             jsonWriter.StartObject();
+                             inferAndWriteInnerResult(request_, module_, jsonWriter);
+                             jsonWriter.EndObject();
+                         }
+                         // Cache the object without the opening and closing braces and
+                         // the trailing newline. The resulting partial document will
+                         // later be wrapped, so does not need these.
+                         return std::string{stringBuffer.GetString() + 1,
+                                            stringBuffer.GetLength() - 3};
                      },
                      [&](const auto& innerResponseJson_, bool isCacheHit) {
                          responseJson = wrapInnerResponse(innerResponseJson_,
