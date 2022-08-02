@@ -164,12 +164,12 @@ public:
     //! Debug the memory used by this component.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CBucketQueue");
-        core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        core::memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Queue);
+        return core::memory::dynamicSize(m_Queue);
     }
 
     //! Prints the contents of the queue.

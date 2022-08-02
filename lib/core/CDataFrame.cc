@@ -468,13 +468,13 @@ const CDataFrame::TBoolVec& CDataFrame::columnIsCategorical() const {
 }
 
 std::size_t CDataFrame::memoryUsage() const {
-    std::size_t memory{CMemory::dynamicSize(m_ColumnNames)};
-    memory += CMemory::dynamicSize(m_CategoricalColumnValues);
-    memory += CMemory::dynamicSize(m_CategoricalColumnValueLookup);
-    memory += CMemory::dynamicSize(m_MissingString);
-    memory += CMemory::dynamicSize(m_ColumnIsCategorical);
-    memory += CMemory::dynamicSize(m_Slices);
-    memory += CMemory::dynamicSize(m_Writer);
+    std::size_t memory{memory::dynamicSize(m_ColumnNames)};
+    memory += memory::dynamicSize(m_CategoricalColumnValues);
+    memory += memory::dynamicSize(m_CategoricalColumnValueLookup);
+    memory += memory::dynamicSize(m_MissingString);
+    memory += memory::dynamicSize(m_ColumnIsCategorical);
+    memory += memory::dynamicSize(m_Slices);
+    memory += memory::dynamicSize(m_Writer);
     return memory;
 }
 
@@ -495,10 +495,10 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
                                             std::size_t numberColumns,
                                             CAlignment::EType alignment) {
-    return sizeof(CDataFrame) + core::CMemory::dynamicSize(TStrVec(numberColumns)) +
-           core::CMemory::dynamicSize(TStrVecVec(numberColumns)) +
-           core::CMemory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
-           core::CMemory::dynamicSize(TBoolVec(numberColumns)) +
+    return sizeof(CDataFrame) + core::memory::dynamicSize(TStrVec(numberColumns)) +
+           core::memory::dynamicSize(TStrVecVec(numberColumns)) +
+           core::memory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
+           core::memory::dynamicSize(TBoolVec(numberColumns)) +
            (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
                          : 0);
     ;

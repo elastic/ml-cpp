@@ -57,12 +57,12 @@ struct SMultimodalPriorMode {
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMultimodalPrior::SMode");
-        core::CMemoryDebug::dynamicSize("s_Prior", s_Prior, mem);
+        core::memory_debug::dynamicSize("s_Prior", s_Prior, mem);
     }
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(s_Prior);
+        return core::memory::dynamicSize(s_Prior);
     }
 
     //! Create from part of a state document.

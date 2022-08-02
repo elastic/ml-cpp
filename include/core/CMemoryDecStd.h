@@ -21,7 +21,7 @@
 
 namespace ml {
 namespace core {
-namespace CMemory {
+namespace memory {
 
 template<typename T, typename A>
 constexpr std::size_t storageNodeOverhead(const std::list<T, A>&) {
@@ -76,7 +76,7 @@ template<typename T, typename C, typename A>
 std::size_t dynamicSize(const std::multiset<T, C, A>& t);
 }
 
-namespace CMemoryDebug {
+namespace memory_debug {
 
 template<typename T, typename A>
 void dynamicSize(const char* name,

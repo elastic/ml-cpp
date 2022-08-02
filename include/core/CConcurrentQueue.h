@@ -123,11 +123,11 @@ public:
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CConcurrentQueue");
-        CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const { return memory::dynamicSize(m_Queue); }
 
     //! Return the number of items currently in the queue
     size_t size() {

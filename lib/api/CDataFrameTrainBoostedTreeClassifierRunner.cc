@@ -350,7 +350,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
         this->boostedTree().dataSummarization().manhattan()));
     m_InferenceModelMetadata.trainedModelMemoryUsage(
-        core::CMemory::dynamicSize(this->boostedTree().trainedModel()));
+        core::memory::dynamicSize(this->boostedTree().trainedModel()));
     return &m_InferenceModelMetadata;
 }
 

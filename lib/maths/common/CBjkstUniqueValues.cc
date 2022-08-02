@@ -444,15 +444,15 @@ void CBjkstUniqueValues::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsage
     mem->setName("CBjkstUniqueValues");
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values != nullptr) {
-        core::CMemoryDebug::dynamicSize("values", *values, mem);
+        core::memory_debug::dynamicSize("values", *values, mem);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
-            core::CMemoryDebug::dynamicSize("sketch.s_G", sketch.s_G, mem);
-            core::CMemoryDebug::dynamicSize("sketch.s_H", sketch.s_H, mem);
-            core::CMemoryDebug::dynamicSize("sketch.s_Z", sketch.s_Z, mem);
-            core::CMemoryDebug::dynamicSize("sketch.s_B", sketch.s_B, mem);
+            core::memory_debug::dynamicSize("sketch.s_G", sketch.s_G, mem);
+            core::memory_debug::dynamicSize("sketch.s_H", sketch.s_H, mem);
+            core::memory_debug::dynamicSize("sketch.s_Z", sketch.s_Z, mem);
+            core::memory_debug::dynamicSize("sketch.s_B", sketch.s_B, mem);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
         }
@@ -463,15 +463,15 @@ std::size_t CBjkstUniqueValues::memoryUsage() const {
     std::size_t mem = 0;
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values != nullptr) {
-        mem += core::CMemory::dynamicSize(*values);
+        mem += core::memory::dynamicSize(*values);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
-            mem += core::CMemory::dynamicSize(sketch.s_G);
-            mem += core::CMemory::dynamicSize(sketch.s_H);
-            mem += core::CMemory::dynamicSize(sketch.s_Z);
-            mem += core::CMemory::dynamicSize(sketch.s_B);
+            mem += core::memory::dynamicSize(sketch.s_G);
+            mem += core::memory::dynamicSize(sketch.s_H);
+            mem += core::memory::dynamicSize(sketch.s_Z);
+            mem += core::memory::dynamicSize(sketch.s_B);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
         }

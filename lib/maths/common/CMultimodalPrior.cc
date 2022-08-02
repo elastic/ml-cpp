@@ -1173,15 +1173,15 @@ std::uint64_t CMultimodalPrior::checksum(std::uint64_t seed) const {
 
 void CMultimodalPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultimodalPrior");
-    core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
-    core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
+    core::memory_debug::dynamicSize("m_Clusterer", m_Clusterer, mem);
+    core::memory_debug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
+    core::memory_debug::dynamicSize("m_Modes", m_Modes, mem);
 }
 
 std::size_t CMultimodalPrior::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
-    mem += core::CMemory::dynamicSize(m_SeedPrior);
-    mem += core::CMemory::dynamicSize(m_Modes);
+    std::size_t mem = core::memory::dynamicSize(m_Clusterer);
+    mem += core::memory::dynamicSize(m_SeedPrior);
+    mem += core::memory::dynamicSize(m_Modes);
     return mem;
 }
 

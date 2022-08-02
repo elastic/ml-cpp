@@ -321,17 +321,17 @@ std::uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
 void CCountingModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountingModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_Counts", m_Counts, mem);
-    core::CMemoryDebug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_Counts", m_Counts, mem);
+    core::memory_debug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
 std::size_t CCountingModel::memoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_Counts);
-    mem += core::CMemory::dynamicSize(m_MeanCounts);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_Counts);
+    mem += core::memory::dynamicSize(m_MeanCounts);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 

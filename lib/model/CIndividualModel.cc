@@ -283,12 +283,12 @@ std::uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
 void CIndividualModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CIndividualModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_FirstBucketTimes", m_FirstBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_LastBucketTimes", m_LastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
+    core::memory_debug::dynamicSize("m_FirstBucketTimes", m_FirstBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_LastBucketTimes", m_LastBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
+    core::memory_debug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
-    core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
+    core::memory_debug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
 std::size_t CIndividualModel::memoryUsage() const {
@@ -301,11 +301,11 @@ std::size_t CIndividualModel::memoryUsage() const {
 
 std::size_t CIndividualModel::computeMemoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_FirstBucketTimes);
-    mem += core::CMemory::dynamicSize(m_LastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_FeatureModels);
-    mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
-    mem += core::CMemory::dynamicSize(m_MemoryEstimator);
+    mem += core::memory::dynamicSize(m_FirstBucketTimes);
+    mem += core::memory::dynamicSize(m_LastBucketTimes);
+    mem += core::memory::dynamicSize(m_FeatureModels);
+    mem += core::memory::dynamicSize(m_FeatureCorrelatesModels);
+    mem += core::memory::dynamicSize(m_MemoryEstimator);
     return mem;
 }
 

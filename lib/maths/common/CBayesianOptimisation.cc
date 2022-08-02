@@ -936,12 +936,12 @@ void CBayesianOptimisation::checkRestoredInvariants() const {
 }
 
 std::size_t CBayesianOptimisation::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_MinBoundary)};
-    mem += core::CMemory::dynamicSize(m_MaxBoundary);
-    mem += core::CMemory::dynamicSize(m_FunctionMeanValues);
-    mem += core::CMemory::dynamicSize(m_ErrorVariances);
-    mem += core::CMemory::dynamicSize(m_KernelParameters);
-    mem += core::CMemory::dynamicSize(m_MinimumKernelCoordinateDistanceScale);
+    std::size_t mem{core::memory::dynamicSize(m_MinBoundary)};
+    mem += core::memory::dynamicSize(m_MaxBoundary);
+    mem += core::memory::dynamicSize(m_FunctionMeanValues);
+    mem += core::memory::dynamicSize(m_ErrorVariances);
+    mem += core::memory::dynamicSize(m_KernelParameters);
+    mem += core::memory::dynamicSize(m_MinimumKernelCoordinateDistanceScale);
     return mem;
 }
 

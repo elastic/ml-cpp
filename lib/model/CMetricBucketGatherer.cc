@@ -193,8 +193,8 @@ void registerMemoryCallbacks(VISITOR& visitor) {
 void registerMemoryCallbacks() {
     static std::atomic_flag once = ATOMIC_FLAG_INIT;
     if (once.test_and_set() == false) {
-        registerMemoryCallbacks(core::CMemory::anyVisitor());
-        registerMemoryCallbacks(core::CMemoryDebug::anyVisitor());
+        registerMemoryCallbacks(core::memory::anyVisitor());
+        registerMemoryCallbacks(core::memory_debug::anyVisitor());
     }
 }
 
@@ -1337,19 +1337,19 @@ void CMetricBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUs
     registerMemoryCallbacks();
     mem->setName("CMetricBucketGatherer");
     this->CBucketGatherer::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_ValueFieldName", m_ValueFieldName, mem);
-    core::CMemoryDebug::dynamicSize("m_FieldNames", m_FieldNames, mem);
-    core::CMemoryDebug::dynamicSize("m_FieldMetricCategories", m_FieldMetricCategories, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
+    core::memory_debug::dynamicSize("m_ValueFieldName", m_ValueFieldName, mem);
+    core::memory_debug::dynamicSize("m_FieldNames", m_FieldNames, mem);
+    core::memory_debug::dynamicSize("m_FieldMetricCategories", m_FieldMetricCategories, mem);
+    core::memory_debug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
 std::size_t CMetricBucketGatherer::memoryUsage() const {
     registerMemoryCallbacks();
     std::size_t mem = this->CBucketGatherer::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_ValueFieldName);
-    mem += core::CMemory::dynamicSize(m_FieldNames);
-    mem += core::CMemory::dynamicSize(m_FieldMetricCategories);
-    mem += core::CMemory::dynamicSize(m_FeatureData);
+    mem += core::memory::dynamicSize(m_ValueFieldName);
+    mem += core::memory::dynamicSize(m_FieldNames);
+    mem += core::memory::dynamicSize(m_FieldMetricCategories);
+    mem += core::memory::dynamicSize(m_FeatureData);
     return mem;
 }
 

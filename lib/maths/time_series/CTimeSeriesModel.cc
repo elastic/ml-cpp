@@ -535,13 +535,13 @@ std::uint64_t CTimeSeriesAnomalyModel::checksum(std::uint64_t seed) const {
 
 void CTimeSeriesAnomalyModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesAnomalyModel");
-    core::CMemoryDebug::dynamicSize("m_Anomalies", m_Anomaly, mem);
-    core::CMemoryDebug::dynamicSize("m_AnomalyFeatureModels", m_AnomalyFeatureModels, mem);
+    core::memory_debug::dynamicSize("m_Anomalies", m_Anomaly, mem);
+    core::memory_debug::dynamicSize("m_AnomalyFeatureModels", m_AnomalyFeatureModels, mem);
 }
 
 std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Anomaly) +
-           core::CMemory::dynamicSize(m_AnomalyFeatureModels);
+    return core::memory::dynamicSize(m_Anomaly) +
+           core::memory::dynamicSize(m_AnomalyFeatureModels);
 }
 
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,
@@ -1235,22 +1235,22 @@ std::uint64_t CUnivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
 
 void CUnivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
-    core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
-    core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
-    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
-    core::CMemoryDebug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
-    core::CMemoryDebug::dynamicSize("m_MultibucketFeatureModel",
+    core::memory_debug::dynamicSize("m_Controllers", m_Controllers, mem);
+    core::memory_debug::dynamicSize("m_TrendModel", m_TrendModel, mem);
+    core::memory_debug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
+    core::memory_debug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
+    core::memory_debug::dynamicSize("m_MultibucketFeatureModel",
                                     m_MultibucketFeatureModel, mem);
-    core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
+    core::memory_debug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
 }
 
 std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Controllers) +
-           core::CMemory::dynamicSize(m_TrendModel) +
-           core::CMemory::dynamicSize(m_ResidualModel) +
-           core::CMemory::dynamicSize(m_MultibucketFeature) +
-           core::CMemory::dynamicSize(m_MultibucketFeatureModel) +
-           core::CMemory::dynamicSize(m_AnomalyModel);
+    return core::memory::dynamicSize(m_Controllers) +
+           core::memory::dynamicSize(m_TrendModel) +
+           core::memory::dynamicSize(m_ResidualModel) +
+           core::memory::dynamicSize(m_MultibucketFeature) +
+           core::memory::dynamicSize(m_MultibucketFeatureModel) +
+           core::memory::dynamicSize(m_AnomalyModel);
 }
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,
@@ -1913,18 +1913,18 @@ CTimeSeriesCorrelations::correlationModels() const {
 
 void CTimeSeriesCorrelations::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesCorrelations");
-    core::CMemoryDebug::dynamicSize("m_SampleData", m_SampleData, mem);
-    core::CMemoryDebug::dynamicSize("m_Correlations", m_Correlations, mem);
-    core::CMemoryDebug::dynamicSize("m_CorrelatedLookup", m_CorrelatedLookup, mem);
-    core::CMemoryDebug::dynamicSize("m_CorrelationDistributionModels",
+    core::memory_debug::dynamicSize("m_SampleData", m_SampleData, mem);
+    core::memory_debug::dynamicSize("m_Correlations", m_Correlations, mem);
+    core::memory_debug::dynamicSize("m_CorrelatedLookup", m_CorrelatedLookup, mem);
+    core::memory_debug::dynamicSize("m_CorrelationDistributionModels",
                                     m_CorrelationDistributionModels, mem);
 }
 
 std::size_t CTimeSeriesCorrelations::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_SampleData) +
-           core::CMemory::dynamicSize(m_Correlations) +
-           core::CMemory::dynamicSize(m_CorrelatedLookup) +
-           core::CMemory::dynamicSize(m_CorrelationDistributionModels);
+    return core::memory::dynamicSize(m_SampleData) +
+           core::memory::dynamicSize(m_Correlations) +
+           core::memory::dynamicSize(m_CorrelatedLookup) +
+           core::memory::dynamicSize(m_CorrelationDistributionModels);
 }
 
 bool CTimeSeriesCorrelations::acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
@@ -2644,22 +2644,22 @@ std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
 
 void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateTimeSeriesModel");
-    core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
-    core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
-    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
-    core::CMemoryDebug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
-    core::CMemoryDebug::dynamicSize("m_MultibucketFeatureModel",
+    core::memory_debug::dynamicSize("m_Controllers", m_Controllers, mem);
+    core::memory_debug::dynamicSize("m_TrendModel", m_TrendModel, mem);
+    core::memory_debug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
+    core::memory_debug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
+    core::memory_debug::dynamicSize("m_MultibucketFeatureModel",
                                     m_MultibucketFeatureModel, mem);
-    core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
+    core::memory_debug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
 }
 
 std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Controllers) +
-           core::CMemory::dynamicSize(m_TrendModel) +
-           core::CMemory::dynamicSize(m_ResidualModel) +
-           core::CMemory::dynamicSize(m_MultibucketFeature) +
-           core::CMemory::dynamicSize(m_MultibucketFeatureModel) +
-           core::CMemory::dynamicSize(m_AnomalyModel);
+    return core::memory::dynamicSize(m_Controllers) +
+           core::memory::dynamicSize(m_TrendModel) +
+           core::memory::dynamicSize(m_ResidualModel) +
+           core::memory::dynamicSize(m_MultibucketFeature) +
+           core::memory::dynamicSize(m_MultibucketFeatureModel) +
+           core::memory::dynamicSize(m_AnomalyModel);
 }
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRestoreParams& params,

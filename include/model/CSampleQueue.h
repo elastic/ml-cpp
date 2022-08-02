@@ -156,12 +156,12 @@ private:
         //! Debug the memory used by the sub-sample.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("SSubSample", sizeof(*this));
-            core::CMemoryDebug::dynamicSize("s_Statistic", s_Statistic, mem);
+            core::memory_debug::dynamicSize("s_Statistic", s_Statistic, mem);
         }
 
         //! Get the memory used by the sub-sample.
         std::size_t memoryUsage() const {
-            return sizeof(*this) + core::CMemory::dynamicSize(s_Statistic);
+            return sizeof(*this) + core::memory::dynamicSize(s_Statistic);
         }
 
         //! Print the sub-sample for debug.
@@ -344,12 +344,12 @@ public:
     //! Debug the memory used by the queue.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSampleQueue", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        core::memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by the queue.
     std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Queue);
+        return sizeof(*this) + core::memory::dynamicSize(m_Queue);
     }
 
     //! Prints the contents of the queue.

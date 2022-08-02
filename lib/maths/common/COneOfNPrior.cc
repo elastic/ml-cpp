@@ -1009,11 +1009,11 @@ std::uint64_t COneOfNPrior::checksum(std::uint64_t seed) const {
 
 void COneOfNPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("COneOfNPrior");
-    core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
+    core::memory_debug::dynamicSize("m_Models", m_Models, mem);
 }
 
 std::size_t COneOfNPrior::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Models);
+    return core::memory::dynamicSize(m_Models);
 }
 
 std::size_t COneOfNPrior::staticSize() const {

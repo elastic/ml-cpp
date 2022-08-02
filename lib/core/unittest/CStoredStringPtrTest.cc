@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     {
         ml::core::CStoredStringPtr null;
 
-        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(null));
+        BOOST_REQUIRE_EQUAL(0, ml::core::memory::dynamicSize(null));
         BOOST_REQUIRE_EQUAL(0, null.actualMemoryUsage());
     }
     {
@@ -95,16 +95,16 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
-        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(ptr1));
-        BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(0, ml::core::memory::dynamicSize(ptr1));
+        BOOST_REQUIRE_EQUAL(ml::core::memory::dynamicSize(&str1), ptr1.actualMemoryUsage());
     }
     {
         std::string str2("much longer - YUGE in fact!");
 
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(str2);
 
-        BOOST_REQUIRE_EQUAL(0, ml::core::CMemory::dynamicSize(ptr2));
-        BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(0, ml::core::memory::dynamicSize(ptr2));
+        BOOST_REQUIRE_EQUAL(ml::core::memory::dynamicSize(&str2), ptr2.actualMemoryUsage());
     }
 }
 

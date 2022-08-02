@@ -362,19 +362,19 @@ std::uint64_t CKMostCorrelated::checksum(std::uint64_t seed) const {
 
 void CKMostCorrelated::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMostCorrelated");
-    core::CMemoryDebug::dynamicSize("m_Projections", m_Projections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentProjected", m_CurrentProjected, mem);
-    core::CMemoryDebug::dynamicSize("m_Projected", m_Projected, mem);
-    core::CMemoryDebug::dynamicSize("m_Moments", m_Moments, mem);
-    core::CMemoryDebug::dynamicSize("m_MostCorrelated", m_MostCorrelated, mem);
+    core::memory_debug::dynamicSize("m_Projections", m_Projections, mem);
+    core::memory_debug::dynamicSize("m_CurrentProjected", m_CurrentProjected, mem);
+    core::memory_debug::dynamicSize("m_Projected", m_Projected, mem);
+    core::memory_debug::dynamicSize("m_Moments", m_Moments, mem);
+    core::memory_debug::dynamicSize("m_MostCorrelated", m_MostCorrelated, mem);
 }
 
 std::size_t CKMostCorrelated::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Projections);
-    mem += core::CMemory::dynamicSize(m_CurrentProjected);
-    mem += core::CMemory::dynamicSize(m_Projected);
-    mem += core::CMemory::dynamicSize(m_Moments);
-    mem += core::CMemory::dynamicSize(m_MostCorrelated);
+    std::size_t mem = core::memory::dynamicSize(m_Projections);
+    mem += core::memory::dynamicSize(m_CurrentProjected);
+    mem += core::memory::dynamicSize(m_Projected);
+    mem += core::memory::dynamicSize(m_Moments);
+    mem += core::memory::dynamicSize(m_MostCorrelated);
     return mem;
 }
 
