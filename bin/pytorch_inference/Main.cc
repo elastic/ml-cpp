@@ -150,9 +150,9 @@ std::string wrapInnerResponse(const std::string& innerResponse,
                               bool isCacheHit,
                               std::uint64_t timeMs) {
     std::ostringstream strm;
-    strm << "{\"" << ml::torch::CCommandParser::REQUEST_ID << "\":" << requestId
-         << "\",\"" << CACHE_HIT << std::boolalpha << isCacheHit << ",\""
-         << TIME_MS << "\":" << timeMs << "," << innerResponse << "}";
+    strm << "{\"" << ml::torch::CCommandParser::REQUEST_ID << "\":\"" << requestId
+         << "\",\"" << CACHE_HIT << "\":" << std::boolalpha << isCacheHit
+         << ",\"" << TIME_MS << "\":" << timeMs << "," << innerResponse << "}";
     return strm.str();
 }
 
