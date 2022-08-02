@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <numeric>
 #include <vector>
 
 namespace ml {

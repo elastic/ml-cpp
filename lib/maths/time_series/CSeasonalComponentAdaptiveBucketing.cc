@@ -12,7 +12,7 @@
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -23,9 +23,6 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
-#include <maths/common/CLinearAlgebra.h>
-#include <maths/common/CLinearAlgebraPersist.h>
-#include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CTools.h>

@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CMemoryUsageEstimationResultJsonWriter_h
 #define INCLUDED_ml_api_CMemoryUsageEstimationResultJsonWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CNonCopyable.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
@@ -20,6 +19,9 @@
 #include <string>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace api {
 
 //! \brief

@@ -24,8 +24,8 @@
 #include <rapidjson/writer.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/unordered/unordered_map.hpp>
-#include <boost/unordered/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <cmath>
 #include <memory>

@@ -11,20 +11,19 @@
 
 #include <model/CMetricModelFactory.h>
 
-#include <core/CStateRestoreTraverser.h>
-
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CGammaRateConjugate.h>
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMultimodalPrior.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/COneOfNPrior.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CXMeansOnline1d.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CMetricModel.h>
+#include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <memory>
 

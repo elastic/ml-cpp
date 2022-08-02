@@ -20,7 +20,7 @@ using namespace model;
 
 BOOST_AUTO_TEST_CASE(testCostOfToken) {
     CTokenListReverseSearchCreator reverseSearchCreator("foo");
-    BOOST_REQUIRE_EQUAL(std::size_t(110), reverseSearchCreator.costOfToken("someToken", 5));
+    BOOST_REQUIRE_EQUAL(110, reverseSearchCreator.costOfToken("someToken", 5));
 }
 
 BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {

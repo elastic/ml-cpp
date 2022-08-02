@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test) {
 
     {
         TIntVec v;
-        BOOST_REQUIRE_EQUAL(std::size_t(0), v.capacity());
+        BOOST_REQUIRE_EQUAL(0, v.capacity());
 
         core::CAllocationStrategy::resize(v, 1);
         assertSize(v);

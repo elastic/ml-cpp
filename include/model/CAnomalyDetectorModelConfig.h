@@ -19,7 +19,6 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -35,7 +34,6 @@ namespace model {
 class CDetectionRule;
 class CInterimBucketCorrector;
 class CSearchKey;
-class CModelAutoConfigurer;
 class CModelFactory;
 
 //! \brief Responsible for configuring anomaly detection models.
@@ -44,7 +42,7 @@ class CModelFactory;
 //! Responsible for configuring classes for performing anomaly detection.
 //! It also defines all parameter defaults.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This wraps up the configuration of anomaly detection to encapsulate
 //! the details from calling code. It is anticipated that:
 //!   -# Some of this information will be exposed to the user via a

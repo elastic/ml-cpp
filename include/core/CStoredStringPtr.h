@@ -40,6 +40,7 @@ class CORE_EXPORT CStoredStringPtr {
 public:
     //! NULL constructor.
     CStoredStringPtr() noexcept;
+    ~CStoredStringPtr();
 
     void swap(CStoredStringPtr& other) noexcept;
 

@@ -71,9 +71,6 @@ double f6(const double& x) {
 
 class CLog {
 public:
-    using result_type = double;
-
-public:
     double operator()(const double& x) const {
         if (x <= 0.0) {
             throw std::range_error("Bad value to log " +

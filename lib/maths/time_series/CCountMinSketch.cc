@@ -12,7 +12,7 @@
 #include <maths/time_series/CCountMinSketch.h>
 
 #include <core/CHashing.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 

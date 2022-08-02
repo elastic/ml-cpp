@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CModelSnapshotJsonWriter_h
 #define INCLUDED_ml_api_CModelSnapshotJsonWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <model/CResourceMonitor.h>
@@ -21,6 +20,9 @@
 #include <string>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace api {
 
 //! \brief

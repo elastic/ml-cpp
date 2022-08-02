@@ -15,7 +15,6 @@
 #include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/CNonInstantiatable.h>
-#include <core/CScopedFastLock.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -131,7 +130,7 @@ public:
     //! is too small this uses a larger value. At the end a random k sample of this has
     //! the desired property.
     //!
-    //! IMPLEMENTATION:\n
+    //! IMPLEMENTATION DECISIONS:\n
     //! To allow greater flexibility, this doesn't maintain the sample set, but instead a
     //! function is provided which is called when a value is sampled. This is passed the
     //! index of the item overwritten and the overwriting value. If the sample set is

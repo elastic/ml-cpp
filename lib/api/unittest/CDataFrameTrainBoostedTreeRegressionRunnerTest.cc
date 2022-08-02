@@ -10,6 +10,7 @@
  */
 
 #include <core/CDataFrame.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/analytics/CBoostedTreeImpl.h>
 

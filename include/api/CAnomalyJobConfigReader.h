@@ -49,7 +49,7 @@ class CAnomalyJobParameters;
 //! double bar{parameters["bar"].as<double>()};
 //! \endcode
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Parsing errors such as incorrect JSON format, unexpected value type, missing a
 //! required value result in a CParseError exception being thrown.
 //! However the parser is lenient in the sense that unexpected parameters re not seen

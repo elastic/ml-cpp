@@ -13,6 +13,7 @@
 
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
+#include <core/CVectorRange.h>
 #include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>

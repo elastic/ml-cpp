@@ -41,10 +41,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
+#include <map>
 #include <string>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CFrequencyEncoding::TStringDoubleUMap::const_iterator)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::COneHotEncoding::TStringStringUMap::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::COneHotEncoding::TStrStrMap::const_iterator)
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeInferenceModelBuilderTest)
 
@@ -158,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     // verify model definition
     {
         // test pre-processing
-        BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
+        BOOST_REQUIRE_EQUAL(3, definition->preprocessors().size());
         bool frequency = false;
         bool target = false;
         bool oneHot = false;
@@ -166,18 +167,18 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         for (const auto& encoding : definition->preprocessors()) {
             if (encoding->typeString() == "frequency_encoding") {
                 auto* enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
+                BOOST_REQUIRE_EQUAL(3, enc->frequencyMap().size());
                 BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
                 frequency = true;
             } else if (encoding->typeString() == "target_mean_encoding") {
                 auto* enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
+                BOOST_REQUIRE_EQUAL(3, enc->targetMap().size());
                 BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
                 target = true;
             } else if (encoding->typeString() == "one_hot_encoding") {
                 auto* enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
+                BOOST_REQUIRE_EQUAL(3, enc->hotMap().size());
                 BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
                 BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
                 BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
@@ -643,19 +644,19 @@ BOOST_AUTO_TEST_CASE(testEncoders) {
     builder.addFrequencyEncoding(3, {1.0, 1.0});
     auto definition{builder.build()};
     const auto& preprocessors{definition.preprocessors()};
-    BOOST_REQUIRE_EQUAL(std::size_t(4), preprocessors.size());
+    BOOST_REQUIRE_EQUAL(4, preprocessors.size());
     for (const auto& encoding : preprocessors) {
         if (encoding->typeString() == "frequency_encoding") {
             const auto& frequencyEncoding{
                 static_cast<api::CFrequencyEncoding*>(encoding.get())};
             const auto& map{frequencyEncoding->frequencyMap()};
             if (frequencyEncoding->featureName() == "col2_frequency") {
-                BOOST_REQUIRE_EQUAL(std::size_t(3), map.size());
+                BOOST_REQUIRE_EQUAL(3, map.size());
                 BOOST_TEST_REQUIRE(map.find("col2cat1") != map.end());
                 BOOST_TEST_REQUIRE(map.find("col2cat2") != map.end());
                 BOOST_TEST_REQUIRE(map.find("col2cat3") != map.end());
             } else if (frequencyEncoding->featureName() == "col3_frequency") {
-                BOOST_REQUIRE_EQUAL(std::size_t(2), map.size());
+                BOOST_REQUIRE_EQUAL(2, map.size());
                 BOOST_TEST_REQUIRE(map.find("col3cat1") != map.end());
                 BOOST_TEST_REQUIRE(map.find("col3cat2") != map.end());
             }
@@ -665,11 +666,11 @@ BOOST_AUTO_TEST_CASE(testEncoders) {
             const auto& map{oneHotEncoding->hotMap()};
 
             if (oneHotEncoding->field() == "col2") {
-                BOOST_REQUIRE_EQUAL(std::size_t(2), map.size());
+                BOOST_REQUIRE_EQUAL(2, map.size());
                 BOOST_TEST_REQUIRE(map.find("col2cat1") != map.end());
                 BOOST_TEST_REQUIRE(map.find("col2cat2") != map.end());
             } else if (oneHotEncoding->field() == "col3") {
-                BOOST_REQUIRE_EQUAL(std::size_t(1), map.size());
+                BOOST_REQUIRE_EQUAL(1, map.size());
                 BOOST_TEST_REQUIRE(map.find("col3cat1") != map.end());
             }
         } else {

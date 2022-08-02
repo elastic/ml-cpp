@@ -15,6 +15,7 @@
 #include <model/CStringStore.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <memory>
 #include <optional>

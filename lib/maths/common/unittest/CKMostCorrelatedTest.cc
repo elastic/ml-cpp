@@ -16,6 +16,7 @@
 #include <core/CStopWatch.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraTools.h>
@@ -265,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
         LOG_DEBUG(<< "  " << p1[i]);
     }
     BOOST_TEST_REQUIRE(!p1.empty());
-    BOOST_REQUIRE_EQUAL(std::size_t(10), p1[0].dimension());
+    BOOST_REQUIRE_EQUAL(10, p1[0].dimension());
     TDoubleVecVec projections1(10, TDoubleVec(p1.size()));
     for (std::size_t i = 0; i < p1.size(); ++i) {
         for (std::size_t j = 0; j < p1[i].dimension(); ++j) {
@@ -316,7 +317,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
         LOG_DEBUG(<< "  " << p2[i]);
     }
     BOOST_TEST_REQUIRE(!p2.empty());
-    BOOST_REQUIRE_EQUAL(std::size_t(10), p2[0].dimension());
+    BOOST_REQUIRE_EQUAL(10, p2[0].dimension());
     TDoubleVecVec projections2(10, TDoubleVec(p2.size()));
     for (std::size_t i = 0; i < p2.size(); ++i) {
         for (std::size_t j = 0; j < p2[i].dimension(); ++j) {

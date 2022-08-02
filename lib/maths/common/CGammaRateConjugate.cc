@@ -31,13 +31,10 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/tools/roots.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -626,7 +623,7 @@ public:
                     // and pollute the floating point environment. This
                     // may cause issues for some library function
                     // implementations (see fe*exceptflag for more details).
-                    result = boost::numeric::bounds<double>::lowest();
+                    result = std::numeric_limits<double>::lowest();
                     this->addErrorStatus(maths_t::E_FpOverflowed);
                     return false;
                 }
@@ -1008,7 +1005,7 @@ void CGammaRateConjugate::propagateForwardsByTime(double time) {
 }
 
 CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport() const {
-    return {-m_Offset, boost::numeric::bounds<double>::highest()};
+    return {-m_Offset, std::numeric_limits<double>::max()};
 }
 
 double CGammaRateConjugate::marginalLikelihoodMean() const {
@@ -1065,7 +1062,7 @@ double CGammaRateConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& weig
 double CGammaRateConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just E_{B}[Var(X | B)] where B is the rate prior. There is
@@ -1161,7 +1158,7 @@ CGammaRateConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -1605,8 +1602,7 @@ CGammaRateConjugate::TDoubleDoublePr
 CGammaRateConjugate::confidenceIntervalRate(double percentage) const {
 
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     percentage /= 100.0;
@@ -1624,8 +1620,7 @@ CGammaRateConjugate::confidenceIntervalRate(double percentage) const {
                   << ", prior rate = " << this->priorRate());
     }
 
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate& rhs,

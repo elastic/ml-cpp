@@ -12,7 +12,7 @@
 #include <model/CModelTools.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
@@ -20,8 +20,6 @@
 #include <maths/common/CMultinomialConjugate.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
-
-//#include <model/CSample.h>
 
 #include <algorithm>
 #include <functional>

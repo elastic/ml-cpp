@@ -11,7 +11,7 @@
 
 #include <model/CSampleCounts.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 

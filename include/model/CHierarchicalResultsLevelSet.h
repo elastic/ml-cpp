@@ -33,7 +33,7 @@ namespace model {
 //! influencer bucket and bucket. This is used as the base type for our
 //! stateful visitors, specifically, the results aggregator and normalizer.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Common functionality for maintaining and accessing state has been
 //! factored into this class. As such the functionality implemented by
 //! this class is entirely protected and intended only for use by the

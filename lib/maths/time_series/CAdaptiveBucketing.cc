@@ -12,7 +12,7 @@
 #include <maths/time_series/CAdaptiveBucketing.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -26,7 +26,6 @@
 #include <maths/common/CToolsDetail.h>
 
 #include <boost/math/distributions/binomial.hpp>
-#include <boost/range.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -133,7 +132,7 @@ const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
-const std::size_t WIDTH{boost::size(SMOOTHING_FUNCTION) / 2};
+const std::size_t WIDTH{std::size(SMOOTHING_FUNCTION) / 2};
 const double ALPHA{0.35};
 const double EPS{std::numeric_limits<double>::epsilon()};
 const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
@@ -456,7 +455,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         double ai{m_Endpoints[i]};
         double bi{m_Endpoints[i + 1]};
         double error{0.0};
-        for (std::size_t j = 0; j < boost::size(SMOOTHING_FUNCTION); ++j) {
+        for (std::size_t j = 0; j < std::size(SMOOTHING_FUNCTION); ++j) {
             error += SMOOTHING_FUNCTION[j] * ranges[(n + i + j - WIDTH) % n];
         }
         double h{bi - ai};

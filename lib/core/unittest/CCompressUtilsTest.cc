@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testLengthOnly) {
     BOOST_TEST_REQUIRE(compressorLengthOnly.length(true, lengthLengthOnly));
 
     BOOST_REQUIRE_EQUAL(lengthFull, lengthLengthOnly);
-    BOOST_REQUIRE_EQUAL(size_t(0), outputLengthOnly.size());
+    BOOST_REQUIRE_EQUAL(0, outputLengthOnly.size());
 }
 
 BOOST_AUTO_TEST_CASE(testInflate) {

@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
     BOOST_REQUIRE_EQUAL(true, modelConfig.modelPlotAnnotationsEnabled());
 
     terms = modelConfig.modelPlotTerms();
-    BOOST_REQUIRE_EQUAL(std::size_t(2), terms.size());
+    BOOST_REQUIRE_EQUAL(2, terms.size());
     BOOST_TEST_REQUIRE(terms.find(std::string("c")) != terms.end());
     BOOST_TEST_REQUIRE(terms.find(std::string("d")) != terms.end());
 }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
         jobConfig.analysisConfig().detectionRules().find(0);
     BOOST_TEST_REQUIRE(itr->second.empty());
     itr = jobConfig.analysisConfig().detectionRules().find(1);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), itr->second.size());
+    BOOST_REQUIRE_EQUAL(1, itr->second.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
                         itr->second[0].print());
 }
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     auto ruleFilters = jobConfig.ruleFilters();
-    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_REQUIRE_EQUAL(2, ruleFilters.size());
 
     BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa"));
     BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb"));
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
     ruleFilters = jobConfig.analysisConfig().ruleFilters();
-    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_REQUIRE_EQUAL(2, ruleFilters.size());
 
     BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa") == false);
     BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb") == false);
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
     ruleFilters = jobConfig.analysisConfig().ruleFilters();
-    BOOST_REQUIRE_EQUAL(std::size_t(3), ruleFilters.size());
+    BOOST_REQUIRE_EQUAL(3, ruleFilters.size());
     BOOST_TEST_REQUIRE(ruleFilters["filter_3"].contains("new"));
 }
 
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         jobConfig.initScheduledEvents();
 
         const auto& events = jobConfig.analysisConfig().scheduledEvents();
-        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(2, events.size());
         BOOST_REQUIRE_EQUAL(std::string("old_event_1"), events[0].first);
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                             events[0].second.print());
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
         const auto& events = jobConfig.analysisConfig().scheduledEvents();
-        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(2, events.size());
         BOOST_REQUIRE_EQUAL(std::string("new_event_1"), events[0].first);
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                             events[0].second.print());

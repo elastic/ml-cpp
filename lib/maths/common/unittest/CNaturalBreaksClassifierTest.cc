@@ -14,6 +14,8 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CNaturalBreaksClassifier.h>
 #include <maths/common/CRestoreParams.h>
 
@@ -508,7 +510,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     TTupleVec categories;
     classifier.categories(4u, 0, categories);
-    BOOST_REQUIRE_EQUAL(std::size_t(4), categories.size());
+    BOOST_REQUIRE_EQUAL(4, categories.size());
 
     LOG_DEBUG(<< "categories = " << categories);
 
@@ -518,7 +520,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     LOG_DEBUG(<< "categories = " << categories);
 
     // We expect the category with count of 1 to have been pruned out.
-    BOOST_REQUIRE_EQUAL(std::size_t(3), categories.size());
+    BOOST_REQUIRE_EQUAL(3, categories.size());
     for (std::size_t i = 0; i < categories.size(); ++i) {
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(categories[i]) != 100.0);
     }
@@ -531,8 +533,8 @@ BOOST_AUTO_TEST_CASE(testSample) {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    static const double NEG_INF = boost::numeric::bounds<double>::lowest();
-    static const double POS_INF = boost::numeric::bounds<double>::highest();
+    static const double NEG_INF = std::numeric_limits<double>::lowest();
+    static const double POS_INF = std::numeric_limits<double>::max();
 
     test::CRandomNumbers rng;
 

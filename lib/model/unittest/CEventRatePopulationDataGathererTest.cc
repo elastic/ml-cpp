@@ -26,11 +26,11 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CEventRatePopulationDataGathererTest)
@@ -104,13 +104,13 @@ void generateTestMessages(test::CRandomNumbers& rng,
     TStrVec categories = allCategories();
     TStrVec people = allPeople();
 
-    const double rates[] = {1.0, 0.3, 10.1, 25.0, 105.0};
+    const TDoubleVec rates{1.0, 0.3, 10.1, 25.0, 105.0};
 
     TSizeVec bucketCounts;
     for (std::size_t j = 0; j < categories.size(); ++j) {
-        double rate = rates[j % boost::size(rates)];
+        double rate = rates[j % rates.size()];
         TUIntVec sample;
-        rng.generatePoissonSamples(rate, 1u, sample);
+        rng.generatePoissonSamples(rate, 1, sample);
         bucketCounts.push_back(sample[0]);
     }
 

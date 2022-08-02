@@ -14,7 +14,7 @@
 
 #include <core/CCompressedDictionary.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -41,7 +41,7 @@ namespace compressed_lfu_cache_detail {
 
 //! \brief Implements a memory limited least frequently used cache.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! To make the implementation less complex we assume cached values are small
 //! compared to the memory budget.
 //
@@ -637,7 +637,7 @@ const std::string CCompressedLfuCache<KEY, VALUE, COMPRESSED_KEY_BITS>::CCacheIt
 //! }
 //! \endcode
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! \see compressed_lfu_cache_detail::CCompressedLfuCache.
 template<typename KEY, typename VALUE, std::size_t COMPRESSED_KEY_BITS = 128>
 class CConcurrentCompressedLfuCache final

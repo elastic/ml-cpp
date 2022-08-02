@@ -38,7 +38,7 @@ namespace api {
 //! progress, parameters, quality of results. This also implements the functionality
 //! to write the JSON statistics to a specified output stream in a thread safe manner.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! With the exception of reading and writing progress and memory usage this class is
 //! *NOT* thread safe. It is expected that calls to update and write instrumentation
 //! data all happen on the thread running the analysis. It also performs thread safe

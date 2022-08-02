@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_core_CConcurrentQueue_h
 #define INCLUDED_ml_core_CConcurrentQueue_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>

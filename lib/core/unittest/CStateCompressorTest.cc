@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         TIStreamP istrm = decompressor.search(1, 1);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
+        BOOST_REQUIRE_EQUAL(0, mockKvSearcher.askedFor());
 
         CJsonStateRestoreTraverser traverser(*istrm);
         traverser.next();

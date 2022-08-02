@@ -30,7 +30,6 @@
 #include <rapidjson/pointer.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <fstream>
 #include <set>
@@ -215,9 +214,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     TStrSet partitions = getUniqueValues("partition_field_value", out);
     TStrSet people = getUniqueValues("over_field_value", out);
     TStrSet attributes = getUniqueValues("by_field_value", out);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), partitions.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), attributes.size());
+    BOOST_REQUIRE_EQUAL(3, partitions.size());
+    BOOST_REQUIRE_EQUAL(2, people.size());
+    BOOST_REQUIRE_EQUAL(2, attributes.size());
 
     outputStrm.str("");
     outputStrm.clear();
@@ -269,9 +268,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     partitions = getUniqueValues("partition_field_value", out);
     people = getUniqueValues("over_field_value", out);
     attributes = getUniqueValues("by_field_value", out);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), partitions.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), attributes.size());
+    BOOST_REQUIRE_EQUAL(1, partitions.size());
+    BOOST_REQUIRE_EQUAL(2, people.size());
+    BOOST_REQUIRE_EQUAL(1, attributes.size());
 }
 
 BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
@@ -384,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                       << memoryLimit * core::constants::BYTES_IN_MEGABYTES);
             BOOST_TEST_REQUIRE(used.s_ByFields > testParam.s_ExpectedByFields);
             BOOST_TEST_REQUIRE(used.s_ByFields < 800);
-            BOOST_REQUIRE_EQUAL(std::size_t(2), used.s_PartitionFields);
+            BOOST_REQUIRE_EQUAL(2, used.s_PartitionFields);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /

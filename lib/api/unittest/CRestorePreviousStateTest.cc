@@ -209,6 +209,8 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
 #endif
+        SUPPRESS_USAGE_WARNING(numRestoredDocs);
+        SUPPRESS_USAGE_WARNING(numDocsInStateFile);
     } else {
         // The equality of the state is undetermined. It is possible that a new
         // field is only sometimes present at which point some state objects may

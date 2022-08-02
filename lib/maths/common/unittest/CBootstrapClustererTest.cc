@@ -18,8 +18,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <vector>
 
@@ -195,11 +195,11 @@ BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
         {{0, 1, _, 3, 4}, {5, 6, _, _, _}, {10, 11, 12, 13, 14}, {2, 7, 8, 9, _}, {_, _, _, _, _}},
         {{0, 1, 2, 3, _}, {5, 6, 7, 8, 9}, {_, _, 12, 13, 14}, {4, _, _, _, _}, {10, 11, _, _, _}},
         {{_, _, 2, 3, 4}, {_, _, _, 8, 9}, {10, 11, 12, 13, 14}, {0, 1, 5, 6, 7}, {_, _, _, _, _}}};
-    TBootstrapClustererForTest2::TSizeVecVecVec clusters(boost::size(clusters_));
-    for (std::size_t i = 0; i < boost::size(clusters_); ++i) {
-        for (std::size_t j = 0; j < boost::size(clusters_[i]); ++j) {
+    TBootstrapClustererForTest2::TSizeVecVecVec clusters(std::size(clusters_));
+    for (std::size_t i = 0; i < std::size(clusters_); ++i) {
+        for (std::size_t j = 0; j < std::size(clusters_[i]); ++j) {
             TSizeVec cluster;
-            for (std::size_t k = 0; k < boost::size(clusters_[i][j]); ++k) {
+            for (std::size_t k = 0; k < std::size(clusters_[i][j]); ++k) {
                 if (clusters_[i][j][k] != _) {
                     cluster.push_back(clusters_[i][j][k]);
                 }
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
                                           "14: [2, 5, 9, 11]\n"
                                           "15: [4]\n")};
 
-    for (std::size_t i = 0; i < boost::size(overlaps); ++i) {
+    for (std::size_t i = 0; i < std::size(overlaps); ++i) {
         LOG_DEBUG(<< "*** overlap threshold = " << overlaps[i] << " ***");
 
         TGraph graph;
@@ -546,10 +546,10 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
         {254.41593, 6.66276},  {255.41593, 7.37394},  {256.41593, 8.01144},
         {257.41593, 8.56889},  {258.41593, 9.04072},  {259.41593, 9.42222},
         {260.41593, 9.70958},  {261.41593, 9.89992},  {262.41593, 9.99135}};
-    std::size_t clusters[] = {0, 31, 62, boost::size(x)};
+    std::size_t clusters[] = {0, 31, 62, std::size(x)};
 
     TSizeVecVec perfect(3);
-    for (std::size_t i = 1; i < boost::size(clusters); ++i) {
+    for (std::size_t i = 1; i < std::size(clusters); ++i) {
         for (std::size_t j = clusters[i - 1]; j < clusters[i]; ++j) {
             perfect[i - 1].push_back(j);
         }
@@ -574,8 +574,8 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
 
         flatPoints.clear();
         lookup.clear();
-        rng.generateUniformSamples(0, 4.0, 2 * boost::size(x), noise);
-        for (std::size_t i = 0; i < boost::size(x); ++i) {
+        rng.generateUniformSamples(0, 4.0, 2 * std::size(x), noise);
+        for (std::size_t i = 0; i < std::size(x); ++i) {
             TVector2 point(&x[i][0], &x[i][2]);
             point(0) += noise[2 * i];
             point(1) += noise[2 * i + 1];

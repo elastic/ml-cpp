@@ -17,7 +17,6 @@
 #include <core/ImportExport.h>
 
 #include <boost/log/sources/record_ostream.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <functional>
 #include <iterator>
@@ -92,10 +91,10 @@ private:
     template<typename T>
     inline static std::string print_(T value, true_ /*is arithmetic*/) {
         // For signed types only.
-        if (value != T(0) && value == boost::numeric::bounds<T>::lowest()) {
+        if (value != T(0) && value == std::numeric_limits<T>::lowest()) {
             return "\"min\"";
         }
-        if (value == boost::numeric::bounds<T>::highest()) {
+        if (value == std::numeric_limits<T>::max()) {
             return "\"max\"";
         }
         return CStringUtils::typeToStringPretty(value);
@@ -196,7 +195,7 @@ std::ostream& stream(boost::log::basic_record_ostream<CHAR_T>& stream) {
 //! types. It also handles containers of containers (checks if they
 //! have a nested const_iterator typedef).
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is implemented using CStringUtils if possible and otherwise
 //! std::ostringstream. It doesn't attempt to be high performance and
 //! is primarily intended for testing and debugging.
@@ -337,7 +336,7 @@ public:
 //! Note that this only works for the scope of the current log line after the
 //! CScopePrintContainers variable is defined.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Libraries have a tendency to overload operator<< for std::ostream (for
 //! example PyTorch does this) for STL types. In such cases, we get a violation
 //! of the ODR if we do the same. However, we can simply wrap the std::ostream

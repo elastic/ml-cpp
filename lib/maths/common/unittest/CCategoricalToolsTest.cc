@@ -18,7 +18,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/binomial.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -60,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -77,7 +76,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -131,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -148,7 +147,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -172,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -189,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -209,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -226,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -245,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
                     TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                    boost::size(probabilities), samples);
+                    std::size(probabilities), samples);
                 std::sort(samples.begin(), samples.end());
                 samples.erase(std::unique(samples.begin(), samples.end()),
                               samples.end());
@@ -262,7 +261,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double distinctCategories;
             maths::common::CCategoricalTools::expectedDistinctCategories(
                 TDoubleVec(std::begin(probabilities), std::end(probabilities)),
-                static_cast<double>(boost::size(probabilities)), distinctCategories);
+                static_cast<double>(std::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -405,8 +404,8 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
     double n[] = {10, 100, 10000};
     double p[] = {0.1, 0.5, 0.9};
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
-        for (std::size_t j = 0; j < boost::size(p); ++j) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
+        for (std::size_t j = 0; j < std::size(p); ++j) {
             LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
             boost::math::binomial_distribution<> binomial(n[i], p[j]);
@@ -452,8 +451,8 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
         double n[] = {10, 100, 10000};
         double p[] = {0.1, 0.5, 0.9};
 
-        for (std::size_t i = 0; i < boost::size(n); ++i) {
-            for (std::size_t j = 0; j < boost::size(p); ++j) {
+        for (std::size_t i = 0; i < std::size(n); ++i) {
+            for (std::size_t j = 0; j < std::size(p); ++j) {
                 LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
                 boost::math::binomial_distribution<> binomial(n[i], p[j]);

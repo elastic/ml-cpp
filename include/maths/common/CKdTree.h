@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CKdTree_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryFwd.h>
+#include <core/CMemoryUsage.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/CAnnotatedVector.h>

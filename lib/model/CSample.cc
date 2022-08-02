@@ -13,14 +13,13 @@
 
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CChecksum.h>
 
 #include <model/CFeatureData.h>
-#include <model/ModelTypes.h>
 
 namespace ml {
 namespace model {

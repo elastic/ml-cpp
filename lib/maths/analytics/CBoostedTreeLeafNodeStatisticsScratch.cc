@@ -13,7 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>

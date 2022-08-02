@@ -16,7 +16,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -251,7 +250,7 @@ BOOST_AUTO_TEST_CASE(testNode) {
 
 BOOST_AUTO_TEST_CASE(testSimplePermutations) {
     double x[] = {1.0, 3.2, 4.5, 7.8};
-    std::size_t n = boost::size(x);
+    std::size_t n = std::size(x);
 
     maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
         maths::common::CAgglomerativeClusterer::E_Single,
@@ -261,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
         std::string("[(3.3, [0, 1, 2, 3]), (2.2, [0, 1, 2]), (1.3, [1, 2])]"),
         std::string("[(6.8, [0, 1, 2, 3]), (3.5, [0, 1, 2]), (1.3, [1, 2])]")};
 
-    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0; o < std::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3};
@@ -304,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
 
 BOOST_AUTO_TEST_CASE(testDegenerate) {
     double x[] = {1.0, 3.2, 3.2, 3.2, 4.5, 7.8};
-    std::size_t n = boost::size(x);
+    std::size_t n = std::size(x);
 
     maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
         maths::common::CAgglomerativeClusterer::E_Single,
@@ -318,7 +317,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")}};
 
-    for (std::size_t o = 0u, count = 0; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0, count = 0; o < std::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3, 4, 5};
@@ -376,19 +375,16 @@ BOOST_AUTO_TEST_CASE(testRandom) {
 
     std::size_t n = 20;
 
-    maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
-        maths::common::CAgglomerativeClusterer::E_Single,
-        maths::common::CAgglomerativeClusterer::E_Complete};
-
-    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
-        LOG_DEBUG(<< "*** " << print(objectives[o]) << " ***");
+    for (auto objective : {maths::common::CAgglomerativeClusterer::E_Single,
+                           maths::common::CAgglomerativeClusterer::E_Complete}) {
+        LOG_DEBUG(<< "*** " << objective << " ***");
 
         for (std::size_t t = 0; t < 10; ++t) {
             TDoubleVec dij;
             rng.generateUniformSamples(0.0, 100.0, n * (n - 1) / 2, dij);
 
             TDoubleVecVec distanceMatrix(n);
-            for (std::size_t i = 0u, k = 0; i < n; ++i) {
+            for (std::size_t i = 0, k = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(i == j ? 0.0 : dij[k++]);
                 }
@@ -396,7 +392,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
             }
 
             TClusterVec expectedTree;
-            switch (objectives[o]) {
+            switch (objective) {
             case maths::common::CAgglomerativeClusterer::E_Single:
                 expectedTree = agglomerativeCluster<CSlinkObjective>(distanceMatrix);
                 break;
@@ -424,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
             BOOST_TEST_REQUIRE(clusterer.initialize(distanceMatrix));
 
             maths::common::CAgglomerativeClusterer::TNodeVec tree;
-            clusterer.run(objectives[o], tree);
+            clusterer.run(objective, tree);
 
             TDoubleSizeVecPrVec clusters;
             tree.back().clusters(clusters);

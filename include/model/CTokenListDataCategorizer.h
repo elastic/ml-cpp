@@ -12,7 +12,7 @@
 #define INCLUDED_ml_model_CTokenListDataCategorizer_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>

@@ -12,23 +12,17 @@
 #include <maths/time_series/CSignal.h>
 
 #include <core/CLogger.h>
-#include <core/Constants.h>
+#include <core/CVectorRange.h>
 
-#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/CLeastSquaresOnlineRegression.h>
-#include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 
-#include <maths/time_series/CTimeSeriesSegmentation.h>
-
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/distributions/normal.hpp>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>

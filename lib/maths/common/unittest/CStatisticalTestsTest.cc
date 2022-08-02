@@ -25,8 +25,6 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/range.hpp>
-
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CStatisticalTestsTest)
@@ -47,7 +45,7 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
 
     double averageMeanError = 0.0;
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         LOG_DEBUG(<< "*** n = " << n[i] << " ***");
         {
             LOG_DEBUG(<< "N(" << 5.0 << "," << std::sqrt(2.0) << ")");
@@ -115,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
         }
     }
 
-    averageMeanError /= 2.0 * static_cast<double>(boost::size(n));
+    averageMeanError /= 2.0 * static_cast<double>(std::size(n));
     LOG_DEBUG(<< "averageMeanError = " << averageMeanError);
     BOOST_TEST_REQUIRE(averageMeanError < 0.011);
 }

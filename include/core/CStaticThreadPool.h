@@ -27,7 +27,7 @@ namespace core {
 
 //! \brief A minimal fixed size thread pool for implementing CThreadPoolExecutor.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This purposely has very limited interface and is intended to mainly support
 //! CThreadPoolExecutor which provides the mechanism by which we expose the thread
 //! pool to the rest of the code via calls core::async.

@@ -10,7 +10,6 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CTriple.h>
 #include <core/Constants.h>
 
 #include <maths/common/CMultivariateNormalConjugate.h>
@@ -27,7 +26,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
@@ -613,7 +611,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                     {0.8, 0.65}
                 };
 
-            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
+            for (std::size_t i = 0; i < std::size(testTimes); ++i)
             {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
@@ -807,7 +805,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << influences);
-                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(2, influences.size());
                 BOOST_REQUIRE_EQUAL(i3, *influences[0].first.second);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(0.7, influences[0].second, 0.04);
                 BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
@@ -1011,7 +1009,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << influences);
-                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(2, influences.size());
                 BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[0].second, 0.04);
                 BOOST_REQUIRE_EQUAL(i3, *influences[1].first.second);
@@ -1297,7 +1295,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                    {1.0, 0.85}
     //                };
     //
-    //            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
+    //            for (std::size_t i = 0; i < std::size(testTimes); ++i)
     //            {
     //                core_t::TTime time = testTimes[i];
     //                LOG_DEBUG(<< "  time = " << time);
@@ -1549,7 +1547,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << influences);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(1, influences.size());
             BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.95, influences[0].second, 0.06);
         }
@@ -1577,7 +1575,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << influences);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(1, influences.size());
             BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 0.03);
         }
@@ -1611,7 +1609,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
                                             univariateModel, now, values[0],
                                             influencerValues[0], influences);
             LOG_DEBUG(<< "  influences = " << influences);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(1, influences.size());
             BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.75, influences[0].second, 0.05);
         }
@@ -1621,7 +1619,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
                                             multivariateModel, now, values[1],
                                             influencerValues[1], influences);
             LOG_DEBUG(<< "  influences = " << influences);
-            BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+            BOOST_REQUIRE_EQUAL(2, influences.size());
             BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
             BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 1e-3);

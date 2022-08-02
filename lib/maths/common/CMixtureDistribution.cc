@@ -80,9 +80,6 @@ struct SQuantile {
 template<typename RESULT, typename VISITOR_ACTION>
 class CUnaryVisitor {
 public:
-    using result_type = RESULT;
-
-public:
     template<typename DISTRIBUTION>
     RESULT operator()(const DISTRIBUTION& distribution) const {
         return action(distribution);
@@ -95,9 +92,6 @@ private:
 //! \brief Invokes a specified binary action on a distribution.
 template<typename RESULT, typename VISITOR_ACTION>
 class CBinaryVisitor {
-public:
-    using result_type = RESULT;
-
 public:
     template<typename DISTRIBUTION>
     RESULT operator()(const DISTRIBUTION& distribution, double x) const {

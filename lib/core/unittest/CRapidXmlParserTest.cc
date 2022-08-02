@@ -99,7 +99,7 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& firstLevelChildren =
         rootNodePtr->children();
-    BOOST_REQUIRE_EQUAL(size_t(2), firstLevelChildren.size());
+    BOOST_REQUIRE_EQUAL(2, firstLevelChildren.size());
     BOOST_TEST_REQUIRE(firstLevelChildren[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("OperationRequest"), firstLevelChildren[0]->name());
     BOOST_TEST_REQUIRE(firstLevelChildren[1] != nullptr);
@@ -107,7 +107,7 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& opReqChildren =
         firstLevelChildren[0]->children();
-    BOOST_REQUIRE_EQUAL(size_t(4), opReqChildren.size());
+    BOOST_REQUIRE_EQUAL(4, opReqChildren.size());
     BOOST_TEST_REQUIRE(opReqChildren[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("HTTPHeaders"), opReqChildren[0]->name());
     BOOST_TEST_REQUIRE(opReqChildren[1] != nullptr);
@@ -122,12 +122,12 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
     // Test CDATA
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemsChildren =
         firstLevelChildren[1]->children();
-    BOOST_REQUIRE_EQUAL(size_t(13), itemsChildren.size());
+    BOOST_REQUIRE_EQUAL(13, itemsChildren.size());
 
     BOOST_TEST_REQUIRE(itemsChildren[3] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item3Children =
         itemsChildren[3]->children();
-    BOOST_REQUIRE_EQUAL(size_t(4), item3Children.size());
+    BOOST_REQUIRE_EQUAL(4, item3Children.size());
     BOOST_TEST_REQUIRE(item3Children[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("msg"), item3Children[0]->name());
     BOOST_REQUIRE_EQUAL(std::string("\n\
@@ -139,12 +139,12 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
     BOOST_TEST_REQUIRE(itemsChildren[10] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item10Children =
         itemsChildren[10]->children();
-    BOOST_REQUIRE_EQUAL(size_t(3), item10Children.size());
+    BOOST_REQUIRE_EQUAL(3, item10Children.size());
     BOOST_TEST_REQUIRE(item10Children[2] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("ItemAttributes"), item10Children[2]->name());
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemAttributesChildren =
         item10Children[2]->children();
-    BOOST_REQUIRE_EQUAL(size_t(4), itemAttributesChildren.size());
+    BOOST_REQUIRE_EQUAL(4, itemAttributesChildren.size());
     BOOST_TEST_REQUIRE(itemAttributesChildren[1] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
     BOOST_REQUIRE_EQUAL(std::string("William Morrow & Company"),
@@ -177,19 +177,19 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& parseTree =
         rootNodePtr->children();
-    BOOST_REQUIRE_EQUAL(size_t(1), parseTree.size());
+    BOOST_REQUIRE_EQUAL(1, parseTree.size());
     BOOST_TEST_REQUIRE(parseTree[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("parsetree"), parseTree[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& expression =
         parseTree[0]->children();
-    BOOST_REQUIRE_EQUAL(size_t(2), expression.size());
+    BOOST_REQUIRE_EQUAL(2, expression.size());
     BOOST_TEST_REQUIRE(expression[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("expression"), expression[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& descriptionAndRegexes =
         expression[0]->children();
-    BOOST_REQUIRE_EQUAL(size_t(2), descriptionAndRegexes.size());
+    BOOST_REQUIRE_EQUAL(2, descriptionAndRegexes.size());
     BOOST_TEST_REQUIRE(descriptionAndRegexes[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
     BOOST_REQUIRE_EQUAL(std::string("Transport node error"),
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& varbind =
         descriptionAndRegexes[1]->children();
-    BOOST_REQUIRE_EQUAL(size_t(2), varbind.size());
+    BOOST_REQUIRE_EQUAL(2, varbind.size());
     BOOST_TEST_REQUIRE(varbind[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("varbind"), varbind[0]->name());
     BOOST_TEST_REQUIRE(varbind[1] != nullptr);

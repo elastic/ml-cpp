@@ -23,7 +23,6 @@
 
 #include <test/BoostTestCloseAbsolute.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -571,7 +570,7 @@ BOOST_AUTO_TEST_CASE(testNorms) {
                   {-3.0, 1.1, -3.3, 1.8, 6.1}};
     double expectedEuclidean[]{4.30697, 5.12543, 9.01942, 7.84538};
 
-    for (std::size_t i = 0; i < boost::size(v); ++i) {
+    for (std::size_t i = 0; i < std::size(v); ++i) {
         maths::common::CVectorNx1<double, 5> v_(v[i]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedEuclidean[i], v_.euclidean(), 5e-6);
     }
@@ -583,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testNorms) {
         {-3.0, 1.1, -3.3, 1.8, 6.1, -1.3, 1.3, 4.2, 3.1, 1.9, -2.3, 3.1, 2.4, 2.3, 1.0}};
     double expectedFrobenius[]{13.78550, 18.00250, 20.72052, 14.80844};
 
-    for (std::size_t i = 0; i < boost::size(m); ++i) {
+    for (std::size_t i = 0; i < std::size(m); ++i) {
         maths::common::CSymmetricMatrixNxN<double, 5> m_(std::begin(m[i]),
                                                          std::end(m[i]));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedFrobenius[i], m_.frobenius(), 5e-6);
@@ -819,7 +818,7 @@ BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
                                 -9.794163, -8.602336, -8.462027, -9.096402,
                                 -8.521042, -8.590054};
 
-        for (std::size_t i = 0; i < boost::size(x_); ++i) {
+        for (std::size_t i = 0; i < std::size(x_); ++i) {
             maths::common::CVectorNx1<double, 4> x(x_[i]);
             double likelihood;
             BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
@@ -953,7 +952,7 @@ BOOST_AUTO_TEST_CASE(testSampleGaussian) {
         std::vector<maths::common::CVectorNx1<double, 4>> samples;
         maths::common::sampleGaussian(100, mean, covariance, samples);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(99), samples.size());
+        BOOST_REQUIRE_EQUAL(99, samples.size());
 
         maths::common::CBasicStatistics::SSampleCovariances<maths::common::CVectorNx1<double, 4>> covariances(
             4);
@@ -1010,7 +1009,7 @@ BOOST_AUTO_TEST_CASE(testSampleGaussian) {
         std::vector<maths::common::CVectorNx1<double, 4>> samples;
         maths::common::sampleGaussian(100, mean, covariance, samples);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(100), samples.size());
+        BOOST_REQUIRE_EQUAL(100, samples.size());
 
         maths::common::CBasicStatistics::SSampleCovariances<maths::common::CVectorNx1<double, 4>> covariances(
             4);
@@ -1061,7 +1060,7 @@ BOOST_AUTO_TEST_CASE(testLogDeterminant) {
                                 3.1654e-06, 8.5319e-02, 2.0840e-03, 6.8008e-03,
                                 1.4755e-02, 2.6315e-05};
 
-        for (std::size_t i = 0; i < boost::size(matrices); ++i) {
+        for (std::size_t i = 0; i < std::size(matrices); ++i) {
             maths::common::CSymmetricMatrixNxN<double, 3> M(matrices[i]);
             double logDeterminant;
             maths::common::logDeterminant(M, logDeterminant);

@@ -822,7 +822,7 @@ public:
     template<typename T, typename F>
     static bool globalMinimize(const T& p, const F& f, double& x, double& fx, double& fsd) {
         using TMinAccumulator =
-            CBasicStatistics::COrderStatisticsStack<std::pair<double, std::size_t>, 1>;
+            CBasicStatistics::SMin<std::pair<double, std::size_t>>::TAccumulator;
         using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
         std::size_t n = p.size();

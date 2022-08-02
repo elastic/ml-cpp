@@ -13,9 +13,10 @@
 #define INCLUDED_ml_maths_common_CSpline_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/UnwrapRef.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ImportExport.h>
@@ -616,7 +617,7 @@ public:
         return CChecksum::calculate(seed, m_Curvatures);
     }
 
-    //! Get the memory used by this component
+    //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSpline");
         core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
@@ -624,7 +625,7 @@ public:
         core::CMemoryDebug::dynamicSize("m_Curvatures", m_Curvatures, mem);
     }
 
-    //! Get the memory used by this component
+    //! Get the memory used by this object.
     std::size_t memoryUsage() const {
         std::size_t mem = core::CMemory::dynamicSize(m_Knots);
         mem += core::CMemory::dynamicSize(m_Values);

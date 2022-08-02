@@ -14,17 +14,19 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
-#include <core/CTriple.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 
+#include <boost/unordered_set.hpp>
+
 #include <algorithm>
+#include <list>
 #include <numeric>
 
 namespace ml {

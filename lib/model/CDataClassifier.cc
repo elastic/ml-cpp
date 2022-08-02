@@ -14,12 +14,9 @@
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CIntegerTools.h>
-
-#include <numeric>
 
 namespace ml {
 namespace model {

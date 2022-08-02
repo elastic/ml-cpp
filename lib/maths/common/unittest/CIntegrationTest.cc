@@ -20,7 +20,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/normal.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -1000,7 +999,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         {1, 15, 113, 589, 2437},  {1, 17, 145, 849, 3905},
         {1, 19, 181, 1177, 5965}, {1, 21, 221, 1581, 8761}};
 
-    for (std::size_t i = 0; i < boost::size(dimensions); ++i) {
+    for (std::size_t i = 0; i < std::size(dimensions); ++i) {
         LOG_DEBUG(<< "DIMENSION = " << dimensions[i]);
 
 #define NUMBER_POINTS(dimension, n)                                                                       \
@@ -1034,7 +1033,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         n = 0;                                                                                            \
         break;                                                                                            \
     }
-        for (std::size_t j = 0; j < boost::size(order); ++j) {
+        for (std::size_t j = 0; j < std::size(order); ++j) {
             LOG_DEBUG(<< "ORDER = " << order[j]);
 
             std::size_t numberPoints = 0;

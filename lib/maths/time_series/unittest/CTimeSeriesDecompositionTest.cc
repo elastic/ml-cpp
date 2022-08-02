@@ -677,7 +677,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
                 // Check that only the daily component has been initialized.
                 const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-                BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+                BOOST_REQUIRE_EQUAL(1, components.size());
                 BOOST_REQUIRE_EQUAL(DAY, components[0].time().period());
                 BOOST_TEST_REQUIRE(components[0].initialized());
             }
@@ -695,7 +695,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
     // Check that only the daily component has been initialized.
     const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-    BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+    BOOST_REQUIRE_EQUAL(1, components.size());
     BOOST_REQUIRE_EQUAL(DAY, components[0].time().period());
     BOOST_TEST_REQUIRE(components[0].initialized());
 }

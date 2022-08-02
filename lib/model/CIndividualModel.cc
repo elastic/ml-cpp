@@ -13,7 +13,7 @@
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -21,14 +21,9 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-
-#include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
-#include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
@@ -586,10 +581,10 @@ void CIndividualModel::correctBaselineForInterim(model_t::EFeature feature,
                                                  std::size_t pid,
                                                  model_t::CResultType type,
                                                  const TSizeDoublePr1Vec& correlated,
-                                                 const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+                                                 const TFeatureSizeSizeTrDouble1VecUMap& corrections,
                                                  TDouble1Vec& result) const {
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
-        TFeatureSizeSizeTriple key(feature, pid, pid);
+        TFeatureSizeSizeTr key(feature, pid, pid);
         switch (type.asConditionalOrUnconditional()) {
         case model_t::CResultType::E_Unconditional:
             break;

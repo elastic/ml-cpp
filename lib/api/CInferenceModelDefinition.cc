@@ -10,7 +10,6 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
 #include <boost/unordered_map.hpp>
@@ -737,11 +736,11 @@ CEncoding::TSizeInfoUPtr CFrequencyEncoding::sizeInfo() const {
     return std::make_unique<CFrequencyEncoding::CSizeInfo>(*this);
 }
 
-COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() {
+COneHotEncoding::TStrStrMap& COneHotEncoding::hotMap() {
     return m_HotMap;
 }
 
-const COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() const {
+const COneHotEncoding::TStrStrMap& COneHotEncoding::hotMap() const {
     return m_HotMap;
 }
 
@@ -764,7 +763,7 @@ COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding& encoding)
     : CEncoding::CSizeInfo::CSizeInfo(&encoding), m_Encoding{encoding} {
 }
 
-COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hotMap)
+COneHotEncoding::COneHotEncoding(const std::string& field, TStrStrMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
 

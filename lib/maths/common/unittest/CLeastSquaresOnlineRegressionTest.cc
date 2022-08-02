@@ -63,9 +63,6 @@ double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y)
 template<std::size_t N>
 class CRegressionPrediction {
 public:
-    using result_type = double;
-
-public:
     CRegressionPrediction(const maths::common::CLeastSquaresOnlineRegression<N, double>& regression)
         : m_Regression(regression) {}
 

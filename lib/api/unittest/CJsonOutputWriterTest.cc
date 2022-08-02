@@ -34,7 +34,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
-#include <set>
 #include <sstream>
 #include <string>
 

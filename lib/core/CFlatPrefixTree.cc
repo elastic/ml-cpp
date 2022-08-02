@@ -12,7 +12,7 @@
 #include <core/CFlatPrefixTree.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStringUtils.h>
 
 #include <core/CContainerPrinter.h>

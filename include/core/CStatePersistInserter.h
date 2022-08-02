@@ -15,7 +15,6 @@
 #include <core/CStringUtils.h>
 #include <core/ImportExport.h>
 
-#include <limits>
 #include <ostream>
 #include <string>
 

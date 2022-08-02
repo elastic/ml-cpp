@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CAnnotatedVector_h
 #define INCLUDED_ml_maths_common_CAnnotatedVector_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 
 #include <maths/common/CTypeTraits.h>
 
