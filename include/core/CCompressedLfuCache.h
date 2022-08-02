@@ -138,7 +138,7 @@ public:
 
         auto value = computeValue(std::move(key));
 
-        std::size_t itemMemoryUsage{CMemory::dynamicSize(value)};
+        std::size_t itemMemoryUsage{memory::dynamicSize(value)};
 
         if (this->guardWrite(TIME_OUT, [&] {
                 // It is possible that two values with the same key check the cache
@@ -383,7 +383,7 @@ private:
     class CCacheItem {
     public:
         //! We purposely disable direct memory estimation for cache items because
-        //! we want to avoid quadratic complexity using core::CMemory::dynamicSize.
+        //! we want to avoid quadratic complexity using core::memory::dynamicSize.
         //! Instead we estimate memory usage for each item we add and remove from
         //! the cache and maintain a running total.
         static constexpr bool dynamicSizeAlwaysZero() { return true; }
@@ -484,15 +484,15 @@ private:
     bool full(std::size_t itemMemoryUsage) const {
         std::size_t memory{this->unguardedMemoryUsage() + itemMemoryUsage +
                            sizeof(typename TCompressedKeyCacheItemUMap::value_type) +
-                           CMemory::storageNodeOverhead(m_ItemCache) +
+                           memory::storageNodeOverhead(m_ItemCache) +
                            sizeof(typename TCacheItemStatsSet::value_type) +
-                           CMemory::storageNodeOverhead(m_ItemStats)};
+                           memory::storageNodeOverhead(m_ItemStats)};
         if (this->needToResizeItemCache()) {
             memory += static_cast<std::size_t>(
                 (static_cast<double>(this->nextItemCacheBucketCount()) /
                      static_cast<double>(m_ItemCache.bucket_count()) -
                  1.0) *
-                static_cast<double>(CMemory::dynamicSize(m_ItemCache) -
+                static_cast<double>(memory::dynamicSize(m_ItemCache) -
                                     m_ItemCache.size() *
                                         sizeof(typename TCompressedKeyCacheItemUMap::value_type)));
         }
@@ -501,8 +501,8 @@ private:
 
     std::size_t unguardedMemoryUsage() const {
         return m_ItemsMemoryUsage + // overheads
-               CMemory::dynamicSize(m_ItemCache) + CMemory::dynamicSize(m_ItemStats) +
-               CMemory::dynamicSize(m_BucketCountSequence);
+               memory::dynamicSize(m_ItemCache) + memory::dynamicSize(m_ItemStats) +
+               memory::dynamicSize(m_BucketCountSequence);
     }
 
     bool needToResizeItemCache() const {

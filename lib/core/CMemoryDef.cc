@@ -14,7 +14,7 @@
 
 namespace ml {
 namespace core {
-namespace CMemory {
+namespace memory {
 std::size_t dynamicSize(const std::string& t) {
     std::size_t capacity = t.capacity();
     // The different STLs we use on various platforms all have different
@@ -46,7 +46,7 @@ std::size_t dynamicSize(const std::any& t) {
 }
 }
 
-namespace CMemoryDebug {
+namespace memory_debug {
 
 void dynamicSize(const char* name, const std::string& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
     std::string componentName(name);

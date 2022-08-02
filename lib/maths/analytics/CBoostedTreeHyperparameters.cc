@@ -681,11 +681,11 @@ std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_TunableHyperparameters)};
-    mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
-    mem += core::CMemory::dynamicSize(m_BayesianOptimization);
-    mem += core::CMemory::dynamicSize(m_LineSearchRelevantParameters);
-    mem += core::CMemory::dynamicSize(m_LineSearchHyperparameterLosses);
+    std::size_t mem{core::memory::dynamicSize(m_TunableHyperparameters)};
+    mem += core::memory::dynamicSize(m_HyperparameterSamples);
+    mem += core::memory::dynamicSize(m_BayesianOptimization);
+    mem += core::memory::dynamicSize(m_LineSearchRelevantParameters);
+    mem += core::memory::dynamicSize(m_LineSearchHyperparameterLosses);
     return mem;
 }
 

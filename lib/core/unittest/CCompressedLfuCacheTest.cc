@@ -42,7 +42,7 @@ public:
     explicit CTestValue(std::size_t size) { m_Buffer.reserve(size); }
 
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Buffer);
+        return core::memory::dynamicSize(m_Buffer);
     }
 
 private:

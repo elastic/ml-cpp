@@ -104,7 +104,7 @@ bool inplace(const CSmallVector<T, N>& t) {
 template<typename T, typename = void>
 struct SDebugMemoryDynamicSize {
     static void dispatch(const char* name, const T& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
-        std::size_t used = CMemory::dynamicSize(t);
+        std::size_t used = memory::dynamicSize(t);
         if (used > 0) {
             std::string description(name);
             description += "::";
@@ -143,7 +143,7 @@ struct CORE_EXPORT STypeInfoLess {
 };
 }
 
-namespace CMemory {
+namespace memory {
 
 //! Default implementation for non-pointer types.
 template<typename T>
@@ -163,12 +163,12 @@ std::size_t dynamicSize(const T& t, std::enable_if_t<!std::is_pointer_v<T>>*) {
 //! Default implementation for pointer types.
 template<typename T>
 std::size_t dynamicSize(const T& t, std::enable_if_t<std::is_pointer_v<T>>*) {
-    return t == nullptr ? 0 : CMemory::staticSize(*t) + CMemory::dynamicSize(*t);
+    return t == nullptr ? 0 : memory::staticSize(*t) + memory::dynamicSize(*t);
 }
 
 template<typename T, typename DELETER>
 std::size_t dynamicSize(const std::unique_ptr<T, DELETER>& t) {
-    return t == nullptr ? 0 : CMemory::staticSize(*t) + CMemory::dynamicSize(*t);
+    return t == nullptr ? 0 : memory::staticSize(*t) + memory::dynamicSize(*t);
 }
 
 template<typename T>
@@ -182,59 +182,58 @@ std::size_t dynamicSize(const std::shared_ptr<T>& t) {
     }
     // Note we add on sizeof(long) here to account for the memory
     // used by the shared reference count. Also, round up.
-    return (sizeof(long) + CMemory::staticSize(*t) + CMemory::dynamicSize(*t) +
+    return (sizeof(long) + memory::staticSize(*t) + memory::dynamicSize(*t) +
             std::size_t(uc - 1)) /
            uc;
 }
 
 template<typename T, std::size_t N>
 std::size_t dynamicSize(const std::array<T, N>& t) {
-    return CMemory::elementDynamicSize(t);
+    return memory::elementDynamicSize(t);
 }
 
 template<typename T, typename A>
 std::size_t dynamicSize(const std::vector<T, A>& t) {
-    return CMemory::elementDynamicSize(t) + sizeof(T) * t.capacity();
+    return memory::elementDynamicSize(t) + sizeof(T) * t.capacity();
 }
 
 template<typename T, std::size_t N>
 std::size_t dynamicSize(const CSmallVector<T, N>& t) {
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::inplace(t) ? 0 : t.capacity()) * sizeof(T);
 }
 
 template<typename K, typename V, typename H, typename P, typename A>
 std::size_t dynamicSize(const boost::unordered_map<K, V, H, P, A>& t) {
-    return CMemory::elementDynamicSize(t) +
-           (t.bucket_count() * CMemory::storageNodeOverhead(t)) +
-           (t.size() * (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t)));
+    return memory::elementDynamicSize(t) +
+           (t.bucket_count() * memory::storageNodeOverhead(t)) +
+           (t.size() * (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t)));
 }
 
 template<typename K, typename V, typename C, typename A>
 std::size_t dynamicSize(const boost::container::flat_map<K, V, C, A>& t) {
-    return CMemory::elementDynamicSize(t) + t.capacity() * sizeof(std::pair<K, V>);
+    return memory::elementDynamicSize(t) + t.capacity() * sizeof(std::pair<K, V>);
 }
 
 template<typename T, typename H, typename P, typename A>
 std::size_t dynamicSize(const boost::unordered_set<T, H, P, A>& t) {
-    return CMemory::elementDynamicSize(t) +
-           (t.bucket_count() * sizeof(std::size_t) * 2) +
-           (t.size() * (sizeof(T) + CMemory::storageNodeOverhead(t)));
+    return memory::elementDynamicSize(t) + (t.bucket_count() * sizeof(std::size_t) * 2) +
+           (t.size() * (sizeof(T) + memory::storageNodeOverhead(t)));
 }
 
 template<typename T, typename C, typename A>
 std::size_t dynamicSize(const boost::container::flat_set<T, C, A>& t) {
-    return CMemory::elementDynamicSize(t) + t.capacity() * sizeof(T);
+    return memory::elementDynamicSize(t) + t.capacity() * sizeof(T);
 }
 
 template<typename T, typename A>
 std::size_t dynamicSize(const boost::circular_buffer<T, A>& t) {
-    return CMemory::elementDynamicSize(t) + t.capacity() * sizeof(T);
+    return memory::elementDynamicSize(t) + t.capacity() * sizeof(T);
 }
 
 template<typename T>
 std::size_t dynamicSize(const std::optional<T>& t) {
-    return !t ? 0 : CMemory::dynamicSize(*t);
+    return !t ? 0 : memory::dynamicSize(*t);
 }
 
 template<typename T>
@@ -246,10 +245,10 @@ template<typename T, typename V>
 std::size_t dynamicSize(const std::pair<T, V>& t) {
     std::size_t mem = 0;
     if constexpr (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
-        mem += CMemory::dynamicSize(t.first);
+        mem += memory::dynamicSize(t.first);
     }
     if constexpr (!memory_detail::SDynamicSizeAlwaysZero<V>::value()) {
-        mem += CMemory::dynamicSize(t.second);
+        mem += memory::dynamicSize(t.second);
     }
     return mem;
 }
@@ -262,7 +261,7 @@ std::size_t elementDynamicSize(const CONTAINER& t) {
     std::size_t mem = 0;
     if constexpr (!memory_detail::SDynamicSizeAlwaysZero<typename CONTAINER::value_type>::value()) {
         for (const auto& v : t) {
-            mem += CMemory::dynamicSize(v);
+            mem += memory::dynamicSize(v);
         }
     }
     return mem;
@@ -281,7 +280,7 @@ std::size_t elementDynamicSize(const CONTAINER& t) {
 //!   CMemory::anyVisitor().insertCallback<std::vector<double>>();
 //!   std::vector<std::any> variables;
 //!   variables.push_back(TDoubleVec(10));
-//!   std::size_t size{CMemory::dynamicSize(variables, visitor)};
+//!   std::size_t size{memory::dynamicSize(variables, visitor)};
 //! \endcode
 //!
 //! IMPLEMENTATION DECISIONS:\n
@@ -345,7 +344,7 @@ private:
     template<typename T>
     static std::size_t dynamicSizeCallback(const std::any& any) {
         try {
-            return sizeof(T) + CMemory::dynamicSize(std::any_cast<const T&>(any));
+            return sizeof(T) + memory::dynamicSize(std::any_cast<const T&>(any));
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate size " << e.what());
         }
@@ -361,7 +360,7 @@ CORE_EXPORT
 CAnyVisitor& anyVisitor();
 }
 
-namespace CMemoryDebug {
+namespace memory_debug {
 
 //! Default implementation for non-pointer types.
 template<typename T>
@@ -387,7 +386,7 @@ void dynamicSize(const char* name,
     if (t != nullptr) {
         std::string ptrName(name);
         ptrName += "_ptr";
-        mem->addItem(ptrName.c_str(), CMemory::staticSize(*t));
+        mem->addItem(ptrName.c_str(), memory::staticSize(*t));
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
     }
 }
@@ -399,7 +398,7 @@ void dynamicSize(const char* name,
     if (t != nullptr) {
         std::string ptrName(name);
         ptrName += "_ptr";
-        mem->addItem(ptrName.c_str(), CMemory::staticSize(*t));
+        mem->addItem(ptrName.c_str(), memory::staticSize(*t));
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
     }
 }
@@ -425,15 +424,15 @@ void dynamicSize(const char* name,
         ptrName += "_shared_ptr";
         // Note we add on sizeof(long) here to account for
         // the memory used by the shared reference count.
-        mem->addItem(ptrName, sizeof(long) + CMemory::staticSize(*t));
-        CMemoryDebug::dynamicSize(name, *t, mem);
+        mem->addItem(ptrName, sizeof(long) + memory::staticSize(*t));
+        memory_debug::dynamicSize(name, *t, mem);
     } else {
         ptrName += "shared_ptr (x" + std::to_string(uc) + ")";
         // Note we add on sizeof(long) here to account for
         // the memory used by the shared reference count.
         // Also, round up.
-        mem->addItem(ptrName, (sizeof(long) + CMemory::staticSize(*t) +
-                               CMemory::dynamicSize(*t) + std::size_t(uc - 1)) /
+        mem->addItem(ptrName, (sizeof(long) + memory::staticSize(*t) +
+                               memory::dynamicSize(*t) + std::size_t(uc - 1)) /
                                   uc);
     }
 }
@@ -445,7 +444,7 @@ void dynamicSize(const char* name,
     if constexpr (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
         std::string elementName{name};
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
-        CMemoryDebug::elementDynamicSize(std::move(elementName), t, mem);
+        memory_debug::elementDynamicSize(std::move(elementName), t, mem);
     }
 }
 
@@ -463,7 +462,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, std::size_t N>
@@ -480,7 +479,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename K, typename V, typename H, typename P, typename A>
@@ -497,7 +496,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::associativeElementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::associativeElementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename K, typename V, typename C, typename A>
@@ -517,7 +516,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::associativeElementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::associativeElementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename H, typename P, typename A>
@@ -527,14 +526,14 @@ void dynamicSize(const char* name,
     std::string componentName(name);
     componentName += "_uset";
 
-    std::size_t setSize = (t.bucket_count() * CMemory::storageNodeOverhead(t)) +
-                          (t.size() * (sizeof(T) + CMemory::storageNodeOverhead(t)));
+    std::size_t setSize = (t.bucket_count() * memory::storageNodeOverhead(t)) +
+                          (t.size() * (sizeof(T) + memory::storageNodeOverhead(t)));
 
     CMemoryUsage::SMemoryUsage usage(componentName, setSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename C, typename A>
@@ -553,7 +552,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename A>
@@ -570,7 +569,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T>
@@ -578,7 +577,7 @@ void dynamicSize(const char* name,
                  const std::optional<T>& t,
                  const CMemoryUsage::TMemoryUsagePtr& mem) {
     if (t) {
-        CMemoryDebug::dynamicSize(name, *t, mem);
+        memory_debug::dynamicSize(name, *t, mem);
     }
 }
 
@@ -595,12 +594,12 @@ void dynamicSize(const char* name,
     if (!memory_detail::SDynamicSizeAlwaysZero<U>::value()) {
         std::string keyName(name);
         keyName += "_first";
-        CMemoryDebug::dynamicSize(keyName.c_str(), t.first, mem);
+        memory_debug::dynamicSize(keyName.c_str(), t.first, mem);
     }
     if (!memory_detail::SDynamicSizeAlwaysZero<V>::value()) {
         std::string valueName(name);
         valueName += "_second";
-        CMemoryDebug::dynamicSize(valueName.c_str(), t.second, mem);
+        memory_debug::dynamicSize(valueName.c_str(), t.second, mem);
     }
 }
 
@@ -612,8 +611,8 @@ void associativeElementDynamicSize(std::string name,
         std::string keyName{name + "_key"};
         std::string valueName{name + "_value"};
         for (const auto & [ key, value ] : t) {
-            CMemoryDebug::dynamicSize(keyName.c_str(), key, mem);
-            CMemoryDebug::dynamicSize(valueName.c_str(), value, mem);
+            memory_debug::dynamicSize(keyName.c_str(), key, mem);
+            memory_debug::dynamicSize(valueName.c_str(), value, mem);
         }
     }
 }
@@ -626,7 +625,7 @@ void elementDynamicSize(std::string name,
         std::string elementName{name};
         elementName += "_item";
         for (const auto& v : t) {
-            CMemoryDebug::dynamicSize(elementName.c_str(), v, mem);
+            memory_debug::dynamicSize(elementName.c_str(), v, mem);
         }
     }
 }
@@ -701,7 +700,7 @@ private:
                                     const CMemoryUsage::TMemoryUsagePtr& mem) {
         try {
             mem->addItem(name, sizeof(T));
-            CMemoryDebug::dynamicSize(name, std::any_cast<const T&>(any), mem);
+            memory_debug::dynamicSize(name, std::any_cast<const T&>(any), mem);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate size " << e.what());
         }

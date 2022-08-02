@@ -202,7 +202,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         for (auto& resource : m_Resources) {
             if (resource.first->supportsPruning()) {
                 resource.first->prune(m_PruneWindow);
-                resource.second = core::CMemory::dynamicSize(resource.first);
+                resource.second = core::memory::dynamicSize(resource.first);
             }
             usageAfter += resource.second;
         }
@@ -259,7 +259,7 @@ void CResourceMonitor::memUsage(CMonitoredResource* resource) {
         return;
     }
     std::size_t modelPreviousUsage = itr->second;
-    std::size_t modelCurrentUsage = core::CMemory::dynamicSize(itr->first);
+    std::size_t modelCurrentUsage = core::memory::dynamicSize(itr->first);
     itr->second = modelCurrentUsage;
     m_MonitoredResourceCurrentMemory += (modelCurrentUsage - modelPreviousUsage);
 }

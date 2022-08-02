@@ -141,12 +141,12 @@ int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
 
 void CStringSimilarityTester::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CStringSimilarityTester");
-    core::CMemoryDebug::dynamicSize("m_Compressor", m_Compressor, mem);
+    core::memory_debug::dynamicSize("m_Compressor", m_Compressor, mem);
 }
 
 std::size_t CStringSimilarityTester::memoryUsage() const {
     std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_Compressor);
+    mem += core::memory::dynamicSize(m_Compressor);
     return mem;
 }
 }

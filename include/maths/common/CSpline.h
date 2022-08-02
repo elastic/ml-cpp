@@ -620,16 +620,16 @@ public:
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSpline");
-        core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
-        core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
-        core::CMemoryDebug::dynamicSize("m_Curvatures", m_Curvatures, mem);
+        core::memory_debug::dynamicSize("m_Knots", m_Knots, mem);
+        core::memory_debug::dynamicSize("m_Values", m_Values, mem);
+        core::memory_debug::dynamicSize("m_Curvatures", m_Curvatures, mem);
     }
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        std::size_t mem = core::CMemory::dynamicSize(m_Knots);
-        mem += core::CMemory::dynamicSize(m_Values);
-        mem += core::CMemory::dynamicSize(m_Curvatures);
+        std::size_t mem = core::memory::dynamicSize(m_Knots);
+        mem += core::memory::dynamicSize(m_Values);
+        mem += core::memory::dynamicSize(m_Curvatures);
         return mem;
     }
 

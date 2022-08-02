@@ -151,7 +151,7 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
         this->initializeFeatureSampleDistribution();
     });
 
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::memory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
@@ -199,7 +199,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     this->initializeSplitsCache(frame);
 
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::memory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
@@ -247,7 +247,7 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
     this->initializeSplitsCache(frame);
 
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::memory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
@@ -290,7 +290,7 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
     m_TreeImpl->predict(frame);
     m_TreeImpl->computeClassificationWeights(frame);
 
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::memory::dynamicSize(m_TreeImpl));
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
@@ -335,7 +335,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     }
     this->initializeSplitsCache(frame);
 
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::memory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
@@ -472,7 +472,7 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     }
 
     // Extend the frame with the bookkeeping columns used in train.
-    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
@@ -486,7 +486,7 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
     m_PaddedExtraColumns += paddedExtraColumns;
 
-    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t newFrameMemory{core::memory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 }
@@ -496,7 +496,7 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
     this->prepareDataFrameForTrain(frame);
 
     // Extend the frame with the bookkeeping columns used in incremental train.
-    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
@@ -507,7 +507,7 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
     }
     m_PaddedExtraColumns += paddedExtraColumns;
-    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t newFrameMemory{core::memory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 
@@ -530,7 +530,7 @@ void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) co
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
 
     // Extend the frame with the bookkeeping columns used in predict.
-    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
@@ -544,7 +544,7 @@ void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) co
     m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
     m_PaddedExtraColumns += paddedExtraColumns;
 
-    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t newFrameMemory{core::memory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 }
@@ -640,13 +640,13 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
 }
 
 void CBoostedTreeFactory::initializeSplitsCache(core::CDataFrame& frame) const {
-    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     std::size_t beginSplits{frame.numberColumns()};
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         beginSplits + (m_TreeImpl->numberFeatures() + 3) / 4);
     m_PaddedExtraColumns += frame.numberColumns() - beginSplits;
     m_TreeImpl->m_ExtraColumns[E_BeginSplits] = beginSplits;
-    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t newFrameMemory{core::memory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
     m_TreeImpl->initializeFixedCandidateSplits(frame);

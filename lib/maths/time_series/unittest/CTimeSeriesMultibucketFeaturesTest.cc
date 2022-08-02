@@ -100,10 +100,10 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     // Memory accounting through base pointer.
 
     maths::time_series::CTimeSeriesMultibucketScalarMean* base = &feature;
-    LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
+    LOG_DEBUG(<< "size = " << core::memory::dynamicSize(&feature));
 
-    BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
-                        core::CMemory::dynamicSize(&feature));
+    BOOST_REQUIRE_EQUAL(core::memory::dynamicSize(base),
+                        core::memory::dynamicSize(&feature));
 
     // Check clearing the feature.
 
@@ -288,10 +288,10 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     // Memory accounting through base pointer.
 
     maths::time_series::CTimeSeriesMultibucketVectorMean* base = &feature;
-    LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
+    LOG_DEBUG(<< "size = " << core::memory::dynamicSize(&feature));
 
-    BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
-                        core::CMemory::dynamicSize(&feature));
+    BOOST_REQUIRE_EQUAL(core::memory::dynamicSize(base),
+                        core::memory::dynamicSize(&feature));
 
     // Check clearing the feature.
 

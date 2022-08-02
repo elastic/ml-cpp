@@ -120,9 +120,9 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
     CAnomalyDetector detector2(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key2));
 
-    std::size_t mem = core::CMemory::dynamicSize(&categorizer) +
-                      core::CMemory::dynamicSize(&detector1) +
-                      core::CMemory::dynamicSize(&detector2) +
+    std::size_t mem = core::memory::dynamicSize(&categorizer) +
+                      core::memory::dynamicSize(&detector1) +
+                      core::memory::dynamicSize(&detector2) +
                       CStringStore::names().memoryUsage() +
                       CStringStore::influencers().memoryUsage();
 

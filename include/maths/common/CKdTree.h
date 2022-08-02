@@ -145,7 +145,7 @@ public:
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(s_Point);
+            return core::memory::dynamicSize(s_Point);
         }
 
         //! Estimate the amount of memory this node will use.
@@ -368,7 +368,7 @@ public:
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Nodes);
+        return core::memory::dynamicSize(m_Nodes);
     }
 
     //! Estimate the amount of memory the k-d tree will use.

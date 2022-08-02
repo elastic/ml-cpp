@@ -346,19 +346,19 @@ std::uint64_t CDecompositionComponent::CPackedSplines::checksum(std::uint64_t se
 void CDecompositionComponent::CPackedSplines::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedSplines");
-    core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
-    core::CMemoryDebug::dynamicSize("m_Values[0]", m_Values[0], mem);
-    core::CMemoryDebug::dynamicSize("m_Values[1]", m_Values[1], mem);
-    core::CMemoryDebug::dynamicSize("m_Curvatures[0]", m_Curvatures[0], mem);
-    core::CMemoryDebug::dynamicSize("m_Curvatures[1]", m_Curvatures[1], mem);
+    core::memory_debug::dynamicSize("m_Knots", m_Knots, mem);
+    core::memory_debug::dynamicSize("m_Values[0]", m_Values[0], mem);
+    core::memory_debug::dynamicSize("m_Values[1]", m_Values[1], mem);
+    core::memory_debug::dynamicSize("m_Curvatures[0]", m_Curvatures[0], mem);
+    core::memory_debug::dynamicSize("m_Curvatures[1]", m_Curvatures[1], mem);
 }
 
 std::size_t CDecompositionComponent::CPackedSplines::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Knots)};
-    mem += core::CMemory::dynamicSize(m_Values[0]);
-    mem += core::CMemory::dynamicSize(m_Values[1]);
-    mem += core::CMemory::dynamicSize(m_Curvatures[0]);
-    mem += core::CMemory::dynamicSize(m_Curvatures[1]);
+    std::size_t mem{core::memory::dynamicSize(m_Knots)};
+    mem += core::memory::dynamicSize(m_Values[0]);
+    mem += core::memory::dynamicSize(m_Values[1]);
+    mem += core::memory::dynamicSize(m_Curvatures[0]);
+    mem += core::memory::dynamicSize(m_Curvatures[1]);
     return mem;
 }
 }

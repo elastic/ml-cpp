@@ -42,14 +42,14 @@ const std::string& CDataCategorizer::fieldName() const {
 
 void CDataCategorizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDataCategorizer");
-    core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
-    core::CMemoryDebug::dynamicSize("m_ExamplesCollector", m_ExamplesCollector, mem);
+    core::memory_debug::dynamicSize("m_FieldName", m_FieldName, mem);
+    core::memory_debug::dynamicSize("m_ExamplesCollector", m_ExamplesCollector, mem);
 }
 
 std::size_t CDataCategorizer::memoryUsage() const {
     std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_FieldName);
-    mem += core::CMemory::dynamicSize(m_ExamplesCollector);
+    mem += core::memory::dynamicSize(m_FieldName);
+    mem += core::memory::dynamicSize(m_ExamplesCollector);
     return mem;
 }
 

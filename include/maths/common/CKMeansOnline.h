@@ -496,12 +496,12 @@ public:
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CKMeansOnline");
-        core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+        core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
     }
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Clusters);
+        return core::memory::dynamicSize(m_Clusters);
     }
 
 protected:

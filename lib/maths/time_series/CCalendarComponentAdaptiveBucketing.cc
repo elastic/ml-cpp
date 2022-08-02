@@ -165,14 +165,14 @@ std::uint64_t CCalendarComponentAdaptiveBucketing::checksum(std::uint64_t seed) 
 void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarComponentAdaptiveBucketing");
-    core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
-    core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
-    core::CMemoryDebug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
-    core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
+    core::memory_debug::dynamicSize("m_Endpoints", this->endpoints(), mem);
+    core::memory_debug::dynamicSize("m_Centres", this->centres(), mem);
+    core::memory_debug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
+    core::memory_debug::dynamicSize("m_Values", m_Values, mem);
 }
 
 std::size_t CCalendarComponentAdaptiveBucketing::memoryUsage() const {
-    return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Values);
+    return this->CAdaptiveBucketing::memoryUsage() + core::memory::dynamicSize(m_Values);
 }
 
 bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

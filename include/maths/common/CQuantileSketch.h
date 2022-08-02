@@ -198,7 +198,7 @@ public:
 
     //! Debug the memory used by this object.
     //!
-    //! \note Needs to be redeclared to work with CMemoryDebug.
+    //! \note Needs to be redeclared to work with memory_debug.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         this->CQuantileSketch::debugMemoryUsage(mem);
     }
