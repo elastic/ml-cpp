@@ -64,11 +64,9 @@ public:
     using TSampleVec = std::vector<CSample>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMedianAccumulator =
-        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_PiecewiseConstant, 30>;
-    using TMinAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
-    using TMaxAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_Linear, 30>;
+    using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
+    using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
     using TVarianceAccumulator =
         maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;

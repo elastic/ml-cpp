@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.17.6
+
+=== Enhancements
+
+* Improve accuracy of anomaly detection median estimation. (See {ml-pull}2367[#2367],
+  issue: {ml-issue}2364[#2364].)
+
 == {es} version 7.17.5
 
 === Enhancements

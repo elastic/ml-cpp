@@ -63,7 +63,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     using TVarianceAccumulator =
         maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMedianAccumulator =
-        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_PiecewiseConstant, 30>;
+        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_Linear, 30>;
 
     //! Make a statistic.
     template<typename STATISTIC>
