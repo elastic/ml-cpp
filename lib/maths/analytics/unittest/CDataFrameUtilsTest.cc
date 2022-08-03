@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
                     BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
                     BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                        qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
+                        qe, qa, 0.02 * std::max(std::fabs(qa), 2.0));
                     columnsMae[feature].add(std::fabs(qa - qe));
                 }
             }
