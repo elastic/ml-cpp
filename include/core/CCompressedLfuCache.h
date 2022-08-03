@@ -66,7 +66,7 @@ public:
     using TCompressedKey = typename TDictionary::CWord;
     using TCompressKey = std::function<TCompressedKey(const TDictionary&, const KEY&)>;
     using TComputeValueCallback = std::function<VALUE(KEY)>;
-    using TReadValueCallback = std::function<void(const VALUE&)>;
+    using TReadValueCallback = std::function<void(const VALUE&, bool)>;
 
 public:
     // Construction is only exposed to derived types.
@@ -123,7 +123,7 @@ public:
                 auto hit = this->hit(compressedKey);
                 if (hit != nullptr) {
                     ++m_NumberHits;
-                    readValue(*hit);
+                    readValue(*hit, true);
                     return true;
                 }
                 return false;
@@ -145,7 +145,7 @@ public:
                 // before either takes the write lock. So check if this is already
                 // in the cache before going any further.
                 if (m_ItemCache.find(compressedKey) != m_ItemCache.end()) {
-                    readValue(value);
+                    readValue(value, true);
                     this->incrementCount(compressedKey);
                     return;
                 }
@@ -158,7 +158,7 @@ public:
                     // It's possible that the cache is empty yet isn't big
                     // enough to hold this new item.
                     if (itemToEvict == m_ItemStats.end()) {
-                        readValue(value);
+                        readValue(value, false);
                         return;
                     }
                     m_RemovedCount += lastEvictedCount;
@@ -166,7 +166,8 @@ public:
                     this->removeFromCache(itemToEvict);
                 }
                 readValue(this->insert(compressedKey, value, itemMemoryUsage,
-                                       count + lastEvictedCount));
+                                       count + lastEvictedCount),
+                          false);
             }) == false) {
             ++m_LostCount;
         }

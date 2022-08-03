@@ -59,7 +59,7 @@ public:
     class CRequestCacheInterface {
     public:
         using TComputeResponse = std::function<std::string(SRequest)>;
-        using TReadResponse = std::function<void(const std::string&)>;
+        using TReadResponse = std::function<void(const std::string&, bool)>;
 
     public:
         virtual ~CRequestCacheInterface() = default;
@@ -102,7 +102,7 @@ public:
         bool lookup(SRequest request,
                     const TComputeResponse& computeResponse,
                     const TReadResponse& readResponse) override {
-            readResponse(computeResponse(std::move(request)));
+            readResponse(computeResponse(std::move(request)), false);
             return false;
         }
 

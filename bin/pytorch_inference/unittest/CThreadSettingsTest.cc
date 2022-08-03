@@ -12,6 +12,7 @@
 #include "../CThreadSettings.h"
 
 #include <boost/test/unit_test.hpp>
+
 #include <cstdint>
 
 BOOST_AUTO_TEST_SUITE(CThreadSettingsTest)

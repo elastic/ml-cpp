@@ -14,6 +14,7 @@ project("ML pytorch_inference unit tests")
 set (SRCS
   Main.cc
   CCommandParserTest.cc
+  CResultWriterTest.cc
   CThreadSettingsTest.cc
   )
 
