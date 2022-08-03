@@ -1443,7 +1443,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.55);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -1525,7 +1525,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
-    BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.15);
     BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.16);
 }
 
