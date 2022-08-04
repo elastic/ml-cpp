@@ -64,7 +64,7 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
     jsonWriter.Bool(isCacheHit);
     jsonWriter.Key(TIME_MS);
     jsonWriter.Uint64(timeMs);
-    jsonWriter.RawValue(innerResponse.c_str(), innerResponse.length(), rapidjson::kObjectType);
+    jsonWriter.rawKeyAndValue(innerResponse);
     jsonWriter.EndObject();
 }
 
