@@ -2228,12 +2228,12 @@ CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(row, m_DependentVariable)};
                     double weight{readExampleWeight(row, m_ExtraColumns)};
+                    double loss{m_Loss->value(prediction, actual)};
                     common::CSampling::poissonSample(
                         rng, 1.0, LOSS_ESTIMATION_BOOTSTRAP_SIZE - 1, samples);
-                    losses[0].add(m_Loss->value(prediction, actual), weight);
+                    losses[0].add(loss, weight);
                     for (std::size_t i = 1; i < LOSS_ESTIMATION_BOOTSTRAP_SIZE; ++i) {
-                        losses[i].add(m_Loss->value(prediction, actual),
-                                      weight * static_cast<double>(samples[i - 1]));
+                        losses[i].add(loss, weight * static_cast<double>(samples[i - 1]));
                     }
                 }
             },
