@@ -120,8 +120,8 @@ constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::m
 //!
 //!  collection size | std::upper_bound | CSearchTree::upperBound | speedup
 //!  --------------- | ---------------- | ----------------------- | -------
-//!        100       |      215 ms      |          59 ms          |  3.6 X
-//!       10000      |      580 ms      |         130 ms          |  4.5 X
+//!        100       |      215 ms      |          44 ms          |  4.8 X
+//!       10000      |      580 ms      |          84 ms          |  6.9 X
 //!
 //! One might reasonably expect larger speedups for larger data set sizes because
 //! of the higher branch factor. We posit that one pays fixed overheads due to
