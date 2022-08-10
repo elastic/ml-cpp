@@ -261,13 +261,13 @@ std::uint64_t CExpandingWindow::checksum(std::uint64_t seed) const {
 
 void CExpandingWindow::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CExpandingWindow");
-    core::CMemoryDebug::dynamicSize("m_BucketValues", m_BucketValues, mem);
-    core::CMemoryDebug::dynamicSize("m_DeflatedBucketValues", m_DeflatedBucketValues, mem);
+    core::memory_debug::dynamicSize("m_BucketValues", m_BucketValues, mem);
+    core::memory_debug::dynamicSize("m_DeflatedBucketValues", m_DeflatedBucketValues, mem);
 }
 
 std::size_t CExpandingWindow::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_BucketValues)};
-    mem += core::CMemory::dynamicSize(m_DeflatedBucketValues);
+    std::size_t mem{core::memory::dynamicSize(m_BucketValues)};
+    mem += core::memory::dynamicSize(m_DeflatedBucketValues);
     return mem;
 }
 

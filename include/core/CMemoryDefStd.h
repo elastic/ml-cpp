@@ -39,13 +39,13 @@ constexpr std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES{8};
 #endif
 }
 
-namespace CMemory {
+namespace memory {
 
 template<typename T, typename A>
 std::size_t dynamicSize(const std::list<T, A>& t) {
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::EXTRA_NODES + t.size()) *
-               (sizeof(T) + CMemory::storageNodeOverhead(t));
+               (sizeof(T) + memory::storageNodeOverhead(t));
 }
 
 template<typename T, typename A>
@@ -58,44 +58,44 @@ std::size_t dynamicSize(const std::deque<T, A>& t) {
     // This could also be an underestimate if items have been removed
     std::size_t pageVecEntries = std::max(numPages, memory_detail::MIN_DEQUE_PAGE_VEC_ENTRIES);
 
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            pageVecEntries * sizeof(std::size_t) + numPages * pageSize;
 }
 
 template<typename K, typename V, typename C, typename A>
 std::size_t dynamicSize(const std::map<K, V, C, A>& t) {
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::EXTRA_NODES + t.size()) *
-               (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
+               (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t));
 }
 
 template<typename K, typename V, typename C, typename A>
 std::size_t dynamicSize(const std::multimap<K, V, C, A>& t) {
     // In practice, both std::multimap and std::map use the same
     // rb tree implementation.
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::EXTRA_NODES + t.size()) *
-               (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
+               (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t));
 }
 
 template<typename T, typename C, typename A>
 std::size_t dynamicSize(const std::set<T, C, A>& t) {
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::EXTRA_NODES + t.size()) *
-               (sizeof(T) + CMemory::storageNodeOverhead(t));
+               (sizeof(T) + memory::storageNodeOverhead(t));
 }
 
 template<typename T, typename C, typename A>
 std::size_t dynamicSize(const std::multiset<T, C, A>& t) {
     // In practice, both std::multiset and std::set use the same
     // rb tree implementation.
-    return CMemory::elementDynamicSize(t) +
+    return memory::elementDynamicSize(t) +
            (memory_detail::EXTRA_NODES + t.size()) *
-               (sizeof(T) + CMemory::storageNodeOverhead(t));
+               (sizeof(T) + memory::storageNodeOverhead(t));
 }
 }
 
-namespace CMemoryDebug {
+namespace memory_debug {
 
 template<typename T, typename A>
 void dynamicSize(const char* name,
@@ -107,13 +107,13 @@ void dynamicSize(const char* name,
     componentName += "_list";
 
     std::size_t listSize = (memory_detail::EXTRA_NODES + t.size()) *
-                           (sizeof(T) + CMemory::storageNodeOverhead(t));
+                           (sizeof(T) + memory::storageNodeOverhead(t));
 
     CMemoryUsage::SMemoryUsage usage(componentName, listSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename C, typename A>
@@ -138,7 +138,7 @@ void dynamicSize(const char* name,
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename K, typename V, typename C, typename A>
@@ -151,13 +151,13 @@ void dynamicSize(const char* name,
     componentName += "_map";
 
     std::size_t mapSize = (memory_detail::EXTRA_NODES + t.size()) *
-                          (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
+                          (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t));
 
     CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::associativeElementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::associativeElementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename K, typename V, typename C, typename A>
@@ -170,13 +170,13 @@ void dynamicSize(const char* name,
     componentName += "_map";
 
     std::size_t mapSize = (memory_detail::EXTRA_NODES + t.size()) *
-                          (sizeof(K) + sizeof(V) + CMemory::storageNodeOverhead(t));
+                          (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t));
 
     CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::associativeElementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::associativeElementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename C, typename A>
@@ -189,13 +189,13 @@ void dynamicSize(const char* name,
     componentName += "_set";
 
     std::size_t setSize = (memory_detail::EXTRA_NODES + t.size()) *
-                          (sizeof(T) + CMemory::storageNodeOverhead(t));
+                          (sizeof(T) + memory::storageNodeOverhead(t));
 
     CMemoryUsage::SMemoryUsage usage(componentName, setSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 
 template<typename T, typename C, typename A>
@@ -208,13 +208,13 @@ void dynamicSize(const char* name,
     componentName += "_set";
 
     std::size_t setSize = (memory_detail::EXTRA_NODES + t.size()) *
-                          (sizeof(T) + CMemory::storageNodeOverhead(t));
+                          (sizeof(T) + memory::storageNodeOverhead(t));
 
     CMemoryUsage::SMemoryUsage usage(componentName, setSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
     ptr->setName(usage);
 
-    CMemoryDebug::elementDynamicSize(std::move(componentName), t, mem);
+    memory_debug::elementDynamicSize(std::move(componentName), t, mem);
 }
 }
 }

@@ -23,6 +23,8 @@
 int main(int argc, char** argv) {
     ml::test::CTestObserver observer;
     boost::unit_test::framework::register_observer(observer);
-    return boost::unit_test::unit_test_main(&ml::test::CBoostTestXmlOutput::init, argc, argv);
+    int result{boost::unit_test::unit_test_main(&ml::test::CBoostTestXmlOutput::init,
+                                                argc, argv)};
     boost::unit_test::framework::deregister_observer(observer);
+    return result;
 }

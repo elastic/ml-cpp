@@ -79,7 +79,7 @@ public:
     template<typename T>
     CScopeRecordMemoryUsage(const T& object, TMemoryUsageCallback&& recordMemoryUsage)
         : m_RecordMemoryUsage{std::move(recordMemoryUsage)},
-          m_MemoryUsage(core::CMemory::dynamicSize(object)) {
+          m_MemoryUsage(core::memory::dynamicSize(object)) {
         m_RecordMemoryUsage(m_MemoryUsage);
     }
 
@@ -90,14 +90,14 @@ public:
 
     template<typename T>
     void add(const T& object) {
-        std::int64_t memoryUsage(core::CMemory::dynamicSize(object));
+        std::int64_t memoryUsage(core::memory::dynamicSize(object));
         m_MemoryUsage += memoryUsage;
         m_RecordMemoryUsage(memoryUsage);
     }
 
     template<typename T>
     void remove(const T& object) {
-        std::int64_t memoryUsage(core::CMemory::dynamicSize(object));
+        std::int64_t memoryUsage(core::memory::dynamicSize(object));
         m_MemoryUsage -= memoryUsage;
         m_RecordMemoryUsage(-memoryUsage);
     }
@@ -689,7 +689,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
         numberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
-    std::size_t foldRoundLossMemoryUsage{core::CMemory::dynamicSize(TOptionalDoubleVecVec(
+    std::size_t foldRoundLossMemoryUsage{core::memory::dynamicSize(TOptionalDoubleVecVec(
         m_NumberFolds.value(), TOptionalDoubleVec(m_Hyperparameters.numberRounds())))};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
@@ -712,11 +712,11 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
                                  2};
     std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
     std::size_t dataTypeMemoryUsage{
-        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
     std::size_t featureSampleProbabilitiesMemoryUsage{
-        core::CMemory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
     std::size_t fixedCandidateSplitsMemoryUsage{
-        core::CMemory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
@@ -745,7 +745,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForPredict(std::size_t numberRo
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
     std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
     std::size_t dataTypeMemoryUsage{
-        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
     return sizeof(*this) + categoryEncoderMemoryUsage + dataTypeMemoryUsage +
@@ -2709,24 +2709,24 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Loss)};
-    mem += core::CMemory::dynamicSize(m_ExtraColumns);
-    mem += core::CMemory::dynamicSize(m_Encoder);
-    mem += core::CMemory::dynamicSize(m_FeatureDataTypes);
-    mem += core::CMemory::dynamicSize(m_FeatureSampleProbabilities);
-    mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
-    mem += core::CMemory::dynamicSize(m_FixedCandidateSplits);
-    mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
-    mem += core::CMemory::dynamicSize(m_TestingRowMasks);
-    mem += core::CMemory::dynamicSize(m_NewTrainingRowMask);
-    mem += core::CMemory::dynamicSize(m_FoldRoundTestLosses);
-    mem += core::CMemory::dynamicSize(m_ClassificationWeightsOverride);
-    mem += core::CMemory::dynamicSize(m_ClassificationWeights);
-    mem += core::CMemory::dynamicSize(m_BestForest);
-    mem += core::CMemory::dynamicSize(m_Hyperparameters);
-    mem += core::CMemory::dynamicSize(m_TreeShap);
-    mem += core::CMemory::dynamicSize(m_Instrumentation);
-    mem += core::CMemory::dynamicSize(m_TreesToRetrain);
+    std::size_t mem{core::memory::dynamicSize(m_Loss)};
+    mem += core::memory::dynamicSize(m_ExtraColumns);
+    mem += core::memory::dynamicSize(m_Encoder);
+    mem += core::memory::dynamicSize(m_FeatureDataTypes);
+    mem += core::memory::dynamicSize(m_FeatureSampleProbabilities);
+    mem += core::memory::dynamicSize(m_MissingFeatureRowMasks);
+    mem += core::memory::dynamicSize(m_FixedCandidateSplits);
+    mem += core::memory::dynamicSize(m_TrainingRowMasks);
+    mem += core::memory::dynamicSize(m_TestingRowMasks);
+    mem += core::memory::dynamicSize(m_NewTrainingRowMask);
+    mem += core::memory::dynamicSize(m_FoldRoundTestLosses);
+    mem += core::memory::dynamicSize(m_ClassificationWeightsOverride);
+    mem += core::memory::dynamicSize(m_ClassificationWeights);
+    mem += core::memory::dynamicSize(m_BestForest);
+    mem += core::memory::dynamicSize(m_Hyperparameters);
+    mem += core::memory::dynamicSize(m_TreeShap);
+    mem += core::memory::dynamicSize(m_Instrumentation);
+    mem += core::memory::dynamicSize(m_TreesToRetrain);
     return mem;
 }
 

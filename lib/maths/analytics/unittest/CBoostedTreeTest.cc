@@ -2969,7 +2969,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         estimatedMemory =
             core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
                                                   core::CAlignment::E_Aligned16) +
-            core::CMemory::dynamicSize(regression->trainedModel()) +
+            core::memory::dynamicSize(regression->trainedModel()) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .estimateMemoryUsageForTrainIncremental(rows, cols);
@@ -2995,7 +2995,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         estimatedMemory =
             core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
                                                   core::CAlignment::E_Aligned16) +
-            core::CMemory::dynamicSize(&regression->impl()) +
+            core::memory::dynamicSize(&regression->impl()) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .estimateMemoryUsageForPredict(rows, cols);

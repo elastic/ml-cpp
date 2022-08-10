@@ -848,9 +848,9 @@ std::uint64_t CAdaptiveBucketing::checksum(std::uint64_t seed) const {
 }
 
 std::size_t CAdaptiveBucketing::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Endpoints)};
-    mem += core::CMemory::dynamicSize(m_Centres);
-    mem += core::CMemory::dynamicSize(m_LargeErrorCounts);
+    std::size_t mem{core::memory::dynamicSize(m_Endpoints)};
+    mem += core::memory::dynamicSize(m_Centres);
+    mem += core::memory::dynamicSize(m_LargeErrorCounts);
     return mem;
 }
 

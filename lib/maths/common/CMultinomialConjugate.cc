@@ -1250,13 +1250,13 @@ std::uint64_t CMultinomialConjugate::checksum(std::uint64_t seed) const {
 
 void CMultinomialConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultinomialConjugate");
-    core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
-    core::CMemoryDebug::dynamicSize("m_Concentrations", m_Concentrations, mem);
+    core::memory_debug::dynamicSize("m_Categories", m_Categories, mem);
+    core::memory_debug::dynamicSize("m_Concentrations", m_Concentrations, mem);
 }
 
 std::size_t CMultinomialConjugate::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Categories);
-    mem += core::CMemory::dynamicSize(m_Concentrations);
+    std::size_t mem = core::memory::dynamicSize(m_Categories);
+    mem += core::memory::dynamicSize(m_Concentrations);
     return mem;
 }
 

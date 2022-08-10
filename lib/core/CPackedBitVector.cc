@@ -299,11 +299,11 @@ std::uint64_t CPackedBitVector::checksum() const {
 
 void CPackedBitVector::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedBitVector");
-    CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengthBytes, mem);
+    memory_debug::dynamicSize("m_RunLengths", m_RunLengthBytes, mem);
 }
 
 std::size_t CPackedBitVector::memoryUsage() const {
-    return CMemory::dynamicSize(m_RunLengthBytes);
+    return memory::dynamicSize(m_RunLengthBytes);
 }
 
 template<typename RUN_OP>

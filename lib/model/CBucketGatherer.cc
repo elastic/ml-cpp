@@ -552,16 +552,16 @@ std::uint64_t CBucketGatherer::checksum() const {
 
 void CBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBucketGatherer");
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeExplicitNulls",
+    core::memory_debug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
+    core::memory_debug::dynamicSize("m_PersonAttributeExplicitNulls",
                                     m_PersonAttributeExplicitNulls, mem);
-    core::CMemoryDebug::dynamicSize("m_Influencers", m_InfluencerCounts, mem);
+    core::memory_debug::dynamicSize("m_Influencers", m_InfluencerCounts, mem);
 }
 
 std::size_t CBucketGatherer::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_PersonAttributeCounts);
-    mem += core::CMemory::dynamicSize(m_PersonAttributeExplicitNulls);
-    mem += core::CMemory::dynamicSize(m_InfluencerCounts);
+    std::size_t mem = core::memory::dynamicSize(m_PersonAttributeCounts);
+    mem += core::memory::dynamicSize(m_PersonAttributeExplicitNulls);
+    mem += core::memory::dynamicSize(m_InfluencerCounts);
     return mem;
 }
 

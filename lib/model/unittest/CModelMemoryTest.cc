@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     CResourceMonitor resourceMonitor;
 
     LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / "
-              << core::CMemory::dynamicSize(model));
+              << core::memory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 

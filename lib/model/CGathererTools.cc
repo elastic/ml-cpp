@@ -299,13 +299,13 @@ std::uint64_t CGathererTools::CSumGatherer::checksum() const {
 
 void CGathererTools::CSumGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSumGatherer");
-    core::CMemoryDebug::dynamicSize("m_BucketSums", m_BucketSums, mem);
-    core::CMemoryDebug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
+    core::memory_debug::dynamicSize("m_BucketSums", m_BucketSums, mem);
+    core::memory_debug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
 }
 
 std::size_t CGathererTools::CSumGatherer::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_BucketSums) +
-           core::CMemory::dynamicSize(m_InfluencerBucketSums);
+    return core::memory::dynamicSize(m_BucketSums) +
+           core::memory::dynamicSize(m_InfluencerBucketSums);
 }
 
 std::string CGathererTools::CSumGatherer::print() const {

@@ -119,7 +119,7 @@ void CNaiveBayesFeatureDensityFromPrior::propagateForwardsByTime(double time) {
 
 void CNaiveBayesFeatureDensityFromPrior::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    return core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
+    return core::memory_debug::dynamicSize("m_Prior", m_Prior, mem);
 }
 
 std::size_t CNaiveBayesFeatureDensityFromPrior::staticSize() const {
@@ -127,7 +127,7 @@ std::size_t CNaiveBayesFeatureDensityFromPrior::staticSize() const {
 }
 
 std::size_t CNaiveBayesFeatureDensityFromPrior::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Prior);
+    return core::memory::dynamicSize(m_Prior);
 }
 
 std::uint64_t CNaiveBayesFeatureDensityFromPrior::checksum(std::uint64_t seed) const {
@@ -360,14 +360,14 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
 }
 
 void CNaiveBayes::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    core::CMemoryDebug::dynamicSize("m_Exemplar", m_Exemplar, mem);
-    core::CMemoryDebug::dynamicSize("m_ClassConditionalDensities",
+    core::memory_debug::dynamicSize("m_Exemplar", m_Exemplar, mem);
+    core::memory_debug::dynamicSize("m_ClassConditionalDensities",
                                     m_ClassConditionalDensities, mem);
 }
 
 std::size_t CNaiveBayes::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Exemplar) +
-           core::CMemory::dynamicSize(m_ClassConditionalDensities);
+    return core::memory::dynamicSize(m_Exemplar) +
+           core::memory::dynamicSize(m_ClassConditionalDensities);
 }
 
 std::uint64_t CNaiveBayes::checksum(std::uint64_t seed) const {
@@ -464,11 +464,11 @@ CNaiveBayes::TFeatureDensityPtrVec& CNaiveBayes::CClass::conditionalDensities() 
 }
 
 void CNaiveBayes::CClass::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    core::CMemoryDebug::dynamicSize("s_ConditionalDensities", m_ConditionalDensities, mem);
+    core::memory_debug::dynamicSize("s_ConditionalDensities", m_ConditionalDensities, mem);
 }
 
 std::size_t CNaiveBayes::CClass::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_ConditionalDensities);
+    return core::memory::dynamicSize(m_ConditionalDensities);
 }
 
 std::uint64_t CNaiveBayes::CClass::checksum(std::uint64_t seed) const {

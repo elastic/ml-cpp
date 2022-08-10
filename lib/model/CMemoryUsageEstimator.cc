@@ -124,11 +124,11 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
 
 void CMemoryUsageEstimator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMemoryUsageEstimator");
-    core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
+    core::memory_debug::dynamicSize("m_Values", m_Values, mem);
 }
 
 std::size_t CMemoryUsageEstimator::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Values);
+    return core::memory::dynamicSize(m_Values);
 }
 
 void CMemoryUsageEstimator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

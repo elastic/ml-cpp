@@ -331,11 +331,11 @@ std::uint64_t CQuantileSketch::checksum(std::uint64_t seed) const {
 
 void CQuantileSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CQuantileSketch");
-    core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
+    core::memory_debug::dynamicSize("m_Knots", m_Knots, mem);
 }
 
 std::size_t CQuantileSketch::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Knots);
+    return core::memory::dynamicSize(m_Knots);
 }
 
 std::size_t CQuantileSketch::staticSize() const {
@@ -603,15 +603,15 @@ std::uint64_t CFastQuantileSketch::checksum(std::uint64_t seed) const {
 
 void CFastQuantileSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CFastQuantileSketch");
-    core::CMemoryDebug::dynamicSize("m_Knots", this->knots(), mem);
-    core::CMemoryDebug::dynamicSize("m_MergeCosts", m_MergeCosts, mem);
-    core::CMemoryDebug::dynamicSize("m_MergeCandidates", m_MergeCandidates, mem);
+    core::memory_debug::dynamicSize("m_Knots", this->knots(), mem);
+    core::memory_debug::dynamicSize("m_MergeCosts", m_MergeCosts, mem);
+    core::memory_debug::dynamicSize("m_MergeCandidates", m_MergeCandidates, mem);
 }
 
 std::size_t CFastQuantileSketch::memoryUsage() const {
     std::size_t mem{this->CQuantileSketch::memoryUsage()};
-    mem += core::CMemory::dynamicSize(m_MergeCosts);
-    mem += core::CMemory::dynamicSize(m_MergeCandidates);
+    mem += core::memory::dynamicSize(m_MergeCosts);
+    mem += core::memory::dynamicSize(m_MergeCandidates);
     return mem;
 }
 

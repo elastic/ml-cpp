@@ -143,7 +143,7 @@ bool CCompressUtil::prepareToReturnData(bool finish) {
 
 void CCompressUtil::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCompressUtil");
-    core::CMemoryDebug::dynamicSize("m_FullResult", m_FullResult, mem);
+    core::memory_debug::dynamicSize("m_FullResult", m_FullResult, mem);
     if (m_ZlibStrm.state != nullptr) {
         mem->addItem("m_ZlibStrm", ZLIB_INTERNAL_STATE_SIZE);
     }
@@ -151,7 +151,7 @@ void CCompressUtil::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& 
 
 std::size_t CCompressUtil::memoryUsage() const {
     std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_FullResult);
+    mem += core::memory::dynamicSize(m_FullResult);
     if (m_ZlibStrm.state != nullptr) {
         mem += ZLIB_INTERNAL_STATE_SIZE;
     }

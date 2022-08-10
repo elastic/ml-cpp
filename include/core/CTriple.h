@@ -71,16 +71,16 @@ public:
 
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CTriple");
-        CMemoryDebug::dynamicSize("first", first, mem);
-        CMemoryDebug::dynamicSize("second", second, mem);
-        CMemoryDebug::dynamicSize("third", third, mem);
+        memory_debug::dynamicSize("first", first, mem);
+        memory_debug::dynamicSize("second", second, mem);
+        memory_debug::dynamicSize("third", third, mem);
     }
 
     std::size_t memoryUsage() const {
         std::size_t mem = 0;
-        mem += CMemory::dynamicSize(first);
-        mem += CMemory::dynamicSize(second);
-        mem += CMemory::dynamicSize(third);
+        mem += memory::dynamicSize(first);
+        mem += memory::dynamicSize(second);
+        mem += memory::dynamicSize(third);
         return mem;
     }
 

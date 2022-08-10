@@ -304,14 +304,14 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
 void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTools::CLessLikelyProbability");
-    core::CMemoryDebug::dynamicSize("m_Cache", m_Cache, mem->addChild());
+    core::memory_debug::dynamicSize("m_Cache", m_Cache, mem->addChild());
     if (m_Prior) {
         m_Prior->debugMemoryUsage(mem->addChild());
     }
 }
 
 std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Cache)};
+    std::size_t mem{core::memory::dynamicSize(m_Cache)};
     if (m_Prior) {
         mem += m_Prior->memoryUsage();
     }

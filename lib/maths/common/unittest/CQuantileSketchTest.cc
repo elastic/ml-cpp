@@ -732,10 +732,10 @@ BOOST_AUTO_TEST_CASE(testFastSketchPerformance) {
     std::for_each(samples.begin(), samples.end(), fastSketch);
     LOG_DEBUG(<< "fast sketch duration = " << watch.lap() - lap);
 
-    LOG_DEBUG(<< "sketch memory usage = " << core::CMemory::dynamicSize(&sketch));
-    LOG_DEBUG(<< "fast sketch memory usage = " << core::CMemory::dynamicSize(&fastSketch));
-    BOOST_TEST_REQUIRE(2 * core::CMemory::dynamicSize(&sketch) >
-                       core::CMemory::dynamicSize(&fastSketch));
+    LOG_DEBUG(<< "sketch memory usage = " << core::memory::dynamicSize(&sketch));
+    LOG_DEBUG(<< "fast sketch memory usage = " << core::memory::dynamicSize(&fastSketch));
+    BOOST_TEST_REQUIRE(2 * core::memory::dynamicSize(&sketch) >
+                       core::memory::dynamicSize(&fastSketch));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

@@ -61,9 +61,9 @@ void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields&
     LOG_DEBUG(<< "Debug memory report = " << strm.str());
     BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
 
-    LOG_TRACE(<< "Dynamic size = " << ml::core::CMemory::dynamicSize(&categorizer));
+    LOG_TRACE(<< "Dynamic size = " << ml::core::memory::dynamicSize(&categorizer));
     BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(TTokenListDataCategorizerKeepsFields),
-                        ml::core::CMemory::dynamicSize(&categorizer));
+                        ml::core::memory::dynamicSize(&categorizer));
 }
 }
 

@@ -88,13 +88,13 @@ std::string SEventRateFeatureData::print() const {
 
 std::size_t SEventRateFeatureData::memoryUsage() const {
     std::size_t mem = sizeof(*this);
-    mem += core::CMemory::dynamicSize(s_InfluenceValues);
+    mem += core::memory::dynamicSize(s_InfluenceValues);
     return mem;
 }
 
 void SEventRateFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData", sizeof(*this));
-    core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
+    core::memory_debug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
 }
 
 ////// SMetricFeatureData //////
@@ -127,17 +127,17 @@ std::string SMetricFeatureData::print() const {
 }
 
 std::size_t SMetricFeatureData::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(s_BucketValue);
-    mem += core::CMemory::dynamicSize(s_InfluenceValues);
-    mem += core::CMemory::dynamicSize(s_Samples);
+    std::size_t mem = core::memory::dynamicSize(s_BucketValue);
+    mem += core::memory::dynamicSize(s_InfluenceValues);
+    mem += core::memory::dynamicSize(s_Samples);
     return mem;
 }
 
 void SMetricFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData");
-    core::CMemoryDebug::dynamicSize("s_BucketValue", s_BucketValue, mem);
-    core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
-    core::CMemoryDebug::dynamicSize("s_Samples", s_Samples, mem);
+    core::memory_debug::dynamicSize("s_BucketValue", s_BucketValue, mem);
+    core::memory_debug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
+    core::memory_debug::dynamicSize("s_Samples", s_Samples, mem);
 }
 }
 }

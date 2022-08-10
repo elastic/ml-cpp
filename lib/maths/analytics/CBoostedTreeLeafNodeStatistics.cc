@@ -88,7 +88,7 @@ core::CPackedBitVector& CBoostedTreeLeafNodeStatistics::rowMask() {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_RowMask) + core::CMemory::dynamicSize(m_Derivatives);
+    return core::memory::dynamicSize(m_RowMask) + core::memory::dynamicSize(m_Derivatives);
 }
 
 std::size_t
@@ -306,7 +306,7 @@ std::uint64_t CBoostedTreeLeafNodeStatistics::CDerivatives::checksum(std::uint64
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Derivatives) + core::CMemory::dynamicSize(m_Storage);
+    return core::memory::dynamicSize(m_Derivatives) + core::memory::dynamicSize(m_Storage);
 }
 
 //! Estimate the split derivatives' memory usage for a data frame with
@@ -352,7 +352,7 @@ CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Masks) + core::CMemory::dynamicSize(m_Derivatives);
+    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives);
 }
 }
 }

@@ -807,16 +807,16 @@ public:
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CMultivariateMultimodalPrior");
-        core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
-        core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
-        core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
+        core::memory_debug::dynamicSize("m_Clusterer", m_Clusterer, mem);
+        core::memory_debug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
+        core::memory_debug::dynamicSize("m_Modes", m_Modes, mem);
     }
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const override {
-        std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
-        mem += core::CMemory::dynamicSize(m_SeedPrior);
-        mem += core::CMemory::dynamicSize(m_Modes);
+        std::size_t mem = core::memory::dynamicSize(m_Clusterer);
+        mem += core::memory::dynamicSize(m_SeedPrior);
+        mem += core::memory::dynamicSize(m_Modes);
         return mem;
     }
 

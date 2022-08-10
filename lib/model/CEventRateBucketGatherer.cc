@@ -720,8 +720,8 @@ void registerMemoryCallbacks(VISITOR& visitor) {
 void registerMemoryCallbacks() {
     static std::atomic_flag once = ATOMIC_FLAG_INIT;
     if (once.test_and_set() == false) {
-        registerMemoryCallbacks(core::CMemory::anyVisitor());
-        registerMemoryCallbacks(core::CMemoryDebug::anyVisitor());
+        registerMemoryCallbacks(core::memory::anyVisitor());
+        registerMemoryCallbacks(core::memory_debug::anyVisitor());
     }
 }
 
@@ -1014,15 +1014,15 @@ void CEventRateBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemor
     registerMemoryCallbacks();
     mem->setName("CPopulationEventRateDataGatherer");
     CBucketGatherer::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_FieldNames", m_FieldNames, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
+    core::memory_debug::dynamicSize("m_FieldNames", m_FieldNames, mem);
+    core::memory_debug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
 std::size_t CEventRateBucketGatherer::memoryUsage() const {
     registerMemoryCallbacks();
     std::size_t mem = CBucketGatherer::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_FieldNames);
-    mem += core::CMemory::dynamicSize(m_FeatureData);
+    mem += core::memory::dynamicSize(m_FieldNames);
+    mem += core::memory::dynamicSize(m_FeatureData);
     return mem;
 }
 
@@ -1796,15 +1796,15 @@ std::uint64_t CUniqueStringFeatureData::checksum() const {
 
 void CUniqueStringFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUniqueStringFeatureData", sizeof(*this));
-    core::CMemoryDebug::dynamicSize("s_NoInfluenceUniqueStrings", m_UniqueStrings, mem);
-    core::CMemoryDebug::dynamicSize("s_InfluenceUniqueStrings",
+    core::memory_debug::dynamicSize("s_NoInfluenceUniqueStrings", m_UniqueStrings, mem);
+    core::memory_debug::dynamicSize("s_InfluenceUniqueStrings",
                                     m_InfluencerUniqueStrings, mem);
 }
 
 std::size_t CUniqueStringFeatureData::memoryUsage() const {
     std::size_t mem = sizeof(*this);
-    mem += core::CMemory::dynamicSize(m_UniqueStrings);
-    mem += core::CMemory::dynamicSize(m_InfluencerUniqueStrings);
+    mem += core::memory::dynamicSize(m_UniqueStrings);
+    mem += core::memory::dynamicSize(m_InfluencerUniqueStrings);
     return mem;
 }
 

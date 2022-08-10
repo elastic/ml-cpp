@@ -670,18 +670,17 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
 }
 
 std::size_t CMakeDataFrameCategoryEncoder::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_RowMask) +
-           core::CMemory::dynamicSize(m_ColumnMask) +
-           core::CMemory::dynamicSize(m_InputColumnUsesFrequencyEncoding) +
-           core::CMemory::dynamicSize(m_OneHotEncodedCategories) +
-           core::CMemory::dynamicSize(m_RareCategories) +
-           core::CMemory::dynamicSize(m_CategoryFrequencies) +
-           core::CMemory::dynamicSize(m_MeanCategoryFrequencies) +
-           core::CMemory::dynamicSize(m_CategoryTargetMeanValues) +
-           core::CMemory::dynamicSize(m_MeanCategoryTargetMeanValues) +
-           core::CMemory::dynamicSize(m_EncodedColumnMics) +
-           core::CMemory::dynamicSize(m_EncodedColumnInputColumnMap) +
-           core::CMemory::dynamicSize(m_EncodedColumnEncodingMap);
+    return core::memory::dynamicSize(m_RowMask) + core::memory::dynamicSize(m_ColumnMask) +
+           core::memory::dynamicSize(m_InputColumnUsesFrequencyEncoding) +
+           core::memory::dynamicSize(m_OneHotEncodedCategories) +
+           core::memory::dynamicSize(m_RareCategories) +
+           core::memory::dynamicSize(m_CategoryFrequencies) +
+           core::memory::dynamicSize(m_MeanCategoryFrequencies) +
+           core::memory::dynamicSize(m_CategoryTargetMeanValues) +
+           core::memory::dynamicSize(m_MeanCategoryTargetMeanValues) +
+           core::memory::dynamicSize(m_EncodedColumnMics) +
+           core::memory::dynamicSize(m_EncodedColumnInputColumnMap) +
+           core::memory::dynamicSize(m_EncodedColumnEncodingMap);
 }
 
 std::size_t CMakeDataFrameCategoryEncoder::estimateMemoryUsage(std::size_t numberRows,
@@ -698,20 +697,18 @@ std::size_t CMakeDataFrameCategoryEncoder::estimateMemoryUsage(std::size_t numbe
     std::size_t columnMaskMemoryUsage{numberColumns * sizeof(std::size_t)};
     std::size_t frequencyEncodingMemoryUsage{numberColumns / 8};
     std::size_t oneHotMemoryUsage{
-        numberCategoricalColumns *
-            core::CMemory::dynamicSize(TSizeVec(static_cast<std::size_t>(
-                1.0 / MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE))) +
-        (numberColumns - numberCategoricalColumns) * core::CMemory::dynamicSize(TSizeVec())};
+        numberCategoricalColumns * core::memory::dynamicSize(TSizeVec(static_cast<std::size_t>(
+                                       1.0 / MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE))) +
+        (numberColumns - numberCategoricalColumns) * core::memory::dynamicSize(TSizeVec())};
     std::size_t rareCategoriesMemoryUsage{
-        numberCategoricalColumns * core::CMemory::dynamicSize(TSizeUSet(maximumNumberCategories)) +
-        (numberColumns - numberCategoricalColumns) *
-            core::CMemory::dynamicSize(TSizeUSet())};
+        numberCategoricalColumns * core::memory::dynamicSize(TSizeUSet(maximumNumberCategories)) +
+        (numberColumns - numberCategoricalColumns) * core::memory::dynamicSize(TSizeUSet())};
     std::size_t meanFrequencyMemoryUsage{numberColumns * sizeof(double)};
     std::size_t meanValuesMemoryUsage{
         numberColumns * sizeof(double) +
-        numberCategoricalColumns * core::CMemory::dynamicSize(TDoubleVec(1000)) +
+        numberCategoricalColumns * core::memory::dynamicSize(TDoubleVec(1000)) +
         (numberColumns - numberCategoricalColumns) *
-            core::CMemory::dynamicSize(TDoubleVec())};
+            core::memory::dynamicSize(TDoubleVec())};
     std::size_t micsMemoryUsage{numberColumns * sizeof(double)};
     std::size_t encodingMapMemoryUsage{2 * numberColumns * sizeof(std::size_t)};
     return sizeof(CMakeDataFrameCategoryEncoder) + missingFeatureMaskMemoryUsage +

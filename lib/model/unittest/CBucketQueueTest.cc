@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testBucketQueueUMap) {
                 queue.latest()[TSizeSizePr(i, j)] = 99 * i * j + 12;
             }
         }
-        usageBefore = core::CMemory::dynamicSize(queue);
+        usageBefore = core::memory::dynamicSize(queue);
         core::CJsonStatePersistInserter inserter(ss);
         core::CPersistUtils::persist(queueTag, queue, inserter);
     }
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testBucketQueueUMap) {
         TSizeSizePrUInt64UMapQueue queue(4, 1000, 5000);
         core::CJsonStateRestoreTraverser traverser(ss);
         core::CPersistUtils::restore(queueTag, queue, traverser);
-        std::size_t usageAfter = core::CMemory::dynamicSize(queue);
+        std::size_t usageAfter = core::memory::dynamicSize(queue);
         BOOST_REQUIRE_EQUAL(usageBefore, usageAfter);
     }
 }

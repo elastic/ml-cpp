@@ -6,7 +6,7 @@ The ml-cpp repo is a part of Machine Learning for the Elastic Stack, which is
 available with either a trial or platinum license for the
 [Elastic Stack](https://www.elastic.co/products).
 
-This repo only contains the the C++ code that implements the core analytics for
+This repo only contains the C++ code that implements the core analytics for
 machine learning.
 
 Code for integrating into Elasticsearch and source for its documentation can be
