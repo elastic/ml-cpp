@@ -42,6 +42,10 @@
 * Improve accuracy of anomaly detection median estimation. (See {ml-pull}2367[#2367],
   issue: {ml-issue}2364[#2364].)
 
+=== Bug Fixes
+
+* Fix potential cause of classification and regression job failures. (See {ml-pull}2385[#2385].)
+
 == {es} version 8.3.0
 
 === Enhancements
