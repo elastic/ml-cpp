@@ -27,16 +27,25 @@ namespace maths {
 namespace analytics {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
+namespace {
+auto branchSizes(std::size_t n) {
+    TSizeVec branchSizes;
+    std::size_t nextPow5{5};
+    for (/**/; nextPow5 < n; nextPow5 *= 5) {
+        branchSizes.push_back(nextPow5);
+    }
+    std::reverse(branchSizes.begin(), branchSizes.end());
+    return std::make_pair(std::move(branchSizes), nextPow5);
+}
+}
 
 CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
     if (m_Size > 0) {
         m_Min = values[0].cstorage();
-        std::size_t n{nextPow5(values.size())};
-        for (std::size_t branchSize = n / 5; branchSize > 1; branchSize /= 5) {
-            m_BranchSizes.push_back(branchSize);
-        }
+        std::size_t nextPow5;
+        std::tie(m_BranchSizes, nextPow5) = branchSizes(values.size());
         m_Values.reserve(m_Size + 4);
-        this->build(values, 0, n);
+        this->build(values, 0, nextPow5);
         LOG_TRACE(<< "flat tree = " << m_Values);
     }
     LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_InitialTreeSize);
@@ -62,13 +71,6 @@ void CSearchTree::build(const TFloatVec& values, std::size_t a, std::size_t b) {
 std::string CSearchTree::printNode(std::size_t node) const {
     return core::CContainerPrinter::print(m_Values.begin() + node,
                                           m_Values.begin() + node + 4);
-}
-
-std::size_t CSearchTree::nextPow5(std::size_t n) {
-    std::size_t result{5};
-    for (/**/; result < n; result *= 5) {
-    }
-    return result;
 }
 
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree) {

@@ -190,7 +190,6 @@ private:
 private:
     void build(const TFloatVec& values, std::size_t a, std::size_t b);
     std::string printNode(std::size_t node) const;
-    static std::size_t nextPow5(std::size_t n);
     static constexpr TSizeAry MASK_TO_BRANCH_MAP{4, 0, 0, 0, 0, 0, 0, 0,
                                                  3, 0, 0, 0, 2, 0, 1, 0};
     static std::size_t selectBranch(const float* values, ml_vec_128 vecx) {
