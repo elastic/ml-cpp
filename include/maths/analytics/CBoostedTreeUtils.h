@@ -105,30 +105,33 @@ constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::m
 //! This provides a single query upperBound(x), i.e. find the _position_ of the
 //! smallest value in an ordered set greater than the specified query point x.
 //!
-//! Notionally, this divides the sorted values padded with infinities of total
-//! size 5^ceil(log(n)/log(5)) recusively into 5 equal sized ranges. That is
+//! This divides the sorted values, notionally padded with infinities to total
+//! size 5^ceil(log(n)/log(5)), recusively into 5 equal sized ranges. That is
 //! using the 20th, 40th, 60th and 80th percentiles of each interval as the split
-//! points. (Note that the smallest value is not added to the tree we instead
-//! check for out of range values upfront.) This means it achieves a branch factor
-//! of 5.
+//! points.
 //!
-//! It builds a flat tree representation from these points which can then be searched
-//! very efficiently to find the upper bound. There is a simple one-to-one mapping
-//! between the positions of values in the flat tree representation and the sorted
-//! list which is used to extract the sorted range position. For example, the values
-//! [1, 2, 3,..., 15, 16, 17] would be laid out as:
+//! To do this it uses a flat tree representation, which can then be searched
+//! very efficiently. (Note that the smallest value is not added to the tree;
+//! there is a check for out of range values upfront.) This means the search
+//! achieves a branch factor of 5. There is a simple one-to-one mapping between
+//! the positions of values in the flat tree representation and the sorted
+//! collection.
+//!
+//! By way of illustration, the values [1, 2, 3,..., 15, 16, 17] would be laid
+//! out as follows:
 //! <pre>
-//! [6, 11, 16, inf, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 17, inf, inf, inf]
+//!   [6, 11, 16, inf, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 17, inf, inf, inf]
 //! </pre>
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! We align the storage to 16 bytes so we can use aligned loads for the data to
 //! compare at each node in the tree. We also pad the data slightly, with infinity,
-//! so we can always safely load four values at once and to maintain the spacing.
-//! In total though this only adds up to depth * 16 bytes overhead.
+//! at internal nodes so we can always safely load four values at once and to
+//! maintain the spacing. In total though this only adds up to depth * 16 bytes
+//! overhead in total.
 //!
 //! When possible we've used SSE-like instructions to perform a 4 way comparison
-//! between the query point and candidate split points. When these are avilable
+//! between the query point and candidate split points. When these are avilable,
 //! it means the complexity in _instructions_ is genuinely O(ceil(log(n) / log(5)))
 //! in the set size n.
 //!
@@ -170,7 +173,7 @@ public:
         std::size_t node{0};
         // The tree structure doesn't arrange all values in order so we need to
         // keep track of the number of larger values preceding a position in the
-        // tree array and map it back to its position in the sorted array.
+        // tree and map it back to its position in the sorted collection.
         std::size_t numberOutOfOrderValues{0};
         auto vecx = ml_broadcast_load_128(&x.cstorage());
 
@@ -189,8 +192,9 @@ public:
             // are 16 byte aligned and we can safely read them using an aligned load.
             node += 4 + (branchSize - 1) * branch;
 
-            // Each branch point which is greater than x is out of order w.r.t. this
-            // point and must be subtracted from node to get the correct upper bound.
+            // Each split value which is greater than x is out of order w.r.t. this
+            // value and must be subtracted from node position to get the correct
+            // upper bound.
             numberOutOfOrderValues += 4 - branch;
         }
 
