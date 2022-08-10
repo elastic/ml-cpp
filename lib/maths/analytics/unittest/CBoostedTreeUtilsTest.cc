@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/CLogger.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -21,7 +21,6 @@
 #include <test/CRandomNumbers.h>
 
 #include "BoostedTreeTestData.h"
-#include <core/CStopWatch.h>
 
 #include <boost/test/unit_test.hpp>
 

@@ -44,7 +44,8 @@ CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
         m_Min = values[0].cstorage();
         std::size_t nextPow5;
         std::tie(m_BranchSizes, nextPow5) = branchSizes(values.size());
-        m_Values.reserve(m_Size + 4);
+        // Allow space for padding with inf.
+        m_Values.reserve(m_Size + 4 * m_BranchSizes.size());
         this->build(values, 0, nextPow5);
         LOG_TRACE(<< "flat tree = " << m_Values);
     }
