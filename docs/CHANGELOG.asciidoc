@@ -681,34 +681,34 @@ to the model. (See {ml-pull}214[#214].)
 
 * Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
 
-    == {es} version 7.0.0 - alpha2
+== {es} version 7.0.0-alpha2
 
 === Bug Fixes
 
 * Fixes CPoissonMeanConjugate sampling error. {ml-pull}335[#335]
-    //NOTE: Remove from final 7.0.0 release notes if already in 6.x
+//NOTE: Remove from final 7.0.0 release notes if already in 6.x
 
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
-    == {es} version 7.0.0 - alpha1
+== {es} version 7.0.0-alpha1
 
-    == {es} version 6.8.4
+== {es} version 6.8.4
 
-    == = Bug Fixes
+=== Bug Fixes
 
 * A reference to a temporary variable was causing forecast model restoration to fail.
 The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
 
-         == {es} version 6.8.2
+== {es} version 6.8.2
 
-         == = Bug Fixes
+=== Bug Fixes
 
 * Don't write model size stats when job is closed without any input {ml-pull}512[#512] (issue: {ml-issue}394[#394])
 * Don't persist model state at the end of lookback if the lookback did not generate any input {ml-pull}521[#521] (issue: {ml-issue}519[#519])
 
-              == {es} version 6.7.2
+== {es} version 6.7.2
 
-              == = Enhancements
+=== Enhancements
 
 * Adjust seccomp filter to allow the "time" system call {ml-pull}459[#459]
 
@@ -724,6 +724,6 @@ The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See 
 
 * Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
 
-    == = Bug Fixes
+=== Bug Fixes
 
 * Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
