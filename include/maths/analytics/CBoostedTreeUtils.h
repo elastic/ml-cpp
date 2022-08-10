@@ -41,9 +41,7 @@
 using ml_vec_128 = float32x4_t;
 
 #define ml_broadcast_load_128(x) vld1q_dup_f32(x)
-
 #define ml_aligned_load_128(x) vld1q_f32(x)
-
 #define ml_less_than_128(lhs, rhs) vcltq_f32(lhs, rhs)
 
 alignas(16) const std::uint32_t BITS_MOV_MASK_128_SHIFTS[]{0, 1, 2, 3};
@@ -57,22 +55,16 @@ inline __attribute__((always_inline)) std::uint32_t ml_bits_mov_mask_128(uint32x
 
 using ml_vec_128 = std::array<float, 4>;
 
-#define ml_broadcast_load_128(x)                                               \
-    ml_vec_128 { *(x), *(x), *(x), *(x) }
-
-// The temporary variable should be optimised away by any decent compiler.
-#define ml_aligned_load_128(x) x
-
 // clang-format off
-#define ml_less_than_128(lhs, rhs)                                             \
-        (static_cast<int>((lhs)[0] < (rhs)[0]))      |                         \
-        (static_cast<int>((lhs)[1] < (rhs)[1]) << 1) |                         \
-        (static_cast<int>((lhs)[2] < (rhs)[2]) << 2) |                         \
+#define ml_broadcast_load_128(x) ml_vec_128 { *(x), *(x), *(x), *(x) }
+#define ml_aligned_load_128(x) x
+#define ml_less_than_128(lhs, rhs)                                     \
+        (static_cast<int>((lhs)[0] < (rhs)[0]))      |                 \
+        (static_cast<int>((lhs)[1] < (rhs)[1]) << 1) |                 \
+        (static_cast<int>((lhs)[2] < (rhs)[2]) << 2) |                 \
         (static_cast<int>((lhs)[3] < (rhs)[3]) << 3)
-// clang-format on
-
-// The temporary variable should be optimised away by any decent compiler.
 #define ml_bits_mov_mask_128(x) x
+// clang-format on
 
 #endif
 
@@ -161,7 +153,7 @@ public:
         std::size_t offset{0};
         auto vecx = ml_broadcast_load_128(&x.cstorage());
 
-        for (std::size_t treeSize = m_InitialTreeSize; treeSize > 1; treeSize /= 5) {
+        for (auto branchSize : m_BranchSizes) {
             std::size_t branch{selectBranch(&m_Values[node], vecx)};
             LOG_TRACE(<< "node = " << node << "/" << this->printNode(node)
                       << ", branch = " << branch);
@@ -174,7 +166,7 @@ public:
             //
             // This means that since m_Values are 16 byte aligned the values at node
             // are 16 byte aligned and we can safely read them using an aligned load.
-            node += 4 + (treeSize - 1) * branch;
+            node += 4 + (branchSize - 1) * branch;
 
             // Each branch point which is greater than x is out of order w.r.t. this
             // point and must be subtracted from node to get the correct upper bound.
@@ -210,7 +202,7 @@ private:
 
 private:
     std::size_t m_Size{0};
-    std::size_t m_InitialTreeSize{0};
+    TSizeVec m_BranchSizes;
     float m_Min{-INF};
     TAlignedFloatVec m_Values;
 };

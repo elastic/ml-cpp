@@ -32,7 +32,9 @@ CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
     if (m_Size > 0) {
         m_Min = values[0].cstorage();
         std::size_t n{nextPow5(values.size())};
-        m_InitialTreeSize = n / 5;
+        for (std::size_t branchSize = n / 5; branchSize > 1; branchSize /= 5) {
+            m_BranchSizes.push_back(branchSize);
+        }
         m_Values.reserve(m_Size + 4);
         this->build(values, 0, n);
         LOG_TRACE(<< "flat tree = " << m_Values);
