@@ -108,11 +108,18 @@ constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::m
 //! Notionally, this divides the sorted values padded with infinities of total
 //! size 5^ceil(log(n)/log(5)) recusively into 5 equal sized ranges. That is
 //! using the 20th, 40th, 60th and 80th percentiles of each interval as the split
-//! points. This means it achieves a branch factor of 5. It builds a flat tree
-//! representation from these points which can then be searched very efficiently
-//! to find the upper bound. There is a simple one-to-one mapping between the
-//! positions of values in the flat tree representation and the sorted list which
-//! is used to extract the sorted range position.
+//! points. (Note that the smallest value is not added to the tree we instead
+//! check for out of range values upfront.) This means it achieves a branch factor
+//! of 5.
+//!
+//! It builds a flat tree representation from these points which can then be searched
+//! very efficiently to find the upper bound. There is a simple one-to-one mapping
+//! between the positions of values in the flat tree representation and the sorted
+//! list which is used to extract the sorted range position. For example, the values
+//! [1, 2, 3,..., 15, 16, 17] would be laid out as:
+//! <pre>
+//! [6, 11, 16, inf, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 17, inf, inf, inf]
+//! </pre>
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! We align the storage to 16 bytes so we can use aligned loads for the data to

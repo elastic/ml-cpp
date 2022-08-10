@@ -49,7 +49,7 @@ CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
         this->build(values, 0, nextPow5);
         LOG_TRACE(<< "flat tree = " << m_Values);
     }
-    LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_InitialTreeSize);
+    LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_BranchSizes);
 }
 
 void CSearchTree::build(const TFloatVec& values, std::size_t a, std::size_t b) {
