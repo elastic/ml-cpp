@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.17.6
+
+=== Bug Fixes
+
+* Fix potential cause of classification and regression job failures. (See {ml-pull}2385[#2385].)
+
 == {es} version 7.17.5
 
 === Enhancements
