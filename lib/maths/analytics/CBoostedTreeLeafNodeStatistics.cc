@@ -13,7 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemoryDef.h>
+#include <core/CMemoryDefStd.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
@@ -107,11 +107,11 @@ std::string CBoostedTreeLeafNodeStatistics::print() const {
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
                                                                std::size_t depth,
-                                                               TSizeVecCRef extraColumns,
+                                                               const TSizeVec& extraColumns,
                                                                std::size_t numberLossParameters,
                                                                const TFloatVecVec& candidateSplits,
                                                                CSplitsDerivatives derivatives)
-    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
+    : m_Id{id}, m_Depth{depth}, m_NumberLossParameters{numberLossParameters}, m_ExtraColumns{extraColumns},
       m_CandidateSplits{candidateSplits}, m_Derivatives{std::move(derivatives)} {
 }
 
@@ -180,7 +180,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivativesWith(
     for (std::size_t i = 0; i < numberThreads; ++i) {
         auto& splitsDerivatives = workspace.derivatives()[i];
         splitsDerivatives.zero();
-        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
+        aggregators.emplace_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 this->addRowDerivatives(bound, featureBag, *row, splitsDerivatives);
             }
@@ -211,7 +211,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
         auto& splitsDerivatives = workspace.derivatives()[i];
         mask.clear();
         splitsDerivatives.zero();
-        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
+        aggregators.emplace_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 if (split.assignToLeft(row, m_ExtraColumns) == isLeftChild) {
@@ -284,7 +284,7 @@ std::size_t CBoostedTreeLeafNodeStatistics::depth() const {
     return m_Depth;
 }
 
-CBoostedTreeLeafNodeStatistics::TSizeVecCRef
+const CBoostedTreeLeafNodeStatistics::TSizeVec&
 CBoostedTreeLeafNodeStatistics::extraColumns() const {
     return m_ExtraColumns;
 }
@@ -351,7 +351,8 @@ CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage() const {
-    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives);
+    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives) +
+           core::memory::dynamicSize(m_FreeDerivativesList);
 }
 }
 }
