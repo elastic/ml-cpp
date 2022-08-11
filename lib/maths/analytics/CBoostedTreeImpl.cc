@@ -1672,10 +1672,11 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                                   static_cast<std::ptrdiff_t>(maximumNumberInternalNodes);
         auto smallestCurrentCandidateGainIndex =
             std::min(lastPotentialSplit, numberSplittableLeaves - 1);
-        double smallestCandidateGain{
+        double smallestCandidateGain{std::max(
+            workspace.minimumGain(),
             smallestCurrentCandidateGainIndex < 0
                 ? 0.0
-                : splittableLeaves[smallestCurrentCandidateGainIndex]->gain()};
+                : splittableLeaves[smallestCurrentCandidateGainIndex]->gain())};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
