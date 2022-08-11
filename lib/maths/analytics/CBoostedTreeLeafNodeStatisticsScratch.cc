@@ -180,8 +180,8 @@ CBoostedTreeLeafNodeStatisticsScratch::split(std::size_t leftChildId,
                 nodeFeatureBag, false /*is left child*/, split, workspace);
             if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
                 leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
-                    leftChildId, std::move(*this), regularization, treeFeatureBag,
-                    nodeFeatureBag, workspace);
+                    leftChildId, std::move(*this), regularization,
+                    treeFeatureBag, nodeFeatureBag, workspace);
                 recycle = false;
             }
         } else if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
