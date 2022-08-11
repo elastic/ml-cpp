@@ -1582,7 +1582,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             [this](const TRowRef& row) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 return trace(numberLossParameters,
-                                      readLossCurvature(row, m_ExtraColumns, numberLossParameters));
+                             readLossCurvature(row, m_ExtraColumns, numberLossParameters));
             })
             .first;
 
