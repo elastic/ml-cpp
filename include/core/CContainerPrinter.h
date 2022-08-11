@@ -105,7 +105,12 @@ private:
         return CStringUtils::typeToStringPretty(value);
     }
 
-    //! std::ostringstream implementation.
+    //! std::to_string for float.
+    inline static std::string print_(float value, true_ /*is arithmetic*/) {
+        return std::to_string(value);
+    }
+
+    //! Fallback to std::ostringstream.
     template<typename T>
     inline static std::string print_(const T& value, false_ /*is arithmetic*/) {
         std::ostringstream result;
@@ -190,10 +195,10 @@ std::ostream& stream(boost::log::basic_record_ostream<CHAR_T>& stream) {
 //!   mylist = [(1.1, 3.2), "null"]
 //! \endcode
 //!
-//! It works with most types of containers and also C-style arrays,
-//! iterator ranges and pairs. It will generally dereference pointer
-//! types. It also handles containers of containers (checks if they
-//! have a nested const_iterator typedef).
+//! It works with most types of containers and also C-style arrays, iterator
+//! ranges and pairs. It will generally dereference pointer types. It also
+//! handles containers of containers. Containers are identified by checking
+//! for member const_iterator typedef.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! This is implemented using CStringUtils if possible and otherwise
@@ -335,6 +340,9 @@ public:
 //!
 //! Note that this only works for the scope of the current log line after the
 //! CScopePrintContainers variable is defined.
+//!
+//! \warning It should not be used to implement operator<< overloads: that'll
+//! lead to an infinite recursion.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Libraries have a tendency to overload operator<< for std::ostream (for

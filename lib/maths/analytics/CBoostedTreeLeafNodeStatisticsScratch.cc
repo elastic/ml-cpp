@@ -25,8 +25,6 @@
 namespace ml {
 namespace maths {
 namespace analytics {
-using namespace boosted_tree_detail;
-
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};

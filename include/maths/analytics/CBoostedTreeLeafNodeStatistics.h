@@ -13,11 +13,13 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
+#include <core/CDataFrame.h>
+#include <core/CMemoryFwd.h>
 #include <core/CPackedBitVector.h>
+#include <core/Concurrency.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatisticsThreading.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraEigen.h>
@@ -40,9 +42,6 @@ namespace CBoostedTreeLeafNodeStatisticsTest {
 struct testComputeBestSplitStatisticsThreading;
 }
 namespace ml {
-namespace core {
-class CDataFrame;
-}
 namespace maths {
 namespace analytics {
 class CBoostedTreeNode;
@@ -68,7 +67,7 @@ public:
     }
     TUInt8Ary readBytes() const {
         TUInt8Ary bytes;
-        std::memcpy(&bytes[0], &this->storage(), sizeof(common::CFloatStorage));
+        std::memcpy(&bytes[0], &this->cstorage(), sizeof(common::CFloatStorage));
         return bytes;
     }
 };
@@ -374,9 +373,9 @@ public:
         void zero() {
             m_PositiveDerivativesSum.fill(0.0);
             m_NegativeDerivativesSum.fill(0.0);
-            m_PositiveDerivativesMax = -boosted_tree_detail::INF;
-            m_PositiveDerivativesMin = boosted_tree_detail::INF;
-            m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
+            m_PositiveDerivativesMax = -INF;
+            m_PositiveDerivativesMin = INF;
+            m_NegativeDerivativesMin.fill(INF);
             std::fill(m_Storage.begin(), m_Storage.end(), 0.0);
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
@@ -524,10 +523,9 @@ public:
         TAlignedDoubleVec m_Storage;
         TDerivatives2x1 m_PositiveDerivativesSum{TDerivatives2x1::Zero()};
         TDerivatives2x1 m_NegativeDerivativesSum{TDerivatives2x1::Zero()};
-        double m_PositiveDerivativesMax{-boosted_tree_detail::INF};
-        double m_PositiveDerivativesMin{boosted_tree_detail::INF};
-        TDerivatives2x1 m_NegativeDerivativesMin{boosted_tree_detail::INF,
-                                                 boosted_tree_detail::INF};
+        double m_PositiveDerivativesMax{-INF};
+        double m_PositiveDerivativesMin{INF};
+        TDerivatives2x1 m_NegativeDerivativesMin{INF, INF};
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -642,6 +640,9 @@ public:
     };
 
 public:
+    static constexpr double INF{CBoostedTreeHyperparameters::INF};
+
+public:
     virtual ~CBoostedTreeLeafNodeStatistics() = default;
 
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
@@ -742,7 +743,7 @@ protected:
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
                          bool assignMissingToLeft)
-            : s_Gain{common::CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
+            : s_Gain{common::CMathsFuncs::isNan(gain) ? -INF : gain},
               s_GainVariance{common::CMathsFuncs::isNan(gain) ? 0.0 : gainVariance},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
@@ -763,16 +764,16 @@ protected:
             return result.str();
         }
 
-        double s_Gain{-boosted_tree_detail::INF};
+        double s_Gain{-INF};
         double s_GainVariance{0.0};
         double s_Curvature{0.0};
         std::size_t s_Feature{std::numeric_limits<std::size_t>::max()};
-        double s_SplitAt{boosted_tree_detail::INF};
+        double s_SplitAt{INF};
         std::uint32_t s_MinimumChildRowCount{0};
         bool s_LeftChildHasFewerRows{true};
         bool s_AssignMissingToLeft{true};
-        double s_LeftChildMaxGain{boosted_tree_detail::INF};
-        double s_RightChildMaxGain{boosted_tree_detail::INF};
+        double s_LeftChildMaxGain{INF};
+        double s_RightChildMaxGain{INF};
     };
 
     class CLookAheadBound {};

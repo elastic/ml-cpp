@@ -16,6 +16,7 @@
 #include <core/CMemoryDef.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFrameUtils.h>
 

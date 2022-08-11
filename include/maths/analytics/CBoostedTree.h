@@ -16,8 +16,6 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFramePredictiveModel.h>
 #include <maths/analytics/ImportExport.h>
@@ -40,9 +38,11 @@ namespace analytics {
 namespace boosted_tree {
 class CLoss;
 }
+class CBoostedTreeHyperparameters;
+class CBoostedTreeImpl;
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
-class CBoostedTreeImpl;
+struct SHyperparameterImportance;
 
 //! \brief A node of a regression tree.
 //!
@@ -265,8 +265,7 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using THyperparameterImportanceVec =
-        std::vector<boosted_tree_detail::SHyperparameterImportance>;
+    using THyperparameterImportanceVec = std::vector<SHyperparameterImportance>;
 
     class MATHS_ANALYTICS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                             public CBoostedTreeNode::CVisitor {
