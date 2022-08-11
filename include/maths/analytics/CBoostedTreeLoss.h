@@ -343,6 +343,9 @@ public:
     void merge(const CArgMinLossImpl& other) override;
 
 private:
+    using TDoubleVec = std::vector<double>;
+
+private:
     TObjective objective() const override;
     double minWeight() const override { return m_TreePredictionMinMax.min(); }
     double maxWeight() const override { return m_TreePredictionMinMax.max(); }

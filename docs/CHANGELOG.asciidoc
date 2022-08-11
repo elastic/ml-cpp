@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.5.0
+
+=== Enhancements
+
+* Improve classification and regression model train runtimes for data sets with many
+  numeric features. (See {ml-pull}2380[#2380].)
+
 == {es} version 8.4.0
 
 === Enhancements

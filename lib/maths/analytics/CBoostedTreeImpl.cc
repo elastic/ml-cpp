@@ -61,6 +61,8 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TDoubleVector = common::CDenseVector<double>;
+using TDoubleVectorVec = std::vector<TDoubleVector>;
 using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMemoryUsageCallback = CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback;
@@ -258,6 +260,23 @@ std::size_t minimumSplitRefreshInterval(double eta, std::size_t numberFeatures) 
     // is always negligible.
     return static_cast<std::size_t>(std::round(
         std::max({0.5 / eta, static_cast<double>(numberFeatures) / 50.0, 3.0})));
+}
+
+void propagateLossGradients(std::size_t node,
+                            const std::vector<CBoostedTreeNode>& tree,
+                            TDoubleVectorVec& lossGradients) {
+
+    if (tree[node].isLeaf()) {
+        return;
+    }
+
+    propagateLossGradients(tree[node].leftChildIndex(), tree, lossGradients);
+    propagateLossGradients(tree[node].rightChildIndex(), tree, lossGradients);
+
+    // A post order depth first traversal means that loss gradients are written
+    // to child nodes before they are read here.
+    lossGradients[node] += lossGradients[tree[node].leftChildIndex()];
+    lossGradients[node] += lossGradients[tree[node].rightChildIndex()];
 }
 }
 
@@ -828,13 +847,11 @@ CBoostedTreeImpl::TDoubleVec CBoostedTreeImpl::initializePerFoldTestLosses() {
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
 
-    using TFloatStorageVec = std::vector<common::CFloatStorage>;
-
     if (m_Loss->type() == E_BinaryClassification || m_Loss->type() == E_MulticlassClassification) {
 
         std::size_t numberClasses{
             m_Loss->type() == E_BinaryClassification ? 2 : m_Loss->numberParameters()};
-        TFloatStorageVec storage(2);
+        TFloatVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
@@ -908,14 +925,108 @@ void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
         return;
     }
 
-    TDoubleVec probabilities{retrainTreeSelectionProbabilities(
-        m_NumberThreads, frame, m_ExtraColumns, m_DependentVariable, *m_Encoder,
-        this->allTrainingRowMask(), *m_Loss, m_BestForest)};
+    TDoubleVec probabilities{this->retrainTreeSelectionProbabilities(
+        frame, this->allTrainingRowMask(), m_BestForest)};
 
     std::size_t numberToRetrain{static_cast<std::size_t>(
         std::max(m_RetrainFraction * static_cast<double>(m_BestForest.size()), 1.0) + 0.5)};
     common::CSampling::categoricalSampleWithoutReplacement(
         m_Rng, probabilities, numberToRetrain, m_TreesToRetrain);
+}
+
+CBoostedTreeImpl::TDoubleVec
+CBoostedTreeImpl::retrainTreeSelectionProbabilities(const core::CDataFrame& frame,
+                                                    const core::CPackedBitVector& trainingDataRowMask,
+                                                    const TNodeVecVec& forest) const {
+
+    // The first tree is used to centre the data and we never retrain this.
+
+    if (forest.size() < 2) {
+        return {};
+    }
+
+    using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
+
+    std::size_t numberLossParameters{m_Loss->numberParameters()};
+    LOG_TRACE(<< "dependent variable " << dependentVariable);
+    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
+
+    auto makeComputeTotalLossGradient = [&]() {
+        return [&](TDoubleVectorVecVec& leafLossGradients,
+                   const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
+                double actual{readActual(*row, m_DependentVariable)};
+                double weight{readExampleWeight(*row, m_ExtraColumns)};
+                for (std::size_t i = 0; i < forest.size(); ++i) {
+                    auto encodedRow = m_Encoder->encode(*row);
+                    std::size_t leaf{root(forest[i]).leafIndex(encodedRow, forest[i])};
+                    auto writer = [&](std::size_t j, double gradient) {
+                        leafLossGradients[i][leaf](j) = gradient;
+                    };
+                    m_Loss->gradient(encodedRow, true, prediction, actual, writer, weight);
+                }
+            }
+        };
+    };
+
+    auto makeZeroLeafLossGradients = [&] {
+        TDoubleVectorVecVec leafLossGradients;
+        leafLossGradients.reserve(forest.size());
+        for (const auto& tree : forest) {
+            leafLossGradients.emplace_back(tree.size(), TDoubleVector::Zero(numberLossParameters));
+        }
+        return leafLossGradients;
+    };
+
+    auto computeLeafLossGradients = [&](const core::CPackedBitVector& rowMask) {
+        auto results = frame.readRows(
+            m_NumberThreads, 0, frame.numberRows(),
+            core::bindRetrievableState(makeComputeTotalLossGradient(),
+                                       makeZeroLeafLossGradients()),
+            &rowMask);
+
+        TDoubleVectorVecVec leafLossGradients{std::move(results.first[0].s_FunctionState)};
+        for (std::size_t i = 1; i < results.first.size(); ++i) {
+            auto& resultsForWorker = results.first[i].s_FunctionState;
+            for (std::size_t j = 0; j < resultsForWorker.size(); ++j) {
+                for (std::size_t k = 0; k < resultsForWorker[j].size(); ++k) {
+                    leafLossGradients[j][k] += resultsForWorker[j][k];
+                }
+            }
+        }
+
+        return leafLossGradients;
+    };
+
+    // Compute the sum of loss gradients for each node.
+    auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
+    for (std::size_t i = 0; i < forest.size(); ++i) {
+        propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
+    }
+    LOG_TRACE(<< "loss gradients = " << trainingDataLossGradients);
+
+    // We are interested in choosing trees for which the total gradient of the
+    // loss at the current predictions for all nodes is the largest. These trees,
+    // at least locally, give the largest gain in loss by adjusting. Gradients
+    // of internal nodes are defined as the sum of the leaf gradients below them.
+    // We include these because they capture the fact that certain branches of
+    // specific trees may be retrained for greater effect.
+
+    TDoubleVec result(forest.size(), 0.0);
+    double Z{0.0};
+    for (std::size_t i = 1; i < forest.size(); ++i) {
+        for (std::size_t j = 1; j < forest[i].size(); ++j) {
+            result[i] += trainingDataLossGradients[i][j].lpNorm<1>();
+        }
+        Z += result[i];
+    }
+    for (auto& p : result) {
+        p /= Z;
+    }
+    LOG_TRACE(<< "probabilities = " << result);
+
+    return result;
 }
 
 template<typename F>
@@ -1537,6 +1648,15 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
         return;
     }
 
+    using TSearchTreeVec = std::vector<CSearchTree>;
+
+    TSearchTreeVec candidateSplitsTrees(candidateSplits.size());
+    for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
+        if (featureMask[i]) {
+            candidateSplitsTrees[i] = CSearchTree{candidateSplits[i]};
+        }
+    }
+
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
@@ -1552,12 +1672,10 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                             packedSplits[j] =
                                 CDataFrameUtils::isMissing(feature)
                                     ? static_cast<std::uint8_t>(
-                                          missingSplit(candidateSplits[i]))
+                                          missingSplit(candidateSplitsTrees[i]))
                                     : static_cast<std::uint8_t>(
-                                          std::upper_bound(candidateSplits[i].begin(),
-                                                           candidateSplits[i].end(),
-                                                           common::CFloatStorage{feature}) -
-                                          candidateSplits[i].begin());
+                                          candidateSplitsTrees[i].upperBound(
+                                              static_cast<float>(feature)));
                         }
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};

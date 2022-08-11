@@ -15,7 +15,7 @@
 #include <api/ApiTypes.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
-#include <maths/analytics/CBoostedTreeUtils.h>
+#include <maths/analytics/CBoostedTreeHyperparameters.h>
 
 #include <cmath>
 #include <cstdint>
@@ -251,47 +251,47 @@ void CInferenceModelMetadata::hyperparameterImportance(
         std::string hyperparameterName;
         switch (item.s_Hyperparameter) {
         // Train + (maybe incremental train) hyperparameters.
-        case maths::analytics::boosted_tree_detail::E_Alpha:
+        case maths::analytics::E_Alpha:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ALPHA;
             break;
-        case maths::analytics::boosted_tree_detail::E_DownsampleFactor:
+        case maths::analytics::E_DownsampleFactor:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
             break;
-        case maths::analytics::boosted_tree_detail::E_Eta:
+        case maths::analytics::E_Eta:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA;
             break;
-        case maths::analytics::boosted_tree_detail::E_EtaGrowthRatePerTree:
+        case maths::analytics::E_EtaGrowthRatePerTree:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE;
             break;
-        case maths::analytics::boosted_tree_detail::E_FeatureBagFraction:
+        case maths::analytics::E_FeatureBagFraction:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION;
             break;
-        case maths::analytics::boosted_tree_detail::E_Gamma:
+        case maths::analytics::E_Gamma:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::GAMMA;
             break;
-        case maths::analytics::boosted_tree_detail::E_Lambda:
+        case maths::analytics::E_Lambda:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::LAMBDA;
             break;
-        case maths::analytics::boosted_tree_detail::E_SoftTreeDepthLimit:
+        case maths::analytics::E_SoftTreeDepthLimit:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT;
             break;
-        case maths::analytics::boosted_tree_detail::E_SoftTreeDepthTolerance:
+        case maths::analytics::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
 
         // Not tuned via Bayesian Optimisation.
-        case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
+        case maths::analytics::E_MaximumNumberTrees:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
 
         // Incremental train hyperparameters.
-        case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
+        case maths::analytics::E_PredictionChangeCost:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
             break;
-        case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
+        case maths::analytics::E_RetrainedTreeEta:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
             break;
-        case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
+        case maths::analytics::E_TreeTopologyChangePenalty:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
             break;
         }
