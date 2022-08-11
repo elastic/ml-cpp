@@ -128,10 +128,10 @@ constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::m
 //! compare at each node in the tree. We also pad the data slightly, with infinity,
 //! at internal nodes so we can always safely load four values at once and to
 //! maintain the spacing. In total though this only adds up to depth * 16 bytes
-//! overhead in total.
+//! overhead.
 //!
 //! When possible we've used SSE-like instructions to perform a 4 way comparison
-//! between the query point and candidate split points. When these are avilable,
+//! between the query point and candidate split points. When these are available,
 //! it means the complexity in _instructions_ is genuinely O(ceil(log(n) / log(5)))
 //! in the set size n.
 //!
@@ -172,8 +172,8 @@ public:
 
         std::size_t node{0};
         // The tree structure doesn't arrange all values in order so we need to
-        // keep track of the number of larger values preceding a position in the
-        // tree and map it back to its position in the sorted collection.
+        // keep track of the number of out-of-order values preceding a position
+        // in the tree to map it back to its position in the sorted collection.
         std::size_t numberOutOfOrderValues{0};
         auto vecx = ml_broadcast_load_128(&x.cstorage());
 
