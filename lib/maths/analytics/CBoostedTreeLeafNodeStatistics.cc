@@ -351,8 +351,11 @@ CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage() const {
-    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives) +
-           core::memory::dynamicSize(m_FreeDerivativesList);
+    // We purposely don't account for the free list memory usage because we
+    // account for them as we recycle them during training. This means our
+    // instantaneous memory estimate might be off but not the peak memory
+    // usage which is what we care about.
+    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives);
 }
 }
 }
