@@ -72,7 +72,7 @@ const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 const double MAXIMUM_SAMPLE_SIZE_FOR_QUANTILES{50000.0};
-const std::size_t LOSS_ESTIMATION_BOOTSTRAP_SIZE{7};
+const std::size_t LOSS_ESTIMATION_BOOTSTRAP_SIZE{5};
 CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
@@ -1679,7 +1679,7 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                         if (featureMask[i]) {
                             double feature{encodedRow[i]};
                             packedSplits[j] =
-                                CDataFrameUtils::isMissing(feature)
+                                core::CDataFrame::isMissing(feature)
                                     ? static_cast<std::uint8_t>(
                                           missingSplit(candidateSplitsTrees[i]))
                                     : static_cast<std::uint8_t>(
