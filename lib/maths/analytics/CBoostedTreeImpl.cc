@@ -71,6 +71,7 @@ namespace {
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
+const double MAXIMUM_SAMPLE_SIZE_FOR_QUANTILES{50000.0};
 const std::size_t LOSS_ESTIMATION_BOOTSTRAP_SIZE{7};
 CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
 
@@ -1203,7 +1204,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         featuresToRefresh[i] = m_FeatureSampleProbabilities[i] > 0.0 &&
                                m_FixedCandidateSplits[i].empty();
     }
-    this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
+    this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh,
+                             trainingRowMask | testingRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
@@ -1249,7 +1251,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             this->refreshPredictionsAndLossDerivatives(
                 frame, trainingRowMask | testingRowMask, *m_Loss,
                 [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
-                    prediction += root(tree).value(m_Encoder->encode(row), tree);
+                    prediction += root(tree).value(row, m_ExtraColumns, tree);
                 });
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_Hyperparameters.etaGrowthRatePerTree().value() * eta);
@@ -1268,7 +1270,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         if (forceRefreshSplits || forest.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh,
+                                     trainingRowMask | testingRowMask);
             scopeMemoryUsage.add(candidateSplits);
             nextTreeCountToRefreshSplits += minimumSplitRefreshInterval(
                 eta, std::count_if(featuresToRefresh.begin(), featuresToRefresh.end(),
@@ -1453,7 +1456,8 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 }
 
 core::CPackedBitVector
-CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) const {
+CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask,
+                             TOptionalDouble downsampleFactor) const {
     // We compute a stochastic version of the candidate splits, gradients and
     // curvatures for each tree we train. The sampling scheme should minimize
     // the correlation with previous trees for fixed sample size so randomly
@@ -1463,18 +1467,21 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     }
 
     core::CPackedBitVector result;
+
+    double downsampleFactor_{
+        downsampleFactor.value_or(m_Hyperparameters.downsampleFactor().value())};
     do {
         result = core::CPackedBitVector{};
         for (auto i = trainingRowMask.beginOneBits();
              i != trainingRowMask.endOneBits(); ++i) {
-            if (common::CSampling::uniformSample(m_Rng, 0.0, 1.0) <
-                m_Hyperparameters.downsampleFactor().value()) {
+            if (common::CSampling::uniformSample(m_Rng, 0.0, 1.0) < downsampleFactor_) {
                 result.extend(false, *i - result.size());
                 result.extend(true);
             }
         }
     } while (result.manhattan() == 0.0);
     result.extend(false, trainingRowMask.size() - result.size());
+
     return result;
 }
 
@@ -1572,17 +1579,22 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
         return candidateSplits;
     }
 
+    double sampleSize{trainingRowMask.manhattan()};
     auto featureQuantiles =
         CDataFrameUtils::columnQuantiles(
-            m_NumberThreads, frame, trainingRowMask, features,
+            m_NumberThreads, frame,
+            sampleSize < MAXIMUM_SAMPLE_SIZE_FOR_QUANTILES
+                ? trainingRowMask
+                : this->downsample(trainingRowMask, MAXIMUM_SAMPLE_SIZE_FOR_QUANTILES / sampleSize),
+            features,
             common::CFastQuantileSketch{
-                common::CFastQuantileSketch::E_Linear,
                 std::max(m_NumberSplitsPerFeature, std::size_t{50}), m_Rng},
             m_Encoder.get(),
             [this](const TRowRef& row) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
-                return trace(numberLossParameters,
-                             readLossCurvature(row, m_ExtraColumns, numberLossParameters));
+                double weight{readExampleWeight(row, m_ExtraColumns)};
+                return weight * trace(numberLossParameters,
+                                      readLossCurvature(row, m_ExtraColumns, numberLossParameters));
             })
             .first;
 

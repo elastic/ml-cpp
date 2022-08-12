@@ -312,7 +312,8 @@ private:
                                     core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
-    core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
+    core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask,
+                                      TOptionalDouble downsampleFactor = std::nullopt) const;
 
     //! Set the candidate splits for low cardinality features which remain
     //! fixed for the duration of training.

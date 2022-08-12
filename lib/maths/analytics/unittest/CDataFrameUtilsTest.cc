@@ -306,8 +306,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
     std::size_t capacity{500};
 
     TDoubleVecVec values(4);
-    TQuantileSketchVec expectedQuantiles(
-        4, {maths::common::CFastQuantileSketch::E_Linear, rows});
+    TQuantileSketchVec expectedQuantiles(4, maths::common::CFastQuantileSketch{rows});
     {
         std::size_t i = 0;
         for (auto a : {-10.0, 0.0}) {
@@ -350,12 +349,9 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             }
             frame->finishWritingRows();
 
-            TQuantileSketchVec actualQuantiles;
-            bool successful;
-            std::tie(actualQuantiles, successful) =
-                maths::analytics::CDataFrameUtils::columnQuantiles(
-                    threads, *frame, maskAll(rows), columnMask,
-                    {maths::common::CFastQuantileSketch::E_Linear, 100});
+            auto[actualQuantiles, successful] = maths::analytics::CDataFrameUtils::columnQuantiles(
+                threads, *frame, maskAll(rows), columnMask,
+                maths::common::CFastQuantileSketch{100});
             BOOST_TEST_REQUIRE(successful);
 
             // Check the quantile sketches match.
@@ -444,8 +440,8 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
     TSizeVec columnMask(encoder.numberEncodedColumns());
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
-    TQuantileSketchVec expectedQuantiles{
-        columnMask.size(), {maths::common::CFastQuantileSketch::E_Linear, 100}};
+    TQuantileSketchVec expectedQuantiles{columnMask.size(),
+                                         maths::common::CFastQuantileSketch{100}};
     frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
                            const core::CDataFrame::TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -456,11 +452,9 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
         }
     });
 
-    TQuantileSketchVec actualQuantiles;
-    bool successful;
-    std::tie(actualQuantiles, successful) = maths::analytics::CDataFrameUtils::columnQuantiles(
+    auto[actualQuantiles, successful] = maths::analytics::CDataFrameUtils::columnQuantiles(
         1, *frame, maskAll(rows), columnMask,
-        {maths::common::CFastQuantileSketch::E_Linear, 100}, &encoder);
+        maths::common::CFastQuantileSketch{100}, &encoder);
     BOOST_TEST_REQUIRE(successful);
 
     for (std::size_t i = 5; i < 100; i += 5) {
@@ -777,10 +771,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
                             samplingRowMask.manhattan(), 1.0);
 
         // Ensure that the target's distribution is similar.
-        maths::common::CQuantileSketch expectedQuantiles(
-            maths::common::CQuantileSketch::E_Linear, numberRows);
-        maths::common::CQuantileSketch actualQuantiles(
-            maths::common::CQuantileSketch::E_Linear, numberRows);
+        maths::common::CQuantileSketch expectedQuantiles{numberRows};
+        maths::common::CQuantileSketch actualQuantiles{numberRows};
         for (std::size_t i = 0; i < numberRows; ++i) {
             expectedQuantiles.add(value[i]);
             if (samplingRowMask[i]) {
@@ -891,10 +883,8 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
                             sampledRowMask.manhattan(), 1.0);
 
         // Ensure that the target's distribution is similar.
-        maths::common::CQuantileSketch expectedQuantiles(
-            maths::common::CQuantileSketch::E_Linear, numberRows);
-        maths::common::CQuantileSketch actualQuantiles(
-            maths::common::CQuantileSketch::E_Linear, numberRows);
+        maths::common::CQuantileSketch expectedQuantiles{numberRows};
+        maths::common::CQuantileSketch actualQuantiles{numberRows};
         for (std::size_t i = 0; i < numberRows; ++i) {
             if (distributionSourceRowMask[i]) {
                 expectedQuantiles.add(value[i]);
