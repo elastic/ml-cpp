@@ -11,6 +11,7 @@
 
 #include <maths/analytics/CBoostedTreeImpl.h>
 
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 #include <core/CMemoryDef.h>
@@ -1166,7 +1167,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         [&](const TFloatVecVec& candidateSplits, const TSizeVec& treeFeatureBag,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
-            return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+            return std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
                 rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
                 m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
@@ -1319,7 +1320,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         [&](const TFloatVecVec& candidateSplits, const TSizeVec& treeFeatureBag,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
-            return std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+            return std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
                 rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
                 m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
@@ -1750,7 +1751,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             break;
         }
 
-        auto leaf = splittableLeaves.back();
+        TLeafNodeStatisticsPtr leaf{std::move(splittableLeaves.back())};
         splittableLeaves.pop_back();
 
         scopeMemoryUsage.remove(leaf);
@@ -1788,10 +1789,11 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                                   static_cast<std::ptrdiff_t>(maximumNumberInternalNodes);
         auto smallestCurrentCandidateGainIndex =
             std::min(lastPotentialSplit, numberSplittableLeaves - 1);
-        double smallestCandidateGain{
+        double smallestCandidateGain{std::max(
+            workspace.minimumGain(),
             smallestCurrentCandidateGainIndex < 0
                 ? 0.0
-                : splittableLeaves[smallestCurrentCandidateGainIndex]->gain()};
+                : splittableLeaves[smallestCurrentCandidateGainIndex]->gain())};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -2104,10 +2106,14 @@ void CBoostedTreeImpl::computeLeafValues(core::CDataFrame& frame,
     do {
         TArgMinLossVecVec result(m_NumberThreads, leafValues);
         this->minimumLossLeafValues(false /*new example*/, frame,
-                                    trainingRowMask & ~m_NewTrainingRowMask,
+                                    m_Hyperparameters.incrementalTraining()
+                                        ? trainingRowMask & ~m_NewTrainingRowMask
+                                        : trainingRowMask,
                                     loss, leafMap, tree, result);
         this->minimumLossLeafValues(true /*new example*/, frame,
-                                    trainingRowMask & m_NewTrainingRowMask,
+                                    m_Hyperparameters.incrementalTraining()
+                                        ? trainingRowMask & m_NewTrainingRowMask
+                                        : m_NewTrainingRowMask,
                                     loss, leafMap, tree, result);
         leafValues = std::move(result[0]);
         for (std::size_t i = 1; i < result.size(); ++i) {
