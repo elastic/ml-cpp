@@ -947,7 +947,7 @@ CBoostedTreeImpl::retrainTreeSelectionProbabilities(const core::CDataFrame& fram
     using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
 
     std::size_t numberLossParameters{m_Loss->numberParameters()};
-    LOG_TRACE(<< "dependent variable " << dependentVariable);
+    LOG_TRACE(<< "dependent variable " << m_DependentVariable);
     LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
 
     auto makeComputeTotalLossGradient = [&]() {
