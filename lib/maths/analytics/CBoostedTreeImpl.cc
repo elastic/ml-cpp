@@ -1204,8 +1204,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         featuresToRefresh[i] = m_FeatureSampleProbabilities[i] > 0.0 &&
                                m_FixedCandidateSplits[i].empty();
     }
-    this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh,
-                             trainingRowMask | testingRowMask);
+    this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
@@ -1251,7 +1250,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             this->refreshPredictionsAndLossDerivatives(
                 frame, trainingRowMask | testingRowMask, *m_Loss,
                 [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
-                    prediction += root(tree).value(row, m_ExtraColumns, tree);
+                    prediction += root(tree).value(m_Encoder->encode(row), tree);
                 });
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_Hyperparameters.etaGrowthRatePerTree().value() * eta);
@@ -1270,8 +1269,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         if (forceRefreshSplits || forest.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh,
-                                     trainingRowMask | testingRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
             scopeMemoryUsage.add(candidateSplits);
             nextTreeCountToRefreshSplits += minimumSplitRefreshInterval(
                 eta, std::count_if(featuresToRefresh.begin(), featuresToRefresh.end(),
