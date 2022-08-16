@@ -68,7 +68,7 @@ ml_shuffle_128(float32x4_t a, float32x4_t b, MASK) {
     return result;
 }
 
-inline __attribute__((always_inline)) auto ml_rotate_128(x) {
+inline __attribute__((always_inline)) auto ml_rotate_128(float32x4_t x) {
     float32x2_t x21{vget_high_f32(vextq_f32(x, x), 3)};
     float32x2_t x03{vget_low_f32(vextq_f32(x, x), 3)};
     return vcombine_f32(x21, x03);
