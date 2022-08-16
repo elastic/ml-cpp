@@ -13,21 +13,15 @@
 #define INCLUDED_ml_maths_common_CChecksum_h
 
 #include <core/CHashing.h>
-#include <core/CIEEE754.h>
-#include <core/CStoredStringPtr.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/ImportExport.h>
-#include <maths/common/MathsTypes.h>
 
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
 #include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -35,6 +29,9 @@
 #include <utility>
 
 namespace ml {
+namespace core {
+class CStoredStringPtr;
+}
 namespace maths {
 namespace common {
 namespace checksum_detail {
@@ -96,66 +93,42 @@ std::uint64_t checksum(std::uint64_t seed, const T& target) {
 template<>
 class CChecksumImpl<BasicChecksum> {
 public:
-    //! Checksum integral type.
-    template<typename INTEGRAL>
-    static std::uint64_t dispatch(std::uint64_t seed, INTEGRAL target) {
+    //! Checksum types castable to std::uint64_t.
+    template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>* = nullptr>
+    static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
         return core::CHashing::hashCombine(seed, static_cast<std::uint64_t>(target));
     }
 
-    //! Checksum of double.
-    static std::uint64_t dispatch(std::uint64_t seed, double target) {
-        // A fuzzy checksum implementation is useful for floating point values
-        // so we know we're close to a reasonable precision. This checksums the
-        // printed value so that it's stable over persist and restore.
-        target = core::CIEEE754::round(target, core::CIEEE754::E_SinglePrecision);
-        char buf[4 * sizeof(double)];
-        std::memset(buf, 0, sizeof(buf));
-        std::sprintf(buf, "%.7g", target);
-        return core::CHashing::safeMurmurHash64(&buf[0], 4 * sizeof(double), seed);
-    }
+    //! Checksum a double.
+    static std::uint64_t dispatch(std::uint64_t seed, double target);
 
-    //! Checksum of a universal hash function.
+    //! Checksum a universal hash function.
     static std::uint64_t
     dispatch(std::uint64_t seed,
-             const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target) {
-        seed = core::CHashing::hashCombine(seed,
-                                           static_cast<std::uint64_t>(target.a()));
-        return core::CHashing::hashCombine(seed,
-                                           static_cast<std::uint64_t>(target.b()));
-    }
+             const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target);
 
-    //! Checksum of float storage.
-    static std::uint64_t dispatch(std::uint64_t seed, CFloatStorage target) {
-        return dispatch(seed, static_cast<double>(target));
-    }
-
-    //! Checksum of string.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target) {
-        return core::CHashing::safeMurmurHash64(
-            target.data(), static_cast<int>(target.size()), seed);
-    }
+    //! Checksum a string.
+    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target);
 
     //! Checksum a stored string pointer.
-    static std::uint64_t dispatch(std::uint64_t seed, const core::CStoredStringPtr& target) {
-        return target == nullptr ? seed : dispatch(seed, *target);
-    }
+    static std::uint64_t dispatch(std::uint64_t seed, const core::CStoredStringPtr& target);
 
-    //! Checksum of a reference_wrapper.
+    //! Checksum a reference_wrapper.
     template<typename T>
     static std::uint64_t
     dispatch(std::uint64_t seed, const std::reference_wrapper<T>& target) {
         return checksum(seed, target.get());
     }
 
-    //! Checksum of an optional.
+    //! Checksum an optional.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::optional<T>& target) {
         return target == std::nullopt ? seed : checksum(seed, *target);
     }
 
-    //! A raw pointer.
-    template<typename T>
-    static std::uint64_t dispatch(std::uint64_t seed, const T* target) {
+    //! Checksum a raw pointer.
+    template<typename T, std::enable_if_t<std::is_pointer_v<T> || std::is_null_pointer_v<T>>* = nullptr>
+    static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
         return target == nullptr ? seed : checksum(seed, *target);
     }
 
@@ -280,15 +253,12 @@ public:
     //! \note The default implementation generates a compiler warning for
     //! std::vector<bool> because its operator[] doesn't return by reference.
     //! In any case, the std::hash specialisation is more efficient.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::vector<bool>& target) {
-        return core::CHashing::hashCombine(seed, ms_VectorBoolHasher(target));
-    }
+    static std::uint64_t dispatch(std::uint64_t seed, const std::vector<bool>& target);
 
     //! Stable hash of unordered set.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const boost::unordered_set<T>& target) {
-        using TCRef = std::reference_wrapper<const T>;
-        using TCRefVec = std::vector<TCRef>;
+        using TCRefVec = std::vector<std::reference_wrapper<const std::remove_cv_t<T>>>;
 
         TCRefVec ordered;
         ordered.reserve(target.size());
@@ -296,8 +266,9 @@ public:
             ordered.emplace_back(element);
         }
 
-        std::sort(ordered.begin(), ordered.end(),
-                  maths::common::COrderings::SReferenceLess());
+        std::sort(ordered.begin(), ordered.end(), [](const auto& lhs, const auto& rhs) {
+            return core::unwrap_ref(lhs) < core::unwrap_ref(rhs);
+        });
 
         return dispatch(seed, ordered);
     }
@@ -306,10 +277,9 @@ public:
     template<typename U, typename V>
     static std::uint64_t
     dispatch(std::uint64_t seed, const boost::unordered_map<U, V>& target) {
-        using TUCRef = std::reference_wrapper<const U>;
-        using TVCRef = std::reference_wrapper<const V>;
-        using TUCRefVCRefPr = std::pair<TUCRef, TVCRef>;
-        using TUCRefVCRefPrVec = std::vector<TUCRefVCRefPr>;
+        using TUCRef = std::reference_wrapper<const std::remove_cv_t<U>>;
+        using TVCRef = std::reference_wrapper<const std::remove_cv_t<V>>;
+        using TUCRefVCRefPrVec = std::vector<std::pair<TUCRef, TVCRef>>;
 
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());
@@ -317,18 +287,15 @@ public:
             ordered.emplace_back(TUCRef{element.first}, TVCRef{element.second});
         }
 
-        std::sort(ordered.begin(), ordered.end(), maths::common::COrderings::SFirstLess());
+        std::sort(ordered.begin(), ordered.end(), [](const auto& lhs, const auto& rhs) {
+            return core::unwrap_ref(lhs.first) < core::unwrap_ref(rhs.first);
+        });
 
         return dispatch(seed, ordered);
     }
 
     //! Handle std::string which resolves to a container.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target) {
-        return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
-    }
-
-private:
-    static const std::hash<std::vector<bool>> ms_VectorBoolHasher;
+    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target);
 };
 } // checksum_detail::
 
@@ -347,18 +314,9 @@ public:
     template<typename T, std::size_t SIZE>
     static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE]) {
         for (std::size_t i = 0; i + 1 < SIZE; ++i) {
-            seed = checksum_detail::checksum(seed, target[i]);
-        }
-        return checksum_detail::checksum(seed, target[SIZE - 1]);
-    }
-
-    //! Overload for nested arrays which chains checksums.
-    template<typename T, std::size_t SIZE1, std::size_t SIZE2>
-    static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
-        for (std::size_t i = 0; i + 1 < SIZE1; ++i) {
             seed = calculate(seed, target[i]);
         }
-        return calculate(seed, target[SIZE1 - 1]);
+        return calculate(seed, target[SIZE - 1]);
     }
 };
 }

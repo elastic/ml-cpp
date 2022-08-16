@@ -20,6 +20,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CRestoreParams.h>
