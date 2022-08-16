@@ -1197,7 +1197,7 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
                                              m_TreeImpl->m_TestingRowMasks[0],
                                              m_TreeImpl->m_TrainingProgress)
                               .s_Forest;
-            common::CFastQuantileSketch quantiles{common::CQuantileSketch::E_Linear, 50};
+            common::CFastQuantileSketch quantiles{50};
             for (const auto& tree : forest) {
                 for (const auto& node : tree) {
                     if (node.isLeaf() == false) {

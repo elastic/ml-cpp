@@ -17,6 +17,7 @@
 #include <core/CStopWatch.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CQuantileSketch.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -25,6 +26,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CQuantileSketchTest)
 
@@ -80,8 +82,44 @@ void testSketch(SKETCH sketch,
 }
 }
 
+BOOST_AUTO_TEST_CASE(testOrderAndDeduplicate) {
+
+    maths::common::CQuantileSketch sketch{15};
+    sketch.add(1.0);
+    sketch.add(3.0);
+    sketch.add(1.0);
+    sketch.add(1.0);
+    sketch.add(5.0);
+    sketch.add(4.0);
+    sketch.add(5.0);
+    sketch.add(4.0);
+    sketch.order();
+    sketch.deduplicate(sketch.m_Knots.begin(), sketch.m_Knots.end());
+    LOG_DEBUG(<< "sketch = " << sketch);
+    BOOST_REQUIRE_EQUAL("[(1, 3), (3, 1), (4, 2), (5, 2)]", sketch.print());
+
+    sketch.add(3.0);
+    sketch.add(1.0);
+    sketch.add(0.0);
+    sketch.add(9.0);
+    sketch.order();
+    sketch.deduplicate(sketch.m_Knots.begin(), sketch.m_Knots.end());
+    LOG_DEBUG(<< "sketch = " << sketch);
+    BOOST_REQUIRE_EQUAL("[(0, 1), (1, 4), (3, 2), (4, 2), (5, 2), (9, 1)]",
+                        sketch.print());
+
+    sketch.add(9.0);
+    sketch.add(9.0);
+    sketch.add(9.0);
+    sketch.order();
+    sketch.deduplicate(sketch.m_Knots.begin(), sketch.m_Knots.end());
+    LOG_DEBUG(<< "sketch = " << sketch);
+    BOOST_REQUIRE_EQUAL("[(0, 1), (1, 4), (3, 2), (4, 2), (5, 2), (9, 4)]",
+                        sketch.print());
+}
+
 BOOST_AUTO_TEST_CASE(testAdd) {
-    maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 5);
+    maths::common::CQuantileSketch sketch{5};
 
     // Test adding a point.
     sketch.add(1.2);
@@ -96,17 +134,14 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     sketch = std::for_each(x.begin(), x.end(), sketch);
     BOOST_TEST_REQUIRE(sketch.checkInvariants());
 
-    LOG_DEBUG(<< "sketch = " << sketch.knots());
+    LOG_DEBUG(<< "sketch = " << sketch);
     BOOST_REQUIRE_EQUAL(6.0, sketch.count());
-    BOOST_REQUIRE_EQUAL("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]",
-                        core::CContainerPrinter::print(sketch.knots()));
+    BOOST_REQUIRE_EQUAL("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]", sketch.print());
 }
 
 BOOST_AUTO_TEST_CASE(testReduce) {
-
-    LOG_DEBUG(<< "**** Linear ****");
     {
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 6);
+        maths::common::CQuantileSketch sketch{6};
 
         // Test duplicate points.
 
@@ -117,36 +152,35 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
-        BOOST_REQUIRE_EQUAL("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]",
-                            core::CContainerPrinter::print(sketch.knots()));
+        LOG_DEBUG(<< "sketch = " << sketch);
+        BOOST_REQUIRE_EQUAL("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]", sketch.print());
 
         // Regular compress (merging two point).
 
         sketch.add(0.1);
         sketch.add(0.2);
         sketch.add(0.0);
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
+        LOG_DEBUG(<< "sketch = " << sketch);
         BOOST_REQUIRE_EQUAL("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]",
-                            core::CContainerPrinter::print(sketch.knots()));
+                            sketch.print());
     }
     {
         // Multiple points compressed at once.
 
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 30);
+        maths::common::CQuantileSketch sketch{30};
 
         for (std::size_t i = 0; i <= 30; ++i) {
             sketch.add(static_cast<double>(i));
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
+        LOG_DEBUG(<< "sketch = " << sketch);
         BOOST_REQUIRE_EQUAL("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
                             " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
                             " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
                             " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
                             " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
                             " (28, 1), (29, 1), (30, 1)]",
-                            core::CContainerPrinter::print(sketch.knots()));
+                            sketch.print());
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -158,12 +192,12 @@ BOOST_AUTO_TEST_CASE(testReduce) {
                        40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
                        75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 10);
+        maths::common::CQuantileSketch sketch{10};
         for (std::size_t i = 0; i < points.size(); ++i) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
-                LOG_DEBUG(<< "sketch = " << sketch.knots());
+                LOG_DEBUG(<< "sketch = " << sketch);
             }
         }
 
@@ -179,90 +213,14 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 1.5);
     }
-
-    LOG_DEBUG(<< "**** Piecewise Constant ****");
-    {
-        maths::common::CQuantileSketch sketch(
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 6);
-
-        // Test duplicate points.
-
-        TDoubleVecVec points{{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
-                             {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (const auto& point : points) {
-            sketch.add(point[0], point[1]);
-            BOOST_TEST_REQUIRE(sketch.checkInvariants());
-        }
-
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
-        BOOST_REQUIRE_EQUAL("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]",
-                            core::CContainerPrinter::print(sketch.knots()));
-
-        // Regular compress (merging two point).
-
-        sketch.add(0.1);
-        sketch.add(0.2);
-        sketch.add(0.0);
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
-        BOOST_REQUIRE_EQUAL("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]",
-                            core::CContainerPrinter::print(sketch.knots()));
-    }
-    {
-        // Multiple points compressed at once.
-
-        maths::common::CQuantileSketch sketch(
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 30);
-
-        for (std::size_t i = 0; i <= 30; ++i) {
-            sketch.add(static_cast<double>(i));
-            BOOST_TEST_REQUIRE(sketch.checkInvariants());
-        }
-        LOG_DEBUG(<< "sketch = " << sketch.knots());
-        BOOST_REQUIRE_EQUAL("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                            " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                            " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
-                            " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
-                            " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
-                            " (28, 1), (29, 1), (30, 1)]",
-                            core::CContainerPrinter::print(sketch.knots()));
-    }
-    {
-        // Test the quantiles are reasonable at a compression ratio of 2:1.
-
-        TDoubleVec points{1.0,  2.0,  40.0, 13.0, 5.0,  6.0,  4.0,
-                          7.0,  15.0, 17.0, 19.0, 44.0, 42.0, 3.0,
-                          46.0, 48.0, 50.0, 21.0, 23.0, 52.0};
-        TDoubleVec cdf{5.0,  10.0, 15.0, 20.0, 25.0, 30.0, 35.0,
-                       40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
-                       75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
-
-        maths::common::CQuantileSketch sketch(
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
-        for (const auto& point : points) {
-            sketch.add(point);
-            BOOST_TEST_REQUIRE(sketch.checkInvariants());
-        }
-
-        std::sort(points.begin(), points.end());
-        TMeanAccumulator error;
-        for (std::size_t i = 0; i < cdf.size(); ++i) {
-            double x;
-            BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
-            LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(points[i], x, 10.0);
-            error.add(std::fabs(points[i] - x));
-        }
-        LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 1.8);
-    }
 }
 
 BOOST_AUTO_TEST_CASE(testMerge) {
     {
         // Simple merge no reduction.
 
-        maths::common::CQuantileSketch sketch1(maths::common::CQuantileSketch::E_Linear, 20);
-        maths::common::CQuantileSketch sketch2(maths::common::CQuantileSketch::E_Linear, 10);
+        maths::common::CQuantileSketch sketch1{20};
+        maths::common::CQuantileSketch sketch2{10};
 
         sketch1.add(2.0);
         sketch1.add(1.0);
@@ -275,9 +233,9 @@ BOOST_AUTO_TEST_CASE(testMerge) {
         sketch2.add(5.1);
 
         sketch1 += sketch2;
-        LOG_DEBUG(<< "merged sketch = " << sketch1.knots());
+        LOG_DEBUG(<< "merged sketch = " << sketch1);
         BOOST_REQUIRE_EQUAL("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]",
-                            core::CContainerPrinter::print(sketch1.knots()));
+                            sketch1.print());
     }
 
     {
@@ -290,17 +248,17 @@ BOOST_AUTO_TEST_CASE(testMerge) {
                        40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0,
                        75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
-        maths::common::CQuantileSketch sketch1(maths::common::CQuantileSketch::E_Linear, 10);
-        maths::common::CQuantileSketch sketch2(maths::common::CQuantileSketch::E_Linear, 10);
+        maths::common::CQuantileSketch sketch1{10};
+        maths::common::CQuantileSketch sketch2{10};
         for (std::size_t i = 0; i < points.size(); i += 2) {
             sketch1.add(points[i]);
             sketch2.add(points[i + 1]);
         }
-        LOG_DEBUG(<< "sketch 1 = " << sketch1.knots());
-        LOG_DEBUG(<< "sketch 2 = " << sketch2.knots());
+        LOG_DEBUG(<< "sketch 1 = " << sketch1);
+        LOG_DEBUG(<< "sketch 2 = " << sketch2);
 
         maths::common::CQuantileSketch sketch3 = sketch1 + sketch2;
-        LOG_DEBUG(<< "merged sketch = " << sketch3.knots());
+        LOG_DEBUG(<< "merged sketch = " << sketch3);
 
         std::sort(points.begin(), points.end());
         TMeanAccumulator error;
@@ -316,6 +274,32 @@ BOOST_AUTO_TEST_CASE(testMerge) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testDuplicates) {
+
+    // Test we never have duplicate values in the sketch even for a data set
+    // with many duplicates.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec samples;
+    rng.generateUniformSamples(0.0, 30.0, 100000, samples);
+
+    auto testSketch = [&](auto& sketch) {
+        for (auto sample : samples) {
+            sketch.add(std::floor(sample));
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
+        }
+    };
+
+    LOG_DEBUG(<< "sketch");
+    maths::common::CQuantileSketch sketch{40};
+    testSketch(sketch);
+
+    LOG_DEBUG(<< "fast sketch");
+    maths::common::CFastQuantileSketch fastSketch{40};
+    testSketch(sketch);
+}
+
 BOOST_AUTO_TEST_CASE(testMedian) {
 
     LOG_DEBUG(<< "**** Exact ****");
@@ -324,8 +308,7 @@ BOOST_AUTO_TEST_CASE(testMedian) {
     // values is less than the sketch size.
 
     {
-        maths::common::CQuantileSketch sketch(
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
+        maths::common::CQuantileSketch sketch{10};
 
         double median;
         BOOST_TEST_REQUIRE(!sketch.quantile(50.0, median));
@@ -360,7 +343,7 @@ BOOST_AUTO_TEST_CASE(testMedian) {
     TDoubleVec samples;
 
     for (std::size_t n = 1; n <= 200; ++n) {
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 220);
+        maths::common::CQuantileSketch sketch{220};
 
         rng.generateLogNormalSamples(0.0, 3.0, n, samples);
 
@@ -380,21 +363,12 @@ BOOST_AUTO_TEST_CASE(testMedian) {
     }
 
     LOG_DEBUG(<< "**** Approximate ****");
-
-    TDoubleVec maximumBias(2);
-    TDoubleVec maximumError(2);
-    maximumBias[maths::common::CQuantileSketch::E_PiecewiseConstant] = 0.2;
-    maximumError[maths::common::CQuantileSketch::E_PiecewiseConstant] = 1.1;
-    maximumBias[maths::common::CQuantileSketch::E_Linear] = 0.02;
-    maximumError[maths::common::CQuantileSketch::E_Linear] = 0.3;
-
-    for (auto interpolation : {maths::common::CQuantileSketch::E_PiecewiseConstant,
-                               maths::common::CQuantileSketch::E_Linear}) {
+    {
         TMeanAccumulator bias;
         TMeanAccumulator error;
         for (std::size_t t = 0; t < 500; ++t) {
             rng.generateUniformSamples(0.0, 100.0, 501, samples);
-            maths::common::CQuantileSketch sketch(interpolation, 30);
+            maths::common::CQuantileSketch sketch{30};
             sketch = std::for_each(samples.begin(), samples.end(), sketch);
             std::sort(samples.begin(), samples.end());
             double expectedMedian = samples[250];
@@ -407,10 +381,8 @@ BOOST_AUTO_TEST_CASE(testMedian) {
 
         LOG_DEBUG(<< "bias  = " << maths::common::CBasicStatistics::mean(bias));
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(bias)) <
-                           maximumBias[interpolation]);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) <
-                           maximumError[interpolation]);
+        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(bias)) < 0.025);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.25);
     }
 }
 
@@ -423,9 +395,8 @@ BOOST_AUTO_TEST_CASE(testMad) {
 
     double mad = 0.0;
 
-    for (auto interpolation : {maths::common::CQuantileSketch::E_PiecewiseConstant,
-                               maths::common::CQuantileSketch::E_Linear}) {
-        maths::common::CQuantileSketch sketch(interpolation, 10);
+    {
+        maths::common::CQuantileSketch sketch{10};
 
         BOOST_TEST_REQUIRE(!sketch.mad(mad));
 
@@ -439,16 +410,14 @@ BOOST_AUTO_TEST_CASE(testMad) {
         LOG_DEBUG(<< "MAD = " << mad);
         BOOST_REQUIRE_EQUAL(0.5, mad);
     }
-
-    TDoubleVec samples;
-    for (auto interpolation : {maths::common::CQuantileSketch::E_PiecewiseConstant,
-                               maths::common::CQuantileSketch::E_Linear}) {
+    {
+        TDoubleVec samples;
         TMeanAccumulator error;
 
         for (std::size_t t = 0; t < 500; ++t) {
             rng.generateNormalSamples(10.0, 10.0, 101, samples);
 
-            maths::common::CQuantileSketch sketch(interpolation, 20);
+            maths::common::CQuantileSketch sketch{20};
 
             for (auto sample : samples) {
                 sketch.add(sample);
@@ -485,8 +454,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 20.0, 100, samples);
 
-    maths::common::CQuantileSketch sketch(
-        maths::common::CQuantileSketch::E_PiecewiseConstant, 20);
+    maths::common::CQuantileSketch sketch{20};
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
 
     sketch.age(0.9);
@@ -503,86 +471,88 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
 
     LOG_DEBUG(<< "**** Uniform ****");
     {
-        auto testUniform = [rng](const maths::common::CQuantileSketch& sketch) mutable {
+        auto testUniform = [rng](const auto& sketch, double maxMaxBias, double maxMeanBias,
+                                 double maxMaxError, double maxMeanError) mutable {
             TMeanAccumulator meanBias;
             TMeanAccumulator meanError;
             for (double t = 1.0; t <= 50.0; t += 1.0) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.0, 20.0 * t, 1000, samples);
-                testSketch(sketch, samples, 0.10 * t, 0.12 * t, meanBias, meanError);
+                testSketch(sketch, samples, maxMaxBias * t, maxMaxError * t,
+                           meanBias, meanError);
             }
             LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
                       << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
-            BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0005);
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.003);
+            BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) <
+                               maxMeanBias);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
         };
 
-        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
-        maths::common::CFastQuantileSketch fastSketch{
-            maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CQuantileSketch sketch{20};
+        maths::common::CFastQuantileSketch fastSketch{20};
         LOG_DEBUG(<< "** sketch **");
-        testUniform(sketch);
+        testUniform(sketch, 0.1, 0.0005, 0.12, 0.003);
         LOG_DEBUG(<< "** fast sketch **");
-        testUniform(fastSketch);
+        testUniform(fastSketch, 0.1, 0.0005, 0.4, 0.01);
     }
 
     LOG_DEBUG(<< "**** Normal ****");
     {
-        auto testNormal = [rng](const maths::common::CQuantileSketch& sketch) mutable {
+        auto testNormal = [rng](const auto& sketch, double maxMaxBias, double maxMeanBias,
+                                double maxMaxError, double maxMeanError) mutable {
             TMeanAccumulator meanBias;
             TMeanAccumulator meanError;
             for (double t = 1.0; t <= 50.0; t += 1.0) {
                 TDoubleVec samples;
                 rng.generateNormalSamples(20.0 * (t - 1.0), 20.0 * t, 1000, samples);
-                testSketch(sketch, samples, 0.03 * t, 0.1 * t, meanBias, meanError);
+                testSketch(sketch, samples, maxMaxBias * t, maxMaxError * t,
+                           meanBias, meanError);
             }
             LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
                       << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
-            BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0005);
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.002);
+            BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) <
+                               maxMeanBias);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
         };
 
-        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
-        maths::common::CFastQuantileSketch fastSketch{
-            maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CQuantileSketch sketch{20};
+        maths::common::CFastQuantileSketch fastSketch{20};
         LOG_DEBUG(<< "** sketch **");
-        testNormal(sketch);
+        testNormal(sketch, 0.06, 0.0005, 0.1, 0.002);
         LOG_DEBUG(<< "** fast sketch **");
-        testNormal(fastSketch);
+        testNormal(fastSketch, 0.07, 0.0005, 0.4, 0.012);
     }
 
     LOG_DEBUG(<< "**** Log-Normal ****");
     {
-        auto testLogNormal = [&](const maths::common::CQuantileSketch& sketch) {
+        auto testLogNormal = [rng](const auto& sketch, double maxMaxBias, double maxMeanBias,
+                                   double maxMaxError, double maxMeanError) mutable {
             TMeanAccumulator meanBias;
             TMeanAccumulator meanError;
             for (double t = 1.0; t <= 50.0; t += 1.0) {
                 TDoubleVec samples;
                 rng.generateLogNormalSamples(0.03 * (t - 1.0), 0.12 * t, 1000, samples);
-                testSketch(sketch, samples, 0.05 * t, 0.1 * t, meanBias, meanError);
+                testSketch(sketch, samples, maxMaxBias * t, maxMaxError * t,
+                           meanBias, meanError);
             }
             LOG_DEBUG(<< "mean bias = " << maths::common::CBasicStatistics::mean(meanBias)
                       << ", mean error = " << maths::common::CBasicStatistics::mean(meanError));
-            BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.0002);
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0004);
+            BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) <
+                               maxMeanBias);
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
         };
 
-        maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 20};
-        maths::common::CFastQuantileSketch fastSketch{
-            maths::common::CQuantileSketch::E_Linear, 20};
+        maths::common::CQuantileSketch sketch{20};
+        maths::common::CFastQuantileSketch fastSketch{20};
         LOG_DEBUG(<< "** sketch **");
-        testLogNormal(sketch);
+        testLogNormal(sketch, 0.05, 0.0002, 0.1, 0.0004);
         LOG_DEBUG(<< "** fast sketch **");
-        testLogNormal(fastSketch);
+        testLogNormal(fastSketch, 1.0, 0.002, 1.1, 0.005);
     }
 
     LOG_DEBUG(<< "**** Mixture ****");
     {
-        auto testMixture = [rng](const maths::common::CQuantileSketch& sketch,
-                                 double maxBias, double maxError,
+        auto testMixture = [rng](const auto& sketch, double maxBias, double maxError,
                                  double maxMeanBias, double maxMeanError) mutable {
             TMeanAccumulator meanBias;
             TMeanAccumulator meanError;
@@ -607,29 +577,19 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < maxMeanError);
         };
 
-        maths::common::CQuantileSketch linearSketch{
-            maths::common::CQuantileSketch::E_Linear, 40};
-        maths::common::CFastQuantileSketch fastLinearSketch{
-            maths::common::CQuantileSketch::E_Linear, 40};
-        maths::common::CQuantileSketch piecewiseSketch{
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 40};
-        maths::common::CFastQuantileSketch fastPiecewiseSketch{
-            maths::common::CQuantileSketch::E_PiecewiseConstant, 40};
+        maths::common::CQuantileSketch sketch{40};
+        maths::common::CFastQuantileSketch fastSketch{40};
 
-        LOG_DEBUG(<< "** linear sketch **");
-        testMixture(linearSketch, 60, 62, 0.021, 0.021);
+        LOG_DEBUG(<< "** sketch **");
+        testMixture(sketch, 60, 62, 0.021, 0.021);
         LOG_DEBUG(<< "** fast linear sketch **");
-        testMixture(fastLinearSketch, 60, 62, 0.021, 0.021);
-        LOG_DEBUG(<< "** piecewise sketch **");
-        testMixture(linearSketch, 55, 56, 0.021, 0.021);
-        LOG_DEBUG(<< "** fast piecewise sketch **");
-        testMixture(fastLinearSketch, 55, 56, 0.021, 0.021);
+        testMixture(fastSketch, 60, 62, 0.021, 0.026);
     }
 }
 
 BOOST_AUTO_TEST_CASE(testCdf) {
 
-    // Test that quantile and c.d.f. are mutual inverses.
+    // Test the quantile and c.d.f. functions are mutual inverses.
 
     test::CRandomNumbers rng;
 
@@ -638,22 +598,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         TDoubleVec values{1.3, 5.2, 0.3, 0.7, 6.9, 10.3, 0.1, -2.9, 9.3, 0.0};
 
         {
-            maths::common::CQuantileSketch sketch(
-                maths::common::CQuantileSketch::E_PiecewiseConstant, 10);
-            sketch = std::for_each(values.begin(), values.end(), sketch);
-            for (std::size_t i = 0; i < 10; ++i) {
-                double x;
-                sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
-                double f;
-                sketch.cdf(x, f);
-                LOG_DEBUG(<< "x = " << x
-                          << ", f(exact) = " << static_cast<double>(i) / 10.0 + 0.05
-                          << ", f(actual) = " << f);
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 10.0 + 0.05, f, 1e-6);
-            }
-        }
-        {
-            maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 10);
+            maths::common::CQuantileSketch sketch{10};
             sketch = std::for_each(values.begin(), values.end(), sketch);
             for (std::size_t i = 0; i < 10; ++i) {
                 double x;
@@ -675,7 +620,9 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         }
     }
 
-    LOG_DEBUG(<< "**** Uniform ****");
+    // Test the estimation error vs the generating distribution.
+
+    LOG_DEBUG(<< "**** Error vs Generating Distribution ****");
     auto exactCdf = [](const TDoubleVec& samples, double x) {
         return static_cast<double>((std::upper_bound(samples.begin(), samples.end(), x) -
                                     samples.begin())) /
@@ -687,7 +634,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         LOG_DEBUG(<< "test " << t + 1);
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, 20);
+        maths::common::CQuantileSketch sketch{20};
         sketch = std::for_each(samples.begin(), samples.end(), sketch);
         std::sort(samples.begin(), samples.end());
         for (std::size_t i = 0; i <= 100; ++i) {
@@ -713,28 +660,115 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.0025);
 }
 
-BOOST_AUTO_TEST_CASE(testFastSketchPerformance) {
+BOOST_AUTO_TEST_CASE(testFastSketchComputeMergeCosts) {
 
-    // Check that the fast sketch with the same reduction factor produces
-    // identical results.
+    // Test the fast sketch calculation of all merge costs produces the
+    // same results as the standard sketch.
 
     test::CRandomNumbers generator;
     TDoubleVec samples;
-    generator.generateUniformSamples(0.0, 5000.0, 1500000, samples);
-    maths::common::CQuantileSketch sketch{maths::common::CQuantileSketch::E_Linear, 75};
-    maths::common::CFastQuantileSketch fastSketch{maths::common::CQuantileSketch::E_Linear, 75};
+    generator.generateUniformSamples(0.0, 5000.0, 10000, samples);
+
+    TDoubleVec expectedCosts;
+
+    for (std::size_t i = 0; i < samples.size(); /**/) {
+        maths::common::CFastQuantileSketch fastSketch{100};
+        for (std::size_t j = 0; i < samples.size() && j < 599; ++i, ++j) {
+            fastSketch.add(samples[i]);
+        }
+        fastSketch.order();
+
+        auto knots = fastSketch.knots();
+
+        expectedCosts.clear();
+        for (std::size_t j = 0; j + 3 < knots.size(); ++j) {
+            expectedCosts.push_back(maths::common::CFastQuantileSketch::mergeCost(
+                knots[j + 1], knots[j + 2]));
+        }
+
+        fastSketch.computeMergeCosts(knots);
+
+        BOOST_REQUIRE_EQUAL(expectedCosts.size(), fastSketch.m_MergeCosts.size());
+        for (std::size_t j = 0; j + 3 < expectedCosts.size(); ++j) {
+            BOOST_REQUIRE_CLOSE(expectedCosts[j], fastSketch.m_MergeCosts[j], 1e-3);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testFastSketchFastReduce) {
+
+    // Check that we hit the target size, every non-merged knot is preserved,
+    // and the count and average of merged knots and class invariants are
+    // preserved by fastReduce.
+
+    test::CRandomNumbers rng;
+    TDoubleVec samples;
+    rng.generateUniformSamples(0.0, 5000.0, 10000, samples);
+
+    for (std::size_t i = 0; i < 1; /**/) {
+        maths::common::CFastQuantileSketch fastSketch{100};
+        for (std::size_t j = 0; j < 119; ++i, ++j) {
+            fastSketch.add(samples[i]);
+        }
+
+        auto knots = fastSketch.knots();
+        std::sort(knots.begin(), knots.end());
+
+        fastSketch.fastReduce();
+
+        BOOST_TEST_REQUIRE(fastSketch.fastReduceTargetSize(), fastSketch.knots().size());
+
+        double actualMergeMean{0.0};
+        double actualMergeCount{0.0};
+        for (const auto& knot : fastSketch.knots()) {
+            if (knot.second == 1.0) {
+                bool found{*std::lower_bound(knots.begin(), knots.end(), knot) == knot};
+                BOOST_TEST_REQUIRE(found);
+            } else {
+                actualMergeMean += knot.second * knot.first;
+                actualMergeCount += knot.second;
+            }
+        }
+        actualMergeMean /= actualMergeCount;
+
+        double expectedMergeMean{0.0};
+        double expectedMergeCount{0.0};
+        for (const auto& knot : knots) {
+            if (*std::lower_bound(fastSketch.knots().begin(),
+                                  fastSketch.knots().end(), knot) != knot) {
+                expectedMergeMean += knot.second * knot.first;
+                expectedMergeCount += knot.second;
+            }
+        }
+        expectedMergeMean /= expectedMergeCount;
+
+        BOOST_REQUIRE_CLOSE(expectedMergeMean, actualMergeMean, 1e-3);
+        BOOST_REQUIRE_CLOSE(expectedMergeCount, actualMergeCount, 1e-3);
+        BOOST_TEST_REQUIRE(fastSketch.checkInvariants());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testFastSketchPerformance) {
+
+    // Check the fast sketch relative size.
+
+    test::CRandomNumbers rng;
+    TDoubleVec samples;
+    rng.generateUniformSamples(0.0, 5000.0, 1500000, samples);
+
+    maths::common::CQuantileSketch sketch{75};
+    maths::common::CFastQuantileSketch fastSketch{75};
 
     core::CStopWatch watch{true};
     std::for_each(samples.begin(), samples.end(), sketch);
     auto lap = watch.lap();
     LOG_DEBUG(<< "sketch duration = " << lap);
-
     std::for_each(samples.begin(), samples.end(), fastSketch);
     LOG_DEBUG(<< "fast sketch duration = " << watch.lap() - lap);
 
     LOG_DEBUG(<< "sketch memory usage = " << core::memory::dynamicSize(&sketch));
     LOG_DEBUG(<< "fast sketch memory usage = " << core::memory::dynamicSize(&fastSketch));
-    BOOST_TEST_REQUIRE(2 * core::memory::dynamicSize(&sketch) >
+    BOOST_TEST_REQUIRE(4 * core::memory::dynamicSize(&sketch) >
                        core::memory::dynamicSize(&fastSketch));
 }
 
@@ -746,7 +780,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec samples;
     generator.generateUniformSamples(0.0, 5000.0, 500, samples);
 
-    maths::common::CQuantileSketch origSketch{maths::common::CQuantileSketch::E_Linear, 100};
+    maths::common::CQuantileSketch origSketch{100};
     for (const auto& sample : samples) {
         origSketch.add(sample);
     }
@@ -760,8 +794,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "quantile sketch XML representation:\n" << origXml);
 
-    maths::common::CQuantileSketch restoredSketch{
-        maths::common::CQuantileSketch::E_Linear, 100};
+    maths::common::CQuantileSketch restoredSketch{100};
     {
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));

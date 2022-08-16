@@ -85,8 +85,7 @@ std::once_flag setTimeZone;
 }
 
 CCalendarCyclicTest::CCalendarCyclicTest(double decayRate)
-    : m_DecayRate{decayRate}, m_ErrorQuantiles{common::CQuantileSketch::E_Linear, 20},
-      m_CurrentBucketTime{0}, m_CurrentBucketIndex{0} {
+    : m_DecayRate{decayRate}, m_ErrorQuantiles{20}, m_CurrentBucketTime{0}, m_CurrentBucketIndex{0} {
     std::call_once(setTimeZone,
                    [] { core::CTimezone::instance().timezoneName("GMT"); });
     TErrorStatsVec stats(SIZE);
@@ -142,7 +141,7 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
 }
 
 void CCalendarCyclicTest::forgetErrorDistribution() {
-    m_ErrorQuantiles = common::CQuantileSketch{common::CQuantileSketch::E_Linear, 20};
+    m_ErrorQuantiles = common::CQuantileSketch{20};
 }
 
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {

@@ -71,8 +71,6 @@ private:
     maths::common::CQuantileSketch& sketch(int detector);
 
 private:
-    //! The style of interpolation to use for the sketch.
-    static const maths::common::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
     //! The maximum size of the quantile sketch.
     static const std::size_t SKETCH_SIZE;
     //! The minimum count in a detector's sketch for which we'll

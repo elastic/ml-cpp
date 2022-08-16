@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     std::size_t numberThreads{1};
 
     for (std::size_t seed = 0; seed < 1000; ++seed) {
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, rows);
+        maths::common::CQuantileSketch sketch{rows};
         test::CRandomNumbers rng;
         rng.seed(seed);
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;

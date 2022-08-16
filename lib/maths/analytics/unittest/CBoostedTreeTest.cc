@@ -857,7 +857,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
     std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t rows{trainRows + testRows};
-    double noiseVariance{9.0};
+    double noiseVariance{4.0};
     std::size_t cols{6};
 
     test::CRandomNumbers rng;
@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
     TDoubleVec noise;
     rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
     for (auto& ni : noise) {
-        ni = std::floor(ni + 0.5);
+        ni = std::round(ni);
     }
 
     TDoubleVecVec x(cols - 1);
@@ -887,7 +887,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
     }
     for (std::size_t i = 0; i < (cols - 1) / 2 + 1; ++i) {
         for (auto& xj : x[i]) {
-            xj = std::floor(xj + 0.5);
+            xj = std::round(xj);
         }
     }
 
