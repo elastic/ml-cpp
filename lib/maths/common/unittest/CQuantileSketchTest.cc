@@ -673,7 +673,7 @@ BOOST_AUTO_TEST_CASE(testFastSketchComputeMergeCosts) {
 
     for (std::size_t i = 0; i < samples.size(); /**/) {
         maths::common::CFastQuantileSketch fastSketch{100};
-        for (std::size_t j = 0; j < 599; ++i, ++j) {
+        for (std::size_t j = 0; i < samples.size() && j < 599; ++i, ++j) {
             fastSketch.add(samples[i]);
         }
         fastSketch.order();
