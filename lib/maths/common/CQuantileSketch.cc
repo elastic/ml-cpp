@@ -43,6 +43,7 @@
 
 #elif defined(__ARM_NEON__)
 
+#include <type_traits>
 #include <arm_neon.h>
 
 #define ml_unaligned_load_128(x) vld1q_f32(x)
@@ -50,15 +51,17 @@
 #define ml_minimum_128(x, y) vminq_f32(x, y)
 #define ml_subtract_128(x, y) vsubq_f32(x, y)
 #define ml_multiply_128(x, y) vmulq_f32(x, y)
-#define ml_shuffle_mask(w, x, y, z) (((w) << 6) | ((x) << 4) | ((y) << 2) | (z))
+#define ml_shuffle_mask(w, x, y, z)                                            \
+    std::integral_constant<int, (((w) << 6) | ((x) << 4) | ((y) << 2) | (z))> {}
 
+template<typename T>
 inline __attribute__((always_inline)) auto
-ml_shuffle_128(float32x4_ta, float32x4_t b, int mask) {
+ml_shuffle_128(float32x4_t a, float32x4_t b, T mask) {
     float32x4_t result;
-    result = vmovq_n_f32(vgetq_lane_f32(a, mask & 0x3));
-    result = vsetq_lane_f32(vgetq_lane_f32(a, (mask >> 2) & 0x3), result, 1);
-    result = vsetq_lane_f32(vgetq_lane_f32(b, (mask >> 4) & 0x3), result, 2);
-    result = vsetq_lane_f32(vgetq_lane_f32(b, (mask >> 6) & 0x3), result, 3);
+    result = vmovq_n_f32(vgetq_lane_f32(a, mask::value() & 0x3));
+    result = vsetq_lane_f32(vgetq_lane_f32(a, (mask::value() >> 2) & 0x3), result, 1);
+    result = vsetq_lane_f32(vgetq_lane_f32(b, (mask::value() >> 4) & 0x3), result, 2);
+    result = vsetq_lane_f32(vgetq_lane_f32(b, (mask::value() >> 6) & 0x3), result, 3);
     return result;
 }
 
