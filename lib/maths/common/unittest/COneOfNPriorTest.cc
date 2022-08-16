@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -36,7 +35,6 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -123,13 +121,13 @@ BOOST_AUTO_TEST_CASE(testFilter) {
     filter.removeModels(maths::common::CPrior::CModelFilter().remove(
         maths::common::CPrior::E_Constant));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), filter.models().size());
+    BOOST_REQUIRE_EQUAL(4, filter.models().size());
 
     filter.removeModels(maths::common::CPrior::CModelFilter()
                             .remove(maths::common::CPrior::E_Poisson)
                             .remove(maths::common::CPrior::E_Gamma));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), filter.models().size());
+    BOOST_REQUIRE_EQUAL(2, filter.models().size());
     BOOST_REQUIRE_EQUAL(maths::common::CPrior::E_LogNormal, filter.models()[0]->type());
     BOOST_REQUIRE_EQUAL(maths::common::CPrior::E_Normal, filter.models()[1]->type());
     TDoubleVec weights = filter.weights();
@@ -184,8 +182,8 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
     TDoubleVec weights1 = filter1.weights();
     TDoubleVec weights2 = filter2.weights();
-    LOG_DEBUG(<< "weight1 = " << core::CContainerPrinter::print(weights1));
-    LOG_DEBUG(<< "weight2 = " << core::CContainerPrinter::print(weights2));
+    LOG_DEBUG(<< "weight1 = " << weights1);
+    LOG_DEBUG(<< "weight2 = " << weights2);
     BOOST_TEST_REQUIRE(weights1.size() == weights2.size());
     BOOST_TEST_REQUIRE(std::equal(weights1.begin(), weights1.end(), weights2.begin(), equal));
 
@@ -235,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
         TEqual equal(maths::common::CToleranceTypes::E_AbsoluteTolerance, 1e-10);
         const double decayRates[] = {0.0, 0.001, 0.01};
 
-        for (std::size_t rate = 0; rate < boost::size(decayRates); ++rate) {
+        for (std::size_t rate = 0; rate < std::size(decayRates); ++rate) {
             // Test that the filter weights stay normalized.
             COneOfNPrior filter(maths::common::COneOfNPrior(
                 clone(models, decayRates[rate]), E_ContinuousData, decayRates[rate]));
@@ -267,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
         double previousLogWeightRatio = -500;
 
-        for (std::size_t decayRate = 0; decayRate < boost::size(decayRates); ++decayRate) {
+        for (std::size_t decayRate = 0; decayRate < std::size(decayRates); ++decayRate) {
             TPriorPtrVec models;
             models.push_back(
                 TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
@@ -531,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {E_ContinuousData, E_IntegerData};
 
-    for (std::size_t t = 0; t < boost::size(dataTypes); ++t) {
+    for (std::size_t t = 0; t < std::size(dataTypes); ++t) {
         TPriorPtrVec models;
         models.push_back(TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
         models.push_back(TPriorPtr(
@@ -555,8 +553,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                    static_cast<TWeightFunc>(maths_t::outlierWeight)};
         double weights[]{0.1, 1.0, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(weightsFuncs); ++i) {
-            for (std::size_t j = 0; j < boost::size(weights); ++j) {
+        for (std::size_t i = 0; i < std::size(weightsFuncs); ++i) {
+            for (std::size_t j = 0; j < std::size(weights); ++j) {
                 double lb, ub;
                 filter.minusLogJointCdf({10000.0}, {weightsFuncs[i](weights[j])}, lb, ub);
                 LOG_DEBUG(<< "-log(c.d.f) = " << (lb + ub) / 2.0);
@@ -591,7 +589,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         filter.addSamples(TDouble1Vec(1, samples[i]));
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(99.0);
-        LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(interval));
+        LOG_DEBUG(<< "interval = " << interval);
 
         double x = interval.first;
         double dx = (interval.second - interval.first) / 20.0;
@@ -638,8 +636,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
         const double means[] = {10.0, 50.0};
         const double variances[] = {1.0, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
-            for (std::size_t j = 0; j < boost::size(variances); ++j) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
+            for (std::size_t j = 0; j < std::size(variances); ++j) {
                 LOG_DEBUG(<< "*** mean = " << means[i]
                           << ", variance = " << variances[j] << " ***");
 
@@ -682,8 +680,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
         const double locations[] = {0.1, 1.0};
         const double squareScales[] = {0.1, 1.0};
 
-        for (std::size_t i = 0; i < boost::size(locations); ++i) {
-            for (std::size_t j = 0; j < boost::size(squareScales); ++j) {
+        for (std::size_t i = 0; i < std::size(locations); ++i) {
+            for (std::size_t j = 0; j < std::size(squareScales); ++j) {
                 LOG_DEBUG(<< "*** location = " << locations[i]
                           << ", squareScale = " << squareScales[j] << " ***");
 
@@ -741,8 +739,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         const double means[] = {10.0, 50.0};
         const double variances[] = {1.0, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
-            for (std::size_t j = 0; j < boost::size(variances); ++j) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
+            for (std::size_t j = 0; j < std::size(variances); ++j) {
                 LOG_DEBUG(<< "*** mean = " << means[i]
                           << ", variance = " << variances[j] << " ***");
 
@@ -787,8 +785,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         const double locations[] = {0.1, 1.0};
         const double squareScales[] = {0.1, 2.0};
 
-        for (std::size_t i = 0; i < boost::size(locations); ++i) {
-            for (std::size_t j = 0; j < boost::size(squareScales); ++j) {
+        for (std::size_t i = 0; i < std::size(locations); ++i) {
+            for (std::size_t j = 0; j < std::size(squareScales); ++j) {
                 LOG_DEBUG(<< "*** location = " << locations[i]
                           << ", squareScale = " << squareScales[j] << " ***");
 
@@ -844,8 +842,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
         double means[] = {10.0, 100.0};
         double variances[] = {1.0, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(means); ++i) {
-            for (std::size_t j = 0; j < boost::size(variances); ++j) {
+        for (std::size_t i = 0; i < std::size(means); ++i) {
+            for (std::size_t j = 0; j < std::size(variances); ++j) {
                 LOG_DEBUG(<< "*** mean = " << means[i]
                           << ", variance = " << variances[j] << " ***");
 
@@ -897,8 +895,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
         const double shapes[] = {5.0, 20.0, 40.0};
         const double scales[] = {1.0, 10.0, 20.0};
 
-        for (std::size_t i = 0; i < boost::size(shapes); ++i) {
-            for (std::size_t j = 0; j < boost::size(scales); ++j) {
+        for (std::size_t i = 0; i < std::size(shapes); ++i) {
+            for (std::size_t j = 0; j < std::size(scales); ++j) {
                 LOG_DEBUG(<< "*** shape = " << shapes[i]
                           << ", scale = " << scales[j] << " ***");
 
@@ -972,7 +970,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     }
 
     TDoubleVec weights = filter.weights();
-    LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
+    LOG_DEBUG(<< "weights = " << weights);
 
     TDouble1Vec sampled;
     filter.sampleMarginalLikelihood(10, sampled);
@@ -988,8 +986,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     expectedSampled.insert(expectedSampled.end(), logNormalSamples.begin(),
                            logNormalSamples.end());
 
-    LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
-              << ", samples = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "expected samples = " << expectedSampled << ", samples = " << sampled);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                         core::CContainerPrinter::print(sampled));
@@ -1001,7 +998,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     }
 
     weights = filter.weights();
-    LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
+    LOG_DEBUG(<< "weights = " << weights);
 
     filter.sampleMarginalLikelihood(20, sampled);
 
@@ -1014,8 +1011,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     expectedSampled.insert(expectedSampled.end(), logNormalSamples.begin(),
                            logNormalSamples.end());
 
-    LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
-              << ", samples = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "expected samples = " << expectedSampled << ", samples = " << sampled);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                         core::CContainerPrinter::print(sampled));
@@ -1039,7 +1035,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         CGammaRateConjugate::nonInformativePrior(E_ContinuousData).clone()));
     COneOfNPrior filter(maths::common::COneOfNPrior(clone(models), E_ContinuousData));
 
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TDoubleVec samples;
         rng.generateNormalSamples(mean, variance, n[i], samples);
 
@@ -1114,13 +1110,12 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             expectedProbability += weight * modelProbability;
         }
 
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
-                  << ", expectedProbability = " << expectedProbability
+        LOG_TRACE(<< "weights = " << weights << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProbability, probability,
                                      1e-3 * std::max(expectedProbability, probability));
 
-        for (std::size_t k = 0; ((i + 1) % 11 == 0) && k < boost::size(vs); ++k) {
+        for (std::size_t k = 0; ((i + 1) % 11 == 0) && k < std::size(vs); ++k) {
             double mode = filter.marginalLikelihoodMode(
                 maths_t::countVarianceScaleWeight(vs[k]));
             double ss[] = {0.9 * mode, 1.1 * mode};

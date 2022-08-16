@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CHierarchicalResultsProbabilityFinalizer_h
 
 #include <model/CHierarchicalResults.h>
-#include <model/ModelTypes.h>
+#include <model/ImportExport.h>
 
 namespace ml {
 namespace model {

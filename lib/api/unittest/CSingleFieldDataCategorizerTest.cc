@@ -12,6 +12,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CMemoryDef.h>
 
 #include <model/CLimits.h>
 #include <model/CTokenListDataCategorizer.h>

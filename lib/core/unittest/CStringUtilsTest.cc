@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE(testNumMatches) {
     {
         std::string str("%d %M %Y %f %D  %t");
 
-        BOOST_REQUIRE_EQUAL(size_t(6), ml::core::CStringUtils::numMatches(str, "%"));
-        BOOST_REQUIRE_EQUAL(size_t(0), ml::core::CStringUtils::numMatches(str, "q"));
+        BOOST_REQUIRE_EQUAL(6, ml::core::CStringUtils::numMatches(str, "%"));
+        BOOST_REQUIRE_EQUAL(0, ml::core::CStringUtils::numMatches(str, "q"));
     }
 }
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testReplace) {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d %M %Y %f %D %t");
 
-        BOOST_REQUIRE_EQUAL(size_t(6), ml::core::CStringUtils::replace("%", " %", in));
+        BOOST_REQUIRE_EQUAL(6, ml::core::CStringUtils::replace("%", " %", in));
 
         BOOST_REQUIRE_EQUAL(out, in);
     }
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testReplace) {
         std::string in("%d%M%Y%f%D%t");
         const std::string out("%d%M%Y%f%D%t");
 
-        BOOST_REQUIRE_EQUAL(size_t(0), ml::core::CStringUtils::replace("X", "Y", in));
+        BOOST_REQUIRE_EQUAL(0, ml::core::CStringUtils::replace("X", "Y", in));
 
         BOOST_REQUIRE_EQUAL(out, in);
     }
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testReplaceFirst) {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d%M%Y%f%D%t");
 
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst("%", " %", in));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst("%", " %", in));
 
         BOOST_REQUIRE_EQUAL(out, in);
     }
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testReplaceFirst) {
         std::string in("%d%M%Y%f%D%t");
         const std::string out("%d%M%Y%f%D%t");
 
-        BOOST_REQUIRE_EQUAL(size_t(0), ml::core::CStringUtils::replaceFirst("X", "Y", in));
+        BOOST_REQUIRE_EQUAL(0, ml::core::CStringUtils::replaceFirst("X", "Y", in));
 
         BOOST_REQUIRE_EQUAL(out, in);
     }
@@ -917,7 +917,7 @@ BOOST_AUTO_TEST_CASE(testUtf8ByteType) {
     testStr += "中";
     // four byte UTF-8 character
     testStr += "𩸽";
-    BOOST_REQUIRE_EQUAL(size_t(10), testStr.length());
+    BOOST_REQUIRE_EQUAL(10, testStr.length());
     BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::utf8ByteType(testStr[0]));
     BOOST_REQUIRE_EQUAL(2, ml::core::CStringUtils::utf8ByteType(testStr[1]));
     BOOST_REQUIRE_EQUAL(-1, ml::core::CStringUtils::utf8ByteType(testStr[2]));
@@ -958,14 +958,14 @@ BOOST_AUTO_TEST_CASE(testRoundtripMaxDouble) {
     ml::core::CIEEE754::EPrecision precisions[] = {
         ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
     double tolerances[] = {5e-7, 5e-15};
-    for (std::size_t i = 0; i < boost::size(precisions); ++i) {
+    for (std::size_t i = 0; i < std::size(precisions); ++i) {
         double max = std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(max, precisions[i]);
         double d = 0.0;
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(str, d));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(max, d, tolerances[i] * max);
     }
-    for (std::size_t i = 0; i < boost::size(precisions); ++i) {
+    for (std::size_t i = 0; i < std::size(precisions); ++i) {
         double min = -std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(min, precisions[i]);
         double d = 0.0;

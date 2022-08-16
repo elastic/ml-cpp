@@ -13,6 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CMemoryDef.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/analytics/CBoostedTreeImpl.h>
@@ -124,7 +125,7 @@ CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
 }
 
 std::size_t CBoostedTreeNode::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_NodeValue);
+    return core::memory::dynamicSize(m_NodeValue);
 }
 
 std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParameters) {

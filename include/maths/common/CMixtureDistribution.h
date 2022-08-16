@@ -24,7 +24,6 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <cmath>
 #include <exception>
@@ -42,17 +41,17 @@ using TDoubleDoublePr = std::pair<double, double>;
 //! \brief Implements the "polymorphic" mixture mode.
 class MATHS_COMMON_EXPORT CMixtureModeImpl {
 public:
-    CMixtureModeImpl(const boost::math::normal_distribution<>& normal);
-    CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma);
-    CMixtureModeImpl(const boost::math::lognormal_distribution<>& lognormal);
+    explicit CMixtureModeImpl(const boost::math::normal_distribution<>& normal);
+    explicit CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma);
+    explicit CMixtureModeImpl(const boost::math::lognormal_distribution<>& lognormal);
 
     template<typename F>
-    typename F::result_type visit(const F& f, double x) const {
+    auto visit(const F& f, double x) const {
         return std::visit(std::bind(f, std::placeholders::_1, x), m_Distribution);
     }
 
     template<typename F>
-    typename F::result_type visit(const F& f) const {
+    auto visit(const F& f) const {
         return std::visit(f, m_Distribution);
     }
 
@@ -78,16 +77,16 @@ class CMixtureMode;
 //! It is used to support mixtures with different distributions describing
 //! each mode.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This uses a variant because we know the distributions we can use to model
 //! a mode up front and it avoids heap allocation. The complement concept is
 //! encoded in a type parameter to avoid condition checking.
 template<>
 class MATHS_COMMON_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl {
 public:
-    CMixtureMode(const boost::math::normal_distribution<>& normal);
-    CMixtureMode(const boost::math::gamma_distribution<>& gamma);
-    CMixtureMode(const boost::math::lognormal_distribution<>& lognormal);
+    explicit CMixtureMode(const boost::math::normal_distribution<>& normal);
+    explicit CMixtureMode(const boost::math::gamma_distribution<>& gamma);
+    explicit CMixtureMode(const boost::math::lognormal_distribution<>& lognormal);
 };
 
 //! \brief A wrapper around the complement of one of the standard mode
@@ -95,7 +94,7 @@ public:
 template<>
 class MATHS_COMMON_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl {
 public:
-    CMixtureMode(const CMixtureMode<false>& other);
+    explicit CMixtureMode(const CMixtureMode<false>& other);
 };
 
 //! Compute the distribution support.
@@ -152,7 +151,7 @@ public:
     using TModeVec = std::vector<T>;
 
 public:
-    CMixtureDistribution() {}
+    CMixtureDistribution() = default;
 
     //! \note The length of \p weights should match \p modes.
     CMixtureDistribution(const TDoubleVec& weights, const TModeVec& modes)
@@ -211,10 +210,7 @@ namespace mixture_detail {
 template<typename T>
 class CPdfAdpater {
 public:
-    using result_type = double;
-
-public:
-    CPdfAdpater(const CMixtureDistribution<T>& distribution)
+    explicit CPdfAdpater(const CMixtureDistribution<T>& distribution)
         : m_Distribution(&distribution) {}
 
     double operator()(double x) const { return pdf(*m_Distribution, x); }
@@ -232,12 +228,11 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribut
     const TModeVec& modes = distribution.modes();
 
     if (modes.empty()) {
-        return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(),
-                                               boost::numeric::bounds<double>::highest());
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
-    mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
-                                           boost::numeric::bounds<double>::lowest());
+    mixture_detail::TDoubleDoublePr result(std::numeric_limits<double>::max(),
+                                           std::numeric_limits<double>::lowest());
 
     for (std::size_t i = 0; i < modes.size(); ++i) {
         try {
@@ -436,9 +431,6 @@ namespace mixture_detail {
 //! Adapts the free c.d.f. function for use with the solver.
 template<typename T>
 class CCdfAdapter {
-public:
-    using result_type = double;
-
 public:
     CCdfAdapter(const CMixtureDistribution<T>& distribution)
         : m_Distribution(&distribution) {}

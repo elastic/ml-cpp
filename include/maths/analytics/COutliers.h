@@ -14,8 +14,8 @@
 
 #include <core/CDataFrame.h>
 #include <core/CHashing.h>
-#include <core/CMemory.h>
 #include <core/CNonInstantiatable.h>
+#include <core/CSmallVector.h>
 #include <core/Concurrency.h>
 
 #include <maths/analytics/ImportExport.h>
@@ -191,9 +191,9 @@ public:
     std::size_t staticSize() const override { return sizeof(*this); }
 
     std::size_t memoryUsage() const override {
-        return core::CMemory::dynamicSize(m_KDistances) +
-               core::CMemory::dynamicSize(m_Lrd) +
-               core::CMemory::dynamicSize(m_CoordinateLrd);
+        return core::memory::dynamicSize(m_KDistances) +
+               core::memory::dynamicSize(m_Lrd) +
+               core::memory::dynamicSize(m_CoordinateLrd);
     }
 
     static std::size_t estimateOwnMemoryOverhead(bool computeFeatureInfluence,
@@ -589,7 +589,7 @@ private:
 
 //! \brief A composite method.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is used in conjunction with CEnsemble so we can share nearest
 //! neighbour lookups for all methods in an ensemble model.
 template<typename POINT, typename NEAREST_NEIGHBOURS>
@@ -618,7 +618,7 @@ public:
     std::size_t staticSize() const override { return sizeof(*this); }
 
     std::size_t memoryUsage() const override {
-        return core::CMemory::dynamicSize(m_Methods);
+        return core::memory::dynamicSize(m_Methods);
     }
 
     std::string print() const override {

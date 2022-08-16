@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CAnnotatedVector_h
 #define INCLUDED_ml_maths_common_CAnnotatedVector_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 
 #include <maths/common/CTypeTraits.h>
 
@@ -32,7 +32,7 @@ public:
     using TCoordinate = typename SCoordinate<VECTOR>::Type;
 
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<VECTOR>::value() &&
                core::memory_detail::SDynamicSizeAlwaysZero<ANNOTATION>::value();
     }
@@ -58,13 +58,13 @@ public:
     //! Debug the memory usage of this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CAnnotatedVector");
-        mem->addItem("vector", core::CMemory::dynamicSize(static_cast<VECTOR>(*this)));
-        mem->addItem("annotation", core::CMemory::dynamicSize(m_Annotation));
+        mem->addItem("vector", core::memory::dynamicSize(static_cast<VECTOR>(*this)));
+        mem->addItem("annotation", core::memory::dynamicSize(m_Annotation));
     }
     //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(static_cast<VECTOR>(*this)) +
-               core::CMemory::dynamicSize(m_Annotation);
+        return core::memory::dynamicSize(static_cast<VECTOR>(*this)) +
+               core::memory::dynamicSize(m_Annotation);
     }
 
 private:

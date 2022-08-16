@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_model_t_ModelTypes_h
 #define INCLUDED_ml_model_t_ModelTypes_h
 
-#include <core/CMemory.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
@@ -22,7 +21,6 @@
 
 #include <model/ImportExport.h>
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <utility>

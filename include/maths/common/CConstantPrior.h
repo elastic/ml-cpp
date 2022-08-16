@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CConstantPrior_h
 #define INCLUDED_ml_maths_common_CConstantPrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CPrior.h>
 

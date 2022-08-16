@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -44,9 +43,9 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <cmath>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -182,10 +181,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                             maths::common::CBasicStatistics::mean(expectedMean));
                     }
                     if (numberSamples > 0) {
-                        LOG_DEBUG(<< "Adding mean samples = "
-                                  << core::CContainerPrinter::print(expectedMeanSamples) << ", min samples = "
-                                  << core::CContainerPrinter::print(expectedMinSamples) << ", max samples = "
-                                  << core::CContainerPrinter::print(expectedMaxSamples));
+                        LOG_DEBUG(<< "Adding mean samples = " << expectedMeanSamples
+                                  << ", min samples = " << expectedMinSamples
+                                  << ", max samples = " << expectedMaxSamples);
 
                         maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
                             numberSamples, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
@@ -230,13 +228,10 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     TDouble1Vec baselineMean = model.baselineBucketMean(
                         model_t::E_IndividualMeanByPerson, 0, 0, type, NO_CORRELATES, time);
 
-                    LOG_DEBUG(<< "bucket count = "
-                              << core::CContainerPrinter::print(currentCount));
-                    LOG_DEBUG(<< "current bucket mean = "
-                              << core::CContainerPrinter::print(bucketMean) << ", expected baseline bucket mean = "
+                    LOG_DEBUG(<< "bucket count = " << currentCount);
+                    LOG_DEBUG(<< "current bucket mean = " << bucketMean << ", expected baseline bucket mean = "
                               << maths::common::CBasicStatistics::mean(expectedBaselineMean)
-                              << ", baseline bucket mean = "
-                              << core::CContainerPrinter::print(baselineMean));
+                              << ", baseline bucket mean = " << baselineMean);
 
                     BOOST_TEST_REQUIRE(currentCount.has_value());
                     BOOST_REQUIRE_EQUAL(expectedCount, *currentCount);
@@ -412,8 +407,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 if (numberSamples > 0) {
                     std::sort(expectedLatLongSamples.begin(),
                               expectedLatLongSamples.end());
-                    LOG_DEBUG(<< "Adding mean samples = "
-                              << core::CContainerPrinter::print(expectedLatLongSamples));
+                    LOG_DEBUG(<< "Adding mean samples = " << expectedLatLongSamples);
                     expectedPrior->dataType(maths_t::E_ContinuousData);
                     expectedPrior->addSamples(
                         expectedLatLongSamples,
@@ -440,12 +434,10 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                         model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
                         ->residualModel();
 
-                LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(count));
-                LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong)
-                          << ", expected baseline = "
+                LOG_DEBUG(<< "bucket count = " << count);
+                LOG_DEBUG(<< "current = " << bucketLatLong << ", expected baseline = "
                           << maths::common::CBasicStatistics::mean(expectedBaselineLatLong)
-                          << ", actual baseline = "
-                          << core::CContainerPrinter::print(baselineLatLong));
+                          << ", actual baseline = " << baselineLatLong);
 
                 BOOST_TEST_REQUIRE(count.has_value());
                 BOOST_REQUIRE_EQUAL(expectedCount, *count);
@@ -457,14 +449,16 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                     latLong.push_back(
                         maths::common::CBasicStatistics::mean(expectedLatLong)(1));
                 }
-                BOOST_REQUIRE_EQUAL(latLong, bucketLatLong);
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
+                                    core::CContainerPrinter::print(bucketLatLong));
                 if (!baselineLatLong.empty()) {
                     baselineLatLongError.add(maths::common::fabs(
                         TVector2(baselineLatLong) -
                         maths::common::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
 
-                BOOST_REQUIRE_EQUAL(latLong, featureLatLong);
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
+                                    core::CContainerPrinter::print(featureLatLong));
                 BOOST_REQUIRE_EQUAL(expectedPrior->checksum(), prior.checksum());
 
                 // Test persistence. (We check for idempotency.)
@@ -544,7 +538,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     for (std::size_t i = 0; i < bucketCounts.size(); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
         LOG_DEBUG(<< "i = " << i << ", anomalousBucket = " << anomalousBucket
                   << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
 
@@ -569,9 +563,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG(<< "minProbabilities = "
-              << core::CContainerPrinter::print(minProbabilities.begin(),
-                                                minProbabilities.end()));
+    LOG_DEBUG(<< "minProbabilities = " << minProbabilities);
     BOOST_REQUIRE_EQUAL(anomalousBucket, minProbabilities[0].second);
     BOOST_TEST_REQUIRE(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
@@ -605,7 +597,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
             rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         }
 
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -629,9 +621,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     }
 
     minProbabilities.sort();
-    LOG_DEBUG(<< "minProbabilities = "
-              << core::CContainerPrinter::print(minProbabilities.begin(),
-                                                minProbabilities.end()));
+    LOG_DEBUG(<< "minProbabilities = " << minProbabilities);
     BOOST_REQUIRE_EQUAL(anomalousBucket, minProbabilities[0].second);
     BOOST_TEST_REQUIRE(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 
@@ -639,7 +629,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     const CMetricModel::TFeatureData* fd = model.featureData(
         ml::model_t::E_IndividualMedianByPerson, pid, time - bucketLength);
 
-    // assert there is only 1 value in the last bucket and its the median
+    // Assert there is only 1 value in the last bucket and its the median.
     BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value()[0], mean * 3.0);
     BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value().size(), 1);
 }
@@ -674,7 +664,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -692,9 +682,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = "
-              << core::CContainerPrinter::print(probabilities.begin(),
-                                                probabilities.end()));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
 
     BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] < 0.01);
     BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] > 0.1);
@@ -730,7 +718,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -748,7 +736,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
 
     BOOST_TEST_REQUIRE(*probabilities[lowMeanBucket] > 0.1);
     BOOST_TEST_REQUIRE(*probabilities[highMeanBucket] < 0.01);
@@ -784,7 +772,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -802,7 +790,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
     BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] < 0.01);
     BOOST_TEST_REQUIRE(*probabilities[highSumBucket] > 0.1);
 }
@@ -837,7 +825,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -855,7 +843,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
     BOOST_TEST_REQUIRE(*probabilities[lowSumBucket] > 0.1);
     BOOST_TEST_REQUIRE(*probabilities[highSumBucket] < 0.01);
 }
@@ -914,8 +902,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                      partitioningFields, 1, annotatedProbability);
 
-            LOG_DEBUG(<< "influences = "
-                      << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "influences = " << annotatedProbability.s_Influences);
             if (!annotatedProbability.s_Influences.empty()) {
                 std::size_t j = 0;
                 for (/**/; j < annotatedProbability.s_Influences.size(); ++j) {
@@ -2152,7 +2139,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -2170,7 +2157,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
 
     BOOST_TEST_REQUIRE(*probabilities[lowMedianBucket] < 0.01);
     BOOST_TEST_REQUIRE(*probabilities[highMedianBucket] > 0.1);
@@ -2206,7 +2193,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "values = " << values);
 
         for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
@@ -2224,7 +2211,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
         time += bucketLength;
     }
 
-    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << probabilities);
 
     BOOST_TEST_REQUIRE(*probabilities[lowMedianBucket] > 0.1);
     BOOST_TEST_REQUIRE(*probabilities[highMedianBucket] < 0.01);

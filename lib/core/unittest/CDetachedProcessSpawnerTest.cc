@@ -13,7 +13,6 @@
 #include <core/COsFileFuncs.h>
 #include <core/CStringUtils.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
@@ -61,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     ml::core::CDetachedProcessSpawner::TStrVec args(
-        PROCESS_ARGS1, PROCESS_ARGS1 + boost::size(PROCESS_ARGS1));
+        PROCESS_ARGS1, PROCESS_ARGS1 + std::size(PROCESS_ARGS1));
 
     BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH1, args));
 
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testKill) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     ml::core::CDetachedProcessSpawner::TStrVec args(
-        PROCESS_ARGS2, PROCESS_ARGS2 + boost::size(PROCESS_ARGS2));
+        PROCESS_ARGS2, PROCESS_ARGS2 + std::size(PROCESS_ARGS2));
 
     ml::core::CProcess::TPid childPid = 0;
     BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH2, args, childPid));

@@ -9,7 +9,10 @@
  * limitation.
  */
 
+#include <model/CInterimBucketCorrector.h>
+
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -19,7 +22,6 @@
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CInterimBucketCorrector.h>
 
 #include <cmath>
 
@@ -84,11 +86,11 @@ CInterimBucketCorrector::corrections(const TDouble10Vec& modes,
 
 void CInterimBucketCorrector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CInterimBucketCorrector");
-    core::CMemoryDebug::dynamicSize("m_CountTrend", m_FinalCountTrend, mem);
+    core::memory_debug::dynamicSize("m_CountTrend", m_FinalCountTrend, mem);
 }
 
 std::size_t CInterimBucketCorrector::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_FinalCountTrend);
+    return core::memory::dynamicSize(m_FinalCountTrend);
 }
 
 void CInterimBucketCorrector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

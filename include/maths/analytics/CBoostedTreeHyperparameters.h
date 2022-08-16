@@ -17,7 +17,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -28,7 +27,6 @@
 
 #include <cstddef>
 #include <functional>
-#include <locale>
 #include <memory>
 #include <optional>
 #include <string>
@@ -45,6 +43,35 @@ class CBoostedTreeImpl;
 class CDataFrameTrainBoostedTreeInstrumentationInterface;
 template<typename T>
 class CScopeBoostedTreeParameterOverrides;
+
+enum EHyperparameter {
+    E_DownsampleFactor = 0,
+    E_Alpha,
+    E_Lambda,
+    E_Gamma,
+    E_SoftTreeDepthLimit,
+    E_SoftTreeDepthTolerance,
+    E_Eta,
+    E_EtaGrowthRatePerTree,
+    E_MaximumNumberTrees, //!< Train only.
+    E_FeatureBagFraction,
+    E_PredictionChangeCost,     //!< Incremental train only.
+    E_RetrainedTreeEta,         //!< Incremental train only.
+    E_TreeTopologyChangePenalty //!< Incremental train only.
+};
+
+constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; // This must be last hyperparameter
+
+//! \brief Hyperparameter importance information.
+struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
+    enum EType { E_Double = 0, E_Uint64 };
+    EHyperparameter s_Hyperparameter;
+    double s_Value;
+    double s_AbsoluteImportance;
+    double s_RelativeImportance;
+    bool s_Supplied;
+    EType s_Type;
+};
 
 //! \brief Encapsulates a boosted tree parameter.
 //!
@@ -362,8 +389,7 @@ public:
     using TVector3x1 = common::CVectorNx1<double, 3>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using THyperparameterImportanceVec =
-        std::vector<boosted_tree_detail::SHyperparameterImportance>;
+    using THyperparameterImportanceVec = std::vector<SHyperparameterImportance>;
 
     //! \brief The arguments to the initial search we perform for each parameter.
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
@@ -425,6 +451,7 @@ public:
 public:
     //! We prefer smaller models if it costs little in test accuracy.
     static constexpr double RELATIVE_SIZE_PENALTY{0.01};
+    static constexpr double INF{std::numeric_limits<double>::max()};
 
 public:
     CBoostedTreeHyperparameters();
@@ -674,7 +701,7 @@ private:
     using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
     using TVectorDoubleDoubleTr = std::tuple<TVector, double, double>;
     using TVectorDoubleDoubleTrVec = std::vector<TVectorDoubleDoubleTr>;
-    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
+    using THyperparametersVec = std::vector<EHyperparameter>;
 
 private:
     void initializeTunableHyperparameters();
@@ -733,7 +760,7 @@ private:
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds{1};
     std::size_t m_CurrentRound{0};
-    double m_BestForestTestLoss{boosted_tree_detail::INF};
+    double m_BestForestTestLoss{INF};
     double m_BestForestNumberKeptNodes{0.0};
     double m_BestForestNumberNewNodes{0.0};
     double m_BestForestLossGap{0.0};

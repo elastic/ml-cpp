@@ -11,6 +11,7 @@
 
 #include <maths/common/ProbabilityAggregators.h>
 
+#include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/Constants.h>
 
@@ -22,8 +23,6 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 
 #include <cmath>
 
@@ -157,7 +156,7 @@ public:
 private:
     double truncate(double p, double pMinus1) const {
         static const double CUTOFF[] = {1.0e32, 1.0e16, 1.0e8, 1.0e4, 100.0};
-        return std::min(p, (m_N >= boost::size(CUTOFF) ? 100.0 : CUTOFF[m_N]) * pMinus1);
+        return std::min(p, (m_N >= std::size(CUTOFF) ? 100.0 : CUTOFF[m_N]) * pMinus1);
     }
 
 private:
@@ -443,12 +442,12 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
 
     static const double E = boost::math::double_constants::e;
     static const double LOG_DOUBLE_MAX =
-        std::log(0.1 * boost::numeric::bounds<double>::highest());
+        std::log(0.1 * std::numeric_limits<double>::max());
 
     double s = this->numberSamples() / 2.0;
     double x = this->mahalanobis() / 2.0;
 
-    double bound = boost::numeric::bounds<double>::lowest();
+    double bound = std::numeric_limits<double>::lowest();
 
     try {
         double logx = std::log(x);
@@ -588,7 +587,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
     }
 
     static const double LOG_DOUBLE_MAX =
-        std::log(0.10 * boost::numeric::bounds<double>::highest());
+        std::log(0.10 * std::numeric_limits<double>::max());
 
     double s = this->numberSamples() / 2.0;
     double x = this->mahalanobis() / 2.0;
@@ -681,7 +680,8 @@ std::uint64_t CProbabilityOfExtremeSample::checksum(std::uint64_t seed) const {
 }
 
 std::ostream& CProbabilityOfExtremeSample::print(std::ostream& o) const {
-    return o << "(" << m_NumberSamples << ", " << m_MinValue.print() << ")";
+    return o << "(" << m_NumberSamples << ", "
+             << core::CContainerPrinter::print(m_MinValue) << ")";
 }
 
 std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& probability) {
@@ -797,7 +797,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         // Re-normalize the coefficients if they aren't all identically zero.
         double cmax = 0.0;
         for (std::size_t i = 0; i < coeffs.size(); ++i) {
-            if (std::fabs(coeffs[i]) > 1.0 / boost::numeric::bounds<double>::highest()) {
+            if (std::fabs(coeffs[i]) > 1.0 / std::numeric_limits<double>::max()) {
                 cmax = std::max(cmax, std::fabs(coeffs[i]));
             }
         }
@@ -817,13 +817,13 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     for (std::size_t i = 0; i < coeffs.size(); ++i) {
         cmax = std::max(cmax, std::fabs(coeffs[i]));
     }
-    if (cmax > 0.0 && cmax < 1.0 / boost::numeric::bounds<double>::highest()) {
+    if (cmax > 0.0 && cmax < 1.0 / std::numeric_limits<double>::max()) {
         logLargestCoeff = std::log(cmax);
         for (std::size_t i = 0; i < coeffs.size(); ++i) {
             coeffs[i] /= cmax;
         }
     }
-    LOG_TRACE(<< "coeffs = " << core::CContainerPrinter::print(coeffs));
+    LOG_TRACE(<< "coeffs = " << coeffs);
 
     double pM = m_MinValues[0];
     LOG_TRACE(<< "p(" << M << ") = " << pM);
@@ -924,9 +924,9 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
                 minValues << " " << m_MinValues[j];
             }
             minValues << "]";
-            LOG_ERROR(<< "Invalid log(extreme probability) = " << result << ", m_NumberSamples = "
-                      << m_NumberSamples << ", m_MinValues = " << minValues.str()
-                      << ", coeffs = " << core::CContainerPrinter::print(coeffs)
+            LOG_ERROR(<< "Invalid log(extreme probability) = " << result
+                      << ", m_NumberSamples = " << m_NumberSamples
+                      << ", m_MinValues = " << minValues.str() << ", coeffs = " << coeffs
                       << ", log(max{coeffs}) = " << logLargestCoeff
                       << ", pM = " << pM << ", pMin = " << pMin);
             result = 0.0;

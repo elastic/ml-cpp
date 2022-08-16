@@ -13,6 +13,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
+#include <core/CVectorRange.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
 #include <maths/analytics/COutliers.h>
@@ -81,7 +82,7 @@ void addOutlierTestData(TStrVec fieldNames,
                 inliers[i][j], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
-        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
+        frame->parseAndWriteRow(core::make_const_range(fieldValues, 0, 5));
     }
     for (std::size_t i = 0; i < outliers.size(); i += 5) {
         for (std::size_t j = 0; j < 5; ++j) {
@@ -89,7 +90,7 @@ void addOutlierTestData(TStrVec fieldNames,
                 outliers[i + j], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
-        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
+        frame->parseAndWriteRow(core::make_const_range(fieldValues, 0, 5));
     }
 
     frame->finishWritingRows();
@@ -439,7 +440,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             "junk", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
                                                          {"10", "10", "10", "10", "10"}));
@@ -455,7 +456,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -469,7 +470,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
                                          {"10", "10", "10", "10", "10", ""}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -483,7 +484,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10", "", "foo"}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -497,7 +498,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10"}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -516,7 +517,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.empty());
     }
     {
@@ -538,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -553,7 +554,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
     }
@@ -575,7 +576,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
                            expectedFeatureInfluences, 100, 10);
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
         bool memoryLimitExceed{false};
         for (const auto& error : errors) {

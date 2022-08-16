@@ -11,7 +11,8 @@
 
 #include <model/CDataGatherer.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -19,12 +20,10 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
-#include <model/CResourceMonitor.h>
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>
@@ -572,19 +571,19 @@ std::uint64_t CDataGatherer::checksum() const {
 
 void CDataGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDataGatherer");
-    core::CMemoryDebug::dynamicSize("m_Features", m_Features, mem);
-    core::CMemoryDebug::dynamicSize("m_PeopleRegistry", m_PeopleRegistry, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributesRegistry", m_AttributesRegistry, mem);
-    core::CMemoryDebug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_BucketGatherer", m_BucketGatherer, mem);
+    core::memory_debug::dynamicSize("m_Features", m_Features, mem);
+    core::memory_debug::dynamicSize("m_PeopleRegistry", m_PeopleRegistry, mem);
+    core::memory_debug::dynamicSize("m_AttributesRegistry", m_AttributesRegistry, mem);
+    core::memory_debug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
+    core::memory_debug::dynamicSize("m_BucketGatherer", m_BucketGatherer, mem);
 }
 
 std::size_t CDataGatherer::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Features);
-    mem += core::CMemory::dynamicSize(m_PeopleRegistry);
-    mem += core::CMemory::dynamicSize(m_AttributesRegistry);
-    mem += core::CMemory::dynamicSize(m_SampleCounts);
-    mem += core::CMemory::dynamicSize(m_BucketGatherer);
+    std::size_t mem = core::memory::dynamicSize(m_Features);
+    mem += core::memory::dynamicSize(m_PeopleRegistry);
+    mem += core::memory::dynamicSize(m_AttributesRegistry);
+    mem += core::memory::dynamicSize(m_SampleCounts);
+    mem += core::memory::dynamicSize(m_BucketGatherer);
     return mem;
 }
 

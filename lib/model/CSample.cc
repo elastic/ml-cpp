@@ -12,14 +12,14 @@
 #include <model/CSample.h>
 
 #include <core/CIEEE754.h>
-#include <core/CMemory.h>
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CChecksum.h>
 
 #include <model/CFeatureData.h>
-#include <model/ModelTypes.h>
 
 namespace ml {
 namespace model {
@@ -106,11 +106,11 @@ std::string CSample::print() const {
 
 void CSample::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSample");
-    core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
+    core::memory_debug::dynamicSize("m_Value", m_Value, mem);
 }
 
 std::size_t CSample::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Value);
+    return core::memory::dynamicSize(m_Value);
 }
 }
 }

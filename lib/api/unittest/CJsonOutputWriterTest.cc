@@ -16,8 +16,6 @@
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
-#include <maths/common/CTools.h>
-
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
@@ -36,7 +34,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
-#include <set>
 #include <sstream>
 #include <string>
 

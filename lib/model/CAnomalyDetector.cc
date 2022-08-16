@@ -11,24 +11,22 @@
 
 #include <model/CAnomalyDetector.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CSampling.h>
 
 #include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
 #include <model/CForecastModelPersist.h>
+#include <model/CLimits.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelPlotData.h>
-#include <model/CSampleCounts.h>
+#include <model/CModelFactory.h>
 #include <model/CSearchKey.h>
 
 #include <sstream>
@@ -634,12 +632,12 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
 
 void CAnomalyDetector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("Anomaly Detector Memory Usage");
-    core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
-    core::CMemoryDebug::dynamicSize("m_Model", m_Model, mem);
+    core::memory_debug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
+    core::memory_debug::dynamicSize("m_Model", m_Model, mem);
 }
 
 std::size_t CAnomalyDetector::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_DataGatherer) + core::CMemory::dynamicSize(m_Model);
+    return core::memory::dynamicSize(m_DataGatherer) + core::memory::dynamicSize(m_Model);
 }
 
 std::size_t CAnomalyDetector::staticSize() const {

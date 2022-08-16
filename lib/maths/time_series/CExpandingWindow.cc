@@ -11,6 +11,8 @@
 
 #include <maths/time_series/CExpandingWindow.h>
 
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -61,8 +63,7 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_BUILT_IN(BUCKET_INDEX_TAG, m_BucketIndex)
         RESTORE_BUILT_IN(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex)
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
-        RESTORE(BUCKET_VALUES_TAG,
-                core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser))
+        RESTORE_WITH_UTILS(BUCKET_VALUES_TAG, m_BucketValues)
         RESTORE(WITHIN_BUCKET_VARIANCE_TAG,
                 m_WithinBucketVariance.fromDelimited(traverser.value()))
         RESTORE(AVERAGE_WITHIN_BUCKET_VARIANCE_TAG,
@@ -260,13 +261,13 @@ std::uint64_t CExpandingWindow::checksum(std::uint64_t seed) const {
 
 void CExpandingWindow::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CExpandingWindow");
-    core::CMemoryDebug::dynamicSize("m_BucketValues", m_BucketValues, mem);
-    core::CMemoryDebug::dynamicSize("m_DeflatedBucketValues", m_DeflatedBucketValues, mem);
+    core::memory_debug::dynamicSize("m_BucketValues", m_BucketValues, mem);
+    core::memory_debug::dynamicSize("m_DeflatedBucketValues", m_DeflatedBucketValues, mem);
 }
 
 std::size_t CExpandingWindow::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_BucketValues)};
-    mem += core::CMemory::dynamicSize(m_DeflatedBucketValues);
+    std::size_t mem{core::memory::dynamicSize(m_BucketValues)};
+    mem += core::memory::dynamicSize(m_DeflatedBucketValues);
     return mem;
 }
 

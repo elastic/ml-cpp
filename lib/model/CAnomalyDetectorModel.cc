@@ -12,29 +12,29 @@
 #include <model/CAnomalyDetectorModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CModelStateSerialiser.h>
-#include <maths/time_series/CTimeSeriesDecomposition.h>
 
-#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CDetectionRule.h>
 #include <model/CHierarchicalResults.h>
-#include <model/CInterimBucketCorrector.h>
+#include <model/CMemoryUsageEstimator.h>
+#include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
+
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 
@@ -305,23 +305,23 @@ std::uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/
         }
     }
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "checksums = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "checksums = " << hashes);
     return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CAnomalyDetectorModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CAnomalyDetectorModel");
-    core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
-    core::CMemoryDebug::dynamicSize("m_Params", m_Params, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonBucketCounts", m_PersonBucketCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_InfluenceCalculators", m_InfluenceCalculators, mem);
+    core::memory_debug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
+    core::memory_debug::dynamicSize("m_Params", m_Params, mem);
+    core::memory_debug::dynamicSize("m_PersonBucketCounts", m_PersonBucketCounts, mem);
+    core::memory_debug::dynamicSize("m_InfluenceCalculators", m_InfluenceCalculators, mem);
 }
 
 std::size_t CAnomalyDetectorModel::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Params)};
-    mem += core::CMemory::dynamicSize(m_DataGatherer);
-    mem += core::CMemory::dynamicSize(m_PersonBucketCounts);
-    mem += core::CMemory::dynamicSize(m_InfluenceCalculators);
+    std::size_t mem{core::memory::dynamicSize(m_Params)};
+    mem += core::memory::dynamicSize(m_DataGatherer);
+    mem += core::memory::dynamicSize(m_PersonBucketCounts);
+    mem += core::memory::dynamicSize(m_InfluenceCalculators);
     return mem;
 }
 
@@ -535,12 +535,12 @@ void CAnomalyDetectorModel::SFeatureModels::acceptPersistInserter(core::CStatePe
 void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureModels");
-    core::CMemoryDebug::dynamicSize("s_NewModel", s_NewModel, mem);
-    core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
+    core::memory_debug::dynamicSize("s_NewModel", s_NewModel, mem);
+    core::memory_debug::dynamicSize("s_Models", s_Models, mem);
 }
 
 std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
-    return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
+    return core::memory::dynamicSize(s_NewModel) + core::memory::dynamicSize(s_Models);
 }
 
 bool CAnomalyDetectorModel::SFeatureModels::shouldPersist() const {
@@ -554,6 +554,11 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     TCorrelationsPtr&& model)
     : s_Feature(feature), s_ModelPrior(modelPrior), s_Models(std::move(model)) {
 }
+
+CAnomalyDetectorModel::SFeatureCorrelateModels::~SFeatureCorrelateModels() = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
+CAnomalyDetectorModel::SFeatureCorrelateModels& CAnomalyDetectorModel::SFeatureCorrelateModels::
+operator=(SFeatureCorrelateModels&&) = default;
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     const SModelParams& params_,
@@ -585,12 +590,12 @@ void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureCorrelateModels");
-    core::CMemoryDebug::dynamicSize("s_ModelPrior", s_ModelPrior, mem);
-    core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
+    core::memory_debug::dynamicSize("s_ModelPrior", s_ModelPrior, mem);
+    core::memory_debug::dynamicSize("s_Models", s_Models, mem);
 }
 
 std::size_t CAnomalyDetectorModel::SFeatureCorrelateModels::memoryUsage() const {
-    return core::CMemory::dynamicSize(s_ModelPrior) + core::CMemory::dynamicSize(s_Models);
+    return core::memory::dynamicSize(s_ModelPrior) + core::memory::dynamicSize(s_Models);
 }
 
 CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateModelAllocator(

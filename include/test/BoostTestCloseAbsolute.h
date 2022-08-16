@@ -21,7 +21,6 @@ namespace test {
 
 template<typename T>
 struct SAbsoluteTolerance {
-
     explicit SAbsoluteTolerance(T tolerance) : s_Tolerance(tolerance) {}
     T s_Tolerance;
 };
@@ -39,7 +38,6 @@ std::ostream& operator<<(std::ostream& strm, const SAbsoluteTolerance<T>& tol) {
 }
 
 class CIsCloseEnough {
-
 public:
     using result_type = boost::test_tools::assertion_result;
 

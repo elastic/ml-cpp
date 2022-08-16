@@ -9,13 +9,13 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CThread.h>
 
 #include <model/CStringStore.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <memory>
 #include <optional>

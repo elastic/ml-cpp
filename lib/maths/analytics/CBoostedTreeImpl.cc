@@ -11,10 +11,10 @@
 
 #include <maths/analytics/CBoostedTreeImpl.h>
 
-#include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
@@ -61,6 +61,8 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TDoubleVector = common::CDenseVector<double>;
+using TDoubleVectorVec = std::vector<TDoubleVector>;
 using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMemoryUsageCallback = CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback;
@@ -78,7 +80,7 @@ public:
     template<typename T>
     CScopeRecordMemoryUsage(const T& object, TMemoryUsageCallback&& recordMemoryUsage)
         : m_RecordMemoryUsage{std::move(recordMemoryUsage)},
-          m_MemoryUsage(core::CMemory::dynamicSize(object)) {
+          m_MemoryUsage(core::memory::dynamicSize(object)) {
         m_RecordMemoryUsage(m_MemoryUsage);
     }
 
@@ -89,14 +91,14 @@ public:
 
     template<typename T>
     void add(const T& object) {
-        std::int64_t memoryUsage(core::CMemory::dynamicSize(object));
+        std::int64_t memoryUsage(core::memory::dynamicSize(object));
         m_MemoryUsage += memoryUsage;
         m_RecordMemoryUsage(memoryUsage);
     }
 
     template<typename T>
     void remove(const T& object) {
-        std::int64_t memoryUsage(core::CMemory::dynamicSize(object));
+        std::int64_t memoryUsage(core::memory::dynamicSize(object));
         m_MemoryUsage -= memoryUsage;
         m_RecordMemoryUsage(-memoryUsage);
     }
@@ -258,6 +260,23 @@ std::size_t minimumSplitRefreshInterval(double eta, std::size_t numberFeatures) 
     // is always negligible.
     return static_cast<std::size_t>(std::round(
         std::max({0.5 / eta, static_cast<double>(numberFeatures) / 50.0, 3.0})));
+}
+
+void propagateLossGradients(std::size_t node,
+                            const std::vector<CBoostedTreeNode>& tree,
+                            TDoubleVectorVec& lossGradients) {
+
+    if (tree[node].isLeaf()) {
+        return;
+    }
+
+    propagateLossGradients(tree[node].leftChildIndex(), tree, lossGradients);
+    propagateLossGradients(tree[node].rightChildIndex(), tree, lossGradients);
+
+    // A post order depth first traversal means that loss gradients are written
+    // to child nodes before they are read here.
+    lossGradients[node] += lossGradients[tree[node].leftChildIndex()];
+    lossGradients[node] += lossGradients[tree[node].rightChildIndex()];
 }
 }
 
@@ -671,7 +690,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
         numberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
-    std::size_t foldRoundLossMemoryUsage{core::CMemory::dynamicSize(TOptionalDoubleVecVec(
+    std::size_t foldRoundLossMemoryUsage{core::memory::dynamicSize(TOptionalDoubleVecVec(
         m_NumberFolds.value(), TOptionalDoubleVec(m_Hyperparameters.numberRounds())))};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
@@ -694,11 +713,11 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
                                  2};
     std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
     std::size_t dataTypeMemoryUsage{
-        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
     std::size_t featureSampleProbabilitiesMemoryUsage{
-        core::CMemory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
     std::size_t fixedCandidateSplitsMemoryUsage{
-        core::CMemory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
@@ -727,7 +746,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForPredict(std::size_t numberRo
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
     std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
     std::size_t dataTypeMemoryUsage{
-        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+        core::memory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
     return sizeof(*this) + categoryEncoderMemoryUsage + dataTypeMemoryUsage +
@@ -828,13 +847,11 @@ CBoostedTreeImpl::TDoubleVec CBoostedTreeImpl::initializePerFoldTestLosses() {
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
 
-    using TFloatStorageVec = std::vector<common::CFloatStorage>;
-
     if (m_Loss->type() == E_BinaryClassification || m_Loss->type() == E_MulticlassClassification) {
 
         std::size_t numberClasses{
             m_Loss->type() == E_BinaryClassification ? 2 : m_Loss->numberParameters()};
-        TFloatStorageVec storage(2);
+        TFloatVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
@@ -873,8 +890,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                         m_ClassificationWeights(i) = j->second;
                     } else {
                         LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
-                                 << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
-                                 << ".");
+                                 << m_ClassificationWeightsOverride << ".");
                     }
                 }
                 LOG_TRACE(<< "classification weights = "
@@ -909,14 +925,108 @@ void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
         return;
     }
 
-    TDoubleVec probabilities{retrainTreeSelectionProbabilities(
-        m_NumberThreads, frame, m_ExtraColumns, m_DependentVariable, *m_Encoder,
-        this->allTrainingRowMask(), *m_Loss, m_BestForest)};
+    TDoubleVec probabilities{this->retrainTreeSelectionProbabilities(
+        frame, this->allTrainingRowMask(), m_BestForest)};
 
     std::size_t numberToRetrain{static_cast<std::size_t>(
         std::max(m_RetrainFraction * static_cast<double>(m_BestForest.size()), 1.0) + 0.5)};
     common::CSampling::categoricalSampleWithoutReplacement(
         m_Rng, probabilities, numberToRetrain, m_TreesToRetrain);
+}
+
+CBoostedTreeImpl::TDoubleVec
+CBoostedTreeImpl::retrainTreeSelectionProbabilities(const core::CDataFrame& frame,
+                                                    const core::CPackedBitVector& trainingDataRowMask,
+                                                    const TNodeVecVec& forest) const {
+
+    // The first tree is used to centre the data and we never retrain this.
+
+    if (forest.size() < 2) {
+        return {};
+    }
+
+    using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
+
+    std::size_t numberLossParameters{m_Loss->numberParameters()};
+    LOG_TRACE(<< "dependent variable " << m_DependentVariable);
+    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
+
+    auto makeComputeTotalLossGradient = [&]() {
+        return [&](TDoubleVectorVecVec& leafLossGradients,
+                   const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
+                double actual{readActual(*row, m_DependentVariable)};
+                double weight{readExampleWeight(*row, m_ExtraColumns)};
+                for (std::size_t i = 0; i < forest.size(); ++i) {
+                    auto encodedRow = m_Encoder->encode(*row);
+                    std::size_t leaf{root(forest[i]).leafIndex(encodedRow, forest[i])};
+                    auto writer = [&](std::size_t j, double gradient) {
+                        leafLossGradients[i][leaf](j) = gradient;
+                    };
+                    m_Loss->gradient(encodedRow, true, prediction, actual, writer, weight);
+                }
+            }
+        };
+    };
+
+    auto makeZeroLeafLossGradients = [&] {
+        TDoubleVectorVecVec leafLossGradients;
+        leafLossGradients.reserve(forest.size());
+        for (const auto& tree : forest) {
+            leafLossGradients.emplace_back(tree.size(), TDoubleVector::Zero(numberLossParameters));
+        }
+        return leafLossGradients;
+    };
+
+    auto computeLeafLossGradients = [&](const core::CPackedBitVector& rowMask) {
+        auto results = frame.readRows(
+            m_NumberThreads, 0, frame.numberRows(),
+            core::bindRetrievableState(makeComputeTotalLossGradient(),
+                                       makeZeroLeafLossGradients()),
+            &rowMask);
+
+        TDoubleVectorVecVec leafLossGradients{std::move(results.first[0].s_FunctionState)};
+        for (std::size_t i = 1; i < results.first.size(); ++i) {
+            auto& resultsForWorker = results.first[i].s_FunctionState;
+            for (std::size_t j = 0; j < resultsForWorker.size(); ++j) {
+                for (std::size_t k = 0; k < resultsForWorker[j].size(); ++k) {
+                    leafLossGradients[j][k] += resultsForWorker[j][k];
+                }
+            }
+        }
+
+        return leafLossGradients;
+    };
+
+    // Compute the sum of loss gradients for each node.
+    auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
+    for (std::size_t i = 0; i < forest.size(); ++i) {
+        propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
+    }
+    LOG_TRACE(<< "loss gradients = " << trainingDataLossGradients);
+
+    // We are interested in choosing trees for which the total gradient of the
+    // loss at the current predictions for all nodes is the largest. These trees,
+    // at least locally, give the largest gain in loss by adjusting. Gradients
+    // of internal nodes are defined as the sum of the leaf gradients below them.
+    // We include these because they capture the fact that certain branches of
+    // specific trees may be retrained for greater effect.
+
+    TDoubleVec result(forest.size(), 0.0);
+    double Z{0.0};
+    for (std::size_t i = 1; i < forest.size(); ++i) {
+        for (std::size_t j = 1; j < forest[i].size(); ++j) {
+            result[i] += trainingDataLossGradients[i][j].lpNorm<1>();
+        }
+        Z += result[i];
+    }
+    for (auto& p : result) {
+        p /= Z;
+    }
+    LOG_TRACE(<< "probabilities = " << result);
+
+    return result;
 }
 
 template<typename F>
@@ -1057,7 +1167,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         [&](const TFloatVecVec& candidateSplits, const TSizeVec& treeFeatureBag,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
-            return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+            return std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
                 rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
                 m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
@@ -1210,7 +1320,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         [&](const TFloatVecVec& candidateSplits, const TSizeVec& treeFeatureBag,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
-            return std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+            return std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
                 rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
                 m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
@@ -1382,8 +1492,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
     for (auto i : features) {
         if (m_Encoder->isBinary(i)) {
             m_FixedCandidateSplits[i] = TFloatVec{0.5F};
-            LOG_TRACE(<< "feature '" << i << "' splits = "
-                      << core::CContainerPrinter::print(m_FixedCandidateSplits[i]));
+            LOG_TRACE(<< "feature '" << i << "' splits = " << m_FixedCandidateSplits[i]);
         }
     }
 
@@ -1392,7 +1501,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
                                       return m_Encoder->isBinary(index);
                                   }),
                    features.end());
-    LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
+    LOG_TRACE(<< "candidate features = " << features);
 
     auto allTrainingRowMask = this->allTrainingRowMask();
     auto result = frame.readRows(
@@ -1432,8 +1541,7 @@ void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
             for (std::size_t j = 1; j < values.size(); ++j) {
                 featureCandidateSplits.emplace_back(0.5 * (values[j] + values[j - 1]));
             }
-            LOG_TRACE(<< "feature '" << features[i] << "' splits = "
-                      << core::CContainerPrinter::print(featureCandidateSplits));
+            LOG_TRACE(<< "feature '" << features[i] << "' splits = " << featureCandidateSplits);
         }
     }
 
@@ -1458,7 +1566,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                       return m_FixedCandidateSplits[index].empty() == false;
                                   }),
                    features.end());
-    LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
+    LOG_TRACE(<< "candidate features = " << features);
 
     if (features.empty()) {
         return candidateSplits;
@@ -1493,13 +1601,12 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                 static_cast<double>(m_NumberSplitsPerFeature) +
                             common::CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
-                if (featureQuantiles[i].quantile(rank, q)) {
+                if (featureQuantiles[i].quantile(rank, q, common::CFastQuantileSketch::E_Linear)) {
                     featureCandidateSplits.emplace_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
             }
-            std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         }
 
         const auto& dataType = m_FeatureDataTypes[features[i]];
@@ -1515,14 +1622,15 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                               split = std::floor(split) + 0.5;
                           });
         }
+        std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         featureCandidateSplits.erase(std::unique(featureCandidateSplits.begin(),
                                                  featureCandidateSplits.end()),
                                      featureCandidateSplits.end());
         featureCandidateSplits.erase(std::remove_if(featureCandidateSplits.begin(),
                                                     featureCandidateSplits.end(),
                                                     [&dataType](double split) {
-                                                        return split < dataType.s_Min ||
-                                                               split > dataType.s_Max;
+                                                        return split <= dataType.s_Min ||
+                                                               split >= dataType.s_Max;
                                                     }),
                                      featureCandidateSplits.end());
     }
@@ -1537,6 +1645,15 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
     if (std::none_of(featureMask.begin(), featureMask.end(),
                      [](bool refresh) { return refresh; })) {
         return;
+    }
+
+    using TSearchTreeVec = std::vector<CSearchTree>;
+
+    TSearchTreeVec candidateSplitsTrees(candidateSplits.size());
+    for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
+        if (featureMask[i]) {
+            candidateSplitsTrees[i] = CSearchTree{candidateSplits[i]};
+        }
     }
 
     frame.writeColumns(
@@ -1554,12 +1671,10 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                             packedSplits[j] =
                                 CDataFrameUtils::isMissing(feature)
                                     ? static_cast<std::uint8_t>(
-                                          missingSplit(candidateSplits[i]))
+                                          missingSplit(candidateSplitsTrees[i]))
                                     : static_cast<std::uint8_t>(
-                                          std::upper_bound(candidateSplits[i].begin(),
-                                                           candidateSplits[i].end(),
-                                                           common::CFloatStorage{feature}) -
-                                          candidateSplits[i].begin());
+                                          candidateSplitsTrees[i].upperBound(
+                                              static_cast<float>(feature)));
                         }
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};
@@ -1583,8 +1698,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     workspace.reinitialize(m_NumberThreads, candidateSplits);
     TSizeVec featuresToInclude{workspace.featuresToInclude()};
-    LOG_TRACE(<< "features to include = "
-              << core::CContainerPrinter::print(featuresToInclude));
+    LOG_TRACE(<< "features to include = " << featuresToInclude);
 
     TNodeVec tree(1);
     // Since number of leaves in a perfect binary tree is (numberInternalNodes+1)
@@ -1598,7 +1712,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TSizeVec nodeFeatureBag;
     this->treeFeatureBag(featureSampleProbabilities, treeFeatureBag);
     treeFeatureBag = merge(featuresToInclude, std::move(treeFeatureBag));
-    LOG_TRACE(<< "tree bag = " << core::CContainerPrinter::print(treeFeatureBag));
+    LOG_TRACE(<< "tree bag = " << treeFeatureBag);
 
     featureSampleProbabilities = m_FeatureSampleProbabilities;
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
@@ -1637,7 +1751,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             break;
         }
 
-        auto leaf = splittableLeaves.back();
+        TLeafNodeStatisticsPtr leaf{std::move(splittableLeaves.back())};
         splittableLeaves.pop_back();
 
         scopeMemoryUsage.remove(leaf);
@@ -1668,16 +1782,18 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
         nodeFeatureBag = merge(featuresToInclude, std::move(nodeFeatureBag));
 
-        std::size_t numberSplittableLeaves{splittableLeaves.size()};
-        std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
+        auto numberSplittableLeaves =
+            static_cast<std::ptrdiff_t>(splittableLeaves.size());
+        auto currentNumberInternalNodes = static_cast<std::ptrdiff_t>(tree.size() - 1) / 2;
+        auto lastPotentialSplit = numberSplittableLeaves + currentNumberInternalNodes -
+                                  static_cast<std::ptrdiff_t>(maximumNumberInternalNodes);
         auto smallestCurrentCandidateGainIndex =
-            static_cast<std::ptrdiff_t>(numberSplittableLeaves) -
-            static_cast<std::ptrdiff_t>(maximumNumberInternalNodes - currentNumberInternalNodes);
-        double smallestCandidateGain{
-            smallestCurrentCandidateGainIndex >= 0
-                ? splittableLeaves[static_cast<std::size_t>(smallestCurrentCandidateGainIndex)]
-                      ->gain()
-                : 0.0};
+            std::min(lastPotentialSplit, numberSplittableLeaves - 1);
+        double smallestCandidateGain{std::max(
+            workspace.minimumGain(),
+            smallestCurrentCandidateGainIndex < 0
+                ? 0.0
+                : splittableLeaves[smallestCurrentCandidateGainIndex]->gain())};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -1805,7 +1921,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     TSizeVec ordered{missing};
     std::sort(ordered.begin(), ordered.end());
     common::CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
-    LOG_TRACE(<< "present = " << core::CContainerPrinter::print(present));
+    LOG_TRACE(<< "present = " << present);
 
     // Get the current round feature vector. Fixed so computed outside the loop.
     TVector x(2 * present.size());
@@ -1990,10 +2106,14 @@ void CBoostedTreeImpl::computeLeafValues(core::CDataFrame& frame,
     do {
         TArgMinLossVecVec result(m_NumberThreads, leafValues);
         this->minimumLossLeafValues(false /*new example*/, frame,
-                                    trainingRowMask & ~m_NewTrainingRowMask,
+                                    m_Hyperparameters.incrementalTraining()
+                                        ? trainingRowMask & ~m_NewTrainingRowMask
+                                        : trainingRowMask,
                                     loss, leafMap, tree, result);
         this->minimumLossLeafValues(true /*new example*/, frame,
-                                    trainingRowMask & m_NewTrainingRowMask,
+                                    m_Hyperparameters.incrementalTraining()
+                                        ? trainingRowMask & m_NewTrainingRowMask
+                                        : m_NewTrainingRowMask,
                                     loss, leafMap, tree, result);
         leafValues = std::move(result[0]);
         for (std::size_t i = 1; i < result.size(); ++i) {
@@ -2115,12 +2235,12 @@ CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(row, m_DependentVariable)};
                     double weight{readExampleWeight(row, m_ExtraColumns)};
+                    double loss{m_Loss->value(prediction, actual)};
                     common::CSampling::poissonSample(
                         rng, 1.0, LOSS_ESTIMATION_BOOTSTRAP_SIZE - 1, samples);
-                    losses[0].add(m_Loss->value(prediction, actual), weight);
+                    losses[0].add(loss, weight);
                     for (std::size_t i = 1; i < LOSS_ESTIMATION_BOOTSTRAP_SIZE; ++i) {
-                        losses[i].add(m_Loss->value(prediction, actual),
-                                      weight * static_cast<double>(samples[i - 1]));
+                        losses[i].add(loss, weight * static_cast<double>(samples[i - 1]));
                     }
                 }
             },
@@ -2133,7 +2253,7 @@ CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
             losses[i] += result.s_FunctionState[i];
         }
     }
-    LOG_TRACE(<< "losses = " << core::CContainerPrinter::print(losses));
+    LOG_TRACE(<< "losses = " << losses);
 
     TMeanVarAccumulator lossMoments;
     for (const auto& loss : losses) {
@@ -2384,8 +2504,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     if (std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
                   traverser.name()) == SUPPORTED_VERSIONS.end()) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
-                  << "Currently supported versions: "
-                  << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
+                  << "Currently supported versions: " << SUPPORTED_VERSIONS << ".");
         return false;
     }
 
@@ -2597,24 +2716,24 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Loss)};
-    mem += core::CMemory::dynamicSize(m_ExtraColumns);
-    mem += core::CMemory::dynamicSize(m_Encoder);
-    mem += core::CMemory::dynamicSize(m_FeatureDataTypes);
-    mem += core::CMemory::dynamicSize(m_FeatureSampleProbabilities);
-    mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
-    mem += core::CMemory::dynamicSize(m_FixedCandidateSplits);
-    mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
-    mem += core::CMemory::dynamicSize(m_TestingRowMasks);
-    mem += core::CMemory::dynamicSize(m_NewTrainingRowMask);
-    mem += core::CMemory::dynamicSize(m_FoldRoundTestLosses);
-    mem += core::CMemory::dynamicSize(m_ClassificationWeightsOverride);
-    mem += core::CMemory::dynamicSize(m_ClassificationWeights);
-    mem += core::CMemory::dynamicSize(m_BestForest);
-    mem += core::CMemory::dynamicSize(m_Hyperparameters);
-    mem += core::CMemory::dynamicSize(m_TreeShap);
-    mem += core::CMemory::dynamicSize(m_Instrumentation);
-    mem += core::CMemory::dynamicSize(m_TreesToRetrain);
+    std::size_t mem{core::memory::dynamicSize(m_Loss)};
+    mem += core::memory::dynamicSize(m_ExtraColumns);
+    mem += core::memory::dynamicSize(m_Encoder);
+    mem += core::memory::dynamicSize(m_FeatureDataTypes);
+    mem += core::memory::dynamicSize(m_FeatureSampleProbabilities);
+    mem += core::memory::dynamicSize(m_MissingFeatureRowMasks);
+    mem += core::memory::dynamicSize(m_FixedCandidateSplits);
+    mem += core::memory::dynamicSize(m_TrainingRowMasks);
+    mem += core::memory::dynamicSize(m_TestingRowMasks);
+    mem += core::memory::dynamicSize(m_NewTrainingRowMask);
+    mem += core::memory::dynamicSize(m_FoldRoundTestLosses);
+    mem += core::memory::dynamicSize(m_ClassificationWeightsOverride);
+    mem += core::memory::dynamicSize(m_ClassificationWeights);
+    mem += core::memory::dynamicSize(m_BestForest);
+    mem += core::memory::dynamicSize(m_Hyperparameters);
+    mem += core::memory::dynamicSize(m_TreeShap);
+    mem += core::memory::dynamicSize(m_Instrumentation);
+    mem += core::memory::dynamicSize(m_TreesToRetrain);
     return mem;
 }
 

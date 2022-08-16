@@ -12,9 +12,8 @@
 #include <model/CIndividualModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -22,14 +21,9 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-
-#include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
-#include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
@@ -279,8 +273,8 @@ std::uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes1 = " << core::CContainerPrinter::print(hashes1));
-    LOG_TRACE(<< "hashes2 = " << core::CContainerPrinter::print(hashes2));
+    LOG_TRACE(<< "hashes1 = " << hashes1);
+    LOG_TRACE(<< "hashes2 = " << hashes2);
 
     seed = maths::common::CChecksum::calculate(seed, hashes1);
     return maths::common::CChecksum::calculate(seed, hashes2);
@@ -289,12 +283,12 @@ std::uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
 void CIndividualModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CIndividualModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_FirstBucketTimes", m_FirstBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_LastBucketTimes", m_LastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
+    core::memory_debug::dynamicSize("m_FirstBucketTimes", m_FirstBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_LastBucketTimes", m_LastBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
+    core::memory_debug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
-    core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
+    core::memory_debug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
 std::size_t CIndividualModel::memoryUsage() const {
@@ -307,11 +301,11 @@ std::size_t CIndividualModel::memoryUsage() const {
 
 std::size_t CIndividualModel::computeMemoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_FirstBucketTimes);
-    mem += core::CMemory::dynamicSize(m_LastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_FeatureModels);
-    mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
-    mem += core::CMemory::dynamicSize(m_MemoryEstimator);
+    mem += core::memory::dynamicSize(m_FirstBucketTimes);
+    mem += core::memory::dynamicSize(m_LastBucketTimes);
+    mem += core::memory::dynamicSize(m_FeatureModels);
+    mem += core::memory::dynamicSize(m_FeatureCorrelatesModels);
+    mem += core::memory::dynamicSize(m_MemoryEstimator);
     return mem;
 }
 
@@ -587,10 +581,10 @@ void CIndividualModel::correctBaselineForInterim(model_t::EFeature feature,
                                                  std::size_t pid,
                                                  model_t::CResultType type,
                                                  const TSizeDoublePr1Vec& correlated,
-                                                 const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+                                                 const TFeatureSizeSizeTrDouble1VecUMap& corrections,
                                                  TDouble1Vec& result) const {
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
-        TFeatureSizeSizeTriple key(feature, pid, pid);
+        TFeatureSizeSizeTr key(feature, pid, pid);
         switch (type.asConditionalOrUnconditional()) {
         case model_t::CResultType::E_Unconditional:
             break;

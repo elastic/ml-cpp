@@ -12,7 +12,9 @@
 #ifndef INCLUDED_ml_core_CFloatStorage_h
 #define INCLUDED_ml_core_CFloatStorage_h
 
+#ifdef CFLOATSTORAGE_BOUNDS_CHECK
 #include <core/CLogger.h>
+#endif
 #include <core/CStringUtils.h>
 
 #include <maths/common/ImportExport.h>
@@ -67,7 +69,7 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 class CORE_EXPORT CFloatStorage {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Default construction of the floating point value.
@@ -91,40 +93,34 @@ public:
     //! \name Operators
     //@{
     CFloatStorage operator-() const { return CFloatStorage{-m_Value}; }
-    bool operator==(const CFloatStorage& rhs) const {
-        return m_Value == rhs.m_Value;
-    }
-    bool operator==(const double& rhs) const {
+    bool operator==(CFloatStorage rhs) const { return m_Value == rhs.m_Value; }
+    bool operator==(float rhs) const { return m_Value == rhs; }
+    bool operator==(double rhs) const {
         return static_cast<double>(m_Value) == rhs;
     }
-    bool operator!=(const CFloatStorage& rhs) const {
-        return m_Value != rhs.m_Value;
-    }
-    bool operator!=(const double& rhs) const {
+    bool operator!=(CFloatStorage rhs) const { return m_Value != rhs.m_Value; }
+    bool operator!=(float rhs) const { return m_Value != rhs; }
+    bool operator!=(double rhs) const {
         return static_cast<double>(m_Value) != rhs;
     }
-    bool operator<(const CFloatStorage& rhs) const {
-        return m_Value < rhs.m_Value;
-    }
-    bool operator<(const double& rhs) const {
+    bool operator<(CFloatStorage rhs) const { return m_Value < rhs.m_Value; }
+    bool operator<(float rhs) const { return m_Value < rhs; }
+    bool operator<(double rhs) const {
         return static_cast<double>(m_Value) < rhs;
     }
-    bool operator<=(const CFloatStorage& rhs) const {
-        return m_Value <= rhs.m_Value;
-    }
-    bool operator<=(const double& rhs) const {
+    bool operator<=(CFloatStorage rhs) const { return m_Value <= rhs.m_Value; }
+    bool operator<=(float rhs) const { return m_Value <= rhs; }
+    bool operator<=(double rhs) const {
         return static_cast<double>(m_Value) <= rhs;
     }
-    bool operator>(const CFloatStorage& rhs) const {
-        return m_Value > rhs.m_Value;
-    }
-    bool operator>(const double& rhs) const {
+    bool operator>(CFloatStorage rhs) const { return m_Value > rhs.m_Value; }
+    bool operator>(float rhs) const { return m_Value > rhs; }
+    bool operator>(double rhs) const {
         return static_cast<double>(m_Value) > rhs;
     }
-    bool operator>=(const CFloatStorage& rhs) const {
-        return m_Value >= rhs.m_Value;
-    }
-    bool operator>=(const double& rhs) const {
+    bool operator>=(CFloatStorage rhs) const { return m_Value >= rhs.m_Value; }
+    bool operator>=(float rhs) const { return m_Value >= rhs; }
+    bool operator>=(double rhs) const {
         return static_cast<double>(m_Value) >= rhs;
     }
     //@}
@@ -177,8 +173,10 @@ public:
     //! Implicit conversion to a double.
     operator double() const { return static_cast<double>(m_Value); }
 
+    //! Constant reference access to the underlying storage.
+    const float& cstorage() const { return m_Value; }
+
 protected:
-    const float& storage() const { return m_Value; }
     float& storage() { return m_Value; }
 
 private:

@@ -12,15 +12,20 @@
 #include <model/CCountingModel.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
-#include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+
+#include <boost/unordered_set.hpp>
 
 namespace ml {
 namespace model {
@@ -316,17 +321,17 @@ std::uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
 void CCountingModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountingModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_Counts", m_Counts, mem);
-    core::CMemoryDebug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_Counts", m_Counts, mem);
+    core::memory_debug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
 std::size_t CCountingModel::memoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_Counts);
-    mem += core::CMemory::dynamicSize(m_MeanCounts);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_Counts);
+    mem += core::memory::dynamicSize(m_MeanCounts);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 

@@ -12,6 +12,7 @@
 #include <maths/time_series/CCountMinSketch.h>
 
 #include <core/CHashing.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
@@ -321,14 +322,14 @@ void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr
     mem->setName("CCountMinSketch");
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
-        core::CMemoryDebug::dynamicSize("m_Counts", *counts, mem);
+        core::memory_debug::dynamicSize("m_Counts", *counts, mem);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
-            core::CMemoryDebug::dynamicSize("sketch", sketch, mem);
-            core::CMemoryDebug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
-            core::CMemoryDebug::dynamicSize("s_Counts", sketch.s_Counts, mem);
+            core::memory_debug::dynamicSize("sketch", sketch, mem);
+            core::memory_debug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
+            core::memory_debug::dynamicSize("s_Counts", sketch.s_Counts, mem);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception " << e.what());
         }
@@ -339,13 +340,13 @@ std::size_t CCountMinSketch::memoryUsage() const {
     std::size_t mem = 0;
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
-        mem += core::CMemory::dynamicSize(*counts);
+        mem += core::memory::dynamicSize(*counts);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
-            mem += core::CMemory::dynamicSize(sketch.s_Hashes);
-            mem += core::CMemory::dynamicSize(sketch.s_Counts);
+            mem += core::memory::dynamicSize(sketch.s_Hashes);
+            mem += core::memory::dynamicSize(sketch.s_Counts);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception " << e.what());
         }

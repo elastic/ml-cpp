@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CAgglomerativeClusterer.h>
@@ -17,7 +16,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -245,15 +243,14 @@ BOOST_AUTO_TEST_CASE(testNode) {
         TSizeVecVec clusters;
         root.clusteringAt(heights[h], clusters);
         std::sort(clusters.begin(), clusters.end());
-        LOG_DEBUG(<< "Clusters at " << heights[h] << " are "
-                  << core::CContainerPrinter::print(clusters));
+        LOG_DEBUG(<< "Clusters at " << heights[h] << " are " << clusters);
         BOOST_REQUIRE_EQUAL(expected[h - 5], core::CContainerPrinter::print(clusters));
     }
 }
 
 BOOST_AUTO_TEST_CASE(testSimplePermutations) {
     double x[] = {1.0, 3.2, 4.5, 7.8};
-    std::size_t n = boost::size(x);
+    std::size_t n = std::size(x);
 
     maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
         maths::common::CAgglomerativeClusterer::E_Single,
@@ -263,20 +260,20 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
         std::string("[(3.3, [0, 1, 2, 3]), (2.2, [0, 1, 2]), (1.3, [1, 2])]"),
         std::string("[(6.8, [0, 1, 2, 3]), (3.5, [0, 1, 2]), (1.3, [1, 2])]")};
 
-    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0; o < std::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3};
 
         do {
-            LOG_DEBUG(<< "*** " << core::CContainerPrinter::print(p) << " ***");
+            LOG_DEBUG(<< "*** " << p << " ***");
 
             TDoubleVecVec distanceMatrix(n);
             for (std::size_t i = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
-                LOG_DEBUG(<< "D = " << core::CContainerPrinter::print(distanceMatrix[i]));
+                LOG_DEBUG(<< "D = " << distanceMatrix[i]);
             }
 
             maths::common::CAgglomerativeClusterer clusterer;
@@ -288,7 +285,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
             TDoubleSizeVecPrVec clusters;
             tree.back().clusters(clusters);
 
-            LOG_DEBUG(<< "clusters           = " << core::CContainerPrinter::print(clusters));
+            LOG_DEBUG(<< "clusters           = " << clusters);
 
             for (std::size_t i = 0; i < clusters.size(); ++i) {
                 for (std::size_t j = 0; j < clusters[i].second.size(); ++j) {
@@ -297,7 +294,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
                 std::sort(clusters[i].second.begin(), clusters[i].second.end());
             }
 
-            LOG_DEBUG(<< "canonical clusters = " << core::CContainerPrinter::print(clusters));
+            LOG_DEBUG(<< "canonical clusters = " << clusters);
 
             BOOST_REQUIRE_EQUAL(expected[o], core::CContainerPrinter::print(clusters));
         } while (std::next_permutation(std::begin(p), std::end(p)));
@@ -306,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
 
 BOOST_AUTO_TEST_CASE(testDegenerate) {
     double x[] = {1.0, 3.2, 3.2, 3.2, 4.5, 7.8};
-    std::size_t n = boost::size(x);
+    std::size_t n = std::size(x);
 
     maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
         maths::common::CAgglomerativeClusterer::E_Single,
@@ -320,14 +317,14 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")}};
 
-    for (std::size_t o = 0u, count = 0; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0, count = 0; o < std::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3, 4, 5};
 
         do {
             if (count % 10 == 0) {
-                LOG_DEBUG(<< "*** " << core::CContainerPrinter::print(p) << " ***");
+                LOG_DEBUG(<< "*** " << p << " ***");
             }
 
             TDoubleVecVec distanceMatrix(n);
@@ -336,8 +333,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
                     distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
                 if (count % 10 == 0) {
-                    LOG_DEBUG(<< "D = "
-                              << core::CContainerPrinter::print(distanceMatrix[i]));
+                    LOG_DEBUG(<< "D = " << distanceMatrix[i]);
                 }
             }
 
@@ -351,8 +347,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
             tree.back().clusters(clusters);
 
             if (count % 10 == 0) {
-                LOG_DEBUG(<< "clusters           = "
-                          << core::CContainerPrinter::print(clusters));
+                LOG_DEBUG(<< "clusters           = " << clusters);
             }
 
             for (std::size_t i = 0; i < clusters.size(); ++i) {
@@ -363,8 +358,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
             }
 
             if (count % 10 == 0) {
-                LOG_DEBUG(<< "canonical clusters = "
-                          << core::CContainerPrinter::print(clusters));
+                LOG_DEBUG(<< "canonical clusters = " << clusters);
             }
 
             BOOST_TEST_REQUIRE(
@@ -381,27 +375,24 @@ BOOST_AUTO_TEST_CASE(testRandom) {
 
     std::size_t n = 20;
 
-    maths::common::CAgglomerativeClusterer::EObjective objectives[] = {
-        maths::common::CAgglomerativeClusterer::E_Single,
-        maths::common::CAgglomerativeClusterer::E_Complete};
-
-    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
-        LOG_DEBUG(<< "*** " << print(objectives[o]) << " ***");
+    for (auto objective : {maths::common::CAgglomerativeClusterer::E_Single,
+                           maths::common::CAgglomerativeClusterer::E_Complete}) {
+        LOG_DEBUG(<< "*** " << objective << " ***");
 
         for (std::size_t t = 0; t < 10; ++t) {
             TDoubleVec dij;
             rng.generateUniformSamples(0.0, 100.0, n * (n - 1) / 2, dij);
 
             TDoubleVecVec distanceMatrix(n);
-            for (std::size_t i = 0u, k = 0; i < n; ++i) {
+            for (std::size_t i = 0, k = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(i == j ? 0.0 : dij[k++]);
                 }
-                LOG_DEBUG(<< "D = " << core::CContainerPrinter::print(distanceMatrix[i]));
+                LOG_DEBUG(<< "D = " << distanceMatrix[i]);
             }
 
             TClusterVec expectedTree;
-            switch (objectives[o]) {
+            switch (objective) {
             case maths::common::CAgglomerativeClusterer::E_Single:
                 expectedTree = agglomerativeCluster<CSlinkObjective>(distanceMatrix);
                 break;
@@ -423,14 +414,13 @@ BOOST_AUTO_TEST_CASE(testRandom) {
             }
             std::sort(expectedClusters.begin(), expectedClusters.end());
 
-            LOG_DEBUG(<< "expected clusters = "
-                      << core::CContainerPrinter::print(expectedClusters));
+            LOG_DEBUG(<< "expected clusters = " << expectedClusters);
 
             maths::common::CAgglomerativeClusterer clusterer;
             BOOST_TEST_REQUIRE(clusterer.initialize(distanceMatrix));
 
             maths::common::CAgglomerativeClusterer::TNodeVec tree;
-            clusterer.run(objectives[o], tree);
+            clusterer.run(objective, tree);
 
             TDoubleSizeVecPrVec clusters;
             tree.back().clusters(clusters);
@@ -439,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
             }
             std::sort(clusters.begin(), clusters.end());
 
-            LOG_DEBUG(<< "clusters          = " << core::CContainerPrinter::print(clusters));
+            LOG_DEBUG(<< "clusters          = " << clusters);
 
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedClusters),
                                 core::CContainerPrinter::print(clusters));

@@ -178,10 +178,10 @@ void detectorPersistHelper(const std::string& configFileName,
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                       origSnapshotId, "snap", origPersistedState));
-    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                       restoredSnapshotId, "snap", newPersistedState));
+    BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                               origSnapshotId, "snap", origPersistedState));
+    BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                               restoredSnapshotId, "snap", newPersistedState));
 
     // Replace the zero byte separators to avoid '\0's in the output if the
     // test fails

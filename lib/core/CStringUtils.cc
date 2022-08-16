@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <locale>
 
 #include <ctype.h>
 #include <errno.h>
@@ -39,11 +40,19 @@ double clampToReadable(double x) {
     return (x < SMALLEST ? SMALLEST : x > LARGEST ? LARGEST : x);
 }
 
+//! Get a locale object for character transformations.
+//!
+//! TODO - remove when we switch to a character conversion library (e.g. ICU).
+const std::locale& locale() {
+    static std::locale loc;
+    return loc;
+}
+
 // To ensure the singleton locale is constructed before multiple threads may
 // require it, call locale() during the static initialisation phase of the
 // program.  Of course, the locale may already be constructed before this if
 // another static object has used it.
-const std::locale& DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
+const std::locale& DO_NOT_USE_THIS_VARIABLE = locale();
 
 // Constants for parsing & converting memory size strings in standard ES format
 const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|k|kb|m|mb|g|gb|t|tb|p|pb)"};
@@ -1053,8 +1062,8 @@ std::string CStringUtils::wideToNarrow(const std::wstring& wideStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale())
-        .narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
+    std::use_facet<TWCharTCType>(locale()).narrow(
+        wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
     return narrowStr;
 }
 
@@ -1067,14 +1076,9 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale())
-        .widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
+    std::use_facet<TWCharTCType>(locale()).widen(
+        narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
     return wideStr;
-}
-
-const std::locale& CStringUtils::locale() {
-    static std::locale loc;
-    return loc;
 }
 
 std::pair<std::string, bool> CStringUtils::readFileToString(const std::string& fileName) {

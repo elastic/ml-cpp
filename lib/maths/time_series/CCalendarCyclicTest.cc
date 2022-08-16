@@ -12,11 +12,11 @@
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CTimezone.h>
-#include <core/CTriple.h>
 #include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -278,14 +278,14 @@ std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
 
 void CCalendarCyclicTest::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarCyclicTest");
-    core::CMemoryDebug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
-    core::CMemoryDebug::dynamicSize("m_CompressedBucketErrorStats",
+    core::memory_debug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
+    core::memory_debug::dynamicSize("m_CompressedBucketErrorStats",
                                     m_CompressedBucketErrorStats, mem);
 }
 
 std::size_t CCalendarCyclicTest::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_ErrorQuantiles)};
-    mem += core::CMemory::dynamicSize(m_CompressedBucketErrorStats);
+    std::size_t mem{core::memory::dynamicSize(m_ErrorQuantiles)};
+    mem += core::memory::dynamicSize(m_CompressedBucketErrorStats);
     return mem;
 }
 

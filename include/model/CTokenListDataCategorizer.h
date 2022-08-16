@@ -12,7 +12,7 @@
 #define INCLUDED_ml_model_CTokenListDataCategorizer_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
@@ -74,14 +74,14 @@ public:
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTokenListDataCategorizer");
         this->CTokenListDataCategorizerBase::debugMemoryUsage(mem->addChild());
-        core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
+        core::memory_debug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
     }
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override {
         std::size_t mem = 0;
         mem += this->CTokenListDataCategorizerBase::memoryUsage();
-        mem += core::CMemory::dynamicSize(m_SimilarityTester);
+        mem += core::memory::dynamicSize(m_SimilarityTester);
         return mem;
     }
 

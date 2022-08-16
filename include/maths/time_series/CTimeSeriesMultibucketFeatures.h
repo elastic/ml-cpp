@@ -12,8 +12,8 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatures_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatures_h
 
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CMemoryUsage.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
@@ -219,7 +219,7 @@ public:
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTimeSeriesMultibucketMean");
-        core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
+        core::memory_debug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
     }
 
     //! Get the static size of object.
@@ -227,7 +227,7 @@ public:
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const override {
-        return core::CMemory::dynamicSize(m_SlidingWindow);
+        return core::memory::dynamicSize(m_SlidingWindow);
     }
 
     //! Initialize reading state from \p traverser.

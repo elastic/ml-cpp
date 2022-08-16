@@ -12,20 +12,17 @@
 #include <model/CMetricPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
@@ -33,6 +30,7 @@
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>
@@ -40,6 +38,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <map>
 #include <optional>
 
 namespace ml {
@@ -299,8 +298,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -353,8 +351,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
             std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(true, this->personFilter(), this->attributeFilter(), data);
 
             TSizeValuesAndWeightsUMap attributeValuesAndWeights;
@@ -475,7 +472,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
-                core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
+                core_t::TTime latest = std::numeric_limits<core_t::TTime>::lowest();
                 for (const auto& value : attribute.second.s_Values) {
                     latest = std::max(latest, value.first);
                 }
@@ -760,7 +757,7 @@ std::uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) c
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -768,20 +765,20 @@ std::uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) c
 void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricPopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
+    core::memory_debug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
+    core::memory_debug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
-    core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
+    core::memory_debug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
 std::size_t CMetricPopulationModel::memoryUsage() const {
@@ -794,14 +791,14 @@ std::size_t CMetricPopulationModel::memoryUsage() const {
 
 std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     std::size_t mem = this->CPopulationModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_FeatureModels);
-    mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
-    mem += core::CMemory::dynamicSize(m_MemoryEstimator);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_FeatureModels);
+    mem += core::memory::dynamicSize(m_FeatureCorrelatesModels);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_MemoryEstimator);
     return mem;
 }
 

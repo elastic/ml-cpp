@@ -11,20 +11,16 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
@@ -523,8 +519,8 @@ CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
     if (m_Components.usingTrendForPrediction()) {
         bias *= (components + 1.0) / std::max(components, 1.0);
     }
-    LOG_TRACE(<< "mean = " << mean << " variance = " << variance << " bias = " << bias
-              << " scale = " << core::CContainerPrinter::print(scale));
+    LOG_TRACE(<< "mean = " << mean << " variance = " << variance
+              << " bias = " << bias << " scale = " << scale);
 
     scale *= m_Components.meanVarianceScale() / mean;
     scale = max(TVector2x1{1.0} + bias * (scale - TVector2x1{1.0}), TVector2x1{0.0});
@@ -580,19 +576,19 @@ std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
 
 void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecomposition");
-    core::CMemoryDebug::dynamicSize("m_Mediator", m_Mediator, mem);
-    core::CMemoryDebug::dynamicSize("m_ChangePointTest", m_ChangePointTest, mem);
-    core::CMemoryDebug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
-    core::CMemoryDebug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
-    core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
+    core::memory_debug::dynamicSize("m_Mediator", m_Mediator, mem);
+    core::memory_debug::dynamicSize("m_ChangePointTest", m_ChangePointTest, mem);
+    core::memory_debug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
+    core::memory_debug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
+    core::memory_debug::dynamicSize("m_Components", m_Components, mem);
 }
 
 std::size_t CTimeSeriesDecomposition::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Mediator) +
-           core::CMemory::dynamicSize(m_ChangePointTest) +
-           core::CMemory::dynamicSize(m_SeasonalityTest) +
-           core::CMemory::dynamicSize(m_CalendarCyclicTest) +
-           core::CMemory::dynamicSize(m_Components);
+    return core::memory::dynamicSize(m_Mediator) +
+           core::memory::dynamicSize(m_ChangePointTest) +
+           core::memory::dynamicSize(m_SeasonalityTest) +
+           core::memory::dynamicSize(m_CalendarCyclicTest) +
+           core::memory::dynamicSize(m_Components);
 }
 
 std::size_t CTimeSeriesDecomposition::staticSize() const {

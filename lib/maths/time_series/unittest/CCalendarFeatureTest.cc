@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
@@ -87,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testComparison) {
         times.push_back(time);
     }
 
-    LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
+    LOG_DEBUG(<< "times = " << times);
 
     TCalendarFeatureVec features;
 

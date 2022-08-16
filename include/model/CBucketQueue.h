@@ -12,9 +12,8 @@
 #ifndef INCLUDED_ml_model_CBucketQueue_h
 #define INCLUDED_ml_model_CBucketQueue_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CPersistUtils.h>
 #include <core/CoreTypes.h>
 
@@ -109,7 +108,7 @@ public:
     //! internally and from clients that perform restoration of the queue.
     void push(const T& item) {
         m_Queue.push_front(item);
-        LOG_TRACE(<< "Queue after push -> " << core::CContainerPrinter::print(*this));
+        LOG_TRACE(<< "Queue after push -> " << *this);
     }
 
     //! Returns the item in the queue that corresponds to the bucket
@@ -165,12 +164,12 @@ public:
     //! Debug the memory used by this component.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CBucketQueue");
-        core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        core::memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Queue);
+        return core::memory::dynamicSize(m_Queue);
     }
 
     //! Prints the contents of the queue.
@@ -205,11 +204,10 @@ public:
                     LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
                               << " >= " << m_Queue.size() << ". Restoration failed.");
                     return false;
-                } else {
-                    if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
-                        LOG_ERROR(<< "Invalid bucket");
-                        return false;
-                    }
+                }
+                if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
+                    LOG_ERROR(<< "Invalid bucket");
+                    return false;
                 }
             }
         } while (traverser.next());
@@ -243,15 +241,14 @@ private:
                     LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
                               << " >= " << m_Queue.size() << ". Restoration failed.");
                     return false;
-                } else {
-                    m_Queue[i] = initial;
-                    if (traverser.hasSubLevel()) {
-                        if (traverser.traverseSubLevel(
-                                std::bind<bool>(bucketRestore, std::ref(m_Queue[i]),
-                                                std::placeholders::_1)) == false) {
-                            LOG_ERROR(<< "Invalid bucket");
-                            return false;
-                        }
+                }
+                m_Queue[i] = initial;
+                if (traverser.hasSubLevel()) {
+                    if (traverser.traverseSubLevel(
+                            std::bind<bool>(bucketRestore, std::ref(m_Queue[i]),
+                                            std::placeholders::_1)) == false) {
+                        LOG_ERROR(<< "Invalid bucket");
+                        return false;
                     }
                 }
             }

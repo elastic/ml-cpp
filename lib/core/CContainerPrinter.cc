@@ -11,9 +11,17 @@
 
 #include <core/CContainerPrinter.h>
 
+#include <core/CStoredStringPtr.h>
+
 namespace ml {
 namespace core {
+const std::string& CContainerPrinter::printElement(const CStoredStringPtr& value) {
+    if (value == nullptr) {
+        return NULL_STR;
+    }
+    return *value;
+}
 
-// Template defined in the header file.
+const std::string CContainerPrinter::NULL_STR{"\"null\""};
 }
 }

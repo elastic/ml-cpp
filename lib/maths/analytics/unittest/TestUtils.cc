@@ -41,7 +41,8 @@ public:
         : m_Style(style), m_Prior(&prior), m_Target(target), m_X(1u) {}
 
     double operator()(double x) const {
-        double lowerBound, upperBound;
+        double lowerBound;
+        double upperBound;
 
         m_X[0] = x;
         if (!m_Prior->minusLogJointCdf(m_X, maths_t::CUnitWeights::SINGLE_UNIT,
@@ -80,10 +81,7 @@ bool identity(double x, double& result) {
 //! Computes the residual from a specified mean.
 class CResidual {
 public:
-    using result_type = double;
-
-public:
-    CResidual(double mean) : m_Mean(mean) {}
+    explicit CResidual(double mean) : m_Mean(mean) {}
 
     bool operator()(double x, double& result) const {
         result = (x - m_Mean) * (x - m_Mean);
@@ -140,7 +138,8 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
 
     result = 0.0;
 
-    double lowerBound, upperBound;
+    double lowerBound;
+    double upperBound;
     maths_t::ETail tail;
     if (!m_Prior->probabilityOfLessLikelySamples(calculation, samples,
                                                  maths_t::CUnitWeights::SINGLE_UNIT,
@@ -205,7 +204,8 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
 
     result = 0.0;
 
-    double a, b;
+    double a;
+    double b;
     if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
         !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR(<< "Unable to compute mean likelihood");
@@ -249,7 +249,8 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
 
     result = 0.0;
 
-    double a, b;
+    double a;
+    double b;
     if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
         !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR(<< "Unable to compute mean likelihood");

@@ -27,6 +27,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <numeric>
 
 using TSplitsDerivatives = ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CSplitsDerivatives;
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TSplitsDerivatives)

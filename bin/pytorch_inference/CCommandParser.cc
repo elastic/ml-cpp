@@ -11,7 +11,6 @@
 
 #include "CCommandParser.h"
 
-#include <core/CCompressedLfuCache.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
@@ -102,7 +101,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
             }
             break;
         case EMessageType::E_ControlMessage:
-            controlHandler(jsonToControlMessage(doc));
+            controlHandler(*m_RequestCache, jsonToControlMessage(doc));
             break;
         case EMessageType::E_MalformedMessage:
             continue;
@@ -137,22 +136,32 @@ CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
                                            const TErrorHandlerFunc& errorHandler) {
 
     const rapidjson::Value& control = doc[CONTROL];
-    if (control.IsInt() == false || control.GetInt() < 0 ||
-        control.GetInt() >= EControlMessageType::E_Unknown) {
+    EControlMessageType controlMessageType =
+        (control.IsInt() && control.GetInt() >= 0 &&
+         control.GetInt() < EControlMessageType::E_Unknown)
+            ? static_cast<EControlMessageType>(control.GetInt())
+            : EControlMessageType::E_Unknown;
+
+    switch (controlMessageType) {
+    case E_NumberOfAllocations: {
+        if (doc.HasMember(NUM_ALLOCATIONS) == false) {
+            errorHandler(UNKNOWN_ID, "Invalid control message: missing field [" +
+                                         NUM_ALLOCATIONS + "]");
+            return EMessageType::E_MalformedMessage;
+        }
+        const rapidjson::Value& numAllocations = doc[NUM_ALLOCATIONS];
+        if (numAllocations.IsInt() == false) {
+            errorHandler(UNKNOWN_ID, "Invalid control message: field [" +
+                                         NUM_ALLOCATIONS + "] is not an integer");
+            return EMessageType::E_MalformedMessage;
+        }
+        break;
+    }
+    case E_ClearCache:
+        // No extra arguments needed
+        break;
+    case E_Unknown:
         errorHandler(UNKNOWN_ID, "Invalid control message: unknown control message type");
-        return EMessageType::E_MalformedMessage;
-    }
-
-    if (doc.HasMember(NUM_ALLOCATIONS) == false) {
-        errorHandler(UNKNOWN_ID, "Invalid control message: missing field [" +
-                                     NUM_ALLOCATIONS + "]");
-        return EMessageType::E_MalformedMessage;
-    }
-
-    const rapidjson::Value& numThreads = doc[NUM_ALLOCATIONS];
-    if (numThreads.IsInt() == false) {
-        errorHandler(UNKNOWN_ID, "Invalid control message: field [" +
-                                     NUM_ALLOCATIONS + "] is not an integer");
         return EMessageType::E_MalformedMessage;
     }
 
@@ -282,8 +291,18 @@ CCommandParser::jsonToInferenceRequest(const rapidjson::Document& doc) {
 
 CCommandParser::SControlMessage
 CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
-    return {static_cast<EControlMessageType>(doc[CONTROL].GetInt()),
-            doc[NUM_ALLOCATIONS].GetInt(), doc[REQUEST_ID].GetString()};
+    auto controlMessageType = static_cast<EControlMessageType>(doc[CONTROL].GetInt());
+    switch (controlMessageType) {
+    case E_NumberOfAllocations:
+        return {controlMessageType, doc[NUM_ALLOCATIONS].GetInt(),
+                doc[REQUEST_ID].GetString()};
+    case E_ClearCache:
+        return {controlMessageType, 0, doc[REQUEST_ID].GetString()};
+    case E_Unknown:
+        break;
+    }
+
+    LOG_ABORT(<< "Programmatic error - incorrect validation of control message");
 }
 
 CCommandParser::CRequestCache::CRequestCache(std::size_t memoryLimitBytes)

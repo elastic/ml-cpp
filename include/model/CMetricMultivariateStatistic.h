@@ -14,7 +14,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/CChecksum.h>
@@ -41,8 +41,8 @@ namespace model {
 //!   -# Implementations for every function in CMetricStatisticsWrapper
 //!   -# Member operator +=
 //!   -# Supported by maths::common::CChecksum::calculate
-//!   -# Supported by core::CMemoryDebug::dynamicSize
-//!   -# Supported by core::CMemory::dynamicSize
+//!   -# Supported by core::memory_debug::dynamicSize
+//!   -# Supported by core::memory::dynamicSize
 //!   -# Have overload of operator<<
 template<class STATISTIC>
 class CMetricMultivariateStatistic {
@@ -147,19 +147,12 @@ public:
     //! Debug the memory used by the statistic.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMetricPartialStatistic", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_Value", m_Values, mem);
+        core::memory_debug::dynamicSize("m_Value", m_Values, mem);
     }
 
     //! Get the memory used by the statistic.
     std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Values);
-    }
-
-    //! Print partial statistic
-    std::string print() const {
-        std::ostringstream result;
-        result << core::CContainerPrinter::print(m_Values);
-        return result.str();
+        return sizeof(*this) + core::memory::dynamicSize(m_Values);
     }
 
 private:
@@ -167,16 +160,15 @@ private:
 
 private:
     TStatistic2Vec m_Values;
+
+    friend std::ostream&
+    operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
+        return o << core::CContainerPrinter::print(statistic.m_Values);
+    }
 };
 
 template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
-
-template<class STATISTIC>
-std::ostream& operator<<(std::ostream& o,
-                         const CMetricMultivariateStatistic<STATISTIC>& statistic) {
-    return o << statistic.print();
-}
 }
 }
 

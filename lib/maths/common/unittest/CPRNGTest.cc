@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CPRNG.h>
@@ -77,8 +76,8 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -103,8 +102,8 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -183,8 +182,8 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -209,8 +208,8 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -234,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     maths::common::CPRNG::CXorOShiro128Plus rng4(rng1);
     maths::common::CPRNG::CXorOShiro128Plus rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < std::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
@@ -305,8 +304,8 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -331,8 +330,8 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "p1 = " << p1);
+        LOG_DEBUG(<< "p2 = " << p2);
         LOG_DEBUG(<< "m1 = " << maths::common::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::common::CBasicStatistics::mean(m2));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(m1) >
@@ -356,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     maths::common::CPRNG::CXorShift1024Mult rng4(rng1);
     maths::common::CPRNG::CXorShift1024Mult rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < std::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);

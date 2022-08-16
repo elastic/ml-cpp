@@ -95,7 +95,7 @@ public:
     //@}
 
 public:
-    CQDigest(std::uint64_t k, double decayRate = 0.0);
+    explicit CQDigest(std::uint64_t k, double decayRate = 0.0);
 
     //! \name Serialization
     //@{

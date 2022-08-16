@@ -10,9 +10,8 @@
  */
 #include <model/CCategoryExamplesCollector.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -141,8 +140,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
     } while (traverser.next());
 
     if (categoryId.isValid()) {
-        LOG_TRACE(<< "Restoring examples for category " << categoryId << ": "
-                  << core::CContainerPrinter::print(examples));
+        LOG_TRACE(<< "Restoring examples for category " << categoryId << ": " << examples);
         m_ExamplesByCategory[categoryId].swap(examples);
     }
 
@@ -155,12 +153,12 @@ void CCategoryExamplesCollector::clear() {
 
 void CCategoryExamplesCollector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCategoryExamplesCollector");
-    core::CMemoryDebug::dynamicSize("m_ExamplesByCategory", m_ExamplesByCategory, mem);
+    core::memory_debug::dynamicSize("m_ExamplesByCategory", m_ExamplesByCategory, mem);
 }
 
 std::size_t CCategoryExamplesCollector::memoryUsage() const {
     std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_ExamplesByCategory);
+    mem += core::memory::dynamicSize(m_ExamplesByCategory);
     return mem;
 }
 

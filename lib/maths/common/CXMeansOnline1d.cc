@@ -11,9 +11,8 @@
 
 #include <maths/common/CXMeansOnline1d.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -385,17 +384,17 @@ void BICGain(maths_t::EDataType dataType,
 
     double logn = std::log(n);
     double ll1 =
-        min(distributions.haveNormal() ? ll1n : boost::numeric::bounds<double>::highest(),
-            distributions.haveLogNormal() ? ll1l : boost::numeric::bounds<double>::highest(),
-            haveGamma ? ll1g : boost::numeric::bounds<double>::highest()) +
+        min(distributions.haveNormal() ? ll1n : std::numeric_limits<double>::max(),
+            distributions.haveLogNormal() ? ll1l : std::numeric_limits<double>::max(),
+            haveGamma ? ll1g : std::numeric_limits<double>::max()) +
         distributions.parameters() * logn;
     double ll2 =
-        min(distributions.haveNormal() ? ll2nl : boost::numeric::bounds<double>::highest(),
-            distributions.haveLogNormal() ? ll2ll : boost::numeric::bounds<double>::highest(),
-            haveGamma ? ll2gl : boost::numeric::bounds<double>::highest()) +
-        min(distributions.haveNormal() ? ll2nr : boost::numeric::bounds<double>::highest(),
-            distributions.haveLogNormal() ? ll2lr : boost::numeric::bounds<double>::highest(),
-            haveGamma ? ll2gr : boost::numeric::bounds<double>::highest()) +
+        min(distributions.haveNormal() ? ll2nl : std::numeric_limits<double>::max(),
+            distributions.haveLogNormal() ? ll2ll : std::numeric_limits<double>::max(),
+            haveGamma ? ll2gl : std::numeric_limits<double>::max()) +
+        min(distributions.haveNormal() ? ll2nr : std::numeric_limits<double>::max(),
+            distributions.haveLogNormal() ? ll2lr : std::numeric_limits<double>::max(),
+            haveGamma ? ll2gr : std::numeric_limits<double>::max()) +
         (2.0 * distributions.parameters() + 1.0) * logn;
 
     LOG_TRACE(<< "BIC(1) = " << ll1 << ", BIC(2) = " << ll2);
@@ -518,18 +517,18 @@ bool splitSearch(double minimumCount,
     // same constraints (to avoid merging the split straight away).
 
     for (;;) {
-        LOG_TRACE(<< "node = " << core::CContainerPrinter::print(node));
-        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
+        LOG_TRACE(<< "node = " << node);
+        LOG_TRACE(<< "categories = " << categories);
 
         nodeCategories.assign(categories.begin() + node.first,
                               categories.begin() + node.second);
 
         CNaturalBreaksClassifier::naturalBreaks(
             nodeCategories, 2, 0, CNaturalBreaksClassifier::E_TargetDeviation, candidate);
-        LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
+        LOG_TRACE(<< "candidate = " << candidate);
 
         if (candidate.size() != 2) {
-            LOG_ERROR(<< "Expected 2-split: " << core::CContainerPrinter::print(candidate));
+            LOG_ERROR(<< "Expected 2-split: " << candidate);
             break;
         }
         if (candidate[0] == 0 || candidate[0] == nodeCategories.size()) {
@@ -1017,13 +1016,13 @@ double CXMeansOnline1d::probability(std::size_t index) const {
 
 void CXMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d");
-    core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
-    core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+    core::memory_debug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
+    core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
 std::size_t CXMeansOnline1d::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
-    mem += core::CMemory::dynamicSize(m_Clusters);
+    std::size_t mem = core::memory::dynamicSize(m_ClusterIndexGenerator);
+    mem += core::memory::dynamicSize(m_Clusters);
     return mem;
 }
 
@@ -1064,8 +1063,8 @@ std::string CXMeansOnline1d::printClusters() const {
     static const double RANGE = 99.9;
     static const unsigned int POINTS = 201;
 
-    TDoubleDoublePr range(boost::numeric::bounds<double>::highest(),
-                          boost::numeric::bounds<double>::lowest());
+    TDoubleDoublePr range(std::numeric_limits<double>::max(),
+                          std::numeric_limits<double>::lowest());
 
     for (const auto& cluster : m_Clusters) {
         const CPrior& prior = cluster.prior();
@@ -1267,8 +1266,8 @@ TDoubleDoublePr CXMeansOnline1d::winsorizationInterval() const {
     if (f * this->count() < 1.0) {
         // Don't bother if we don't expect a sample outside the
         // Winsorization interval.
-        return {boost::numeric::bounds<double>::lowest() / 2.0,
-                boost::numeric::bounds<double>::highest() / 2.0};
+        return {std::numeric_limits<double>::lowest() / 2.0,
+                std::numeric_limits<double>::max() / 2.0};
     }
 
     // The Winsorization interval are the positions corresponding
@@ -1562,13 +1561,13 @@ std::uint64_t CXMeansOnline1d::CCluster::checksum(std::uint64_t seed) const {
 
 void CXMeansOnline1d::CCluster::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d::CCluster");
-    core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
-    core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
+    core::memory_debug::dynamicSize("m_Prior", m_Prior, mem);
+    core::memory_debug::dynamicSize("m_Structure", m_Structure, mem);
 }
 
 std::size_t CXMeansOnline1d::CCluster::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Prior);
-    mem += core::CMemory::dynamicSize(m_Structure);
+    std::size_t mem = core::memory::dynamicSize(m_Prior);
+    mem += core::memory::dynamicSize(m_Structure);
     return mem;
 }
 

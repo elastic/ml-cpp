@@ -12,12 +12,8 @@
 #ifndef INCLUDED_ml_core_CHashing_h
 #define INCLUDED_ml_core_CHashing_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonInstantiatable.h>
-#include <core/CStoredStringPtr.h>
 #include <core/ImportExport.h>
-
-#include <boost/random/mersenne_twister.hpp>
 
 #include <cstdint>
 #include <functional>
@@ -26,6 +22,7 @@
 
 namespace ml {
 namespace core {
+class CStoredStringPtr;
 
 //! \brief Hashing functionality.
 //!
@@ -59,7 +56,7 @@ public:
         class CORE_EXPORT CUInt32Hash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero() { return true; }
+            static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         public:
             CUInt32Hash();
@@ -101,7 +98,7 @@ public:
         class CORE_EXPORT CUInt32UnrestrictedHash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero() { return true; }
+            static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         public:
             CUInt32UnrestrictedHash();
@@ -209,7 +206,7 @@ public:
         //! Converts hash function objects to a string.
         class CORE_EXPORT CToString {
         public:
-            CToString(const char delimiter);
+            explicit CToString(const char delimiter);
 
             std::string operator()(const CUInt32UnrestrictedHash& hash) const;
             std::string operator()(const CUInt32Hash& hash) const;
@@ -221,7 +218,7 @@ public:
         //! Initializes hash function objects from a string.
         class CORE_EXPORT CFromString {
         public:
-            CFromString(const char delimiter);
+            explicit CFromString(const char delimiter);
 
             bool operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const;
             bool operator()(const std::string& token, CUInt32Hash& hash) const;
@@ -290,14 +287,6 @@ public:
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
         static void generateHashes(std::size_t k, std::size_t n, std::uint32_t m, TUInt32VecHashVec& result);
-
-    private:
-        //! Our random number generator for sampling hash function.
-        static boost::random::mt11213b ms_Generator;
-
-        //! Used by generateHashes to protect non thread safe calls
-        //! to the random number generator.
-        static CFastMutex ms_Mutex;
     };
 
     //! MurmurHash2: fast 32-bit hash.
@@ -372,10 +361,10 @@ public:
     class CMurmurHash2BT {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     public:
-        CMurmurHash2BT(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
+        explicit CMurmurHash2BT(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
         std::size_t operator()(const T& key) const;
 
@@ -390,22 +379,18 @@ public:
     class CORE_EXPORT CMurmurHash2String {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:
-        CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
+        explicit CMurmurHash2String(std::size_t seed = 0x5bd1e995)
+            : m_Seed(seed) {}
 
         std::size_t operator()(const std::string& key) const;
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const {
-            if (key) {
-                return this->operator()(*key);
-            }
-            return m_Seed;
-        }
+        std::size_t operator()(const CStoredStringPtr& key) const;
 
     private:
         std::size_t m_Seed;
@@ -419,23 +404,18 @@ public:
     class CORE_EXPORT CSafeMurmurHash2String64 {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
 
     public:
-        CSafeMurmurHash2String64(std::uint64_t seed = 0x5bd1e995)
+        explicit CSafeMurmurHash2String64(std::uint64_t seed = 0x5bd1e995)
             : m_Seed(seed) {}
 
         std::uint64_t operator()(const std::string& key) const;
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const {
-            if (key) {
-                return this->operator()(*key);
-            }
-            return m_Seed;
-        }
+        std::size_t operator()(const CStoredStringPtr& key) const;
 
     private:
         std::uint64_t m_Seed;
@@ -474,16 +454,6 @@ template<typename T>
 inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
     return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
         &key, static_cast<int>(sizeof(key)), m_Seed);
-}
-
-inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-        key.data(), static_cast<int>(key.size()), m_Seed);
-}
-
-inline std::uint64_t CHashing::CSafeMurmurHash2String64::
-operator()(const std::string& key) const {
-    return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 }
 }

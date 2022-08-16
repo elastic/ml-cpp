@@ -13,7 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
@@ -25,8 +25,6 @@
 namespace ml {
 namespace maths {
 namespace analytics {
-using namespace boosted_tree_detail;
-
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
@@ -59,7 +57,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
 
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = rowMask;
-        CSplitsDerivatives tmp{workspace.derivatives()[0]};
+        CSplitsDerivatives tmp{workspace.copy(workspace.derivatives()[0])};
         this->derivatives() = std::move(tmp);
     }
 }
@@ -92,7 +90,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     workspace.reducedDerivatives(treeFeatureBag).swap(this->derivatives());
 
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.reducedDerivatives(treeFeatureBag)};
+        CSplitsDerivatives tmp{workspace.copy(workspace.reducedDerivatives(treeFeatureBag))};
         this->rowMask() = workspace.reducedMask(parent.rowMask().size());
         this->derivatives() = std::move(tmp);
     }
@@ -120,10 +118,13 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     this->bestSplitStatistics() = this->computeBestSplitStatistics(
         workspace.numberThreads(), regularization, nodeFeatureBag);
 
-    // Lazily compute the row mask to avoid unnecessary work.
     if (this->gain() >= workspace.minimumGain()) {
+        // Lazily compute the row mask to avoid unnecessary work.
         this->rowMask() = std::move(parent.rowMask());
         this->rowMask() ^= workspace.reducedMask(this->rowMask().size());
+    } else {
+        // We're going to discard this node so recycle its derivatives.
+        workspace.recycle(std::move(this->derivatives()));
     }
 }
 
@@ -152,38 +153,46 @@ CBoostedTreeLeafNodeStatisticsScratch::split(std::size_t leftChildId,
                                              CWorkspace& workspace) {
     TPtr leftChild;
     TPtr rightChild;
+    bool recycle{true};
+
     if (this->leftChildHasFewerRows()) {
         if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-            leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+            leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
                 leftChildId, *this, frame, regularization, treeFeatureBag,
                 nodeFeatureBag, true /*is left child*/, split, workspace);
             if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-                rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+                rightChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
                     rightChildId, std::move(*this), regularization,
                     treeFeatureBag, nodeFeatureBag, workspace);
+                recycle = false;
             }
         } else if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-            rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+            rightChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
                 rightChildId, *this, frame, regularization, treeFeatureBag,
                 nodeFeatureBag, false /*is left child*/, split, workspace);
         }
-        return {std::move(leftChild), std::move(rightChild)};
+    } else {
+        if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
+            rightChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
+                rightChildId, *this, frame, regularization, treeFeatureBag,
+                nodeFeatureBag, false /*is left child*/, split, workspace);
+            if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
+                leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
+                    leftChildId, std::move(*this), regularization,
+                    treeFeatureBag, nodeFeatureBag, workspace);
+                recycle = false;
+            }
+        } else if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsScratch>(
+                leftChildId, *this, frame, regularization, treeFeatureBag,
+                nodeFeatureBag, true /*is left child*/, split, workspace);
+        }
     }
 
-    if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-        rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-            rightChildId, *this, frame, regularization, treeFeatureBag,
-            nodeFeatureBag, false /*is left child*/, split, workspace);
-        if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-            leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                leftChildId, std::move(*this), regularization, treeFeatureBag,
-                nodeFeatureBag, workspace);
-        }
-    } else if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-        leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-            leftChildId, *this, frame, regularization, treeFeatureBag,
-            nodeFeatureBag, true /*is left child*/, split, workspace);
+    if (recycle) {
+        workspace.recycle(std::move(this->derivatives()));
     }
+
     return {std::move(leftChild), std::move(rightChild)};
 }
 

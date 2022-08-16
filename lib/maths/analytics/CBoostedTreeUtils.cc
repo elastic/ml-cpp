@@ -27,28 +27,51 @@ namespace maths {
 namespace analytics {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
-
 namespace {
-using TDoubleVector = common::CDenseVector<double>;
-using TDoubleVectorVec = std::vector<TDoubleVector>;
-using TDoubleVectorVecVec = std::vector<TDoubleVectorVec>;
+auto branchSizes(std::size_t n) {
+    TSizeVec branchSizes;
+    std::size_t nextPow5{5};
+    for (/**/; nextPow5 < n; nextPow5 *= 5) {
+        branchSizes.push_back(nextPow5);
+    }
+    std::reverse(branchSizes.begin(), branchSizes.end());
+    return std::make_pair(std::move(branchSizes), nextPow5);
+}
+}
 
-void propagateLossGradients(std::size_t node,
-                            const std::vector<CBoostedTreeNode>& tree,
-                            TDoubleVectorVec& lossGradients) {
+CSearchTree::CSearchTree(const TFloatVec& values) : m_Size{values.size()} {
+    if (m_Size > 0) {
+        m_Min = values[0].cstorage();
+        std::size_t nextPow5;
+        std::tie(m_BranchSizes, nextPow5) = branchSizes(values.size());
+        // Allow space for padding with inf.
+        m_Values.reserve(m_Size + 4 * m_BranchSizes.size());
+        this->build(values, 0, nextPow5);
+        LOG_TRACE(<< "flat tree = " << m_Values);
+    }
+    LOG_TRACE(<< "size = " << m_Size << ", padded size = " << m_BranchSizes);
+}
 
-    if (tree[node].isLeaf()) {
+void CSearchTree::build(const TFloatVec& values, std::size_t a, std::size_t b) {
+    // Building depth first gives the lower expected jump size.
+    std::size_t stride{(b - a) / 5};
+    if (stride == 0) {
         return;
     }
-
-    propagateLossGradients(tree[node].leftChildIndex(), tree, lossGradients);
-    propagateLossGradients(tree[node].rightChildIndex(), tree, lossGradients);
-
-    // A post order depth first traversal means that loss gradients are written
-    // to child nodes before they are read here.
-    lossGradients[node] += lossGradients[tree[node].leftChildIndex()];
-    lossGradients[node] += lossGradients[tree[node].rightChildIndex()];
+    LOG_TRACE(<< "stride = " << stride);
+    for (std::size_t i = a + stride; i < b; i += stride) {
+        m_Values.push_back(i < values.size() ? values[i].cstorage() : INF);
+    }
+    for (std::size_t i = a; i < b; i += stride) {
+        if (i < values.size()) {
+            this->build(values, i, i + stride);
+        }
+    }
 }
+
+std::string CSearchTree::printNode(std::size_t node) const {
+    return core::CContainerPrinter::print(m_Values.begin() + node,
+                                          m_Values.begin() + node + 4);
 }
 
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree) {
@@ -128,107 +151,6 @@ void writeLossCurvature(const TRowRef& row,
     // of std::function small size optimization to avoid heap allocations.
     loss.curvature(encodedRow, newExample, prediction, actual,
                    [&writer](std::size_t i, double value) { writer(i, value); }, weight);
-}
-
-TDoubleVec
-retrainTreeSelectionProbabilities(std::size_t numberThreads,
-                                  const core::CDataFrame& frame,
-                                  const TSizeVec& extraColumns,
-                                  std::size_t dependentVariable,
-                                  const CDataFrameCategoryEncoder& encoder,
-                                  const core::CPackedBitVector& trainingDataRowMask,
-                                  const CLoss& loss,
-                                  const std::vector<std::vector<CBoostedTreeNode>>& forest) {
-
-    using TRowItr = core::CDataFrame::TRowItr;
-
-    // The first tree is used to centre the data and we never retrain this.
-
-    if (forest.size() < 2) {
-        return {};
-    }
-
-    std::size_t numberLossParameters{loss.numberParameters()};
-    LOG_TRACE(<< "dependent variable " << dependentVariable);
-    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
-
-    auto makeComputeTotalLossGradient = [&]() {
-        return [&](TDoubleVectorVecVec& leafLossGradients,
-                   const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = readPrediction(*row, extraColumns, numberLossParameters);
-                double actual{readActual(*row, dependentVariable)};
-                double weight{readExampleWeight(*row, extraColumns)};
-                for (std::size_t i = 0; i < forest.size(); ++i) {
-                    auto encodedRow = encoder.encode(*row);
-                    std::size_t leaf{root(forest[i]).leafIndex(encodedRow, forest[i])};
-                    auto writer = [&](std::size_t j, double gradient) {
-                        leafLossGradients[i][leaf](j) = gradient;
-                    };
-                    loss.gradient(encodedRow, true, prediction, actual, writer, weight);
-                }
-            }
-        };
-    };
-
-    auto makeZeroLeafLossGradients = [&] {
-        TDoubleVectorVecVec leafLossGradients;
-        leafLossGradients.reserve(forest.size());
-        for (const auto& tree : forest) {
-            leafLossGradients.emplace_back(tree.size(), TDoubleVector::Zero(numberLossParameters));
-        }
-        return leafLossGradients;
-    };
-
-    auto computeLeafLossGradients = [&](const core::CPackedBitVector& rowMask) {
-        auto results = frame.readRows(
-            numberThreads, 0, frame.numberRows(),
-            core::bindRetrievableState(makeComputeTotalLossGradient(),
-                                       makeZeroLeafLossGradients()),
-            &rowMask);
-
-        TDoubleVectorVecVec leafLossGradients{std::move(results.first[0].s_FunctionState)};
-        for (std::size_t i = 1; i < results.first.size(); ++i) {
-            auto& resultsForWorker = results.first[i].s_FunctionState;
-            for (std::size_t j = 0; j < resultsForWorker.size(); ++j) {
-                for (std::size_t k = 0; k < resultsForWorker[j].size(); ++k) {
-                    leafLossGradients[j][k] += resultsForWorker[j][k];
-                }
-            }
-        }
-
-        return leafLossGradients;
-    };
-
-    // Compute the sum of loss gradients for each node.
-    auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
-    for (std::size_t i = 0; i < forest.size(); ++i) {
-        propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
-    }
-    LOG_TRACE(<< "loss gradients = "
-              << core::CContainerPrinter::print(trainingDataLossGradients));
-
-    // We are interested in choosing trees for which the total gradient of the
-    // loss at the current predictions for all nodes is the largest. These trees,
-    // at least locally, give the largest gain in loss by adjusting. Gradients
-    // of internal nodes are defined as the sum of the leaf gradients below them.
-    // We include these because they capture the fact that certain branches of
-    // specific trees may be retrained for greater effect.
-
-    TDoubleVec result(forest.size(), 0.0);
-    double Z{0.0};
-    for (std::size_t i = 1; i < forest.size(); ++i) {
-        for (std::size_t j = 1; j < forest[i].size(); ++j) {
-            result[i] += trainingDataLossGradients[i][j].lpNorm<1>();
-        }
-        Z += result[i];
-    }
-    for (auto& p : result) {
-        p /= Z;
-    }
-    LOG_TRACE(<< "probabilities = " << core::CContainerPrinter::print(result));
-
-    return result;
 }
 }
 }

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_common_CKdTree_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/CAnnotatedVector.h>
@@ -22,6 +22,7 @@
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTypeTraits.h>
 
 #include <boost/operators.hpp>
@@ -144,7 +145,7 @@ public:
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(s_Point);
+            return core::memory::dynamicSize(s_Point);
         }
 
         //! Estimate the amount of memory this node will use.
@@ -367,7 +368,7 @@ public:
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Nodes);
+        return core::memory::dynamicSize(m_Nodes);
     }
 
     //! Estimate the amount of memory the k-d tree will use.

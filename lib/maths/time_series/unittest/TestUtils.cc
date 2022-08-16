@@ -80,9 +80,6 @@ bool identity(double x, double& result) {
 //! Computes the residual from a specified mean.
 class CResidual {
 public:
-    using result_type = double;
-
-public:
     CResidual(double mean) : m_Mean(mean) {}
 
     bool operator()(double x, double& result) const {

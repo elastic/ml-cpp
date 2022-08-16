@@ -21,6 +21,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <set>
+#include <vector>
+
 BOOST_AUTO_TEST_SUITE(CBjkstUniqueValuesTest)
 
 using namespace ml;

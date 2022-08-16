@@ -11,6 +11,9 @@
 
 #include <maths/common/CMathsFuncs.h>
 
+#include <core/CLogger.h>
+#include <core/CSmallVector.h>
+
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 
 #include <cmath>

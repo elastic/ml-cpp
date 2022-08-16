@@ -13,13 +13,14 @@
 #define INCLUDED_ml_maths_common_t_MathsTypes_h
 
 #include <core/CFloatStorage.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/ImportExport.h>
 
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -252,19 +253,11 @@ bool isWinsorised(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit outlier weight applies.
 template<typename VECTOR>
-bool isWinsorised(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleOutlierWeight].begin(),
-                       weights[E_SampleOutlierWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool isWinsorised(const TWeightsAry<VECTOR>& weights);
 
 //! Check if a non-unit outlier weight applies.
 template<typename VECTOR>
-bool isWinsorised(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return isWinsorised(weight);
-    });
-}
+bool isWinsorised(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Get a weights array with seasonal variance scale \p weight.
 template<typename VECTOR>
@@ -308,19 +301,11 @@ bool hasSeasonalVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasSeasonalVarianceScale(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleSeasonalVarianceScaleWeight].begin(),
-                       weights[E_SampleSeasonalVarianceScaleWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool hasSeasonalVarianceScale(const TWeightsAry<VECTOR>& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasSeasonalVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return hasSeasonalVarianceScale(weight);
-    });
-}
+bool hasSeasonalVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Get a weights array with count variance scale \p weight.
 template<typename VECTOR>
@@ -371,19 +356,11 @@ bool hasCountVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasCountVarianceScale(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleCountVarianceScaleWeight].begin(),
-                       weights[E_SampleCountVarianceScaleWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool hasCountVarianceScale(const TWeightsAry<VECTOR>& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return hasCountVarianceScale(weight);
-    });
-}
+bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Enumerates the possible probability of less likely sample calculations.
 //!

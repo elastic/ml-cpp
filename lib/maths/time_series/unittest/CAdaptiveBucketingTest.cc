@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
         separation = 200.0;
         expected = "[0, 200, 4500, 9000, 25700, 43100, 73000, 74000, 84300]";
         maths::time_series::CAdaptiveBucketing::spread(0.0, period, separation, points);
-        LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
+        LOG_DEBUG(<< "spread = " << points);
         BOOST_REQUIRE_EQUAL(expected, core::CContainerPrinter::print(points));
     }
     {
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
         double separation{126.0};
         std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
         maths::time_series::CAdaptiveBucketing::spread(0.0, period, separation, points);
-        LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
+        LOG_DEBUG(<< "spread = " << points);
         BOOST_REQUIRE_EQUAL(expected, core::CContainerPrinter::print(points));
     }
     test::CRandomNumbers rng;

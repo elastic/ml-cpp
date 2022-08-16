@@ -58,6 +58,24 @@ public:
         return baseReturnCode;
     }
 
+    //! Add a pre-formatted key and value to the output.
+    bool rawKeyAndValue(const std::string& keyAndValue) {
+        // We achieve this by pretending we're just adding the key, i.e.
+        // a string, but since it's written raw it can contain both key
+        // and value.
+        if (this->RawValue(keyAndValue.c_str(), keyAndValue.length(), rapidjson::kStringType)) {
+            // However, to avoiding tripping assertions we need to increment
+            // the count of values within the level by an extra 1 so that it
+            // includes the value that was bundled with the key. (The
+            // RawValue() call above will have added 1 for the key.)
+            TRapidJsonWriterBase::level_stack_
+                .template Top<typename TRapidJsonWriterBase::Level>()
+                ->valueCount++;
+            return true;
+        }
+        return false;
+    }
+
     //! Write JSON document to outputstream
     //! \note This overwrite is needed because the members of rapidjson::Writer
     //! are not virtual and we need to avoid "slicing" the writer to ensure that

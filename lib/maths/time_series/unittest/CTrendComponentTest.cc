@@ -25,11 +25,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <cmath>
 #include <fstream>
-#include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CTrendComponentTest)
 

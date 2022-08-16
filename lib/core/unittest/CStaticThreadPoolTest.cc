@@ -249,8 +249,7 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
                 // We don't care about either because effectively we only care that
                 // the work is soon limited to fewer threads than the limit after
                 // making a change.
-                LOG_DEBUG(<< "threads in use = "
-                          << core::CContainerPrinter::print(executionThreads));
+                LOG_DEBUG(<< "threads in use = " << executionThreads);
                 auto activeThreads = std::count_if(
                     executionThreads.begin(), executionThreads.end(),
                     [](const auto& thread) { return thread.second > 1; });

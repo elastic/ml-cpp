@@ -11,16 +11,15 @@
 
 #include <maths/analytics/CBoostedTreeLeafNodeStatisticsThreading.h>
 
-#include <maths/analytics/CBoostedTreeUtils.h>
-
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CTools.h>
 
+#include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
+
 namespace ml {
 namespace maths {
 namespace analytics {
-using namespace boosted_tree_detail;
 
 std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForAggregateLossDerivatives(
     std::size_t numberThreads,
@@ -186,7 +185,8 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(doub
             }
             hessian.diagonal().array() += eps;
         }
-        return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
+        // We couldn't invert the Hessian: discard this split.
+        return -CBoostedTreeLeafNodeStatistics::INF / 2.0;
     };
 }
 
@@ -239,7 +239,8 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(int 
             }
             hessian.diagonal().array() += eps;
         }
-        return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
+        // We couldn't invert the Hessian: discard this split.
+        return -CBoostedTreeLeafNodeStatistics::INF / 2.0;
     };
 }
 }

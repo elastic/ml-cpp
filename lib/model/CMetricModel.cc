@@ -11,17 +11,14 @@
 
 #include <model/CMetricModel.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
@@ -33,16 +30,12 @@
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
-#include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <algorithm>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -230,8 +223,7 @@ void CMetricModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(<< model_t::print(feature)
-                      << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << " data = " << data);
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
             for (const auto& data_ : data) {
@@ -294,9 +286,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                 double scaledCountWeight = emptyBucketWeight * countWeight;
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
-                          << ", feature = " << model_t::print(feature)
-                          << ", samples = " << core::CContainerPrinter::print(samples)
-                          << ", isInteger = " << data_.second.s_IsInteger
+                          << ", feature = " << model_t::print(feature) << ", samples = "
+                          << samples << ", isInteger = " << data_.second.s_IsInteger
                           << ", person = " << this->personName(pid)
                           << ", dimension = " << dimension << ", count weight = " << countWeight
                           << ", scaled count weight = " << scaledCountWeight
@@ -475,7 +466,7 @@ std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 #undef KEY
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -483,15 +474,15 @@ std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 void CMetricModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
@@ -501,11 +492,11 @@ std::size_t CMetricModel::memoryUsage() const {
 
 std::size_t CMetricModel::computeMemoryUsage() const {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 
@@ -535,7 +526,7 @@ void CMetricModel::currentBucketStartTime(core_t::TTime time) {
     m_CurrentBucketStats.s_StartTime = time;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CMetricModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -651,7 +642,7 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

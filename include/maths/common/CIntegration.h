@@ -27,6 +27,7 @@
 #include <atomic>
 #include <cmath>
 #include <functional>
+#include <map>
 #include <numeric>
 
 namespace ml {
@@ -292,9 +293,8 @@ public:
                                       double tolerance,
                                       double& result) {
         if (intervals.size() != fIntervals.size()) {
-            LOG_ERROR(<< "Inconsistent intervals and function integrals: "
-                      << core::CContainerPrinter::print(intervals) << " "
-                      << core::CContainerPrinter::print(fIntervals));
+            LOG_ERROR(<< "Inconsistent intervals and function integrals: " << intervals
+                      << " " << fIntervals);
             return false;
         }
 
@@ -489,7 +489,7 @@ public:
                 LOG_TRACE(<< "scale = " << scale);
 
                 do {
-                    LOG_TRACE(<< "indices = " << core::CContainerPrinter::print(indices));
+                    LOG_TRACE(<< "indices = " << indices);
 
                     unsigned int n = 1;
                     for (std::size_t i = 0; i < indices.size(); ++i) {
@@ -510,8 +510,8 @@ public:
                             points[i](j) = a[k];
                         }
                     }
-                    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
-                    LOG_TRACE(<< "points =  " << core::CContainerPrinter::print(points));
+                    LOG_TRACE(<< "weights = " << weights);
+                    LOG_TRACE(<< "points =  " << points);
                     for (std::size_t i = 0; i < n; ++i) {
                         ordered[points[i]] += scale * weights[i];
                     }
@@ -564,11 +564,11 @@ public:
         result = T();
 
         if (a.size() != static_cast<std::size_t>(DIMENSION)) {
-            LOG_ERROR(<< "Bad lower limits: " << core::CContainerPrinter::print(a));
+            LOG_ERROR(<< "Bad lower limits: " << a);
             return false;
         }
         if (b.size() != static_cast<std::size_t>(DIMENSION)) {
-            LOG_ERROR(<< "Bad upper limits: " << core::CContainerPrinter::print(b));
+            LOG_ERROR(<< "Bad upper limits: " << b);
             return false;
         }
 

@@ -545,8 +545,8 @@ BOOST_AUTO_TEST_CASE(testSplit) {
         for (std::size_t j = 0; j < split[i].size(); ++j) {
             expected.push_back(clusters[split[i][j]]);
         }
-        LOG_DEBUG(<< "expected clusters = " << core::CContainerPrinter::print(expected));
-        LOG_DEBUG(<< "actual clusters   = " << core::CContainerPrinter::print(actual));
+        LOG_DEBUG(<< "expected clusters = " << expected);
+        LOG_DEBUG(<< "actual clusters   = " << actual);
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                             core::CContainerPrinter::print(actual));
@@ -644,14 +644,14 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
     kmeans.clusters(clusters);
-    LOG_DEBUG(<< "clusters before = " << core::CContainerPrinter::print(clusters));
+    LOG_DEBUG(<< "clusters before = " << clusters);
 
     kmeans.propagateForwardsByTime(7.0);
 
     kmeans.clusters(clusters);
-    LOG_DEBUG(<< "clusters after  = " << core::CContainerPrinter::print(clusters));
+    LOG_DEBUG(<< "clusters after  = " << clusters);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), clusters.size());
+    BOOST_REQUIRE_EQUAL(4, clusters.size());
     for (std::size_t i = 0; i < clusters.size(); ++i) {
         BOOST_TEST_REQUIRE(clusters[i] != outlier);
     }
@@ -711,7 +711,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
     TVector2Vec sampled;
     kmeans.sample(50u, sampled);
     std::sort(sampled.begin(), sampled.end());
-    LOG_DEBUG(<< "sampled = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "sampled = " << sampled);
 
     TCovariances2 sampleCovariances[]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0; i < sampled.size(); ++i) {

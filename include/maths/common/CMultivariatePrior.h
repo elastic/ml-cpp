@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariatePrior_h
 #define INCLUDED_ml_maths_common_CMultivariatePrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/Constants.h>
@@ -85,7 +85,7 @@ public:
     //! informative.
     CMultivariatePrior(maths_t::EDataType dataType, double decayRate);
 
-    virtual ~CMultivariatePrior() = default;
+    virtual ~CMultivariatePrior();
 
     //! Swap the contents of this prior and \p other.
     void swap(CMultivariatePrior& other) noexcept;

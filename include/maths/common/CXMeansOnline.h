@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_common_CXMeansOnline_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -25,6 +24,8 @@
 #include <maths/common/CKMeansOnline.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSphericalCluster.h>
@@ -279,7 +280,7 @@ public:
             if (this->splitSearch(rng, minimumCount, split) == false) {
                 return {};
             }
-            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
+            LOG_TRACE(<< "split = " << split);
 
             TCovariances covariances[]{TCovariances(N), TCovariances(N)};
             TSphericalClusterVec clusters;
@@ -336,12 +337,12 @@ public:
         //! Debug the memory used by this component.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("CXMeansOnline");
-            core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
+            core::memory_debug::dynamicSize("m_Structure", m_Structure, mem);
         }
 
         //! Get the memory used by this component.
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Structure);
+            return core::memory::dynamicSize(m_Structure);
         }
 
         //! Get Bayes Information Criterion decrease in going from one
@@ -398,11 +399,10 @@ public:
 
             for (;;) {
                 TKMeansOnline::kmeans(rng, node, 2, candidate);
-                LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
+                LOG_TRACE(<< "candidate = " << candidate);
 
                 if (candidate.size() > 2) {
-                    LOG_ERROR(<< "Expected 2-split: "
-                              << core::CContainerPrinter::print(candidate));
+                    LOG_ERROR(<< "Expected 2-split: " << candidate);
                     break;
                 }
                 if (candidate[0].empty() || candidate[1].empty()) {
@@ -485,8 +485,8 @@ public:
                                                                  clusters.end(), x, less) -
                                                 clusters.begin();
                                 if (j >= clusters.size()) {
-                                    LOG_ERROR(<< "Missing " << x << " from clusters = "
-                                              << core::CContainerPrinter::print(clusters));
+                                    LOG_ERROR(<< "Missing " << x
+                                              << " from clusters = " << clusters);
                                     return false;
                                 }
                                 result[i].push_back(indexes[j]);
@@ -855,7 +855,7 @@ public:
                 closest.add({m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i});
             }
             closest.sort();
-            LOG_TRACE(<< "closest = " << closest.print());
+            LOG_TRACE(<< "closest = " << closest);
 
             double likelihood0 = closest[0].first;
             double likelihood1 = closest[1].first;
@@ -967,15 +967,15 @@ public:
     //! Debug the memory used by the object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CXMeansOnline");
-        core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator",
+        core::memory_debug::dynamicSize("m_ClusterIndexGenerator",
                                         m_ClusterIndexGenerator, mem);
-        core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+        core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
     }
 
     //! Get the memory used by the object.
     std::size_t memoryUsage() const override {
-        std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
-        mem += core::CMemory::dynamicSize(m_Clusters);
+        std::size_t mem = core::memory::dynamicSize(m_ClusterIndexGenerator);
+        mem += core::memory::dynamicSize(m_Clusters);
         return mem;
     }
 
@@ -1127,7 +1127,7 @@ protected:
             if (prune.count() == 0) {
                 break;
             }
-            LOG_TRACE(<< "prune = " << core::CContainerPrinter::print(prune));
+            LOG_TRACE(<< "prune = " << prune);
 
             result = true;
 

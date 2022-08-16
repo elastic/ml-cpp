@@ -15,14 +15,12 @@
 #include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/CNonInstantiatable.h>
-#include <core/CScopedFastLock.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
 #include <algorithm>
@@ -132,7 +130,7 @@ public:
     //! is too small this uses a larger value. At the end a random k sample of this has
     //! the desired property.
     //!
-    //! IMPLEMENTATION:\n
+    //! IMPLEMENTATION DECISIONS:\n
     //! To allow greater flexibility, this doesn't maintain the sample set, but instead a
     //! function is provided which is called when a value is sampled. This is passed the
     //! index of the item overwritten and the overwriting value. If the sample set is
@@ -297,68 +295,6 @@ public:
         double m_MinWeight{std::numeric_limits<double>::max()};
         TDoubleVec m_SampleWeights;
         TDoubleVec m_Probabilities;
-    };
-
-    //! \brief A mockable random number generator which uses boost::random::mt11213b.
-    class MATHS_COMMON_EXPORT CRandomNumberGenerator {
-    public:
-        using result_type = boost::random::mt11213b::result_type;
-
-    public:
-        //! Mock the random number generator to produce a constant.
-        void mock();
-
-        //! Unmock the random number generator.
-        void unmock();
-
-        //! Seed the random number generator.
-        void seed();
-
-        //! Returns the smallest value that the generator can produce.
-        static result_type min() { return boost::random::mt11213b::min(); }
-
-        //! Returns the largest value that the generator can produce.
-        static result_type max() { return boost::random::mt11213b::max(); }
-
-        //! Produces the next value of the generator.
-        result_type operator()() {
-            if (m_Mock) {
-                return *m_Mock;
-            }
-            return m_Rng.operator()();
-        }
-
-        //! Fills a range with random values.
-        template<typename ITR>
-        void generate(ITR first, ITR last) {
-            if (m_Mock) {
-                for (/**/; first != last; ++first) {
-                    *first = *m_Mock;
-                }
-            }
-            m_Rng.generate(first, last);
-        }
-
-        //! Writes the mersenne_twister_engine to a std::ostream.
-        template<class CHAR, class TRAITS>
-        friend std::basic_ostream<CHAR, TRAITS>&
-        operator<<(std::basic_ostream<CHAR, TRAITS>& o, const CRandomNumberGenerator& g) {
-            return o << g.m_Rng;
-        }
-
-        //! Reads a mersenne_twister_engine from a std::istream.
-        template<class CHAR, class TRAITS>
-        friend std::basic_istream<CHAR, TRAITS>&
-        operator>>(std::basic_istream<CHAR, TRAITS>& i, CRandomNumberGenerator& g) {
-            return i >> g.m_Rng;
-        }
-
-    private:
-        using TOptionalResultType = std::optional<result_type>;
-
-    private:
-        TOptionalResultType m_Mock;
-        boost::random::mt11213b m_Rng;
     };
 
     //! \brief Setup and tears down mock random numbers in the scope in which
@@ -640,16 +576,6 @@ public:
         }
     }
 
-    //! Sample a random permutation of the value [\p first, \p last).
-    //!
-    //! Reorders the elements in the range [\p first, \p last) using the
-    //! internal random number generator to provide a random distribution.
-    template<typename ITR>
-    static void random_shuffle(ITR first, ITR last) {
-        core::CScopedFastLock scopedLock(ms_Lock);
-        random_shuffle(ms_Rng, first, last);
-    }
-
     //! Optimal (in a sense to be defined below) weighted sampling
     //! algorithm.
     //!
@@ -695,13 +621,6 @@ private:
     private:
         RNG* m_Generator;
     };
-
-private:
-    //! The mutex for protecting access to the random number generator.
-    static core::CFastMutex ms_Lock;
-
-    //! The uniform random number generator.
-    static CRandomNumberGenerator ms_Rng;
 };
 }
 }

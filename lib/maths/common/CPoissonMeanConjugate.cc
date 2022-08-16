@@ -11,14 +11,11 @@
 
 #include <maths/common/CPoissonMeanConjugate.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
@@ -29,14 +26,11 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/math/distributions/poisson.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include <limits>
-#include <numeric>
 #include <sstream>
 #include <string>
 
@@ -289,8 +283,8 @@ double CPoissonMeanConjugate::adjustOffset(const TDouble1Vec& samples,
         sample = std::max(sample, OFFSET_MARGIN - offset);
     }
 
-    LOG_TRACE(<< "resamples = " << core::CContainerPrinter::print(resamples)
-              << ", weight = " << weight << ", offset = " << m_Offset);
+    LOG_TRACE(<< "resamples = " << resamples << ", weight = " << weight
+              << ", offset = " << m_Offset);
 
     this->addSamples(resamples, weights);
 
@@ -310,9 +304,8 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
         return;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -342,8 +335,7 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i] + m_Offset;
         if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(weights[i])) {
-            LOG_ERROR(<< "Discarding sample = " << x
-                      << ", weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights);
             continue;
         }
         double n = maths_t::countForUpdate(weights[i]);
@@ -395,7 +387,7 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr CPoissonMeanConjugate::marginalLikelihoodSupport() const {
-    return {-m_Offset, boost::numeric::bounds<double>::highest()};
+    return {-m_Offset, std::numeric_limits<double>::max()};
 }
 
 double CPoissonMeanConjugate::marginalLikelihoodMean() const {
@@ -443,7 +435,7 @@ double CPoissonMeanConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& /*
 double CPoissonMeanConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // We use the fact that E[X} = E_{R}[Var[X | R]]
@@ -495,9 +487,8 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         return maths_t::E_FpFailed;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -510,7 +501,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -554,7 +545,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             // and pollute the floating point environment. This
             // may cause issues for some library function
             // implementations (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -579,8 +570,8 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
     if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
     }
     return status;
 }
@@ -749,9 +740,8 @@ bool CPoissonMeanConjugate::minusLogJointCdf(const TDouble1Vec& samples,
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights, CTools::SMinusLogCdf(), detail::SPlusWeight(),
             m_Offset, this->isNonInformative(), m_Shape, m_Rate, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                  << ", weights = " << samples << ")");
         return false;
     }
 
@@ -769,9 +759,8 @@ bool CPoissonMeanConjugate::minusLogJointCdfComplement(const TDouble1Vec& sample
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights, CTools::SMinusLogCdfComplement(), detail::SPlusWeight(),
             m_Offset, this->isNonInformative(), m_Shape, m_Rate, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                  << ", weights = " << samples << ")");
         return false;
     }
 
@@ -803,8 +792,7 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             this->isNonInformative(), m_Shape, m_Rate, probability) ||
         !probability.calculate(value)) {
         LOG_ERROR(<< "Failed computing probability of less likely samples (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
+                  << samples << ", weights = " << samples << ")");
         return false;
     }
 
@@ -938,7 +926,7 @@ double CPoissonMeanConjugate::priorMean() const {
 
 double CPoissonMeanConjugate::priorVariance() const {
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     try {
@@ -949,7 +937,7 @@ double CPoissonMeanConjugate::priorVariance() const {
                   << ", prior shape = " << m_Shape << ", prior rate = " << m_Rate);
     }
 
-    return boost::numeric::bounds<double>::highest();
+    return std::numeric_limits<double>::max();
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr

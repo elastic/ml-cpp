@@ -20,6 +20,8 @@
 
 #include <model/ImportExport.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <cstdint>
 #include <functional>
 #include <iosfwd>
@@ -37,14 +39,8 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths {
-namespace common {
-class CPrior;
-}
-}
 namespace model {
 class CAnomalyDetectorModelConfig;
-class CLimits;
 
 //! \brief An anomaly score calculator.
 //!

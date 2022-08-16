@@ -12,6 +12,7 @@
 #include <model/CDynamicStringIdRegistry.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/common/CChecksum.h>
@@ -19,6 +20,8 @@
 
 #include <model/CResourceMonitor.h>
 #include <model/CStringStore.h>
+
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 
@@ -223,20 +226,20 @@ std::uint64_t CDynamicStringIdRegistry::checksum() const {
 
 void CDynamicStringIdRegistry::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDynamicStringIdRegistry");
-    core::CMemoryDebug::dynamicSize("m_NameType", m_NameType, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonUids", m_Uids, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonNames", m_Names, mem);
-    core::CMemoryDebug::dynamicSize("m_FreePersonUids", m_FreeUids, mem);
-    core::CMemoryDebug::dynamicSize("m_RecycledPersonUids", m_RecycledUids, mem);
+    core::memory_debug::dynamicSize("m_NameType", m_NameType, mem);
+    core::memory_debug::dynamicSize("m_PersonUids", m_Uids, mem);
+    core::memory_debug::dynamicSize("m_PersonNames", m_Names, mem);
+    core::memory_debug::dynamicSize("m_FreePersonUids", m_FreeUids, mem);
+    core::memory_debug::dynamicSize("m_RecycledPersonUids", m_RecycledUids, mem);
 }
 
 std::size_t CDynamicStringIdRegistry::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Uids);
-    mem += core::CMemory::dynamicSize(m_NameType);
-    mem += core::CMemory::dynamicSize(m_Uids);
-    mem += core::CMemory::dynamicSize(m_Names);
-    mem += core::CMemory::dynamicSize(m_FreeUids);
-    mem += core::CMemory::dynamicSize(m_RecycledUids);
+    std::size_t mem = core::memory::dynamicSize(m_Uids);
+    mem += core::memory::dynamicSize(m_NameType);
+    mem += core::memory::dynamicSize(m_Uids);
+    mem += core::memory::dynamicSize(m_Names);
+    mem += core::memory::dynamicSize(m_FreeUids);
+    mem += core::memory::dynamicSize(m_RecycledUids);
     return mem;
 }
 

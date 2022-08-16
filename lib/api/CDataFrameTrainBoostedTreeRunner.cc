@@ -24,7 +24,6 @@
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -440,7 +439,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
+                     << " data " << frame.columnNames());
         return;
     }
 

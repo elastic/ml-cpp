@@ -17,11 +17,12 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebra.h>
+
+#include <boost/unordered/unordered_map_fwd.hpp>
 
 #include <memory>
 #include <optional>

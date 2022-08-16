@@ -15,24 +15,22 @@
 #include <core/CCompressedDictionary.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/CBucketQueue.h>
 #include <model/CEventData.h>
-#include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
-#include <model/SModelParams.h>
 
-#include <boost/any.hpp>
-#include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <any>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <optional>
 #include <string>
 #include <utility>
@@ -57,7 +55,7 @@ class CResourceMonitor;
 //!
 //! This is subclassed by Metric and EventRate implementations.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This functionality has been separated from the CDataGatherer in order
 //! to allow the CDataGatherer to support multiple overlapping buckets and
 //! buckets with different time spans. However, the overlapping feature
@@ -131,7 +129,7 @@ public:
     using TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap =
         std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
-    using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
+    using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
     using TTimeVec = std::vector<core_t::TTime>;

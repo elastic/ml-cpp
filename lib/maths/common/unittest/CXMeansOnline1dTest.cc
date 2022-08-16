@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -17,6 +16,8 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CXMeansOnline1d.h>
 
@@ -24,7 +25,6 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     TDoubleVec values;
 
     maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator moments;
-    for (std::size_t i = 0; i < boost::size(x1); ++i) {
+    for (std::size_t i = 0; i < std::size(x1); ++i) {
         cluster.add(x1[i], c1[i]);
         moments.add(x1[i], c1[i]);
         for (std::size_t j = 0; j < static_cast<std::size_t>(c1[i]); ++j) {
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     TDoubleVec samples;
     cluster.sample(10, 0.0, 5.0, samples);
-    LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_DEBUG(<< "samples = " << samples);
 
     maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator sampleMoments;
     for (std::size_t i = 0; i < samples.size(); ++i) {
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     double x2[] = {10.3, 10.6, 10.7, 9.8, 11.2, 11.0};
     double c2[] = {2.0, 1.0, 1.0, 2.0, 2.0, 1.0};
-    for (std::size_t i = 0; i < boost::size(x2); ++i) {
+    for (std::size_t i = 0; i < std::size(x2); ++i) {
         cluster.add(x2[i], c2[i]);
     }
     auto split = cluster.split(maths::common::CAvailableModeDistributions::ALL,
@@ -256,10 +256,10 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             const TClusterVec& clusters = clusterer.clusters();
 
             debug(clusters);
-            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+            LOG_DEBUG(<< "expected = " << expectedClusters);
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
+            BOOST_REQUIRE_EQUAL(3, clusters.size());
 
             for (std::size_t j = 0; j < clusters.size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << expectedClusters);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), clusters.size());
+        BOOST_REQUIRE_EQUAL(1, clusters.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::common::CBasicStatistics::mean(expectedClusters),
                                      clusters[0].centre(), 0.05);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
 
             debug(clusters);
 
-            BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+            BOOST_REQUIRE_EQUAL(2, clusters.size());
             for (std::size_t j = 0; j < clusters.size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::common::CBasicStatistics::mean(expectedClusters[j]),
@@ -450,9 +450,9 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(2, clusters.size());
 
         for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -540,9 +540,9 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(2, clusters.size());
 
         for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -620,14 +620,14 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
         const TClusterVec& clusters = clusterer.clusters();
 
         debug(clusters);
-        LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+        LOG_DEBUG(<< "expected = " << expectedClusters);
         LOG_DEBUG(<< "# clusters = " << clusters.size());
 
         if (clusters.size() != 2)
             continue;
 
         n += 1.0;
-        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(2, clusters.size());
 
         for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    BOOST_REQUIRE_EQUAL(std::size_t(10), clusters.size());
+    BOOST_REQUIRE_EQUAL(10, clusters.size());
 }
 
 BOOST_AUTO_TEST_CASE(testLowVariation) {
@@ -708,7 +708,7 @@ BOOST_AUTO_TEST_CASE(testLowVariation) {
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+    BOOST_REQUIRE_EQUAL(2, clusters.size());
 }
 
 BOOST_AUTO_TEST_CASE(testAdaption) {
@@ -954,9 +954,9 @@ BOOST_AUTO_TEST_CASE(testPruneEmptyCluster) {
     maths::common::CXMeansOnline1d::CCluster cluster_empty(clusterer);
     clusterer.m_Clusters.push_back(cluster_empty);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(4, clusterer.clusters().size());
     clusterer.prune();
-    BOOST_REQUIRE_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(2, clusterer.clusters().size());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

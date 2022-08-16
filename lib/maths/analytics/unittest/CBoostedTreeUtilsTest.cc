@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/CLogger.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -35,9 +35,10 @@
 BOOST_AUTO_TEST_SUITE(CBoostedTreeUtilsTest)
 
 using namespace ml;
-using namespace maths::analytics::boosted_tree_detail;
+using maths::analytics::boosted_tree_detail::CSearchTree;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
 
 BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
 
@@ -69,10 +70,9 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
     // Edge case.
     {
         core::CPackedBitVector allRowsMask{rows, true};
-        std::vector<std::vector<maths::analytics::CBoostedTreeNode>> emptyForest;
-        auto probabilities = retrainTreeSelectionProbabilities(
-            1, *frame, impl.extraColumns(), cols - 1, impl.encoder(),
-            allRowsMask, impl.loss(), emptyForest);
+        maths::analytics::CBoostedTree::TNodeVecVec emptyForest;
+        auto probabilities =
+            impl.retrainTreeSelectionProbabilities(*frame, allRowsMask, emptyForest);
         BOOST_TEST_REQUIRE(probabilities.empty());
     }
 
@@ -107,15 +107,110 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
 
         regression->predict();
 
-        auto probabilities = retrainTreeSelectionProbabilities(
-            1, *frame, impl.extraColumns(), cols - 1, impl.encoder(),
-            allRowsMask, impl.loss(), impl.trainedModel());
+        auto probabilities = impl.retrainTreeSelectionProbabilities(
+            *frame, allRowsMask, impl.trainedModel());
 
         BOOST_REQUIRE_EQUAL(impl.trainedModel().size(), probabilities.size());
         BOOST_TEST_REQUIRE(*std::max_element(probabilities.begin(),
                                              probabilities.end()) >= 0.0);
         BOOST_REQUIRE_CLOSE(
             1.0, std::accumulate(probabilities.begin(), probabilities.end(), 0.0), 1e-6);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testSearchTree) {
+
+    // Check that the result of CSearchTree::upperBound is identical to std::upper_bound
+    // on some edge cases and random data.
+
+    using TFloatVec = std::vector<maths::common::CFloatStorage>;
+
+    TSizeVec size;
+    TDoubleVec set;
+    TDoubleVec probes;
+    TDoubleVec extraProbes;
+    TFloatVec fset;
+
+    LOG_DEBUG(<< "Empty");
+    {
+        CSearchTree tree{{}};
+        BOOST_REQUIRE_EQUAL(0, tree.upperBound(0.0F));
+        BOOST_REQUIRE_EQUAL(0, tree.upperBound(-1000.0F));
+        BOOST_REQUIRE_EQUAL(0, tree.upperBound(10000.0F));
+    }
+    LOG_DEBUG(<< "Before start");
+    {
+        CSearchTree tree{{0.0}};
+        BOOST_REQUIRE_EQUAL(1, tree.upperBound(0.0));
+        BOOST_REQUIRE_EQUAL(0, tree.upperBound(-1.0));
+    }
+    LOG_DEBUG(<< "Duplicate");
+    for (std::size_t i = 0; i < 5; ++i) {
+        fset.push_back(0.0);
+        CSearchTree tree{fset};
+        BOOST_REQUIRE_EQUAL(0, tree.upperBound(-1.0));
+        BOOST_REQUIRE_EQUAL(i + 1, tree.upperBound(0.0));
+        BOOST_REQUIRE_EQUAL(i + 1, tree.upperBound(1.0));
+    }
+    LOG_DEBUG(<< "Infinity");
+    {
+        CSearchTree tree{{0.0}};
+        BOOST_REQUIRE_EQUAL(1, tree.upperBound(std::numeric_limits<float>::infinity()));
+    }
+
+    LOG_DEBUG(<< "Small");
+
+    for (std::size_t i = 0; i < 5; ++i) {
+        set.push_back(static_cast<double>(i + 1));
+        CSearchTree tree{{set.begin(), set.end()}};
+        for (std::size_t j = 0; j <= i; ++j) {
+            BOOST_REQUIRE_EQUAL(j, tree.upperBound(static_cast<double>(j) + 0.5));
+        }
+    }
+
+    // Random small sets.
+    test::CRandomNumbers rng;
+
+    for (std::size_t i = 0; i < 10000; ++i) {
+        if (i % 500 == 0) {
+            LOG_DEBUG(<< static_cast<double>(i) / 100.0 << "%");
+        }
+        rng.generateUniformSamples(1, 100, 1, size);
+        rng.generateUniformSamples(-1000.0, 1000.0, size[0], set);
+        rng.generateUniformSamples(-2000.0, 2000.0, 10, extraProbes);
+
+        fset.assign(set.begin(), set.end());
+        std::sort(fset.begin(), fset.end());
+        probes.clear();
+        probes.insert(probes.end(), set.begin(), set.end());
+        probes.insert(probes.end(), extraProbes.begin(), extraProbes.end());
+
+        CSearchTree tree({fset.begin(), fset.end()});
+        for (auto probe : probes) {
+            maths::common::CFloatStorage fprobe{probe};
+            auto expected = std::upper_bound(fset.begin(), fset.end(), fprobe) -
+                            fset.begin();
+            BOOST_REQUIRE_EQUAL(expected, tree.upperBound(fprobe));
+        }
+    }
+
+    LOG_DEBUG(<< "Large");
+
+    rng.generateUniformSamples(-1000.0, 1000.0, 100000, set);
+    rng.generateUniformSamples(-2000.0, 2000.0, 1000, extraProbes);
+
+    fset.assign(set.begin(), set.end());
+    std::sort(fset.begin(), fset.end());
+
+    probes.clear();
+    probes.insert(probes.end(), set.begin(), set.end());
+    probes.insert(probes.end(), extraProbes.begin(), extraProbes.end());
+
+    CSearchTree tree({fset.begin(), fset.end()});
+    for (auto probe : probes) {
+        maths::common::CFloatStorage fprobe{probe};
+        auto expected = std::upper_bound(fset.begin(), fset.end(), fprobe) - fset.begin();
+        BOOST_REQUIRE_EQUAL(expected, tree.upperBound(probe));
     }
 }
 

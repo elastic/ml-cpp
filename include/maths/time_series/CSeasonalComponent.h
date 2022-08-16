@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CSeasonalComponent_h
 #define INCLUDED_ml_maths_time_series_CSeasonalComponent_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CPRNG.h>

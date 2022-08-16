@@ -11,9 +11,6 @@
 
 #include <model/CDetectionRule.h>
 
-#include <model/CAnomalyDetectorModel.h>
-#include <model/CDataGatherer.h>
-
 namespace ml {
 namespace model {
 

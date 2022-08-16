@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -69,15 +68,16 @@ public:
 
     ~CDebugGenerator() {
         if (ENABLED) {
-            std::ofstream file;
-            file.open(m_File);
+            std::ofstream file_;
+            file_.open(m_File);
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
             file << "import numpy as np;\n";
-            file << "t = " << core::CContainerPrinter::print(m_ValueTimes) << ";\n";
-            file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
-            file << "te = " << core::CContainerPrinter::print(m_PredictionTimes) << ";\n";
-            file << "fe = " << core::CContainerPrinter::print(m_Predictions) << ";\n";
-            file << "r = " << core::CContainerPrinter::print(m_Errors) << ";\n";
+            file << "t = " << m_ValueTimes << ";\n";
+            file << "f = " << m_Values << ";\n";
+            file << "te = " << m_PredictionTimes << ";\n";
+            file << "fe = " << m_Predictions << ";\n";
+            file << "r = " << m_Errors << ";\n";
             file << "plt.figure(1);\n";
             file << "plt.clf();\n";
             file << "plt.plot(t, f);\n";
@@ -677,7 +677,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
                 // Check that only the daily component has been initialized.
                 const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-                BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+                BOOST_REQUIRE_EQUAL(1, components.size());
                 BOOST_REQUIRE_EQUAL(DAY, components[0].time().period());
                 BOOST_TEST_REQUIRE(components[0].initialized());
             }
@@ -695,7 +695,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
     // Check that only the daily component has been initialized.
     const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-    BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+    BOOST_REQUIRE_EQUAL(1, components.size());
     BOOST_REQUIRE_EQUAL(DAY, components[0].time().period());
     BOOST_TEST_REQUIRE(components[0].initialized());
 }

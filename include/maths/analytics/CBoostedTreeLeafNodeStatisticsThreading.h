@@ -11,6 +11,7 @@
 
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
+
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
@@ -31,7 +32,7 @@ namespace analytics {
 //! can improve throughput. Here, where possible, we estimate the work to
 //! perform as a function of the thread overhead and minimize throughput.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The constants in the cost model for each operation were extracted using
 //! ordinary least squares regression for a couple of typical environments.
 //! This provides a route to calibrate at runtime if we choose. The danger

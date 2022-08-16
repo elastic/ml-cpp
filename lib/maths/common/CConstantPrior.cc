@@ -21,10 +21,8 @@
 #include <maths/common/CMathsFuncs.h>
 
 #include <cmath>
-#include <iomanip>
 #include <ios>
 #include <limits>
-#include <sstream>
 
 namespace ml {
 namespace maths {
@@ -112,8 +110,7 @@ void CConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
 CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport() const {
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 double CConstantPrior::marginalLikelihoodMean() const {
@@ -137,7 +134,7 @@ CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
 }
 
 double CConstantPrior::marginalLikelihoodVariance(const TDoubleWeightsAry& /*weights*/) const {
-    return this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0;
+    return this->isNonInformative() ? std::numeric_limits<double>::max() : 0.0;
 }
 
 maths_t::EFloatingPointErrorStatus
@@ -153,9 +150,8 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -168,7 +164,7 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -177,7 +173,7 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] != *m_Constant) {
             // Technically infinite, but just use minus max double.
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -310,8 +306,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
-              << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
+    LOG_TRACE(<< "samples = " << samples << ", constant = " << *m_Constant
+              << ", lowerBound = " << lowerBound
               << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);

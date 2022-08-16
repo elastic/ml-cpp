@@ -11,6 +11,9 @@
 
 #include <maths/common/CClusterer.h>
 
+#include <core/CMemoryDef.h>
+#include <core/CPersistUtils.h>
+
 namespace ml {
 namespace maths {
 namespace common {
@@ -62,11 +65,11 @@ void CClustererTypes::CIndexGenerator::recycle(std::size_t index) {
 
 void CClustererTypes::CIndexGenerator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CClusterer::CIndexGenerator");
-    core::CMemoryDebug::dynamicSize("m_IndexHeap", m_IndexHeap, mem);
+    core::memory_debug::dynamicSize("m_IndexHeap", m_IndexHeap, mem);
 }
 
 std::size_t CClustererTypes::CIndexGenerator::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_IndexHeap);
+    std::size_t mem = core::memory::dynamicSize(m_IndexHeap);
     return mem;
 }
 

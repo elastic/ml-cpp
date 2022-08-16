@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_analytics_CDataFramePredictiveModel_h
 
 #include <core/CDataFrame.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CStatePersistInserter.h>
 
 #include <maths/analytics/ImportExport.h>

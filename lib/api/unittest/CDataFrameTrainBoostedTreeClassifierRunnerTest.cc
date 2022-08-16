@@ -12,6 +12,7 @@
 #include <core/CDataFrame.h>
 #include <core/CRegex.h>
 #include <core/CSmallVector.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/CTools.h>
 
@@ -75,7 +76,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (const auto& row : rows) {
-        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(row, 0, row.size()));
+        frame->parseAndWriteRow(core::make_const_range(row, 0, row.size()));
     }
     frame->finishWritingRows();
     BOOST_TEST_REQUIRE(frame->numberRows() == rows.size());

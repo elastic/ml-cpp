@@ -24,7 +24,6 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CXMeans.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -394,7 +393,7 @@ protected:
                 fij.clear();
                 pij.reserve(nij);
                 fij.reserve(nij);
-                double pmax = boost::numeric::bounds<double>::lowest();
+                double pmax = std::numeric_limits<double>::lowest();
                 for (std::size_t k = 0; k < nij; ++k) {
                     std::size_t index = lookup[std::cref(points[k])];
                     if (I.count(index) == 0) {
@@ -414,12 +413,12 @@ protected:
                     for (std::size_t k = 0; k < pij.size(); ++k) {
                         pij[k] /= Zij;
                     }
-                    LOG_TRACE(<< "pij = " << core::CContainerPrinter::print(pij));
+                    LOG_TRACE(<< "pij = " << pij);
 
                     // Sample the cluster.
                     CSampling::categoricalSampleWithoutReplacement(this->rng(),
                                                                    pij, nsij, sij);
-                    LOG_TRACE(<< "sij = " << core::CContainerPrinter::print(sij));
+                    LOG_TRACE(<< "sij = " << sij);
 
                     // Save the relevant data for the i'th clustering.
                     for (std::size_t k = 0; k < nsij; ++k) {
@@ -441,7 +440,7 @@ protected:
     void neighbourhoods(const TSizeUSet& I, TSizeVecVec& H) const {
         using TVectorSizeUMap = boost::unordered_map<TVector, std::size_t, SHashVector>;
 
-        LOG_TRACE(<< "I = " << core::CContainerPrinter::print(I));
+        LOG_TRACE(<< "I = " << I);
         std::size_t b = m_ProjectedData.size();
         std::size_t n = m_ProjectedData[0].size();
 
@@ -480,7 +479,7 @@ protected:
             LOG_TRACE(<< "nn = " << *nn);
             H[lookup[*nn]].push_back(i);
         }
-        LOG_TRACE(<< "H = " << core::CContainerPrinter::print(H));
+        LOG_TRACE(<< "H = " << H);
     }
 
     //! Compute the similarities between neighbourhoods.
@@ -508,8 +507,8 @@ protected:
             const TDoubleVec& Wi = W[i];
             const TVectorNx1Vec& Mi = M[i];
             const TSvdNxNVec& Ci = C[i];
-            LOG_TRACE(<< "W(i) = " << core::CContainerPrinter::print(Wi));
-            LOG_TRACE(<< "M(i) = " << core::CContainerPrinter::print(Mi));
+            LOG_TRACE(<< "W(i) = " << Wi);
+            LOG_TRACE(<< "M(i) = " << Mi);
 
             std::size_t nci = Mi.size();
             std::fill_n(Pi.begin(), h, TVector(nci));
@@ -584,7 +583,7 @@ protected:
             heights.push_back(TDoubleTuple());
             heights.back().add(tree[i].height());
         }
-        LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
+        LOG_TRACE(<< "heights = " << heights);
 
         TSizeVec splits;
         if (CNaturalBreaksClassifier::naturalBreaks(
@@ -593,8 +592,7 @@ protected:
                 0, // Minimum cluster size
                 CNaturalBreaksClassifier::E_TargetDeviation, splits)) {
             double height = CBasicStatistics::mean(heights[splits[0] - 1]);
-            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(splits)
-                      << ", height = " << height);
+            LOG_TRACE(<< "split = " << splits << ", height = " << height);
             const TNode& root = tree.back();
             root.clusteringAt(height, result);
             for (std::size_t i = 0; i < result.size(); ++i) {
@@ -606,7 +604,7 @@ protected:
                 ri.erase(ri.begin(), ri.begin() + n);
             }
         } else {
-            LOG_ERROR(<< "Failed to cluster " << core::CContainerPrinter::print(heights));
+            LOG_ERROR(<< "Failed to cluster " << heights);
         }
     }
 

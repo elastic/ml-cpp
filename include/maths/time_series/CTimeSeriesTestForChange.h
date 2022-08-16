@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesTestForChange_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesTestForChange_h
 
-#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>

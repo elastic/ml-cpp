@@ -16,6 +16,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
@@ -107,7 +108,7 @@ double CDetectorEqualizer::correct(int detector, double probability) {
             }
         }
         std::sort(logps.begin(), logps.end());
-        LOG_TRACE(<< "quantiles = " << core::CContainerPrinter::print(logps));
+        LOG_TRACE(<< "quantiles = " << logps);
 
         std::size_t n = logps.size();
         double logpc = n % 2 == 0 ? (logps[n / 2 - 1] + logps[n / 2]) / 2.0

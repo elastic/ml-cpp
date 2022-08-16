@@ -11,24 +11,19 @@
 
 #include <model/CModelFactory.h>
 
-#include <core/CStateRestoreTraverser.h>
-#include <core/Constants.h>
-
 #include <maths/common/CModel.h>
 #include <maths/common/CMultimodalPrior.h>
 #include <maths/common/CMultinomialConjugate.h>
 #include <maths/common/CMultivariateMultimodalPriorFactory.h>
 #include <maths/common/CMultivariateNormalConjugateFactory.h>
 #include <maths/common/CMultivariateOneOfNPriorFactory.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/COneOfNPrior.h>
-#include <maths/common/CPrior.h>
-#include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CXMeansOnline1d.h>
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 #include <maths/time_series/CTimeSeriesMultibucketFeatures.h>
@@ -166,7 +161,7 @@ CModelFactory::defaultCorrelatePrior(model_t::EFeature feature) const {
 
 maths::common::CMultinomialConjugate CModelFactory::defaultCategoricalPrior() const {
     return maths::common::CMultinomialConjugate::nonInformativePrior(
-        boost::numeric::bounds<std::size_t>::highest(), m_ModelParams.s_DecayRate);
+        std::numeric_limits<std::size_t>::max(), m_ModelParams.s_DecayRate);
 }
 
 CModelFactory::TDecompositionCPtr

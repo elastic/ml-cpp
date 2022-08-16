@@ -16,6 +16,7 @@
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
 #include <maths/analytics/CDataFrameUtils.h>
 #include <maths/analytics/CTreeShapFeatureImportance.h>
@@ -95,8 +96,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
-                     << ".");
+                     << PREDICTION_FIELD_NAME_BLACKLIST << ".");
     }
 }
 

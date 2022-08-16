@@ -9,12 +9,13 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CNaturalBreaksClassifier.h>
 #include <maths/common/CRestoreParams.h>
 
@@ -74,7 +75,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
         split.push_back(i);
     }
     split.push_back(N);
-    LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
+    LOG_TRACE(<< "split = " << split);
 
     TSizeVec end;
     end.reserve(m + 1);
@@ -82,12 +83,12 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
         end.push_back(i);
     }
     end.push_back(N);
-    LOG_TRACE(<< "end = " << core::CContainerPrinter::print(end));
+    LOG_TRACE(<< "end = " << end);
 
     TSizeVec bestSplit;
     double deviationMin = INF;
     for (;;) {
-        LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
+        LOG_TRACE(<< "split = " << split);
 
         double deviation = 0.0;
 
@@ -111,8 +112,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
                 }
                 deviation = INF;
                 LOG_TRACE(<< "Pruning solutions variation = " << deviation
-                          << ", deviationMin = " << deviationMin
-                          << ", split = " << core::CContainerPrinter::print(split));
+                          << ", deviationMin = " << deviationMin << ", split = " << split);
             } else {
                 deviation += categoryDeviation;
             }
@@ -121,8 +121,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
         if (deviation < deviationMin) {
             bestSplit = split;
             deviationMin = deviation;
-            LOG_TRACE(<< "splitMin = " << core::CContainerPrinter::print(result)
-                      << ", deviationMin = " << deviationMin);
+            LOG_TRACE(<< "splitMin = " << result << ", deviationMin = " << deviationMin);
         }
 
         if (split == end) {
@@ -181,9 +180,8 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                     TTupleVec expectedSplit;
                     naturalBreaksBranchAndBound(all, j, 0, expectedSplit);
 
-                    LOG_TRACE(<< "expected = "
-                              << core::CContainerPrinter::print(expectedSplit));
-                    LOG_TRACE(<< "actual =   " << core::CContainerPrinter::print(split));
+                    LOG_TRACE(<< "expected = " << expectedSplit);
+                    LOG_TRACE(<< "actual =   " << split);
 
                     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                         core::CContainerPrinter::print(split));
@@ -223,10 +221,8 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                         BOOST_REQUIRE_EQUAL(expectSplit, haveSplit);
 
                         if (expectSplit && haveSplit) {
-                            LOG_TRACE(<< "expected = "
-                                      << core::CContainerPrinter::print(expectedSplit));
-                            LOG_TRACE(<< "actual =   "
-                                      << core::CContainerPrinter::print(split));
+                            LOG_TRACE(<< "expected = " << expectedSplit);
+                            LOG_TRACE(<< "actual =   " << split);
                             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                                 core::CContainerPrinter::print(split));
                         }
@@ -514,17 +510,17 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     TTupleVec categories;
     classifier.categories(4u, 0, categories);
-    BOOST_REQUIRE_EQUAL(std::size_t(4), categories.size());
+    BOOST_REQUIRE_EQUAL(4, categories.size());
 
-    LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
+    LOG_DEBUG(<< "categories = " << categories);
 
     classifier.propagateForwardsByTime(10.0);
     classifier.categories(4u, 0, categories);
 
-    LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
+    LOG_DEBUG(<< "categories = " << categories);
 
     // We expect the category with count of 1 to have been pruned out.
-    BOOST_REQUIRE_EQUAL(std::size_t(3), categories.size());
+    BOOST_REQUIRE_EQUAL(3, categories.size());
     for (std::size_t i = 0; i < categories.size(); ++i) {
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(categories[i]) != 100.0);
     }
@@ -537,8 +533,8 @@ BOOST_AUTO_TEST_CASE(testSample) {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    static const double NEG_INF = boost::numeric::bounds<double>::lowest();
-    static const double POS_INF = boost::numeric::bounds<double>::highest();
+    static const double NEG_INF = std::numeric_limits<double>::lowest();
+    static const double POS_INF = std::numeric_limits<double>::max();
 
     test::CRandomNumbers rng;
 
@@ -570,8 +566,8 @@ BOOST_AUTO_TEST_CASE(testSample) {
     classifier.sample(10u, NEG_INF, POS_INF, sampled);
     std::sort(sampled.begin(), sampled.end());
 
-    LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedSampled));
-    LOG_DEBUG(<< "sampled  = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "expected = " << expectedSampled);
+    LOG_DEBUG(<< "sampled  = " << sampled);
 
     double error = 0.0;
     for (std::size_t i = 0; i < expectedSampled.size(); ++i) {
@@ -586,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
 
     classifier.sample(50u, NEG_INF, POS_INF, sampled);
     std::sort(sampled.begin(), sampled.end());
-    LOG_DEBUG(<< "sampled = " << core::CContainerPrinter::print(sampled));
+    LOG_DEBUG(<< "sampled = " << sampled);
 
     TMeanVarAccumulator meanVar1;
     TMeanVarAccumulator meanVar2;

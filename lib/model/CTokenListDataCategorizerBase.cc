@@ -11,7 +11,7 @@
 #include <model/CTokenListDataCategorizerBase.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefMultiIndex.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -258,8 +258,7 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
             baseTokenIds.begin(), baseTokenIds.end(), CSizePairFirstElementEquals(tokenId)))};
         const CTokenInfoItem& info{m_TokenIdLookup[tokenId]};
         std::size_t cost{m_ReverseSearchCreator->costOfToken(info.str(), occurrences)};
-        rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(
-            info.categoryCount(), TSizeSizePr(tokenId, cost)));
+        rareIdsWithCost.emplace(info.categoryCount(), TSizeSizePr(tokenId, cost));
         if (lowestCost > cost) {
             lowestCost = cost;
             lowestCostTokenId = tokenId;
@@ -552,24 +551,24 @@ model_t::ECategorizationStatus CTokenListDataCategorizerBase::categorizationStat
 void CTokenListDataCategorizerBase::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListDataCategorizerBase");
     this->CDataCategorizer::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
-    core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
-    core::CMemoryDebug::dynamicSize("m_CategoriesByCount", m_CategoriesByCount, mem);
-    core::CMemoryDebug::dynamicSize("m_TokenIdLookup", m_TokenIdLookup, mem);
-    core::CMemoryDebug::dynamicSize("m_WorkTokenIds", m_WorkTokenIds, mem);
-    core::CMemoryDebug::dynamicSize("m_WorkTokenUniqueIds", m_WorkTokenUniqueIds, mem);
-    core::CMemoryDebug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
+    core::memory_debug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
+    core::memory_debug::dynamicSize("m_Categories", m_Categories, mem);
+    core::memory_debug::dynamicSize("m_CategoriesByCount", m_CategoriesByCount, mem);
+    core::memory_debug::dynamicSize("m_TokenIdLookup", m_TokenIdLookup, mem);
+    core::memory_debug::dynamicSize("m_WorkTokenIds", m_WorkTokenIds, mem);
+    core::memory_debug::dynamicSize("m_WorkTokenUniqueIds", m_WorkTokenUniqueIds, mem);
+    core::memory_debug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
 }
 
 std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     std::size_t mem = this->CDataCategorizer::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_ReverseSearchCreator);
-    mem += core::CMemory::dynamicSize(m_Categories);
-    mem += core::CMemory::dynamicSize(m_CategoriesByCount);
-    mem += core::CMemory::dynamicSize(m_TokenIdLookup);
-    mem += core::CMemory::dynamicSize(m_WorkTokenIds);
-    mem += core::CMemory::dynamicSize(m_WorkTokenUniqueIds);
-    mem += core::CMemory::dynamicSize(m_CsvLineParser);
+    mem += core::memory::dynamicSize(m_ReverseSearchCreator);
+    mem += core::memory::dynamicSize(m_Categories);
+    mem += core::memory::dynamicSize(m_CategoriesByCount);
+    mem += core::memory::dynamicSize(m_TokenIdLookup);
+    mem += core::memory::dynamicSize(m_WorkTokenIds);
+    mem += core::memory::dynamicSize(m_WorkTokenUniqueIds);
+    mem += core::memory::dynamicSize(m_CsvLineParser);
     return mem;
 }
 
@@ -814,11 +813,11 @@ const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
 void CTokenListDataCategorizerBase::CTokenInfoItem::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenInfoItem");
-    core::CMemoryDebug::dynamicSize("m_Str", m_Str, mem);
+    core::memory_debug::dynamicSize("m_Str", m_Str, mem);
 }
 
 std::size_t CTokenListDataCategorizerBase::CTokenInfoItem::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Str);
+    return core::memory::dynamicSize(m_Str);
 }
 
 std::size_t CTokenListDataCategorizerBase::CTokenInfoItem::index() const {

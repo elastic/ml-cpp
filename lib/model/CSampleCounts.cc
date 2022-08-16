@@ -11,7 +11,7 @@
 
 #include <model/CSampleCounts.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -153,8 +153,7 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
                               << " for " << this->name(gatherer, id) << " ("
                               << id << "). (Mean count " << count_ << ")");
                     m_SampleCounts[id] = newCount;
-                    // Avoid compiler warning in the case of LOG_TRACE being compiled out
-                    static_cast<void>(oldCount);
+                    SUPPRESS_USAGE_WARNING(oldCount);
                 }
             }
         } else if (maths::common::CBasicStatistics::count(count_) >=
@@ -189,11 +188,9 @@ void CSampleCounts::recycle(const TSizeVec& idsToRemove) {
         m_MeanNonZeroBucketCounts[id] = TMeanAccumulator();
         m_EffectiveSampleVariances[id] = TMeanAccumulator();
     }
-    LOG_TRACE(<< "m_SampleCounts = " << core::CContainerPrinter::print(m_SampleCounts));
-    LOG_TRACE(<< "m_MeanNonZeroBucketCounts = "
-              << core::CContainerPrinter::print(m_MeanNonZeroBucketCounts));
-    LOG_TRACE(<< "m_EffectiveSampleVariances = "
-              << core::CContainerPrinter::print(m_EffectiveSampleVariances));
+    LOG_TRACE(<< "m_SampleCounts = " << m_SampleCounts);
+    LOG_TRACE(<< "m_MeanNonZeroBucketCounts = " << m_MeanNonZeroBucketCounts);
+    LOG_TRACE(<< "m_EffectiveSampleVariances = " << m_EffectiveSampleVariances);
 }
 
 void CSampleCounts::remove(std::size_t lowestIdToRemove) {
@@ -204,11 +201,9 @@ void CSampleCounts::remove(std::size_t lowestIdToRemove) {
                                         m_MeanNonZeroBucketCounts.end());
         m_EffectiveSampleVariances.erase(m_EffectiveSampleVariances.begin() + lowestIdToRemove,
                                          m_EffectiveSampleVariances.end());
-        LOG_TRACE(<< "m_SampleCounts = " << core::CContainerPrinter::print(m_SampleCounts));
-        LOG_TRACE(<< "m_MeanNonZeroBucketCounts = "
-                  << core::CContainerPrinter::print(m_MeanNonZeroBucketCounts));
-        LOG_TRACE(<< "m_EffectiveSampleVariances = "
-                  << core::CContainerPrinter::print(m_EffectiveSampleVariances));
+        LOG_TRACE(<< "m_SampleCounts = " << m_SampleCounts);
+        LOG_TRACE(<< "m_MeanNonZeroBucketCounts = " << m_MeanNonZeroBucketCounts);
+        LOG_TRACE(<< "m_EffectiveSampleVariances = " << m_EffectiveSampleVariances);
     }
 }
 
@@ -231,23 +226,23 @@ std::uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
             hash = maths::common::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
         }
     }
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
     return maths::common::CChecksum::calculate(0, hashes);
 }
 
 void CSampleCounts::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSampleCounts");
-    core::CMemoryDebug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_MeanNonZeroBucketCounts",
+    core::memory_debug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
+    core::memory_debug::dynamicSize("m_MeanNonZeroBucketCounts",
                                     m_MeanNonZeroBucketCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_EffectiveSampleVariances",
+    core::memory_debug::dynamicSize("m_EffectiveSampleVariances",
                                     m_EffectiveSampleVariances, mem);
 }
 
 std::size_t CSampleCounts::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_SampleCounts);
-    mem += core::CMemory::dynamicSize(m_MeanNonZeroBucketCounts);
-    mem += core::CMemory::dynamicSize(m_EffectiveSampleVariances);
+    std::size_t mem = core::memory::dynamicSize(m_SampleCounts);
+    mem += core::memory::dynamicSize(m_MeanNonZeroBucketCounts);
+    mem += core::memory::dynamicSize(m_EffectiveSampleVariances);
     return mem;
 }
 

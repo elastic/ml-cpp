@@ -12,29 +12,13 @@
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsScratch_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsScratch_h
 
-#include <core/CMemory.h>
-#include <core/CPackedBitVector.h>
-
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
-#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/ImportExport.h>
 
-#include <maths/common/CChecksum.h>
-#include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/CLinearAlgebraShims.h>
-#include <maths/common/CMathsFuncs.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/operators.hpp>
-
 #include <cstddef>
-#include <cstdint>
 #include <functional>
-#include <limits>
-#include <numeric>
-#include <vector>
 
 namespace CBoostedTreeLeafNodeStatisticsTest {
 struct testComputeBestSplitStatisticsThreading;
@@ -118,11 +102,11 @@ private:
     using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics used to compute the gain bound.
-    struct MATHS_ANALYTICS_EXPORT SChildrenGainStatistics {
-        double s_MinLossLeft{-boosted_tree_detail::INF};
-        double s_MinLossRight{-boosted_tree_detail::INF};
-        double s_GainLeft{-boosted_tree_detail::INF};
-        double s_GainRight{-boosted_tree_detail::INF};
+    struct SChildrenGainStatistics {
+        double s_MinLossLeft{-INF};
+        double s_MinLossRight{-INF};
+        double s_GainLeft{-INF};
+        double s_GainRight{-INF};
     };
 
 private:

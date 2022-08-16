@@ -23,25 +23,21 @@ namespace equal_with_tolerance_detail {
 
 template<typename T>
 struct SNorm {
-    using result_type = T;
     static T dispatch(const T& t) { return t; }
 };
 
 template<typename T, std::size_t N>
 struct SNorm<CVectorNx1<T, N>> {
-    using result_type = T;
     static T dispatch(const CVectorNx1<T, N>& t) { return t.euclidean(); }
 };
 
 template<typename T>
 struct SNorm<CVector<T>> {
-    using result_type = T;
     static T dispatch(const CVector<T>& t) { return t.euclidean(); }
 };
 
 template<typename T, std::size_t N>
 struct SNorm<CSymmetricMatrixNxN<T, N>> {
-    using result_type = T;
     static T dispatch(const CSymmetricMatrixNxN<T, N>& t) {
         return t.frobenius();
     }
@@ -49,7 +45,6 @@ struct SNorm<CSymmetricMatrixNxN<T, N>> {
 
 template<typename T>
 struct SNorm<CSymmetricMatrix<T>> {
-    using result_type = T;
     static T dispatch(const CSymmetricMatrix<T>& t) { return t.frobenius(); }
 };
 }
@@ -115,7 +110,8 @@ public:
     }
 
 private:
-    using TNorm = typename equal_with_tolerance_detail::SNorm<T>::result_type;
+    using TNorm =
+        decltype(equal_with_tolerance_detail::SNorm<T>::dispatch(std::declval<T>()));
 
 private:
     //! A type agnostic implementation of fabs.
@@ -125,7 +121,7 @@ private:
     }
 
     //! Get the norm of the specified type.
-    static TNorm norm(const T& t) {
+    static auto norm(const T& t) {
         return equal_with_tolerance_detail::SNorm<T>::dispatch(t);
     }
 

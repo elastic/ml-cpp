@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CModel_h
 #define INCLUDED_ml_maths_common_CModel_h
 
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>

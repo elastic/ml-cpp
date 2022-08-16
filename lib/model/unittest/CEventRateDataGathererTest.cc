@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -28,7 +26,6 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -210,25 +207,24 @@ void testInfluencerPerFeature(model_t::EFeature feature,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, valueField,
                            influencerFieldNames, key, features, startTime, 0);
     BOOST_TEST_REQUIRE(!gatherer.isPopulation());
-    BOOST_REQUIRE_EQUAL(std::size_t(0),
-                        addPerson(gatherer, resourceMonitor, "p", valueField, 1));
+    BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, resourceMonitor, "p", valueField, 1));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
     for (std::size_t i = 0; i < features.size(); ++i) {
         BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
     }
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
     BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
     BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
     std::size_t pid;
     BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+    BOOST_REQUIRE_EQUAL(0, pid);
     BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
+    BOOST_REQUIRE_EQUAL(0, gatherer.numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(0, gatherer.numberOverFieldValues());
 
     BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
     BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
@@ -241,8 +237,8 @@ void testInfluencerPerFeature(model_t::EFeature feature,
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            LOG_DEBUG(<< "featureData = " << featureData);
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
 
             BOOST_REQUIRE_EQUAL(feature, featureData[0].first);
             BOOST_REQUIRE_EQUAL(expected[j],
@@ -419,32 +415,32 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
         BOOST_TEST_REQUIRE(!gatherer.hasFeature(model_t::E_IndividualMinByPerson));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_REQUIRE_EQUAL(0, pid);
         BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
-        BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
+        BOOST_REQUIRE_EQUAL(0, gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(0, gatherer.numberOverFieldValues());
         BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -452,8 +448,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -477,10 +473,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -488,8 +484,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(2, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -517,10 +513,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -528,8 +524,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -588,8 +584,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0;
@@ -601,8 +597,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -631,19 +627,19 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_REQUIRE_EQUAL(0, pid);
         BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
@@ -656,11 +652,11 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-        BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-        BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, m_ResourceMonitor, "p5"));
 
         for (std::size_t i = 0; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
@@ -673,8 +669,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
@@ -686,8 +682,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         peopleToRemove.push_back(3);
         gatherer.recyclePeople(peopleToRemove);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(2, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(2, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
         BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
@@ -695,13 +691,13 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(2), pid);
+        BOOST_REQUIRE_EQUAL(2, pid);
         BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
+        BOOST_REQUIRE_EQUAL(4, pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
@@ -726,17 +722,17 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, key, features, startTime, 0);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-    BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-    BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-    BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
-    BOOST_REQUIRE_EQUAL(std::size_t(5), addPerson(gatherer, m_ResourceMonitor, "p6"));
-    BOOST_REQUIRE_EQUAL(std::size_t(6), addPerson(gatherer, m_ResourceMonitor, "p7"));
-    BOOST_REQUIRE_EQUAL(std::size_t(7), addPerson(gatherer, m_ResourceMonitor, "p8"));
+    BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
+    BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
+    BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
+    BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, m_ResourceMonitor, "p4"));
+    BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, m_ResourceMonitor, "p5"));
+    BOOST_REQUIRE_EQUAL(5, addPerson(gatherer, m_ResourceMonitor, "p6"));
+    BOOST_REQUIRE_EQUAL(6, addPerson(gatherer, m_ResourceMonitor, "p7"));
+    BOOST_REQUIRE_EQUAL(7, addPerson(gatherer, m_ResourceMonitor, "p8"));
 
     core_t::TTime counts[] = {0, 3, 5, 2, 0, 5, 7, 10};
-    for (std::size_t i = 0; i < boost::size(counts); ++i) {
+    for (std::size_t i = 0; i < std::size(counts); ++i) {
         for (core_t::TTime time = 0; time < counts[i]; ++time) {
             addArrival(gatherer, m_ResourceMonitor, startTime + time,
                        gatherer.personName(i));
@@ -753,21 +749,15 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
-        BOOST_REQUIRE_EQUAL(std::size_t(2),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
-        BOOST_REQUIRE_EQUAL(std::size_t(3),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        BOOST_REQUIRE_EQUAL(std::size_t(4),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
-        BOOST_REQUIRE_EQUAL(std::size_t(5),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(2, addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(3, addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        BOOST_REQUIRE_EQUAL(4, addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        BOOST_REQUIRE_EQUAL(5, addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
 
         core_t::TTime expectedCounts[] = {5, 2, 0, 5, 7, 10};
-        for (std::size_t i = 0; i < boost::size(expectedCounts); ++i) {
+        for (std::size_t i = 0; i < std::size(expectedCounts); ++i) {
             for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
                 addArrival(expectedGatherer, m_ResourceMonitor,
                            startTime + time, expectedGatherer.personName(i));
@@ -789,15 +779,12 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        BOOST_REQUIRE_EQUAL(std::size_t(2),
-                            addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        BOOST_REQUIRE_EQUAL(2, addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
 
         core_t::TTime expectedCounts[] = {5, 5, 7};
-        for (std::size_t i = 0; i < boost::size(expectedCounts); ++i) {
+        for (std::size_t i = 0; i < std::size(expectedCounts); ++i) {
             for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
                 addArrival(expectedGatherer, m_ResourceMonitor,
                            startTime + time, expectedGatherer.personName(i));
@@ -829,9 +816,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p1"));
     expectedRecycled.push_back(addPerson(gatherer, m_ResourceMonitor, "p7"));
 
-    LOG_DEBUG(<< "recycled          = "
-              << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
-    LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
+    LOG_DEBUG(<< "recycled          = " << gatherer.recycledPersonIds());
+    LOG_DEBUG(<< "expected recycled = " << expectedRecycled);
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedRecycled),
                         core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
@@ -882,7 +868,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         addPerson(gatherer, m_ResourceMonitor, "p");
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -890,8 +876,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -916,10 +902,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -927,8 +913,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(2, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -956,10 +942,10 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < std::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -967,8 +953,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -1155,8 +1141,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0;
@@ -1168,8 +1154,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
-                LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                LOG_DEBUG(<< "featureData = " << featureData);
+                BOOST_REQUIRE_EQUAL(1, featureData.size());
                 BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                                     featureData[0].first);
                 BOOST_REQUIRE_EQUAL(
@@ -1198,18 +1184,18 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_REQUIRE_EQUAL(0, pid);
         BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
@@ -1222,11 +1208,11 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-        BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-        BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-        BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(1, addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(2, addPerson(gatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(3, addPerson(gatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(4, addPerson(gatherer, m_ResourceMonitor, "p5"));
 
         for (std::size_t i = 0; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
@@ -1239,8 +1225,8 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
@@ -1252,7 +1238,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         peopleToRemove.push_back(3);
         gatherer.recyclePeople(peopleToRemove);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(2, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
         BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
@@ -1260,13 +1246,13 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(2), pid);
+        BOOST_REQUIRE_EQUAL(2, pid);
         BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
-        BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
+        BOOST_REQUIRE_EQUAL(4, pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
-        LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1, featureData.size());
         BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                             featureData[0].first);
         BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
@@ -1299,7 +1285,7 @@ BOOST_FIXTURE_TEST_CASE(testArrivalBeforeLatencyWindowIsIgnored, CTestFixture) {
     TFeatureSizeFeatureDataPrVecPrVec featureData;
 
     gatherer.featureData(0, bucketLength, featureData);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), featureData.size());
+    BOOST_REQUIRE_EQUAL(0, featureData.size());
 
     gatherer.featureData(600, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
@@ -1336,7 +1322,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
                            EMPTY_STRING, {}, key, features, startTime, 0);
     addPerson(gatherer, m_ResourceMonitor, "p");
 
-    for (std::size_t i = 0; i < boost::size(data); ++i) {
+    for (std::size_t i = 0; i < std::size(data); ++i) {
         addArrival(gatherer, m_ResourceMonitor, data[i], "p");
     }
 
@@ -1393,7 +1379,7 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     addPerson(gatherer, m_ResourceMonitor, "p2");
     addPerson(gatherer, m_ResourceMonitor, "p3");
 
-    for (std::size_t i = 0; i < boost::size(data); ++i) {
+    for (std::size_t i = 0; i < std::size(data); ++i) {
         addArrival(gatherer, m_ResourceMonitor, data[i], "p1");
         addArrival(gatherer, m_ResourceMonitor, data[i], "p2");
         addArrival(gatherer, m_ResourceMonitor, data[i], "p3");
@@ -1797,17 +1783,16 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
                                "V", {"INF"}, key, features, startTime, 0);
 
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
+        BOOST_REQUIRE_EQUAL(0, addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualUniqueCountByBucketAndPerson));
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         core_t::TTime time = startTime;
 
@@ -1851,7 +1836,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
@@ -1868,8 +1853,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1878,8 +1863,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1889,8 +1874,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1899,8 +1884,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1910,8 +1895,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1920,8 +1905,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1933,8 +1918,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -1944,14 +1929,14 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         testPersistence(params, gatherer);
     }
@@ -1973,7 +1958,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
@@ -1990,8 +1975,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2000,8 +1985,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2011,8 +1996,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2021,8 +2006,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2032,8 +2017,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2042,8 +2027,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2055,8 +2040,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2066,14 +2051,14 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         testPersistence(params, gatherer);
     }
@@ -2095,7 +2080,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
         BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
@@ -2113,8 +2098,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2123,8 +2108,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2134,8 +2119,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2144,8 +2129,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2155,8 +2140,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2165,8 +2150,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2178,8 +2163,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2189,15 +2174,15 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
         testPersistence(params, gatherer);
     }
@@ -2219,7 +2204,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
         BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
@@ -2237,8 +2222,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2247,8 +2232,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2258,8 +2243,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2268,8 +2253,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2279,8 +2264,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2289,8 +2274,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2302,8 +2287,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
@@ -2313,15 +2298,15 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
-            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(1, featureData.size());
+            BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
             BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
         testPersistence(params, gatherer);
     }

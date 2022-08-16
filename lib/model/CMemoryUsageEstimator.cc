@@ -11,16 +11,14 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/SVD>
-
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <iostream>
 
@@ -99,15 +97,14 @@ CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
 }
 
 void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t memory) {
-    LOG_TRACE(<< "Add Value for " << core::CContainerPrinter::print(predictors)
-              << ": " << memory);
+    LOG_TRACE(<< "Add Value for " << predictors << ": " << memory);
 
     m_NumEstimatesSinceValue = 0;
 
     if (m_Values.size() == m_Values.capacity()) {
         // Replace closest.
         std::size_t closest = 0;
-        std::size_t closestDistance = boost::numeric::bounds<std::size_t>::highest();
+        std::size_t closestDistance = std::numeric_limits<std::size_t>::max();
         for (std::size_t i = 0; closestDistance > 0 && i < m_Values.size(); ++i) {
             std::size_t distance = 0;
             for (std::size_t j = 0; j < predictors.size(); ++j) {
@@ -127,11 +124,11 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
 
 void CMemoryUsageEstimator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMemoryUsageEstimator");
-    core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
+    core::memory_debug::dynamicSize("m_Values", m_Values, mem);
 }
 
 std::size_t CMemoryUsageEstimator::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Values);
+    return core::memory::dynamicSize(m_Values);
 }
 
 void CMemoryUsageEstimator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -153,8 +150,8 @@ bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser&
 }
 
 std::size_t CMemoryUsageEstimator::maximumExtrapolation(EComponent component) const {
-    std::size_t min = boost::numeric::bounds<std::size_t>::highest();
-    std::size_t max = boost::numeric::bounds<std::size_t>::lowest();
+    std::size_t min = std::numeric_limits<std::size_t>::max();
+    std::size_t max = std::numeric_limits<std::size_t>::lowest();
     for (std::size_t i = 0; i < m_Values.size(); ++i) {
         min = std::max(min, m_Values[i].first[component]);
         max = std::max(max, m_Values[i].first[component]);

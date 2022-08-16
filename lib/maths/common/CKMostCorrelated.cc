@@ -12,6 +12,7 @@
 #include <maths/common/CKMostCorrelated.h>
 
 #include <core/CAllocationStrategy.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
@@ -21,12 +22,12 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 
-#include <boost/array.hpp>
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/boost_array.hpp>
+#include <boost/geometry/geometries/adapted/std_array.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/iterator/counting_iterator.hpp>
@@ -133,16 +134,12 @@ bool CKMostCorrelated::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     do {
         const std::string& name = traverser.name();
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
-        RESTORE(PROJECTIONS_TAG,
-                core::CPersistUtils::restore(PROJECTIONS_TAG, m_Projections, traverser))
-        RESTORE(CURRENT_PROJECTED_TAG,
-                core::CPersistUtils::restore(CURRENT_PROJECTED_TAG, m_CurrentProjected, traverser))
-        RESTORE(PROJECTED_TAG,
-                core::CPersistUtils::restore(PROJECTED_TAG, m_Projected, traverser))
+        RESTORE_WITH_UTILS(PROJECTIONS_TAG, m_Projections)
+        RESTORE_WITH_UTILS(CURRENT_PROJECTED_TAG, m_CurrentProjected)
+        RESTORE_WITH_UTILS(PROJECTED_TAG, m_Projected)
         RESTORE_BUILT_IN(MAXIMUM_COUNT_TAG, m_MaximumCount)
-        RESTORE(MOMENTS_TAG, core::CPersistUtils::restore(MOMENTS_TAG, m_Moments, traverser))
-        RESTORE(MOST_CORRELATED_TAG,
-                core::CPersistUtils::restore(MOST_CORRELATED_TAG, m_MostCorrelated, traverser))
+        RESTORE_WITH_UTILS(MOMENTS_TAG, m_Moments)
+        RESTORE_WITH_UTILS(MOST_CORRELATED_TAG, m_MostCorrelated)
     } while (traverser.next());
 
     return true;
@@ -218,7 +215,7 @@ void CKMostCorrelated::addVariables(std::size_t n) {
 }
 
 void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
-    LOG_TRACE(<< "removing = " << core::CContainerPrinter::print(remove));
+    LOG_TRACE(<< "removing = " << remove);
     for (std::size_t i = 0; i < remove.size(); ++i) {
         if (remove[i] < m_Moments.size()) {
             m_Moments[remove[i]] = TMeanVarAccumulator();
@@ -321,7 +318,7 @@ void CKMostCorrelated::capture() {
             // do so at random with probability proportional to 1 - absolute
             // correlation.
 
-            LOG_TRACE(<< "add = " << core::CContainerPrinter::print(add));
+            LOG_TRACE(<< "add = " << add);
 
             std::size_t vunerable = std::max(m_K, N - 3 * n);
 
@@ -337,7 +334,7 @@ void CKMostCorrelated::capture() {
                 for (std::size_t i = 0; i < p.size(); ++i) {
                     p[i] /= Z;
                 }
-                LOG_TRACE(<< "p = " << core::CContainerPrinter::print(p));
+                LOG_TRACE(<< "p = " << p);
 
                 TSizeVec replace;
                 CSampling::categoricalSampleWithoutReplacement(m_Rng, p, n - added, replace);
@@ -365,19 +362,19 @@ std::uint64_t CKMostCorrelated::checksum(std::uint64_t seed) const {
 
 void CKMostCorrelated::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMostCorrelated");
-    core::CMemoryDebug::dynamicSize("m_Projections", m_Projections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentProjected", m_CurrentProjected, mem);
-    core::CMemoryDebug::dynamicSize("m_Projected", m_Projected, mem);
-    core::CMemoryDebug::dynamicSize("m_Moments", m_Moments, mem);
-    core::CMemoryDebug::dynamicSize("m_MostCorrelated", m_MostCorrelated, mem);
+    core::memory_debug::dynamicSize("m_Projections", m_Projections, mem);
+    core::memory_debug::dynamicSize("m_CurrentProjected", m_CurrentProjected, mem);
+    core::memory_debug::dynamicSize("m_Projected", m_Projected, mem);
+    core::memory_debug::dynamicSize("m_Moments", m_Moments, mem);
+    core::memory_debug::dynamicSize("m_MostCorrelated", m_MostCorrelated, mem);
 }
 
 std::size_t CKMostCorrelated::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Projections);
-    mem += core::CMemory::dynamicSize(m_CurrentProjected);
-    mem += core::CMemory::dynamicSize(m_Projected);
-    mem += core::CMemory::dynamicSize(m_Moments);
-    mem += core::CMemory::dynamicSize(m_MostCorrelated);
+    std::size_t mem = core::memory::dynamicSize(m_Projections);
+    mem += core::memory::dynamicSize(m_CurrentProjected);
+    mem += core::memory::dynamicSize(m_Projected);
+    mem += core::memory::dynamicSize(m_Moments);
+    mem += core::memory::dynamicSize(m_MostCorrelated);
     return mem;
 }
 
@@ -575,7 +572,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
 
     mostCorrelated.sort();
     result.assign(mostCorrelated.begin(), mostCorrelated.end());
-    LOG_TRACE(<< "most correlated " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "most correlated " << result);
 }
 
 void CKMostCorrelated::nextProjection() {

@@ -12,11 +12,8 @@
 #ifndef INCLUDED_ml_model_CSampleQueue_h
 #define INCLUDED_ml_model_CSampleQueue_h
 
-#include <core/CContainerPrinter.h>
-#include <core/CHashing.h>
-#include <core/CIEEE754.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -25,8 +22,8 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
 
-#include <model/CFeatureData.h>
 #include <model/CMetricPartialStatistic.h>
+#include <model/CSample.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -150,8 +147,8 @@ private:
         }
 
         //! Get a checksum of this sub-sample.
-        uint64_t checksum() const {
-            uint64_t seed = maths::common::CChecksum::calculate(0, s_Statistic);
+        std::uint64_t checksum() const {
+            std::uint64_t seed = maths::common::CChecksum::calculate(0, s_Statistic);
             seed = maths::common::CChecksum::calculate(seed, s_Start);
             return maths::common::CChecksum::calculate(seed, s_End);
         }
@@ -159,12 +156,12 @@ private:
         //! Debug the memory used by the sub-sample.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("SSubSample", sizeof(*this));
-            core::CMemoryDebug::dynamicSize("s_Statistic", s_Statistic, mem);
+            core::memory_debug::dynamicSize("s_Statistic", s_Statistic, mem);
         }
 
         //! Get the memory used by the sub-sample.
         std::size_t memoryUsage() const {
-            return sizeof(*this) + core::CMemory::dynamicSize(s_Statistic);
+            return sizeof(*this) + core::memory::dynamicSize(s_Statistic);
         }
 
         //! Print the sub-sample for debug.
@@ -266,7 +263,7 @@ public:
                 TDouble1Vec sample = combinedSubSample->s_Statistic.value();
                 core_t::TTime sampleTime = combinedSubSample->s_Statistic.time();
                 double vs = model_t::varianceScale(feature, sampleCount, count);
-                samples.push_back(CSample(sampleTime, sample, vs, count));
+                samples.emplace_back(sampleTime, sample, vs, count);
                 combinedSubSample = TOptionalSubSample();
             }
         }
@@ -347,12 +344,12 @@ public:
     //! Debug the memory used by the queue.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSampleQueue", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        core::memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by the queue.
     std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Queue);
+        return sizeof(*this) + core::memory::dynamicSize(m_Queue);
     }
 
     //! Prints the contents of the queue.

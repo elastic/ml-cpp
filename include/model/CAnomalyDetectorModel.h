@@ -12,18 +12,14 @@
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModel_h
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CProgramCounters.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/MathsTypes.h>
-
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
-#include <model/CMemoryUsageEstimator.h>
-#include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -33,7 +29,6 @@
 #include <cstdint>
 #include <functional>
 #include <limits>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -45,21 +40,20 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-
 namespace maths {
 namespace common {
 class CMultivariatePrior;
 }
 }
-
 namespace model {
-
+class CAnnotation;
 class CAttributeFrequencyGreaterThan;
-class CInterimBucketCorrector;
 class CDataGatherer;
 class CHierarchicalResults;
-class CAnnotation;
+class CInterimBucketCorrector;
+class CMemoryUsageEstimator;
 class CModelDetailsView;
+class CPartitioningFields;
 class CPersonFrequencyGreaterThan;
 class CResourceMonitor;
 struct SAnnotatedProbability;
@@ -540,10 +534,11 @@ protected:
         SFeatureCorrelateModels(model_t::EFeature feature,
                                 const TMultivariatePriorSPtr& modelPrior,
                                 TCorrelationsPtr&& model);
+        ~SFeatureCorrelateModels();
         SFeatureCorrelateModels(const SFeatureCorrelateModels&) = delete;
         SFeatureCorrelateModels& operator=(const SFeatureCorrelateModels&) = delete;
-        SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
-        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&) = default;
+        SFeatureCorrelateModels(SFeatureCorrelateModels&&);
+        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,

@@ -22,7 +22,6 @@
 
 #include <boost/unordered_map.hpp>
 
-#include <set>
 #include <string>
 #include <vector>
 

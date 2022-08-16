@@ -8,6 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #include <api/CFieldDataCategorizer.h>
 
 #include <core/CDataAdder.h>
@@ -15,6 +16,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>

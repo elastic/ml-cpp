@@ -17,8 +17,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <cstdint>
 
 namespace ml {
@@ -38,7 +36,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CModelWeight {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     explicit CModelWeight(double weight);

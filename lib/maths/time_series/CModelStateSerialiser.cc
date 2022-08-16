@@ -9,8 +9,10 @@
  * limitation.
  */
 
-#include <maths/time_series/CModelStateSerialiser.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 
+#include <maths/time_series/CModelStateSerialiser.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 
 namespace ml {

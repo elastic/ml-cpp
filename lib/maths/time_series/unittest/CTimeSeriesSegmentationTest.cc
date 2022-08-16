@@ -15,6 +15,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
@@ -50,11 +51,12 @@ public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
     ~CDebugGenerator() {
         if (ENABLED) {
-            std::ofstream file;
-            file.open(m_File);
+            std::ofstream file_;
+            file_.open(m_File);
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
-            file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
-            file << "r = " << core::CContainerPrinter::print(m_Residuals) << ";\n";
+            file << "f = " << m_Values << ";\n";
+            file << "r = " << m_Residuals << ";\n";
             file << "plt.figure(1);\n";
             file << "plt.clf();\n";
             file << "plt.plot(f);\n";
@@ -128,9 +130,8 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                                   values.size()};
 
         TSizeVec segmentation{TSegmentation::piecewiseLinear(values, 1e-5, outlierFraction)};
-        LOG_DEBUG(<< "true segmentation = "
-                  << core::CContainerPrinter::print(trueSegmentation));
-        LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
+        LOG_DEBUG(<< "true segmentation = " << trueSegmentation);
+        LOG_DEBUG(<< "segmentation      = " << segmentation);
 
         TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinear(
             values, segmentation, outlierFraction)};
@@ -191,8 +192,8 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                               values.size()};
 
     TSizeVec segmentation(TSegmentation::piecewiseLinear(values, 0.01, 0.05));
-    LOG_DEBUG(<< "true segmentation = " << core::CContainerPrinter::print(trueSegmentation));
-    LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
+    LOG_DEBUG(<< "true segmentation = " << trueSegmentation);
+    LOG_DEBUG(<< "segmentation      = " << segmentation);
 
     TFloatMeanAccumulatorVec residuals{
         TSegmentation::removePiecewiseLinear(values, segmentation, 0.05)};
@@ -272,9 +273,8 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
 
         TSizeVec segmentation{TSegmentation::piecewiseLinearScaledSeasonal(
             values, [&](std::size_t j) { return seasonal(halfHour * j); }, 0.001)};
-        LOG_DEBUG(<< "true segmentation = "
-                  << core::CContainerPrinter::print(trueSegmentation));
-        LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
+        LOG_DEBUG(<< "true segmentation = " << trueSegmentation);
+        LOG_DEBUG(<< "segmentation      = " << segmentation);
 
         // No false positives.
         BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
@@ -333,9 +333,8 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
             },
             0.01));
         ++i;
-        LOG_DEBUG(<< "true segmentation = "
-                  << core::CContainerPrinter::print(trueSegmentation));
-        LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
+        LOG_DEBUG(<< "true segmentation = " << trueSegmentation);
+        LOG_DEBUG(<< "segmentation      = " << segmentation);
 
         // No false positives
         BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
@@ -435,7 +434,7 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
     }
 
     TSizeVec segmentation{TSegmentation::piecewiseLinear(values, 0.001, 0.1)};
-    LOG_DEBUG(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+    LOG_DEBUG(<< "segmentation = " << segmentation);
 
     values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation, 0.1);
 
@@ -456,7 +455,7 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
     }
 
     segmentation = TSegmentation::piecewiseLinear(values, 0.001, 0.1);
-    LOG_DEBUG(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+    LOG_DEBUG(<< "segmentation = " << segmentation);
 
     values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation, 0.1);
 
@@ -611,7 +610,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseTimeShifted) {
         shifts[1] = hour * (static_cast<core_t::TTime>(shift[0]) / hour);
         rng.generateUniformSamples(hour, 5 * hour, 1, shift);
         shifts[2] = hour * (static_cast<core_t::TTime>(shift[0]) / hour);
-        LOG_DEBUG(<< "shifts = " << core::CContainerPrinter::print(shifts));
+        LOG_DEBUG(<< "shifts = " << shifts);
 
         values.assign(240, TFloatMeanAccumulator{});
         rng.generateNormalSamples(0.0, 1.0, 240, noise);

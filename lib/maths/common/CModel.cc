@@ -17,8 +17,6 @@
 
 #include <maths/common/CTools.h>
 
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -278,7 +276,7 @@ CModel::CModel(const CModelParams& params) : m_Params(params) {
 }
 
 double CModel::effectiveCount(std::size_t n) {
-    return n <= boost::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n - 1] : 0.5;
+    return n <= std::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n - 1] : 0.5;
 }
 
 double CModel::emptyBucketWeight(double occupancy) {

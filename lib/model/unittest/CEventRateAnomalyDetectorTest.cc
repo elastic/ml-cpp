@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -30,6 +29,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
+#include <map>
+#include <set>
 
 BOOST_AUTO_TEST_SUITE(CEventRateAnomalyDetectorTest)
 
@@ -228,8 +229,8 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         }
     }
     LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
-    BOOST_REQUIRE_EQUAL(std::size_t(11), detected503);
-    BOOST_REQUIRE_EQUAL(std::size_t(11), detectedMySQL);
+    BOOST_REQUIRE_EQUAL(11, detected503);
+    BOOST_REQUIRE_EQUAL(11, detectedMySQL);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

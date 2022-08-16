@@ -23,6 +23,7 @@
 #include <model/CHierarchicalResultsAggregator.h>
 #include <model/CHierarchicalResultsPopulator.h>
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
+#include <model/CLimits.h>
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
@@ -286,16 +287,13 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         TDoubleVec anomalyRates(writer.anomalyRates());
 
         LOG_DEBUG(<< "bucket length = " << bucketLength);
-        LOG_DEBUG(<< "high anomalies in = "
-                  << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG(<< "high anomaly factors = "
-                  << core::CContainerPrinter::print(highAnomalyFactors));
-        LOG_DEBUG(<< "anomaly factors = " << core::CContainerPrinter::print(anomalyFactors));
-        LOG_DEBUG(<< "anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
+        LOG_DEBUG(<< "high anomalies in = " << highAnomalyTimes);
+        LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
+        LOG_DEBUG(<< "anomaly factors = " << anomalyFactors);
+        LOG_DEBUG(<< "anomaly rates = " << anomalyRates);
 
         for (std::size_t j = 0; j < highAnomalyTimes.size(); ++j) {
-            LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
-                      << ' ' << highAnomalyFactors[j]);
+            LOG_DEBUG(<< "Testing " << highAnomalyTimes[j] << " " << highAnomalyFactors[j]);
             BOOST_TEST_REQUIRE(
                 (doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
                  doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
@@ -438,13 +436,11 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
-        LOG_DEBUG(<< "high anomalies in = "
-                  << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG(<< "high anomaly factors = "
-                  << core::CContainerPrinter::print(highAnomalyFactors));
+        LOG_DEBUG(<< "high anomalies in = " << highAnomalyTimes);
+        LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
 
         // expect there to be 2 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(2), highAnomalyTimes.size());
+        BOOST_REQUIRE_EQUAL(2, highAnomalyTimes.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(99.0, highAnomalyFactors[1], 2.0);
     }
     {
@@ -465,13 +461,11 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
-        LOG_DEBUG(<< "high anomalies in = "
-                  << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG(<< "high anomaly factors = "
-                  << core::CContainerPrinter::print(highAnomalyFactors));
+        LOG_DEBUG(<< "high anomalies in = " << highAnomalyTimes);
+        LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
 
         // expect there to be 1 anomaly
-        BOOST_REQUIRE_EQUAL(std::size_t(1), highAnomalyTimes.size());
+        BOOST_REQUIRE_EQUAL(1, highAnomalyTimes.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
     }
 }

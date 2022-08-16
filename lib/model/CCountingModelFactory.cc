@@ -11,12 +11,8 @@
 
 #include <model/CCountingModelFactory.h>
 
-#include <core/CStateRestoreTraverser.h>
-
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CMultivariateConstantPrior.h>
-
-#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>

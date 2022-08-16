@@ -12,6 +12,7 @@
 #include <maths/time_series/CDecompositionComponent.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -329,10 +330,10 @@ void CDecompositionComponent::CPackedSplines::interpolate(const TDoubleVec& knot
         !varianceSpline.interpolate(knots, variances, boundary)) {
         this->swap(oldSpline);
     }
-    LOG_TRACE(<< "types = " << core::CContainerPrinter::print(m_Types));
-    LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(m_Knots));
-    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(m_Values));
-    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+    LOG_TRACE(<< "types = " << m_Types);
+    LOG_TRACE(<< "knots = " << m_Knots);
+    LOG_TRACE(<< "values = " << m_Values);
+    LOG_TRACE(<< "curvatures = " << m_Curvatures);
 }
 
 std::uint64_t CDecompositionComponent::CPackedSplines::checksum(std::uint64_t seed) const {
@@ -345,19 +346,19 @@ std::uint64_t CDecompositionComponent::CPackedSplines::checksum(std::uint64_t se
 void CDecompositionComponent::CPackedSplines::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedSplines");
-    core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
-    core::CMemoryDebug::dynamicSize("m_Values[0]", m_Values[0], mem);
-    core::CMemoryDebug::dynamicSize("m_Values[1]", m_Values[1], mem);
-    core::CMemoryDebug::dynamicSize("m_Curvatures[0]", m_Curvatures[0], mem);
-    core::CMemoryDebug::dynamicSize("m_Curvatures[1]", m_Curvatures[1], mem);
+    core::memory_debug::dynamicSize("m_Knots", m_Knots, mem);
+    core::memory_debug::dynamicSize("m_Values[0]", m_Values[0], mem);
+    core::memory_debug::dynamicSize("m_Values[1]", m_Values[1], mem);
+    core::memory_debug::dynamicSize("m_Curvatures[0]", m_Curvatures[0], mem);
+    core::memory_debug::dynamicSize("m_Curvatures[1]", m_Curvatures[1], mem);
 }
 
 std::size_t CDecompositionComponent::CPackedSplines::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Knots)};
-    mem += core::CMemory::dynamicSize(m_Values[0]);
-    mem += core::CMemory::dynamicSize(m_Values[1]);
-    mem += core::CMemory::dynamicSize(m_Curvatures[0]);
-    mem += core::CMemory::dynamicSize(m_Curvatures[1]);
+    std::size_t mem{core::memory::dynamicSize(m_Knots)};
+    mem += core::memory::dynamicSize(m_Values[0]);
+    mem += core::memory::dynamicSize(m_Values[1]);
+    mem += core::memory::dynamicSize(m_Curvatures[0]);
+    mem += core::memory::dynamicSize(m_Curvatures[1]);
     return mem;
 }
 }

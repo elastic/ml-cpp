@@ -81,7 +81,7 @@ public:
     //! the object lifetime.
     class CORE_EXPORT CScopeSetFatalErrorHandler : private CNonCopyable {
     public:
-        CScopeSetFatalErrorHandler(const TFatalErrorHandler& handler);
+        explicit CScopeSetFatalErrorHandler(const TFatalErrorHandler& handler);
         ~CScopeSetFatalErrorHandler();
 
     private:

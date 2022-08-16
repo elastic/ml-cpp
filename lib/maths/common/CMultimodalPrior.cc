@@ -11,8 +11,8 @@
 
 #include <maths/common/CMultimodalPrior.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -40,6 +40,7 @@
 
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <set>
 
 namespace ml {
@@ -355,9 +356,8 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
         return;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -398,8 +398,7 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
             double x{samples[i]};
             if (CMathsFuncs::isFinite(x) == false ||
                 CMathsFuncs::isFinite(weights[i]) == false) {
-                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                          << core::CContainerPrinter::print(weights[i]));
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights[i]);
                 continue;
             }
             if (hasSeasonalScale) {
@@ -726,9 +725,8 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         return maths_t::E_FpFailed;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
     if (this->isNonInformative()) {
@@ -828,8 +826,7 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
                 return maths_t::E_FpOverflowed;
             }
 
-            LOG_TRACE(<< "modeLogLikelihoods = "
-                      << core::CContainerPrinter::print(modeLogLikelihoods));
+            LOG_TRACE(<< "modeLogLikelihoods = " << modeLogLikelihoods);
 
             double sampleLikelihood{0.0};
             double Z{0.0};
@@ -844,8 +841,7 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             sampleLikelihood /= Z;
             double sampleLogLikelihood{n * (std::log(sampleLikelihood) + maxLogLikelihood)};
 
-            LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample)
-                      << ", maxLogLikelihood = " << maxLogLikelihood
+            LOG_TRACE(<< "sample = " << sample << ", maxLogLikelihood = " << maxLogLikelihood
                       << ", sampleLogLikelihood = " << sampleLogLikelihood);
 
             result += sampleLogLikelihood - n * logSeasonalScale;
@@ -858,8 +854,8 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     maths_t::EFloatingPointErrorStatus status{CMathsFuncs::fpStatus(result)};
     if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
     }
     LOG_TRACE(<< "Joint log likelihood = " << result);
     return status;
@@ -898,8 +894,7 @@ void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
-    LOG_TRACE(<< "normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-              << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "normalizedWeights = " << normalizedWeights << ", sampling = " << sampling);
 
     if (sampling.size() != m_Modes.size()) {
         LOG_ERROR(<< "Failed to sample marginal likelihood");
@@ -910,10 +905,10 @@ void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
     TDouble1Vec modeSamples;
     for (std::size_t i = 0; i < m_Modes.size(); ++i) {
         m_Modes[i].s_Prior->sampleMarginalLikelihood(sampling[i], modeSamples);
-        LOG_TRACE(<< "modeSamples = " << core::CContainerPrinter::print(modeSamples));
+        LOG_TRACE(<< "modeSamples = " << modeSamples);
         std::copy(modeSamples.begin(), modeSamples.end(), std::back_inserter(samples));
     }
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
 }
 
 bool CMultimodalPrior::minusLogJointCdf(const TDouble1Vec& samples,
@@ -1121,8 +1116,7 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             upperBoundCalculator.calculate(upperBound) == false) {
             LOG_ERROR(<< "Couldn't compute probability of less likely samples:"
                       << " " << lowerBoundCalculator << " " << upperBoundCalculator
-                      << " (samples = " << core::CContainerPrinter::print(samples)
-                      << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+                      << " (samples = " << samples << ", weights = " << weights << ")");
             return false;
         }
         tail = static_cast<maths_t::ETail>(tail_);
@@ -1179,15 +1173,15 @@ std::uint64_t CMultimodalPrior::checksum(std::uint64_t seed) const {
 
 void CMultimodalPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultimodalPrior");
-    core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
-    core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
+    core::memory_debug::dynamicSize("m_Clusterer", m_Clusterer, mem);
+    core::memory_debug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
+    core::memory_debug::dynamicSize("m_Modes", m_Modes, mem);
 }
 
 std::size_t CMultimodalPrior::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
-    mem += core::CMemory::dynamicSize(m_SeedPrior);
-    mem += core::CMemory::dynamicSize(m_Modes);
+    std::size_t mem = core::memory::dynamicSize(m_Clusterer);
+    mem += core::memory::dynamicSize(m_SeedPrior);
+    mem += core::memory::dynamicSize(m_Modes);
     return mem;
 }
 
@@ -1354,7 +1348,7 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
                                            std::log(CBasicStatistics::mean(sampleUpperBound)),
                                        0.0);
 
-            LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample) << ", sample -log(c.d.f.) = ["
+            LOG_TRACE(<< "sample = " << sample << ", sample -log(c.d.f.) = ["
                       << sampleLowerBound << "," << sampleUpperBound << "]");
         }
     } catch (const std::exception& e) {
@@ -1362,9 +1356,8 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
         return false;
     }
     if (!success) {
-        LOG_ERROR(<< "Unable to compute c.d.f. (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Unable to compute c.d.f. (samples = " << samples
+                  << ", weights = " << weights << ")");
     }
 
     LOG_TRACE(<< "Joint -log(c.d.f.) = [" << lowerBound << "," << upperBound << "]");
@@ -1415,7 +1408,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
                                          samples) == false) {
             LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
         }
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << samples);
 
         double wl{pLeft * numberSamples};
         double ws{std::min(wl, 4.0)};
@@ -1440,7 +1433,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
                                          samples) == false) {
             LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex);
         }
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << samples);
 
         double wr{pRight * numberSamples};
         double ws{std::min(wr, 4.0)};
@@ -1523,7 +1516,7 @@ void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex
         wr /= Z;
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
     LOG_TRACE(<< "w = " << w << ", wl = " << wl << ", wr = " << wr);
 
     double ws{std::min(w, 4.0)};

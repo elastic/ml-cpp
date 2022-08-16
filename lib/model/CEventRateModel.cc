@@ -11,16 +11,14 @@
 
 #include <model/CEventRateModel.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
@@ -34,12 +32,12 @@
 #include <model/CModelDetailsView.h>
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <string>
 #include <utility>
 
@@ -256,8 +254,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
 
             if (feature == model_t::E_IndividualTotalBucketCountByPerson) {
                 for (const auto& data_ : data) {
@@ -517,7 +514,7 @@ std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -525,17 +522,17 @@ std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
 void CEventRateModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CEventRateModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
-    core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("s_Probabilities", m_Probabilities, mem);
+    core::memory_debug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
@@ -549,13 +546,13 @@ std::size_t CEventRateModel::staticSize() const {
 
 std::size_t CEventRateModel::computeMemoryUsage() const {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_Probabilities);
-    mem += core::CMemory::dynamicSize(m_ProbabilityPrior);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_Probabilities);
+    mem += core::memory::dynamicSize(m_ProbabilityPrior);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 
@@ -589,7 +586,7 @@ CEventRateModel::TSizeUInt64PrVec& CEventRateModel::currentBucketPersonCounts() 
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CEventRateModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -701,7 +698,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

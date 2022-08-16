@@ -12,33 +12,35 @@
 #include <model/CEventRatePopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CCategoricalTools.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
-
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
-#include <model/CEventRateBucketGatherer.h>
+#include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {
@@ -84,10 +86,10 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_CurrentBucketStats(dataGatherer->currentBucketStartTime() -
                            dataGatherer->bucketLength()),
       m_NewAttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_AttributeProbabilityPrior(maths::common::CMultinomialConjugate::nonInformativePrior(
-          boost::numeric::bounds<int>::highest(),
+          std::numeric_limits<int>::max(),
           params.s_DecayRate)),
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
@@ -336,8 +338,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -385,8 +386,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(<< model_t::print(feature) << ": "
-                      << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << data);
 
             if (feature == model_t::E_PopulationUniquePersonCountByAttribute) {
                 TDoubleVec categories;
@@ -400,7 +400,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                         CDataGatherer::extractData(tuple).s_Count));
                 }
                 maths::common::CMultinomialConjugate prior(
-                    boost::numeric::bounds<int>::highest(), categories, concentrations);
+                    std::numeric_limits<int>::max(), categories, concentrations);
                 m_AttributeProbabilityPrior.swap(prior);
                 continue;
             }
@@ -855,7 +855,7 @@ std::uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats
     }
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -863,26 +863,26 @@ std::uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats
 void CEventRatePopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CEventRatePopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeProbabilities",
+    core::memory_debug::dynamicSize("m_AttributeProbabilities",
                                     m_AttributeProbabilities, mem);
-    core::CMemoryDebug::dynamicSize("m_NewPersonAttributePrior",
+    core::memory_debug::dynamicSize("m_NewPersonAttributePrior",
                                     m_NewAttributeProbabilityPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeProbabilityPrior",
+    core::memory_debug::dynamicSize("m_AttributeProbabilityPrior",
                                     m_AttributeProbabilityPrior, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
+    core::memory_debug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
+    core::memory_debug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
-    core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
+    core::memory_debug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
 std::size_t CEventRatePopulationModel::memoryUsage() const {
@@ -895,17 +895,17 @@ std::size_t CEventRatePopulationModel::memoryUsage() const {
 
 std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     std::size_t mem = this->CPopulationModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_AttributeProbabilities);
-    mem += core::CMemory::dynamicSize(m_NewAttributeProbabilityPrior);
-    mem += core::CMemory::dynamicSize(m_AttributeProbabilityPrior);
-    mem += core::CMemory::dynamicSize(m_FeatureModels);
-    mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
-    mem += core::CMemory::dynamicSize(m_MemoryEstimator);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_AttributeProbabilities);
+    mem += core::memory::dynamicSize(m_NewAttributeProbabilityPrior);
+    mem += core::memory::dynamicSize(m_AttributeProbabilityPrior);
+    mem += core::memory::dynamicSize(m_FeatureModels);
+    mem += core::memory::dynamicSize(m_FeatureCorrelatesModels);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_MemoryEstimator);
     return mem;
 }
 

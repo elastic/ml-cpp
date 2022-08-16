@@ -11,7 +11,7 @@
 
 #include <maths/common/CKMeansOnline1d.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -267,11 +267,11 @@ double CKMeansOnline1d::probability(std::size_t index) const {
 
 void CKMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMeansOnline1d");
-    core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
+    core::memory_debug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
 std::size_t CKMeansOnline1d::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Clusters);
+    return core::memory::dynamicSize(m_Clusters);
 }
 
 std::size_t CKMeansOnline1d::staticSize() const {

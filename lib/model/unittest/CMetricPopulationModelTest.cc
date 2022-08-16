@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
@@ -19,7 +18,9 @@
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
@@ -41,9 +42,11 @@
 #include "CModelTestFixtureBase.h"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -96,13 +99,13 @@ public:
         for (std::size_t i = 0; i < numberPeople; ++i) {
             people.push_back("p" + core::CStringUtils::typeToString(i));
         }
-        LOG_DEBUG(<< "people = " << core::CContainerPrinter::print(people));
+        LOG_DEBUG(<< "people = " << people);
 
         TStrVec attributes;
         for (std::size_t i = 0; i < numberAttributes; ++i) {
             attributes.push_back("c" + core::CStringUtils::typeToString(i));
         }
-        LOG_DEBUG(<< "attributes = " << core::CContainerPrinter::print(attributes));
+        LOG_DEBUG(<< "attributes = " << attributes);
 
         const TDoubleVec attributeRates{10.0, 2.0, 15.0, 2.0, 1.0};
         const TDoubleVec means{5.0, 10.0, 7.0, 3.0, 15.0};
@@ -230,8 +233,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                 BOOST_REQUIRE_EQUAL(j, cid);
             }
 
-            LOG_DEBUG(<< "expected counts = "
-                      << core::CContainerPrinter::print(expectedBucketPersonCounts));
+            LOG_DEBUG(<< "expected counts = " << expectedBucketPersonCounts);
 
             TSizeVec expectedCurrentBucketPersonIds;
 
@@ -255,12 +257,9 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                                 core::CContainerPrinter::print(bucketPersonIds));
 
             if ((startTime / bucketLength) % 10 == 0) {
-                LOG_DEBUG(<< "expected means = "
-                          << core::CContainerPrinter::print(expectedBucketMeans));
-                LOG_DEBUG(<< "expected mins = "
-                          << core::CContainerPrinter::print(expectedBucketMins));
-                LOG_DEBUG(<< "expected maxs = "
-                          << core::CContainerPrinter::print(expectedBucketMaxs));
+                LOG_DEBUG(<< "expected means = " << expectedBucketMeans);
+                LOG_DEBUG(<< "expected mins = " << expectedBucketMins);
+                LOG_DEBUG(<< "expected maxs = " << expectedBucketMaxs);
             }
             for (std::size_t cid = 0; cid < numberAttributes; ++cid) {
                 for (std::size_t pid = 0; pid < numberPeople; ++pid) {

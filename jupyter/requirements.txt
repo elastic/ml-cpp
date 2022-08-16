@@ -1,4 +1,3 @@
-diversipy           ==0.8
 jupyter             ==1.0.0
 matplotlib          ==3.3.4
 numpy               ==1.22.0

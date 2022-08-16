@@ -13,7 +13,6 @@
 #define INCLUDED_ml_model_SModelParams_h
 
 #include <core/CLogger.h>
-#include <core/CMemoryUsage.h>
 
 #include <maths/common/MathsTypes.h>
 

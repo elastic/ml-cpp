@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CEventRateModel_h
 #define INCLUDED_ml_model_CEventRateModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CMultinomialConjugate.h>
@@ -80,7 +80,7 @@ public:
         //! A cache of the corrections applied to interim results.
         //! The key is <feature, pid, pid> for non-correlated corrections
         //! or <feature, pid, correlated_pid> for correlated corrections
-        mutable TFeatureSizeSizeTripleDouble1VecUMap s_InterimCorrections;
+        mutable TFeatureSizeSizeTrDouble1VecUMap s_InterimCorrections;
         //! Annotations produced by this model.
         TAnnotationVec s_Annotations;
     };
@@ -293,7 +293,7 @@ private:
     TSizeUInt64PrVec& currentBucketPersonCounts() override;
 
     //! Get the interim corrections of the current bucket.
-    TFeatureSizeSizeTripleDouble1VecUMap& currentBucketInterimCorrections() const;
+    TFeatureSizeSizeTrDouble1VecUMap& currentBucketInterimCorrections() const;
 
     //! Clear out large state objects for people that are pruned.
     void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) override;

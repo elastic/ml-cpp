@@ -11,8 +11,8 @@
 
 #include <maths/time_series/CAdaptiveBucketing.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -26,7 +26,6 @@
 #include <maths/common/CToolsDetail.h>
 
 #include <boost/math/distributions/binomial.hpp>
-#include <boost/range.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -133,7 +132,7 @@ const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
-const std::size_t WIDTH{boost::size(SMOOTHING_FUNCTION) / 2};
+const std::size_t WIDTH{std::size(SMOOTHING_FUNCTION) / 2};
 const double ALPHA{0.35};
 const double EPS{std::numeric_limits<double>::epsilon()};
 const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
@@ -418,7 +417,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     for (std::size_t i = 0; i < n; ++i) {
         values.emplace_back(this->bucketCount(i), this->predict(i, time, m_Centres[i]));
     }
-    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(values));
+    LOG_TRACE(<< "values = " << values);
 
     // Compute the function range in each bucket, imposing periodic
     // boundary conditions at the start and end of the interval.
@@ -456,7 +455,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         double ai{m_Endpoints[i]};
         double bi{m_Endpoints[i + 1]};
         double error{0.0};
-        for (std::size_t j = 0; j < boost::size(SMOOTHING_FUNCTION); ++j) {
+        for (std::size_t j = 0; j < std::size(SMOOTHING_FUNCTION); ++j) {
             error += SMOOTHING_FUNCTION[j] * ranges[(n + i + j - WIDTH) % n];
         }
         double h{bi - ai};
@@ -472,7 +471,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     }
     double totalAveragingError{
         std::accumulate(averagingErrors.begin(), averagingErrors.end(), 0.0)};
-    LOG_TRACE(<< "averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
+    LOG_TRACE(<< "averagingErrors = " << averagingErrors);
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
@@ -541,7 +540,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // and "b" so that the total interval is unchanged.
         m_Endpoints[0] = a;
         m_Endpoints[n] = b;
-        LOG_TRACE(<< "refinedEndpoints = " << core::CContainerPrinter::print(m_Endpoints));
+        LOG_TRACE(<< "refinedEndpoints = " << m_Endpoints);
 
         m_MeanDesiredDisplacement.add(displacement);
         m_MeanAbsDesiredDisplacement.add(std::fabs(displacement));
@@ -849,9 +848,9 @@ std::uint64_t CAdaptiveBucketing::checksum(std::uint64_t seed) const {
 }
 
 std::size_t CAdaptiveBucketing::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Endpoints)};
-    mem += core::CMemory::dynamicSize(m_Centres);
-    mem += core::CMemory::dynamicSize(m_LargeErrorCounts);
+    std::size_t mem{core::memory::dynamicSize(m_Endpoints)};
+    mem += core::memory::dynamicSize(m_Centres);
+    mem += core::memory::dynamicSize(m_LargeErrorCounts);
     return mem;
 }
 
@@ -871,8 +870,7 @@ double CAdaptiveBucketing::bucketLargeErrorCountPValue(double totalLargeErrorCou
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate splitting significance: '" << e.what()
                       << "' interval = " << interval << " period = " << period
-                      << " buckets = " << core::CContainerPrinter::print(m_Endpoints)
-                      << " type = " << this->name());
+                      << " buckets = " << m_Endpoints << " type = " << this->name());
         }
     }
     return 1.0;

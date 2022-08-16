@@ -8,15 +8,22 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CMemory.h>
+
+#ifndef INCLUDED_ml_core_CSmallVectorFwd_h
+#define INCLUDED_ml_core_CSmallVectorFwd_h
+
+#include <boost/container/container_fwd.hpp>
+
+#include <cstddef>
 
 namespace ml {
 namespace core {
-
-const std::string CMemory::EMPTY_STRING;
-CMemory::CAnyVisitor CMemory::ms_AnyVisitor = CMemory::CAnyVisitor();
-
-const std::string CMemoryDebug::EMPTY_STRING;
-CMemoryDebug::CAnyVisitor CMemoryDebug::ms_AnyVisitor = CMemoryDebug::CAnyVisitor();
+//! Map boost::container::small_vector_base for consistent naming.
+template<typename T>
+using CSmallVectorBase = boost::container::small_vector_base<T>;
+template<typename T, std::size_t N>
+class CSmallVector;
 }
 }
+
+#endif // INCLUDED_ml_core_CSmallVectorFwd_h

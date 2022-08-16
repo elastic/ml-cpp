@@ -11,7 +11,6 @@
 
 #include <maths/common/CStatisticalTests.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -22,7 +21,6 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/distributions/fisher_f.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -149,10 +147,10 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
     std::size_t ny = y.size();
 
     std::sort(x.begin(), x.end());
-    x.push_back(boost::numeric::bounds<double>::highest());
+    x.push_back(std::numeric_limits<double>::max());
 
     std::sort(y.begin(), y.end());
-    y.push_back(boost::numeric::bounds<double>::highest());
+    y.push_back(std::numeric_limits<double>::max());
 
     double D = 0.0;
     for (std::size_t i = 0, j = 0; i < nx && j < ny; /**/) {
@@ -255,7 +253,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     for (std::size_t i = 0; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
-    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));
+    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << tt);
 
     double t = CBasicStatistics::mean(m_T);
     LOG_TRACE(<< "t = " << t);

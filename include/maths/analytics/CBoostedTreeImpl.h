@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_analytics_CBoostedTreeImpl_h
 
 #include <core/CDataFrame.h>
-#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -34,13 +33,14 @@
 
 #include <limits>
 #include <memory>
-#include <numeric>
 #include <optional>
-#include <sstream>
 #include <utility>
 #include <vector>
 
 class CBoostedTreeImplForTest;
+namespace CBoostedTreeUtilsTest {
+struct testRetrainTreeSelectionProbabilities;
+}
 
 namespace ml {
 namespace maths {
@@ -249,6 +249,9 @@ private:
     };
 
 private:
+    static constexpr double INF{CBoostedTreeHyperparameters::INF};
+
+private:
     CBoostedTreeImpl();
 
     //! Get the loss gap we expect after incremental training.
@@ -274,6 +277,11 @@ private:
 
     //! Select the trees of the best forest to retrain.
     void selectTreesToRetrain(const core::CDataFrame& frame);
+
+    //! Compute the probabilities with which to select each tree for retraining.
+    TDoubleVec retrainTreeSelectionProbabilities(const core::CDataFrame& frame,
+                                                 const core::CPackedBitVector& trainingDataRowMask,
+                                                 const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
     template<typename F>
@@ -550,6 +558,7 @@ private:
     friend class CBoostedTreeFactory;
     friend class CBoostedTreeHyperparameters;
     friend class ::CBoostedTreeImplForTest;
+    friend struct CBoostedTreeUtilsTest::testRetrainTreeSelectionProbabilities;
 };
 }
 }

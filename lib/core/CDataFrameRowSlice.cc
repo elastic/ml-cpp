@@ -15,7 +15,7 @@
 #include <core/CDataFrame.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CompressUtils.h>
 
 #include <boost/filesystem.hpp>
@@ -233,7 +233,7 @@ std::size_t CMainMemoryDataFrameRowSlice::staticSize() const {
 }
 
 std::size_t CMainMemoryDataFrameRowSlice::memoryUsage() const {
-    return CMemory::dynamicSize(m_Rows) + CMemory::dynamicSize(m_DocHashes);
+    return memory::dynamicSize(m_Rows) + memory::dynamicSize(m_DocHashes);
 }
 
 std::uint64_t CMainMemoryDataFrameRowSlice::checksum() const {
@@ -381,7 +381,7 @@ std::size_t COnDiskDataFrameRowSlice::staticSize() const {
 }
 
 std::size_t COnDiskDataFrameRowSlice::memoryUsage() const {
-    return CMemory::dynamicSize(m_Directory) + CMemory::dynamicSize(m_FileName.string());
+    return memory::dynamicSize(m_Directory) + memory::dynamicSize(m_FileName.string());
 }
 
 void COnDiskDataFrameRowSlice::writeToDisk(const TFloatVec& rows, const TInt32Vec& docHashes) {

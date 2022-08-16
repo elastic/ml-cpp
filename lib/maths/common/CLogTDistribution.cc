@@ -11,6 +11,8 @@
 
 #include <maths/common/CLogTDistribution.h>
 
+#include <core/CLogger.h>
+
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CTools.h>
 
@@ -38,7 +40,7 @@ double CLogTDistribution::scale() const {
 }
 
 CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution& /*distribution*/) {
-    return CLogTDistribution::TDoubleDoublePr(0.0, boost::numeric::bounds<double>::highest());
+    return CLogTDistribution::TDoubleDoublePr(0.0, std::numeric_limits<double>::max());
 }
 
 double mode(const CLogTDistribution& distribution) {

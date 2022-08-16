@@ -26,6 +26,10 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
 namespace maths {
 namespace common {
 //! \brief Randomized linear complexity search for the most correlated
@@ -141,7 +145,7 @@ protected:
     //! from the projected data.
     struct MATHS_COMMON_EXPORT SCorrelation {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         SCorrelation();
         SCorrelation(std::size_t X,

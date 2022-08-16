@@ -36,10 +36,10 @@ namespace core {
 class CORE_EXPORT CNonCopyable {
 protected:
     //! Inlined in the hope that the compiler will optimise it away
-    CNonCopyable() {}
+    CNonCopyable() = default;
 
     //! Inlined in the hope that the compiler will optimise it away
-    ~CNonCopyable() {}
+    ~CNonCopyable() = default;
 
 private:
     //! Prevent copying

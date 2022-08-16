@@ -11,7 +11,6 @@
 
 #include <maths/common/CNormalMeanPrecConjugate.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
 #include <core/CStatePersistInserter.h>
@@ -33,14 +32,10 @@
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/math/special_functions/gamma.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <limits>
-#include <numeric>
 #include <sstream>
 #include <string>
 
@@ -283,8 +278,7 @@ public:
                 x, m_Shape, m_Rate, m_Mean, m_Precision, m_PredictionMean, probability) ||
             !probability.calculate(result)) {
             LOG_ERROR(<< "Failed to compute probability of less likely samples (samples ="
-                      << core::CContainerPrinter::print(m_Samples) << ", weights = "
-                      << core::CContainerPrinter::print(m_Weights) << ")");
+                      << m_Samples << ", weights = " << m_Weights << ")");
             return false;
         }
 
@@ -579,9 +573,8 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
         return;
     }
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -645,8 +638,7 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
         if (!CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(weights[i])) {
-            LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                      << core::CContainerPrinter::print(weights[i]));
+            LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights[i]);
             continue;
         }
         double n = maths_t::countForUpdate(weights[i]);
@@ -696,8 +688,8 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
 
     if (this->isBad()) {
         LOG_ERROR(<< "Update failed (" << this->debug() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -744,8 +736,7 @@ void CNormalMeanPrecConjugate::propagateForwardsByTime(double time) {
 
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::marginalLikelihoodSupport() const {
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 double CNormalMeanPrecConjugate::marginalLikelihoodMean() const {
@@ -759,7 +750,7 @@ double CNormalMeanPrecConjugate::marginalLikelihoodMode(const TDoubleWeightsAry&
 double CNormalMeanPrecConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative() || m_GammaShape <= 1.0) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just E_{B}[Var(X | M, P)] where M and P are the mean and
@@ -847,9 +838,8 @@ CNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -862,7 +852,7 @@ CNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -880,12 +870,12 @@ CNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
     if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
     } else if ((status & maths_t::E_FpOverflowed) != 0) {
         LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "weights = " << weights);
     }
     return status;
 }
@@ -1075,9 +1065,8 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1087,9 +1076,8 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 
@@ -1117,9 +1105,8 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& sam
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1129,9 +1116,8 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& sam
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 
@@ -1323,8 +1309,7 @@ double CNormalMeanPrecConjugate::precision() const {
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::confidenceIntervalMean(double percentage) const {
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     // Compute the symmetric confidence interval around the median of the
@@ -1363,8 +1348,7 @@ CNormalMeanPrecConjugate::confidenceIntervalMean(double percentage) const {
 CNormalMeanPrecConjugate::TDoubleDoublePr
 CNormalMeanPrecConjugate::confidenceIntervalPrecision(double percentage) const {
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     percentage /= 100.0;

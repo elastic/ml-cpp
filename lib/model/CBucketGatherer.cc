@@ -11,8 +11,8 @@
 
 #include <model/CBucketGatherer.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CProgramCounters.h>
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -26,6 +26,7 @@
 #include <model/CStringStore.h>
 
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {
@@ -283,8 +284,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         const CEventData::TOptionalStrVec& influences = data.influences();
         auto& influencerCounts = m_InfluencerCounts.get(time);
         if (influences.size() != influencerCounts.size()) {
-            LOG_ERROR(<< "Unexpected influences: "
-                      << core::CContainerPrinter::print(influences) << " expected "
+            LOG_ERROR(<< "Unexpected influences: " << influences << " expected "
                       << core::CContainerPrinter::print(this->beginInfluencers(),
                                                         this->endInfluencers()));
             return false;
@@ -552,16 +552,16 @@ std::uint64_t CBucketGatherer::checksum() const {
 
 void CBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBucketGatherer");
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeExplicitNulls",
+    core::memory_debug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
+    core::memory_debug::dynamicSize("m_PersonAttributeExplicitNulls",
                                     m_PersonAttributeExplicitNulls, mem);
-    core::CMemoryDebug::dynamicSize("m_Influencers", m_InfluencerCounts, mem);
+    core::memory_debug::dynamicSize("m_Influencers", m_InfluencerCounts, mem);
 }
 
 std::size_t CBucketGatherer::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_PersonAttributeCounts);
-    mem += core::CMemory::dynamicSize(m_PersonAttributeExplicitNulls);
-    mem += core::CMemory::dynamicSize(m_InfluencerCounts);
+    std::size_t mem = core::memory::dynamicSize(m_PersonAttributeCounts);
+    mem += core::memory::dynamicSize(m_PersonAttributeExplicitNulls);
+    mem += core::memory::dynamicSize(m_InfluencerCounts);
     return mem;
 }
 

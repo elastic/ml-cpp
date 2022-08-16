@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -43,6 +43,7 @@
 #include <cmath>
 #include <fstream>
 #include <memory>
+#include <numeric>
 
 using TSizeVec = std::vector<std::size_t>;
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TSizeVec::iterator)
@@ -292,29 +293,29 @@ void reinitializeResidualModel(double learnRate,
     }
 }
 
-class CDebug {
+class CDebugGenerator {
 public:
     static const bool ENABLED{false};
 
 public:
-    explicit CDebug(std::string file = "results.py") : m_File{std::move(file)} {
+    explicit CDebugGenerator(std::string file = "results.py")
+        : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);
         }
     }
-    ~CDebug() {
+    ~CDebugGenerator() {
         if (ENABLED) {
-            std::ofstream file;
-            file.open(m_File);
+            std::ofstream file_;
+            file_.open(m_File);
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
-            file << "a = " << core::CContainerPrinter::print(m_Actual) << ";\n";
+            file << "a = " << m_Actual << ";\n";
             file << "plt.plot(a, 'b');\n";
             for (std::size_t i = 0; i < 3; ++i) {
-                file << "p" << i << " = "
-                     << core::CContainerPrinter::print(m_ModelBounds[i]) << ";\n";
-                file << "f" << i << " = "
-                     << core::CContainerPrinter::print(m_Forecast[i]) << ";\n";
+                file << "p" << i << " = " << m_ModelBounds[i] << ";\n";
+                file << "f" << i << " = " << m_Forecast[i] << ";\n";
                 file << "plt.plot(p" << i << ", 'g');\n";
                 file << "plt.plot(range(len(a)-len(f" << i << "),len(a)),f" << i << ", 'r');\n";
             }
@@ -389,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone2{
             model.clone(2)};
-        BOOST_REQUIRE_EQUAL(std::size_t(2), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(2, clone2->identifier());
     }
     {
         maths::time_series::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
@@ -419,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
             model.clone(2)};
         std::uint64_t checksum3 = clone2->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum3);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(0, clone2->identifier());
     }
 }
 
@@ -463,7 +464,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_EQUAL(1, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
@@ -504,7 +505,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_EQUAL(1, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
@@ -554,7 +555,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_EQUAL(3, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
@@ -625,7 +626,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_EQUAL(3, mode.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
@@ -1302,7 +1303,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             for (auto confidence : confidences) {
                 LOG_DEBUG(<< " confidence = " << confidence);
                 for (const auto& weight : weights) {
-                    LOG_DEBUG(<< "   weights = " << core::CContainerPrinter::print(weight));
+                    LOG_DEBUG(<< "   weights = " << weight);
                     double expectedProbability[2];
                     maths_t::ETail expectedTail[2];
                     {
@@ -1398,7 +1399,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             for (auto confidence : confidences) {
                 LOG_DEBUG(<< " confidence = " << confidence);
                 for (const auto& weight : weights) {
-                    LOG_DEBUG(<< "   weights = " << core::CContainerPrinter::print(weight));
+                    LOG_DEBUG(<< "   weights = " << weight);
                     double expectedProbability[2];
                     TTail10Vec expectedTail[2];
                     {
@@ -1481,8 +1482,8 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                        [](const TDoubleSizePr& value) { return value.second; });
         std::sort(anomalies_.begin(), anomalies_.end());
 
-        LOG_DEBUG(<< "expected anomalies = " << core::CContainerPrinter::print(anomalies));
-        LOG_DEBUG(<< "actual anomalies   = " << core::CContainerPrinter::print(anomalies_));
+        LOG_DEBUG(<< "expected anomalies = " << anomalies);
+        LOG_DEBUG(<< "actual anomalies   = " << anomalies_);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(anomalies),
                             core::CContainerPrinter::print(anomalies_));
     }
@@ -1913,9 +1914,8 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
             anomalyBuckets.push_back(anomaly.second);
             anomalyProbabilities.push_back(std::exp(anomaly.first));
         }
-        LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
-        LOG_DEBUG(<< "probabilities = "
-                  << core::CContainerPrinter::print(anomalyProbabilities));
+        LOG_DEBUG(<< "anomalies = " << anomalyBuckets);
+        LOG_DEBUG(<< "probabilities = " << anomalyProbabilities);
         BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                      1905) != anomalyBuckets.end());
         BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
@@ -1923,8 +1923,8 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                      1907) != anomalyBuckets.end());
 
-        //file << "v = " << core::CContainerPrinter::print(samples) << ";\n";
-        //file << "s = " << core::CContainerPrinter::print(scores) << ";\n";
+        //file << "v = " << samples << ";\n";
+        //file << "s = " << scores << ";\n";
         //file << "hold on;";
         //file << "subplot(2,1,1);\n";
         //file << "plot([1:length(v)], v);\n";
@@ -1984,9 +1984,8 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
             anomalyBuckets.push_back(anomaly.second);
             anomalyProbabilities.push_back(std::exp(anomaly.first));
         }
-        LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
-        LOG_DEBUG(<< "probabilities = "
-                  << core::CContainerPrinter::print(anomalyProbabilities));
+        LOG_DEBUG(<< "anomalies = " << anomalyBuckets);
+        LOG_DEBUG(<< "probabilities = " << anomalyProbabilities);
         BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                      1906) != anomalyBuckets.end());
         BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
@@ -2000,7 +1999,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         //    file << sample[0] << "," << sample[1] << "," << sample[2] << "\n";
         //}
         //file << "];\n";
-        //file << "s = " << core::CContainerPrinter::print(scores) << ";\n";
+        //file << "s = " << scores << ";\n";
         //file << "hold on;";
         //file << "subplot(4,1,1);\n";
         //file << "plot([1:rows(v)], v(:,1));\n";
@@ -2044,7 +2043,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CDebug debug("prior_reinitialization.py");
+        CDebugGenerator debug("prior_reinitialization.py");
 
         core_t::TTime time{0};
         TDoubleVec samples;
@@ -2070,7 +2069,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CDebug debug("piecewise_constant.py");
+        CDebugGenerator debug("piecewise_constant.py");
 
         // Add some data to the model.
 
@@ -2140,7 +2139,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         auto controllers = decayRateControllers(1);
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend, univariateNormal(), &controllers};
-        CDebug debug("saw_tooth.py");
+        CDebugGenerator debug("saw_tooth.py");
 
         // Add some data to the model.
 
@@ -2232,7 +2231,7 @@ BOOST_AUTO_TEST_CASE(testLargeAnomalyAfterChange) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CDebug debug("piecewise_constant.py");
+    CDebugGenerator debug("piecewise_constant.py");
 
     // Add some data to the model.
     core_t::TTime time{0};
@@ -2304,7 +2303,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CDebug debug;
+    CDebugGenerator debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2382,7 +2381,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CDebug debug;
+    CDebugGenerator debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2474,7 +2473,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
         modelParams(bucketLength), 0, trendModel,
         univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CDebug debug;
+    CDebugGenerator debug;
 
     core_t::TTime time{0};
     TDoubleVec noise;
@@ -2548,7 +2547,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
             time += bucketLength;
         }
 
-        LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "probabilities = " << probabilities);
 
         // Assert probs are decreasing
         BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);
@@ -2593,7 +2592,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
             time += bucketLength;
         }
 
-        LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "probabilities = " << probabilities);
 
         // Assert probs are decreasing
         BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);

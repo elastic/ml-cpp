@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -173,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
 
     LOG_DEBUG(<< "****** Test vanilla ******");
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::common::CMultivariateMultimodalPrior<2> filter1(makePrior<2>(dataTypes[i]));
@@ -195,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     }
 
     LOG_DEBUG(<< "****** Test with variance scale ******");
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::common::CMultivariateMultimodalPrior<2> filter1(makePrior<2>(dataTypes[i]));
@@ -257,11 +258,10 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     LOG_DEBUG(<< "numberSamples           = " << numberSamples);
     LOG_DEBUG(<< "propagatedNumberSamples = " << propagatedNumberSamples);
-    LOG_DEBUG(<< "mean           = " << core::CContainerPrinter::print(mean));
-    LOG_DEBUG(<< "propagatedMean = " << core::CContainerPrinter::print(propagatedMean));
-    LOG_DEBUG(<< "covariance           = " << core::CContainerPrinter::print(covariance));
-    LOG_DEBUG(<< "propagatedCovariance = "
-              << core::CContainerPrinter::print(propagatedCovariance));
+    LOG_DEBUG(<< "mean           = " << mean);
+    LOG_DEBUG(<< "propagatedMean = " << propagatedMean);
+    LOG_DEBUG(<< "covariance           = " << covariance);
+    LOG_DEBUG(<< "propagatedCovariance = " << propagatedCovariance);
 
     BOOST_TEST_REQUIRE(propagatedNumberSamples < numberSamples);
     BOOST_TEST_REQUIRE((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testSingleMode) {
     for (std::size_t i = 0; i < samples.size(); ++i) {
         filter.addSamples({samples[i]},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-        BOOST_REQUIRE_EQUAL(std::size_t(1), filter.numberModes());
+        BOOST_REQUIRE_EQUAL(1, filter.numberModes());
     }
 }
 
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(testMultipleModes) {
                 maths_t::TDouble10VecWeightsAry1Vec(
                     samples.size(), maths_t::CUnitWeights::unit<TDouble10Vec>(2)));
 
-            BOOST_REQUIRE_EQUAL(std::size_t(2), filter1.numberModes());
+            BOOST_REQUIRE_EQUAL(2, filter1.numberModes());
 
             TMeanAccumulator loss1G;
             TMeanAccumulator loss12;
@@ -407,9 +407,9 @@ BOOST_AUTO_TEST_CASE(testSplitAndMerge) {
     double covariances_[][2][2] = {
         {{10, 2}, {2, 15}}, {{30, 8}, {8, 15}}, {{100, 2}, {2, 15}}, {{100, 2}, {2, 15}}};
 
-    TDoubleVecVec means(boost::size(means_));
-    TDoubleVecVecVec covariances(boost::size(means_));
-    for (std::size_t i = 0; i < boost::size(means_); ++i) {
+    TDoubleVecVec means(std::size(means_));
+    TDoubleVecVecVec covariances(std::size(means_));
+    for (std::size_t i = 0; i < std::size(means_); ++i) {
         means[i].assign(&means_[i][0], &means_[i][2]);
         for (std::size_t j = 0; j < 2; ++j) {
             covariances[i].push_back(
@@ -436,9 +436,9 @@ BOOST_AUTO_TEST_CASE(testSplitAndMerge) {
         //std::size_t subplotCounts[] = { 50, 200, 250, 450, 500, 550, 585, 615, 650, 750, 800, 1000, 10000 };
         //TDouble10Vec1Vec pointsToDate;
 
-        for (std::size_t i = 0; i < boost::size(n); ++i) {
+        for (std::size_t i = 0; i < std::size(n); ++i) {
             TDoubleVecVec samples;
-            for (std::size_t j = 0; j < boost::size(n[i]); ++j) {
+            for (std::size_t j = 0; j < std::size(n[i]); ++j) {
                 TDoubleVecVec samples_;
                 rng.generateMultivariateNormalSamples(means[j], covariances[j],
                                                       n[i][j], samples_);
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE(testSplitAndMerge) {
                     TMatrix2 tcm = maths::common::CBasicStatistics::covariances(totalCovariances);
                     covError.add((mlc - tcm).frobenius() / tcm.frobenius());
                 } else {
-                    for (std::size_t k = 0; k < boost::size(modeCovariances); ++k) {
+                    for (std::size_t k = 0; k < std::size(modeCovariances); ++k) {
                         meanError.add(
                             (TVector2(modes[j].s_Prior->marginalLikelihoodMean()) -
                              maths::common::CBasicStatistics::mean(modeCovariances[k]))
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             CMeanKernel<2> meanKernel(filter);
             CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
 
-            for (std::size_t j = 0; j < boost::size(intervals); ++j) {
+            for (std::size_t j = 0; j < std::size(intervals); ++j) {
                 TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                 TDoubleVec b(a);
                 b[0] += 2.0 * std::sqrt(trace);
@@ -683,8 +683,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
         if (i % 10 == 0) {
             LOG_DEBUG(<< "sample mean = "
                       << maths::common::CBasicStatistics::mean(expectedMean));
-            LOG_DEBUG(<< "distribution mean = "
-                      << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+            LOG_DEBUG(<< "distribution mean = " << filter.marginalLikelihoodMean());
         }
 
         double error = (maths::common::CBasicStatistics::mean(expectedMean) -
@@ -750,7 +749,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         }
 
         LOG_DEBUG(<< "# modes = " << filter.numberModes());
-        LOG_DEBUG(<< "mode          = " << core::CContainerPrinter::print(mode));
+        LOG_DEBUG(<< "mode          = " << mode);
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         double error = (TVector2(mode) - expectedMode).euclidean() /
                        expectedMode.euclidean();
@@ -782,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     TVector2Vec means;
     TMatrix2Vec covariances;
     TDouble10Vec1Vec samples;
-    for (std::size_t i = 0; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < std::size(n); ++i) {
         TVector2 mean(means_[i]);
         TMatrix2 covariance(covariances_[i], covariances_[i] + 3);
         means.push_back(mean);
@@ -877,13 +876,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(w_); ++i) {
-        std::size_t n = (boost::size(w_[i]));
+    for (std::size_t i = 0; i < std::size(w_); ++i) {
+        std::size_t n = (std::size(w_[i]));
 
         TDoubleVec w(n);
         TDoubleVecVec means(n);
         TDoubleVecVecVec covariances(n);
-        for (std::size_t j = 0; j < boost::size(w_[i]); ++j) {
+        for (std::size_t j = 0; j < std::size(w_[i]); ++j) {
             w[j] = w_[i][j];
             means[j].assign(means_[i][j], means_[i][j] + 2);
             covariances[j].resize(2);
@@ -891,8 +890,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 covariances[j][k].assign(covariances_[i][j][k], covariances_[i][j][k] + 2);
             }
         }
-        LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
-        LOG_DEBUG(<< "covariances = " << core::CContainerPrinter::print(covariances));
+        LOG_DEBUG(<< "means = " << means);
+        LOG_DEBUG(<< "covariances = " << covariances);
 
         TDoubleVecVec samples;
         for (std::size_t j = 0; j < w.size(); ++j) {
@@ -917,7 +916,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             TMeanAccumulator meanAbsError;
             TMeanAccumulator meanRelError;
 
-            for (std::size_t k = 0; k < boost::size(offsets); ++k) {
+            for (std::size_t k = 0; k < std::size(offsets); ++k) {
                 TVector2 x = TVector2(means[j]) + TVector2(offsets[k]);
 
                 double ll = logLikelihood(w, means, covariances, x.toVector<TDoubleVec>());
@@ -1005,7 +1004,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     //                                           lb, ub, tail);
     //    p.push_back((lb + ub) / 2.0);
     //}
-    //LOG_DEBUG(<< "p = " << core::CContainerPrinter::print(p) << ";");
+    //LOG_DEBUG(<< "p = " << p << ";");
 
     //std::ofstream f;
     //f.open("results.m");

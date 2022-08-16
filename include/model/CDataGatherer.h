@@ -13,22 +13,21 @@
 #define INCLUDED_ml_model_CDataGatherer_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/CBucketGatherer.h>
 #include <model/CBucketQueue.h>
 #include <model/CDynamicStringIdRegistry.h>
-#include <model/CEventData.h>
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -73,7 +72,7 @@ class CSearchKey;
 //! specifically to metric valued time series. (See CMetricBucketGatherer
 //! for more information.)
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This functionality has been separated from the CModel class hierarchy,
 //! which own data gatherer objects because we want to avoid monolithic
 //! model classes.
@@ -123,7 +122,7 @@ public:
         CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
     using TBucketGathererPtr = std::unique_ptr<CBucketGatherer>;
-    using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
+    using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
     using TSampleCountsPtr = std::unique_ptr<CSampleCounts>;
@@ -367,7 +366,7 @@ public:
             // default constructible.
             using std::swap;
             result.push_back(std::pair<model_t::EFeature, T>(feature.first, T()));
-            T& tmp = boost::any_cast<T&>(feature.second);
+            T& tmp = std::any_cast<T&>(feature.second);
             swap(result.back().second, tmp);
         }
 

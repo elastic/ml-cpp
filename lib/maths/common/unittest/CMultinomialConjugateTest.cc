@@ -9,9 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -27,9 +24,9 @@
 
 #include "TestUtils.h"
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <utility>
@@ -100,9 +97,8 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     TDoubleVec propagatedExpectedProbabilities = filter.probabilities();
 
-    LOG_DEBUG(<< "expectedProbabilities = " << core::CContainerPrinter::print(expectedProbabilities)
-              << ", propagatedExpectedProbabilities = "
-              << core::CContainerPrinter::print(propagatedExpectedProbabilities));
+    LOG_DEBUG(<< "expectedProbabilities = " << expectedProbabilities
+              << ", propagatedExpectedProbabilities = " << propagatedExpectedProbabilities);
 
     using TEqual = maths::common::CEqualWithTolerance<double>;
     TEqual equal(maths::common::CToleranceTypes::E_AbsoluteTolerance, 1e-12);
@@ -128,7 +124,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
-    for (size_t i = 0; i < boost::size(decayRates); ++i) {
+    for (size_t i = 0; i < std::size(decayRates); ++i) {
         test::CRandomNumbers rng;
 
         TUIntVec errors[] = {TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0),
@@ -147,7 +143,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
                 filter.propagateForwardsByTime(1.0);
             }
 
-            for (size_t j = 0; j < boost::size(testIntervals); ++j) {
+            for (size_t j = 0; j < std::size(testIntervals); ++j) {
                 TDoubleDoublePrVec confidenceIntervals =
                     filter.confidenceIntervalProbabilities(testIntervals[j]);
                 BOOST_REQUIRE_EQUAL(confidenceIntervals.size(), probabilities.size());
@@ -161,13 +157,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
             }
         }
 
-        for (size_t j = 0; j < boost::size(testIntervals); ++j) {
+        for (size_t j = 0; j < std::size(testIntervals); ++j) {
             TDoubleVec intervals;
             intervals.reserve(errors[j].size());
             for (std::size_t k = 0; k < errors[j].size(); ++k) {
                 intervals.push_back(100.0 * errors[j][k] / static_cast<double>(nTests));
             }
-            LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(intervals)
+            LOG_DEBUG(<< "interval = " << intervals
                       << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
@@ -210,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
         const double decayRates[] = {0.0, 0.001, 0.01};
 
-        for (size_t i = 0; i < boost::size(decayRates); ++i) {
+        for (size_t i = 0; i < std::size(decayRates); ++i) {
             LOG_DEBUG(<< "**** Decay rate = " << decayRates[i] << " ****");
 
             CMultinomialConjugate filter(
@@ -278,8 +274,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 }
             }
         }
-        LOG_DEBUG(<< "o2 = " << core::CContainerPrinter::print(o2));
-        LOG_DEBUG(<< "o3 = " << core::CContainerPrinter::print(o3));
+        LOG_DEBUG(<< "o2 = " << o2);
+        LOG_DEBUG(<< "o3 = " << o3);
 
         double rawConcentrations[] = {1000.0, 6000.0, 3000.0};
         TDoubleVec concentrations(std::begin(rawConcentrations), std::end(rawConcentrations));
@@ -299,8 +295,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                     filter.jointLogMarginalLikelihood(o2[i], p));
                 p = std::exp(p);
                 p2.push_back(p);
-                LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(o2[i])
-                          << ", p = " << p);
+                LOG_DEBUG(<< "categories = " << o2[i] << ", p = " << p);
             }
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.0, std::accumulate(p2.begin(), p2.end(), 0.0), 1e-10);
@@ -325,8 +320,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             for (std::size_t i = 0; i < o2.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
-                LOG_DEBUG(<< "category = " << core::CContainerPrinter::print(o2[i])
-                          << ", p = " << p << ", expected p = " << p2[i]);
+                LOG_DEBUG(<< "category = " << o2[i] << ", p = " << p
+                          << ", expected p = " << p2[i]);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(p, p2[i], 0.05 * std::max(p, p2[i]));
             }
         }
@@ -340,8 +335,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                     filter.jointLogMarginalLikelihood(o3[i], p));
                 p = std::exp(p);
                 p3.push_back(p);
-                LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(o3[i])
-                          << ", p = " << p);
+                LOG_DEBUG(<< "categories = " << o3[i] << ", p = " << p);
             }
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.0, std::accumulate(p3.begin(), p3.end(), 0.0), 1e-10);
@@ -367,8 +361,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             for (std::size_t i = 0; i < o3.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
-                LOG_DEBUG(<< "category = " << core::CContainerPrinter::print(o3[i])
-                          << ", p = " << p << ", expected p = " << p3[i]);
+                LOG_DEBUG(<< "category = " << o3[i] << ", p = " << p
+                          << ", expected p = " << p3[i]);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(p, p3[i], 0.05 * std::max(p, p3[i]));
             }
         }
@@ -404,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         filter.sampleMarginalLikelihood(10, samples);
         std::sort(samples.begin(), samples.end());
 
-        LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_DEBUG(<< "samples = " << samples);
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"),
                             core::CContainerPrinter::print(samples));
@@ -427,7 +421,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         filter.sampleMarginalLikelihood(10, samples);
         std::sort(samples.begin(), samples.end());
 
-        LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_DEBUG(<< "samples = " << samples);
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"),
                             core::CContainerPrinter::print(samples));
@@ -450,7 +444,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         filter.sampleMarginalLikelihood(10, samples);
         std::sort(samples.begin(), samples.end());
 
-        LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_DEBUG(<< "samples = " << samples);
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"),
                             core::CContainerPrinter::print(samples));
@@ -497,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             double expectedProbabilities[] = {0.20, 0.32, 0.61,
                                               1.0,  0.04, 0.10};
 
-            for (size_t i = 0; i < boost::size(categories); ++i) {
+            for (size_t i = 0; i < std::size(categories); ++i) {
                 double lowerBound, upperBound;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       TDouble1Vec(1, categories[i]),
@@ -530,7 +524,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             //   P(3.2) = P(5.1) = 0.10
             double expectedProbabilities[] = {0.32, 0.32, 0.61, 1.0, 0.1, 0.1};
 
-            for (size_t i = 0; i < boost::size(categories); ++i) {
+            for (size_t i = 0; i < std::size(categories); ++i) {
                 double lowerBound, upperBound;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       TDouble1Vec(1, categories[i]),
@@ -562,7 +556,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             //   P(3.2) = P(5.1) = 0.10
             double expectedProbabilities[] = {0.4, 0.4, 1.0, 1.0, 0.1, 0.1};
 
-            for (size_t i = 0; i < boost::size(categories); ++i) {
+            for (size_t i = 0; i < std::size(categories); ++i) {
                 double lowerBound, upperBound;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       TDouble1Vec(1, categories[i]),
@@ -588,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             //   P(1.1) = P(1.2) = P(2.1) = P(2.2) = 1.0
             double expectedProbabilities[] = {0.95, 0.95, 0.95, 0.95};
 
-            for (size_t i = 0; i < boost::size(expectedProbabilities); ++i) {
+            for (size_t i = 0; i < std::size(expectedProbabilities); ++i) {
                 double lowerBound, upperBound;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       TDouble1Vec(1, categories[i]),
@@ -611,8 +605,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             double categoryProbabilities[] = {0.10, 0.12, 0.29,
                                               0.39, 0.04, 0.06};
             TDoubleDoubleVecMap categoryPairProbabilities;
-            for (size_t i = 0; i < boost::size(categories); ++i) {
-                for (size_t j = i; j < boost::size(categories); ++j) {
+            for (size_t i = 0; i < std::size(categories); ++i) {
+                for (size_t j = i; j < std::size(categories); ++j) {
                     double p = (i != j ? 2.0 : 1.0) * categoryProbabilities[i] *
                                categoryProbabilities[j];
 
@@ -624,8 +618,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                     categoryPair.push_back(categories[j]);
                 }
             }
-            LOG_DEBUG(<< "category pair probabilities = "
-                      << core::CContainerPrinter::print(categoryPairProbabilities));
+            LOG_DEBUG(<< "category pair probabilities = " << categoryPairProbabilities);
 
             double pc = 0.0;
             TDoubleVecDoubleMap trueProbabilities;
@@ -640,8 +633,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                         TDoubleVecDoubleMap::value_type(categoryPair, pc));
                 }
             }
-            LOG_DEBUG(<< "true probabilities = "
-                      << core::CContainerPrinter::print(trueProbabilities));
+            LOG_DEBUG(<< "true probabilities = " << trueProbabilities);
 
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
@@ -680,8 +672,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 double expectedProbability;
                 BOOST_TEST_REQUIRE(expectedProbabilityCalculator.calculate(expectedProbability));
 
-                LOG_DEBUG(<< "category pair = " << core::CContainerPrinter::print(itr->first)
-                          << ", probability = " << probability
+                LOG_DEBUG(<< "category pair = " << itr->first << ", probability = " << probability
                           << ", expected probability = " << expectedProbability
                           << ", true probability = " << itr->second);
 
@@ -700,14 +691,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             0.04, 0.01, 0.001, 0.006, 0.02,  0.05,  0.001, 0.001, 0.01, 0.01,
             0.2,  0.01, 0.02,  0.07,  0.01,  0.002, 0.01,  0.02,  0.03, 0.013};
 
-        BOOST_REQUIRE_EQUAL(boost::size(rawCategories), boost::size(rawProbabilities));
+        BOOST_REQUIRE_EQUAL(std::size(rawCategories), std::size(rawProbabilities));
 
         test::CRandomNumbers rng;
         const std::size_t numberSamples = 10000;
 
         // Generate samples from the Dirichlet prior.
-        TDoubleVecVec dirichletSamples(boost::size(rawProbabilities));
-        for (size_t i = 0; i < boost::size(rawProbabilities); ++i) {
+        TDoubleVecVec dirichletSamples(std::size(rawProbabilities));
+        for (size_t i = 0; i < std::size(rawProbabilities); ++i) {
             TDoubleVec& samples = dirichletSamples[i];
             rng.generateGammaSamples(rawProbabilities[i] * 100.0, 1.0, numberSamples, samples);
         }
@@ -722,7 +713,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         }
 
         // Compute the expected probabilities w.r.t. the Dirichlet prior.
-        TDoubleVec expectedProbabilities(boost::size(rawCategories), 0.0);
+        TDoubleVec expectedProbabilities(std::size(rawCategories), 0.0);
         for (std::size_t i = 0; i < numberSamples; ++i) {
             TDoubleSizePrVec probabilities;
             probabilities.reserve(dirichletSamples.size() + 1);
@@ -742,8 +733,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         for (std::size_t i = 0; i < expectedProbabilities.size(); ++i) {
             expectedProbabilities[i] /= static_cast<double>(numberSamples);
         }
-        LOG_DEBUG(<< "expectedProbabilities = "
-                  << core::CContainerPrinter::print(expectedProbabilities));
+        LOG_DEBUG(<< "expectedProbabilities = " << expectedProbabilities);
 
         TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
         CMultinomialConjugate filter(
@@ -756,7 +746,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         TDoubleVec lowerBounds, upperBounds;
         filter.probabilitiesOfLessLikelyCategories(maths_t::E_TwoSided,
                                                    lowerBounds, upperBounds);
-        LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(lowerBounds));
+        LOG_DEBUG(<< "probabilities = " << lowerBounds);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(lowerBounds),
                             core::CContainerPrinter::print(upperBounds));
 
@@ -816,10 +806,8 @@ BOOST_AUTO_TEST_CASE(testRemoveCategories) {
         CMultinomialConjugate expectedPrior(maths::common::CMultinomialConjugate(
             100, expectedCategories, expectedConcentrations));
 
-        LOG_DEBUG(<< "expectedCategories = "
-                  << core::CContainerPrinter::print(expectedCategories));
-        LOG_DEBUG(<< "expectedConcentrations = "
-                  << core::CContainerPrinter::print(expectedConcentrations));
+        LOG_DEBUG(<< "expectedCategories = " << expectedCategories);
+        LOG_DEBUG(<< "expectedConcentrations = " << expectedConcentrations);
 
         BOOST_REQUIRE_EQUAL(expectedPrior.checksum(), prior.checksum());
     }
@@ -844,10 +832,8 @@ BOOST_AUTO_TEST_CASE(testRemoveCategories) {
         CMultinomialConjugate expectedPrior(maths::common::CMultinomialConjugate(
             90, expectedCategories, expectedConcentrations));
 
-        LOG_DEBUG(<< "expectedCategories = "
-                  << core::CContainerPrinter::print(expectedCategories));
-        LOG_DEBUG(<< "expectedConcentrations = "
-                  << core::CContainerPrinter::print(expectedConcentrations));
+        LOG_DEBUG(<< "expectedCategories = " << expectedCategories);
+        LOG_DEBUG(<< "expectedConcentrations = " << expectedConcentrations);
 
         BOOST_REQUIRE_EQUAL(expectedPrior.checksum(), prior.checksum());
     }

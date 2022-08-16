@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/common/CBasicStatistics.h>
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(modelPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(modelPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelPtr->category());
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     CResourceMonitor resourceMonitor;
 
     LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / "
-              << core::CMemory::dynamicSize(model));
+              << core::memory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 

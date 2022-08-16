@@ -11,7 +11,6 @@
 
 #include <maths/common/CGammaRateConjugate.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CNonCopyable.h>
 #include <core/CStatePersistInserter.h>
@@ -24,7 +23,6 @@
 #include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSolvers.h>
 #include <maths/common/CTools.h>
@@ -33,13 +31,10 @@
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/tools/roots.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -262,20 +257,17 @@ double maximumLikelihoodShape(double oldShape,
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to bracket root: " << e.what() << ", newNumber = " << newNumber
                   << ", newMean = " << newMean << ", newLogMean = " << newLogMean
-                  << ", x0 = " << x0 << ", f(x0) = " << f0
-                  << ", bracket = " << core::CContainerPrinter::print(bracket)
-                  << ", f(bracket) = " << core::CContainerPrinter::print(fBracket)
-                  << ", bestGuess = " << bestGuess);
+                  << ", x0 = " << x0 << ", f(x0) = " << f0 << ", bracket = " << bracket
+                  << ", f(bracket) = " << fBracket << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
     if (maxIterations == 0) {
         LOG_TRACE(<< "Failed to bracket root:"
                   << " newNumber = " << newNumber << ", newMean = " << newMean
-                  << ", newLogMean = " << newLogMean << ", x0 = " << x0 << ", f(x0) = " << f0
-                  << ", bracket = " << core::CContainerPrinter::print(bracket)
-                  << ", f(bracket) = " << core::CContainerPrinter::print(fBracket)
-                  << ", bestGuess = " << bestGuess);
+                  << ", newLogMean = " << newLogMean << ", x0 = " << x0
+                  << ", f(x0) = " << f0 << ", bracket = " << bracket
+                  << ", f(bracket) = " << fBracket << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
@@ -283,8 +275,7 @@ double maximumLikelihoodShape(double oldShape,
               << ", newLogMean = " << newLogMean << ", oldTarget = " << oldTarget
               << ", target = " << target << ", upFactor = " << upFactor
               << ", downFactor = " << downFactor << ", x0 = " << x0 << ", f(x0) = " << f0
-              << ", bracket = " << core::CContainerPrinter::print(bracket)
-              << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+              << ", bracket = " << bracket << ", f(bracket) = " << fBracket);
 
     try {
         CEqualWithTolerance<double> tolerance(CToleranceTypes::E_AbsoluteTolerance, EPS * x0);
@@ -292,14 +283,12 @@ double maximumLikelihoodShape(double oldShape,
                         derivative, maxIterations, tolerance, bestGuess);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to solve: " << e.what() << ", newNumber = " << newNumber
-                  << ", x0 = " << x0 << ", f(x0) = " << f0
-                  << ", bracket = " << core::CContainerPrinter::print(bracket)
-                  << ", f(bracket) = " << core::CContainerPrinter::print(fBracket)
-                  << ", bestGuess = " << bestGuess);
+                  << ", x0 = " << x0 << ", f(x0) = " << f0 << ", bracket = " << bracket
+                  << ", f(bracket) = " << fBracket << ", bestGuess = " << bestGuess);
         return bestGuess;
     }
 
-    LOG_TRACE(<< "bracket = " << core::CContainerPrinter::print(bracket));
+    LOG_TRACE(<< "bracket = " << bracket);
 
     return (bracket.first + bracket.second) / 2.0;
 }
@@ -543,8 +532,7 @@ public:
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
             LOG_ERROR(<< "Failed to compute probability of less likely samples (samples ="
-                      << core::CContainerPrinter::print(m_Samples)
-                      << ", weights = " << core::CContainerPrinter::print(m_Weights)
+                      << m_Samples << ", weights = " << m_Weights
                       << ", offset = " << m_Offset + x << ")");
             return false;
         }
@@ -635,7 +623,7 @@ public:
                     // and pollute the floating point environment. This
                     // may cause issues for some library function
                     // implementations (see fe*exceptflag for more details).
-                    result = boost::numeric::bounds<double>::lowest();
+                    result = std::numeric_limits<double>::lowest();
                     this->addErrorStatus(maths_t::E_FpOverflowed);
                     return false;
                 }
@@ -828,9 +816,8 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return;
     }
 
@@ -912,8 +899,7 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
             double x = samples[i] + m_Offset;
             if (x <= 0.0 || !CMathsFuncs::isFinite(x) ||
                 !CMathsFuncs::isFinite(weights[i])) {
-                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                          << core::CContainerPrinter::print(weights[i]));
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = " << weights[i]);
                 continue;
             }
             double n = maths_t::countForUpdate(weights[i]);
@@ -963,8 +949,8 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
 
     if (this->isBad()) {
         LOG_ERROR(<< "Update failed (" << this->debug() << ")");
-        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << samples);
+        LOG_ERROR(<< "weights = " << weights);
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
@@ -1019,7 +1005,7 @@ void CGammaRateConjugate::propagateForwardsByTime(double time) {
 }
 
 CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport() const {
-    return {-m_Offset, boost::numeric::bounds<double>::highest()};
+    return {-m_Offset, std::numeric_limits<double>::max()};
 }
 
 double CGammaRateConjugate::marginalLikelihoodMean() const {
@@ -1076,7 +1062,7 @@ double CGammaRateConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& weig
 double CGammaRateConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry& weights) const {
 
     if (this->isNonInformative()) {
-        return boost::numeric::bounds<double>::highest();
+        return std::numeric_limits<double>::max();
     }
 
     // This is just E_{B}[Var(X | B)] where B is the rate prior. There is
@@ -1158,9 +1144,8 @@ CGammaRateConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -1173,7 +1158,7 @@ CGammaRateConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -1196,12 +1181,12 @@ CGammaRateConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
         if ((status & maths_t::E_FpFailed) != 0) {
             LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "samples = " << samples);
+            LOG_ERROR(<< "weights = " << weights);
         } else if ((status & maths_t::E_FpOverflowed) != 0) {
             LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
-            LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_TRACE(<< "samples = " << samples);
+            LOG_TRACE(<< "weights = " << weights);
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
@@ -1357,9 +1342,8 @@ bool CGammaRateConjugate::minusLogJointCdf(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1369,9 +1353,8 @@ bool CGammaRateConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 
@@ -1399,9 +1382,8 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                      << core::CContainerPrinter::print(samples) << ", weights = "
-                      << core::CContainerPrinter::print(weights) << ")");
+            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                      << ", weights = " << weights << ")");
             return false;
         }
 
@@ -1411,9 +1393,8 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
-                  << core::CContainerPrinter::print(samples)
-                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = " << samples
+                  << ", weights = " << weights << ")");
         return false;
     }
 
@@ -1621,8 +1602,7 @@ CGammaRateConjugate::TDoubleDoublePr
 CGammaRateConjugate::confidenceIntervalRate(double percentage) const {
 
     if (this->isNonInformative()) {
-        return {boost::numeric::bounds<double>::lowest(),
-                boost::numeric::bounds<double>::highest()};
+        return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
     }
 
     percentage /= 100.0;
@@ -1640,8 +1620,7 @@ CGammaRateConjugate::confidenceIntervalRate(double percentage) const {
                   << ", prior rate = " << this->priorRate());
     }
 
-    return {boost::numeric::bounds<double>::lowest(),
-            boost::numeric::bounds<double>::highest()};
+    return {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max()};
 }
 
 bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate& rhs,

@@ -12,15 +12,14 @@
 // The lack of include guards is deliberate in this file, to allow per-file
 // redefinition of logging macros
 
+#include <core/CContainerPrinter.h>
+
 #include <boost/current_function.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 
 #include <cstddef>
 #include <sstream>
 #include <string>
-#include <tuple>
 
 // Location info
 #ifdef LOG_LOCATION_INFO
@@ -30,31 +29,37 @@
     << boost::log::add_value(ml::core::CLogger::instance().lineAttributeName(), __LINE__) \
     << boost::log::add_value(ml::core::CLogger::instance().fileAttributeName(), __FILE__) \
     << boost::log::add_value(ml::core::CLogger::instance().functionAttributeName(),       \
-                             BOOST_CURRENT_FUNCTION)
+                             BOOST_CURRENT_FUNCTION)                                      \
+    << ml::core::CScopePrintContainers {}
 
 // Log at a level known at compile time
 
 #ifdef LOG_TRACE
 #undef LOG_TRACE
 #endif
+#ifdef SUPPRESS_USAGE_WARNING
+#undef SUPPRESS_USAGE_WARNING
+#endif
+#ifdef EXCLUDE_TRACE_LOGGING
+// Compiling trace logging is expensive so if we don't want it just discard
+// the code in the preprocessor.
+#define LOG_TRACE(message)
+// Avoids compiler warning in the case a variable is only used in LOG_TRACE.
+#define SUPPRESS_USAGE_WARNING(variable) static_cast<void>(&(variable))
+#else
 #ifdef PROMOTE_LOGGING_TO_INFO
 // When this option is set all LOG_TRACE macros are promoted to LOG_INFO
 #define LOG_TRACE(message)                                                                  \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
     LOG_LOCATION_INFO                                                                       \
     message
-#elif defined(EXCLUDE_TRACE_LOGGING)
-// When this option is set TRACE logging is expanded to dummy code that can be
-// eliminated from the compiled program (certainly when optimisation is
-// enabled) - this avoids the overhead of checking the logging level at all for
-// this low level logging
-#define LOG_TRACE(message)                                                     \
-    static_cast<void>([&]() { std::ostringstream() << "" message; })
 #else
 #define LOG_TRACE(message)                                                                   \
     BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
     LOG_LOCATION_INFO                                                                        \
     message
+#endif
+#define SUPPRESS_USAGE_WARNING(variable)
 #endif
 #ifdef LOG_DEBUG
 #undef LOG_DEBUG
@@ -124,12 +129,11 @@
 #ifdef HANDLE_FATAL
 #undef HANDLE_FATAL
 #endif
-#define HANDLE_FATAL(message)                                                  \
-    do {                                                                       \
-        std::ostringstream ss;                                                 \
-        ss message;                                                            \
-        ml::core::CLogger::instance().handleFatal(ss.str());                   \
-    } while (0)
+#define HANDLE_FATAL(message)                                                              \
+    ml::core::CLogger::instance().handleFatal(                                             \
+        static_cast<std::ostringstream*>(                                                  \
+            (std::ostringstream{} << ml::core::CScopePrintContainers {} message).stream()) \
+            ->str())
 
 #ifdef LOG_ABORT
 #undef LOG_ABORT

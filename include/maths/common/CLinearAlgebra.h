@@ -14,18 +14,16 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CMemoryFwd.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/std_array.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/operators.hpp>
 
 #include <cmath>
@@ -263,7 +261,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -955,7 +953,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -1170,13 +1168,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVectorNx1& smallest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::lowest());
+        static const CVectorNx1 result(std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVectorNx1& largest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::highest());
+        static const CVectorNx1 result(std::numeric_limits<T>::max());
         return result;
     }
 };
@@ -1477,13 +1475,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::lowest());
+        static const CVector result(d, std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVector& largest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::highest());
+        static const CVector result(d, std::numeric_limits<T>::max());
         return result;
     }
 };

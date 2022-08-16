@@ -13,12 +13,14 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefStd.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
+#include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 
@@ -86,7 +88,7 @@ core::CPackedBitVector& CBoostedTreeLeafNodeStatistics::rowMask() {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_RowMask) + core::CMemory::dynamicSize(m_Derivatives);
+    return core::memory::dynamicSize(m_RowMask) + core::memory::dynamicSize(m_Derivatives);
 }
 
 std::size_t
@@ -106,11 +108,11 @@ std::string CBoostedTreeLeafNodeStatistics::print() const {
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
                                                                std::size_t depth,
-                                                               TSizeVecCRef extraColumns,
+                                                               const TSizeVec& extraColumns,
                                                                std::size_t numberLossParameters,
                                                                const TFloatVecVec& candidateSplits,
                                                                CSplitsDerivatives derivatives)
-    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
+    : m_Id{id}, m_Depth{depth}, m_NumberLossParameters{numberLossParameters}, m_ExtraColumns{extraColumns},
       m_CandidateSplits{candidateSplits}, m_Derivatives{std::move(derivatives)} {
 }
 
@@ -179,7 +181,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivativesWith(
     for (std::size_t i = 0; i < numberThreads; ++i) {
         auto& splitsDerivatives = workspace.derivatives()[i];
         splitsDerivatives.zero();
-        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
+        aggregators.emplace_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 this->addRowDerivatives(bound, featureBag, *row, splitsDerivatives);
             }
@@ -210,7 +212,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
         auto& splitsDerivatives = workspace.derivatives()[i];
         mask.clear();
         splitsDerivatives.zero();
-        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
+        aggregators.emplace_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 if (split.assignToLeft(row, m_ExtraColumns) == isLeftChild) {
@@ -283,7 +285,7 @@ std::size_t CBoostedTreeLeafNodeStatistics::depth() const {
     return m_Depth;
 }
 
-CBoostedTreeLeafNodeStatistics::TSizeVecCRef
+const CBoostedTreeLeafNodeStatistics::TSizeVec&
 CBoostedTreeLeafNodeStatistics::extraColumns() const {
     return m_ExtraColumns;
 }
@@ -295,6 +297,41 @@ std::size_t CBoostedTreeLeafNodeStatistics::numberLossParameters() const {
 const CBoostedTreeLeafNodeStatistics::TFloatVecVec&
 CBoostedTreeLeafNodeStatistics::candidateSplits() const {
     return m_CandidateSplits;
+}
+
+std::uint64_t CBoostedTreeLeafNodeStatistics::CDerivatives::checksum(std::uint64_t seed) const {
+    seed = common::CChecksum::calculate(seed, m_Count);
+    seed = common::CChecksum::calculate(seed, m_Gradient);
+    return common::CChecksum::calculate(seed, m_Curvature);
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::memoryUsage() const {
+    return core::memory::dynamicSize(m_Derivatives) + core::memory::dynamicSize(m_Storage);
+}
+
+//! Estimate the split derivatives' memory usage for a data frame with
+//! \p numberCols columns using \p numberSplitsPerFeature for a loss
+//! function with \p numberLossParameters parameters.
+std::size_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::estimateMemoryUsage(
+    std::size_t numberFeatures,
+    std::size_t numberSplitsPerFeature,
+    std::size_t numberLossParameters) {
+    std::size_t derivativesSize{numberFeatures * (numberSplitsPerFeature + 1) *
+                                sizeof(CDerivatives)};
+    std::size_t storageSize{numberFeatures * (numberSplitsPerFeature + 1) * numberLossParameters *
+                            (numberLossParameters + 1) * sizeof(double)};
+    return sizeof(CSplitsDerivatives) + derivativesSize + storageSize;
+}
+
+//! Get a checksum of this object.
+std::uint64_t CBoostedTreeLeafNodeStatistics::CSplitsDerivatives::checksum(std::uint64_t seed) const {
+    seed = common::CChecksum::calculate(seed, m_NumberLossParameters);
+    seed = common::CChecksum::calculate(seed, m_PositiveDerivativesSum);
+    seed = common::CChecksum::calculate(seed, m_NegativeDerivativesSum);
+    seed = common::CChecksum::calculate(seed, m_PositiveDerivativesMax);
+    seed = common::CChecksum::calculate(seed, m_PositiveDerivativesMin);
+    seed = common::CChecksum::calculate(seed, m_NegativeDerivativesMin);
+    return common::CChecksum::calculate(seed, m_Derivatives);
 }
 
 CBoostedTreeLeafNodeStatistics::TSizeVec
@@ -312,6 +349,14 @@ CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
     result.erase(std::unique(result.begin(), result.end()), result.end());
 
     return result;
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::CWorkspace::memoryUsage() const {
+    // We purposely don't account for the free list memory usage because we
+    // account for them as we recycle them during training. This means our
+    // instantaneous memory estimate might be off but not the peak memory
+    // usage which is what we care about.
+    return core::memory::dynamicSize(m_Masks) + core::memory::dynamicSize(m_Derivatives);
 }
 }
 }

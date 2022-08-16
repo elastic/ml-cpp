@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CLinearAlgebra.h>
@@ -19,7 +18,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -51,7 +49,7 @@ void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vect
 void debug(const TDoubleVecVec& x) {
     LOG_DEBUG(<< "x =");
     for (std::size_t i = 0; i < x.size(); ++i) {
-        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(x[i]));
+        LOG_DEBUG(<< "  " << x[i]);
     }
 }
 
@@ -227,8 +225,8 @@ BOOST_AUTO_TEST_CASE(testSpan) {
                 }
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG(<< "x(i)       = " << core::CContainerPrinter::print(x[i]));
-                    LOG_DEBUG(<< "projection = " << core::CContainerPrinter::print(r));
+                    LOG_DEBUG(<< "x(i)       = " << x[i]);
+                    LOG_DEBUG(<< "projection = " << r);
                 }
 
                 subtract(r, x[i]);
@@ -287,15 +285,15 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         std::size_t p[]{0, 1, 2};
 
         do {
-            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << p);
 
             TDoubleVecVec x{x_};
             //debug(x);
             maths::common::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_REQUIRE_EQUAL(std::size_t(2), x.size());
-        } while (std::next_permutation(p, p + boost::size(p)));
+            BOOST_REQUIRE_EQUAL(2, x.size());
+        } while (std::next_permutation(p, p + std::size(p)));
     }
     {
         LOG_DEBUG(<< "");
@@ -309,7 +307,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         std::size_t p[]{0, 1, 2, 3, 4};
 
         do {
-            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << p);
 
             TDoubleVecVec x{x_};
 
@@ -317,8 +315,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
             maths::common::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_REQUIRE_EQUAL(std::size_t(3), x.size());
-        } while (std::next_permutation(p, p + boost::size(p)));
+            BOOST_REQUIRE_EQUAL(3, x.size());
+        } while (std::next_permutation(p, p + std::size(p)));
     }
 }
 

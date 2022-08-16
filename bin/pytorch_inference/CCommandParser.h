@@ -59,7 +59,7 @@ public:
     class CRequestCacheInterface {
     public:
         using TComputeResponse = std::function<std::string(SRequest)>;
-        using TReadResponse = std::function<void(const std::string&)>;
+        using TReadResponse = std::function<void(const std::string&, bool)>;
 
     public:
         virtual ~CRequestCacheInterface() = default;
@@ -67,6 +67,7 @@ public:
         virtual bool lookup(SRequest request,
                             const TComputeResponse& computeResponse,
                             const TReadResponse& readResponse) = 0;
+        virtual void clear() = 0;
     };
 
     //! \brief Memory limited inference request LFU cache.
@@ -77,11 +78,14 @@ public:
         void resize(std::size_t memoryLimitBytes) override {
             m_Impl.resize(memoryLimitBytes);
         }
+
         bool lookup(SRequest request,
                     const TComputeResponse& computeResponse,
                     const TReadResponse& readResponse) override {
             return m_Impl.lookup(std::move(request), computeResponse, readResponse);
         }
+
+        void clear() override { m_Impl.clear(); }
 
     private:
         using TConcurrentLfuCache = core::CConcurrentCompressedLfuCache<SRequest, std::string>;
@@ -94,12 +98,15 @@ public:
     class CRequestCacheStub : public CRequestCacheInterface {
     public:
         void resize(std::size_t) override {}
+
         bool lookup(SRequest request,
                     const TComputeResponse& computeResponse,
                     const TReadResponse& readResponse) override {
-            readResponse(computeResponse(std::move(request)));
+            readResponse(computeResponse(std::move(request)), false);
             return false;
         }
+
+        void clear() override {}
     };
 
     using TRequestCachePtr = std::unique_ptr<CRequestCacheInterface>;
@@ -109,7 +116,7 @@ public:
         E_ControlMessage,
         E_MalformedMessage
     };
-    enum EControlMessageType { E_NumberOfAllocations, E_Unknown };
+    enum EControlMessageType { E_NumberOfAllocations, E_ClearCache, E_Unknown };
 
     //! The incoming JSON requests contain a 2D array of tokens representing
     //! a batch of inference calls. To avoid copying, the input tensor
@@ -132,7 +139,8 @@ public:
         std::string s_RequestId;
     };
 
-    using TControlHandlerFunc = std::function<void(const SControlMessage&)>;
+    using TControlHandlerFunc =
+        std::function<void(CRequestCacheInterface&, const SControlMessage&)>;
     using TRequestHandlerFunc = std::function<bool(CRequestCacheInterface&, SRequest)>;
     using TErrorHandlerFunc =
         std::function<void(const std::string& requestId, const std::string& message)>;

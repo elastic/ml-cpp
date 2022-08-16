@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CCalendarComponent_h
 #define INCLUDED_ml_maths_time_series_CCalendarComponent_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <maths/time_series/CCalendarComponentAdaptiveBucketing.h>

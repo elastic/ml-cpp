@@ -11,7 +11,6 @@
 
 #include <core/CStateMachine.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CFastMutex.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
@@ -21,8 +20,6 @@
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 #include <core/UnwrapRef.h>
-
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <sstream>
 
@@ -39,7 +36,7 @@ const std::string ALPHABET_TAG("a");
 const std::string STATES_TAG("b");
 const std::string TRANSITION_FUNCTION_TAG("c");
 
-std::size_t BAD_MACHINE = boost::numeric::bounds<std::size_t>::highest();
+std::size_t BAD_MACHINE = std::numeric_limits<std::size_t>::max();
 CFastMutex mutex;
 }
 
@@ -62,13 +59,12 @@ CStateMachine CStateMachine::create(const TStrVec& alphabet,
         return result;
     }
     if (alphabet.empty() || alphabet.size() != transitionFunction.size()) {
-        LOG_ERROR(<< "Bad alphabet: " << core::CContainerPrinter::print(alphabet));
+        LOG_ERROR(<< "Bad alphabet: " << alphabet);
         return result;
     }
     for (const auto& function : transitionFunction) {
         if (states.size() != function.size()) {
-            LOG_ERROR(<< "Bad transition function row: "
-                      << core::CContainerPrinter::print(function));
+            LOG_ERROR(<< "Bad transition function row: " << function);
             return result;
         }
     }
@@ -105,8 +101,7 @@ bool CStateMachine::acceptRestoreTraverser(core::CStateRestoreTraverser& travers
         if (mapped != mapping.end()) {
             m_State = mapped->second;
         } else {
-            LOG_ERROR(<< "Bad mapping '" << core::CContainerPrinter::print(mapping)
-                      << "' state = " << m_State);
+            LOG_ERROR(<< "Bad mapping '" << mapping << "' state = " << m_State);
             return false;
         }
     }
@@ -201,9 +196,9 @@ CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
 }
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine& rhs) const {
-    return ml::core::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
-           ml::core::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
-           ml::core::unwrap_ref(s_States) == rhs.s_States;
+    return unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
+           unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
+           unwrap_ref(s_States) == rhs.s_States;
 }
 
 CStateMachine::CMachineDeque::CMachineDeque()

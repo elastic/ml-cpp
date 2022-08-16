@@ -17,7 +17,6 @@
 #include <maths/common/CModel.h>
 
 #include <model/CModelTools.h>
-#include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -29,6 +28,7 @@ namespace ml {
 namespace model {
 class CAnnotatedProbabilityBuilder;
 class CInfluenceCalculator;
+class CPartitioningFields;
 
 //! \brief Computes the overall probability and influences on a collection
 //! of feature values and corresponding influencer field value feature
@@ -46,7 +46,7 @@ class CInfluenceCalculator;
 //! and influences on this can be computed, after all probabilities and
 //! influencer field values have been added, using the calculate function.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This uses a plug-in pattern to support different influence calculations
 //! which are selected at runtime. This is necessary because different features
 //! use different influence calculations, but the features are selected based
@@ -385,7 +385,7 @@ private:
 class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
     using TParams = CProbabilityAndInfluenceCalculator::SParams;
     using TCorrelateParams = CProbabilityAndInfluenceCalculator::SCorrelateParams;
 

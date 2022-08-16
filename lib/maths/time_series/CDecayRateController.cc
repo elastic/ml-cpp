@@ -11,9 +11,8 @@
 
 #include <maths/time_series/CDecayRateController.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -230,7 +229,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             (*stats_[BIAS])[d].add(predictionError[d] + tolerance, weight);
             (*stats_[RECENT_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
             (*stats_[HISTORIC_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
-            LOG_TRACE(<< "stats = " << core::CContainerPrinter::print(stats_));
+            LOG_TRACE(<< "stats = " << stats_);
             LOG_TRACE(<< "predictions = " << common::CBasicStatistics::mean(m_PredictionMean));
         }
     }
@@ -294,17 +293,17 @@ std::size_t CDecayRateController::dimension() const {
 
 void CDecayRateController::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDecayRateController");
-    core::CMemoryDebug::dynamicSize("m_PredictionMean", m_PredictionMean, mem);
-    core::CMemoryDebug::dynamicSize("m_Bias", m_Bias, mem);
-    core::CMemoryDebug::dynamicSize("m_RecentAbsError", m_RecentAbsError, mem);
-    core::CMemoryDebug::dynamicSize("m_HistoricalAbsError", m_HistoricalAbsError, mem);
+    core::memory_debug::dynamicSize("m_PredictionMean", m_PredictionMean, mem);
+    core::memory_debug::dynamicSize("m_Bias", m_Bias, mem);
+    core::memory_debug::dynamicSize("m_RecentAbsError", m_RecentAbsError, mem);
+    core::memory_debug::dynamicSize("m_HistoricalAbsError", m_HistoricalAbsError, mem);
 }
 
 std::size_t CDecayRateController::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_PredictionMean)};
-    mem += core::CMemory::dynamicSize(m_Bias);
-    mem += core::CMemory::dynamicSize(m_RecentAbsError);
-    mem += core::CMemory::dynamicSize(m_HistoricalAbsError);
+    std::size_t mem{core::memory::dynamicSize(m_PredictionMean)};
+    mem += core::memory::dynamicSize(m_Bias);
+    mem += core::memory::dynamicSize(m_RecentAbsError);
+    mem += core::memory::dynamicSize(m_HistoricalAbsError);
     return mem;
 }
 

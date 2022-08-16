@@ -42,7 +42,7 @@ public:
     explicit CTestValue(std::size_t size) { m_Buffer.reserve(size); }
 
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(m_Buffer);
+        return core::memory::dynamicSize(m_Buffer);
     }
 
 private:
@@ -65,24 +65,27 @@ BOOST_AUTO_TEST_CASE(testLookup) {
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_1", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
 
-    BOOST_REQUIRE_EQUAL(true, cache.lookup("key_1",
-                                           [](std::string key_) { return key_; },
-                                           [&](const std::string& value) {
-                                               BOOST_REQUIRE_EQUAL("key_1", value);
-                                           }));
+    BOOST_REQUIRE_EQUAL(
+        true, cache.lookup("key_1", [](std::string key_) { return key_; },
+                           [&](const std::string& value, bool isCacheHit) {
+                               BOOST_REQUIRE_EQUAL("key_1", value);
+                               BOOST_REQUIRE_EQUAL(true, isCacheHit);
+                           }));
     BOOST_REQUIRE_EQUAL(1, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 2.0, cache.hitFraction());
 
     BOOST_REQUIRE_EQUAL(
         false, cache.lookup("key_2", [](std::string key_) { return key_; },
-                            [&](const std::string& value) {
+                            [&](const std::string& value, bool isCacheHit) {
                                 BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
                             }));
     BOOST_REQUIRE_EQUAL(2, cache.size());
     BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
@@ -93,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testLookup) {
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     // Test we accurately control memory usage to the specified limit.
 
-    TDoubleVecStrCache cache{32 * core::constants::BYTES_IN_KILOBYTES,
+    TDoubleVecStrCache cache{64 * core::constants::BYTES_IN_KILOBYTES,
                              [](const TDoubleVecStrCache::TDictionary& dictionary,
                                 const TDoubleVec& key) {
                                  auto translator = dictionary.translator();
@@ -106,25 +109,33 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     TDoubleVec key;
     for (std::size_t i = 0; i < 500; ++i) {
         rng.generateNormalSamples(0.0, 1.0, 5, key);
-        cache.lookup(
-            key, // Don't move because we want to retain the value to compare.
-            [](TDoubleVec key_) { return core::CContainerPrinter::print(key_); },
-            [&](const std::string& value) {
-                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key), value);
-            });
+        cache.lookup(key, // Don't move because we want to retain the value to compare.
+                     [](TDoubleVec key_) {
+                         auto result = core::CContainerPrinter::print(key_) +
+                                       std::string(50, 'p');
+                         result.shrink_to_fit();
+                         return result;
+                     },
+                     [&](const std::string& value, bool) {
+                         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
+                                                 std::string(50, 'p'),
+                                             value);
+                     });
         BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
         BOOST_TEST_REQUIRE(cache.size() <= i + 1);
-        BOOST_TEST_REQUIRE(cache.memoryUsage() < 32 * core::constants::BYTES_IN_KILOBYTES);
+        BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
     }
+    // This is sensitive to the exact memory limit and the item size because memory
+    // is consumed in chunks by the hash map.
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
-                       static_cast<std::size_t>(0.98 * 32 * core::constants::BYTES_IN_KILOBYTES));
+                       static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
 
     BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testResize) {
 
-    TDoubleVecStrCache cache{32 * core::constants::BYTES_IN_KILOBYTES,
+    TDoubleVecStrCache cache{64 * core::constants::BYTES_IN_KILOBYTES,
                              [](const TDoubleVecStrCache::TDictionary& dictionary,
                                 const TDoubleVec& key) {
                                  auto translator = dictionary.translator();
@@ -138,55 +149,67 @@ BOOST_AUTO_TEST_CASE(testResize) {
     TDoubleVec key;
     for (std::size_t i = 0; i < 500; ++i) {
         rng.generateNormalSamples(0.0, 1.0, 5, key);
-        cache.lookup(
-            key, // Don't move because we want to retain the value to compare.
-            [](TDoubleVec key_) { return core::CContainerPrinter::print(key_); },
-            [&](const std::string& value) {
-                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key), value);
-            });
+        cache.lookup(key, // Don't move because we want to retain the value to compare.
+                     [](TDoubleVec key_) {
+                         auto result = core::CContainerPrinter::print(key_) +
+                                       std::string(50, 'p');
+                         result.shrink_to_fit();
+                         return result;
+                     },
+                     [&](const std::string& value, bool) {
+                         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
+                                                 std::string(50, 'p'),
+                                             value);
+                     });
     }
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
-                       static_cast<std::size_t>(0.98 * 32 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 32 * core::constants::BYTES_IN_KILOBYTES);
+                       static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
     BOOST_TEST_REQUIRE(cache.size() < 500);
-
-    LOG_DEBUG(<< "32KB size = " << cache.size());
-    LOG_DEBUG(<< "32KB memory usage = " << cache.memoryUsage());
-
-    double size32KB{static_cast<double>(cache.size())};
-
-    cache.resize(64 * core::constants::BYTES_IN_KILOBYTES);
-
-    for (std::size_t i = 0; i < 500; ++i) {
-        rng.generateNormalSamples(0.0, 1.0, 5, key);
-        cache.lookup(
-            key, // Don't move because we want to retain the value to compare.
-            [](TDoubleVec key_) { return core::CContainerPrinter::print(key_); },
-            [&](const std::string& value) {
-                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key), value);
-            });
-    }
 
     LOG_DEBUG(<< "64KB size = " << cache.size());
     LOG_DEBUG(<< "64KB memory usage = " << cache.memoryUsage());
 
+    double size64KB{static_cast<double>(cache.size())};
+
+    cache.resize(128 * core::constants::BYTES_IN_KILOBYTES);
+
+    for (std::size_t i = 0; i < 500; ++i) {
+        rng.generateNormalSamples(0.0, 1.0, 5, key);
+        cache.lookup(key, // Don't move because we want to retain the value to compare.
+                     [](TDoubleVec key_) {
+                         std::string result = core::CContainerPrinter::print(key_) +
+                                              std::string(50, 'p');
+                         result.shrink_to_fit();
+                         return result;
+                     },
+                     [&](const std::string& value, bool) {
+                         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(key) +
+                                                 std::string(50, 'p'),
+                                             value);
+                     });
+    }
+
+    LOG_DEBUG(<< "128KB size = " << cache.size());
+    LOG_DEBUG(<< "128KB memory usage = " << cache.memoryUsage());
+
     // Check the cache is around twice as large.
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
-                       static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 64 * core::constants::BYTES_IN_KILOBYTES);
-    BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(1.95 * size32KB));
-    BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(2.05 * size32KB));
+                       static_cast<std::size_t>(0.98 * 128 * core::constants::BYTES_IN_KILOBYTES));
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 128 * core::constants::BYTES_IN_KILOBYTES);
+    BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(1.95 * size64KB));
+    BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(2.05 * size64KB));
 
-    cache.resize(32 * core::constants::BYTES_IN_KILOBYTES);
+    cache.resize(64 * core::constants::BYTES_IN_KILOBYTES);
 
-    LOG_DEBUG(<< "32KB size = " << cache.size());
-    LOG_DEBUG(<< "32KB memory usage = " << cache.memoryUsage());
+    LOG_DEBUG(<< "64KB size = " << cache.size());
+    LOG_DEBUG(<< "64KB memory usage = " << cache.memoryUsage());
 
     BOOST_TEST_REQUIRE(cache.memoryUsage() >
-                       static_cast<std::size_t>(0.98 * 32 * core::constants::BYTES_IN_KILOBYTES));
-    BOOST_TEST_REQUIRE(cache.memoryUsage() < 32 * core::constants::BYTES_IN_KILOBYTES);
-    BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(0.95 * size32KB));
-    BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(1.05 * size32KB));
+                       static_cast<std::size_t>(0.98 * 64 * core::constants::BYTES_IN_KILOBYTES));
+    BOOST_TEST_REQUIRE(cache.memoryUsage() <= 64 * core::constants::BYTES_IN_KILOBYTES);
+    BOOST_TEST_REQUIRE(cache.size() > static_cast<std::size_t>(0.95 * size64KB));
+    BOOST_TEST_REQUIRE(cache.size() < static_cast<std::size_t>(1.05 * size64KB));
 
     BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
@@ -205,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
     TTaskVec tasks;
     tasks.resize(10, [&] {
         cache.lookup("a_long_key_0", [](std::string key) { return key; },
-                     [&](const std::string& value) {
+                     [&](const std::string& value, bool) {
                          if (value != "a_long_key_0") {
                              ++errorCount;
                          }
@@ -220,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
                              std::this_thread::sleep_for(pause);
                              return key_;
                          },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              if (value != key) {
                                  ++errorCount;
                              }
@@ -250,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentReadsAndWrites) {
                              std::this_thread::sleep_for(pause);
                              return key_;
                          },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              if (value != key) {
                                  ++errorCount;
                              }
@@ -290,14 +313,14 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyFrequency) {
             std::string key{"key_" + std::to_string(i % 10)};
             cache.lookup(key, // Don't move because we want to retain the value to compare.
                          [](std::string key_) { return key_; },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              BOOST_REQUIRE_EQUAL(key, value);
                          });
         } else {
             std::string key{"key_" + std::to_string(i)};
             cache.lookup(key, // Don't move because we want to retain the value to compare.
                          [](std::string key_) { return key_; },
-                         [&](const std::string& value) {
+                         [&](const std::string& value, bool) {
                              BOOST_REQUIRE_EQUAL(key, value);
                          });
         }
@@ -326,22 +349,22 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
     // Check that large items get evicted first.
 
     TStrTestValueCache cache{
-        32 * core::constants::BYTES_IN_KILOBYTES,
+        40 * core::constants::BYTES_IN_KILOBYTES,
         [](const TStrStrCache::TDictionary& dictionary,
            const std::string& key) { return dictionary.word(key); }};
 
     for (std::size_t i = 0; i < 200; ++i) {
         if (i < 100) {
             cache.lookup("large_key_" + std::to_string(i),
-                         [i](std::string) { return CTestValue{5 + i}; },
-                         [&](const CTestValue&) {});
+                         [i](std::string) { return CTestValue{10 + i}; },
+                         [&](const CTestValue&, bool) {});
             auto stats = cache.stats("large_key_" + std::to_string(i));
             BOOST_TEST_REQUIRE(stats.first > 0);
             BOOST_TEST_REQUIRE(stats.second > 0);
         } else {
             cache.lookup("small_key_" + std::to_string(i),
                          [](std::string) { return CTestValue{}; },
-                         [&](const CTestValue&) {});
+                         [&](const CTestValue&, bool) {});
         }
     }
 
@@ -393,11 +416,11 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
         if (u01[i] < 0.2) {
             cache.lookup("key_" + std::to_string(i % 10),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
         } else {
             cache.lookup("key_" + std::to_string(i),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
         }
     }
 
@@ -407,11 +430,11 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
         if (u01[i] < 0.2) {
             concurrentCache.lookup("key_" + std::to_string(i % 10),
                                    [](std::string key_) { return key_; },
-                                   [&](const std::string&) {});
+                                   [&](const std::string&, bool) {});
         } else {
             concurrentCache.lookup("key_" + std::to_string(i),
                                    [](std::string key_) { return key_; },
-                                   [&](const std::string&) {});
+                                   [&](const std::string&, bool) {});
         }
     }
 
@@ -421,6 +444,8 @@ BOOST_AUTO_TEST_CASE(testSingleThreadPerformance) {
     // 30% faster on bare metal (32 ms vs 44 ms).
     LOG_DEBUG(<< "duration ms = " << durationMs);
     LOG_DEBUG(<< "duration concurrent ms = " << durationConcurrentMs);
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
@@ -442,7 +467,7 @@ BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
                              ++numberComputes;
                              return key;
                          },
-                         [&](const std::string&) { ++numberReads; });
+                         [&](const std::string&, bool) { ++numberReads; });
         }
     }
 
@@ -466,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testUniqueComputesAndReads) {
                                  ++numberComputes;
                                  return key;
                              },
-                             [&](const std::string&) { ++numberReads; });
+                             [&](const std::string&, bool) { ++numberReads; });
             });
         }
     }
@@ -487,7 +512,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     for (std::size_t i = 0; i < 500; ++i) {
         origCache.lookup("key_" + std::to_string(i),
                          [](std::string key_) { return key_; },
-                         [&](const std::string&) {});
+                         [&](const std::string&, bool) {});
     }
 
     std::stringstream origJsonStream;
@@ -526,6 +551,65 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     BOOST_TEST_REQUIRE(origCache.checkInvariants());
     BOOST_TEST_REQUIRE(restoredCache.checkInvariants());
+}
+
+BOOST_AUTO_TEST_CASE(testClear) {
+
+    TStrStrCache cache{32 * core::constants::BYTES_IN_KILOBYTES,
+                       [](const TStrStrCache::TDictionary& dictionary, const std::string& key) {
+                           return dictionary.word(key);
+                       }};
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_1", [](std::string key_) { return key_; },
+                            [&](const std::string& value, bool isCacheHit) {
+                                BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
+                            }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(
+        true, cache.lookup("key_1", [](std::string key_) { return key_; },
+                           [&](const std::string& value, bool isCacheHit) {
+                               BOOST_REQUIRE_EQUAL("key_1", value);
+                               BOOST_REQUIRE_EQUAL(true, isCacheHit);
+                           }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(1.0 / 2.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_2", [](std::string key_) { return key_; },
+                            [&](const std::string& value, bool isCacheHit) {
+                                BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
+                            }));
+    BOOST_REQUIRE_EQUAL(2, cache.size());
+    BOOST_REQUIRE_EQUAL(1.0 / 3.0, cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+    cache.clear();
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_1", [](std::string key_) { return key_; },
+                            [&](const std::string& value, bool isCacheHit) {
+                                BOOST_REQUIRE_EQUAL("key_1", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
+                            }));
+    BOOST_REQUIRE_EQUAL(1, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_REQUIRE_EQUAL(
+        false, cache.lookup("key_2", [](std::string key_) { return key_; },
+                            [&](const std::string& value, bool isCacheHit) {
+                                BOOST_REQUIRE_EQUAL("key_2", value);
+                                BOOST_REQUIRE_EQUAL(false, isCacheHit);
+                            }));
+    BOOST_REQUIRE_EQUAL(2, cache.size());
+    BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
+
+    BOOST_TEST_REQUIRE(cache.checkInvariants());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CGammaRateConjugate_h
 #define INCLUDED_ml_maths_common_CGammaRateConjugate_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CDoublePrecisionStorage.h>
@@ -61,7 +61,7 @@ struct SDistributionRestoreParams;
 class MATHS_COMMON_EXPORT CGammaRateConjugate : public CPrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TEqualWithTolerance = CEqualWithTolerance<double>;
 

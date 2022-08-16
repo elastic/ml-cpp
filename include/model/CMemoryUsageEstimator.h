@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_core_CMemoryUsageEstimator_h
 #define INCLUDED_ml_core_CMemoryUsageEstimator_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <model/ImportExport.h>
 

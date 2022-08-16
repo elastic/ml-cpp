@@ -12,7 +12,7 @@
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/Constants.h>
@@ -21,17 +21,13 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
-#include <maths/common/CPriorStateSerialiser.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/common/CTools.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {
@@ -201,7 +197,7 @@ std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -209,28 +205,28 @@ std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
 void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPopulationModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_PersonLastBucketTimes", m_PersonLastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeFirstBucketTimes",
+    core::memory_debug::dynamicSize("m_PersonLastBucketTimes", m_PersonLastBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_AttributeFirstBucketTimes",
                                     m_AttributeFirstBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeLastBucketTimes",
+    core::memory_debug::dynamicSize("m_AttributeLastBucketTimes",
                                     m_AttributeLastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_NewDistinctPersonCounts",
+    core::memory_debug::dynamicSize("m_NewDistinctPersonCounts",
                                     m_NewDistinctPersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_DistinctPersonCounts", m_DistinctPersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeBucketCounts",
+    core::memory_debug::dynamicSize("m_DistinctPersonCounts", m_DistinctPersonCounts, mem);
+    core::memory_debug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
+    core::memory_debug::dynamicSize("m_PersonAttributeBucketCounts",
                                     m_PersonAttributeBucketCounts, mem);
 }
 
 std::size_t CPopulationModel::memoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_PersonLastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_AttributeFirstBucketTimes);
-    mem += core::CMemory::dynamicSize(m_AttributeLastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_NewDistinctPersonCounts);
-    mem += core::CMemory::dynamicSize(m_DistinctPersonCounts);
-    mem += core::CMemory::dynamicSize(m_NewPersonBucketCounts);
-    mem += core::CMemory::dynamicSize(m_PersonAttributeBucketCounts);
+    mem += core::memory::dynamicSize(m_PersonLastBucketTimes);
+    mem += core::memory::dynamicSize(m_AttributeFirstBucketTimes);
+    mem += core::memory::dynamicSize(m_AttributeLastBucketTimes);
+    mem += core::memory::dynamicSize(m_NewDistinctPersonCounts);
+    mem += core::memory::dynamicSize(m_DistinctPersonCounts);
+    mem += core::memory::dynamicSize(m_NewPersonBucketCounts);
+    mem += core::memory::dynamicSize(m_PersonAttributeBucketCounts);
     return mem;
 }
 

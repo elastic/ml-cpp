@@ -12,16 +12,14 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CMemoryUsage.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/MathsTypes.h>
 
 #include <maths/time_series/ImportExport.h>
-
-#include <boost/array.hpp>
 
 #include <cstddef>
 #include <cstdint>
