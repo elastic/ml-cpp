@@ -49,7 +49,7 @@
 
 // clang-format off
 #define ml_unaligned_load_128(x) vld1q_f32(x)
-#define ml_unaligned_store_128(x) vst1q_f32(x)
+#define ml_unaligned_store_128(x, y) vst1q_f32(x, y)
 #define ml_minimum_128(x, y) vminq_f32(x, y)
 #define ml_subtract_128(x, y) vsubq_f32(x, y)
 #define ml_multiply_128(x, y) vmulq_f32(x, y)
@@ -69,8 +69,8 @@ ml_shuffle_128(float32x4_t a, float32x4_t b, MASK) {
 }
 
 inline __attribute__((always_inline)) auto ml_rotate_128(float32x4_t x) {
-    float32x2_t x21{vget_high_f32(vextq_f32(x, x), 3)};
-    float32x2_t x03{vget_low_f32(vextq_f32(x, x), 3)};
+    float32x2_t x21{vget_high_f32(vextq_f32(x, x, 3))};
+    float32x2_t x03{vget_low_f32(vextq_f32(x, x, 3))};
     return vcombine_f32(x21, x03);
 }
 
