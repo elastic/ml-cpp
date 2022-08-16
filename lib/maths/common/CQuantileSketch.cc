@@ -28,7 +28,7 @@
 #include <optional>
 #include <random>
 
-#if defined(__SSE4_2__)
+#if defined(__SSE__)
 
 #include <xmmintrin.h>
 
@@ -44,6 +44,7 @@
 #elif defined(__ARM_NEON__)
 
 #include <type_traits>
+
 #include <arm_neon.h>
 
 #define ml_unaligned_load_128(x) vld1q_f32(x)
