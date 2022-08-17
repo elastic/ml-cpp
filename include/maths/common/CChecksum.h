@@ -91,7 +91,7 @@ std::uint64_t checksum(std::uint64_t seed, const T& target) {
 
 //! Basic checksum functionality implementation.
 template<>
-class CChecksumImpl<BasicChecksum> {
+class MATHS_COMMON_EXPORT CChecksumImpl<BasicChecksum> {
 public:
     //! Checksum types castable to std::uint64_t.
     template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>* = nullptr>
@@ -202,7 +202,7 @@ public:
 
 //! Type with checksum member function implementation.
 template<>
-class CChecksumImpl<MemberChecksumWithSeed> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberChecksumWithSeed> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -213,7 +213,7 @@ public:
 
 //! Type with checksum member function implementation.
 template<>
-class CChecksumImpl<MemberChecksumWithoutSeed> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberChecksumWithoutSeed> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -224,7 +224,7 @@ public:
 
 //! Type with hash member function implementation.
 template<>
-class CChecksumImpl<MemberHash> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberHash> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -236,7 +236,7 @@ public:
 
 //! Container checksum implementation.
 template<>
-class CChecksumImpl<ContainerChecksum> {
+class MATHS_COMMON_EXPORT CChecksumImpl<ContainerChecksum> {
 public:
     //! Call on elements.
     template<typename T>
