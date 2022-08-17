@@ -9,27 +9,109 @@
 # limitation.
 #
 
-set(REQUIRE "requirements.txt")
+# CMake 3.19.2 is the minimum version required to support Apple Silicon
+cmake_minimum_required(VERSION 3.19.2)
+
+project(ml-python NONE)
+
+enable_testing()
+
+set(REQUIREMENTS "requirements.txt")
+set(REQUIREMENTS_LOG ".requirements.log")
 set(SYS_VIRTUEALENV "python3 -m venv")
-set(ENV "env")
-set(BIN "${ENV}/bin")
-set(PIP "${BIN}/pip")
+set(SRC_DIR src)
 set(TEST_DIR tests)
-set(PYTHON_EXECUTABLE "${BIN}/python")
+set(NB_DIR notebooks)
 set(TEST_RUNNER "${BIN}/py.test")
-set(BUMPVERSION "bumpversion")
+
+# Output debug information
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(TEST_NOTEBOOKS
-    incremental_training
+    incremental_learning
 )
 set(PACKAGES
-    incremental_learning 
+    incremental_learning
 )
 
-# TODO: Do I need to add requirements/target dependencies?
-add_test(NAME python-tests
-    COMMAND ${TEST_RUNNER} ${TEST_DIR}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+set(Python_FIND_VIRTUALENV "ONLY")
+
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+find_package(PythonLibs 3.7 REQUIRED)
+find_program(Docker_EXECUTABLE docker)
+
+if(NOT Docker_EXECUTABLE)
+    message(FATAL_ERROR "Cannot find the docker executable")
+endif()
+
+if(EXISTS "${REQUIREMENTS_LOG}")
+    message("Requirements already installed. Skip this step.")
+else()
+    message("Installing PyPI requirements.")
+    execute_process(
+        COMMAND ${Python_EXECUTABLE} -m pip install -r ${REQUIREMENTS}
+        OUTPUT_FILE "${REQUIREMENTS_LOG}"
+    )
+endif()
+
+message("Installing packages from ${SRC_DIR}")
+execute_process(
+    COMMAND ${Python_EXECUTABLE} -m pip install -e ${SRC_DIR}
 )
 
+add_custom_target(bump_major
+    COMMAND ${Python_EXECUTABLE} -m bumpversion major
+    WORKING_DIRECTORY ${SRC_DIR}
+    COMMENT "Increase the major version of the Python packages."
+)
 
+add_custom_target(bump_minor
+    COMMAND ${Python_EXECUTABLE} -m bumpversion minor
+    WORKING_DIRECTORY ${SRC_DIR}
+    COMMENT "Increase the minor version of the Python packages."
+)
+
+add_custom_target(src_tests
+    COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/${TEST_DIR}
+    COMMENT "Run Python unit tests."
+)
+
+add_custom_target(notebook_tests
+    COMMAND ${Python_EXECUTABLE} -m pytest --nbsmoke-run ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/${NB_DIR}/${TEST_NOTEBOOKS}
+    COMMENT "Run Jupyter notebook smoke tests."
+)
+
+add_custom_target(build_docker
+    COMMAND DOCKER_BUILDKIT=1 docker build -t $ENV{IMAGE_NAME} -f ./jupyter/docker/Dockerfile .
+    COMMAND echo "New docker image $ENV{IMAGE_NAME} created."
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+    COMMENT "Create docker image for the specified in IMAGE_NAME"
+)
+
+add_custom_target(run_docker
+    COMMAND docker run -p 9999:9999 $ENV{IMAGE_NAME}:latest
+    COMMENT "Run docker container for specified IMAGE_NAME"
+)
+
+add_custom_target(clean_build
+    COMMAND @find ${SRC_DIR} -name '*.pyc' -delete \;
+	COMMAND @find ${SRC_DIR} -name '__pycache__' -delete \;
+	COMMAND @find ${SRC_DIR} -name '*.egg-info' -exec rm -r {} +
+	COMMAND @find ${TEST_DIR} -name '*.pyc' -delete 2>/dev/null || true \;
+	COMMAND @find ${TEST_DIR} -name '__pycache__' -delete 2>/dev/null || true \;
+	COMMAND -@rm -rf __pycache__ \;
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
+
+add_custom_target(clean_test
+    COMMAND @find ${TEST_DIR} -name '.pytest_cache' -exec rm -r {} +
+	COMMAND @find ${TEST_DIR} -name '__pycache__' -exec rm -r {} +
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
+
+add_custom_target(clean_notebooks
+    COMMAND -@find ${NB_DIR} -type d -name '.ipynb_checkpoints' -delete \;
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
