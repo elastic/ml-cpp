@@ -36,13 +36,8 @@ set(PACKAGES
 
 set(Python_FIND_VIRTUALENV "ONLY")
 
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
-find_package(PythonLibs 3.7 REQUIRED)
-find_program(Docker_EXECUTABLE docker)
-
-if(NOT Docker_EXECUTABLE)
-    message(FATAL_ERROR "Cannot find the docker executable")
-endif()
+find_package(Python 3.7 COMPONENTS Interpreter Development REQUIRED)
+find_program(Docker_EXECUTABLE docker REQUIRED)
 
 if(EXISTS "${REQUIREMENTS_LOG}")
     message("Requirements already installed. Skip this step.")
@@ -102,6 +97,7 @@ add_custom_target(clean_build
 	COMMAND @find ${TEST_DIR} -name '*.pyc' -delete 2>/dev/null || true \;
 	COMMAND @find ${TEST_DIR} -name '__pycache__' -delete 2>/dev/null || true \;
 	COMMAND -@rm -rf __pycache__ \;
+    COMMAND -@rm ${REQUIREMENTS_LOG}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
 

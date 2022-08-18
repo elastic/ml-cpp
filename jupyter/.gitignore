@@ -6,3 +6,4 @@ notebooks/datasets
 .requirements.log
 config.ini
 Makefile
+CTestTestfile.cmake

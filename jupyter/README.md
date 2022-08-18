@@ -59,19 +59,19 @@
 2. Run Python tests:
 
     ```bash
-    cmake --build . --target src_tests
+    make src_tests
     ```
 
 3. Run Jupyter notebook smoke tests:
 
     ```bash
-    cmake --build . --target notebook_tests
+    make notebook_tests
     ```
 
 4. Build the Docker image:
 
     ```bash
-    IMAGE_NAME=myjupyter cmake --build . --target build_docker
+    IMAGE_NAME=myjupyter make build_docker
     ```
 
 > *In the [`Dockerfile`](docker/Dockerfile), we fetch the base image from > `docker.elastic.co`. To this end, you need to be

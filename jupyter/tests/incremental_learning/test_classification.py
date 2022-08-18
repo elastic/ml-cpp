@@ -49,7 +49,7 @@ class TestClassification(unittest.TestCase):
         # roc_auc_score requires the probability of the "greater" class label
         y_score = np.array([prob[classes[1]] for c, prob in  zip(y_true, top_classes)])
         accuracy = metrics.accuracy_score(y_true=y_true, y_pred=y_pred)
-        self.assertTrue(accuracy > 0.96, msg = "Low accuracy {}".format(accuracy))
+        self.assertTrue(accuracy > 0.95, msg = "Low accuracy {}".format(accuracy))
         actual_roc_auc = metrics.roc_auc_score(y_true=y_true, y_score=y_score)
         self.assertTrue(actual_roc_auc > 0.98, msg="Low roc auc score {}".format(actual_roc_auc))
 

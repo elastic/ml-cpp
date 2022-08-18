@@ -1,5 +1,5 @@
 bump2version        ==1.0.1
-dask[complete]      ==2021.3.0
+dask[complete]      ==2022.8.0
 deepmerge           ==0.3.0
 distro              ==1.6.0
 eland               ==7.13.0b1
