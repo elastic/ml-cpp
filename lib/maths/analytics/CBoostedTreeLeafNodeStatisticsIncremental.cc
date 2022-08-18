@@ -64,9 +64,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     workspace.reducedDerivatives(treeFeatureBag).swap(this->derivatives());
 
     if (this->gain() >= workspace.minimumGain()) {
+        this->derivatives() = workspace.copy(workspace.derivatives()[0]);
         this->rowMask() = rowMask;
-        CSplitsDerivatives tmp{workspace.copy(workspace.derivatives()[0])};
-        this->derivatives() = std::move(tmp);
     }
 }
 
@@ -103,9 +102,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.copy(workspace.reducedDerivatives(treeFeatureBag))};
+        this->derivatives() = workspace.copy(workspace.reducedDerivatives(treeFeatureBag));
         this->rowMask() = workspace.reducedMask(parent.rowMask().size());
-        this->derivatives() = std::move(tmp);
     }
 }
 

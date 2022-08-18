@@ -39,13 +39,13 @@ namespace {
 enum EAnEnum { E_1, E_2, E_3 };
 
 struct SFoo {
-    SFoo(std::uint64_t key) : s_Key(key) {}
+    explicit SFoo(std::uint64_t key) : s_Key(key) {}
     std::uint64_t checksum() const { return s_Key; }
     std::uint64_t s_Key;
 };
 
 struct SBar {
-    SBar(std::uint64_t key) : s_Key(key) {}
+    explicit SBar(std::uint64_t key) : s_Key(key) {}
     std::uint64_t checksum(std::uint64_t seed) const {
         return core::CHashing::hashCombine(seed, s_Key);
     }
@@ -65,10 +65,11 @@ using TDoubleMeanVarAccumulatorPr = std::pair<double, TMeanVarAccumulator>;
 using TDoubleMeanVarAccumulatorPrList = std::list<TDoubleMeanVarAccumulatorPr>;
 using TFooDeque = std::deque<SFoo>;
 using TBarVec = std::vector<SBar>;
+
+constexpr std::uint64_t seed = 1679023009937ULL;
 }
 
 BOOST_AUTO_TEST_CASE(testMemberChecksum) {
-    std::uint64_t seed = 1679023009937ull;
 
     LOG_DEBUG(<< "");
     LOG_DEBUG(<< "*** test member functions ***");
@@ -84,7 +85,6 @@ BOOST_AUTO_TEST_CASE(testMemberChecksum) {
 }
 
 BOOST_AUTO_TEST_CASE(testContainers) {
-    std::uint64_t seed = 1679023009937ull;
 
     test::CRandomNumbers rng;
 
@@ -94,9 +94,8 @@ BOOST_AUTO_TEST_CASE(testContainers) {
     // slightly, i.e. by changing an element value, permuting elements,
     // etc.
     {
-        int values[] = {-1, 20, 10, 15, 2, 2};
-        TIntVec a(std::begin(values), std::end(values));
-        TIntVec b(std::begin(values), std::end(values));
+        TIntVec a{-1, 20, 10, 15, 2, 2};
+        TIntVec b{-1, 20, 10, 15, 2, 2};
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_REQUIRE_EQUAL(maths::common::CChecksum::calculate(seed, a),
@@ -106,13 +105,13 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
-        b.assign(std::begin(values), std::end(values));
+        b.assign(a.begin(), a.end());
         rng.random_shuffle(b.begin(), b.end());
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
-        b.assign(std::begin(values), std::end(values));
+        b.assign(a.begin(), a.end());
         b[b.size() - 1] = 3;
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
@@ -120,14 +119,10 @@ BOOST_AUTO_TEST_CASE(testContainers) {
                            maths::common::CChecksum::calculate(seed, b));
     }
     {
-        TSizeAnEnumMap::value_type values[] = {TSizeAnEnumMap::value_type(-1, E_2),
-                                               TSizeAnEnumMap::value_type(20, E_1),
-                                               TSizeAnEnumMap::value_type(10, E_3),
-                                               TSizeAnEnumMap::value_type(15, E_1),
-                                               TSizeAnEnumMap::value_type(2, E_2),
-                                               TSizeAnEnumMap::value_type(3, E_1)};
-        TSizeAnEnumMap a(std::begin(values), std::end(values));
-        TSizeAnEnumMap b(std::begin(values), std::end(values));
+        TSizeAnEnumMap a{{-1, E_2}, {20, E_1}, {10, E_3},
+                         {15, E_1}, {2, E_2},  {3, E_1}};
+        TSizeAnEnumMap b{{-1, E_2}, {20, E_1}, {10, E_3},
+                         {15, E_1}, {2, E_2},  {3, E_1}};
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_REQUIRE_EQUAL(maths::common::CChecksum::calculate(seed, a),
@@ -138,7 +133,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
         b.clear();
-        std::copy(std::begin(values), std::end(values), std::inserter(b, b.end()));
+        std::copy(a.begin(), a.end(), std::inserter(b, b.end()));
         b.erase(2);
         b[4] = E_2;
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
@@ -147,13 +142,12 @@ BOOST_AUTO_TEST_CASE(testContainers) {
                            maths::common::CChecksum::calculate(seed, b));
     }
     {
-        std::string values[] = {"rain", "in", "spain"};
-        TStrSet a(std::begin(values), std::end(values));
+        TStrSet a{"rain", "in", "spain"};
         std::uint64_t expected = seed;
         core::CHashing::CSafeMurmurHash2String64 hasher;
-        for (TStrSetCItr itr = a.begin(); itr != a.end(); ++itr) {
+        for (const auto& str : a) {
             expected = core::CHashing::safeMurmurHash64(
-                itr->data(), static_cast<int>(itr->size()), expected);
+                str.data(), static_cast<int>(str.size()), expected);
         }
         LOG_DEBUG(<< "checksum expected = " << expected);
         LOG_DEBUG(<< "checksum actual   = "
@@ -162,29 +156,19 @@ BOOST_AUTO_TEST_CASE(testContainers) {
     }
 
     // Test that unordered containers are sorted.
-    std::string keys[] = {"the", "quick", "brown", "fox"};
-    double values[] = {5.6, 2.1, -3.0, 22.1};
     {
-        boost::unordered_set<double> a;
-        std::set<double> b;
-        for (std::size_t i = 0; i < std::size(values); ++i) {
-            a.insert(values[i]);
-            b.insert(values[i]);
-        }
-
+        boost::unordered_set<double> a{5.6, 2.1, -3.0, 22.1};
+        std::set<double> b{5.6, 2.1, -3.0, 22.1};
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_REQUIRE_EQUAL(maths::common::CChecksum::calculate(seed, a),
                             maths::common::CChecksum::calculate(seed, b));
     }
     {
-        boost::unordered_map<std::string, double> a;
-        std::map<std::string, double> b;
-        for (std::size_t i = 0; i < std::size(keys); ++i) {
-            a.insert(std::make_pair(keys[i], values[i]));
-            b.insert(std::make_pair(keys[i], values[i]));
-        }
-
+        boost::unordered_map<std::string, double> a{
+            {"the", 5.6}, {"quick", 2.1}, {"brown", -3.0}, {"fox", 22.1}};
+        std::map<std::string, double> b{
+            {"the", 5.6}, {"quick", 2.1}, {"brown", -3.0}, {"fox", 22.1}};
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_REQUIRE_EQUAL(maths::common::CChecksum::calculate(seed, a),
@@ -193,7 +177,6 @@ BOOST_AUTO_TEST_CASE(testContainers) {
 }
 
 BOOST_AUTO_TEST_CASE(testNullable) {
-    std::uint64_t seed = 1679023009937ull;
 
     // Test optional and pointers.
     //
@@ -231,7 +214,6 @@ BOOST_AUTO_TEST_CASE(testNullable) {
 }
 
 BOOST_AUTO_TEST_CASE(testAccumulators) {
-    std::uint64_t seed = 1679023009937ull;
 
     // Test accumulators.
     {
@@ -249,7 +231,6 @@ BOOST_AUTO_TEST_CASE(testAccumulators) {
 }
 
 BOOST_AUTO_TEST_CASE(testPair) {
-    std::uint64_t seed = 1679023009937ull;
 
     // Test pair.
     {
@@ -285,29 +266,38 @@ BOOST_AUTO_TEST_CASE(testPair) {
 }
 
 BOOST_AUTO_TEST_CASE(testArray) {
-    std::uint64_t seed = 1679023009937ull;
 
-    double a[] = {1.0, 23.8, 15.2, 14.7};
-    double b[] = {1.0, 23.8, 15.2, 14.7};
+    LOG_DEBUG(<< "Basic");
+    {
+        double a[]{1.0, 23.8, 15.2, 14.7};
+        double b[]{1.0, 23.8, 15.2, 14.7};
+        LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
+        LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
+        BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) ==
+                           maths::common::CChecksum::calculate(seed, b));
 
-    LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
-    LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
-    BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) ==
-                       maths::common::CChecksum::calculate(seed, b));
+        b[1] = 23.79;
+        LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
+        LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
+        BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
+                           maths::common::CChecksum::calculate(seed, b));
+    }
 
-    b[1] = 23.79;
-    LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
-    LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
-    BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
-                       maths::common::CChecksum::calculate(seed, b));
+    LOG_DEBUG(<< "Compound");
+    {
+        double a[][2]{{1.0, 2.0}, {23.8, 3.0}, {15.2, 1.1}};
+        std::uint64_t expected = maths::common::CChecksum::calculate(seed, a[0]);
+        expected = maths::common::CChecksum::calculate(expected, a[1]);
+        expected = maths::common::CChecksum::calculate(expected, a[2]);
+
+        LOG_DEBUG(<< "expected checksum = " << expected);
+        LOG_DEBUG(<< "actual checksum   = "
+                  << maths::common::CChecksum::calculate(seed, a));
+        BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) == expected);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testCombinations) {
-    std::uint64_t seed = 1679023009937ull;
-
-    test::CRandomNumbers rng;
-
-    LOG_DEBUG(<< "*** test containers and member functions ***");
 
     // Test that containers of classes with checksum functions are
     // correctly hashed.
@@ -315,8 +305,10 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
     // We check that the checksum varies if the containers are modified
     // slightly, i.e. by changing an element value, permuting elements,
     // etc.
+
+    test::CRandomNumbers rng;
     {
-        SFoo values[] = {
+        SFoo values[]{
             SFoo(static_cast<std::uint64_t>(-1)), SFoo(20), SFoo(10), SFoo(15), SFoo(2), SFoo(2)};
         TFooDeque a(std::begin(values), std::end(values));
         TFooDeque b(std::begin(values), std::end(values));
@@ -336,14 +328,14 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
-        b[b.size() - 1] = 3;
+        b[b.size() - 1] = SFoo(3);
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
     }
     {
-        SBar values[] = {
+        SBar values[]{
             SBar(static_cast<std::uint64_t>(-1)), SBar(20), SBar(10), SBar(15), SBar(2), SBar(2)};
         TBarVec a(std::begin(values), std::end(values));
         TBarVec b(std::begin(values), std::end(values));
@@ -363,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=
                            maths::common::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
-        b[b.size() - 1] = 3;
+        b[b.size() - 1] = SBar(3);
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::common::CChecksum::calculate(seed, b));
         BOOST_TEST_REQUIRE(maths::common::CChecksum::calculate(seed, a) !=

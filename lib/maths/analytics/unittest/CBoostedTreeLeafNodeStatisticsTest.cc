@@ -102,13 +102,17 @@ void testDerivativesFor(std::size_t numberParameters) {
     std::size_t paddedNumberGradients{core::CAlignment::roundup<double>(
         core::CAlignment::E_Aligned16, numberGradients)};
 
-    TAlignedDoubleVec storage1(paddedNumberGradients + numberGradients * numberGradients, 0.0);
+    TAlignedDoubleVec storage1(
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
     TAlignedDoubleVec storage1Plus2(
-        paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives1(static_cast<int>(numberParameters), &storage1[0],
-                              &storage1[paddedNumberGradients]);
-    TDerivatives derivatives1Plus2(static_cast<int>(numberParameters), &storage1Plus2[0],
-                                   &storage1Plus2[paddedNumberGradients]);
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
+    TDerivatives derivatives1(static_cast<int>(numberParameters), storage1.data(),
+                              storage1.data() + paddedNumberGradients,
+                              storage1.data() + storage1.size() - 1);
+    TDerivatives derivatives1Plus2(static_cast<int>(numberParameters),
+                                   storage1Plus2.data(),
+                                   storage1Plus2.data() + paddedNumberGradients,
+                                   storage1Plus2.data() + storage1Plus2.size() - 1);
     for (std::size_t j = 0; j < 10; ++j) {
         TAlignedFloatVec rowStorage;
         for (std::size_t i = 0; i < numberGradients; ++i) {
@@ -118,7 +122,7 @@ void testDerivativesFor(std::size_t numberParameters) {
             rowStorage.push_back(curvatures[i][j]);
         }
         auto derivatives = makeAlignedVector<Eigen::Aligned16>(
-            &rowStorage[0], numberGradients + numberCurvatures);
+            rowStorage.data(), numberGradients + numberCurvatures);
         derivatives1.add(1, derivatives);
         derivatives1Plus2.add(1, derivatives);
     }
@@ -140,9 +144,11 @@ void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Merge");
 
-    TAlignedDoubleVec storage2(paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives2(static_cast<int>(numberParameters), &storage2[0],
-                              &storage2[paddedNumberGradients]);
+    TAlignedDoubleVec storage2(
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
+    TDerivatives derivatives2(static_cast<int>(numberParameters), storage2.data(),
+                              storage2.data() + paddedNumberGradients,
+                              storage2.data() + storage2.size() - 1);
 
     for (std::size_t j = 10; j < 20; ++j) {
         TAlignedFloatVec storage;
@@ -153,7 +159,7 @@ void testDerivativesFor(std::size_t numberParameters) {
             storage.push_back(curvatures[i][j]);
         }
         auto derivatives = makeAlignedVector<Eigen::Aligned16>(
-            &storage[0], numberGradients + numberCurvatures);
+            storage.data(), numberGradients + numberCurvatures);
         derivatives2.add(1, derivatives);
     }
 
@@ -245,9 +251,9 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
                 storage.insert(storage.end(), &curvatures[j],
                                &curvatures[k + numberCurvatures]);
                 auto derivatives_ = makeAlignedVector<Eigen::Aligned16>(
-                    &storage[0], numberGradients + numberCurvatures);
-                auto gradient = makeVector(&storage[0], numberGradients);
-                auto curvature = makeVector(&storage[numberGradients], numberCurvatures);
+                    storage.data(), numberGradients + numberCurvatures);
+                auto gradient = makeVector(storage.data(), numberGradients);
+                auto curvature = makeVector(storage.data() + numberGradients, numberCurvatures);
 
                 if (uniform01[i] < 0.1) {
                     derivatives.addMissingDerivatives(features[i], derivatives_);
@@ -374,6 +380,7 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
     // loss functions.
 
     testPerSplitDerivativesFor(1 /*loss function parameter*/);
+    testPerSplitDerivativesFor(2 /*loss function parameters*/);
     testPerSplitDerivativesFor(3 /*loss function parameters*/);
 }
 
