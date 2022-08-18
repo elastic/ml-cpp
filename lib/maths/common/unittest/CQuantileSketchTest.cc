@@ -46,7 +46,6 @@ void testSketch(SKETCH sketch,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
-    LOG_TRACE(<< "sketch = " << sketch.knots());
 
     std::size_t N = samples.size();
     std::sort(samples.begin(), samples.end());
