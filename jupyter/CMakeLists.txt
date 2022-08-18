@@ -90,24 +90,8 @@ add_custom_target(run_docker
     COMMENT "Run docker container for specified IMAGE_NAME"
 )
 
+file(GLOB CLEAN_BUILD_FILES LIST_DIRECTORIES true ${SRC_DIR}/*.egg-info ${SRC_DIR}/**/__pycache__ ${TEST_DIR}/**/__pycache__ ${TEST_DIR}/**/*.pyc .pytest_cache .ipynb_checkpoints)
+
 add_custom_target(clean_build
-    COMMAND @find ${SRC_DIR} -name '*.pyc' -delete \;
-	COMMAND @find ${SRC_DIR} -name '__pycache__' -delete \;
-	COMMAND @find ${SRC_DIR} -name '*.egg-info' -exec rm -r {} +
-	COMMAND @find ${TEST_DIR} -name '*.pyc' -delete 2>/dev/null || true \;
-	COMMAND @find ${TEST_DIR} -name '__pycache__' -delete 2>/dev/null || true \;
-	COMMAND -@rm -rf __pycache__ \;
-    COMMAND -@rm ${REQUIREMENTS_LOG}
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-)
-
-add_custom_target(clean_test
-    COMMAND @find ${TEST_DIR} -name '.pytest_cache' -exec rm -r {} +
-	COMMAND @find ${TEST_DIR} -name '__pycache__' -exec rm -r {} +
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-)
-
-add_custom_target(clean_notebooks
-    COMMAND -@find ${NB_DIR} -type d -name '.ipynb_checkpoints' -delete \;
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E rm -r ${CLEAN_BUILD_FILES}
 )
