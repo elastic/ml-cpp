@@ -2600,8 +2600,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWit
 
     if (anyBadComponentsFound) {
         common::CSetTools::simultaneousRemoveIf(
-            remove, m_Components, m_PredictionErrors,
-            [](bool remove_) { return remove_; });
+            [](bool remove_) { return remove_; }, remove, m_Components, m_PredictionErrors);
     }
     return anyBadComponentsFound;
 }
@@ -2738,11 +2737,11 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::apply(const CChange
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewComponents() {
-    common::COrderings::simultaneousSort(
-        m_Components, m_PredictionErrors,
+    common::COrderings::simultaneousSortWith(
         [](const CSeasonalComponent& lhs, const CSeasonalComponent& rhs) {
             return lhs.time() < rhs.time();
-        });
+        },
+        m_Components, m_PredictionErrors);
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolVec& removeComponentsMask) {
@@ -2799,8 +2798,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime
         }
 
         common::CSetTools::simultaneousRemoveIf(
-            remove, m_Components, m_PredictionErrors,
-            [](bool remove_) { return remove_; });
+            [](bool remove_) { return remove_; }, remove, m_Components, m_PredictionErrors);
 
         for (auto& shift : shifts) {
             if (windowed.count(shift.first) > 0) {
@@ -3021,8 +3019,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::prune(core_t::TTime
         }
     }
 
-    common::CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
-                                            [](bool remove_) { return remove_; });
+    common::CSetTools::simultaneousRemoveIf([](bool remove_) { return remove_; },
+                                            remove, m_Components, m_PredictionErrors);
 
     return m_Components.empty();
 }
@@ -3043,8 +3041,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::removeComponentsWit
 
     if (anyBadComponentsFound) {
         common::CSetTools::simultaneousRemoveIf(
-            remove, m_Components, m_PredictionErrors,
-            [](bool remove_) { return remove_; });
+            [](bool remove_) { return remove_; }, remove, m_Components, m_PredictionErrors);
         return true;
     }
 

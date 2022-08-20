@@ -41,7 +41,6 @@
 #include <maths/common/COrderings.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/CSampling.h>
-#include <maths/common/CSetTools.h>
 #include <maths/common/CSpline.h>
 #include <maths/common/MathsTypes.h>
 
@@ -1930,7 +1929,9 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     std::iota(present.begin(), present.end(), 0);
     TSizeVec ordered{missing};
     std::sort(ordered.begin(), ordered.end());
-    common::CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
+    present.erase(std::set_difference(present.begin(), present.end(), ordered.begin(),
+                                      ordered.end(), present.begin()),
+                  present.end());
     LOG_TRACE(<< "present = " << present);
 
     // Get the current round feature vector. Fixed so computed outside the loop.

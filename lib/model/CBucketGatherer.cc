@@ -523,7 +523,7 @@ std::uint64_t CBucketGatherer::checksum() const {
             personAttributeCounts.emplace_back(key, CDataGatherer::extractData(count));
         }
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end(),
-                  maths::common::COrderings::SLexicographicalCompare());
+                  maths::common::COrderings::SLess());
         result = maths::common::CChecksum::calculate(result, personAttributeCounts);
     }
 
@@ -540,8 +540,7 @@ std::uint64_t CBucketGatherer::checksum() const {
             personAttributeExplicitNulls.push_back(key);
         }
         std::sort(personAttributeExplicitNulls.begin(),
-                  personAttributeExplicitNulls.end(),
-                  maths::common::COrderings::SLexicographicalCompare());
+                  personAttributeExplicitNulls.end(), maths::common::COrderings::SLess());
         result = maths::common::CChecksum::calculate(result, personAttributeExplicitNulls);
     }
 

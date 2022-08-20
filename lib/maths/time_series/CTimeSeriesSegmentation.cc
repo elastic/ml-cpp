@@ -302,12 +302,12 @@ void CTimeSeriesSegmentation::selectSegmentation(std::size_t maxSegments,
     if (segmentation.size() - 1 > maxSegments) {
         // Prune by depth breaking ties by descending p-value.
         auto splits = core::make_range(segmentation, 2, segmentation.size());
-        common::COrderings::simultaneousSort(
-            depthAndPValue, splits,
+        common::COrderings::simultaneousSortWith(
             [](const TDoubleDoublePr& lhs, const TDoubleDoublePr& rhs) {
                 return common::COrderings::lexicographical_compare(
                     lhs.first, -lhs.second, rhs.first, -rhs.second);
-            });
+            },
+            depthAndPValue, splits);
         LOG_TRACE(<< "depth and p-values = " << depthAndPValue);
         LOG_TRACE(<< "splits = " << splits);
         segmentation.resize(maxSegments + 1);

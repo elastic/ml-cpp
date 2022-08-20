@@ -1874,7 +1874,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
 
         // Remove the remaining most weakly correlated models subject
         // to the capacity constraint.
-        common::COrderings::simultaneousSort(presentRank, present, std::greater<>());
+        common::COrderings::simultaneousSortWith(std::greater<>(), presentRank, present);
         for (std::size_t i = 0; m_CorrelationDistributionModels.size() >
                                 allocator.maxNumberCorrelations();
              ++i) {

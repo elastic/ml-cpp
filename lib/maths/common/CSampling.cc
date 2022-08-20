@@ -731,11 +731,11 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
     //
     // The conditional mass function of category i given categories
     // j < i is found by marginalizing over the categories j > i of
-    // the full marginal distribution. The marginal distribution is
-    // multinomial with number of trials n - Sum_{j < i}{ nj } and
-    // probabilities p_j -> p_j / (1 - Sum_k{k < i}{ pk }). The marginal
-    // distribution is just binomial with the same number of trials
-    // and probability p_i (adjusted as above).
+    // the full distribution. The marginal distribution is multinomial
+    // with number of trials n - Sum_{j < i}{ nj } and probabilities
+    // p_j -> p_j / (1 - Sum_k{k < i}{ pk }). The marginal distribution
+    // is just binomial with the same number of trials and probability
+    // p_i (adjusted as above).
     //
     // In order to sample from the full distribution we sample each
     // marginal and then condition the next marginal on the values
@@ -744,15 +744,15 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
     //   P({n_i}) = Int{ Prod_i{ f(n_i | { n_j : j < i }) } }dn_i
     //            = Int{ f(n_i) }dn_i
     //
-    // So the samples are distributed according to the joint distribution
-    // function, i.e. multinomial in this case.
+    // So the samples are distributed according to the full distribution
+    // function as required.
     //
     // We sort the probabilities in descending order to make sampling
-    // as efficient as possible (since this means that the the loop
-    // will often terminate as early as possible on average).
+    // as efficient as possible: this means that the loop will terminate
+    // as early as possible on average.
 
     if (!sorted) {
-        std::sort(probabilities.begin(), probabilities.end(), std::greater<double>());
+        std::sort(probabilities.begin(), probabilities.end(), std::greater<>());
     }
 
     {
@@ -763,7 +763,7 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
         for (std::size_t i = 0; r > 0 && i < m; ++i) {
             boost::random::binomial_distribution<> binomial(static_cast<int>(r),
                                                             probabilities[i] / p);
-            std::size_t ni = static_cast<std::size_t>(binomial(defaultRng));
+            auto ni = static_cast<std::size_t>(binomial(defaultRng));
             sample.push_back(ni);
             r -= ni;
             p -= probabilities[i];
@@ -780,7 +780,7 @@ void CSampling::multinomialSampleStable(TDoubleVec probabilities, std::size_t n,
     for (std::size_t i = 0; i < probabilities.size(); ++i) {
         indices.push_back(i);
     }
-    COrderings::simultaneousSort(probabilities, indices, std::greater<double>());
+    COrderings::simultaneousSortWith(std::greater<>(), probabilities, indices);
 
     sample.reserve(probabilities.size());
 

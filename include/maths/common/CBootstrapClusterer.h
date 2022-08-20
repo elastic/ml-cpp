@@ -17,7 +17,6 @@
 #include <maths/common/CKMeans.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/CSetTools.h>
 #include <maths/common/CXMeans.h>
 
 #include <boost/graph/adjacency_list.hpp>
@@ -313,7 +312,7 @@ protected:
                 for (std::size_t k = 0; k < bootstrapClusters[i].size(); ++k) {
                     cik = bootstrapClusters[i][k];
                     cik.erase(std::unique(cik.begin(), cik.end()), cik.end());
-                    double nik = static_cast<double>(cik.size());
+                    auto nik = static_cast<double>(cik.size());
 
                     overlaps.clear();
                     double sum = 0.0;
@@ -321,8 +320,10 @@ protected:
                     for (std::size_t l = 0;
                          !cik.empty() && l < bootstrapClusters[j].size(); ++l) {
                         const TSizeVec& cjl = bootstrapClusters[j][l];
-                        double o = static_cast<double>(cik.size());
-                        CSetTools::inplace_set_difference(cik, cjl.begin(), cjl.end());
+                        auto o = static_cast<double>(cik.size());
+                        cik.erase(std::set_difference(cik.begin(), cik.end(), cjl.begin(),
+                                                      cjl.end(), cik.begin()),
+                                  cik.end());
                         o -= static_cast<double>(cik.size());
                         o /= nik;
                         overlaps.push_back(o);
@@ -439,8 +440,8 @@ protected:
                 }
                 std::size_t c = k->second;
                 std::size_t n_ = voters[j].size();
-                if (COrderings::lexicographical_compare(
-                        c, n_, cmax, nmax, std::greater<std::size_t>())) {
+                if (COrderings::lexicographical_compare_with(std::greater<>(), c,
+                                                             n_, cmax, nmax)) {
                     jmax = j;
                     cmax = c;
                     nmax = n_;

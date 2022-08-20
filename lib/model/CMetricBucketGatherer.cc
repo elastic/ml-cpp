@@ -48,7 +48,7 @@ using TStrVec = std::vector<std::string>;
 using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLexicographicalCompare>;
+    std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLess>;
 using TSampleVec = std::vector<CSample>;
 using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMeanGatherer>;
 using TSizeSizeMeanGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMeanGathererUMap>;
