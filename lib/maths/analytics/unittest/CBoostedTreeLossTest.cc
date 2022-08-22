@@ -796,7 +796,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
         logits(1.0 - std::log(eps), storage[0]);
         logits(1.0 + std::log(eps), storage[1]);
 
-        TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2}, {&storage[1][0], 2}};
+        TMemoryMappedFloatVector predictions[]{{storage[0].data(), 2},
+                                               {storage[1].data(), 2}};
         TDoubleVec previousLoss{loss.value(predictions[0], 0.0),
                                 loss.value(predictions[1], 1.0)};
 
@@ -819,8 +820,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
             TFloatVec storage[2];
             logits(prediction + std::log(eps), storage[0]);
             logits(prediction - std::log(eps), storage[1]);
-            TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2},
-                                                   {&storage[1][0], 2}};
+            TMemoryMappedFloatVector predictions[]{{storage[0].data(), 2},
+                                                   {storage[1].data(), 2}};
             loss.gradient(predictions[0], 0.0, [&](std::size_t i, double value) {
                 gradients[0][i] = value;
             });

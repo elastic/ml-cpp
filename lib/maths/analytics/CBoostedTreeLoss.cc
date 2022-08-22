@@ -1695,8 +1695,9 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
             pEps += std::exp(prediction(i) - zmax);
+        } else {
+            logZ += std::exp(prediction(i) - zmax);
         }
-        logZ += std::exp(prediction(i) - zmax);
     }
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
@@ -1736,8 +1737,9 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
             pEps += pAdj;
+        } else {
+            logZ += pAdj;
         }
-        logZ += std::exp(prediction(i) - zmax);
     }
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
@@ -1876,8 +1878,9 @@ void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*r
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
             pEps += pAdj;
+        } else {
+            logZ += pAdj;
         }
-        logZ += pAdj;
     }
     for (auto i : m_OutClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
@@ -1928,8 +1931,9 @@ void CSubsetMultinomialLogisticLoss::curvature(const CEncodedDataFrameRowRef& /*
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
             pEps += pAdj;
+        } else {
+            logZ += pAdj;
         }
-        logZ += pAdj;
     }
     for (auto i : m_OutClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
