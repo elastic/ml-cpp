@@ -2938,7 +2938,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         LOG_DEBUG(<< "Train...");
 
         extraCols = maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
-            cols, 1);
+            cols, 1 /*dimension predictions*/, 1 /*dimension gradients*/);
         estimatedMemory =
             core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
                                                   core::CAlignment::E_Aligned16) +
@@ -2965,7 +2965,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         LOG_DEBUG(<< "Train incremental...");
 
         extraCols = maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
-            cols, 1);
+            cols, 1 /*dimension predictions*/, 1 /*dimension gradients*/);
         estimatedMemory =
             core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
                                                   core::CAlignment::E_Aligned16) +

@@ -1170,7 +1170,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalArgmin) {
 
     auto adjustedLoss = [&](const TRowRef& row, double x) {
         double actual{readActual(row, regression->columnHoldingDependentVariable())};
-        auto prediction = readPrediction(row, extraColumns, mse.numberParameters());
+        auto prediction = readPrediction(row, extraColumns, mse.dimensionPrediction());
         double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
         double weight{readExampleWeight(row, extraColumns)};
         return weight * (maths::common::CTools::pow2(actual - (prediction(0) + x)) +
@@ -1184,13 +1184,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalArgmin) {
         auto result = frame->readRows(
             1, core::bindRetrievableState(
                    [&](TArgMinLossVec& leafValues_, const TRowItr& beginRows, const TRowItr& endRows) {
-                       std::size_t numberLossParameters{mse.numberParameters()};
+                       std::size_t dimensionPrediction{mse.dimensionPrediction()};
                        const auto& rootNode = root(tree);
                        for (auto row_ = beginRows; row_ != endRows; ++row_) {
                            auto row = *row_;
                            auto encodedRow = encoder.encode(row);
-                           auto prediction = readPrediction(row, extraColumns,
-                                                            numberLossParameters);
+                           auto prediction = readPrediction(row, extraColumns, dimensionPrediction);
                            double actual{readActual(
                                row, regression->columnHoldingDependentVariable())};
                            double weight{readExampleWeight(row, extraColumns)};
@@ -1280,11 +1279,11 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalGradientAndCurvature) {
     {
         maths::analytics::boosted_tree::CMseIncremental mseIncremental{eta, 0.0, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            std::size_t numberLossParameters{mse.numberParameters()};
+            std::size_t dimensionPrediction{mse.dimensionPrediction()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto encodedRow = encoder.encode(row);
-                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                auto prediction = readPrediction(row, extraColumns, dimensionPrediction);
                 double actual{readActual(row, regression->columnHoldingDependentVariable())};
                 double expectedGradient;
                 double expectedCurvature;
@@ -1313,12 +1312,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalGradientAndCurvature) {
     {
         maths::analytics::boosted_tree::CMseIncremental mseIncremental{eta, mu, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            std::size_t numberLossParameters{mse.numberParameters()};
+            std::size_t dimensionPrediction{mse.dimensionPrediction()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto encodedRow = encoder.encode(row);
-                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                auto prediction = readPrediction(row, extraColumns, dimensionPrediction);
                 double treePrediction{rootNode.value(encodedRow, tree)(0)};
                 double actual{readActual(row, regression->columnHoldingDependentVariable())};
                 double mseGradient;
@@ -1379,7 +1378,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
 
     auto adjustedLoss = [&](const TRowRef& row, double x) {
         double actual{readActual(row, classifier->columnHoldingDependentVariable())};
-        auto prediction = readPrediction(row, extraColumns, bll.numberParameters());
+        auto prediction = readPrediction(row, extraColumns, bll.dimensionPrediction());
         double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
         double weight{readExampleWeight(row, extraColumns)};
         double po1{maths::common::CTools::logisticFunction(treePrediction / eta)};
@@ -1396,25 +1395,24 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
         TArgMinLossVec leafValues(tree.size(), bll.minimizer(lambda, rng));
         for (std::size_t i = 0; i < 2; ++i) {
             auto result = frame->readRows(
-                1, core::bindRetrievableState(
-                       [&](TArgMinLossVec& leafValues_,
-                           const TRowItr& beginRows, const TRowItr& endRows) {
-                           std::size_t numberLossParameters{bll.numberParameters()};
-                           const auto& rootNode = root(tree);
-                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
-                               auto row = *row_;
-                               auto encodedRow = encoder.encode(row);
-                               auto prediction = readPrediction(
-                                   row, extraColumns, numberLossParameters);
-                               double actual{readActual(
-                                   row, classifier->columnHoldingDependentVariable())};
-                               double weight{readExampleWeight(row, extraColumns)};
-                               leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
-                                   encodedRow, false /*new example*/,
-                                   prediction, actual, weight);
-                           }
-                       },
-                       std::move(leafValues)));
+                1,
+                core::bindRetrievableState(
+                    [&](TArgMinLossVec& leafValues_, const TRowItr& beginRows, const TRowItr& endRows) {
+                        std::size_t dimensionPrediction{bll.dimensionPrediction()};
+                        const auto& rootNode = root(tree);
+                        for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                            auto row = *row_;
+                            auto encodedRow = encoder.encode(row);
+                            auto prediction = readPrediction(row, extraColumns,
+                                                             dimensionPrediction);
+                            double actual{readActual(
+                                row, classifier->columnHoldingDependentVariable())};
+                            double weight{readExampleWeight(row, extraColumns)};
+                            leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
+                                encodedRow, false /*new example*/, prediction, actual, weight);
+                        }
+                    },
+                    std::move(leafValues)));
             leafValues = std::move(result.first[0].s_FunctionState);
             for (auto& leaf : leafValues) {
                 leaf.nextPass();
@@ -1502,11 +1500,11 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
         maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
             eta, 0.0, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            std::size_t numberLossParameters{bll.numberParameters()};
+            std::size_t dimensionPrediction{bll.dimensionPrediction()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto encodedRow = encoder.encode(row);
-                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                auto prediction = readPrediction(row, extraColumns, dimensionPrediction);
                 double actual{readActual(row, classifier->columnHoldingDependentVariable())};
                 double expectedGradient;
                 double expectedCurvature;
@@ -1536,12 +1534,12 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
         maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
             eta, mu, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            std::size_t numberLossParameters{bll.numberParameters()};
+            std::size_t dimensionPrediction{bll.dimensionPrediction()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto encodedRow = encoder.encode(row);
-                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                auto prediction = readPrediction(row, extraColumns, dimensionPrediction);
                 double treePrediction{rootNode.value(encodedRow, tree)(0) / eta};
                 double actual{readActual(row, classifier->columnHoldingDependentVariable())};
                 double bllGradient;

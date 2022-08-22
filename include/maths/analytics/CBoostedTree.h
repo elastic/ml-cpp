@@ -195,7 +195,7 @@ public:
 
     //! Get the node's memory usage for a loss function with \p numberLossParameters
     //! parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
+    static std::size_t estimateMemoryUsage(std::size_t dimensionPrediction);
 
     //! Get the memory the node will will use in bytes when deployed.
     std::size_t deployedSize() const;

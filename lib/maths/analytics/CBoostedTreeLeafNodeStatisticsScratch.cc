@@ -33,7 +33,7 @@ const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     std::size_t id,
     const TSizeVec& extraColumns,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     const core::CDataFrame& frame,
     const TRegularization& regularization,
     const TFloatVecVec& candidateSplits,
@@ -42,8 +42,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     std::size_t depth,
     const core::CPackedBitVector& rowMask,
     CWorkspace& workspace)
-    : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns,
-                                     numberLossParameters, candidateSplits} {
+    : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns, dimensionGradient, candidateSplits} {
 
     this->computeAggregateLossDerivatives(CLookAheadBound{}, workspace.numberThreads(),
                                           frame, treeFeatureBag, rowMask, workspace);
@@ -72,7 +71,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     const CBoostedTreeNode& split,
     CWorkspace& workspace)
     : CBoostedTreeLeafNodeStatistics{id, parent.depth() + 1, parent.extraColumns(),
-                                     parent.numberLossParameters(),
+                                     parent.dimensionGradient(),
                                      parent.candidateSplits()} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
@@ -104,7 +103,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     : CBoostedTreeLeafNodeStatistics{id,
                                      parent.depth() + 1,
                                      parent.extraColumns(),
-                                     parent.numberLossParameters(),
+                                     parent.dimensionGradient(),
                                      parent.candidateSplits(),
                                      std::move(parent.derivatives())} {
 
@@ -128,13 +127,13 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
 
 CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     const TSizeVec& extraColumns,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     const TFloatVecVec& candidateSplits,
     CSplitsDerivatives derivatives)
     : CBoostedTreeLeafNodeStatistics{0, // Id
                                      0, // Depth
                                      extraColumns,
-                                     numberLossParameters,
+                                     dimensionGradient,
                                      candidateSplits,
                                      std::move(derivatives)} {
 }
@@ -228,7 +227,7 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(std::size_t nu
 
     const auto& derivatives = this->derivatives();
     numberThreads = TThreading::numberThreadsForComputeBestSplitStatistics(
-        numberThreads, featureBag.size(), this->numberLossParameters(),
+        numberThreads, featureBag.size(), this->dimensionGradient(),
         derivatives.numberDerivatives(featureBag));
     LOG_TRACE(<< "number threads = " << numberThreads);
 
@@ -253,7 +252,7 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(std::size_t nu
         }
     }
 
-    if (derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
+    if (derivatives.dimensionGradient() <= 2 && result.s_Gain > 0) {
         double lambda{regularization.leafWeightPenaltyMultiplier().value()};
         double childPenaltyForDepth{regularization.penaltyForDepth(this->depth() + 1)};
         double childPenaltyForDepthPlusOne{
@@ -287,7 +286,7 @@ CBoostedTreeLeafNodeStatisticsScratch::featureBestSplitSearch(
     using TDoubleMatrix = common::CDenseMatrix<double>;
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
 
-    int d{static_cast<int>(this->numberLossParameters())};
+    int d{static_cast<int>(this->dimensionGradient())};
     double lambda{regularization.leafWeightPenaltyMultiplier().value()};
 
     auto minimumLoss_ = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
@@ -418,7 +417,7 @@ CBoostedTreeLeafNodeStatisticsScratch::featureBestSplitSearch(
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
         SSplitStatistics candidateSplitStatistics{
             totalGain,
-            h.trace() / static_cast<double>(this->numberLossParameters()),
+            h.trace() / static_cast<double>(this->dimensionGradient()),
             feature,
             splitAt,
             std::min(leftChildRowCount, c - leftChildRowCount),

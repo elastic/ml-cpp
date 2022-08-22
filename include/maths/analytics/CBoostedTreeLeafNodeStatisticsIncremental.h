@@ -50,7 +50,7 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeLeafNodeStatisticsIncremental final
 public:
     CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
                                               const TSizeVec& extraColumns,
-                                              std::size_t numberLossParameters,
+                                              std::size_t dimensionGradient,
                                               const core::CDataFrame& frame,
                                               const TRegularization& regularization,
                                               const TFloatVecVec& candidateSplits,
@@ -118,7 +118,7 @@ private:
 
 private:
     CBoostedTreeLeafNodeStatisticsIncremental(const TSizeVec& extraColumns,
-                                              std::size_t numberLossParameters,
+                                              std::size_t dimensionGradient,
                                               const TFloatVecVec& candidateSplits,
                                               CSplitsDerivatives derivatives);
     SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,

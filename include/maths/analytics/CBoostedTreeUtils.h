@@ -282,10 +282,11 @@ inline TSizeVec extraColumnTagsForTrain() {
 }
 
 //! Get the extra columns needed by training.
-inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned}, // prediction
-            {numberLossParameters, core::CAlignment::E_Aligned16}, // gradient
-            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned}}; // curvature
+inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t dimensionPrediction,
+                                                std::size_t dimensionGradient) {
+    return {{dimensionPrediction, core::CAlignment::E_Unaligned}, // prediction
+            {dimensionGradient, core::CAlignment::E_Aligned16},   // gradient
+            {dimensionGradient * dimensionGradient, core::CAlignment::E_Unaligned}}; // curvature
 }
 
 //! Get the tags for extra columns needed by training.
@@ -294,13 +295,13 @@ inline TSizeVec extraColumnTagsForIncrementalTrain() {
 }
 
 //! Get the extra columns needed by incremental training.
-inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // previous prediction
+inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t dimensionPrediction) {
+    return {{dimensionPrediction, core::CAlignment::E_Unaligned}}; // previous prediction
 }
 
 //! Get the extra columns needed for prediction.
-inline TSizeAlignmentPrVec extraColumnsForPredict(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // prediction
+inline TSizeAlignmentPrVec extraColumnsForPredict(std::size_t dimensionPrediction) {
+    return {{dimensionPrediction, core::CAlignment::E_Unaligned}}; // prediction
 }
 
 //! Get the tags for extra columns needed for prediction.
