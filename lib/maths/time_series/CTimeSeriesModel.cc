@@ -962,6 +962,14 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         probabilities.push_back(pSingleBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
+
+        if (maths_t::seasonalVarianceScale(weights[0]) > 1) {
+            LOG_DEBUG(<< "Variation at similar times is larger than is typical => the score is reduced.");
+        } 
+        if (maths_t::countVarianceScale(weights[0]) > 1) {
+            LOG_DEBUG(<< "The bucket contains fewer values than is typical => the score is reduced.");
+        }
+
     } else {
         LOG_ERROR(<< "Failed to compute P(" << sample
                   << " | weight = " << weights << ", time = " << time << ")");
@@ -988,6 +996,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
             }
             correlation = m_MultibucketFeature->correlationWithBucketValue();
         }
+
+        if (pMultiBucket < probabilities.back()) {
+            LOG_DEBUG(<<"The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
+        }
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_MultiBucketProbability, pMultiBucket);
@@ -1006,7 +1018,13 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
 
         double pAnomaly;
+        double pOverallOld{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
+        if (pOverall < pOverallOld) {
+            LOG_DEBUG(<< "The anomaly is shorter than other anomalies seen before (short spike) => the score is reduced.");
+        } else if (pOverall > pOverallOld) {
+            LOG_DEBUG(<< "The anomaly is longer than others we’ve seen before  => the score is increased.");
+        }
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_AnomalyModelProbability, pAnomaly);
