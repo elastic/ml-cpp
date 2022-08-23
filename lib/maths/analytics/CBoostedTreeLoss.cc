@@ -1615,7 +1615,7 @@ CMultinomialLogisticLoss::project(std::size_t numberThreads,
                                   std::size_t targetColumn,
                                   const TSizeVec& extraColumns,
                                   common::CPRNG::CXorOShiro128Plus rng) const {
-    if (MAX_GRADIENT_DIMENSION < m_NumberClasses) {
+    if (m_NumberClasses <= MAX_GRADIENT_DIMENSION) {
         return this->clone();
     }
 
@@ -1703,17 +1703,13 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
     logZ = zmax + common::CTools::stableLog(logZ);
 
     for (int i = 0; i < prediction.size(); ++i) {
-        double p{common::CTools::stableExp(prediction(i) - logZ)};
+        double pi{common::CTools::stableExp(prediction(i) - logZ)};
         if (i == static_cast<int>(actual)) {
-            if (p == 1.0) {
-                // We have that p = 1 / (1 + eps) and the gradient is p - 1.
-                // Use a Taylor expansion and drop terms of O(eps^2) to get:
-                writer(i, -weight * pEps);
-            } else {
-                writer(i, weight * (p - 1.0));
-            }
+            // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(i, weight * (pi == 1.0 ? -pEps : pi - 1.0));
         } else {
-            writer(i, weight * p);
+            writer(i, weight * pi);
         }
     }
 }
@@ -1744,20 +1740,18 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
 
-    for (int i = 0, k = 0; i < prediction.size(); ++i) {
+    std::size_t k{0};
+    for (int i = 0; i < prediction.size(); ++i) {
         double pi{common::CTools::stableExp(prediction(i) - logZ)};
-        if (pi == 1.0) {
-            // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
-            // Use a Taylor expansion and drop terms of O(eps^2) to get:
-            writer(k++, weight * pEps);
-        } else {
-            writer(k++, weight * pi * (1.0 - pi));
-        }
+        // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+        // Use a Taylor expansion and drop terms of O(eps^2) to get:
+        writer(k++, weight * (pi == 1.0 ? pEps : pi * (1.0 - pi)));
         for (int j = i + 1; j < prediction.size(); ++j) {
             double pij{common::CTools::stableExp(prediction(i) + prediction(j) - 2.0 * logZ)};
             writer(k++, -weight * pij);
         }
     }
+    LOG_TRACE(<< "Wrote " << k << " curvatures");
 }
 
 bool CMultinomialLogisticLoss::isCurvatureConstant() const {
@@ -1870,41 +1864,36 @@ void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*r
     double pEps{0.0};
     double logZ{0.0};
     double logPAgg{0.0};
-    bool usePAgg{false};
+    bool isActualIn{false};
     for (auto i : m_InClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
-        if (prediction(i) - zmax < LOG_EPSILON) {
-            // Sum the contributions from classes whose predicted probability
-            // is less than epsilon, for which we'd lose all nearly precision
-            // when adding to the normalisation coefficient.
-            pEps += pAdj;
-        } else {
-            logZ += pAdj;
-        }
+        // Sum the contributions from classes whose predicted probability
+        // is less than epsilon, for which we'd lose all nearly precision
+        // when adding to the normalisation coefficient.
+        (prediction(i) - zmax < LOG_EPSILON ? pEps : logZ) += pAdj;
+        isActualIn |= (actual_ == i);
     }
     for (auto i : m_OutClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
-        logZ += pAdj;
         logPAgg += pAdj;
-        usePAgg |= (actual_ == i);
     }
-    pEps = common::CTools::stable((pEps + (logPAgg < EPSILON * logZ ? logPAgg : 0.0)) / logZ);
+    (logPAgg < EPSILON * logZ ? pEps : logZ) += logPAgg;
+    pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + std::log(logZ);
     logPAgg = zmax + std::log(logPAgg);
 
-    for (int i = 0; i < prediction.size(); ++i) {
-        double p{common::CTools::stableExp(
-            (usePAgg ? logPAgg : static_cast<double>(prediction(i))) - logZ)};
-        if (i == actual_) {
-            if (p == 1.0) {
-                // We have that p = 1 / (1 + eps) and the gradient is p - 1.
-                // Use a Taylor expansion and drop terms of O(eps^2) to get:
-                writer(i, -weight * pEps);
-            } else {
-                writer(i, weight * (p - 1.0));
-            }
+    for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
+        double pi{common::CTools::stableExp(
+            (i < m_InClasses.size() ? static_cast<double>(prediction(m_InClasses[i])) : logPAgg) -
+            logZ)};
+        bool isActual{i < m_InClasses.size() ? (m_InClasses[i] == actual_)
+                                             : (isActualIn == false)};
+        if (isActual) {
+            // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(i, weight * (pi == 1.0 ? -pEps : pi - 1.0));
         } else {
-            writer(i, weight * p);
+            writer(i, weight * pi);
         }
     }
 }
@@ -1944,33 +1933,22 @@ void CSubsetMultinomialLogisticLoss::curvature(const CEncodedDataFrameRowRef& /*
     logZ = zmax + common::CTools::stableLog(logZ);
     pAgg = pAgg * common::CTools::stableExp(zmax - logZ);
 
-    auto in1 = m_InClasses.begin();
-    for (int i = 0, k = 0; i < prediction.size(); ++i) {
-
-        double pi{pAgg};
-        if (in1 != m_InClasses.end() && *in1 == i) {
-            pi = common::CTools::stableExp(prediction(i) - logZ);
-            ++in1;
-        }
-        if (pi == 1.0) {
-            // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
-            // Use a Taylor expansion and drop terms of O(eps^2) to get:
-            writer(k++, weight * pEps);
-        } else {
-            writer(k++, weight * pi * (1.0 - pi));
-        }
-        auto in2 = in1;
-        for (int j = i + 1; j < prediction.size(); ++j) {
-            double pij{pi};
-            if (in2 != m_InClasses.end() && *in2 == j) {
-                pij *= common::CTools::stableExp(prediction(j) - logZ);
-                ++in2;
-            } else {
-                pij *= pAgg;
-            }
+    std::size_t k{0};
+    for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
+        double pi{i < m_InClasses.size()
+                      ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ)
+                      : pAgg};
+        // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+        // Use a Taylor expansion and drop terms of O(eps^2) to get:
+        writer(k++, weight * (pi == 1.0 ? pEps : pi * (1.0 - pi)));
+        for (std::size_t j = i + 1; j <= m_InClasses.size(); ++j) {
+            double pij{pi * (j < m_InClasses.size()
+                                 ? common::CTools::stableExp(prediction(m_InClasses[j]) - logZ)
+                                 : pAgg)};
             writer(k++, -weight * pij);
         }
     }
+    LOG_TRACE(<< "Wrote " << k << " curvatures");
 }
 }
 }

@@ -949,7 +949,7 @@ CBoostedTreeImpl::retrainTreeSelectionProbabilities(const core::CDataFrame& fram
 
     std::size_t dimensionPrediction{m_Loss->dimensionPrediction()};
     LOG_TRACE(<< "dependent variable " << m_DependentVariable);
-    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
+    LOG_TRACE(<< "dimension prediction = " << dimensionPrediction);
 
     auto makeComputeTotalLosses = [&]() {
         return [&](TDoubleVecVec& leafLossGradients, const TRowItr& beginRows,

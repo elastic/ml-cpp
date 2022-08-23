@@ -51,8 +51,8 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
 }
 
-CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
-    : m_NodeValue{TVector::Zero(numberLossParameters)} {
+CBoostedTreeNode::CBoostedTreeNode(std::size_t dimensionPrediction)
+    : m_NodeValue{TVector::Zero(dimensionPrediction)} {
 }
 
 CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,

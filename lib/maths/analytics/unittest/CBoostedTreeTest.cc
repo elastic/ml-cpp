@@ -131,6 +131,8 @@ using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<doub
 using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 using TLossFunctionUPtr = maths::analytics::CBoostedTreeFactory::TLossFunctionUPtr;
 using TTargetFunc = std::function<double(const TRowRef&)>;
+using TVector = maths::common::CDenseVector<double>;
+using TMemoryMappedMatrix = maths::common::CMemoryMappedDenseMatrix<double>;
 
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
@@ -2218,8 +2220,9 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     // We try to recover this relationship in logistic regression by observing
     // the actual labels and want to test that we've roughly correctly estimated
     // the linear function. Because we target the cross-entropy we're effectively
-    // targeting relative error in the estimated probabilities. Therefore, we bound
-    // the log of the ratio between the actual and predicted class probabilities.
+    // targeting relative error in the estimated probabilities. However, we aren't
+    // interested in accurate characterisation of very small probabilities and so
+    // threshold the KL divergence which is also minimized targeting cross-entropy.
 
     test::CRandomNumbers rng;
 
@@ -2228,7 +2231,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     std::size_t cols{4};
     std::size_t capacity{600};
 
-    TMeanAccumulator meanLogRelativeError;
+    TMeanAccumulator meanKlDivergence;
 
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec weights;
@@ -2268,28 +2271,27 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         classifier->train();
         classifier->predict();
 
-        TMeanAccumulator logRelativeError;
+        TMeanAccumulator klDivergence;
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     double expectedProbability{probability(*row)};
                     double actualProbability{classifier->prediction(*row)[1]};
-                    logRelativeError.add(
-                        std::log(std::max(actualProbability, expectedProbability) /
-                                 std::min(actualProbability, expectedProbability)));
+                    klDivergence.add(expectedProbability *
+                                     std::log(expectedProbability / actualProbability));
                 }
             }
         });
         LOG_DEBUG(<< "log relative error = "
-                  << maths::common::CBasicStatistics::mean(logRelativeError));
+                  << maths::common::CBasicStatistics::mean(klDivergence));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.74);
-        meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.05);
+        meanKlDivergence.add(maths::common::CBasicStatistics::mean(klDivergence));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
-              << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.54);
+              << maths::common::CBasicStatistics::mean(meanKlDivergence));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanKlDivergence) < 0.04);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
@@ -2763,11 +2765,9 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     // We try to recover this relationship in logistic regression by observing
     // the actual labels and want to test that we've roughly correctly estimated
     // the linear function. Because we target the cross-entropy we're effectively
-    // targeting relative error in the estimated probabilities. Therefore, we bound
-    // the log of the ratio between the actual and predicted class probabilities.
-
-    using TVector = maths::common::CDenseVector<double>;
-    using TMemoryMappedMatrix = maths::common::CMemoryMappedDenseMatrix<double>;
+    // targeting relative error in the estimated probabilities. However, we aren't
+    // interested in accurate characterisation of very small probabilities and so
+    // threshold the KL divergence which is also minimized targeting cross-entropy.
 
     maths::common::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -2775,11 +2775,10 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     std::size_t trainRows{1000};
     std::size_t rows{1200};
     std::size_t cols{4};
-    std::size_t capacity{600};
     int numberClasses{3};
     int numberFeatures{static_cast<int>(cols - 1)};
 
-    TMeanAccumulator meanLogRelativeError;
+    TMeanAccumulator meanKLDivergence;
 
     TDoubleVec weights;
     TDoubleVec noise;
@@ -2791,9 +2790,9 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         testRng.generateUniformSamples(0.0, 1.0, rows, uniform01);
 
         auto probability = [&](const TRowRef& row) {
-            TMemoryMappedMatrix W(&weights[0], numberClasses, numberFeatures);
+            TMemoryMappedMatrix W(weights.data(), numberClasses, numberFeatures);
             TVector x(numberFeatures);
-            TVector n{numberFeatures};
+            TVector n{numberClasses};
             for (int i = 0; i < numberFeatures; ++i) {
                 x(i) = row[i];
                 n(i) = noise[numberFeatures * row.index() + i];
@@ -2814,7 +2813,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
             testRng.generateUniformSamples(0.0, 4.0, rows, x[i]);
         }
 
-        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        auto frame = core::makeMainStorageDataFrame(cols).first;
 
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
@@ -2827,32 +2826,114 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         classifier->train();
         classifier->predict();
 
-        TMeanAccumulator logRelativeError;
+        TMeanAccumulator klDivergence;
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     TVector expectedProbability{probability(*row)};
                     TVector actualProbability{
                         TVector::fromSmallVector(classifier->prediction(*row))};
-                    logRelativeError.add(
-                        (expectedProbability.cwiseMax(actualProbability).array() /
-                         expectedProbability.cwiseMin(actualProbability).array())
-                            .log()
-                            .sum() /
-                        3.0);
+                    klDivergence.add(
+                        (expectedProbability.array() *
+                         (expectedProbability.array() / actualProbability.array())
+                             .log())
+                            .sum());
                 }
             }
         });
         LOG_DEBUG(<< "log relative error = "
-                  << maths::common::CBasicStatistics::mean(logRelativeError));
+                  << maths::common::CBasicStatistics::mean(klDivergence));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.1);
-        meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.16);
+        meanKLDivergence.add(maths::common::CBasicStatistics::mean(klDivergence));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
-              << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.45);
+              << maths::common::CBasicStatistics::mean(meanKLDivergence));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanKLDivergence) < 0.12);
+}
+
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionManyClasses,
+                     *boost::unit_test::disabled()) {
+
+    // This is too slow to run as part of regular testing.
+
+    maths::common::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+
+    std::size_t trainRows{800};
+    std::size_t rows{1000};
+    std::size_t cols{20};
+    int numberClasses{30};
+    int numberFeatures{static_cast<int>(cols - 1)};
+
+    TDoubleVec weights;
+    TDoubleVec noise;
+    TDoubleVec uniform01;
+    testRng.generateUniformSamples(-2.0, 2.0, numberClasses * numberFeatures, weights);
+    testRng.generateNormalSamples(0.0, 1.0, numberFeatures * rows, noise);
+    testRng.generateUniformSamples(0.0, 1.0, rows, uniform01);
+    auto probability = [&](const TRowRef& row) {
+        TMemoryMappedMatrix W(weights.data(), numberClasses, numberFeatures);
+        TVector x(numberFeatures);
+        TVector n{numberClasses};
+        for (int i = 0; i < numberFeatures; ++i) {
+            x(i) = row[i];
+            n(i) = noise[numberFeatures * row.index() + i];
+        }
+        TVector result{W * x + n};
+        maths::common::CTools::inplaceSoftmax(result);
+        return result;
+    };
+
+    auto target = [&](const TRowRef& row) {
+        TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
+        return static_cast<double>(
+            maths::common::CSampling::categoricalSample(rng, probabilities));
+    };
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        testRng.generateUniformSamples(0.0, 4.0, rows, x[i]);
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    TBoolVec categoricalColumns(cols, false);
+    categoricalColumns[cols - 1] = true;
+    fillDataFrame(trainRows, rows - trainRows, cols, categoricalColumns, x,
+                  TDoubleVec(rows, 0.0), target, *frame);
+
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMultinomialLogisticLoss>(numberClasses))
+            .maximumNumberTrees(100)
+            .softTreeDepthLimit({5})
+            .eta({0.05})
+            .featureBagFraction({0.7})
+            .buildForTrain(*frame, cols - 1);
+
+    classifier->train();
+    classifier->predict();
+
+    TMeanAccumulator klDivergence;
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            if (row->index() >= trainRows) {
+                TVector expectedProbability{probability(*row)};
+                TVector actualProbability{
+                    TVector::fromSmallVector(classifier->prediction(*row))};
+                klDivergence.add(
+                    (expectedProbability.array() *
+                     (expectedProbability.array() / actualProbability.array()).log())
+                        .sum());
+            }
+        }
+    });
+
+    LOG_DEBUG(<< "log relative error = "
+              << maths::common::CBasicStatistics::mean(klDivergence));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.42);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {

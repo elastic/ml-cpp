@@ -272,8 +272,8 @@ inline std::size_t missingSplit(const CSearchTree& candidateSplits) {
 }
 
 //! Get the size of upper triangle of the loss Hessain.
-inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {
-    return numberLossParameters * (numberLossParameters + 1) / 2;
+inline std::size_t lossHessianUpperTriangleSize(std::size_t dimensionGradient) {
+    return dimensionGradient * (dimensionGradient + 1) / 2;
 }
 
 //! Get the tags for extra columns needed by training.
@@ -312,48 +312,47 @@ inline TSizeVec extraColumnTagsForPredict() {
 //! Read the prediction from \p row.
 inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
                                                const TSizeVec& extraColumns,
-                                               std::size_t numberLossParameters) {
-    return {row.data() + extraColumns[E_Prediction], static_cast<int>(numberLossParameters)};
+                                               std::size_t dimensionPrediction) {
+    return {row.data() + extraColumns[E_Prediction], static_cast<int>(dimensionPrediction)};
 }
 
 //! Zero the prediction of \p row.
 MATHS_ANALYTICS_EXPORT
-void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionPrediction);
 
 //! Write \p value to \p row prediction column(s).
 MATHS_ANALYTICS_EXPORT
 void writePrediction(const TRowRef& row,
                      const TSizeVec& extraColumns,
-                     std::size_t numberLossParameters,
+                     std::size_t dimensionPrediction,
                      const TMemoryMappedFloatVector& value);
 
 //! Write \p value to \p row previous prediction column(s).
 MATHS_ANALYTICS_EXPORT
 void writePreviousPrediction(const TRowRef& row,
                              const TSizeVec& extraColumns,
-                             std::size_t numberLossParameters,
+                             std::size_t dimensionPrediction,
                              const TMemoryMappedFloatVector& value);
 
 //! Read the previous prediction for \p row if training incementally.
 MATHS_ANALYTICS_EXPORT
 inline TMemoryMappedFloatVector readPreviousPrediction(const TRowRef& row,
                                                        const TSizeVec& extraColumns,
-                                                       std::size_t numberLossParameters) {
+                                                       std::size_t dimensionPrediction) {
     return {row.data() + extraColumns[E_PreviousPrediction],
-            static_cast<int>(numberLossParameters)};
+            static_cast<int>(dimensionPrediction)};
 }
 
 //! Read all the loss derivatives from \p row into an aligned vector.
 inline TAlignedMemoryMappedFloatVector
-readLossDerivatives(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
+readLossDerivatives(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionGradient) {
     return {row.data() + extraColumns[E_Gradient],
-            static_cast<int>(numberLossParameters +
-                             lossHessianUpperTriangleSize(numberLossParameters))};
+            static_cast<int>(dimensionGradient + lossHessianUpperTriangleSize(dimensionGradient))};
 }
 
 //! Zero the loss gradient of \p row.
 MATHS_ANALYTICS_EXPORT
-void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionGradient);
 
 //! Write the loss gradient to \p row.
 MATHS_ANALYTICS_EXPORT
@@ -369,14 +368,14 @@ void writeLossGradient(const TRowRef& row,
 //! Read the loss flat column major Hessian from \p row.
 inline TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
                                                   const TSizeVec& extraColumns,
-                                                  std::size_t numberLossParameters) {
+                                                  std::size_t dimensionGradient) {
     return {row.data() + extraColumns[E_Curvature],
-            static_cast<int>(lossHessianUpperTriangleSize(numberLossParameters))};
+            static_cast<int>(lossHessianUpperTriangleSize(dimensionGradient))};
 }
 
 //! Zero the loss Hessian of \p row.
 MATHS_ANALYTICS_EXPORT
-void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionGradient);
 
 //! Write the loss Hessian to \p row.
 MATHS_ANALYTICS_EXPORT
