@@ -90,8 +90,6 @@ add_custom_target(run_docker
     COMMENT "Run docker container for specified IMAGE_NAME"
 )
 
-file(GLOB CLEAN_BUILD_FILES LIST_DIRECTORIES true ${SRC_DIR}/*.egg-info ${SRC_DIR}/**/__pycache__ ${TEST_DIR}/**/__pycache__ ${TEST_DIR}/**/*.pyc .pytest_cache .ipynb_checkpoints)
-
 add_custom_target(clean_build
-    COMMAND ${CMAKE_COMMAND} -E rm -r ${CLEAN_BUILD_FILES}
+    COMMAND ${CMAKE_COMMAND} -P clean_build.cmake
 )
