@@ -1000,7 +1000,7 @@ CBoostedTreeImpl::retrainTreeSelectionProbabilities(const core::CDataFrame& fram
     for (std::size_t i = 0; i < forest.size(); ++i) {
         propagateLosses(rootIndex(), forest[i], trainingDataLosses[i]);
     }
-    LOG_TRACE(<< "loss gradients = " << trainingDataLossGradients);
+    LOG_TRACE(<< "loss gradients = " << trainingDataLosses);
 
     // We are interested in choosing trees for which the total gradient of the
     // loss at the current predictions for all nodes is the largest. These trees,

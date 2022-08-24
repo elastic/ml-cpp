@@ -1867,7 +1867,6 @@ void CMultinomialLogisticSubsetLoss::gradient(const TMemoryMappedFloatVector& pr
 
     double pEps{0.0};
     double logZ{0.0};
-    double pAgg{0.0};
     bool isActualIn{false};
     double zmax{prediction.maxCoeff()};
     for (auto i : m_InClasses) {
@@ -1878,15 +1877,14 @@ void CMultinomialLogisticSubsetLoss::gradient(const TMemoryMappedFloatVector& pr
         (prediction(i) - zmax < LOG_EPSILON ? pEps : logZ) += pAdj;
         isActualIn |= (actual_ == i);
     }
-    for (auto i : m_OutClasses) {
-        double pAdj{std::exp(prediction(i) - zmax)};
-        pAgg += pAdj;
-    }
+    double pAgg{std::accumulate(
+        m_OutClasses.begin(), m_OutClasses.end(), 0.0,
+        [&](auto p, auto i) { return p + std::exp(prediction(i) - zmax); })};
     (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + std::log(logZ);
-    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ)) /
-           static_cast<double>(m_OutClasses.size());
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
+                                  static_cast<double>(m_OutClasses.size()));
     LOG_TRACE(<< "p(agg) = " << std::exp(logPAgg - logZ));
 
     for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
@@ -1914,7 +1912,6 @@ void CMultinomialLogisticSubsetLoss::curvature(const TMemoryMappedFloatVector& p
 
     double pEps{0.0};
     double logZ{0.0};
-    double pAgg{0.0};
     double zmax{prediction.maxCoeff()};
     for (auto i : m_InClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
@@ -1927,15 +1924,15 @@ void CMultinomialLogisticSubsetLoss::curvature(const TMemoryMappedFloatVector& p
             logZ += pAdj;
         }
     }
-    for (auto i : m_OutClasses) {
-        double pAdj{std::exp(prediction(i) - zmax)};
-        pAgg += pAdj;
-    }
+    double pAgg{std::accumulate(
+        m_OutClasses.begin(), m_OutClasses.end(), 0.0,
+        [&](auto p, auto i) { return p + std::exp(prediction(i) - zmax); })};
     (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
-    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ)) /
-           static_cast<double>(m_OutClasses.size());
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
+                                  static_cast<double>(m_OutClasses.size()));
+    LOG_TRACE(<< "p(agg) = " << std::exp(logPAgg - logZ));
 
     auto probability = [&](std::size_t i) {
         return i < m_InClasses.size()

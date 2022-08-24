@@ -2282,14 +2282,14 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
                 }
             }
         });
-        LOG_DEBUG(<< "log relative error = "
+        LOG_DEBUG(<< "KL divergence = "
                   << maths::common::CBasicStatistics::mean(klDivergence));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.05);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.06);
         meanKlDivergence.add(maths::common::CBasicStatistics::mean(klDivergence));
     }
 
-    LOG_DEBUG(<< "mean log relative error = "
+    LOG_DEBUG(<< "mean KL divergence = "
               << maths::common::CBasicStatistics::mean(meanKlDivergence));
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanKlDivergence) < 0.04);
 }
@@ -2841,14 +2841,14 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
                 }
             }
         });
-        LOG_DEBUG(<< "log relative error = "
+        LOG_DEBUG(<< "KL divergence = "
                   << maths::common::CBasicStatistics::mean(klDivergence));
 
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.16);
         meanKLDivergence.add(maths::common::CBasicStatistics::mean(klDivergence));
     }
 
-    LOG_DEBUG(<< "mean log relative error = "
+    LOG_DEBUG(<< "mean KL divergence = "
               << maths::common::CBasicStatistics::mean(meanKLDivergence));
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanKLDivergence) < 0.12);
 }
@@ -2861,18 +2861,16 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionForManyClasses,
     maths::common::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
 
-    std::size_t trainRows{800};
-    std::size_t rows{1000};
+    std::size_t trainRows{1800};
+    std::size_t rows{2000};
     std::size_t cols{20};
     int numberClasses{30};
     int numberFeatures{static_cast<int>(cols - 1)};
 
     TDoubleVec weights;
     TDoubleVec noise;
-    TDoubleVec uniform01;
     testRng.generateUniformSamples(-2.0, 2.0, numberClasses * numberFeatures, weights);
-    testRng.generateNormalSamples(0.0, 1.0, numberFeatures * rows, noise);
-    testRng.generateUniformSamples(0.0, 1.0, rows, uniform01);
+    testRng.generateNormalSamples(0.0, 0.2, numberFeatures * rows, noise);
     auto probability = [&](const TRowRef& row) {
         TMemoryMappedMatrix W(weights.data(), numberClasses, numberFeatures);
         TVector x(numberFeatures);
@@ -2907,10 +2905,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionForManyClasses,
     auto classifier =
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMultinomialLogisticLoss>(numberClasses))
-            .maximumNumberTrees(100)
-            .softTreeDepthLimit({5})
-            .eta({0.05})
-            .featureBagFraction({0.7})
             .buildForTrain(*frame, cols - 1);
 
     classifier->train();
@@ -2931,9 +2925,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionForManyClasses,
         }
     });
 
-    LOG_DEBUG(<< "log relative error = "
-              << maths::common::CBasicStatistics::mean(klDivergence));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.45);
+    LOG_DEBUG(<< "KL divergence = " << maths::common::CBasicStatistics::mean(klDivergence));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.27);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {
