@@ -715,6 +715,8 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
                                       : model_t::CResultType::E_Unconditional);
         mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
         m_Probability.add(probability, weight);
+        m_ProbabilityExplanations.clear();
+        m_ProbabilityExplanations = std::move(result.s_ProbabilityExplanation);
     };
 
     // Check the cache.

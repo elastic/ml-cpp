@@ -325,6 +325,10 @@ public:
     //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
     bool calculateMultiBucketImpact(double& multiBucketImpact) const;
 
+    const std::vector<std::string>& probabilityExplanations() const {
+        return m_ProbabilityExplanations;
+    }
+
 private:
     //! Actually commit any influences we've found.
     void commitInfluences(model_t::EFeature feature, double logp, double weight);
@@ -359,6 +363,8 @@ private:
     //! Placeholder for the influence weights so that it isn't
     //! allocated in a loop.
     TStoredStringPtrStoredStringPtrPrDoublePrVec m_Influences;
+
+    std::vector<std::string> m_ProbabilityExplanations;
 };
 
 //! \brief Interface for influence calculations.

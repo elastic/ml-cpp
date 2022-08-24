@@ -108,7 +108,8 @@ public:
                  bool metric,
                  int identifier,
                  core_t::TTime bucketSpan,
-                 TStr1Vec scheduledEventDescriptions);
+                 TStr1Vec scheduledEventDescriptions,
+                 TStr1Vec probabilityExplanations);
 
         EResultType s_ResultType;
         bool s_IsAllTimeResult;
@@ -140,6 +141,7 @@ public:
         const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
+        TStr1Vec s_ProbabilityExplanations;
     };
 
 public:

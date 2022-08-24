@@ -166,6 +166,8 @@ struct MODEL_EXPORT SAnnotatedProbability {
 
     //! Should the quantiles be updated?
     bool s_ShouldUpdateQuantiles{true};
+
+    std::vector<std::string> s_ProbabilityExplanations;
 };
 }
 }

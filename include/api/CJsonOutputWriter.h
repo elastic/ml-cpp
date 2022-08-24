@@ -222,7 +222,8 @@ public:
     void acceptBucketTimeInfluencer(core_t::TTime time,
                                     double probability,
                                     double rawAnomalyScore,
-                                    double normalizedAnomalyScore);
+                                    double normalizedAnomalyScore,
+                                    const std::vector<std::string>& probabilityExplanations);
 
     //! This method must be called after all the results for a given bucket
     //! are available.  It triggers the writing of the results.

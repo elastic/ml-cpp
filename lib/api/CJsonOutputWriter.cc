@@ -83,6 +83,7 @@ const std::string QUANTILES("quantiles");
 const std::string GEO_RESULTS("geo_results");
 const std::string ACTUAL_POINT("actual_point");
 const std::string TYPICAL_POINT("typical_point");
+const std::string PROBABILITY_EXPLANATIONS("probability_explanations");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -316,7 +317,8 @@ bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
 void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
                                                    double probability,
                                                    double rawAnomalyScore,
-                                                   double normalizedAnomalyScore) {
+                                                   double normalizedAnomalyScore, 
+                                                   const std::vector<std::string>& probabilityExplanations) {
     SBucketData& bucketData = m_BucketDataByTime[time];
     if (bucketData.s_RecordCount == 0) {
         return;
@@ -333,6 +335,10 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     m_Writer.addDoubleFieldToObj(RAW_ANOMALY_SCORE, rawAnomalyScore, *newDoc);
     m_Writer.addDoubleFieldToObj(INITIAL_SCORE, normalizedAnomalyScore, *newDoc);
     m_Writer.addDoubleFieldToObj(ANOMALY_SCORE, normalizedAnomalyScore, *newDoc);
+
+    std::string explanationsCombined = std::accumulate(probabilityExplanations.begin(), probabilityExplanations.end(), std::string(""));
+    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, std::move(explanationsCombined), *newDoc);
+
 
     bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore = std::max(
         bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, normalizedAnomalyScore);
@@ -504,6 +510,10 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+
+    std::string explanationsCombined = std::accumulate(results.s_ProbabilityExplanations.begin(), 
+    results.s_ProbabilityExplanations.end(), std::string(""));
+    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, std::move(explanationsCombined), *docPtr);
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {

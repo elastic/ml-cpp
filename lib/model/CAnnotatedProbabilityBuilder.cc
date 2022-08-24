@@ -74,6 +74,12 @@ void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(
 void CAnnotatedProbabilityBuilder::probability(double p) {
     m_Result.s_Probability = p;
 }
+
+void CAnnotatedProbabilityBuilder::probabilityExplanations(std::vector<std::string> explanations) {
+    m_Result.s_ProbabilityExplanations.clear();
+    m_Result.s_ProbabilityExplanations = std::move(explanations);
+}
+
 void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
     m_Result.s_MultiBucketImpact = multiBucketImpact;
 }

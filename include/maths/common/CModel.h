@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <string>
 
 namespace ml {
 namespace core {
@@ -281,6 +282,8 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     //! has the smallest probability in the current bucket (if and only
     //! if the result depends on the correlation structure).
     TSize1Vec s_MostAnomalousCorrelate;
+
+    std::vector<std::string> s_ProbabilityExplanation{};
 };
 
 //! \brief The model interface.
