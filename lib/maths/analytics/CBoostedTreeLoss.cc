@@ -1885,7 +1885,7 @@ void CMultinomialLogisticSubsetLoss::gradient(const TMemoryMappedFloatVector& pr
     logZ = zmax + std::log(logZ);
     pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
                                   static_cast<double>(m_OutClasses.size()));
-    LOG_TRACE(<< "p(agg) = " << std::exp(logPAgg - logZ));
+    LOG_TRACE(<< "p(agg) = " << pAgg);
 
     for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
         bool iAgg{i < m_InClasses.size()};
@@ -1932,7 +1932,7 @@ void CMultinomialLogisticSubsetLoss::curvature(const TMemoryMappedFloatVector& p
     logZ = zmax + common::CTools::stableLog(logZ);
     pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
                                   static_cast<double>(m_OutClasses.size()));
-    LOG_TRACE(<< "p(agg) = " << std::exp(logPAgg - logZ));
+    LOG_TRACE(<< "p(agg) = " << pAgg);
 
     auto probability = [&](std::size_t i) {
         return i < m_InClasses.size()
