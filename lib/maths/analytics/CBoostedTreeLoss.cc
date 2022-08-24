@@ -949,12 +949,12 @@ CMse::TLossUPtr CMse::incremental(double eta, double mu, const TNodeVec& tree) c
     return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
-CMse::TLossUPtr CMse::project(std::size_t,
-                              core::CDataFrame&,
-                              const core::CPackedBitVector&,
-                              std::size_t,
-                              const TSizeVec&,
-                              common::CPRNG::CXorOShiro128Plus) const {
+CMse::TLossUPtr CMse::project(std::size_t /*numberThreads*/,
+                              core::CDataFrame& /*frame*/,
+                              const core::CPackedBitVector& /*rowMask*/,
+                              std::size_t /*targetColumn*/,
+                              const TSizeVec& /*extrColumns*/,
+                              common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1036,12 +1036,13 @@ CMseIncremental::incremental(double eta, double mu, const TNodeVec& tree) const 
     return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
-CMseIncremental::TLossUPtr CMseIncremental::project(std::size_t,
-                                                    core::CDataFrame&,
-                                                    const core::CPackedBitVector&,
-                                                    std::size_t,
-                                                    const TSizeVec&,
-                                                    common::CPRNG::CXorOShiro128Plus) const {
+CMseIncremental::TLossUPtr
+CMseIncremental::project(std::size_t /*numberThreads*/,
+                         core::CDataFrame& /*frame*/,
+                         const core::CPackedBitVector& /*rowMask*/,
+                         std::size_t /*targetColumn*/,
+                         const TSizeVec& /*extrColumns*/,
+                         common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1142,12 +1143,12 @@ CMsle::TLossUPtr CMsle::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
-CMsle::TLossUPtr CMsle::project(std::size_t,
-                                core::CDataFrame&,
-                                const core::CPackedBitVector&,
-                                std::size_t,
-                                const TSizeVec&,
-                                common::CPRNG::CXorOShiro128Plus) const {
+CMsle::TLossUPtr CMsle::project(std::size_t /*numberThreads*/,
+                                core::CDataFrame& /*frame*/,
+                                const core::CPackedBitVector& /*rowMask*/,
+                                std::size_t /*targetColumn*/,
+                                const TSizeVec& /*extrColumns*/,
+                                common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1263,12 +1264,12 @@ CPseudoHuber::TLossUPtr CPseudoHuber::incremental(double, double, const TNodeVec
     return nullptr;
 }
 
-CPseudoHuber::TLossUPtr CPseudoHuber::project(std::size_t,
-                                              core::CDataFrame&,
-                                              const core::CPackedBitVector&,
-                                              std::size_t,
-                                              const TSizeVec&,
-                                              common::CPRNG::CXorOShiro128Plus) const {
+CPseudoHuber::TLossUPtr CPseudoHuber::project(std::size_t /*numberThreads*/,
+                                              core::CDataFrame& /*frame*/,
+                                              const core::CPackedBitVector& /*rowMask*/,
+                                              std::size_t /*targetColumn*/,
+                                              const TSizeVec& /*extrColumns*/,
+                                              common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1374,12 +1375,12 @@ CBinomialLogisticLoss::incremental(double eta, double mu, const TNodeVec& tree) 
 }
 
 CBinomialLogisticLoss::TLossUPtr
-CBinomialLogisticLoss::project(std::size_t,
-                               core::CDataFrame&,
-                               const core::CPackedBitVector&,
-                               std::size_t,
-                               const TSizeVec&,
-                               common::CPRNG::CXorOShiro128Plus) const {
+CBinomialLogisticLoss::project(std::size_t /*numberThreads*/,
+                               core::CDataFrame& /*frame*/,
+                               const core::CPackedBitVector& /*rowMask*/,
+                               std::size_t /*targetColumn*/,
+                               const TSizeVec& /*extrColumns*/,
+                               common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1484,12 +1485,12 @@ CBinomialLogisticLossIncremental::incremental(double eta, double mu, const TNode
 }
 
 CBinomialLogisticLossIncremental::TLossUPtr
-CBinomialLogisticLossIncremental::project(std::size_t,
-                                          core::CDataFrame&,
-                                          const core::CPackedBitVector&,
-                                          std::size_t,
-                                          const TSizeVec&,
-                                          common::CPRNG::CXorOShiro128Plus) const {
+CBinomialLogisticLossIncremental::project(std::size_t /*numberThreads*/,
+                                          core::CDataFrame& /*frame*/,
+                                          const core::CPackedBitVector& /*rowMask*/,
+                                          std::size_t /*targetColumn*/,
+                                          const TSizeVec& /*extrColumns*/,
+                                          common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
@@ -1650,7 +1651,7 @@ CMultinomialLogisticLoss::project(std::size_t numberThreads,
         rng, losses, MAX_GRADIENT_DIMENSION - 1, classes);
     std::sort(classes.begin(), classes.end());
 
-    return std::make_unique<CSubsetMultinomialLogisticLoss>(m_NumberClasses, classes);
+    return std::make_unique<CMultinomialLogisticSubsetLoss>(m_NumberClasses, classes);
 }
 
 ELossType CMultinomialLogisticLoss::type() const {
@@ -1816,43 +1817,46 @@ bool CMultinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTravers
 
 const std::string CMultinomialLogisticLoss::NAME{"multinomial_logistic"};
 
-CSubsetMultinomialLogisticLoss::CSubsetMultinomialLogisticLoss(std::size_t numberClasses,
+CMultinomialLogisticSubsetLoss::CMultinomialLogisticSubsetLoss(std::size_t numberClasses,
                                                                const TSizeVec& classes)
     : CMultinomialLogisticLoss{numberClasses} {
     m_InClasses.reserve(classes.size());
     for (auto i : classes) {
+        if (i >= numberClasses) {
+            HANDLE_FATAL(<< "Invalid class " << i << " out-of-range [0, "
+                         << numberClasses << ").");
+        }
         m_InClasses.push_back(static_cast<int>(i));
     }
-    m_OutClasses.resize(numberClasses - classes.size());
+    m_OutClasses.resize(numberClasses);
     std::iota(m_OutClasses.begin(), m_OutClasses.end(), 0);
     m_OutClasses.erase(std::set_difference(m_OutClasses.begin(), m_OutClasses.end(),
                                            m_InClasses.begin(), m_InClasses.end(),
                                            m_OutClasses.begin()),
                        m_OutClasses.end());
+    LOG_TRACE(<< "in = " << m_InClasses << ", out = " << m_OutClasses);
 }
 
-CSubsetMultinomialLogisticLoss::TLossUPtr CSubsetMultinomialLogisticLoss::clone() const {
-    return std::make_unique<CSubsetMultinomialLogisticLoss>(*this);
+CMultinomialLogisticSubsetLoss::TLossUPtr CMultinomialLogisticSubsetLoss::clone() const {
+    return std::make_unique<CMultinomialLogisticSubsetLoss>(*this);
 }
 
-CSubsetMultinomialLogisticLoss::TLossUPtr
-CSubsetMultinomialLogisticLoss::incremental(double, double, const TNodeVec&) const {
+CMultinomialLogisticSubsetLoss::TLossUPtr
+CMultinomialLogisticSubsetLoss::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
-CSubsetMultinomialLogisticLoss::TLossUPtr
-CSubsetMultinomialLogisticLoss::project(std::size_t,
-                                        core::CDataFrame&,
-                                        const core::CPackedBitVector&,
-                                        std::size_t,
-                                        const TSizeVec&,
-                                        common::CPRNG::CXorOShiro128Plus) const {
+CMultinomialLogisticSubsetLoss::TLossUPtr
+CMultinomialLogisticSubsetLoss::project(std::size_t /*numberThreads*/,
+                                        core::CDataFrame& /*frame*/,
+                                        const core::CPackedBitVector& /*rowMask*/,
+                                        std::size_t /*targetColumn*/,
+                                        const TSizeVec& /*extrColumns*/,
+                                        common::CPRNG::CXorOShiro128Plus /*rng*/) const {
     return this->clone();
 }
 
-void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*row*/,
-                                              bool /*newExample*/,
-                                              const TMemoryMappedFloatVector& prediction,
+void CMultinomialLogisticSubsetLoss::gradient(const TMemoryMappedFloatVector& prediction,
                                               double actual,
                                               const TWriter& writer,
                                               double weight) const {
@@ -1860,11 +1864,12 @@ void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*r
     // We prefer an implementation which avoids any memory allocations.
 
     int actual_{static_cast<int>(actual)};
-    double zmax{prediction.maxCoeff()};
+
     double pEps{0.0};
     double logZ{0.0};
-    double logPAgg{0.0};
+    double pAgg{0.0};
     bool isActualIn{false};
+    double zmax{prediction.maxCoeff()};
     for (auto i : m_InClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
         // Sum the contributions from classes whose predicted probability
@@ -1875,19 +1880,19 @@ void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*r
     }
     for (auto i : m_OutClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
-        logPAgg += pAdj;
+        pAgg += pAdj;
     }
-    (logPAgg < EPSILON * logZ ? pEps : logZ) += logPAgg;
+    (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
     pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + std::log(logZ);
-    logPAgg = zmax + std::log(logPAgg);
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ)) /
+           static_cast<double>(m_OutClasses.size());
+    LOG_TRACE(<< "p(agg) = " << std::exp(logPAgg - logZ));
 
     for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
-        double pi{common::CTools::stableExp(
-            (i < m_InClasses.size() ? static_cast<double>(prediction(m_InClasses[i])) : logPAgg) -
-            logZ)};
-        bool isActual{i < m_InClasses.size() ? (m_InClasses[i] == actual_)
-                                             : (isActualIn == false)};
+        bool iAgg{i < m_InClasses.size()};
+        double pi{iAgg ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ) : pAgg};
+        bool isActual{iAgg ? (m_InClasses[i] == actual_) : (isActualIn == false)};
         if (isActual) {
             // We have that p = 1 / (1 + eps) and the gradient is p - 1.
             // Use a Taylor expansion and drop terms of O(eps^2) to get:
@@ -1898,9 +1903,7 @@ void CSubsetMultinomialLogisticLoss::gradient(const CEncodedDataFrameRowRef& /*r
     }
 }
 
-void CSubsetMultinomialLogisticLoss::curvature(const CEncodedDataFrameRowRef& /*row*/,
-                                               bool /*newExample*/,
-                                               const TMemoryMappedFloatVector& prediction,
+void CMultinomialLogisticSubsetLoss::curvature(const TMemoryMappedFloatVector& prediction,
                                                double /*actual*/,
                                                const TWriter& writer,
                                                double weight) const {
@@ -1909,10 +1912,10 @@ void CSubsetMultinomialLogisticLoss::curvature(const CEncodedDataFrameRowRef& /*
 
     // We prefer an implementation which avoids any memory allocations.
 
-    double zmax{prediction.maxCoeff()};
     double pEps{0.0};
     double logZ{0.0};
     double pAgg{0.0};
+    double zmax{prediction.maxCoeff()};
     for (auto i : m_InClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
         if (prediction(i) - zmax < LOG_EPSILON) {
@@ -1926,25 +1929,28 @@ void CSubsetMultinomialLogisticLoss::curvature(const CEncodedDataFrameRowRef& /*
     }
     for (auto i : m_OutClasses) {
         double pAdj{std::exp(prediction(i) - zmax)};
-        logZ += pAdj;
         pAgg += pAdj;
     }
-    pEps = common::CTools::stable((pEps + (pAgg < EPSILON * logZ ? pAgg : 0.0)) / logZ);
+    (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
+    pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
-    pAgg = pAgg * common::CTools::stableExp(zmax - logZ);
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ)) /
+           static_cast<double>(m_OutClasses.size());
+
+    auto probability = [&](std::size_t i) {
+        return i < m_InClasses.size()
+                   ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ)
+                   : pAgg;
+    };
 
     std::size_t k{0};
     for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
-        double pi{i < m_InClasses.size()
-                      ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ)
-                      : pAgg};
+        double pi{probability(i)};
         // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
         // Use a Taylor expansion and drop terms of O(eps^2) to get:
         writer(k++, weight * (pi == 1.0 ? pEps : pi * (1.0 - pi)));
         for (std::size_t j = i + 1; j <= m_InClasses.size(); ++j) {
-            double pij{pi * (j < m_InClasses.size()
-                                 ? common::CTools::stableExp(prediction(m_InClasses[j]) - logZ)
-                                 : pAgg)};
+            double pij{pi * probability(j)};
             writer(k++, -weight * pij);
         }
     }

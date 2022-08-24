@@ -35,6 +35,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <numeric>
 #include <utility>
 #include <vector>
 
@@ -45,6 +46,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleVector = maths::analytics::boosted_tree::CLoss::TDoubleVector;
 using TDoubleVectorVec = std::vector<TDoubleVector>;
+using TFloatVec = std::vector<maths::common::CFloatStorage>;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -55,6 +57,7 @@ using maths::analytics::boosted_tree::CBinomialLogisticLossIncremental;
 using maths::analytics::boosted_tree::CMse;
 using maths::analytics::boosted_tree::CMseIncremental;
 using maths::analytics::boosted_tree::CMultinomialLogisticLoss;
+using maths::analytics::boosted_tree::CMultinomialLogisticSubsetLoss;
 using maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
 using maths::analytics::boosted_tree_detail::CArgMinMsleImpl;
 using maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
@@ -782,8 +785,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
     // Test the behaviour of value, gradient and Hessian of the logistic loss in
     // the regime where the probabilities underflow.
 
-    using TFloatVec = std::vector<maths::common::CFloatStorage>;
-
     double eps{100.0 * std::numeric_limits<double>::epsilon()};
 
     auto logits = [](double x, TFloatVec& result) { result.assign({0.0, x}); };
@@ -858,6 +859,95 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testSubsetMultinomialLogisticLoss) {
+
+    using TSizeVec = std::vector<std::size_t>;
+
+    auto fillRowsAndCols = [](std::size_t dimension, TSizeVec& rows, TSizeVec& cols) {
+        rows.resize(dimension * (dimension + 1) / 2);
+        cols.resize(dimension * (dimension + 1) / 2);
+        for (std::size_t i = 0, k = 0; i < dimension; ++i) {
+            for (std::size_t j = i; j < dimension; ++j, ++k) {
+                rows[k] = i;
+                cols[k] = j;
+            }
+        }
+    };
+
+    test::CRandomNumbers rng;
+
+    TSizeVec subset{1, 3, 4, 7, 9};
+    TSizeVec complement{0, 2, 5, 6, 8};
+    TSizeVec rows;
+    TSizeVec cols;
+    TSizeVec subsetRows;
+    TSizeVec subsetCols;
+    fillRowsAndCols(10, rows, cols);
+    fillRowsAndCols(6, subsetRows, subsetCols);
+
+    CMultinomialLogisticLoss loss{10};
+    CMultinomialLogisticSubsetLoss subsetLoss{10, subset};
+
+    TDoubleVec weights;
+    TDoubleVec actual;
+    TFloatVec storage;
+    TDoubleVec gradient(10);
+    TDoubleVec subsetGradient(6);
+    TDoubleVecVec curvatures(10, TDoubleVec(10));
+    TDoubleVecVec subsetCurvatures(6, TDoubleVec(6));
+
+    for (std::size_t t = 0; t < 1000; ++t) {
+        rng.generateUniformSamples(0.0, 1.0, 10, weights);
+        storage.assign(weights.begin(), weights.end());
+        TMemoryMappedFloatVector prediction{storage.data(), 10};
+        prediction.array() = (prediction.array() / prediction.sum()).log();
+        rng.generateUniformSamples(0.0, 10.0, 1, actual);
+        actual[0] = std::floor(actual[0]);
+
+        loss.gradient(prediction, actual[0],
+                      [&](std::size_t i, double value) { gradient[i] = value; });
+        subsetLoss.gradient(prediction, actual[0], [&](std::size_t i, double value) {
+            subsetGradient[i] = value;
+        });
+
+        for (std::size_t i = 0; i < subset.size(); ++i) {
+            BOOST_REQUIRE_CLOSE(gradient[subset[i]], subsetGradient[i], 1e-3);
+        }
+        double pAgg{std::accumulate(complement.begin(), complement.end(), 0.0,
+                                    [&](auto p, auto i) {
+                                        return p + std::exp(prediction(i));
+                                    }) /
+                    static_cast<double>(complement.size())};
+        BOOST_REQUIRE_CLOSE(std::binary_search(complement.begin(), complement.end(),
+                                               static_cast<std::size_t>(actual[0]))
+                                ? pAgg - 1.0
+                                : pAgg,
+                            subsetGradient[subset.size()], 1e-3);
+
+        loss.curvature(prediction, actual[0], [&](std::size_t i, double value) {
+            curvatures[rows[i]][cols[i]] = value;
+        });
+        subsetLoss.curvature(prediction, actual[0], [&](std::size_t i, double value) {
+            subsetCurvatures[subsetRows[i]][subsetCols[i]] = value;
+        });
+
+        for (std::size_t i = 0; i <= subset.size(); ++i) {
+            for (std::size_t j = i; j <= subset.size(); ++j) {
+                if (i < subset.size() && j < subset.size()) {
+                    BOOST_REQUIRE_CLOSE(curvatures[subset[i]][subset[j]],
+                                        subsetCurvatures[i][j], 1e-3);
+                } else if (i < subset.size()) {
+                    BOOST_REQUIRE_CLOSE(-std::exp(prediction(subset[i])) * pAgg,
+                                        subsetCurvatures[i][j], 1e-3);
+                } else if (j < subset.size()) {
+                    BOOST_REQUIRE_CLOSE(-std::exp(prediction(subset[j])) * pAgg,
+                                        subsetCurvatures[i][j], 1e-3);
+                }
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testMsleArgminObjectiveFunction) {
 
     // Test that the calculated objective function is close to the correct value.
@@ -917,18 +1007,18 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjectiveFunction) {
             TDoubleVec targets;
             testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
             do {
-                for (std::size_t i = 0; i < targets.size(); ++i) {
+                for (auto target : targets) {
                     maths::common::CFloatStorage storage[]{std::log(constantPrediction)};
                     TMemoryMappedFloatVector prediction{storage, 1};
-                    argmin.add(prediction, targets[i]);
+                    argmin.add(prediction, target);
                 }
             } while (argmin.nextPass());
             auto objective = argmin.objective();
 
             for (double weight = -1.0; weight < 1.0; weight += 0.1) {
                 TMeanAccumulator expectedErrorAccumulator;
-                for (std::size_t i = 0; i < targets.size(); ++i) {
-                    double error{std::log(targets[i] + 1) -
+                for (auto target : targets) {
+                    double error{std::log(target + 1) -
                                  std::log(constantPrediction * std::exp(weight) + 1)};
                     expectedErrorAccumulator.add(error * error);
                 }

@@ -2853,7 +2853,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanKLDivergence) < 0.12);
 }
 
-BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionManyClasses,
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionForManyClasses,
                      *boost::unit_test::disabled()) {
 
     // This is too slow to run as part of regular testing.
@@ -2933,7 +2933,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegressionManyClasses,
 
     LOG_DEBUG(<< "log relative error = "
               << maths::common::CBasicStatistics::mean(klDivergence));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.42);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.45);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemory) {

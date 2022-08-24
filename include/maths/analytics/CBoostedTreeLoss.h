@@ -1020,6 +1020,14 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    virtual void gradient(const TMemoryMappedFloatVector& prediction,
+                          double actual,
+                          const TWriter& writer,
+                          double weight = 1.0) const;
+    virtual void curvature(const TMemoryMappedFloatVector& prediction,
+                           double actual,
+                           const TWriter& writer,
+                           double weight = 1.0) const;
     void gradient(const CEncodedDataFrameRowRef& /*row*/,
                   bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
@@ -1028,10 +1036,6 @@ public:
                   double weight = 1.0) const override {
         this->gradient(prediction, actual, writer, weight);
     }
-    void gradient(const TMemoryMappedFloatVector& prediction,
-                  double actual,
-                  const TWriter& writer,
-                  double weight = 1.0) const;
     void curvature(const CEncodedDataFrameRowRef& /*row*/,
                    bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
@@ -1040,10 +1044,6 @@ public:
                    double weight = 1.0) const override {
         this->curvature(prediction, actual, writer, weight);
     }
-    void curvature(const TMemoryMappedFloatVector& prediction,
-                   double actual,
-                   const TWriter& writer,
-                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     double difference(const TMemoryMappedFloatVector& prediction,
                       const TMemoryMappedFloatVector& previousPrediction,
@@ -1062,10 +1062,10 @@ private:
     std::size_t m_NumberClasses;
 };
 
-class MATHS_ANALYTICS_EXPORT CSubsetMultinomialLogisticLoss final
+class MATHS_ANALYTICS_EXPORT CMultinomialLogisticSubsetLoss final
     : public CMultinomialLogisticLoss {
 public:
-    CSubsetMultinomialLogisticLoss(std::size_t numberClasses, const TSizeVec& classes);
+    CMultinomialLogisticSubsetLoss(std::size_t numberClasses, const TSizeVec& classes);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     TLossUPtr project(std::size_t numberThreads,
@@ -1074,15 +1074,11 @@ public:
                       std::size_t targetColumn,
                       const TSizeVec& extraColumns,
                       common::CPRNG::CXorOShiro128Plus rng) const override;
-    void gradient(const CEncodedDataFrameRowRef& /*row*/,
-                  bool /*newExample*/,
-                  const TMemoryMappedFloatVector& prediction,
+    void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const override;
-    void curvature(const CEncodedDataFrameRowRef& /*row*/,
-                   bool /*newExample*/,
-                   const TMemoryMappedFloatVector& prediction,
+    void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
                    double weight = 1.0) const override;
