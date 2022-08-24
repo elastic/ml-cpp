@@ -39,7 +39,7 @@
 4. Install the required dependencies:
 
     ```bash
-    make env
+    cmake .
     ```
 
 ### Complete the configuration
@@ -59,19 +59,19 @@
 2. Run Python tests:
 
     ```bash
-    make tests
+    make src_tests
     ```
 
 3. Run Jupyter notebook smoke tests:
 
     ```bash
-    make test-notebooks
+    make notebook_tests
     ```
 
 4. Build the Docker image:
 
     ```bash
-    IMAGE_NAME=myjupyter make build-docker
+    IMAGE_NAME=myjupyter make build_docker
     ```
 
 > *In the [`Dockerfile`](docker/Dockerfile), we fetch the base image from > `docker.elastic.co`. To this end, you need to be
@@ -140,7 +140,7 @@ certificates, you need to confirm the security exception.
 - `scripts/` collection of python and shell scripts, e.g., experiment drivers.
 - `src/` python packages containing supporting code. Currently, only `incremental_learning` package is available.
 - `tests/` pytest unit tests for python packages.
-- `Makefile` for automated tasks. Run `make` to see which tasks are available.
+- `CMakeLists.txt` for automated tasks. Run `cmake --build . --target help` to see which tasks are available.
 
 ## FAQ
 

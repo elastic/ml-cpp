@@ -20,8 +20,7 @@ class TestUpdateAndEvaluate(unittest.TestCase):
         self.seed = 100
         self.dataset_name = 'test_regression'
         download_successful = download_dataset(self.dataset_name)
-        if download_successful == False:
-            self.fail("Dataset is not available")
+        self.assertTrue(download_successful, "Failed downloading dataset.")
         self.dataset = pd.read_csv(datasets_dir / '{}.csv'.format(self.dataset_name))
 
     def test_encode_train(self) -> None:

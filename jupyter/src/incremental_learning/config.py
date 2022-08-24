@@ -40,22 +40,6 @@ configs_dir = data_dir / 'configs'
 jobs_dir = data_dir / 'jobs'
 dfa_path = ''
 
-# Assumes your host OS is not CentOS.
-cloud = (platform.system() == 'Linux') and (
-    distro.name() == 'CentOS Linux')
-if cloud:
-    search_location = Path('/ml-cpp')
-    dfa_path = Path('/ml-cpp/bin/data_frame_analyzer')
-else:
-    search_location = find_ancestor_dir(
-        path=root_dir, resource='build/distribution')
-    runners = list(search_location.glob(
-        '**/build/distribution/platform/**/data_frame_analyzer'))
-    if len(runners) == 0:
-        print("Cannot find data_frame_analyzer binary")
-        exit(1)
-    dfa_path = runners[0]
-
 logger = logging.getLogger(__package__)
 logger.handlers = []
 ch = logging.StreamHandler()
@@ -95,3 +79,20 @@ if not config['storage']['bucket_name']:
     logger.error("Storage bucket configuration is missing")
     exit(1)
 bucket_name = config['storage']['bucket_name']
+
+# Assumes your host OS is not CentOS.
+cloud = (platform.system() == 'Linux') and (
+    distro.name() == 'CentOS Linux')
+if cloud:
+    search_location = Path('/ml-cpp')
+    dfa_path = Path('/ml-cpp/bin/data_frame_analyzer')
+else:
+    search_location = find_ancestor_dir(
+        path=root_dir, resource='bin/data_frame_analyzer/')
+    runners = list(search_location.glob(
+        '**/data_frame_analyzer/data_frame_analyzer'))
+    if len(runners) == 0:
+        print("Cannot find data_frame_analyzer binary")
+        exit(1)
+    dfa_path = runners[0]
+    logger.info(f"Found data_frame_analyzer binary at {dfa_path}")
