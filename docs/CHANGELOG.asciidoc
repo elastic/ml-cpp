@@ -34,6 +34,8 @@
 
 * Improve classification and regression model train runtimes for data sets with many
   numeric features. (See {ml-pull}2380[#2380], {ml-pull}2388[#2388] and {ml-pull}2388[#2390].)
+* Compute outlier feature influence via the Gateaux derivative to improve attribution
+  for higher dimension vectors. (See {ml-pull}2256[#2256].)
 
 == {es} version 8.4.0
 
