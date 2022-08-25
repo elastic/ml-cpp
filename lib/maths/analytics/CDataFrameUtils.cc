@@ -174,8 +174,7 @@ regressionStratifiedCrossValidationRowSampler(std::size_t numberThreads,
     auto quantiles =
         CDataFrameUtils::columnQuantiles(
             numberThreads, frame, rowMask, {targetColumn},
-            common::CFastQuantileSketch{common::CFastQuantileSketch::E_Linear, 75,
-                                        common::CPRNG::CXorOShiro128Plus{}, 0.9})
+            common::CFastQuantileSketch{75, common::CPRNG::CXorOShiro128Plus{}, 0.9})
             .first;
 
     TDoubleVec buckets;
@@ -487,19 +486,25 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     auto readQuantiles = core::bindRetrievableState(
         [&](TFastQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) {
             if (encoder != nullptr) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    CEncodedDataFrameRowRef encodedRow{encoder->encode(*row)};
+                for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                    auto row = *row_;
+                    auto encodedRow = encoder->encode(row);
+                    auto rowWeight = weight(row);
                     for (std::size_t i = 0; i < columnMask.size(); ++i) {
-                        if (isMissing(encodedRow[columnMask[i]]) == false) {
-                            quantiles[i].add(encodedRow[columnMask[i]], weight(*row));
+                        double feature{encodedRow[columnMask[i]]};
+                        if (isMissing(feature) == false) {
+                            quantiles[i].add(feature, rowWeight);
                         }
                     }
                 }
             } else {
-                for (auto row = beginRows; row != endRows; ++row) {
+                for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                    auto row = *row_;
+                    auto rowWeight = weight(row);
                     for (std::size_t i = 0; i < columnMask.size(); ++i) {
-                        if (isMissing((*row)[columnMask[i]]) == false) {
-                            quantiles[i].add((*row)[columnMask[i]], weight(*row));
+                        double feature{row[columnMask[i]]};
+                        if (isMissing(feature) == false) {
+                            quantiles[i].add(feature, rowWeight);
                         }
                     }
                 }
@@ -1218,7 +1223,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(2, common::CQuantileSketch{common::CQuantileSketch::E_Linear, 100}));
+        TQuantileSketchVec(2, common::CQuantileSketch{100}));
     auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         result = std::move(quantiles);
     };

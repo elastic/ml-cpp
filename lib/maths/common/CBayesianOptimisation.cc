@@ -25,6 +25,7 @@
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 

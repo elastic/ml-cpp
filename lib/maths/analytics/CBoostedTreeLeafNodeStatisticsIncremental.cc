@@ -64,9 +64,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     workspace.reducedDerivatives(treeFeatureBag).swap(this->derivatives());
 
     if (this->gain() >= workspace.minimumGain()) {
+        this->derivatives() = workspace.copy(workspace.derivatives()[0]);
         this->rowMask() = rowMask;
-        CSplitsDerivatives tmp{workspace.derivatives()[0]};
-        this->derivatives() = std::move(tmp);
     }
 }
 
@@ -103,9 +102,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.reducedDerivatives(treeFeatureBag)};
+        this->derivatives() = workspace.copy(workspace.reducedDerivatives(treeFeatureBag));
         this->rowMask() = workspace.reducedMask(parent.rowMask().size());
-        this->derivatives() = std::move(tmp);
     }
 }
 
@@ -138,10 +136,13 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     this->bestSplitStatistics() = this->computeBestSplitStatistics(
         workspace.numberThreads(), regularization, nodeFeatureBag);
 
-    // Lazily compute the row mask to avoid unnecessary work.
     if (this->gain() >= workspace.minimumGain()) {
+        // Lazily compute the row mask to avoid unnecessary work.
         this->rowMask() = std::move(parent.rowMask());
         this->rowMask() ^= workspace.reducedMask(this->rowMask().size());
+    } else {
+        // We're going to discard this node so recycle its derivatives.
+        workspace.recycle(std::move(this->derivatives()));
     }
 }
 
@@ -171,19 +172,19 @@ CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+        leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
             leftChildId, *this, frame, regularization, treeFeatureBag,
             nodeFeatureBag, true /*is left child*/, split, workspace);
-        rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+        rightChild = std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
             rightChildId, std::move(*this), regularization, treeFeatureBag,
             nodeFeatureBag, false /*is left child*/, workspace);
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+    rightChild = std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
         rightChildId, *this, frame, regularization, treeFeatureBag,
         nodeFeatureBag, false /*is left child*/, split, workspace);
-    leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+    leftChild = std::make_unique<CBoostedTreeLeafNodeStatisticsIncremental>(
         leftChildId, std::move(*this), regularization, treeFeatureBag,
         nodeFeatureBag, true /*is left child*/, workspace);
     return {std::move(leftChild), std::move(rightChild)};

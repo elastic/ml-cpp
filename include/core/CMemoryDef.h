@@ -277,7 +277,7 @@ std::size_t elementDynamicSize(const CONTAINER& t) {
 //! compute their memory usage. It will warn if a type is visited which is
 //! not registered. Example usage:
 //! \code{.cpp}
-//!   CMemory::anyVisitor().insertCallback<std::vector<double>>();
+//!   memory::anyVisitor().insertCallback<std::vector<double>>();
 //!   std::vector<std::any> variables;
 //!   variables.push_back(TDoubleVec(10));
 //!   std::size_t size{memory::dynamicSize(variables, visitor)};
@@ -634,7 +634,7 @@ void elementDynamicSize(std::string name,
 //! stored in std::any.
 //!
 //! DESCRIPTION:\n
-//! See CMemory::CAnyVisitor for details.
+//! See memory::CAnyVisitor for details.
 class CORE_EXPORT CAnyVisitor {
 public:
     using TDynamicSizeFunc = void (*)(const char*,

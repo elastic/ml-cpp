@@ -23,7 +23,7 @@
 #include <cmath>
 #include <cstddef>
 
-#if defined(__SSE4_2__)
+#if defined(__SSE__)
 
 #include <xmmintrin.h>
 

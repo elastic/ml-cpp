@@ -62,8 +62,7 @@ public:
     using TOptionalDouble = std::optional<double>;
     using TSampleVec = std::vector<CSample>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMedianAccumulator =
-        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_Linear, 30>;
+    using TMedianAccumulator = maths::common::CFixedQuantileSketch<30>;
     using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
     using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
     using TVarianceAccumulator =

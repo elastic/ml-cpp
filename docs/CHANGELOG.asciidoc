@@ -33,7 +33,7 @@
 === Enhancements
 
 * Improve classification and regression model train runtimes for data sets with many
-  numeric features. (See {ml-pull}2380[#2380].)
+  numeric features. (See {ml-pull}2380[#2380], {ml-pull}2388[#2388] and {ml-pull}2388[#2390].)
 
 == {es} version 8.4.0
 

@@ -22,7 +22,8 @@ class TestClassification(unittest.TestCase):
         self.seed = 100
         self.dataset_name = 'classification-2d'
 
-        download_dataset(self.dataset_name)
+        download_successful = download_dataset(self.dataset_name)
+        self.assertTrue(download_successful, "Failed downloading dataset.")
         x = np.random.random(1000).reshape((-1, 2))
         y = x[:, 1] < (np.sin(x[:, 0]*np.pi/2*4)+1)/2
         is_training = (x[:, 0] < 0.3) | (x[:, 0] > 0.7) | (
@@ -48,7 +49,7 @@ class TestClassification(unittest.TestCase):
         # roc_auc_score requires the probability of the "greater" class label
         y_score = np.array([prob[classes[1]] for c, prob in  zip(y_true, top_classes)])
         accuracy = metrics.accuracy_score(y_true=y_true, y_pred=y_pred)
-        self.assertTrue(accuracy > 0.96, msg = "Low accuracy {}".format(accuracy))
+        self.assertTrue(accuracy > 0.95, msg = "Low accuracy {}".format(accuracy))
         actual_roc_auc = metrics.roc_auc_score(y_true=y_true, y_score=y_score)
         self.assertTrue(actual_roc_auc > 0.98, msg="Low roc auc score {}".format(actual_roc_auc))
 

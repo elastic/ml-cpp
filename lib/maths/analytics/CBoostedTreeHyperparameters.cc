@@ -14,6 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
+#include <core/CStopWatch.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/analytics/CBoostedTreeImpl.h>
@@ -141,6 +142,7 @@ CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeF
         double meanValue{(minValue + maxValue) / 2.0};
         LOG_TRACE(<< "mean value = " << meanValue);
 
+        core::CStopWatch watch{true};
         TVector3x1 fallback;
         fallback(MIN_VALUE_INDEX) = minValue;
         fallback(MID_VALUE_INDEX) = meanValue;
@@ -150,10 +152,12 @@ CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeF
         auto interval = maybeNullInterval.value_or(fallback);
         args.truncateParameter()(interval);
         LOG_TRACE(<< "search interval = [" << interval.toDelimited() << "]");
+        LOG_TRACE(<< "search took = " << watch.lap() << "ms");
 
         parameter.fixToRange(parameter.fromSearchValue(interval(MIN_VALUE_INDEX)),
                              parameter.fromSearchValue(interval(MAX_VALUE_INDEX)));
         parameter.set(parameter.fromSearchValue(interval(MID_VALUE_INDEX)));
+
         return TOptionalDoubleSizePr{std::in_place, lossGap, forestSize};
     }
 
