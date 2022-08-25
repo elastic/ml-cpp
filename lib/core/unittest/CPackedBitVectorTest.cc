@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 
@@ -248,37 +247,37 @@ BOOST_AUTO_TEST_CASE(testInternals) {
 BOOST_AUTO_TEST_CASE(testCreation) {
     core::CPackedBitVector test1(3, true);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(3, test1.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(3, true)),
                         core::CContainerPrinter::print(test1.toBitVector()));
 
     core::CPackedBitVector test2(5, false);
     LOG_DEBUG(<< "test2 = " << test2);
-    BOOST_REQUIRE_EQUAL(std::size_t(5), test2.dimension());
+    BOOST_REQUIRE_EQUAL(5, test2.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(5, false)),
                         core::CContainerPrinter::print(test2.toBitVector()));
 
     core::CPackedBitVector test3(255, true);
     LOG_DEBUG(<< "test3 = " << test3);
-    BOOST_REQUIRE_EQUAL(std::size_t(255), test3.dimension());
+    BOOST_REQUIRE_EQUAL(255, test3.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(255, true)),
                         core::CContainerPrinter::print(test3.toBitVector()));
 
     core::CPackedBitVector test4(279, true);
     LOG_DEBUG(<< "test4 = " << test4);
-    BOOST_REQUIRE_EQUAL(std::size_t(279), test4.dimension());
+    BOOST_REQUIRE_EQUAL(279, test4.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(279, true)),
                         core::CContainerPrinter::print(test4.toBitVector()));
 
     core::CPackedBitVector test5(512, false);
     LOG_DEBUG(<< "test5 = " << test5);
-    BOOST_REQUIRE_EQUAL(std::size_t(512), test5.dimension());
+    BOOST_REQUIRE_EQUAL(512, test5.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(512, false)),
                         core::CContainerPrinter::print(test5.toBitVector()));
 
     core::CPackedBitVector test6((TBoolVec()));
     LOG_DEBUG(<< "test6 = " << test6);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), test6.dimension());
+    BOOST_REQUIRE_EQUAL(0, test6.dimension());
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print((TBoolVec())),
                         core::CContainerPrinter::print(test6.toBitVector()));
 
@@ -316,23 +315,23 @@ BOOST_AUTO_TEST_CASE(testCreation) {
 BOOST_AUTO_TEST_CASE(testExtend) {
     core::CPackedBitVector test1;
     test1.extend(true);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), test1.dimension());
+    BOOST_REQUIRE_EQUAL(1, test1.dimension());
     BOOST_REQUIRE_EQUAL(std::string("[1]"), print(test1));
 
     test1.extend(true);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), test1.dimension());
+    BOOST_REQUIRE_EQUAL(2, test1.dimension());
     BOOST_REQUIRE_EQUAL(std::string("[1 1]"), print(test1));
 
     test1.extend(false);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(3, test1.dimension());
     BOOST_REQUIRE_EQUAL(std::string("[1 1 0]"), print(test1));
 
     test1.extend(false);
-    BOOST_REQUIRE_EQUAL(std::size_t(4), test1.dimension());
+    BOOST_REQUIRE_EQUAL(4, test1.dimension());
     BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0]"), print(test1));
 
     test1.extend(true);
-    BOOST_REQUIRE_EQUAL(std::size_t(5), test1.dimension());
+    BOOST_REQUIRE_EQUAL(5, test1.dimension());
     BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0 1]"), print(test1));
 
     for (auto runLength : {CPackedBitVectorInternals::maximumOneByteRunLength(),
@@ -590,10 +589,10 @@ BOOST_AUTO_TEST_CASE(testOneBitIterators) {
         }
 
         if (actualIndices != expectedIndices) {
-            LOG_ERROR(<< "expected = " << core::CContainerPrinter::print(expectedIndices));
-            LOG_ERROR(<< "actual   = " << core::CContainerPrinter::print(actualIndices));
+            LOG_ERROR(<< "expected = " << expectedIndices);
+            LOG_ERROR(<< "actual   = " << actualIndices);
         } else if (t % 200 == 0) {
-            LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(expectedIndices));
+            LOG_DEBUG(<< "indices = " << expectedIndices);
         }
         BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }

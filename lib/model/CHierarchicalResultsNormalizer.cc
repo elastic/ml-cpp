@@ -15,13 +15,9 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/FunctionTypes.h>
-
-#include <rapidjson/document.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -59,8 +55,8 @@ void SNormalizer::propagateForwardByTime(double time) {
     s_Normalizer->propagateForwardByTime(time);
 }
 
-uint64_t SNormalizer::checksum() const {
-    uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
+std::uint64_t SNormalizer::checksum() const {
+    std::uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
     return maths::common::CChecksum::calculate(seed, s_Normalizer);
 }
 }

@@ -17,8 +17,6 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <cstdint>
 
 namespace ml {
@@ -38,7 +36,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CModelWeight {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     explicit CModelWeight(double weight);
@@ -59,7 +57,7 @@ public:
     void age(double alpha);
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Restore state from part of a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

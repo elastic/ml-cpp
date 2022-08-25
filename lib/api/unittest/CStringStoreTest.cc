@@ -160,12 +160,10 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(0, countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         BOOST_TEST_REQUIRE(this->nameExists("count"));
@@ -185,8 +183,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
         wrappedOutputStream.syncFlush();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1),
-                            countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(1, countBuckets("records", outputStrm.str() + "]"));
     }
 
     LOG_DEBUG(<< "Restoring job");
@@ -274,10 +271,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -289,8 +284,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
         BOOST_TEST_REQUIRE(this->nameExists("count"));
@@ -338,15 +332,13 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(0, countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        LOG_DEBUG(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
+        LOG_DEBUG(<< model::CStringStore::names().m_Strings);
         BOOST_TEST_REQUIRE(this->nameExists("count"));
         BOOST_TEST_REQUIRE(this->nameExists("distinct_count"));
         BOOST_TEST_REQUIRE(this->nameExists("notes"));
@@ -363,18 +355,15 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
 
         BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
         wrappedOutputStream.syncFlush();
-        BOOST_REQUIRE_EQUAL(std::size_t(1),
-                            countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(1, countBuckets("records", outputStrm.str() + "]"));
     }
     LOG_DEBUG(<< "Restoring job");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -387,8 +376,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         BOOST_TEST_REQUIRE(this->nameExists("count"));
@@ -413,10 +401,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -429,8 +415,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store.
@@ -458,10 +443,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -474,8 +457,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
         BOOST_TEST_REQUIRE(this->nameExists("count"));
@@ -525,9 +507,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
         LOG_DEBUG(<< "Running 20 buckets");
         time = playData(time, BUCKET_SPAN, 20, 7, 5, 99, job);
 
-        LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
-        LOG_TRACE(<< core::CContainerPrinter::print(
-                      model::CStringStore::influencers().m_Strings));
+        LOG_TRACE(<< model::CStringStore::names().m_Strings);
+        LOG_TRACE(<< model::CStringStore::influencers().m_Strings);
 
         BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
         BOOST_TEST_REQUIRE(this->influencerExists("Walton"));

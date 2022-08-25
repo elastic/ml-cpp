@@ -13,12 +13,14 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CMemoryDef.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/analytics/CBoostedTreeImpl.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
+#include <maths/analytics/CDataFrameCategoryEncoder.h>
 
 #include <maths/common/CLinearAlgebraPersist.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -38,6 +40,7 @@ namespace {
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
 const std::string CURVATURE_TAG{"curvature"};
 const std::string GAIN_TAG{"gain"};
+const std::string GAIN_VARIANCE_TAG{"gain_variance"};
 const std::string LEFT_CHILD_TAG{"left_child"};
 const std::string MISSING_SPLIT_TAG{"missing_split_tag"};
 const std::string NODE_VALUE_TAG{"node_value"};
@@ -59,8 +62,8 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrame
         return index;
     }
     return this->assignToLeft(row)
-               ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
-               : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
+               ? tree[*m_LeftChild].leafIndex(row, tree, *m_LeftChild)
+               : tree[*m_RightChild].leafIndex(row, tree, *m_RightChild);
 }
 
 bool CBoostedTreeNode::assignToLeft(const CEncodedDataFrameRowRef& row) const {
@@ -77,10 +80,8 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const TRowRef& row,
         return index;
     }
     return this->assignToLeft(row, extraColumns)
-               ? tree[m_LeftChild.get()].leafIndex(row, extraColumns, tree,
-                                                   m_LeftChild.get())
-               : tree[m_RightChild.get()].leafIndex(row, extraColumns, tree,
-                                                    m_RightChild.get());
+               ? tree[*m_LeftChild].leafIndex(row, extraColumns, tree, *m_LeftChild)
+               : tree[*m_RightChild].leafIndex(row, extraColumns, tree, *m_RightChild);
 }
 
 bool CBoostedTreeNode::assignToLeft(const TRowRef& row, const TSizeVec& extraColumns) const {
@@ -97,6 +98,7 @@ CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
                         double splitValue,
                         bool assignMissingToLeft,
                         double gain,
+                        double gainVariance,
                         double curvature,
                         TNodeVec& tree) {
     m_SplitFeature = splitFeature;
@@ -113,8 +115,9 @@ CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
     m_LeftChild = static_cast<TNodeIndex>(tree.size());
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
+    m_GainVariance = gainVariance;
     m_Curvature = curvature;
-    TNodeIndexNodeIndexPr result{m_LeftChild.get(), m_RightChild.get()};
+    TNodeIndexNodeIndexPr result{*m_LeftChild, *m_RightChild};
     // Don't access members after calling resize because this object is likely an
     // element of the vector being resized.
     tree.resize(tree.size() + 2);
@@ -122,7 +125,7 @@ CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
 }
 
 std::size_t CBoostedTreeNode::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_NodeValue);
+    return core::memory::dynamicSize(m_NodeValue);
 }
 
 std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParameters) {
@@ -149,6 +152,7 @@ void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(CURVATURE_TAG, m_Curvature, inserter);
     core::CPersistUtils::persist(GAIN_TAG, m_Gain, inserter);
+    core::CPersistUtils::persist(GAIN_VARIANCE_TAG, m_GainVariance, inserter);
     core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
     core::CPersistUtils::persist(MISSING_SPLIT_TAG,
                                  static_cast<std::size_t>(m_MissingSplit), inserter);
@@ -169,6 +173,8 @@ bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(CURVATURE_TAG,
                 core::CPersistUtils::restore(CURVATURE_TAG, m_Curvature, traverser))
         RESTORE(GAIN_TAG, core::CPersistUtils::restore(GAIN_TAG, m_Gain, traverser))
+        RESTORE(GAIN_VARIANCE_TAG,
+                core::CPersistUtils::restore(GAIN_VARIANCE_TAG, m_GainVariance, traverser))
         RESTORE(LEFT_CHILD_TAG,
                 core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
         RESTORE_SETUP_TEARDOWN(
@@ -205,8 +211,8 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
         result << m_NodeValue;
     } else {
         result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
-        tree[m_LeftChild.get()].doPrint(pad + "  ", tree, result);
-        tree[m_RightChild.get()].doPrint(pad + "  ", tree, result);
+        tree[*m_LeftChild].doPrint(pad + "  ", tree, result);
+        tree[*m_RightChild].doPrint(pad + "  ", tree, result);
     }
     return result;
 }
@@ -226,7 +232,7 @@ std::size_t CBoostedTreeNode::numberSamples() const {
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
-                           TImplUPtr&& impl)
+                           TImplUPtr&& impl) noexcept
     : CDataFramePredictiveModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
@@ -236,7 +242,14 @@ void CBoostedTree::train() {
     m_Impl->train(this->frame(), this->trainingStateRecorder());
 }
 
-void CBoostedTree::predict() const {
+void CBoostedTree::trainIncremental() {
+    m_Impl->trainIncremental(this->frame(), this->trainingStateRecorder());
+}
+
+void CBoostedTree::predict(bool newDataOnly) const {
+    if (newDataOnly) {
+        m_Impl->predict(m_Impl->newTrainingRowMask(), this->frame());
+    }
     m_Impl->predict(this->frame());
 }
 
@@ -248,28 +261,42 @@ CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportanc
     return m_Impl->hyperparameters().importances();
 }
 
-std::size_t CBoostedTree::numberTrainingRows() const {
-    return static_cast<std::size_t>(m_Impl->allTrainingRowsMask().manhattan());
+std::size_t CBoostedTree::numberTrainRows() const {
+    return static_cast<std::size_t>(m_Impl->allTrainingRowMask().manhattan() + 0.5);
+}
+
+double CBoostedTree::lossGap() const {
+    return m_Impl->hyperparameters().bestForestLossGap();
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
 
-CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {
+const core::CPackedBitVector& CBoostedTree::newTrainingRowMask() const {
+    return m_Impl->newTrainingRowMask();
+}
+
+CBoostedTree::TDouble2Vec CBoostedTree::prediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
-        .transform(boosted_tree_detail::readPrediction(row, m_Impl->extraColumns(),
-                                                       loss.numberParameters()))
+        .transform(readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
         .to<TDouble2Vec>();
 }
 
-CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
+CBoostedTree::TDouble2Vec CBoostedTree::previousPrediction(const TRowRef& row) const {
+    const auto& loss = m_Impl->loss();
+    return loss
+        .transform(readPreviousPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
+        .to<TDouble2Vec>();
+}
+
+CBoostedTree::TDouble2Vec CBoostedTree::adjustedPrediction(const TRowRef& row) const {
 
     const auto& loss = m_Impl->loss();
 
-    auto prediction = loss.transform(boosted_tree_detail::readPrediction(
-        row, m_Impl->extraColumns(), loss.numberParameters()));
+    auto prediction = loss.transform(
+        readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()));
 
     switch (loss.type()) {
     case E_BinaryClassification:
@@ -285,16 +312,16 @@ CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& r
     return prediction.to<TDouble2Vec>();
 }
 
+core::CPackedBitVector CBoostedTree::dataSummarization() const {
+    return m_Impl->dataSummarization(this->frame());
+}
+
+const CDataFrameCategoryEncoder& CBoostedTree::categoryEncoder() const {
+    return m_Impl->encoder();
+}
+
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
-}
-
-CBoostedTreeImpl& CBoostedTree::impl() {
-    return *m_Impl;
-}
-
-const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
-    return m_Impl->featureSampleProbabilities();
 }
 
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -307,6 +334,14 @@ void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) 
 
 void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
     m_Impl->accept(visitor);
+}
+
+CBoostedTreeImpl& CBoostedTree::impl() const {
+    return *m_Impl;
+}
+
+const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
+    return m_Impl->featureSampleProbabilities();
 }
 
 const CBoostedTreeHyperparameters& CBoostedTree::hyperparameters() const {

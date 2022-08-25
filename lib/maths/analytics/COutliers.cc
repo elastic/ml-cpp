@@ -15,14 +15,15 @@
 #include <limits>
 #include <maths/analytics/COutliers.h>
 
-#include <core/CAlignment.h>
 #include <core/CDataFrame.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CTools.h>
@@ -58,7 +59,7 @@ double shift(double score) {
 
 template<typename T>
 std::int64_t signedMemoryUsage(const T& obj) {
-    return static_cast<std::int64_t>(core::CMemory::dynamicSize(obj));
+    return static_cast<std::int64_t>(core::memory::dynamicSize(obj));
 }
 
 //! \brief This encapsulates creating a collection of models used for outlier
@@ -141,7 +142,7 @@ public:
         TDouble1Vec compute(double pOutlier) const;
 
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_State);
+            return core::memory::dynamicSize(m_State);
         }
 
         static std::size_t estimateMemoryUsage(std::size_t numberInfluences) {
@@ -330,7 +331,7 @@ CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories,
         model.proportionOfRuntimePerMethod(1.0 / static_cast<double>(m_Models.size()));
     }
 
-    m_RecordMemoryUsage(core::CMemory::dynamicSize(m_Models));
+    m_RecordMemoryUsage(core::memory::dynamicSize(m_Models));
 }
 
 template<typename POINT>
@@ -394,7 +395,7 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     LOG_TRACE(<< "Computing outlier scores for\n" << this->print());
 
     TScorerVec scores(points.size());
-    m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
+    m_RecordMemoryUsage(core::memory::dynamicSize(scores));
 
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
@@ -602,25 +603,13 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
 
     auto pOutlierGiven = [] {
         static const TDoubleVec LOG_KNOTS{
-            common::CTools::fastLog(std::numeric_limits<double>::min()),
-            common::CTools::fastLog(1e-5),
-            common::CTools::fastLog(1e-3),
-            common::CTools::fastLog(0.01),
-            common::CTools::fastLog(0.1),
-            common::CTools::fastLog(0.2),
-            common::CTools::fastLog(0.4),
-            common::CTools::fastLog(0.5),
-            common::CTools::fastLog(0.6),
-            common::CTools::fastLog(0.8),
-            common::CTools::fastLog(1.0)};
-        static const TDoubleVec KNOTS_P_OUTLIER{
-            0.9999, 0.99, 0.96, 0.82, 0.67, 0.62, 0.51, 0.5, 0.5, 0.35, 0.33};
-        static common::CSpline<> P_OUTLIER{[&] {
-            common::CSpline<> result{common::CSplineTypes::E_Linear};
-            result.interpolate(LOG_KNOTS, KNOTS_P_OUTLIER,
-                               common::CSplineTypes::E_ParabolicRunout);
-            return result;
-        }()};
+            common::CTools::fastLog(1e-5), common::CTools::fastLog(1e-3),
+            common::CTools::fastLog(0.01), common::CTools::fastLog(0.1),
+            common::CTools::fastLog(0.2),  common::CTools::fastLog(0.4),
+            common::CTools::fastLog(0.5),  common::CTools::fastLog(0.6),
+            common::CTools::fastLog(0.8),  common::CTools::fastLog(1.0)};
+        static const TDoubleVec KNOTS_P_OUTLIER{0.98, 0.87, 0.76, 0.65, 0.6,
+                                                0.5,  0.5,  0.5,  0.3,  0.3};
 
         return [&](double cdfComplement) {
             double logCdfComplement{common::CTools::fastLog(

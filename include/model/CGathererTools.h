@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CGathererTools_h
 #define INCLUDED_ml_model_CGathererTools_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
@@ -27,14 +27,13 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -60,15 +59,12 @@ namespace model {
 class MODEL_EXPORT CGathererTools {
 public:
     using TDoubleVec = std::vector<double>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TSampleVec = std::vector<CSample>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMedianAccumulator =
-        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_PiecewiseConstant, 30>;
-    using TMinAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
-    using TMaxAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    using TMedianAccumulator = maths::common::CFixedQuantileSketch<30>;
+    using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
+    using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
     using TVarianceAccumulator =
         maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;
@@ -222,7 +218,7 @@ public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TStrVec = std::vector<std::string>;
         using TStrVecCItr = TStrVec::const_iterator;
-        using TOptionalStr = boost::optional<std::string>;
+        using TOptionalStr = std::optional<std::string>;
         using TOptionalStrVec = std::vector<TOptionalStr>;
         using TSampleVecQueue = CBucketQueue<TSampleVec>;
         using TSampleVecQueueItr = TSampleVecQueue::iterator;

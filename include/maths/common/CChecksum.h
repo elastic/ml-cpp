@@ -13,27 +13,25 @@
 #define INCLUDED_ml_maths_common_CChecksum_h
 
 #include <core/CHashing.h>
-#include <core/CIEEE754.h>
-#include <core/CStoredStringPtr.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/ImportExport.h>
-#include <maths/common/MathsTypes.h>
 
-#include <boost/optional/optional.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
 #include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 namespace ml {
+namespace core {
+class CStoredStringPtr;
+}
 namespace maths {
 namespace common {
 namespace checksum_detail {
@@ -44,167 +42,124 @@ class MemberChecksumWithSeed {};
 class MemberChecksumWithoutSeed {};
 class MemberHash {};
 
-//! Auxiliary type used by has_const_iterator to test for a nested
-//! typedef.
-template<typename T, typename R = void>
-struct enable_if_type {
-    using type = R;
-};
-
-//! Auxiliary type used by has_checksum_function to test for a nested
-//! member function.
-template<typename T, T, typename R = void>
-struct enable_if_is_type {
-    using type = R;
-};
-
 //! \name Class used to select appropriate checksum implementation
 //! for containers.
-//!
-//! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for nested typedef.
-//! \note Uses the enable_if trick to get around the restriction that
-//! "A partially specialized non-type argument expression shall not
-//! involve a template parameter of the partial specialization except
-//! when the argument expression is a simple identifier" (see section
-//! 14.5.4/9 of the standard).
 //@{
 template<typename T, typename ITR = void>
 struct container_selector {
     using value = BasicChecksum;
 };
 template<typename T>
-struct container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
+struct container_selector<T, std::void_t<typename T::const_iterator>> {
     using value = ContainerChecksum;
 };
 //@}
 
 //! \name Class used to select appropriate checksum implementation.
-//!
-//! Template and partial specialization which chooses between our
-//! various checksum implementations.
-//!
-//! \note Partial specializations can't be nested classes.
-//! \note Uses SFINAE to check for checksum or hash functions.
-//! \note Uses the enable_if trick to get around the restriction that
-//! "A partially specialized non-type argument expression shall not
-//! involve a template parameter of the partial specialization except
-//! when the argument expression is a simple identifier" (see section
-//! 14.5.4/9 of the standard).
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct selector {
     using value = typename container_selector<T>::value;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::uint64_t (T::*)(std::uint64_t) const, &T::checksum>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::checksum), std::uint64_t (T::*)(std::uint64_t) const>>> {
     using value = MemberChecksumWithSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::uint64_t (T::*)() const, &T::checksum>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::checksum), std::uint64_t (T::*)() const>>> {
     using value = MemberChecksumWithoutSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::hash>::type> {
+struct selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::hash), std::size_t (T::*)() const>>> {
     using value = MemberHash;
 };
+// clang-format on
 //@}
 
 template<typename SELECTOR>
 class CChecksumImpl {};
 
+//! Convenience function to select implementation.
+template<typename T>
+std::uint64_t checksum(std::uint64_t seed, const T& target) {
+    return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target);
+}
+
 //! Basic checksum functionality implementation.
 template<>
-class CChecksumImpl<BasicChecksum> {
+class MATHS_COMMON_EXPORT CChecksumImpl<BasicChecksum> {
 public:
-    //! Checksum integral type.
-    template<typename INTEGRAL>
-    static std::uint64_t dispatch(std::uint64_t seed, INTEGRAL target) {
+    //! Checksum types castable to std::uint64_t.
+    template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>* = nullptr>
+    static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
         return core::CHashing::hashCombine(seed, static_cast<std::uint64_t>(target));
     }
 
-    //! Checksum of double.
-    static std::uint64_t dispatch(std::uint64_t seed, double target) {
-        // A fuzzy checksum implementation is useful for floating point values
-        // so we know we're close to a reasonable precision. This checksums the
-        // printed value so that it's stable over persist and restore.
-        target = core::CIEEE754::round(target, core::CIEEE754::E_SinglePrecision);
-        char buf[4 * sizeof(double)];
-        std::memset(buf, 0, sizeof(buf));
-        std::sprintf(buf, "%.7g", target);
-        return core::CHashing::safeMurmurHash64(&buf[0], 4 * sizeof(double), seed);
-    }
+    //! Checksum a double.
+    static std::uint64_t dispatch(std::uint64_t seed, double target);
 
-    //! Checksum of a universal hash function.
+    //! Checksum a universal hash function.
     static std::uint64_t
     dispatch(std::uint64_t seed,
-             const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target) {
-        seed = core::CHashing::hashCombine(seed,
-                                           static_cast<std::uint64_t>(target.a()));
-        return core::CHashing::hashCombine(seed,
-                                           static_cast<std::uint64_t>(target.b()));
-    }
+             const core::CHashing::CUniversalHash::CUInt32UnrestrictedHash& target);
 
-    //! Checksum of float storage.
-    static std::uint64_t dispatch(std::uint64_t seed, CFloatStorage target) {
-        return dispatch(seed, static_cast<double>(target));
-    }
-
-    //! Checksum of string.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target) {
-        return core::CHashing::safeMurmurHash64(
-            target.data(), static_cast<int>(target.size()), seed);
-    }
+    //! Checksum a string.
+    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target);
 
     //! Checksum a stored string pointer.
-    static std::uint64_t dispatch(std::uint64_t seed, const core::CStoredStringPtr& target) {
-        return target == nullptr ? seed : dispatch(seed, *target);
-    }
+    static std::uint64_t dispatch(std::uint64_t seed, const core::CStoredStringPtr& target);
 
-    //! Checksum of a reference_wrapper.
+    //! Checksum a reference_wrapper.
     template<typename T>
     static std::uint64_t
     dispatch(std::uint64_t seed, const std::reference_wrapper<T>& target) {
-        return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target.get());
+        return checksum(seed, target.get());
     }
 
-    //! Checksum of a optional.
+    //! Checksum an optional.
     template<typename T>
-    static std::uint64_t dispatch(std::uint64_t seed, const boost::optional<T>& target) {
-        return target == boost::none
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+    static std::uint64_t dispatch(std::uint64_t seed, const std::optional<T>& target) {
+        return target == std::nullopt ? seed : checksum(seed, *target);
     }
 
-    //! A raw pointer.
-    template<typename T>
-    static std::uint64_t dispatch(std::uint64_t seed, const T* target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+    //! Checksum a raw pointer.
+    template<typename T, std::enable_if_t<std::is_pointer_v<T> || std::is_null_pointer_v<T>>* = nullptr>
+    static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a shared pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::shared_ptr<T>& target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a unique pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::unique_ptr<T>& target) {
-        return target == nullptr
-                   ? seed
-                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target == nullptr ? seed : checksum(seed, *target);
     }
 
     //! Checksum a pair.
     template<typename U, typename V>
     static std::uint64_t dispatch(std::uint64_t seed, const std::pair<U, V>& target) {
-        seed = CChecksumImpl<typename selector<U>::value>::dispatch(seed, target.first);
-        return CChecksumImpl<typename selector<V>::value>::dispatch(seed, target.second);
+        seed = checksum(seed, target.first);
+        return checksum(seed, target.second);
+    }
+
+    //! Checksum a tuple.
+    template<typename... T>
+    static std::uint64_t dispatch(std::uint64_t seed, const std::tuple<T...>& target) {
+        std::apply(
+            [&](const auto&... element) {
+                ((seed = checksum(seed, element)), ...);
+            },
+            target);
+        return seed;
     }
 
     //! Checksum an Eigen dense vector.
@@ -240,16 +195,14 @@ public:
     template<typename VECTOR, typename ANNOTATION>
     static std::uint64_t
     dispatch(std::uint64_t seed, const CAnnotatedVector<VECTOR, ANNOTATION>& target) {
-        seed = CChecksumImpl<typename selector<VECTOR>::value>::dispatch(
-            seed, static_cast<const VECTOR&>(target));
-        return CChecksumImpl<typename selector<ANNOTATION>::value>::dispatch(
-            seed, target.annotation());
+        seed = checksum(seed, static_cast<const VECTOR&>(target));
+        return checksum(seed, target.annotation());
     }
 };
 
 //! Type with checksum member function implementation.
 template<>
-class CChecksumImpl<MemberChecksumWithSeed> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberChecksumWithSeed> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -260,7 +213,7 @@ public:
 
 //! Type with checksum member function implementation.
 template<>
-class CChecksumImpl<MemberChecksumWithoutSeed> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberChecksumWithoutSeed> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -271,7 +224,7 @@ public:
 
 //! Type with hash member function implementation.
 template<>
-class CChecksumImpl<MemberHash> {
+class MATHS_COMMON_EXPORT CChecksumImpl<MemberHash> {
 public:
     //! Call member checksum.
     template<typename T>
@@ -283,15 +236,14 @@ public:
 
 //! Container checksum implementation.
 template<>
-class CChecksumImpl<ContainerChecksum> {
+class MATHS_COMMON_EXPORT CChecksumImpl<ContainerChecksum> {
 public:
     //! Call on elements.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
         std::uint64_t result{seed};
         for (const auto& element : target) {
-            result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(
-                result, element);
+            result = checksum(result, element);
         }
         return result;
     }
@@ -301,24 +253,22 @@ public:
     //! \note The default implementation generates a compiler warning for
     //! std::vector<bool> because its operator[] doesn't return by reference.
     //! In any case, the std::hash specialisation is more efficient.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::vector<bool>& target) {
-        return core::CHashing::hashCombine(seed, ms_VectorBoolHasher(target));
-    }
+    static std::uint64_t dispatch(std::uint64_t seed, const std::vector<bool>& target);
 
     //! Stable hash of unordered set.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const boost::unordered_set<T>& target) {
-        using TCRef = std::reference_wrapper<const T>;
-        using TCRefVec = std::vector<TCRef>;
+        using TCRefVec = std::vector<std::reference_wrapper<const std::remove_cv_t<T>>>;
 
         TCRefVec ordered;
         ordered.reserve(target.size());
         for (const auto& element : target) {
-            ordered.push_back(TCRef(element));
+            ordered.emplace_back(element);
         }
 
-        std::sort(ordered.begin(), ordered.end(),
-                  maths::common::COrderings::SReferenceLess());
+        std::sort(ordered.begin(), ordered.end(), [](const auto& lhs, const auto& rhs) {
+            return core::unwrap_ref(lhs) < core::unwrap_ref(rhs);
+        });
 
         return dispatch(seed, ordered);
     }
@@ -327,10 +277,9 @@ public:
     template<typename U, typename V>
     static std::uint64_t
     dispatch(std::uint64_t seed, const boost::unordered_map<U, V>& target) {
-        using TUCRef = std::reference_wrapper<const U>;
-        using TVCRef = std::reference_wrapper<const V>;
-        using TUCRefVCRefPr = std::pair<TUCRef, TVCRef>;
-        using TUCRefVCRefPrVec = std::vector<TUCRefVCRefPr>;
+        using TUCRef = std::reference_wrapper<const std::remove_cv_t<U>>;
+        using TVCRef = std::reference_wrapper<const std::remove_cv_t<V>>;
+        using TUCRefVCRefPrVec = std::vector<std::pair<TUCRef, TVCRef>>;
 
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());
@@ -338,26 +287,16 @@ public:
             ordered.emplace_back(TUCRef{element.first}, TVCRef{element.second});
         }
 
-        std::sort(ordered.begin(), ordered.end(), maths::common::COrderings::SFirstLess());
+        std::sort(ordered.begin(), ordered.end(), [](const auto& lhs, const auto& rhs) {
+            return core::unwrap_ref(lhs.first) < core::unwrap_ref(rhs.first);
+        });
 
         return dispatch(seed, ordered);
     }
 
     //! Handle std::string which resolves to a container.
-    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target) {
-        return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
-    }
-
-private:
-    static const std::hash<std::vector<bool>> ms_VectorBoolHasher;
+    static std::uint64_t dispatch(std::uint64_t seed, const std::string& target);
 };
-
-//! Convenience function to select implementation.
-template<typename T>
-std::uint64_t checksum(std::uint64_t seed, const T& target) {
-    return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target);
-}
-
 } // checksum_detail::
 
 //! \brief Implementation of utility functionality for creating
@@ -375,18 +314,9 @@ public:
     template<typename T, std::size_t SIZE>
     static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE]) {
         for (std::size_t i = 0; i + 1 < SIZE; ++i) {
-            seed = checksum_detail::checksum(seed, target[i]);
-        }
-        return checksum_detail::checksum(seed, target[SIZE - 1]);
-    }
-
-    //! Overload for nested arrays which chains checksums.
-    template<typename T, std::size_t SIZE1, std::size_t SIZE2>
-    static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
-        for (std::size_t i = 0; i + 1 < SIZE1; ++i) {
             seed = calculate(seed, target[i]);
         }
-        return calculate(seed, target[SIZE1 - 1]);
+        return calculate(seed, target[SIZE - 1]);
     }
 };
 }

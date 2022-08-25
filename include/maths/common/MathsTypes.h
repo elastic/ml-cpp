@@ -13,13 +13,14 @@
 #define INCLUDED_ml_maths_common_t_MathsTypes_h
 
 #include <core/CFloatStorage.h>
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/ImportExport.h>
 
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -67,14 +68,14 @@ enum EDataType { E_DiscreteData, E_IntegerData, E_ContinuousData, E_MixedData };
 //!      to the sample likelihood function having its variance scaled
 //!      by "weight" w.r.t. the likelihood function corresponding
 //!      to the prior parameters.
-//!   -# WinsorisationWeight: only affects update where it basically
+//!   -# OutlierWeight: only affects update where it basically
 //!      behaves like CountWeight except for the way it interacts
 //!      with clustering.
 enum ESampleWeightStyle {
     E_SampleCountWeight,
     E_SampleSeasonalVarianceScaleWeight,
     E_SampleCountVarianceScaleWeight,
-    E_SampleWinsorisationWeight
+    E_SampleOutlierWeight
 };
 
 //! IMPORTANT: this must be kept this up-to-date with ESampleWeightStyle.
@@ -210,61 +211,53 @@ double countForUpdate(const TDoubleWeightsAry& weights);
 MATHS_COMMON_EXPORT
 TDouble10Vec countForUpdate(const TDouble10VecWeightsAry& weights);
 
-//! Get a weights array with Winsorisation weight \p weight.
+//! Get a weights array with outlier weight \p weight.
 template<typename VECTOR>
-TWeightsAry<VECTOR> winsorisationWeight(const VECTOR& weight) {
+TWeightsAry<VECTOR> outlierWeight(const VECTOR& weight) {
     TWeightsAry<VECTOR> result(CUnitWeights::unit<VECTOR>(weight));
-    result[E_SampleWinsorisationWeight] = weight;
+    result[E_SampleOutlierWeight] = weight;
     return result;
 }
 
-//! Get a weights array with Winsorisation weight \p weight.
+//! Get a weights array with outlier weight \p weight.
 MATHS_COMMON_EXPORT
-TDoubleWeightsAry winsorisationWeight(double weight);
+TDoubleWeightsAry outlierWeight(double weight);
 
-//! Get a weights array with Winsorisation weight \p weight.
+//! Get a weights array with outlier weight \p weight.
 MATHS_COMMON_EXPORT
-TDouble10VecWeightsAry winsorisationWeight(double weight, std::size_t dimension);
+TDouble10VecWeightsAry outlierWeight(double weight, std::size_t dimension);
 
-//! Set the Winsorisation weight in \p weights to \p weight.
+//! Set the outlier weight in \p weights to \p weight.
 template<typename VECTOR>
-void setWinsorisationWeight(const VECTOR& weight, TWeightsAry<VECTOR>& weights) {
-    weights[E_SampleWinsorisationWeight] = weight;
+void setOutlierWeight(const VECTOR& weight, TWeightsAry<VECTOR>& weights) {
+    weights[E_SampleOutlierWeight] = weight;
 }
 
-//! Set the Winsorisation weight in \p weights to \p weight.
+//! Set the outlier weight in \p weights to \p weight.
 MATHS_COMMON_EXPORT
-void setWinsorisationWeight(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
+void setOutlierWeight(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
 
-//! Extract the Winsorisation weight from a collection of weights.
+//! Extract the outlier weight from a collection of weights.
 template<typename VECTOR>
-const VECTOR& winsorisationWeight(const TWeightsAry<VECTOR>& weights) {
-    return weights[E_SampleWinsorisationWeight];
+const VECTOR& outlierWeight(const TWeightsAry<VECTOR>& weights) {
+    return weights[E_SampleOutlierWeight];
 }
 
-//! Check if a non-unit Winsorisation weight applies.
+//! Check if a non-unit outlier weight applies.
 MATHS_COMMON_EXPORT
 bool isWinsorised(const TDoubleWeightsAry& weights);
 
-//! Check if a non-unit Winsorisation weight applies.
+//! Check if a non-unit outlier weight applies.
 MATHS_COMMON_EXPORT
 bool isWinsorised(const TDoubleWeightsAry1Vec& weights);
 
-//! Check if a non-unit Winsorisation weight applies.
+//! Check if a non-unit outlier weight applies.
 template<typename VECTOR>
-bool isWinsorised(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleWinsorisationWeight].begin(),
-                       weights[E_SampleWinsorisationWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool isWinsorised(const TWeightsAry<VECTOR>& weights);
 
-//! Check if a non-unit Winsorisation weight applies.
+//! Check if a non-unit outlier weight applies.
 template<typename VECTOR>
-bool isWinsorised(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return isWinsorised(weight);
-    });
-}
+bool isWinsorised(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Get a weights array with seasonal variance scale \p weight.
 template<typename VECTOR>
@@ -308,19 +301,11 @@ bool hasSeasonalVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasSeasonalVarianceScale(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleSeasonalVarianceScaleWeight].begin(),
-                       weights[E_SampleSeasonalVarianceScaleWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool hasSeasonalVarianceScale(const TWeightsAry<VECTOR>& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasSeasonalVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return hasSeasonalVarianceScale(weight);
-    });
-}
+bool hasSeasonalVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Get a weights array with count variance scale \p weight.
 template<typename VECTOR>
@@ -371,19 +356,11 @@ bool hasCountVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasCountVarianceScale(const TWeightsAry<VECTOR>& weights) {
-    return std::any_of(weights[E_SampleCountVarianceScaleWeight].begin(),
-                       weights[E_SampleCountVarianceScaleWeight].end(),
-                       [](double weight) { return weight != 1.0; });
-}
+bool hasCountVarianceScale(const TWeightsAry<VECTOR>& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 template<typename VECTOR>
-bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights) {
-    return std::any_of(weights.begin(), weights.end(), [](const TWeightsAry<VECTOR>& weight) {
-        return hasCountVarianceScale(weight);
-    });
-}
+bool hasCountVarianceScale(const core::CSmallVector<TWeightsAry<VECTOR>, 1>& weights);
 
 //! Enumerates the possible probability of less likely sample calculations.
 //!

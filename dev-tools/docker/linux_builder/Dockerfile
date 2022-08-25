@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-build:22
+FROM docker.elastic.co/ml-dev/ml-linux-build:24
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
@@ -25,6 +25,8 @@ ARG SNAPSHOT=yes
 
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
+
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-x86_64.cmake
 
 # Run the build
 RUN \

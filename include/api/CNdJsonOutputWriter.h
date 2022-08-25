@@ -36,7 +36,7 @@ namespace api {
 //! whatever process consumes the output can determine where one
 //! document ends and the next starts.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Using RapidJson to do the heavy lifting.
 //!
 class API_EXPORT CNdJsonOutputWriter : public CSimpleOutputWriter {

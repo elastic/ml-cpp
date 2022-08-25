@@ -11,25 +11,18 @@
 
 #include <maths/time_series/CSignal.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/Constants.h>
+#include <core/CVectorRange.h>
 
-#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/CLeastSquaresOnlineRegression.h>
-#include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 
-#include <maths/time_series/CTimeSeriesSegmentation.h>
-
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/distributions/normal.hpp>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -370,8 +363,8 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
 
         sizeWithoutComponent = result.size();
 
-        // Exclude if there is a not too much longer period that has significantly
-        // higher autocorrelation for which we haven't seen enough repeats.
+        // Exclude if there is a similar period which has significantly higher
+        // correlation for which we haven't yet seen enough repeats.
         if (maxCorrelation < 0.8 * *std::max_element(correlations.begin() + pad,
                                                      correlations.begin() + 3 * pad / 2)) {
             break;
@@ -400,8 +393,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
             checkForSeasonalDecomposition(correlations, maxCorrelationPeriod,
                                           cutoff, maxComponents, candidatePeriods);
         }
-        LOG_TRACE(<< "candidate periods = "
-                  << core::CContainerPrinter::print(candidatePeriods));
+        LOG_TRACE(<< "candidate periods = " << candidatePeriods);
 
         // If we've already selected the candidate components or we've explained
         // nearly all the variance then stop.
@@ -430,7 +422,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
                 appendSeasonalComponentSummary(period, result);
             }
         }
-        LOG_TRACE(<< "selected periods = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "selected periods = " << result);
 
         fitSeasonalComponentsRobust(result, outlierFraction, valuesToTest, components);
 
@@ -478,7 +470,6 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
 
     std::size_t day{(week + 3) / 7};
     std::size_t weekend{(2 * week + 3) / 7};
-    std::size_t weekday{(5 * week + 3) / 7};
 
     TFloatMeanAccumulatorVec temporaryValues{values};
 
@@ -489,7 +480,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     std::size_t n{valuesToTest.size()};
     LOG_TRACE(<< "number values = " << n << "/" << values.size());
 
-    std::size_t startOfWeek{startOfWeekOverride != boost::none && *startOfWeekOverride < week
+    std::size_t startOfWeek{startOfWeekOverride != std::nullopt && *startOfWeekOverride < week
                                 ? *startOfWeekOverride
                                 : 0};
 
@@ -532,11 +523,10 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     }
     std::size_t strides[]{day, day};
     TSizeSizePr2Vec partitions[]{weekends, weekdays};
-    LOG_TRACE(<< "day = " << day << ", weekend = " << weekend << ", weekday = " << weekday);
-    LOG_TRACE(<< "weekends = " << core::CContainerPrinter::print(weekends)
-              << ", weekdays = " << core::CContainerPrinter::print(weekdays));
-    LOG_TRACE(<< "strides = " << core::CContainerPrinter::print(strides));
-    LOG_TRACE(<< "partitions = " << core::CContainerPrinter::print(partitions));
+    LOG_TRACE(<< "day = " << day << ", weekend = " << weekend);
+    LOG_TRACE(<< "weekends = " << weekends << ", weekdays = " << weekdays);
+    LOG_TRACE(<< "strides = " << strides);
+    LOG_TRACE(<< "partitions = " << partitions);
 
     // Initialize the components.
     TMeanVarAccumulatorBuffer components[]{
@@ -552,7 +542,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     };
     initialize({0, weekend}, components[WEEKEND_DAILY]);
     initialize({weekend, week}, components[WEEKDAY_DAILY]);
-    LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
+    LOG_TRACE(<< "components = " << components);
 
     TMeanAccumulator variances[std::size(components)];
     for (std::size_t i = 0; i < std::size(components); ++i) {
@@ -573,7 +563,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
 
     // Choose the best partition.
 
-    if (startOfWeekOverride != boost::none && *startOfWeekOverride < week) {
+    if (startOfWeekOverride != std::nullopt && *startOfWeekOverride < week) {
         captureVarianceAtStartOfWeek(startOfWeek);
     } else {
         // Compute the variances for each candidate partition.
@@ -782,7 +772,7 @@ bool CSignal::reweightOutliers(const TIndexPredictor& predictor,
     }
 
     outliers.sort();
-    LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
+    LOG_TRACE(<< "outliers = " << outliers);
 
     TMeanAccumulator meanDifferenceOfOutliers;
     for (std::size_t i = 0; 4 * i < outliers.count(); ++i) {
@@ -807,7 +797,7 @@ bool CSignal::reweightOutliers(const TIndexPredictor& predictor,
         common::CBasicStatistics::count(values[outlier.second]) *= weight;
         result |= (weight < 1.0);
     }
-    LOG_TRACE(<< "values - outliers = " << core::CContainerPrinter::print(values));
+    LOG_TRACE(<< "values - outliers = " << values);
 
     return result;
 }
@@ -969,13 +959,12 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                     common::CBasicStatistics::mean(values[j]),
                     common::CBasicStatistics::count(values[j]));
             }
-            LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "centres = " << centres);
 
             degreesFreedom[H0] = static_cast<double>(values.size() - period / i);
             variances[H0] = residualVariance(centres, compressedComponent);
-            LOG_TRACE(<< "degrees freedom = "
-                      << core::CContainerPrinter::print(degreesFreedom));
-            LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
+            LOG_TRACE(<< "degrees freedom = " << degreesFreedom);
+            LOG_TRACE(<< "variances = " << variances);
 
             if (common::CStatisticalTests::rightTailFTest(
                     variances[H0], variances[1 - H0], degreesFreedom[H0],
@@ -1169,7 +1158,7 @@ void CSignal::doFitSeasonalComponents(const TSeasonalComponentVec& periods,
         return;
     }
 
-    LOG_TRACE(<< "periods = " << core::CContainerPrinter::print(periods));
+    LOG_TRACE(<< "periods = " << periods);
 
     components.resize(periods.size());
     for (std::size_t i = 0; i < periods.size(); ++i) {

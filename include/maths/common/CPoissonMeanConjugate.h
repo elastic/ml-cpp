@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CPoissonMeanConjugate_h
 #define INCLUDED_ml_maths_common_CPoissonMeanConjugate_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CPrior.h>

@@ -11,10 +11,12 @@
 
 #include <maths/common/CMultivariateMultimodalPrior.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CSampling.h>
+
+#include <numeric>
+#include <set>
 
 namespace ml {
 namespace maths {
@@ -52,7 +54,7 @@ jointLogMarginalLikelihood(const TModeVec& modes,
         // We re-normalize so that the maximum log likelihood is one
         // to avoid underflow.
         modeLogLikelihoods.clear();
-        double maxLogLikelihood = boost::numeric::bounds<double>::lowest();
+        double maxLogLikelihood = std::numeric_limits<double>::lowest();
 
         for (std::size_t i = 0; i < modes.size(); ++i) {
             double modeLogLikelihood;
@@ -78,12 +80,11 @@ jointLogMarginalLikelihood(const TModeVec& modes,
             // and pollute the floating point environment. This
             // may cause issues for some library function
             // implementations (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
-        LOG_TRACE(<< "modeLogLikelihoods = "
-                  << core::CContainerPrinter::print(modeLogLikelihoods));
+        LOG_TRACE(<< "modeLogLikelihoods = " << modeLogLikelihoods);
 
         double sampleLikelihood = 0.0;
         double Z = 0.0;
@@ -98,8 +99,7 @@ jointLogMarginalLikelihood(const TModeVec& modes,
         sampleLikelihood /= Z;
         result = (std::log(sampleLikelihood) + maxLogLikelihood);
 
-        LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample)
-                  << ", maxLogLikelihood = " << maxLogLikelihood
+        LOG_TRACE(<< "sample = " << sample << ", maxLogLikelihood = " << maxLogLikelihood
                   << ", sampleLogLikelihood = " << result);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
@@ -136,8 +136,7 @@ void sampleMarginalLikelihood(const TModeVec& modes,
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
-    LOG_TRACE(<< "normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-              << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "normalizedWeights = " << normalizedWeights << ", sampling = " << sampling);
 
     if (sampling.size() != modes.size()) {
         LOG_ERROR(<< "Failed to sample marginal likelihood");
@@ -149,10 +148,10 @@ void sampleMarginalLikelihood(const TModeVec& modes,
     for (std::size_t i = 0; i < modes.size(); ++i) {
         modes[i].s_Prior->sampleMarginalLikelihood(sampling[i], modeSamples);
         LOG_TRACE(<< "# modeSamples = " << modeSamples.size());
-        LOG_TRACE(<< "modeSamples = " << core::CContainerPrinter::print(modeSamples));
+        LOG_TRACE(<< "modeSamples = " << modeSamples);
         std::copy(modeSamples.begin(), modeSamples.end(), std::back_inserter(samples));
     }
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
@@ -231,7 +230,7 @@ void modeMergeCallback(std::size_t dimension,
         wr /= Z;
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << samples);
     LOG_TRACE(<< "w = " << w << ", wl = " << wl << ", wr = " << wr);
 
     double ws = std::min(w, 4.0);

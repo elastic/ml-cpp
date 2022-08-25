@@ -1,13 +1,9 @@
 # Using CLion with `ml-cpp`
 
-CLion 2018.2 has added support for the compilation database project format. This tutorial shows how to create a
-compilation database for the `ml-cpp` project and integrate it with CLion. 
-
-Note that from version 2020.2 CLion has support for [Makefile Projects](https://www.jetbrains.com/help/clion/makefiles-support.html).
-While Makefile projects simplify the initial import of the project into CLion some major deficiencies exist, including 
-the inability to include header files and unit test files in the project index. For this reason it is still recommended 
-that the compilation database project format be used.
-
+Previous versions of `ml-cpp` provided instructions on how to configure `CLion` using a compilation database format or 
+a Makefile project. Those methods of integrating `CLion` with the `ml-cpp` repository have now been superseded by
+creating a `CMake` project. Before proceeding further delete any pre-existing `.idea` directory from the root of
+your `ml-cpp` repository.
 
 ## Installing prerequisites
 
@@ -20,164 +16,57 @@ by simply calling `g++` or `clang++`.
 For testing and evaluation purposes you can use [30-day trial version of CLion](https://www.jetbrains.com/clion) or
 participate on the [CLion early access program](https://www.jetbrains.com/clion/nextversion/).
 
-You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2.3 or later) with the following
-plugins:
+You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2021.3.4 or later) with the
+`File Watcher` plugin.
 
-* File Watchers
-* Makefile support
-
-You can install the plugins either during the initialization dialog, when you first start CLion, or later using the menu
+You can install plugins either during the initialization dialog, when you first start CLion, or later using the menu
 **Settings / Preferences | Plugins**.
 
-### Compilation database
 
-Install Python module [compiledb](https://github.com/nickdiego/compiledb) from PyPi:
-```
-sudo pip install compiledb
-```
+## Importing the `ml-cpp` project
 
-It is better to install the module on the system level, since it will create an executable `compiledb`, which can be
-easier integrated into CLion.
+Open `CLion` and close any existing open project. From the `Welcome to CLion` screen click on `Open` and navigate to
+your `ml-cpp` repo. 
 
+![Open Project](./open_project.png)
 
-##  Create compilation database and load it in CLion
+Ensure `CMake project` is selected and click the `OK` button. You will be presented with the `CLion` preferences
+for the `ml-cpp` project.
 
-This section took a lot of information from CLion help page [Managing Makefile
-projects](https://www.jetbrains.com/help/clion/managing-makefile-projects.html). Please, refer this page for
-additional instruction and screenshots. For more information on using compilation database in CLion, see [JetBrains
-CLion Help page](https://www.jetbrains.com/help/clion/compilation-database.html)
+![Default Configuration Options](./default_project_config_options.png)
 
-To create the compilation database file `compile_commands.json` in your project, run:
+By default `CLion` will opt for generating a `Ninja` build system. While this is a perfectly valid option, for
+better compatibility with building from the command line it is preferred to configure `CLion` to generate
+`Unix Makefiles`. To do this either select `Unix Makefiles` from the `Generator` drop-down or type 
+`-G "Unix Makefiles"` in the`CMake options` field, and add  e.g. `-j 10` to the `Build options` field. To be consistent
+with our CI builds set the build type to be `RelWithDebInfo` which will generate an optimized build with debug symbols.
+Of course if you have a specific need for it, it is always possible to switch to for another build type such as `Debug`,
+although is advisable **not** to select the `Default` build type as its behaviour may change in subsequent releases of
+`CLion`.
 
-```
-$CPP_SRC_HOME/dev-tools/init_compiledb.sh
-```
-
-Now, in CLion navigate to **File | Open** on the main menu and choose the `compile_commands.json` file or a directory
-that contains it and click **Open as Project**. All files and symbols processed during the run of `compiledb make` are
-visible and accessible from CLion.
-
-You can enable automatic reload of the project for every change in `compile_commands.json`:
- * In CLion 2018.2 set the **Use auto-import** checkbox in **Settings / Preferences | Build, Execution, Deployment | Compilation Database**.
- * From CLion 2020.2 set both the **Reload project after changes in the build scripts**
- and **Any changes** checkboxes in **Settings / Preferences | Build, Execution, Deployment | Build Tools** 
-
-To follow up the changes in the Makefiles, we can create File Watchers (you should have installed File Watchers plugin).
-Navigate to **Settings / Preferences | Tools | File Watchers** and create a new File Watcher for all files of type **GNU
-Makefile** located in the project root and subdirectories:
-
-**File type:** GNU Makefile\
-**Scope:** Project Files\
-**Program:** `$ProjectFileDir$/dev-tools/compiledb.sh`\
-**Arguments:** `$ProjectFileDir$/compile_commands.json`\
-**Working directory:** `$FileDir$`
-- [x] Auto-save edited files to trigger the watcher
-- [x] Trigger the watcher on external changes
+Make sure to leave the `Build directory` field blank as CLion will automatically determine it based on the build type
+selected. (You may need to set the `CPP_SRC_HOME`environment variable in the`Environment` field if this is missing or 
+incorrect in your environment).
 
 
-## Create custom build targets for building and testing
-
-The compilation database itself lacks the data required for **building, running and debugging** an application. However,
-you can set up the workflow by adding **custom build targets** for your compilation database project and creating custom
-**Run/Debug configurations** for these targets.
-
-### Custom build targets
-
-Let's create a custom target to build the libraries, which gives you the same behavior as running `make` in the
-project root. Go to **Settings / Preference | Build, Execution, Deployment | Custom Build Targets** and click **+** to
-add a new target. Pick the name, in this tutorial we will use the name *make build*.
-
-In the area **Toolchain** we have to specify custom tools for building and cleaning the project.
-
-For **Build:** click on **...** to open **External Tools** window and then on **+** to create a new external tool.
-
-In the window **Edit Tool** specify:
-
-**Name:** build_with_make\
-**Program:** `make`\
-**Arguments:** `-j`\
-**Working directory:** `$ProjectFileDir$`\
-**Advanced Options**
-- [x] Synchronize files after execution\
-- [x] Open console for tool output
-
-![Edit Tool Window](./edit_tool_window.png)
-
-
-Similarly, for **Clean:** create a new external tool with the following entries in the **Edit Tool** window:
-
-**Name:** clean_with_make
-**Program:** `make`\
-**Arguments:** `clean`\
-**Working directory:** `$ProjectFileDir$`\
-**Advanced Options**
-- [x] Synchronize files after execution\
-- [x] Open console for tool output
-
-Once you are done, your **Custom Build Targets** window should look similar to this:
-
-![Custom Build Targets Window](./custom_build_targets_window.png)
+![Unix Makefiles Configuration](./unix_makefiles_config.png)
 
 ### Run/Debug Configuration
 
-Once we have created the custom build target, we can use it to build projects and run/debug unit tests within the IDE.
+`CLion` integrates so closely with `CMake` projects that there should be no need for any further configuration
+to enable `Run` or `Debug` targets.
 
-Let's go to menu **Run | Edit Configurations...** and click on **+** to create a new configuration.
+However, one common thing you may want to do is to run an individual test suite or a test case, to do this you
+can click on `Edit Configurations` in the drop-down for targets, select the `Boost.test` that you're
+interested in and specify any options to the test  in the field **Program arguments**.
 
-Since we installed **Makefile support** plugin, we can add **Makefile** configuration to build the complete project:
+![Run/Debug Configurations](./run_debug_configurations.png)
 
-**Name:** `Libraries`\
-**Makefile:** Makefile\
-**Working Directory:** *<Absolute path to your project>*\
-**Arguments:** `-j ML_DEBUG=1`
-- [x] Allow parallel run
+Of course, in the instance of wanting to run an individual test suite or case it is always possible to do this directly
+in the IDE. Navigate to the test source file in question and click the green "play" button in the gutter next to the
+suite or test case name and select the desired option, e.g.
 
-I assume that you want to build the project with debug symbols activated, but, obviously, you need to remove the
-argument `ML_DEBUG=1` if you don't.
-
-It is important that you specify the environment variable `CPP_SRC_HOME`. If you specified it on the system
-level, CLion can pick it up automatically, otherwise you have to specify it explicitly in the **Environment variables**
-field. Click on the document symbol :page_facing_up: on the right of the field and either make sure that the checkbox
-**Include system environment variables** is activated and your environment variables are listed in the list below, or
-add them to the list **User environment variables** manually.
-
-You can now build the project manually by selecting the configuration `Libraries` from the configurations drop-down menu
-and clicking the green play button. Moreover, we will create a configuration for running unit tests and use `Libraries`
-as a build dependency so we ensure that the project is up-to-date every time we run those tests.
-
-Let's create another **Run/Debug Configuration** for building the `core` unit tests. Go to menu
-**Run | Edit Configurations...** and click on **+** to create a new configuration.
-
-**Name:** `Build test core`\
-**Makefile:** Makefile\
-**Working Directory:** *Navigate to `lib/core/unittest/`*\
-**Arguments:** `-j7 ML_DEBUG=1`
-- [x] Allow parallel run
-
-Finally we can create another **Run/Debug Configuration** for running unit tests for the `core` module. Again, go to **Run | Edit
-Configurations...** and click on the **+** symbol to create a new **Custom Build Application**:
-
-**Name:** `Run test core`\
-**Target:** *Select the custom build target `make build` that we created before*\
-**Executable:** *Navigate to `lib/core/unittest/` and select the `ml_test` binary*\
-If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing
-`make` in the `lib/core/unittest` directory once to create it.\
-**Working directory:** `lib/core/unittest`
-
-In the area **Before launch: Another Configuration, Build, Activate tool window** click on **+** and select **Run
-another configuration** and then **Libraries**. Make sure it is run before **Build** by using up- and down-arrows.
-
-![Run/Debug Configuration.](./run_core_test_configuration.png)
-
-If you want to run an individual test suite or a test case, you can specify those in the field **Program
-arguments**.
-
-Now, you can run and debug your code by selecting the appropriate configuration and using **play** or **debug** symbols.
-
-Once build configurations for all unit tests have bee created it is possible to create a **Run/Debug Configuration** to
-invoke them all. Go to **Run | Edit Configurations...** and click on the **+** symbol to create a new
-**Compound** configuration named e.g. `Test All`. Click on the **+** symbol repeatedly to add each of the `Build test...`
-configurations.
+![Run Individual Test](./run_single_test.png)
 
 ### Integration with `clang-format`
 
@@ -207,13 +96,14 @@ brew install --HEAD https://raw.githubusercontent.com/sowson/valgrind/master/val
 ```
 
 Once installed go to **Settings / Preference | Build, Execution, Deployment | Dynamic Analysis Tools | Valgrind**
-and specify the full path to the `valgrind` executable. `Valgrind` can now be used to analyze `run` configurations from
+and specify the full path to the `valgrind` executable. In the `Analysis options` field you may wish to add e.g.
+```
+--leak-check=full --leak-resolution=med --track-origins=yes --vgdb=no
+```
+Valgrind` can now be used to analyze `run` configurations from
 **Run | Run *Run Configuration* with Valgrind Memcheck**
 
 
-
-For more information and useful screenshots, please refer to the [Clion help page on custom build
-targets](https://www.jetbrains.com/help/clion/custom-build-targets.html). Here you can also find more information on
-[Creating new Run/Debug Configurations](https://www.jetbrains.com/help/clion/run-debug-configuration.html) as well as
+For more information and useful screenshots regarding running and debugging, please refer to the following resources:
 [running](https://www.jetbrains.com/help/clion/running-applications.html) and
 [debugging](https://www.jetbrains.com/help/clion/debugging-code.html) your code.

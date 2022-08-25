@@ -11,24 +11,20 @@
 #ifndef INCLUDED_ml_core_CTriple_h
 #define INCLUDED_ml_core_CTriple_h
 
-#include <core/CMemory.h>
-#include <core/CMemoryUsage.h>
+#include <core/CMemoryDec.h>
 
 #include <boost/functional/hash.hpp>
 #include <boost/operators.hpp>
-#include <boost/type_traits/is_pod.hpp>
 
 #include <cstddef>
 #include <ostream>
-
-#include <string.h>
 
 namespace ml {
 namespace core {
 
 //! \brief A tuple with three elements.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This implements a lightweight version of boost::tuple with syntax
 //! similar to std::pair for the case of three elements.
 //!
@@ -40,14 +36,14 @@ class CTriple
     : private boost::equality_comparable<CTriple<T1, T2, T3>, boost::partially_ordered<CTriple<T1, T2, T3>>> {
 public:
     //! See CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return memory_detail::SDynamicSizeAlwaysZero<T1>::value() &&
                memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
                memory_detail::SDynamicSizeAlwaysZero<T3>::value();
     }
 
 public:
-    CTriple() : first(), second(), third() {}
+    CTriple() = default;
     CTriple(const T1& first_, const T2& second_, const T3& third_)
         : first(first_), second(second_), third(third_) {}
 
@@ -66,7 +62,7 @@ public:
     }
 
     std::size_t hash() const {
-        std::size_t seed = 0;
+        std::size_t seed{0};
         boost::hash_combine(seed, first);
         boost::hash_combine(seed, second);
         boost::hash_combine(seed, third);
@@ -75,16 +71,16 @@ public:
 
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CTriple");
-        CMemoryDebug::dynamicSize("first", first, mem);
-        CMemoryDebug::dynamicSize("second", second, mem);
-        CMemoryDebug::dynamicSize("third", third, mem);
+        memory_debug::dynamicSize("first", first, mem);
+        memory_debug::dynamicSize("second", second, mem);
+        memory_debug::dynamicSize("third", third, mem);
     }
 
     std::size_t memoryUsage() const {
         std::size_t mem = 0;
-        mem += CMemory::dynamicSize(first);
-        mem += CMemory::dynamicSize(second);
-        mem += CMemory::dynamicSize(third);
+        mem += memory::dynamicSize(first);
+        mem += memory::dynamicSize(second);
+        mem += memory::dynamicSize(third);
         return mem;
     }
 

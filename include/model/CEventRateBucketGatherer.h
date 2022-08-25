@@ -13,22 +13,19 @@
 #define INCLUDED_ml_model_CEventRateBucketGatherer_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CChecksum.h>
-
-#include <model/CDataGatherer.h>
+#include <model/CBucketGatherer.h>
 #include <model/CFeatureData.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 
-#include <set>
+#include <any>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -70,7 +67,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the checksum of this object.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Get the memory usage of this object in a tree structure.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -96,7 +93,7 @@ private:
 //! \sa CDataGatherer.
 class MODEL_EXPORT CEventRateBucketGatherer final : public CBucketGatherer {
 public:
-    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
+    using TCategoryAnyMap = std::map<model_t::EEventRateCategory, std::any>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
     using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
@@ -244,7 +241,7 @@ public:
     //@}
 
     //! Get the checksum of this gatherer.
-    uint64_t checksum() const override;
+    std::uint64_t checksum() const override;
 
     //! Get the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;

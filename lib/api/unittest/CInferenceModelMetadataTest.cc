@@ -15,6 +15,7 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 
@@ -38,6 +39,8 @@ using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TSizeVec = std::vector<std::size_t>;
 using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }
 
 BOOST_AUTO_TEST_CASE(testJsonSchema) {
@@ -52,13 +55,15 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
 
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}
-            .predictionLambda(0.5)
-            .predictionEta(.5)
-            .predictionGamma(0.5)
-            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
-        outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .predictionLambda(0.5)
+                    .predictionEta(0.5)
+                    .predictionGamma(0.5)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
         expectedPredictions);
@@ -123,12 +128,14 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    test::CDataFrameAnalysisSpecificationFactory spec;
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
     {
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(),
+            "target", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec(
-                test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
-            outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
             TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
             analyzer, numberSamples, seed[0]);
@@ -137,47 +144,48 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(output.str()));
-        LOG_DEBUG(<< output.str());
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        // read hyperparameter into the new spec and expected predictions
+
+        // Read hyperparameter into the new spec and the expected predictions.
         for (const auto& result : results.GetArray()) {
             if (result.HasMember("model_metadata")) {
                 for (const auto& hyperparameter :
                      result["model_metadata"]["hyperparameters"].GetArray()) {
                     std::string hyperparameterName{hyperparameter["name"].GetString()};
                     if (hyperparameterName == api::CDataFrameTrainBoostedTreeRunner::ALPHA) {
-                        spec.predictionAlpha(hyperparameter["value"].GetDouble());
+                        specFactory.predictionAlpha(hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR) {
-                        spec.predictionDownsampleFactor(hyperparameter["value"].GetDouble());
+                        specFactory.predictionDownsampleFactor(
+                            hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA) {
-                        spec.predictionEta(hyperparameter["value"].GetDouble());
+                        specFactory.predictionEta(hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE) {
-                        spec.predictionEtaGrowthRatePerTree(
+                        specFactory.predictionEtaGrowthRatePerTree(
                             hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION) {
-                        spec.predictionFeatureBagFraction(
+                        specFactory.predictionFeatureBagFraction(
                             hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::GAMMA) {
-                        spec.predictionGamma(hyperparameter["value"].GetDouble());
+                        specFactory.predictionGamma(hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::LAMBDA) {
-                        spec.predictionLambda(hyperparameter["value"].GetDouble());
+                        specFactory.predictionLambda(hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT) {
-                        spec.predictionSoftTreeDepthLimit(
+                        specFactory.predictionSoftTreeDepthLimit(
                             hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE) {
-                        spec.predictionSoftTreeDepthTolerance(
+                        specFactory.predictionSoftTreeDepthTolerance(
                             hyperparameter["value"].GetDouble());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
-                        spec.predictionMaximumNumberTrees(
+                        specFactory.predictionMaximumNumberTrees(
                             hyperparameter["value"].GetUint64());
                     }
                 }
@@ -188,12 +196,16 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
             }
         }
     }
+
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberSamples);
     output.str("");
     {
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = specFactory.predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(),
+            "target", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            spec.predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
-            outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
 
         test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
             TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
@@ -203,7 +215,6 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(output.str()));
-        LOG_DEBUG(<< output.str());
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         for (const auto& result : results.GetArray()) {
             if (result.HasMember("row_results")) {
@@ -215,4 +226,58 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberSamples);
     BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
 }
+
+BOOST_AUTO_TEST_CASE(testDataSummarization) {
+    std::size_t numRows{50};
+    double summarizationFraction{0.2};
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"f1", "target", ".", "."};
+    TStrVec fieldValues{"", "", "0", ""};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .rows(numRows)
+                    .columns(2)
+                    .dataSummarizationFraction(summarizationFraction)
+                    .predictionLambda(0.5)
+                    .predictionEta(.5)
+                    .predictionGamma(0.5)
+                    .predictionAlpha(0.5)
+                    .predictionSoftTreeDepthLimit(10.0)
+                    .predictionSoftTreeDepthTolerance(1.0)
+                    .predictionMaximumNumberTrees(3)
+                    .predictionDownsampleFactor(1.0)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, numRows);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    // Read number rows of data summarization.
+    std::size_t dataSummarizationNumRows{0};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("data_summarization") &&
+                result["model_metadata"]["data_summarization"].HasMember("num_rows")) {
+                dataSummarizationNumRows =
+                    result["model_metadata"]["data_summarization"]["num_rows"].GetUint64();
+            }
+        }
+    }
+
+    // check correct number of rows up to a rounding error
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(dataSummarizationNumRows),
+                                 numRows * summarizationFraction, 1.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

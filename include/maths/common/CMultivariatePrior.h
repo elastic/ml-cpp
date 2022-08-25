@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariatePrior_h
 #define INCLUDED_ml_maths_common_CMultivariatePrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 
 #include <maths/common/Constants.h>
@@ -85,7 +85,7 @@ public:
     //! informative.
     CMultivariatePrior(maths_t::EDataType dataType, double decayRate);
 
-    virtual ~CMultivariatePrior() = default;
+    virtual ~CMultivariatePrior();
 
     //! Swap the contents of this prior and \p other.
     void swap(CMultivariatePrior& other) noexcept;
@@ -314,7 +314,7 @@ public:
     std::string printMarginalLikelihoodFunction(std::size_t x, std::size_t y) const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this component
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;

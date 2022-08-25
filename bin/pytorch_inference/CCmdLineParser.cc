@@ -36,6 +36,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logProperties,
                            std::int32_t& numThreadsPerAllocation,
                            std::int32_t& numAllocations,
+                           std::size_t& cacheMemorylimitBytes,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -63,8 +64,10 @@ bool CCmdLineParser::parse(int argc,
                         "Optionaly set number of threads used per inference request - default is 1")
             ("numAllocations", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of allocations to parallelize model forwarding - default is 1")
+            ("cacheMemorylimitBytes", boost::program_options::value<std::size_t>(),
+                        "Optional memory in bytes that the inference cache can use - default is 0 which disables caching")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
-             "Confirmation that a valid Elastic license key is in use.")
+                        "Confirmation that a valid Elastic license key is in use.")
             ;
         // clang-format on
 
@@ -118,6 +121,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("numAllocations") > 0) {
             numAllocations = vm["numAllocations"].as<std::int32_t>();
+        }
+        if (vm.count("cacheMemorylimitBytes") > 0) {
+            cacheMemorylimitBytes = vm["cacheMemorylimitBytes"].as<std::size_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =

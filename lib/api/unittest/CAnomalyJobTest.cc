@@ -31,10 +31,10 @@
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <cstdio>
 #include <fstream>
+#include <map>
 #include <sstream>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::ConstMemberIterator)
@@ -69,18 +69,14 @@ public:
 
 class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CSingleResultVisitor() : m_LastResult(0.0) {}
-
-    ~CSingleResultVisitor() override {}
-
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (!this->isSimpleCount(node) && this->isLeaf(node)) {
-            if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
+        if (!isSimpleCount(node) && isLeaf(node)) {
+            if (node.s_AnnotatedProbability.s_AttributeProbabilities.empty()) {
                 return;
             }
-            if (!node.s_Model) {
+            if (node.s_Model == nullptr) {
                 return;
             }
             const ml::model::SAttributeProbability& attribute =
@@ -94,23 +90,19 @@ public:
     double lastResults() const { return m_LastResult; }
 
 private:
-    double m_LastResult;
+    double m_LastResult{0.0};
 };
 
 class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CMultiResultVisitor() : m_LastResult(0.0) {}
-
-    ~CMultiResultVisitor() override {}
-
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (!this->isSimpleCount(node) && this->isLeaf(node)) {
-            if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
+        if (!isSimpleCount(node) && isLeaf(node)) {
+            if (node.s_AnnotatedProbability.s_AttributeProbabilities.empty()) {
                 return;
             }
-            if (!node.s_Model) {
+            if (node.s_Model == nullptr) {
                 return;
             }
             std::size_t pid;
@@ -132,19 +124,17 @@ public:
     double lastResults() const { return m_LastResult; }
 
 private:
-    double m_LastResult;
+    double m_LastResult{0.0};
 };
 
 class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CResultsScoreVisitor(int score) : m_Score(score) {}
-
-    ~CResultsScoreVisitor() override {}
+    explicit CResultsScoreVisitor(int score) : m_Score(score) {}
 
     void visit(const ml::model::CHierarchicalResults& /*results*/,
                const TNode& node,
                bool /*pivot*/) override {
-        if (this->isRoot(node)) {
+        if (isRoot(node)) {
             node.s_NormalizedAnomalyScore = m_Score;
         }
     }
@@ -161,7 +151,7 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     BOOST_TEST_REQUIRE(doc.IsArray());
 
     const rapidjson::Value& allRecords = doc.GetArray();
-    for (auto& r : allRecords.GetArray()) {
+    for (const auto& r : allRecords.GetArray()) {
         rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
         if (recordsIt != r.GetObject().MemberEnd()) {
             ++count;
@@ -175,8 +165,8 @@ bool findLine(const std::string& regex, const ml::core::CRegex::TStrVec& lines) 
     ml::core::CRegex rx;
     rx.init(regex);
     std::size_t pos = 0;
-    for (ml::core::CRegex::TStrVecCItr i = lines.begin(); i != lines.end(); ++i) {
-        if (rx.search(*i, pos)) {
+    for (const auto& line : lines) {
+        if (rx.search(line, pos)) {
             return true;
         }
     }
@@ -459,7 +449,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
     }
 
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(9, countBuckets("bucket", outputStrm.str() + "]"));
 
     // Now let's skip time to Thursday, June 29, 2017 12:00:00 AM
     time = 1498694400;
@@ -469,7 +459,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 
     // Check no new bucket results were written
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(9, countBuckets("bucket", outputStrm.str() + "]"));
 
     // Let's send a few buckets after skip time
     for (std::size_t i = 0; i < 3; ++i, time += BUCKET_SIZE) {
@@ -481,7 +471,7 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 
     // Assert only 2 new buckets were written
     wrappedOutputStream.syncFlush();
-    BOOST_REQUIRE_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(11, countBuckets("bucket", outputStrm.str() + "]"));
 }
 
 BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
@@ -844,7 +834,6 @@ BOOST_AUTO_TEST_CASE(testParsePersistControlMessageArgs) {
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
-    using TStrVec = std::vector<std::string>;
     using TStrIntMap = std::map<std::string, int>;
     // map of names of state files to the number of times the fatal error message
     // "Failed to restore time series decomposition." occurs in the output

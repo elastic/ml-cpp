@@ -14,18 +14,17 @@
 
 #include <core/CNonInstantiatable.h>
 #include <core/CStoredStringPtr.h>
-#include <core/CVectorRange.h>
 #include <core/UnwrapRef.h>
 
-#include <boost/optional/optional_fwd.hpp>
-#include <boost/tuple/tuple.hpp>
-
-#include <algorithm>
 #include <memory>
+#include <optional>
 #include <utility>
-#include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace common {
 //! \brief A collection of useful functionality to order collections
@@ -48,8 +47,6 @@ public:
     //! less than null values and otherwise compares using the type
     //! operator <.
     struct SOptionalLess {
-        using result_type = bool;
-
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator <.
         template<typename U, typename V>
@@ -58,21 +55,20 @@ public:
         }
 
         template<typename T>
-        static inline bool
-        less(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
+        static inline bool less(const std::optional<T>& lhs, const std::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) < core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
         template<typename T>
-        static inline bool less(const T& lhs, const boost::optional<T>& rhs) {
-            return !rhs ? true : ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(*rhs);
+        static inline bool less(const T& lhs, const std::optional<T>& rhs) {
+            return !rhs ? true : core::unwrap_ref(lhs) < core::unwrap_ref(*rhs);
         }
         template<typename T>
-        static inline bool less(const boost::optional<T>& lhs, const T& rhs) {
-            return !lhs ? false : ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(rhs);
+        static inline bool less(const std::optional<T>& lhs, const T& rhs) {
+            return !lhs ? false : core::unwrap_ref(*lhs) < core::unwrap_ref(rhs);
         }
     };
 
@@ -80,8 +76,6 @@ public:
     //! than non-null values and otherwise compares using the type
     //! operator >.
     struct SOptionalGreater {
-        using result_type = bool;
-
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator >.
         template<typename U, typename V>
@@ -91,20 +85,20 @@ public:
 
         template<typename T>
         static inline bool
-        greater(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
+        greater(const std::optional<T>& lhs, const std::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) > core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
         template<typename T>
-        static inline bool greater(const T& lhs, const boost::optional<T>& rhs) {
-            return !rhs ? false : ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(*rhs);
+        static inline bool greater(const T& lhs, const std::optional<T>& rhs) {
+            return !rhs ? false : core::unwrap_ref(lhs) > core::unwrap_ref(*rhs);
         }
         template<typename T>
-        static inline bool greater(const boost::optional<T>& lhs, const T& rhs) {
-            return !lhs ? true : ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(rhs);
+        static inline bool greater(const std::optional<T>& lhs, const T& rhs) {
+            return !lhs ? true : core::unwrap_ref(*lhs) > core::unwrap_ref(rhs);
         }
     };
 
@@ -112,8 +106,6 @@ public:
     //! than null values and otherwise compares using the type
     //! operator <.
     struct SPtrLess {
-        using result_type = bool;
-
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
             return less(lhs, rhs);
@@ -124,7 +116,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) < ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) < core::unwrap_ref(*rhs)
                        : rInitialized < lInitialized;
         }
     };
@@ -133,8 +125,6 @@ public:
     //! than non-null values and otherwise compares using
     //! the type operator >.
     struct SPtrGreater {
-        using result_type = bool;
-
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
             return greater(lhs, rhs);
@@ -145,7 +135,7 @@ public:
             bool lInitialized(lhs != nullptr);
             bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized
-                       ? ml::core::unwrap_ref(*lhs) > ml::core::unwrap_ref(*rhs)
+                       ? core::unwrap_ref(*lhs) > core::unwrap_ref(*rhs)
                        : rInitialized > lInitialized;
         }
     };
@@ -153,8 +143,6 @@ public:
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator <.
     struct SReferenceLess {
-        using result_type = bool;
-
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return less(lhs, rhs);
@@ -162,15 +150,13 @@ public:
 
         template<typename U, typename V>
         static inline bool less(const U& lhs, const V& rhs) {
-            return ml::core::unwrap_ref(lhs) < ml::core::unwrap_ref(rhs);
+            return core::unwrap_ref(lhs) < core::unwrap_ref(rhs);
         }
     };
 
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator >.
     struct SReferenceGreater {
-        using result_type = bool;
-
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return greater(lhs, rhs);
@@ -178,7 +164,7 @@ public:
 
         template<typename U, typename V>
         static inline bool greater(const U& lhs, const V& rhs) {
-            return ml::core::unwrap_ref(lhs) > ml::core::unwrap_ref(rhs);
+            return core::unwrap_ref(lhs) > core::unwrap_ref(rhs);
         }
     };
 
@@ -304,10 +290,8 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SLess {
-        using result_type = bool;
-
         template<typename T>
-        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
+        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalLess::less(lhs, rhs);
         }
 
@@ -349,10 +333,8 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SGreater {
-        using result_type = bool;
-
         template<typename T>
-        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
+        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SOptionalGreater::greater(lhs, rhs);
         }
 
@@ -395,8 +377,8 @@ public:
     //! Lexicographical comparison of various common types.
     //!
     //! IMPLEMENTATION DECISIONS:\n
-    //! Although these objects provide their own comparison operators
-    //! This also tuples of handles reference wrapped types.
+    //! Although pair provides its own comparison operator it doesn't properly
+    //! handle pairs of reference wrapped types.
     struct SLexicographicalCompare {
         template<typename T1, typename T2>
         inline bool operator()(const std::pair<T1, T2>& lhs,
@@ -405,39 +387,10 @@ public:
                                            rhs.second, s_Less);
         }
 
-        template<typename T1, typename T2, typename T3>
-        inline bool operator()(const boost::tuple<T1, T2, T3>& lhs,
-                               const boost::tuple<T1, T2, T3>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(),
-                lhs.template get<2>(), rhs.template get<0>(),
-                rhs.template get<1>(), rhs.template get<2>(), s_Less);
-        }
-
-        template<typename T1, typename T2, typename T3, typename T4>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4>& lhs,
-                               const boost::tuple<T1, T2, T3, T4>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(), lhs.template get<2>(),
-                lhs.template get<3>(), rhs.template get<0>(), rhs.template get<1>(),
-                rhs.template get<2>(), rhs.template get<3>(), s_Less);
-        }
-
-        template<typename T1, typename T2, typename T3, typename T4, typename T5>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4, T5>& lhs,
-                               const boost::tuple<T1, T2, T3, T4, T5>& rhs) const {
-            return lexicographical_compare(
-                lhs.template get<0>(), lhs.template get<1>(),
-                lhs.template get<2>(), lhs.template get<3>(), lhs.template get<4>(),
-                rhs.template get<0>(), rhs.template get<1>(), rhs.template get<2>(),
-                rhs.template get<3>(), rhs.template get<4>(), s_Less);
-        }
-
         SLess s_Less;
     };
 
-    //! \brief Partial ordering of std::pairs and some boost::tuples based
-    //! on smaller first element.
+    //! \brief Partial ordering of std::pairs on smaller first element.
     //!
     //! \note That while this functionality can be implemented by boost
     //! bind, since it overloads the comparison operators, the resulting
@@ -458,46 +411,12 @@ public:
             return s_Less(lhs.first, rhs);
         }
 
-#define TUPLE_FIRST_LESS                                                                  \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs,                        \
-                           const boost::tuple<TEMPLATE_ARGS>& rhs) const {                \
-        return s_Less(lhs.template get<0>(), rhs.template get<0>());                      \
-    }                                                                                     \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const T1& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const { \
-        return s_Less(lhs, rhs.template get<0>());                                        \
-    }                                                                                     \
-    template<TEMPLATE_ARGS_DECL>                                                          \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const T1& rhs) const { \
-        return s_Less(lhs.template get<0>(), rhs);                                        \
-    }
-
-#define TEMPLATE_ARGS_DECL typename T1, typename T2, typename T3
-#define TEMPLATE_ARGS T1, T2, T3
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#define TEMPLATE_ARGS_DECL typename T1, typename T2, typename T3, typename T4
-#define TEMPLATE_ARGS T1, T2, T3, T4
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#define TEMPLATE_ARGS_DECL                                                     \
-    typename T1, typename T2, typename T3, typename T4, typename T5
-#define TEMPLATE_ARGS T1, T2, T3, T4, T5
-        TUPLE_FIRST_LESS
-#undef TEMPLATE_ARGS
-#undef TEMPLATE_ARGS_DECL
-#undef TUPLE_FIRST_LESS
-
         SLess s_Less;
     };
 
-    //! \brief Partial ordering of std::pairs and some boost::tuples based
-    //! on larger first element.
+    //! \brief Partial ordering of std::pairs based on larger first element.
     //!
-    //! \note That while this functionality can be implemented by boost
+    //! \note That while this functionality can be implemented by bind
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
     struct SFirstGreater {
@@ -612,7 +531,7 @@ private:
     template<typename KEY_VECTOR, typename COMP = std::less<typename KEY_VECTOR::value_type>>
     class CIndexLess {
     public:
-        CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
+        explicit CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
             : m_Keys(&keys), m_Comp(comp) {}
 
         bool operator()(std::size_t lhs, std::size_t rhs) {
@@ -625,59 +544,10 @@ private:
     };
 
 public:
-    // The logic in this function is rather subtle because we want to
-    // sort the collections in place. In particular, we create a sorted
-    // collection of indices where each index tells us where to get the
-    // element from at that location and we want to re-order all the
-    // collections by that ordering in place. If an index matches its
-    // position then we can move to the next position. Otherwise, we
-    // need to swap the items at the index in to its position. To work
-    // in place we need to do something with the items which are displaced.
-    // If these are the items required at the swapped in position then
-    // we are done. Otherwise, we just repeat until we find this position.
-    // It is easy to verify that this process finds a closed cycle with
-    // at most N steps. Each time a swap is made at least one more item
-    // is in its correct place, and we update the ordering accordingly.
-    // So the containers are sorted in at most O(N) additional steps to
-    // the N * log(N) taken to sort the indices.
-#define SIMULTANEOUS_SORT_IMPL                                                 \
-    if (std::is_sorted(keys.begin(), keys.end(), comp)) {                      \
-        return true;                                                           \
-    }                                                                          \
-    using TSizeVec = std::vector<std::size_t>;                                 \
-    TSizeVec ordering;                                                         \
-    ordering.reserve(keys.size());                                             \
-    for (std::size_t i = 0; i < keys.size(); ++i) {                            \
-        ordering.push_back(i);                                                 \
-    }                                                                          \
-    std::stable_sort(ordering.begin(), ordering.end(),                         \
-                     CIndexLess<KEY_VECTOR, COMP>(keys, comp));                \
-    for (std::size_t i = 0; i < ordering.size(); ++i) {                        \
-        std::size_t j_ = i;                                                    \
-        std::size_t j = ordering[j_];                                          \
-        while (i != j) {                                                       \
-            using std::swap;                                                   \
-            swap(keys[j_], keys[j]);                                           \
-            CUSTOM_SWAP_VALUES                                                 \
-            ordering[j_] = j_;                                                 \
-            j_ = j;                                                            \
-            j = ordering[j_];                                                  \
-        }                                                                      \
-        ordering[j_] = j_;                                                     \
-    }                                                                          \
-    return true;
-
-#define CUSTOM_SWAP_VALUES swap(values[j_], values[j]);
     //! Simultaneously sort \p keys and \p values using the \p comp
     //! order of \p keys.
     template<typename KEY_VECTOR, typename VALUE_VECTOR, typename COMP>
-    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
-        if (keys.size() != values.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values) {
@@ -692,22 +562,13 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);
     //! Simultaneously sort \p keys, \p values1 and \p values2
     //! using the \p comp order of \p keys.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
     static bool simultaneousSort(KEY_VECTOR& keys,
                                  VALUE1_VECTOR& values1,
                                  VALUE2_VECTOR& values2,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
     static bool
@@ -724,10 +585,6 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2
     //! and \p values3 using the \p comp order of \p keys.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename COMP>
@@ -735,14 +592,7 @@ public:
                                  VALUE1_VECTOR& values1,
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys,
@@ -762,11 +612,6 @@ public:
                                 std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);                                             \
-    swap(values4[j_], values4[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2,
     //! \p values3 and \p values4 using the \p comp order of
     //! \p keys.
@@ -776,14 +621,7 @@ public:
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
                                  VALUE4_VECTOR& values4,
-                                 const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size() || values3.size() != values4.size()) {
-            return false;
-        }
-        SIMULTANEOUS_SORT_IMPL
-    }
-#undef CUSTOM_SWAP_VALUES
+                                 const COMP& comp);
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename VALUE4_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys,
@@ -804,8 +642,6 @@ public:
         return simultaneousSort(keys, values1, values2, values3, values4,
                                 std::less<typename KEY_VECTOR::value_type>());
     }
-
-#undef SIMULTANEOUS_SORT_IMPL
     //@}
 };
 }

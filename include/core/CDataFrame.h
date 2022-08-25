@@ -15,11 +15,9 @@
 #include <core/CAlignment.h>
 #include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
-#include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <algorithm>
@@ -28,6 +26,7 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace ml {
@@ -35,6 +34,8 @@ namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
 class CTemporaryDirectory;
+template<typename VECTOR>
+class CVectorRange;
 
 namespace data_frame_detail {
 
@@ -64,7 +65,7 @@ private:
     const CPackedBitVector::COneBitIndexConstIterator* m_EndMaskedRows;
 };
 
-using TOptionalPopMaskedRow = boost::optional<CPopMaskedRow>;
+using TOptionalPopMaskedRow = std::optional<CPopMaskedRow>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -194,7 +195,7 @@ private:
 //! to hold one or more additional columns. Resizing is a heavyweight operation
 //! and should be minimized.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is a fairly lightweight container which is essentially responsible
 //! for managing the read and write process to some underlying store format.
 //! The store format is determined by the user implementing functionality to
@@ -232,6 +233,7 @@ public:
     using TBoolVec = std::vector<bool>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecSizePr = std::pair<TSizeVec, std::size_t>;
+    using TPtrdiffVec = std::vector<std::ptrdiff_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TStrCRng = CVectorRange<const TStrVec>;
@@ -326,6 +328,11 @@ public:
     //! \warning This only supports alignments less than or equal the row alignment.
     TSizeVecSizePr resizeColumns(std::size_t numberThreads,
                                  const TSizeAlignmentPrVec& extraColumns);
+
+    //! Resize to contain \p numberRows rows.
+    //!
+    //! \param[in] numberRows The desired number of rows.
+    void resizeRows(std::size_t numberRows);
 
     //! This reads rows using one or more readers.
     //!
@@ -467,7 +474,14 @@ public:
     }
 
     //! Parses the strings in \p columnValues and writes one row via writeRow.
-    void parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash = nullptr);
+    //!
+    //! \param[in] columnValues The column values.
+    //! \param[in] columnMap If non-null defines a map between columnValues and
+    //! their position in the data frame. Negative values denote missing columns.
+    //! \param[in] hash If non-null a hash which identifies the row document.
+    void parseAndWriteRow(const TStrCRng& columnValues,
+                          const TPtrdiffVec* columnMap = nullptr,
+                          const std::string* hash = nullptr);
 
     //! This writes a single row of the data frame via a callback.
     //!
@@ -485,8 +499,14 @@ public:
     //! writing rows.
     void writeRow(const TWriteFunc& writeRow);
 
+    //! Check if this has named columns.
+    bool hasColumnNames() const;
+
     //! Write the column names.
     void columnNames(TStrVec columnNames);
+
+    //! Get the string which is used to indicate a value is missing.
+    const std::string& missingString() const;
 
     //! Write the string which indicates that a value is missing.
     void missingString(std::string missing);
@@ -497,11 +517,12 @@ public:
     //! Write which columns contain categorical data.
     void categoricalColumns(TBoolVec columnIsCategorical);
 
-    //! This retrieves the asynchronous work from writing the rows to the store
-    //! and updates the stored rows.
-    //!
-    //! Until this is called the written rows are not visible outside the data
-    //! frame.
+    //! Write the values of the categories for each column.
+    void categoricalColumnValues(TStrVecVec categoricalColumnValues);
+
+    //! This finishes the asynchronous task of writing rows to the store and
+    //! publishes them. Until this is called the written rows are not visible
+    //! outside the data frame.
     //!
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
@@ -532,6 +553,11 @@ public:
     //! Get the value to use for a missing element in a data frame.
     static constexpr double valueOfMissing() {
         return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Check if \p value is missing.
+    static bool isMissing(double value) {
+        return std::isfinite(value) == false;
     }
 
 private:
@@ -571,6 +597,8 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
+    void fillCategoricalColumnValueLookup();
+
     bool parallelApplyToAllRows(std::size_t beginRows,
                                 std::size_t endRows,
                                 TRowFuncVec& funcs,
@@ -601,7 +629,7 @@ private:
     //! True if the data frame resides in main memory.
     bool m_InMainMemory;
     //! The number of rows in the data frame.
-    std::size_t m_NumberRows = 0;
+    std::size_t m_NumberRows{0};
     //! The number of columns in the data frame.
     std::size_t m_NumberColumns;
     //! The number of columns a row could contain. This is greater than or
@@ -634,9 +662,9 @@ private:
 
     //! \name Parse Counters
     //@{
-    std::uint64_t m_MissingValueCount = 0;
-    std::uint64_t m_BadValueCount = 0;
-    std::uint64_t m_BadDocHashCount = 0;
+    std::uint64_t m_MissingValueCount{0};
+    std::uint64_t m_BadValueCount{0};
+    std::uint64_t m_BadDocHashCount{0};
     //@}
 
     //! The stored slices.
@@ -663,7 +691,7 @@ std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
 CORE_EXPORT
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         std::optional<std::size_t> sliceCapacity = std::nullopt,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                              CDataFrame::EReadWriteToStorage::E_Sync,
                          CAlignment::EType alignment = CAlignment::E_Aligned16);
@@ -684,7 +712,7 @@ std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         boost::optional<std::size_t> sliceCapacity = boost::none,
+                         std::optional<std::size_t> sliceCapacity = std::nullopt,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
                              CDataFrame::EReadWriteToStorage::E_Async,
                          CAlignment::EType alignment = CAlignment::E_Aligned16);

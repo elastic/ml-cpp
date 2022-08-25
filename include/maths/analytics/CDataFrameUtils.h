@@ -34,6 +34,7 @@ class CPackedBitVector;
 namespace maths {
 namespace common {
 class CQuantileSketch;
+class CFastQuantileSketch;
 }
 namespace analytics {
 class CDataFrameCategoryEncoder;
@@ -83,6 +84,7 @@ public:
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
     using TReadPredictionFunc = std::function<TMemoryMappedFloatVector(const TRowRef&)>;
     using TQuantileSketchVec = std::vector<common::CQuantileSketch>;
+    using TFastQuantileSketchVec = std::vector<common::CFastQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
     //! \brief Defines the data type of a collection of numbers.
@@ -103,7 +105,7 @@ public:
     //! \brief Used to extract the value from a specific column of the data frame.
     class MATHS_ANALYTICS_EXPORT CColumnValue {
     public:
-        CColumnValue(std::size_t column) : m_Column{column} {}
+        explicit CColumnValue(std::size_t column) : m_Column{column} {}
         virtual ~CColumnValue() = default;
         virtual double operator()(const TRowRef& row) const = 0;
         virtual double operator()(const TFloatVec& row) const = 0;
@@ -119,7 +121,8 @@ public:
     //! \brief Used to extract the value from a metric column of the data frame.
     class MATHS_ANALYTICS_EXPORT CMetricColumnValue final : public CColumnValue {
     public:
-        CMetricColumnValue(std::size_t column) : CColumnValue{column} {}
+        explicit CMetricColumnValue(std::size_t column)
+            : CColumnValue{column} {}
         double operator()(const TRowRef& row) const override {
             return row[this->column()];
         }
@@ -260,12 +263,12 @@ public:
     //! quantiles.
     //! \param[in] weight The weight to assign each row. The default is unity for
     //! all rows.
-    static std::pair<TQuantileSketchVec, bool>
+    static std::pair<TFastQuantileSketchVec, bool>
     columnQuantiles(std::size_t numberThreads,
                     const core::CDataFrame& frame,
                     const core::CPackedBitVector& rowMask,
                     const TSizeVec& columnMask,
-                    common::CQuantileSketch quantileEstimator,
+                    common::CFastQuantileSketch quantileEstimator,
                     const CDataFrameCategoryEncoder* encoder = nullptr,
                     const TWeightFunc& weight = unitWeight);
 
@@ -294,7 +297,7 @@ public:
     //! \param[in] trainFractionPerFold The fraction of train data to use per fold.
     //! \param[in] numberBuckets The number of buckets to use when stratifying
     //! by target quantiles for regression.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
     //! \warning This fails if the target is not categorical.
     static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
     stratifiedCrossValidationRowMasks(std::size_t numberThreads,
@@ -304,7 +307,56 @@ public:
                                       std::size_t numberFolds,
                                       double trainFractionPerFold,
                                       std::size_t numberBuckets,
-                                      const core::CPackedBitVector& allTrainingRowsMask);
+                                      const core::CPackedBitVector& allTrainingRowMask);
+
+    //! Compute stratified sampling on the \p frame.
+    //!
+    //! See documentation of \link stratifiedCrossValidationRowMasks \endlink for
+    //! implementation details.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the row masks.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] desiredNumberSamples The number of samples.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying by
+    //! target quantiles for regression.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
+    static core::CPackedBitVector
+    stratifiedSamplingRowMask(std::size_t numberThreads,
+                              const core::CDataFrame& frame,
+                              std::size_t targetColumn,
+                              common::CPRNG::CXorOShiro128Plus rng,
+                              std::size_t desiredNumberSamples,
+                              std::size_t numberBuckets,
+                              const core::CPackedBitVector& allTrainingRowMask);
+
+    //! Compute sampling on the \p frame that preserves the distribution on \p distributionSourceRowMask.
+    //!
+    //! For categorical \p targetColumn, a subset of  \p allTrainingRowMask will be selected which
+    //! preserves the proportion of categories in \p distributionSourceRowMask for \p targetColumn.
+    //! For numerical \p targetColumn,  a subset of  \p allTrainingRowMask will be selected which
+    //! preserves the distribution quantiles of \p distributionSourceRowMask for \p targetColumn.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the row masks.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] desiredNumberSamples The number of samples.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying by
+    //! target quantiles for regression.
+    //! \param[in] distributionSourceRowMask The source of the distribution of target values
+    //! that has to be preserved.
+    //! \param[in] allTrainingRowMask A mask of the candidate training rows.
+    static core::CPackedBitVector
+    distributionPreservingSamplingRowMask(std::size_t numberThreads,
+                                          const core::CDataFrame& frame,
+                                          std::size_t targetColumn,
+                                          common::CPRNG::CXorOShiro128Plus rng,
+                                          std::size_t desiredNumberSamples,
+                                          std::size_t numberBuckets,
+                                          const core::CPackedBitVector& distributionSourceRowMask,
+                                          const core::CPackedBitVector& allTrainingRowMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!
@@ -318,6 +370,19 @@ public:
                                              const core::CDataFrame& frame,
                                              const core::CPackedBitVector& rowMask,
                                              TSizeVec columnMask);
+
+    //! Get the number of items of each category in \p frame.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute category counts.
+    //! \param[in] rowMask A mask of the rows from which to compute category counts.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \return The number of items of each category. The collection is indexed by column
+    //! and then category identifier.
+    static TDoubleVecVec categoryCounts(std::size_t numberThreads,
+                                        const core::CDataFrame& frame,
+                                        const core::CPackedBitVector& rowMask,
+                                        TSizeVec columnMask);
 
     //! Compute the mean value of \p target on the restriction to the rows labelled
     //! by each distinct category of the categorical columns.

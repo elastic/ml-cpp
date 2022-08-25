@@ -11,26 +11,26 @@
 
 #include <model/CMetricBucketGatherer.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDefStd.h>
 #include <core/CProgramCounters.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 
+#include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSampleCounts.h>
 #include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 
-#include <boost/any.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <any>
 #include <atomic>
 #include <map>
 #include <utility>
@@ -48,7 +48,7 @@ using TStrVec = std::vector<std::string>;
 using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLexicographicalCompare>;
+    std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLexicographicalCompare>;
 using TSampleVec = std::vector<CSample>;
 using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMeanGatherer>;
 using TSizeSizeMeanGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMeanGathererUMap>;
@@ -193,8 +193,8 @@ void registerMemoryCallbacks(VISITOR& visitor) {
 void registerMemoryCallbacks() {
     static std::atomic_flag once = ATOMIC_FLAG_INIT;
     if (once.test_and_set() == false) {
-        registerMemoryCallbacks(core::CMemory::anyVisitor());
-        registerMemoryCallbacks(core::CMemoryDebug::anyVisitor());
+        registerMemoryCallbacks(core::memory::anyVisitor());
+        registerMemoryCallbacks(core::memory_debug::anyVisitor());
     }
 }
 
@@ -203,7 +203,7 @@ void registerMemoryCallbacks() {
 template<model_t::EMetricCategory CATEGORY, typename ITR, typename F>
 void applyFunc(ITR i, const F& f) {
     using TDataType = typename SDataType<CATEGORY>::Type;
-    f(i->first, boost::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
+    f(i->first, std::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
 }
 
 //! Apply a function \p f to all the gatherers held in [\p begin, \p end).
@@ -374,7 +374,7 @@ public:
                     bool isNewVersion,
                     const CMetricBucketGatherer& gatherer,
                     TCategorySizePrAnyMap& result) const {
-        boost::any& data = result[{CATEGORY, dimension}];
+        std::any& data = result[{CATEGORY, dimension}];
         return this->restore(traverser, dimension, isNewVersion, gatherer, data);
     }
 
@@ -384,12 +384,12 @@ private:
                  std::size_t dimension,
                  bool isNewVersion,
                  const CMetricBucketGatherer& gatherer,
-                 boost::any& result) const {
+                 std::any& result) const {
         using Type = typename SDataType<CATEGORY>::Type;
-        if (result.empty()) {
+        if (!result.has_value()) {
             result = Type();
         }
-        Type& data = *boost::unsafe_any_cast<Type>(&result);
+        Type& data = *std::any_cast<Type>(&result);
 
         // An empty sub-level implies a person with 100% invalid data.
         if (!traverser.hasSubLevel()) {
@@ -710,7 +710,7 @@ public:
 //! Extracts feature data from a collection of gatherers.
 struct SExtractFeatureData {
 public:
-    using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
+    using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
 
 public:
@@ -724,14 +724,14 @@ public:
                     TFeatureAnyPrVec& result) const {
         if (gatherer.dataGatherer().isPopulation()) {
             result.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
-            this->featureData(data, gatherer, time, bucketLength, this->isSum(feature),
-                              *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(
-                                  &result.back().second));
+            this->featureData(
+                data, gatherer, time, bucketLength, this->isSum(feature),
+                *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result.back().second));
         } else {
             result.emplace_back(feature, TSizeFeatureDataPrVec());
             this->featureData(
                 data, gatherer, time, bucketLength, this->isSum(feature),
-                *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result.back().second));
+                *std::any_cast<TSizeFeatureDataPrVec>(&result.back().second));
         }
     }
 
@@ -1129,11 +1129,11 @@ std::string CMetricBucketGatherer::description() const {
 bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                                           CEventData& result,
                                           CResourceMonitor& resourceMonitor) {
-    using TOptionalStr = boost::optional<std::string>;
+    using TOptionalStr = std::optional<std::string>;
 
     if (fieldValues.size() != m_FieldNames.size()) {
-        LOG_ERROR(<< "Unexpected field values: " << core::CContainerPrinter::print(fieldValues)
-                  << ", for field names: " << core::CContainerPrinter::print(m_FieldNames));
+        LOG_ERROR(<< "Unexpected field values: " << fieldValues
+                  << ", for field names: " << m_FieldNames);
         return false;
     }
 
@@ -1321,15 +1321,15 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CMetricBucketGatherer::checksum() const {
-    uint64_t seed = this->CBucketGatherer::checksum();
+std::uint64_t CMetricBucketGatherer::checksum() const {
+    std::uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::common::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
     applyFunc(m_FeatureData, [&, hash = SHash{} ](const auto& category, const auto& data) {
         hash(category, data, *this, hashes);
     });
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
     return maths::common::CChecksum::calculate(seed, hashes);
 }
 
@@ -1337,19 +1337,19 @@ void CMetricBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUs
     registerMemoryCallbacks();
     mem->setName("CMetricBucketGatherer");
     this->CBucketGatherer::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_ValueFieldName", m_ValueFieldName, mem);
-    core::CMemoryDebug::dynamicSize("m_FieldNames", m_FieldNames, mem);
-    core::CMemoryDebug::dynamicSize("m_FieldMetricCategories", m_FieldMetricCategories, mem);
-    core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
+    core::memory_debug::dynamicSize("m_ValueFieldName", m_ValueFieldName, mem);
+    core::memory_debug::dynamicSize("m_FieldNames", m_FieldNames, mem);
+    core::memory_debug::dynamicSize("m_FieldMetricCategories", m_FieldMetricCategories, mem);
+    core::memory_debug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
 std::size_t CMetricBucketGatherer::memoryUsage() const {
     registerMemoryCallbacks();
     std::size_t mem = this->CBucketGatherer::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_ValueFieldName);
-    mem += core::CMemory::dynamicSize(m_FieldNames);
-    mem += core::CMemory::dynamicSize(m_FieldMetricCategories);
-    mem += core::CMemory::dynamicSize(m_FeatureData);
+    mem += core::memory::dynamicSize(m_ValueFieldName);
+    mem += core::memory::dynamicSize(m_FieldNames);
+    mem += core::memory::dynamicSize(m_FieldMetricCategories);
+    mem += core::memory::dynamicSize(m_FeatureData);
     return mem;
 }
 
@@ -1463,7 +1463,7 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
 
 void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates) {
     LOG_TRACE(<< "StartNewBucket, " << time << " @ " << this);
-    using TUInt64Vec = std::vector<uint64_t>;
+    using TUInt64Vec = std::vector<std::uint64_t>;
     using TSizeUInt64VecUMap = boost::unordered_map<std::size_t, TUInt64Vec>;
 
     // Only update the sampleCounts if we are the primary bucket gatherer.

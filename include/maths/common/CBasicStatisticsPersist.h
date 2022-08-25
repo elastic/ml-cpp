@@ -21,6 +21,7 @@
 #include <maths/common/CLinearAlgebraPersist.h>
 
 #include <cstddef>
+#include <sstream>
 
 namespace ml {
 namespace maths {
@@ -162,7 +163,7 @@ std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited() con
 }
 
 template<typename T, unsigned int ORDER>
-uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
+std::uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     for (std::size_t i = 0; i < ORDER; ++i) {
@@ -183,7 +184,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     }
     str = str.substr(pos + 1);
 
-    std::size_t count{0u};
+    std::size_t count{0};
     for (std::size_t i = 0; i < dimension; ++i) {
         count = str.find_first_of(CLinearAlgebra::DELIMITER, count + 1);
     }
@@ -193,7 +194,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     }
 
     str = str.substr(count + 1);
-    std::size_t means{0u};
+    std::size_t means{0};
     for (std::size_t i = 0; i < dimension; ++i) {
         means = str.find_first_of(CLinearAlgebra::DELIMITER, means + 1);
     }
@@ -211,6 +212,47 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     return true;
 }
 
+template<typename T>
+inline std::string CBasicStatistics::print(const SSampleCentralMoments<T, 1>& accumulator) {
+    std::ostringstream result;
+    result << '(' << count(accumulator) << ", " << mean(accumulator) << ')';
+    return result.str();
+}
+
+template<typename T>
+std::string CBasicStatistics::print(const SSampleCentralMoments<T, 2>& accumulator) {
+    std::ostringstream result;
+    result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
+           << variance(accumulator) << ')';
+    return result.str();
+}
+
+template<typename T>
+inline std::string CBasicStatistics::print(const SSampleCentralMoments<T, 3>& accumulator) {
+    std::ostringstream result;
+    result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
+           << variance(accumulator) << ", " << skewness(accumulator) << ')';
+    return result.str();
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
 template<typename POINT>
 std::string CBasicStatistics::SSampleCovariances<POINT>::toDelimited() const {
     return core::CStringUtils::typeToString(s_Count.dimension()) +
@@ -220,7 +262,23 @@ std::string CBasicStatistics::SSampleCovariances<POINT>::toDelimited() const {
 }
 
 template<typename POINT>
-uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
+inline std::string CBasicStatistics::print(const SSampleCovariances<POINT>& accumulator) {
+    std::ostringstream result;
+    result << "\n{\n"
+           << count(accumulator) << ",\n"
+           << mean(accumulator) << ",\n"
+           << covariances(accumulator) << "\n}";
+    return result.str();
+}
+
+template<typename POINT>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCovariances<POINT>& accumulator) {
+    return o << CBasicStatistics::print(accumulator);
+}
+
+template<typename POINT>
+std::uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     raw << ' ';
@@ -314,7 +372,8 @@ CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(const TT
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
+std::uint64_t
+CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(std::uint64_t seed) const {
     if (this->count() == 0) {
         return seed;
     }
@@ -328,6 +387,23 @@ uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(ui
     }
     core::CHashing::CSafeMurmurHash2String64 hasher(seed);
     return hasher(raw.str());
+}
+
+template<typename T, std::size_t N, typename LESS>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
+    return o << core::CContainerPrinter::print(accumulator);
+}
+
+template<typename T, typename LESS>
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
+    return o << core::CContainerPrinter::print(accumulator);
+}
+
+template<typename T, typename LESS, typename GREATER>
+std::uint64_t CBasicStatistics::CMinMax<T, LESS, GREATER>::checksum() const {
+    return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
 }
 }
 }

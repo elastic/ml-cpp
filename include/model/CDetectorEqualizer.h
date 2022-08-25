@@ -17,9 +17,8 @@
 #include <model/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -62,7 +61,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get a checksum for the equalizer.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Get the largest probability that will be corrected.
     static double largestProbabilityToCorrect();
@@ -72,8 +71,6 @@ private:
     maths::common::CQuantileSketch& sketch(int detector);
 
 private:
-    //! The style of interpolation to use for the sketch.
-    static const maths::common::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
     //! The maximum size of the quantile sketch.
     static const std::size_t SKETCH_SIZE;
     //! The minimum count in a detector's sketch for which we'll

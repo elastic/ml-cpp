@@ -15,11 +15,10 @@
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <atomic>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -28,7 +27,7 @@ namespace core {
 
 //! \brief A minimal fixed size thread pool for implementing CThreadPoolExecutor.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This purposely has very limited interface and is intended to mainly support
 //! CThreadPoolExecutor which provides the mechanism by which we expose the thread
 //! pool to the rest of the code via calls core::async.
@@ -45,6 +44,9 @@ public:
     CStaticThreadPool(CStaticThreadPool&&) = delete;
     CStaticThreadPool& operator=(const CStaticThreadPool&) = delete;
     CStaticThreadPool& operator=(CStaticThreadPool&&) = delete;
+
+    //! Get the number of threads in use.
+    std::size_t numberThreadsInUse() const;
 
     //! Adjust the number of threads which are being used by the pool.
     //!
@@ -67,10 +69,10 @@ public:
     void busy(bool busy);
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     class CWrappedTask {
     public:
-        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = boost::none);
+        explicit CWrappedTask(TTask&& task, TOptionalSize threadId = std::nullopt);
 
         bool executableOnThread(std::size_t id) const;
         void operator()();
@@ -79,7 +81,7 @@ private:
         TTask m_Task;
         TOptionalSize m_ThreadId;
     };
-    using TOptionalTask = boost::optional<CWrappedTask>;
+    using TOptionalTask = std::optional<CWrappedTask>;
     using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 50>;
     using TWrappedTaskQueueVec = std::vector<TWrappedTaskQueue>;
     using TThreadVec = std::vector<std::thread>;

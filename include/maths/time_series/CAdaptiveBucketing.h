@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CAdaptiveBucketing_h
 #define INCLUDED_ml_maths_time_series_CAdaptiveBucketing_h
 
-#include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -21,9 +20,8 @@
 #include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {

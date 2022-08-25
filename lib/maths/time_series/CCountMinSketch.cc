@@ -12,6 +12,7 @@
 #include <maths/time_series/CCountMinSketch.h>
 
 #include <core/CHashing.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
@@ -190,7 +191,7 @@ double CCountMinSketch::oneMinusDeltaError() const {
            m_TotalCount;
 }
 
-void CCountMinSketch::add(uint32_t category, double count) {
+void CCountMinSketch::add(std::uint32_t category, double count) {
     LOG_TRACE(<< "Adding category = " << category << ", count = " << count);
 
     m_TotalCount += count;
@@ -215,7 +216,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
         try {
             auto& sketch = std::get<SSketch>(m_Sketch);
             for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
-                uint32_t hash = (sketch.s_Hashes[i])(category);
+                std::uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
                 sketch.s_Counts[i][j] += count;
                 LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
@@ -227,7 +228,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
     }
 }
 
-void CCountMinSketch::removeFromMap(uint32_t category) {
+void CCountMinSketch::removeFromMap(std::uint32_t category) {
     auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
         auto itr = std::lower_bound(counts->begin(), counts->end(), category,
@@ -262,7 +263,7 @@ double CCountMinSketch::totalCount() const {
     return m_TotalCount;
 }
 
-double CCountMinSketch::count(uint32_t category) const {
+double CCountMinSketch::count(std::uint32_t category) const {
     using TMinAccumulator = common::CBasicStatistics::COrderStatisticsStack<double, 1>;
 
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
@@ -279,7 +280,7 @@ double CCountMinSketch::count(uint32_t category) const {
     try {
         const auto& sketch = std::get<SSketch>(m_Sketch);
         for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
-            uint32_t hash = (sketch.s_Hashes[i])(category);
+            std::uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
             LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
                       << " <- " << sketch.s_Counts[i][j]);
@@ -291,7 +292,7 @@ double CCountMinSketch::count(uint32_t category) const {
     return result.count() > 0 ? result[0] : 0.0;
 }
 
-double CCountMinSketch::fraction(uint32_t category) const {
+double CCountMinSketch::fraction(std::uint32_t category) const {
     return this->count(category) / m_TotalCount;
 }
 
@@ -299,7 +300,7 @@ bool CCountMinSketch::sketched() const {
     return std::get_if<SSketch>(&m_Sketch) != nullptr;
 }
 
-uint64_t CCountMinSketch::checksum(uint64_t seed) const {
+std::uint64_t CCountMinSketch::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Rows);
     seed = common::CChecksum::calculate(seed, m_Columns);
     seed = common::CChecksum::calculate(seed, m_TotalCount);
@@ -321,14 +322,14 @@ void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr
     mem->setName("CCountMinSketch");
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
-        core::CMemoryDebug::dynamicSize("m_Counts", *counts, mem);
+        core::memory_debug::dynamicSize("m_Counts", *counts, mem);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
-            core::CMemoryDebug::dynamicSize("sketch", sketch, mem);
-            core::CMemoryDebug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
-            core::CMemoryDebug::dynamicSize("s_Counts", sketch.s_Counts, mem);
+            core::memory_debug::dynamicSize("sketch", sketch, mem);
+            core::memory_debug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
+            core::memory_debug::dynamicSize("s_Counts", sketch.s_Counts, mem);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception " << e.what());
         }
@@ -339,13 +340,13 @@ std::size_t CCountMinSketch::memoryUsage() const {
     std::size_t mem = 0;
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
-        mem += core::CMemory::dynamicSize(*counts);
+        mem += core::memory::dynamicSize(*counts);
     } else {
         try {
             const auto& sketch = std::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
-            mem += core::CMemory::dynamicSize(sketch.s_Hashes);
-            mem += core::CMemory::dynamicSize(sketch.s_Counts);
+            mem += core::memory::dynamicSize(sketch.s_Hashes);
+            mem += core::memory::dynamicSize(sketch.s_Counts);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception " << e.what());
         }

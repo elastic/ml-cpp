@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CMetricModel_h
 #define INCLUDED_ml_model_CMetricModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <model/CFeatureData.h>
@@ -21,11 +21,10 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace CResourceLimitTest {
 class CMockMetricModel;
@@ -36,7 +35,6 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
-class CModelFactory;
 
 //! \brief The metric model common functionality.
 //!
@@ -77,7 +75,7 @@ public:
         //! A cache of the corrections applied to interim results.
         //! The key is <feature, pid, pid> for non-correlated corrections
         //! or <feature, pid, correlated_pid> for correlated corrections
-        mutable TFeatureSizeSizeTripleDouble1VecUMap s_InterimCorrections;
+        mutable TFeatureSizeSizeTrDouble1VecUMap s_InterimCorrections;
         //! Annotations produced by this model.
         TAnnotationVec s_Annotations;
     };
@@ -276,7 +274,7 @@ public:
     const TAnnotationVec& annotations() const override;
 
 private:
-    using TOptionalSample = boost::optional<CSample>;
+    using TOptionalSample = std::optional<CSample>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
@@ -289,7 +287,7 @@ private:
     void currentBucketStartTime(core_t::TTime time) override;
 
     //! Get the interim corrections of the current bucket.
-    TFeatureSizeSizeTripleDouble1VecUMap& currentBucketInterimCorrections() const;
+    TFeatureSizeSizeTrDouble1VecUMap& currentBucketInterimCorrections() const;
 
     //! Get the person counts in the current bucket.
     const TSizeUInt64PrVec& currentBucketPersonCounts() const override;

@@ -14,10 +14,13 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/COutliers.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CSetTools.h>
@@ -28,11 +31,11 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
 #include <numeric>
+#include <optional>
 
 BOOST_AUTO_TEST_SUITE(COutliersTest)
 
@@ -53,19 +56,19 @@ using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPoin
 
 class CTestInstrumentation final : public maths::analytics::CDataFrameOutliersInstrumentationStub {
 public:
-    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
-    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
+    using TProgressCallbackOpt = std::optional<TProgressCallback>;
+    using TMemoryUsageCallbackOpt = std::optional<TMemoryUsageCallback>;
 
 public:
     void updateMemoryUsage(std::int64_t delta) override {
         if (m_MemoryUsageCallback) {
-            m_MemoryUsageCallback.get()(delta);
+            (*m_MemoryUsageCallback)(delta);
         }
     }
 
     void updateProgress(double d) override {
         if (m_ProgressCallback) {
-            m_ProgressCallback.get()(d);
+            (*m_ProgressCallback)(d);
         }
     }
 
@@ -196,12 +199,9 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
         }
 
         if (t % 20 == 0) {
-            LOG_DEBUG(<< "outliers at 0.1 = "
-                      << core::CContainerPrinter::print(outliers[0]));
-            LOG_DEBUG(<< "outliers at 0.5 = "
-                      << core::CContainerPrinter::print(outliers[1]));
-            LOG_DEBUG(<< "outliers at 0.9 = "
-                      << core::CContainerPrinter::print(outliers[2]));
+            LOG_DEBUG(<< "outliers at 0.1 = " << outliers[0]);
+            LOG_DEBUG(<< "outliers at 0.5 = " << outliers[1]);
+            LOG_DEBUG(<< "outliers at 0.9 = " << outliers[2]);
         }
 
         for (std::size_t i = 0; i < 3; ++i) {
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(testLof) {
         std::transform(outliers_.begin(), outliers_.end(), outliers.begin(),
                        [](const TDoubleSizePr& value) { return value.second; });
         std::sort(outliers.begin(), outliers.end());
-        LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+        LOG_DEBUG(<< "outliers = " << outliers);
         TDoubleVec indicator(numberInliers + numberOutliers, 1);
         for (auto outlier : outliers) {
             indicator[outlier] = -1;
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(testDlof) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::ldof(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testDlof) {
         ldof.push_back(maths::common::CBasicStatistics::mean(d) /
                        maths::common::CBasicStatistics::mean(D));
     }
-    LOG_DEBUG(<< "ldof = " << core::CContainerPrinter::print(ldof));
+    LOG_DEBUG(<< "ldof = " << ldof);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(ldof[i], scores[i], 1e-5);
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(testDistancekNN) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::distancekNN(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testDistancekNN) {
         nearestNeightbours(k, points, point, neighbours);
         distances.push_back(maths::common::las::distance(point, neighbours.back()));
     }
-    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << distances);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
     TDoubleVec scores;
     std::size_t k{10};
     maths::analytics::COutliers::totalDistancekNN(k, points, scores);
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
     TMaxAccumulator outlierScoresWithoutProjecting(numberOutliers);
     for (std::size_t i = 0; i < scores.size(); ++i) {
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
                             }) /
             static_cast<double>(k));
     }
-    LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
+    LOG_DEBUG(<< "distances = " << distances);
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
@@ -650,7 +650,8 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         CTestInstrumentation instrumentation;
 
         auto memoryUsageCallback = [&](std::int64_t delta) {
-            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+            // fetch_add returns the value immediately _before_ adding delta.
+            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta) + delta};
 
             std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
             while (prevMaxMemoryUsage < memoryUsage_ &&
@@ -797,7 +798,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
             }
         });
 
-        LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
+        LOG_DEBUG(<< "outlier scores = " << outlierScores);
         for (auto score : outlierScores) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.98, score, 0.02);
         }

@@ -17,7 +17,7 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
-#vscode files
+# vscode files
 .vscode
 .clangd
 .cache
@@ -42,6 +42,10 @@ Thumbs.db
 
 # compilation database stuff
 compile_commands.json
+
+# python virtualenv and notebook checkpoints
+**/jupyter/env
+**/jupyter/notebooks/.ipynb_checkpoints
 
 # native binary stuff:
 *.o
@@ -72,3 +76,9 @@ cppunit_results.xml
 boost_test_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore
+
+# CMake
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/

@@ -13,7 +13,7 @@
 
 #include <core/CConcurrentQueue.h>
 #include <core/CConcurrentWrapper.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CRapidJsonLineWriter.h>
 #include <core/ImportExport.h>
@@ -38,14 +38,14 @@ namespace core {
 //! Pool and buffer sizes are hardcoded.
 class CORE_EXPORT CJsonOutputStreamWrapper final : CNonCopyable {
 private:
-    //! number of buffers in the pool
-    static const size_t BUFFER_POOL_SIZE = 16;
-    //! size of 1 buffer in the pool
-    //! Note: this size is not fixed but might get enlarged at runtime
-    static const size_t BUFFER_START_SIZE = 1024;
+    //! Number of buffers in the pool.
+    static constexpr size_t BUFFER_POOL_SIZE{16};
+    //! Size of 1 buffer in the pool.
+    //! \note This size is not fixed but might get enlarged at runtime.
+    static constexpr size_t BUFFER_START_SIZE{1024};
     //! Upper boundary for buffer size, if above buffer gets automatically shrunk
-    //! back to BUFFER_START_SIZE after last usage
-    static const size_t BUFFER_REALLOC_TRIGGER_SIZE = 4096;
+    //! back to BUFFER_START_SIZE after last usage.
+    static constexpr size_t BUFFER_REALLOC_TRIGGER_SIZE{4096};
 
     static const char JSON_ARRAY_START;
     static const char JSON_ARRAY_END;
@@ -56,30 +56,34 @@ public:
     using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
 public:
-    //! wrap a given ostream for concurrent access
+    //! Wrap a given ostream for concurrent access.
     //! \param[in] outStream The stream to write to
     explicit CJsonOutputStreamWrapper(std::ostream& outStream);
 
     ~CJsonOutputStreamWrapper();
 
-    //! acquires a buffer from the pool and attaches it to the given writer object
+    //! Acquires a buffer from the pool and attaches it to the given writer object.
     void acquireBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer);
 
-    //! releases a buffer from the pool, remaining data will be written before returning it
+    //! Releases a buffer from the pool, remaining data will be written before returning it.
     void releaseBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer* buffer);
 
-    //! flush the buffer/writer if necessary, keeps the logic when to flush in here
+    //! Flush the buffer/writer if necessary, keeps the logic when to flush in here.
     //! \param writer A rapidjson writer object
     //! \param buffer The buffer for writing
-    //! side-effect: the writer as well as the buffer are altered
+    //! Side-effect: the writer as well as the buffer are altered.
     void flushBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer);
 
-    //! flush the wrapped outputstream
-    //! note: this is still async
+    //! Flush the wrapped outputstream.
+    //!
+    //! \note This is still async
     void flush();
 
-    //! a sync flush, that blocks until flush has actually happened
+    //! A sync flush that blocks until flush has actually happened.
     void syncFlush();
+
+    //! Write preformatted JSON.
+    void writeJson(std::string json);
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -106,4 +110,4 @@ private:
 }
 }
 
-#endif /* INCLUDED_ml_core_CJsonOutputStreamWrapper_h */
+#endif // INCLUDED_ml_core_CJsonOutputStreamWrapper_h

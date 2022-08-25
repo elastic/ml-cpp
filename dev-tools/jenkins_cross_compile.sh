@@ -87,10 +87,15 @@ fi
 # Cross compile macOS
 ./docker_build.sh macosx
 
-# If this isn't a PR build cross compile aarch64 too
-if [ -z "$PR_AUTHOR" ] ; then
-    ./docker_build.sh linux_aarch64_cross
+# If this is a PR build then it's redundant to cross compile aarch64 (as
+# we build and test aarch64 natively for PR builds) but there's a benefit
+# to building one platform with debug enabled to detect code that only
+# compiles with optimisation
+if [ -n "$PR_AUTHOR" ] ; then
+    export ML_DEBUG=1
 fi
+
+./docker_build.sh linux_aarch64_cross
 
 # If this isn't a PR build and isn't a debug build then upload the artifacts
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then

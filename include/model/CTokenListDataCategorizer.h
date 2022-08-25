@@ -12,7 +12,7 @@
 #define INCLUDED_ml_model_CTokenListDataCategorizer_h
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
@@ -74,14 +74,14 @@ public:
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTokenListDataCategorizer");
         this->CTokenListDataCategorizerBase::debugMemoryUsage(mem->addChild());
-        core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
+        core::memory_debug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
     }
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override {
         std::size_t mem = 0;
         mem += this->CTokenListDataCategorizerBase::memoryUsage();
-        mem += core::CMemory::dynamicSize(m_SimilarityTester);
+        mem += core::memory::dynamicSize(m_SimilarityTester);
         return mem;
     }
 
@@ -96,7 +96,9 @@ protected:
                         const std::string& str,
                         TSizeSizePrVec& tokenIds,
                         TSizeSizeMap& tokenUniqueIds,
-                        std::size_t& totalWeight) override {
+                        std::size_t& totalWeight,
+                        std::size_t& minReweightedTotalWeight,
+                        std::size_t& maxReweightedTotalWeight) override {
         tokenIds.clear();
         tokenUniqueIds.clear();
         totalWeight = 0;
@@ -128,8 +130,9 @@ protected:
                 }
             } else {
                 if (!temp.empty()) {
-                    this->considerToken(fields, nonHexPos, temp, tokenIds,
-                                        tokenUniqueIds, totalWeight);
+                    this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds,
+                                        totalWeight, minReweightedTotalWeight,
+                                        maxReweightedTotalWeight);
                     temp.clear();
                 }
 
@@ -140,7 +143,8 @@ protected:
         }
 
         if (!temp.empty()) {
-            this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight);
+            this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight,
+                                minReweightedTotalWeight, maxReweightedTotalWeight);
         }
 
         LOG_TRACE(<< str << " tokenised to " << tokenIds.size() << " tokens with total weight "
@@ -154,7 +158,9 @@ protected:
     void tokenToIdAndWeight(const std::string& token,
                             TSizeSizePrVec& tokenIds,
                             TSizeSizeMap& tokenUniqueIds,
-                            std::size_t& totalWeight) override {
+                            std::size_t& totalWeight,
+                            std::size_t& minReweightedTotalWeight,
+                            std::size_t& maxReweightedTotalWeight) override {
         TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
         if (token.length() >= MIN_DICTIONARY_LENGTH) {
@@ -165,6 +171,10 @@ protected:
         tokenIds.push_back(idWithWeight);
         tokenUniqueIds[idWithWeight.first] += idWithWeight.second;
         totalWeight += idWithWeight.second;
+        minReweightedTotalWeight +=
+            m_DictionaryWeightFunc.minMatchingWeight(idWithWeight.second);
+        maxReweightedTotalWeight +=
+            m_DictionaryWeightFunc.maxMatchingWeight(idWithWeight.second);
     }
 
     void reset() override { m_DictionaryWeightFunc.reset(); }
@@ -225,7 +235,9 @@ private:
                        std::string& token,
                        TSizeSizePrVec& tokenIds,
                        TSizeSizeMap& tokenUniqueIds,
-                       std::size_t& totalWeight) {
+                       std::size_t& totalWeight,
+                       std::size_t& minReweightedTotalWeight,
+                       std::size_t& maxReweightedTotalWeight) {
         if (IGNORE_LEADING_DIGIT && std::isdigit(static_cast<unsigned char>(token[0]))) {
             return;
         }
@@ -262,7 +274,8 @@ private:
             return;
         }
 
-        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight);
+        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight,
+                                 minReweightedTotalWeight, maxReweightedTotalWeight);
     }
 
 private:

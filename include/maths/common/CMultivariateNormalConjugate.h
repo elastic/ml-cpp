@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateNormalConjugate_h
 #define INCLUDED_ml_maths_common_CMultivariateNormalConjugate_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -35,10 +34,6 @@
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
-
-#include <boost/math/special_functions/beta.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/optional.hpp>
 
 #include <cmath>
 #include <functional>
@@ -84,7 +79,7 @@ template<std::size_t N>
 class CMultivariateNormalConjugate : public CMultivariatePrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TDoubleVec = std::vector<double>;
     using TPoint = CVectorNx1<double, N>;
@@ -207,7 +202,7 @@ public:
 
         this->CMultivariatePrior::addSamples(samples, weights);
 
-        // Note that if either count weight or Winsorisation weights are supplied
+        // Note that if either count weight or outlier weights are supplied
         // the weight of the sample x(i) is interpreted as its count, so for example
         // updating with {(x, 2)} is equivalent to updating with {x, x}.
         //
@@ -292,8 +287,7 @@ public:
 
         if (this->isBad()) {
             LOG_ERROR(<< "Update failed (" << this->debug() << ")"
-                      << ", samples = " << core::CContainerPrinter::print(samples)
-                      << ", weights = " << core::CContainerPrinter::print(weights));
+                      << ", samples = " << samples << ", weights = " << weights);
             this->setToNonInformative(this->offsetMargin(), this->decayRate());
         }
     }
@@ -364,9 +358,8 @@ public:
         this->remainingVariables(marginalize, condition, i1);
         if (i1.size() != 1) {
             LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                      << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                      << ", condition '"
-                      << core::CContainerPrinter::print(condition) << "'");
+                      << "marginalize '" << marginalize << "'"
+                      << ", condition '" << condition << "'");
             return {};
         }
 
@@ -570,7 +563,7 @@ public:
             return maths_t::E_FpFailed;
         }
 
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
 
         if (this->isNonInformative()) {
             // The non-informative likelihood is improper and effectively
@@ -628,12 +621,12 @@ public:
 
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "samples = " << samples);
+            LOG_ERROR(<< "weights = " << weights);
         } else if (status & maths_t::E_FpOverflowed) {
             LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
-            LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_TRACE(<< "samples = " << samples);
+            LOG_TRACE(<< "weights = " << weights);
         }
         return status;
     }
@@ -728,7 +721,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override {
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         seed = this->CMultivariatePrior::checksum(seed);
         seed = CChecksum::calculate(seed, m_GaussianMean);
         seed = CChecksum::calculate(seed, m_GaussianPrecision);

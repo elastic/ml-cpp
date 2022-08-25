@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -174,7 +173,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalSampleWithoutReplacement) {
                 counts[j] += 1.0;
             }
         }
-        LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(counts));
+        LOG_DEBUG(<< "counts = " << counts);
 
         // We should get a random sample.
         for (auto count : counts) {
@@ -245,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialSample) {
     double error = 0.0;
     double pTotal = 0.0;
     for (const auto& p_ : empiricalProbabilities) {
-        LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(p_.first));
+        LOG_DEBUG(<< "counts = " << p_.first);
         BOOST_REQUIRE_EQUAL(
             std::size_t(20),
             std::accumulate(p_.first.begin(), p_.first.end(), std::size_t(0)));
@@ -285,8 +284,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
         for (std::size_t i = 0; i < 3; ++i) {
             mean_.push_back(maths::common::CBasicStatistics::mean(mean[i]));
         }
-        LOG_DEBUG(<< "actual mean = " << core::CContainerPrinter::print(m));
-        LOG_DEBUG(<< "sample mean = " << core::CContainerPrinter::print(mean_));
+        LOG_DEBUG(<< "actual mean = " << m);
+        LOG_DEBUG(<< "sample mean = " << mean_);
         {
             TDoubleVec error{test_detail::minus(mean_, m)};
             LOG_DEBUG(<< "||error|| = " << test_detail::euclidean(error));
@@ -303,8 +302,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
                              covariance);
         }
         test_detail::divide(covariance, static_cast<double>(samples.size() - 1));
-        LOG_DEBUG(<< "actual covariance = " << core::CContainerPrinter::print(covariance));
-        LOG_DEBUG(<< "sample covariance = " << core::CContainerPrinter::print(covariance));
+        LOG_DEBUG(<< "actual covariance = " << covariance);
+        LOG_DEBUG(<< "sample covariance = " << covariance);
         {
             TDoubleVecVec error{test_detail::minus(covariance, C)};
             LOG_DEBUG(<< "||error|| = " << test_detail::frobenius(error));

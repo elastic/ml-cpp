@@ -11,8 +11,8 @@
 
 #include <model/CGathererTools.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -21,12 +21,11 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/CMultinomialConjugate.h>
-#include <maths/common/CMultivariatePrior.h>
-#include <maths/common/CTools.h>
-#include <maths/common/Constants.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CStringStore.h>
+
+#include <boost/unordered_map.hpp>
 
 namespace ml {
 namespace model {
@@ -141,8 +140,8 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
     return true;
 }
 
-uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
-    return maths::common::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
+std::uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
+    return maths::common::CChecksum::calculate(static_cast<std::uint64_t>(m_LastTime), m_Value);
 }
 
 std::string CGathererTools::CArrivalTimeGatherer::print() const {
@@ -291,8 +290,8 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     return true;
 }
 
-uint64_t CGathererTools::CSumGatherer::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
+std::uint64_t CGathererTools::CSumGatherer::checksum() const {
+    std::uint64_t seed = static_cast<std::uint64_t>(m_Classifier.isInteger());
     seed = maths::common::CChecksum::calculate(seed, m_Classifier.isNonNegative());
     seed = maths::common::CChecksum::calculate(seed, m_BucketSums);
     return maths::common::CChecksum::calculate(seed, m_InfluencerBucketSums);
@@ -300,13 +299,13 @@ uint64_t CGathererTools::CSumGatherer::checksum() const {
 
 void CGathererTools::CSumGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSumGatherer");
-    core::CMemoryDebug::dynamicSize("m_BucketSums", m_BucketSums, mem);
-    core::CMemoryDebug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
+    core::memory_debug::dynamicSize("m_BucketSums", m_BucketSums, mem);
+    core::memory_debug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
 }
 
 std::size_t CGathererTools::CSumGatherer::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_BucketSums) +
-           core::CMemory::dynamicSize(m_InfluencerBucketSums);
+    return core::memory::dynamicSize(m_BucketSums) +
+           core::memory::dynamicSize(m_InfluencerBucketSums);
 }
 
 std::string CGathererTools::CSumGatherer::print() const {

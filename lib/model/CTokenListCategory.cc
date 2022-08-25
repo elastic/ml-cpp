@@ -11,11 +11,10 @@
 #include <model/CTokenListCategory.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
-#include <core/RestoreMacros.h>
 
 #include <functional>
 
@@ -217,6 +216,7 @@ bool CTokenListCategory::addString(bool isDryRun,
     if (rawStringLen > m_MaxStringLen) {
         LOG_TRACE(<< "Growing max string length from " << m_MaxStringLen
                   << " to " << rawStringLen << " due to '" << str << '\'');
+        SUPPRESS_USAGE_WARNING(str);
         m_MaxStringLen = rawStringLen;
         changed = true;
     }
@@ -252,13 +252,7 @@ bool CTokenListCategory::updateCommonUniqueTokenIds(const TSizeSizeMap& newUniqu
             changed = true;
         } else {
             if (commonIter->first == newIter->first) {
-                if (commonIter->second == newIter->second) {
-                    ++commonIter;
-                } else {
-                    m_CommonUniqueTokenWeight -= commonIter->second;
-                    commonIter = m_CommonUniqueTokenIds.erase(commonIter);
-                    changed = true;
-                }
+                ++commonIter;
             }
             ++newIter;
         }
@@ -337,8 +331,7 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
                 if (newTokenIds[newIndex].first != m_BaseTokenIds[commonIndex].first) {
                     ++newIndex;
                 } else {
-                    tryWeight += (newTokenIds[newIndex].second +
-                                  m_BaseTokenIds[commonIndex].second);
+                    tryWeight += m_BaseTokenIds[commonIndex].second;
                     break;
                 }
             }
@@ -439,17 +432,14 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first == testIter->first) {
-            // Don't increment the weight if a given token appears a different
-            // number of times in the two strings
-            if (commonIter->second == testIter->second) {
-                presentWeight += commonIter->second;
-            }
+            // If the token ID matches then consider the token present even if
+            // the weight in the test list is different.
+            presentWeight += commonIter->second;
             ++commonIter;
             ++testIter;
         } else if (commonIter->first < testIter->first) {
             ++commonIter;
-        } else // if (commonIter->first > testIter->first)
-        {
+        } else { // if (commonIter->first > testIter->first)
             ++testIter;
         }
     }
@@ -546,20 +536,20 @@ const std::string& CTokenListCategory::reverseSearchPart2() const {
 
 void CTokenListCategory::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListCategory");
-    core::CMemoryDebug::dynamicSize("m_BaseString", m_BaseString, mem);
-    core::CMemoryDebug::dynamicSize("m_BaseTokenIds", m_BaseTokenIds, mem);
-    core::CMemoryDebug::dynamicSize("m_CommonUniqueTokenIds", m_CommonUniqueTokenIds, mem);
-    core::CMemoryDebug::dynamicSize("m_ReverseSearchPart1", m_ReverseSearchPart1, mem);
-    core::CMemoryDebug::dynamicSize("m_ReverseSearchPart2", m_ReverseSearchPart2, mem);
+    core::memory_debug::dynamicSize("m_BaseString", m_BaseString, mem);
+    core::memory_debug::dynamicSize("m_BaseTokenIds", m_BaseTokenIds, mem);
+    core::memory_debug::dynamicSize("m_CommonUniqueTokenIds", m_CommonUniqueTokenIds, mem);
+    core::memory_debug::dynamicSize("m_ReverseSearchPart1", m_ReverseSearchPart1, mem);
+    core::memory_debug::dynamicSize("m_ReverseSearchPart2", m_ReverseSearchPart2, mem);
 }
 
 std::size_t CTokenListCategory::memoryUsage() const {
     std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_BaseString);
-    mem += core::CMemory::dynamicSize(m_BaseTokenIds);
-    mem += core::CMemory::dynamicSize(m_CommonUniqueTokenIds);
-    mem += core::CMemory::dynamicSize(m_ReverseSearchPart1);
-    mem += core::CMemory::dynamicSize(m_ReverseSearchPart2);
+    mem += core::memory::dynamicSize(m_BaseString);
+    mem += core::memory::dynamicSize(m_BaseTokenIds);
+    mem += core::memory::dynamicSize(m_CommonUniqueTokenIds);
+    mem += core::memory::dynamicSize(m_ReverseSearchPart1);
+    mem += core::memory::dynamicSize(m_ReverseSearchPart2);
     return mem;
 }
 

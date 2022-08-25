@@ -20,13 +20,12 @@ namespace core {
 //! Writes each Json object to a single line.
 //! Not as verbose as rapidjson::prettywriter but it is still possible to
 //! parse json data streamed in this format by reading one line at a time
-/*!
-    \tparam OUTPUT_STREAM Type of output stream.
-    \tparam SOURCE_ENCODING Encoding of source string.
-    \tparam TARGET_ENCODING Encoding of output stream.
-    \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
-    \note implements Handler concept
-*/
+//!
+//! \tparam OUTPUT_STREAM Type of output stream.
+//! \tparam SOURCE_ENCODING Encoding of source string.
+//! \tparam TARGET_ENCODING Encoding of output stream.
+//! \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
+//! \note implements Handler concept
 template<typename OUTPUT_STREAM,
          typename SOURCE_ENCODING = rapidjson::UTF8<>,
          typename TARGET_ENCODING = rapidjson::UTF8<>,
@@ -57,6 +56,24 @@ public:
             TRapidJsonWriterBase::os_->Put('\n');
         }
         return baseReturnCode;
+    }
+
+    //! Add a pre-formatted key and value to the output.
+    bool rawKeyAndValue(const std::string& keyAndValue) {
+        // We achieve this by pretending we're just adding the key, i.e.
+        // a string, but since it's written raw it can contain both key
+        // and value.
+        if (this->RawValue(keyAndValue.c_str(), keyAndValue.length(), rapidjson::kStringType)) {
+            // However, to avoiding tripping assertions we need to increment
+            // the count of values within the level by an extra 1 so that it
+            // includes the value that was bundled with the key. (The
+            // RawValue() call above will have added 1 for the key.)
+            TRapidJsonWriterBase::level_stack_
+                .template Top<typename TRapidJsonWriterBase::Level>()
+                ->valueCount++;
+            return true;
+        }
+        return false;
     }
 
     //! Write JSON document to outputstream

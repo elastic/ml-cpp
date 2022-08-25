@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CNormalMeanPrecConjugate_h
 #define INCLUDED_ml_maths_common_CNormalMeanPrecConjugate_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CEqualWithTolerance.h>
@@ -53,7 +53,7 @@ struct SDistributionRestoreParams;
 class MATHS_COMMON_EXPORT CNormalMeanPrecConjugate : public CPrior {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TEqualWithTolerance = CEqualWithTolerance<double>;

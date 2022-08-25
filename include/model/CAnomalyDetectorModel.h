@@ -12,55 +12,48 @@
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModel_h
 #define INCLUDED_ml_model_CAnomalyDetectorModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CProgramCounters.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/MathsTypes.h>
-
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
-#include <model/CMemoryUsageEstimator.h>
-#include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <limits>
-#include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-
 namespace maths {
 namespace common {
 class CMultivariatePrior;
 }
 }
-
 namespace model {
-
+class CAnnotation;
 class CAttributeFrequencyGreaterThan;
-class CInterimBucketCorrector;
 class CDataGatherer;
 class CHierarchicalResults;
-class CAnnotation;
+class CInterimBucketCorrector;
+class CMemoryUsageEstimator;
 class CModelDetailsView;
+class CPartitioningFields;
 class CPersonFrequencyGreaterThan;
 class CResourceMonitor;
 struct SAnnotatedProbability;
@@ -145,10 +138,10 @@ public:
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TStr1Vec = core::CSmallVector<std::string, 1>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
     using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
     using TFeatureInfluenceCalculatorCPtrPr =
@@ -446,7 +439,7 @@ public:
     //! the current bucket statistics. (This is designed to handle
     //! serialization, for which we don't serialize the current
     //! bucket statistics.)
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
+    virtual std::uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
 
     //! Get the memory used by this model
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
@@ -541,10 +534,11 @@ protected:
         SFeatureCorrelateModels(model_t::EFeature feature,
                                 const TMultivariatePriorSPtr& modelPrior,
                                 TCorrelationsPtr&& model);
+        ~SFeatureCorrelateModels();
         SFeatureCorrelateModels(const SFeatureCorrelateModels&) = delete;
         SFeatureCorrelateModels& operator=(const SFeatureCorrelateModels&) = delete;
-        SFeatureCorrelateModels(SFeatureCorrelateModels&&) = default;
-        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&) = default;
+        SFeatureCorrelateModels(SFeatureCorrelateModels&&);
+        SFeatureCorrelateModels& operator=(SFeatureCorrelateModels&&);
 
         //! Restore the models reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelParams& params,

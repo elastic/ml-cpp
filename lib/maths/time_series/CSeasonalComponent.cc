@@ -12,15 +12,13 @@
 #include <maths/time_series/CSeasonalComponent.h>
 
 #include <core/CLogger.h>
-#include <core/CPersistUtils.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CIntegerTools.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CSolvers.h>
@@ -34,7 +32,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
 const core::TPersistenceTag RNG_TAG{"b", "rng"};
 const core::TPersistenceTag BUCKETING_TAG{"c", "bucketing"};
@@ -197,7 +194,7 @@ void CSeasonalComponent::add(core_t::TTime time, double value, double weight, do
     double shiftWeight;
     std::tie(shift, shiftWeight) = this->likelyShift(time, value);
     m_CurrentMeanShift.add(static_cast<double>(shift), weight * shiftWeight);
-    double prediction{common::CBasicStatistics::mean(this->value(this->jitter(time), 0.0))};
+    double prediction{this->value(this->jitter(time), 0.0).mean()};
     m_Bucketing.add(time + m_TotalShift, value, prediction, weight, gradientLearnRate);
 }
 
@@ -251,7 +248,8 @@ const CSeasonalComponentAdaptiveBucketing& CSeasonalComponent::bucketing() const
     return m_Bucketing;
 }
 
-TDoubleDoublePr CSeasonalComponent::value(core_t::TTime time, double confidence) const {
+CSeasonalComponent::TVector2x1 CSeasonalComponent::value(core_t::TTime time,
+                                                         double confidence) const {
     time += m_TotalShift;
     double offset{this->time().periodic(time)};
     double n{m_Bucketing.count(time)};
@@ -294,7 +292,7 @@ double CSeasonalComponent::delta(core_t::TTime time,
         double mean{this->CDecompositionComponent::meanValue()};
         for (core_t::TTime t = time; t < time + longPeriod; t += shortPeriod) {
             if (time_.inWindow(t)) {
-                double difference{common::CBasicStatistics::mean(this->value(t, 0.0)) - mean};
+                double difference{this->value(t, 0.0).mean() - mean};
                 bias.add(difference);
                 amplitude = std::max(amplitude, std::fabs(difference));
                 if (shortDifference * difference < 0.0) {
@@ -314,7 +312,8 @@ double CSeasonalComponent::delta(core_t::TTime time,
     return 0.0;
 }
 
-TDoubleDoublePr CSeasonalComponent::variance(core_t::TTime time, double confidence) const {
+CSeasonalComponent::TVector2x1
+CSeasonalComponent::variance(core_t::TTime time, double confidence) const {
     time += m_TotalShift;
     double offset{this->time().periodic(time)};
     double n{m_Bucketing.count(time)};
@@ -334,7 +333,7 @@ bool CSeasonalComponent::covariances(core_t::TTime time, TMatrix& result) const 
 
     time += m_TotalShift;
     if (const auto* r = m_Bucketing.regression(time)) {
-        double variance{common::CBasicStatistics::mean(this->variance(time, 0.0))};
+        double variance{this->variance(time, 0.0).mean()};
         return r->covariances(variance, result);
     }
 
@@ -364,13 +363,13 @@ std::uint64_t CSeasonalComponent::checksum(std::uint64_t seed) const {
 
 void CSeasonalComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonalComponent");
-    core::CMemoryDebug::dynamicSize("m_Bucketing", m_Bucketing, mem);
-    core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);
+    core::memory_debug::dynamicSize("m_Bucketing", m_Bucketing, mem);
+    core::memory_debug::dynamicSize("m_Splines", this->splines(), mem);
 }
 
 std::size_t CSeasonalComponent::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Bucketing) +
-           core::CMemory::dynamicSize(this->splines());
+    return core::memory::dynamicSize(m_Bucketing) +
+           core::memory::dynamicSize(this->splines());
 }
 
 CSeasonalComponent::TTimeDoublePr CSeasonalComponent::likelyShift(core_t::TTime maxTimeShift,
@@ -408,11 +407,10 @@ CSeasonalComponent::likelyShift(core_t::TTime time, double value) const {
     // If the change due to the shift is small compared to the prediction
     // error force it to zero.
     double noise{0.2 * std::sqrt(this->meanVariance()) / range};
-    auto loss = [&](double offset) {
-        return std::fabs(common::CBasicStatistics::mean(this->value(
-                             time + static_cast<core_t::TTime>(offset + 0.5), 0.0)) -
-                         value) +
-               noise * std::fabs(offset);
+    auto loss = [&](double shift) {
+        auto shift_ = static_cast<core_t::TTime>(shift + 0.5);
+        return std::fabs(this->value(time + shift_, 0.0).mean() - value) +
+               noise * std::fabs(shift);
     };
 
     return likelyShift(m_MaxTimeShiftPerPeriod, 0, loss);

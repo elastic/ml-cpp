@@ -12,8 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CXMeans_h
 #define INCLUDED_ml_maths_common_CXMeans_h
 
-#include <core/CContainerPrinter.h>
-#include <core/CLogger.h>
+#include <core/CLoggerTrace.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
@@ -26,10 +25,8 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <numeric>
+#include <cstdint>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace maths {
@@ -55,7 +52,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TPointVec = std::vector<POINT>;
     using TPointVecVec = std::vector<TPointVec>;
-    using TUInt64USet = boost::unordered_set<uint64_t>;
+    using TUInt64USet = boost::unordered_set<std::uint64_t>;
     using TMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
     //! A cluster.
@@ -105,7 +102,7 @@ public:
         const TPointVec& points() const { return m_Points; }
 
         //! Get the cluster checksum.
-        uint64_t checksum() const { return m_Checksum; }
+        std::uint64_t checksum() const { return m_Checksum; }
 
     private:
         //! The information criterion cost of this cluster.
@@ -115,7 +112,7 @@ public:
         //! The points in the cluster.
         TPointVec m_Points;
         //! A checksum for the points in the cluster.
-        uint64_t m_Checksum;
+        std::uint64_t m_Checksum;
     };
 
     using TClusterVec = std::vector<CCluster>;
@@ -304,13 +301,13 @@ protected:
 
             for (std::size_t j = 0; j < clusterSeeds; ++j) {
                 this->generateSeedCentres(points, 2, seedCentres);
-                LOG_TRACE(<< "seed centres = " << core::CContainerPrinter::print(seedCentres));
+                LOG_TRACE(<< "seed centres = " << seedCentres);
 
                 kmeans.setCentres(seedCentres);
                 kmeans.run(kmeansIterations);
 
                 const TPointVec& centres = kmeans.centres();
-                LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
+                LOG_TRACE(<< "centres = " << centres);
                 clusterPoints.clear();
                 kmeans.clusters(clusterPoints);
 

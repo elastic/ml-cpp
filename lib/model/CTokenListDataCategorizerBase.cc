@@ -11,7 +11,7 @@
 #include <model/CTokenListDataCategorizerBase.h>
 
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDefMultiIndex.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -67,22 +67,26 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
                                                std::size_t rawStringLen) {
     // First tokenise string
     std::size_t workWeight{0};
+    std::size_t minReweightedWorkWeight{0};
+    std::size_t maxReweightedWorkWeight{0};
     auto preTokenisedIter = fields.find(PRETOKENISED_TOKEN_FIELD);
     if (preTokenisedIter != fields.end()) {
         if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds,
-                                        m_WorkTokenUniqueIds, workWeight) == false) {
+                                        m_WorkTokenUniqueIds, workWeight, minReweightedWorkWeight,
+                                        maxReweightedWorkWeight) == false) {
             return CLocalCategoryId::softFailure();
         }
     } else {
-        this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight);
+        this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight,
+                             minReweightedWorkWeight, maxReweightedWorkWeight);
     }
 
     // Determine the minimum and maximum token weight that could possibly
     // match the weight we've got
     std::size_t minWeight{CTokenListDataCategorizerBase::minMatchingWeight(
-        workWeight, m_LowerThreshold)};
+        minReweightedWorkWeight, m_LowerThreshold)};
     std::size_t maxWeight{CTokenListDataCategorizerBase::maxMatchingWeight(
-        workWeight, m_LowerThreshold)};
+        maxReweightedWorkWeight, m_LowerThreshold)};
 
     // We search previous categories in descending order of the number of matches
     // we've seen for them
@@ -109,14 +113,17 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
             // Rule out categories where adding the current string would unacceptably
             // reduce the number of unique common tokens
-            std::size_t origUniqueTokenWeight{compCategory.origUniqueTokenWeight()};
-            std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
             std::size_t missingCommonTokenWeight{
                 compCategory.missingCommonTokenWeight(m_WorkTokenUniqueIds)};
-            double proportionOfOrig{static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
-                                    static_cast<double>(origUniqueTokenWeight)};
-            if (proportionOfOrig < m_LowerThreshold) {
-                continue;
+            if (missingCommonTokenWeight > 0) {
+                std::size_t origUniqueTokenWeight{compCategory.origUniqueTokenWeight()};
+                std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
+                double proportionOfOrig{
+                    static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
+                    static_cast<double>(origUniqueTokenWeight)};
+                if (proportionOfOrig < m_LowerThreshold) {
+                    continue;
+                }
             }
         }
 
@@ -148,8 +155,10 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
             // Recalculate the minimum and maximum token counts that might
             // produce a better match
-            minWeight = CTokenListDataCategorizerBase::minMatchingWeight(workWeight, similarity);
-            maxWeight = CTokenListDataCategorizerBase::maxMatchingWeight(workWeight, similarity);
+            minWeight = CTokenListDataCategorizerBase::minMatchingWeight(
+                minReweightedWorkWeight, similarity);
+            maxWeight = CTokenListDataCategorizerBase::maxMatchingWeight(
+                maxReweightedWorkWeight, similarity);
         }
     }
 
@@ -249,8 +258,7 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
             baseTokenIds.begin(), baseTokenIds.end(), CSizePairFirstElementEquals(tokenId)))};
         const CTokenInfoItem& info{m_TokenIdLookup[tokenId]};
         std::size_t cost{m_ReverseSearchCreator->costOfToken(info.str(), occurrences)};
-        rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(
-            info.categoryCount(), TSizeSizePr(tokenId, cost)));
+        rareIdsWithCost.emplace(info.categoryCount(), TSizeSizePr(tokenId, cost));
         if (lowestCost > cost) {
             lowestCost = cost;
             lowestCostTokenId = tokenId;
@@ -513,7 +521,9 @@ std::size_t CTokenListDataCategorizerBase::idForToken(const std::string& token) 
 bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tokensCsv,
                                                           TSizeSizePrVec& tokenIds,
                                                           TSizeSizeMap& tokenUniqueIds,
-                                                          std::size_t& totalWeight) {
+                                                          std::size_t& totalWeight,
+                                                          std::size_t& minReweightedTotalWeight,
+                                                          std::size_t& maxReweightedTotalWeight) {
     tokenIds.clear();
     tokenUniqueIds.clear();
     totalWeight = 0;
@@ -525,7 +535,8 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
             return false;
         }
 
-        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight);
+        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight,
+                                 minReweightedTotalWeight, maxReweightedTotalWeight);
     }
 
     this->reset();
@@ -540,24 +551,24 @@ model_t::ECategorizationStatus CTokenListDataCategorizerBase::categorizationStat
 void CTokenListDataCategorizerBase::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListDataCategorizerBase");
     this->CDataCategorizer::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
-    core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
-    core::CMemoryDebug::dynamicSize("m_CategoriesByCount", m_CategoriesByCount, mem);
-    core::CMemoryDebug::dynamicSize("m_TokenIdLookup", m_TokenIdLookup, mem);
-    core::CMemoryDebug::dynamicSize("m_WorkTokenIds", m_WorkTokenIds, mem);
-    core::CMemoryDebug::dynamicSize("m_WorkTokenUniqueIds", m_WorkTokenUniqueIds, mem);
-    core::CMemoryDebug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
+    core::memory_debug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
+    core::memory_debug::dynamicSize("m_Categories", m_Categories, mem);
+    core::memory_debug::dynamicSize("m_CategoriesByCount", m_CategoriesByCount, mem);
+    core::memory_debug::dynamicSize("m_TokenIdLookup", m_TokenIdLookup, mem);
+    core::memory_debug::dynamicSize("m_WorkTokenIds", m_WorkTokenIds, mem);
+    core::memory_debug::dynamicSize("m_WorkTokenUniqueIds", m_WorkTokenUniqueIds, mem);
+    core::memory_debug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
 }
 
 std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     std::size_t mem = this->CDataCategorizer::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_ReverseSearchCreator);
-    mem += core::CMemory::dynamicSize(m_Categories);
-    mem += core::CMemory::dynamicSize(m_CategoriesByCount);
-    mem += core::CMemory::dynamicSize(m_TokenIdLookup);
-    mem += core::CMemory::dynamicSize(m_WorkTokenIds);
-    mem += core::CMemory::dynamicSize(m_WorkTokenUniqueIds);
-    mem += core::CMemory::dynamicSize(m_CsvLineParser);
+    mem += core::memory::dynamicSize(m_ReverseSearchCreator);
+    mem += core::memory::dynamicSize(m_Categories);
+    mem += core::memory::dynamicSize(m_CategoriesByCount);
+    mem += core::memory::dynamicSize(m_TokenIdLookup);
+    mem += core::memory::dynamicSize(m_WorkTokenIds);
+    mem += core::memory::dynamicSize(m_WorkTokenUniqueIds);
+    mem += core::memory::dynamicSize(m_CsvLineParser);
     return mem;
 }
 
@@ -802,11 +813,11 @@ const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
 void CTokenListDataCategorizerBase::CTokenInfoItem::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenInfoItem");
-    core::CMemoryDebug::dynamicSize("m_Str", m_Str, mem);
+    core::memory_debug::dynamicSize("m_Str", m_Str, mem);
 }
 
 std::size_t CTokenListDataCategorizerBase::CTokenInfoItem::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Str);
+    return core::memory::dynamicSize(m_Str);
 }
 
 std::size_t CTokenListDataCategorizerBase::CTokenInfoItem::index() const {

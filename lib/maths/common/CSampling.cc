@@ -11,7 +11,6 @@
 
 #include <maths/common/CSampling.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
 #include <core/CStatePersistInserter.h>
@@ -19,15 +18,17 @@
 
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTools.h>
 
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
 #include <boost/random/sobol.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
@@ -36,7 +37,6 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <set>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -45,10 +45,66 @@ namespace ml {
 namespace maths {
 namespace common {
 namespace {
-
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
+
+//! \brief A mockable random number generator which uses boost::random::mt11213b.
+class CRandomNumberGenerator {
+public:
+    using result_type = boost::random::mt11213b::result_type;
+
+public:
+    //! Mock the random number generator to produce a constant.
+    void mock() { m_Mock.emplace((min() + max()) / 2); }
+
+    //! Unmock the random number generator.
+    void unmock() { m_Mock.reset(); }
+
+    //! Seed the random number generator.
+    void seed() { m_Rng.seed(); }
+
+    //! Returns the smallest value that the generator can produce.
+    static result_type min() { return boost::random::mt11213b::min(); }
+
+    //! Returns the largest value that the generator can produce.
+    static result_type max() { return boost::random::mt11213b::max(); }
+
+    //! Produces the next value of the generator.
+    result_type operator()() {
+        if (m_Mock) {
+            return *m_Mock;
+        }
+        return m_Rng.operator()();
+    }
+
+    //! Writes the mersenne_twister_engine to a std::ostream.
+    template<class CHAR, class TRAITS>
+    friend std::basic_ostream<CHAR, TRAITS>&
+    operator<<(std::basic_ostream<CHAR, TRAITS>& o, const CRandomNumberGenerator& g) {
+        return o << g.m_Rng;
+    }
+
+    //! Reads a mersenne_twister_engine from a std::istream.
+    template<class CHAR, class TRAITS>
+    friend std::basic_istream<CHAR, TRAITS>&
+    operator>>(std::basic_istream<CHAR, TRAITS>& i, CRandomNumberGenerator& g) {
+        return i >> g.m_Rng;
+    }
+
+private:
+    using TOptionalResultType = std::optional<result_type>;
+
+private:
+    TOptionalResultType m_Mock;
+    boost::random::mt11213b m_Rng;
+};
+
+//! The mutex for protecting access to the default random number generator.
+core::CFastMutex defaultRngMutex;
+
+//! The default uniform random number generator.
+CRandomNumberGenerator defaultRng;
 
 //! Defines the appropriate integer random number generator.
 template<typename INTEGER>
@@ -108,8 +164,10 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
     if (variance < 0.0) {
         LOG_ERROR(<< "Invalid variance " << variance);
         return;
-    } else if (variance == 0.0) {
+    }
+    if (variance == 0.0) {
         result.resize(n, mean);
+        return;
     }
 
     result.reserve(n);
@@ -119,10 +177,31 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
     }
 }
 
+//! Implementation of Poisson sampling.
+template<typename RNG>
+void doPoissonSample(RNG& rng, double rate, std::size_t n, TSizeVec& result) {
+    result.clear();
+    if (rate <= 0.0) {
+        LOG_ERROR(<< "Invalid rate " << rate);
+        return;
+    }
+
+    result.reserve(n);
+    boost::random::poisson_distribution<std::size_t> poisson{rate};
+    for (std::size_t i = 0; i < n; ++i) {
+        result.push_back(poisson(rng));
+    }
+}
+
 //! Implementation of chi^2 sampling.
 template<typename RNG>
 void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
     result.clear();
+    if (f <= 0.0) {
+        LOG_ERROR(<< "Invalid degrees freedom " << f);
+        return;
+    }
+
     result.reserve(n);
     boost::random::chi_squared_distribution<double> chi2(f);
     for (std::size_t i = 0; i < n; ++i) {
@@ -253,9 +332,7 @@ bool doMultivariateNormalSample(RNG& rng,
                                 std::size_t n,
                                 TDoubleVecVec& samples) {
     if (mean.size() != covariance.size()) {
-        LOG_ERROR(<< "Incompatible mean and covariance: "
-                  << core::CContainerPrinter::print(mean) << ", "
-                  << core::CContainerPrinter::print(covariance));
+        LOG_ERROR(<< "Incompatible mean and covariance: " << mean << ", " << covariance);
         return false;
     }
 
@@ -282,14 +359,13 @@ bool doMultivariateNormalSample(RNG& rng,
 
     std::size_t d = mean.size();
     LOG_TRACE(<< "Dimension = " << d);
-    LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(mean));
+    LOG_TRACE(<< "mean = " << mean);
 
     CDenseMatrix<double> C(d, d);
     for (std::size_t i = 0; i < d; ++i) {
         C(i, i) = covariance[i][i];
         if (covariance[i].size() < d - i) {
-            LOG_ERROR(<< "Bad covariance matrix: "
-                      << core::CContainerPrinter::print(covariance));
+            LOG_ERROR(<< "Bad covariance matrix: " << covariance);
             return false;
         }
         for (std::size_t j = 0; j < i; ++j) {
@@ -311,7 +387,7 @@ bool doMultivariateNormalSample(RNG& rng,
         stddevs.push_back(std::sqrt(std::max(S(i), 0.0)));
     }
     LOG_TRACE(<< "Singular values of C = " << S.transpose());
-    LOG_TRACE(<< "stddevs = " << core::CContainerPrinter::print(stddevs));
+    LOG_TRACE(<< "stddevs = " << stddevs);
     LOG_TRACE(<< "U =" << core_t::LINE_ENDING << ' ' << U);
     LOG_TRACE(<< "V =" << core_t::LINE_ENDING << ' ' << svd.matrixV());
 
@@ -386,14 +462,14 @@ void sampleQuantiles(const DISTRIBUTION& distribution, std::size_t n, TDoubleVec
     CTools::SIntervalExpectation expectation;
     double dq = 1.0 / static_cast<double>(n);
 
-    double a = boost::numeric::bounds<double>::lowest();
+    double a = std::numeric_limits<double>::lowest();
     for (std::size_t i = 1; i < n; ++i) {
         double q = static_cast<double>(i) * dq;
         double b = boost::math::quantile(distribution, q);
         result.push_back(expectation(distribution, a, b));
         a = b;
     }
-    double b = boost::numeric::bounds<double>::highest();
+    double b = std::numeric_limits<double>::max();
     result.push_back(expectation(distribution, a, b));
 }
 
@@ -411,8 +487,8 @@ bool CSampling::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& trav
             // See acceptPersistInserter
             std::replace(value.begin(), value.end(), '_', ' ');
             std::istringstream ss(value);
-            core::CScopedFastLock scopedLock(ms_Lock);
-            ss >> ms_Rng;
+            core::CScopedFastLock scopedLock{defaultRngMutex};
+            ss >> defaultRng;
         }
     } while (traverser.next());
 
@@ -424,8 +500,8 @@ void CSampling::staticsAcceptPersistInserter(core::CStatePersistInserter& insert
 
     std::ostringstream ss;
     {
-        core::CScopedFastLock scopedLock(ms_Lock);
-        ss << ms_Rng;
+        core::CScopedFastLock scopedLock{defaultRngMutex};
+        ss << defaultRng;
     }
     std::string rng(ss.str());
     // These are space separated integers. We replace spaces or else
@@ -435,14 +511,14 @@ void CSampling::staticsAcceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 void CSampling::seed() {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    ms_Rng.seed();
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    defaultRng.seed();
 }
 
 #define UNIFORM_SAMPLE(TYPE)                                                                  \
     TYPE CSampling::uniformSample(TYPE a, TYPE b) {                                           \
-        core::CScopedFastLock scopedLock(ms_Lock);                                            \
-        return doUniformSample(ms_Rng, a, b);                                                 \
+        core::CScopedFastLock scopedLock{defaultRngMutex};                                    \
+        return doUniformSample(defaultRng, a, b);                                             \
     }                                                                                         \
     TYPE CSampling::uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b) {            \
         return doUniformSample(rng, a, b);                                                    \
@@ -451,8 +527,8 @@ void CSampling::seed() {
         return doUniformSample(rng, a, b);                                                    \
     }                                                                                         \
     void CSampling::uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) { \
-        core::CScopedFastLock scopedLock(ms_Lock);                                            \
-        doUniformSample(ms_Rng, a, b, n, result);                                             \
+        core::CScopedFastLock scopedLock{defaultRngMutex};                                    \
+        doUniformSample(defaultRng, a, b, n, result);                                         \
     }                                                                                         \
     void CSampling::uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b,              \
                                   std::size_t n, std::vector<TYPE>& result) {                 \
@@ -468,8 +544,8 @@ UNIFORM_SAMPLE(double)
 #undef UNIFORM_SAMPLE
 
 double CSampling::normalSample(double mean, double variance) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    return doNormalSample(ms_Rng, mean, variance);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    return doNormalSample(defaultRng, mean, variance);
 }
 
 double CSampling::normalSample(CPRNG::CXorOShiro128Plus& rng, double mean, double variance) {
@@ -481,8 +557,8 @@ double CSampling::normalSample(CPRNG::CXorShift1024Mult& rng, double mean, doubl
 }
 
 void CSampling::normalSample(double mean, double variance, std::size_t n, TDoubleVec& result) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    doNormalSample(ms_Rng, mean, variance, n, result);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    doNormalSample(defaultRng, mean, variance, n, result);
 }
 
 void CSampling::normalSample(CPRNG::CXorOShiro128Plus& rng,
@@ -501,9 +577,22 @@ void CSampling::normalSample(CPRNG::CXorShift1024Mult& rng,
     doNormalSample(rng, mean, variance, n, result);
 }
 
+void CSampling::poissonSample(double rate, std::size_t n, TSizeVec& result) {
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    doPoissonSample(defaultRng, rate, n, result);
+}
+
+void CSampling::poissonSample(CPRNG::CXorOShiro128Plus& rng, double rate, std::size_t n, TSizeVec& result) {
+    doPoissonSample(rng, rate, n, result);
+}
+
+void CSampling::poissonSample(CPRNG::CXorShift1024Mult& rng, double rate, std::size_t n, TSizeVec& result) {
+    doPoissonSample(rng, rate, n, result);
+}
+
 void CSampling::chiSquaredSample(double f, std::size_t n, TDoubleVec& result) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    doChiSquaredSample(ms_Rng, f, n, result);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    doChiSquaredSample(defaultRng, f, n, result);
 }
 
 void CSampling::chiSquaredSample(CPRNG::CXorOShiro128Plus& rng,
@@ -524,8 +613,8 @@ bool CSampling::multivariateNormalSample(const TDoubleVec& mean,
                                          const TDoubleVecVec& covariance,
                                          std::size_t n,
                                          TDoubleVecVec& samples) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    return doMultivariateNormalSample(ms_Rng, mean, covariance, n, samples);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    return doMultivariateNormalSample(defaultRng, mean, covariance, n, samples);
 }
 
 bool CSampling::multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,
@@ -548,8 +637,8 @@ bool CSampling::multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,
     void CSampling::multivariateNormalSample(                                                \
         const CVectorNx1<double, N>& mean, const CSymmetricMatrixNxN<double, N>& covariance, \
         std::size_t n, std::vector<CVectorNx1<double, N>>& samples) {                        \
-        core::CScopedFastLock scopedLock(ms_Lock);                                           \
-        doMultivariateNormalSample(ms_Rng, mean, covariance, n, samples);                    \
+        core::CScopedFastLock scopedLock{defaultRngMutex};                                   \
+        doMultivariateNormalSample(defaultRng, mean, covariance, n, samples);                \
     }                                                                                        \
     void CSampling::multivariateNormalSample(                                                \
         CPRNG::CXorOShiro128Plus& rng, const CVectorNx1<double, N>& mean,                    \
@@ -570,8 +659,8 @@ MULTIVARIATE_NORMAL_SAMPLE(5)
 #undef MULTIVARIATE_NORMAL_SAMPLE
 
 std::size_t CSampling::categoricalSample(TDoubleVec& probabilities) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    return doCategoricalSample(ms_Rng, probabilities);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    return doCategoricalSample(defaultRng, probabilities);
 }
 
 std::size_t CSampling::categoricalSample(CPRNG::CXorOShiro128Plus& rng,
@@ -587,8 +676,8 @@ std::size_t CSampling::categoricalSample(CPRNG::CXorShift1024Mult& rng,
 void CSampling::categoricalSampleWithReplacement(TDoubleVec& probabilities,
                                                  std::size_t n,
                                                  TSizeVec& result) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    doCategoricalSampleWithReplacement(ms_Rng, probabilities, n, result);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    doCategoricalSampleWithReplacement(defaultRng, probabilities, n, result);
 }
 
 void CSampling::categoricalSampleWithReplacement(CPRNG::CXorOShiro128Plus& rng,
@@ -608,8 +697,8 @@ void CSampling::categoricalSampleWithReplacement(CPRNG::CXorShift1024Mult& rng,
 void CSampling::categoricalSampleWithoutReplacement(TDoubleVec& probabilities,
                                                     std::size_t n,
                                                     TSizeVec& result) {
-    core::CScopedFastLock scopedLock(ms_Lock);
-    doCategoricalSampleWithoutReplacement(ms_Rng, probabilities, n, result);
+    core::CScopedFastLock scopedLock{defaultRngMutex};
+    doCategoricalSampleWithoutReplacement(defaultRng, probabilities, n, result);
 }
 
 void CSampling::categoricalSampleWithoutReplacement(CPRNG::CXorOShiro128Plus& rng,
@@ -670,11 +759,11 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
         std::size_t r = n;
         double p = 1.0;
         std::size_t m = probabilities.size() - 1;
-        core::CScopedFastLock scopedLock(ms_Lock);
+        core::CScopedFastLock scopedLock{defaultRngMutex};
         for (std::size_t i = 0; r > 0 && i < m; ++i) {
             boost::random::binomial_distribution<> binomial(static_cast<int>(r),
                                                             probabilities[i] / p);
-            std::size_t ni = static_cast<std::size_t>(binomial(ms_Rng));
+            std::size_t ni = static_cast<std::size_t>(binomial(defaultRng));
             sample.push_back(ni);
             r -= ni;
             p -= probabilities[i];
@@ -767,7 +856,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     // floating point problems.
 
     if (std::fabs(totalRemainder) > 0.5) {
-        LOG_TRACE(<< "ideal choice function = " << core::CContainerPrinter::print(choices));
+        LOG_TRACE(<< "ideal choice function = " << choices);
 
         TDoubleSizePrVec candidates;
         for (std::size_t i = 0; i < choices.size(); ++i) {
@@ -777,7 +866,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             }
         }
         std::sort(candidates.begin(), candidates.end());
-        LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(candidates));
+        LOG_TRACE(<< "candidates = " << candidates);
 
         for (std::size_t i = 0;
              i < candidates.size() && std::fabs(totalRemainder) > 0.5; ++i) {
@@ -787,7 +876,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             totalRemainder += remainders[choices[j]][j] - remainders[choice][j];
         }
     }
-    LOG_TRACE(<< "choice function = " << core::CContainerPrinter::print(choices));
+    LOG_TRACE(<< "choice function = " << choices);
 
     sampling.reserve(weights.size());
     for (std::size_t i = 0; i < weights.size(); ++i) {
@@ -803,8 +892,7 @@ void CSampling::normalSampleQuantiles(double mean, double variance, std::size_t 
     if (n == 0) {
         return;
     }
-
-    if (variance == 0.0) {
+    if (variance <= 0.0) {
         result.resize(n, mean);
         return;
     }
@@ -859,27 +947,12 @@ void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVe
     }
 }
 
-core::CFastMutex CSampling::ms_Lock;
-CSampling::CRandomNumberGenerator CSampling::ms_Rng;
-
-void CSampling::CRandomNumberGenerator::mock() {
-    m_Mock.reset((min() + max()) / 2);
-}
-
-void CSampling::CRandomNumberGenerator::unmock() {
-    m_Mock.reset();
-}
-
-void CSampling::CRandomNumberGenerator::seed() {
-    m_Rng.seed();
-}
-
 CSampling::CScopeMockRandomNumberGenerator::CScopeMockRandomNumberGenerator() {
-    CSampling::ms_Rng.mock();
+    defaultRng.mock();
 }
 
 CSampling::CScopeMockRandomNumberGenerator::~CScopeMockRandomNumberGenerator() {
-    CSampling::ms_Rng.unmock();
+    defaultRng.unmock();
 }
 }
 }

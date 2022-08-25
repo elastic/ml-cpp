@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_api_CJsonOutputWriter_h
 #define INCLUDED_ml_api_CJsonOutputWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
@@ -24,18 +23,18 @@
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
-
-#include <boost/optional.hpp>
-
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
 namespace model {
 class CHierarchicalResultsNormalizer;
 }
@@ -171,7 +170,7 @@ public:
         TStr1Vec s_ScheduledEventDescriptions;
     };
 
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
 
     using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
     using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;

@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_time_series_CSignal_h
 
 #include <core/CContainerPrinter.h>
-#include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
@@ -21,17 +20,20 @@
 
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <algorithm>
 #include <complex>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace time_series {
 
@@ -46,7 +48,7 @@ public:
     using TComplexVec = std::vector<TComplex>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePr2Vec = std::vector<TSizeSizePr>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalSize = std::optional<std::size_t>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;

@@ -9,13 +9,13 @@
  * limitation.
  */
 
-#include "core/CContainerPrinter.h"
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/analytics/CBoostedTreeLeafNodeStatisticsIncremental.h>
+#include <maths/analytics/CBoostedTreeLeafNodeStatisticsScratch.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 
@@ -27,6 +27,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <numeric>
 
 using TSplitsDerivatives = ml::maths::analytics::CBoostedTreeLeafNodeStatistics::CSplitsDerivatives;
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TSplitsDerivatives)
@@ -101,13 +102,17 @@ void testDerivativesFor(std::size_t numberParameters) {
     std::size_t paddedNumberGradients{core::CAlignment::roundup<double>(
         core::CAlignment::E_Aligned16, numberGradients)};
 
-    TAlignedDoubleVec storage1(paddedNumberGradients + numberGradients * numberGradients, 0.0);
+    TAlignedDoubleVec storage1(
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
     TAlignedDoubleVec storage1Plus2(
-        paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives1(static_cast<int>(numberParameters), &storage1[0],
-                              &storage1[paddedNumberGradients]);
-    TDerivatives derivatives1Plus2(static_cast<int>(numberParameters), &storage1Plus2[0],
-                                   &storage1Plus2[paddedNumberGradients]);
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
+    TDerivatives derivatives1(static_cast<int>(numberParameters), storage1.data(),
+                              storage1.data() + paddedNumberGradients,
+                              storage1.data() + storage1.size() - 1);
+    TDerivatives derivatives1Plus2(static_cast<int>(numberParameters),
+                                   storage1Plus2.data(),
+                                   storage1Plus2.data() + paddedNumberGradients,
+                                   storage1Plus2.data() + storage1Plus2.size() - 1);
     for (std::size_t j = 0; j < 10; ++j) {
         TAlignedFloatVec rowStorage;
         for (std::size_t i = 0; i < numberGradients; ++i) {
@@ -117,7 +122,7 @@ void testDerivativesFor(std::size_t numberParameters) {
             rowStorage.push_back(curvatures[i][j]);
         }
         auto derivatives = makeAlignedVector<Eigen::Aligned16>(
-            &rowStorage[0], numberGradients + numberCurvatures);
+            rowStorage.data(), numberGradients + numberCurvatures);
         derivatives1.add(1, derivatives);
         derivatives1Plus2.add(1, derivatives);
     }
@@ -139,9 +144,11 @@ void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Merge");
 
-    TAlignedDoubleVec storage2(paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives2(static_cast<int>(numberParameters), &storage2[0],
-                              &storage2[paddedNumberGradients]);
+    TAlignedDoubleVec storage2(
+        paddedNumberGradients + numberGradients * numberGradients + 1, 0.0);
+    TDerivatives derivatives2(static_cast<int>(numberParameters), storage2.data(),
+                              storage2.data() + paddedNumberGradients,
+                              storage2.data() + storage2.size() - 1);
 
     for (std::size_t j = 10; j < 20; ++j) {
         TAlignedFloatVec storage;
@@ -152,7 +159,7 @@ void testDerivativesFor(std::size_t numberParameters) {
             storage.push_back(curvatures[i][j]);
         }
         auto derivatives = makeAlignedVector<Eigen::Aligned16>(
-            &storage[0], numberGradients + numberCurvatures);
+            storage.data(), numberGradients + numberCurvatures);
         derivatives2.add(1, derivatives);
     }
 
@@ -244,9 +251,9 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
                 storage.insert(storage.end(), &curvatures[j],
                                &curvatures[k + numberCurvatures]);
                 auto derivatives_ = makeAlignedVector<Eigen::Aligned16>(
-                    &storage[0], numberGradients + numberCurvatures);
-                auto gradient = makeVector(&storage[0], numberGradients);
-                auto curvature = makeVector(&storage[numberGradients], numberCurvatures);
+                    storage.data(), numberGradients + numberCurvatures);
+                auto gradient = makeVector(storage.data(), numberGradients);
+                auto curvature = makeVector(storage.data() + numberGradients, numberCurvatures);
 
                 if (uniform01[i] < 0.1) {
                     derivatives.addMissingDerivatives(features[i], derivatives_);
@@ -373,6 +380,7 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
     // loss functions.
 
     testPerSplitDerivativesFor(1 /*loss function parameter*/);
+    testPerSplitDerivativesFor(2 /*loss function parameters*/);
     testPerSplitDerivativesFor(3 /*loss function parameters*/);
 }
 
@@ -384,12 +392,12 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     using TNodeVec = maths::analytics::CBoostedTree::TNodeVec;
 
     std::size_t cols{2};
-    TSizeVec extraColumns{2, 3, 4, 5, 6};
+    TSizeVec extraColumns{2, 3, 4, 5, 0, 6};
     std::size_t rows{50};
     std::size_t numberThreads{1};
 
     for (std::size_t seed = 0; seed < 1000; ++seed) {
-        maths::common::CQuantileSketch sketch(maths::common::CQuantileSketch::E_Linear, rows);
+        maths::common::CQuantileSketch sketch{rows};
         test::CRandomNumbers rng;
         rng.seed(seed);
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;
@@ -449,8 +457,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             }
         });
 
-        maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
-        workspace.reinitialize(numberThreads, featureSplits, 1);
+        maths::analytics::CBoostedTreeLeafNodeStatistics::CWorkspace workspace{1};
+        workspace.reinitialize(numberThreads, featureSplits);
 
         core::CPackedBitVector trainingRowMask(rows, true);
 
@@ -463,7 +471,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
         TNodeVec tree(1);
 
-        auto rootSplit = std::make_shared<maths::analytics::CBoostedTreeLeafNodeStatistics>(
+        auto rootSplit = std::make_shared<maths::analytics::CBoostedTreeLeafNodeStatisticsScratch>(
             0 /*root*/, extraColumns, 1, *frame, parameters, featureSplits,
             treeFeatureBag, nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace);
 
@@ -476,7 +484,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
             splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
-            rootSplit->curvature(), tree);
+            rootSplit->gainVariance(), rootSplit->curvature(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -593,10 +601,11 @@ BOOST_AUTO_TEST_CASE(testComputeBestSplitStatisticsThreading) {
     std::iota(featureBag.begin(), featureBag.end(), 0);
 
     for (std::size_t p : {1, 3}) {
+        LOG_DEBUG(<< "CBoostedTreeLeafNodeStatisticsScratch(p = " << p << ")");
         for (std::size_t t = 0; t < 100; ++t) {
             auto derivatives = generateSplitsDerivatives(rng, numberCandidateSplits, p);
             derivatives.remapCurvature(1, featureBag);
-            maths::analytics::CBoostedTreeLeafNodeStatistics statistics{
+            maths::analytics::CBoostedTreeLeafNodeStatisticsScratch statistics{
                 extraColumns, p, candidateSplits, std::move(derivatives)};
 
             auto singleThreadedBestSplit = statistics.computeBestSplitStatistics(
@@ -606,6 +615,44 @@ BOOST_AUTO_TEST_CASE(testComputeBestSplitStatisticsThreading) {
 
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Gain,
                                 multiThreadedBestSplit.s_Gain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_GainVariance,
+                                multiThreadedBestSplit.s_GainVariance);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Curvature,
+                                multiThreadedBestSplit.s_Curvature);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Feature,
+                                multiThreadedBestSplit.s_Feature);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_SplitAt,
+                                multiThreadedBestSplit.s_SplitAt);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_MinimumChildRowCount,
+                                multiThreadedBestSplit.s_MinimumChildRowCount);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_LeftChildHasFewerRows,
+                                multiThreadedBestSplit.s_LeftChildHasFewerRows);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_AssignMissingToLeft,
+                                multiThreadedBestSplit.s_AssignMissingToLeft);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_MinimumChildRowCount,
+                                multiThreadedBestSplit.s_MinimumChildRowCount);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_LeftChildMaxGain,
+                                multiThreadedBestSplit.s_LeftChildMaxGain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_RightChildMaxGain,
+                                multiThreadedBestSplit.s_RightChildMaxGain);
+        }
+
+        LOG_DEBUG(<< "CBoostedTreeLeafNodeStatisticsIncremental(p = " << p << ")");
+        for (std::size_t t = 0; t < 100; ++t) {
+            auto derivatives = generateSplitsDerivatives(rng, numberCandidateSplits, p);
+            derivatives.remapCurvature(1, featureBag);
+            maths::analytics::CBoostedTreeLeafNodeStatisticsIncremental statistics{
+                extraColumns, p, candidateSplits, std::move(derivatives)};
+
+            auto singleThreadedBestSplit = statistics.computeBestSplitStatistics(
+                1 /*number threads*/, regularization, featureBag);
+            auto multiThreadedBestSplit = statistics.computeBestSplitStatistics(
+                4 /*number threads*/, regularization, featureBag);
+
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Gain,
+                                multiThreadedBestSplit.s_Gain);
+            BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_GainVariance,
+                                multiThreadedBestSplit.s_GainVariance);
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Curvature,
                                 multiThreadedBestSplit.s_Curvature);
             BOOST_REQUIRE_EQUAL(singleThreadedBestSplit.s_Feature,

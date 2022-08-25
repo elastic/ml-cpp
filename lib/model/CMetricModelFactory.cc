@@ -11,20 +11,19 @@
 
 #include <model/CMetricModelFactory.h>
 
-#include <core/CStateRestoreTraverser.h>
-
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CGammaRateConjugate.h>
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CMultimodalPrior.h>
+#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/COneOfNPrior.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CXMeansOnline1d.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CMetricModel.h>
+#include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <memory>
 
@@ -149,14 +148,14 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams&
 
     // Create the component priors.
     maths::common::COneOfNPrior::TPriorPtrVec priors;
-    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 4u : 3u);
+    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 4 : 3);
     priors.emplace_back(gammaPrior.clone());
     priors.emplace_back(logNormalPrior.clone());
     priors.emplace_back(normalPrior.clone());
     if (params.s_MinimumModeFraction <= 0.5) {
         // Create the multimode prior.
         maths::common::COneOfNPrior::TPriorPtrVec modePriors;
-        modePriors.reserve(3u);
+        modePriors.reserve(3);
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
         modePriors.emplace_back(normalPrior.clone());
@@ -185,7 +184,7 @@ CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
     }
 
     TMultivariatePriorUPtrVec priors;
-    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
+    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2 : 1);
     TMultivariatePriorUPtr normal{this->multivariateNormalPrior(dimension, params)};
     priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
@@ -200,7 +199,7 @@ CMetricModelFactory::TMultivariatePriorUPtr
 CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                            const SModelParams& params) const {
     TMultivariatePriorUPtrVec priors;
-    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
+    priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2 : 1);
     TMultivariatePriorUPtr normal{this->multivariateNormalPrior(2, params)};
     priors.push_back(std::move(normal));
     if (params.s_MinimumModeFraction <= 0.5) {
@@ -210,7 +209,7 @@ CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 }
 
 const CSearchKey& CMetricModelFactory::searchKey() const {
-    if (!m_SearchKeyCache) {
+    if (m_SearchKeyCache == std::nullopt) {
         m_SearchKeyCache.emplace(m_DetectorIndex, function_t::function(m_Features),
                                  m_UseNull, this->modelParams().s_ExcludeFrequent,
                                  m_ValueFieldName, m_PersonFieldName, "",

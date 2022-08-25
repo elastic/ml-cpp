@@ -9,13 +9,14 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CStaticThreadPool.h>
 #include <core/CStopWatch.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <atomic>
 #include <chrono>
@@ -70,7 +71,7 @@ BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
         // We should get here fast because the unblocked thread should keep
         // draining the instant tasks even though they're added to both queues.
 
-        uint64_t timeToSchedule{watch.stop()};
+        std::uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 1);
     }
@@ -108,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
         // to process before we can finish scheduling. We give ourselves a little
         // head room.
 
-        uint64_t timeToSchedule{watch.stop()};
+        std::uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST_REQUIRE(timeToSchedule >= 300);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 350);
@@ -212,13 +213,14 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
     // Start a threadpool then change the number of threads and check we aren't
     // getting execution on more than the specified number of distinct threads.
 
-    using TThreadIdUSet = boost::unordered_set<std::thread::id, std::hash<std::thread::id>>;
+    using TThreadIdSizeUMap =
+        boost::unordered_map<std::thread::id, std::size_t, std::hash<std::thread::id>>;
 
     core::CStaticThreadPool pool{8};
 
     std::mutex mutex;
     std::size_t numberProcessedTasks{0};
-    TThreadIdUSet executionThreads;
+    TThreadIdSizeUMap executionThreads;
 
     for (std::size_t numberThreadsInUse : {5, 6, 2}) {
 
@@ -228,16 +230,30 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
             pool.schedule([&] {
                 std::scoped_lock<std::mutex> lock{mutex};
                 ++numberProcessedTasks;
-                executionThreads.insert(std::this_thread::get_id());
+                ++executionThreads[std::this_thread::get_id()];
             });
         }
 
         for (;;) {
             std::scoped_lock<std::mutex> lock{mutex};
             if (numberProcessedTasks == 200) {
-                LOG_DEBUG(<< "# threads used = " << executionThreads.size());
-                // A subset of threads can steal all the work.
-                BOOST_TEST_REQUIRE(executionThreads.size() <= numberThreadsInUse);
+                // There are two cases:
+                //   1. There is a race between a worker cycling through the list
+                //      of queues from which to steal work and the change to the
+                //      atomic being visible. We don't refresh the atomic on every
+                //      access because we want to avoid repeatly looking it up.
+                //      This means workers can sometimes steal exactly one task
+                //      they should't.
+                //   2. A subset of threads can steal all the work.
+                //
+                // We don't care about either because effectively we only care that
+                // the work is soon limited to fewer threads than the limit after
+                // making a change.
+                LOG_DEBUG(<< "threads in use = " << executionThreads);
+                auto activeThreads = std::count_if(
+                    executionThreads.begin(), executionThreads.end(),
+                    [](const auto& thread) { return thread.second > 1; });
+                BOOST_TEST_REQUIRE(activeThreads <= numberThreadsInUse);
                 numberProcessedTasks = 0;
                 executionThreads.clear();
                 break;

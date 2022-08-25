@@ -11,15 +11,12 @@
 
 #include <maths/common/CAgglomerativeClusterer.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/CSetTools.h>
-
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -40,9 +37,8 @@ using TDoubleVec = CAgglomerativeClusterer::TDoubleVec;
 using TDoubleVecVec = CAgglomerativeClusterer::TDoubleVecVec;
 using TNode = CAgglomerativeClusterer::CNode;
 using TNodeVec = CAgglomerativeClusterer::TNodeVec;
-using TNodePtrVec = std::vector<TNode*>;
 
-const double INF = boost::numeric::bounds<double>::highest();
+const double INF = std::numeric_limits<double>::max();
 
 //! Get the distance between node \p i and \p j.
 inline double& distance(TDoubleVecVec& distanceMatrix, std::size_t i, std::size_t j) {
@@ -250,7 +246,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
             m -= 3;
         }
 
-        LOG_TRACE(<< "chain = " << core::CContainerPrinter::print(chain));
+        LOG_TRACE(<< "chain = " << chain);
         LOG_TRACE(<< "a = " << a << ", b = " << b << ", m = " << m);
 
         double d;
@@ -280,7 +276,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
         std::size_t ra = rightmost[a];
         std::size_t rb = rightmost[b];
 
-        LOG_TRACE(<< "chain = " << core::CContainerPrinter::print(chain));
+        LOG_TRACE(<< "chain = " << chain);
         LOG_TRACE(<< "d = " << d << ", a = " << a << ", b = " << b << ", rightmost a = "
                   << ra << ", rightmost b " << rb << ", m = " << m);
 
@@ -331,7 +327,7 @@ void buildTree(TDoubleSizeSizePrPrVec& heights, TNodeVec& tree) {
     }
 
     std::stable_sort(heights.begin(), heights.end(), COrderings::SFirstLess());
-    LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
+    LOG_TRACE(<< "heights = " << heights);
 
     for (std::size_t i = 0; i < n; ++i) {
         double h = heights[i].first;
@@ -349,7 +345,7 @@ bool CAgglomerativeClusterer::initialize(TDoubleVecVec& distanceMatrix) {
     // Check that the matrix is square.
     std::size_t n = distanceMatrix.size();
     for (std::size_t i = 0; i < n; ++i) {
-        LOG_TRACE(<< "D = " << core::CContainerPrinter::print(distanceMatrix[i]));
+        LOG_TRACE(<< "D = " << distanceMatrix[i]);
         if (distanceMatrix[i].size() != i + 1) {
             LOG_ERROR(<< "Distance matrix isn't upper triangular");
             return false;

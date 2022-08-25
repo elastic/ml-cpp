@@ -14,12 +14,11 @@
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
+#include <cstdint>
 #include <functional>
 #include <iosfwd>
 #include <memory>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {

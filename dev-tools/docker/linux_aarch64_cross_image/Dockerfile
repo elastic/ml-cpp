@@ -24,7 +24,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-aarch64-linux-gnu/usr && \
   cd /usr/local/sysroot-aarch64-linux-gnu/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-7.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-9.tar.bz2 | tar jxf - && \
   cd .. && \
   ln -s usr/lib lib && \
   ln -s usr/lib64 lib64
@@ -82,4 +82,13 @@ RUN \
   make install && \
   cd .. && \
   rm -rf patchelf-0.13.20210805.a949ff2
+
+# Install CMake
+# v3.19.2 minimum is required
+RUN \
+  cd ${build_dir} && \
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh && \
+  chmod +x cmake-3.23.2-Linux-x86_64.sh && \
+  ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/gcc103 && \
+  rm -f cmake-3.23.2-Linux-x86_64.sh
 

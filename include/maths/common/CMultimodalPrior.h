@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CMultimodalPrior_h
 #define INCLUDED_ml_maths_common_CMultimodalPrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CClusterer.h>
@@ -300,9 +300,9 @@ public:
 
 private:
     //! The callback invoked when a mode is split.
-    class MATHS_COMMON_EXPORT CModeSplitCallback {
+    class CModeSplitCallback {
     public:
-        CModeSplitCallback(CMultimodalPrior& prior);
+        explicit CModeSplitCallback(CMultimodalPrior& prior);
         void operator()(std::size_t sourceIndex,
                         std::size_t leftSplitIndex,
                         std::size_t rightSplitIndex) const;
@@ -312,9 +312,9 @@ private:
     };
 
     //! The callback invoked when two modes are merged.
-    class MATHS_COMMON_EXPORT CModeMergeCallback {
+    class CModeMergeCallback {
     public:
-        CModeMergeCallback(CMultimodalPrior& prior);
+        explicit CModeMergeCallback(CMultimodalPrior& prior);
         void operator()(std::size_t leftMergeIndex,
                         std::size_t rightMergeIndex,
                         std::size_t targetIndex) const;

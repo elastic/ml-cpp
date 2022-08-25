@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CCalendarComponent_h
 #define INCLUDED_ml_maths_time_series_CCalendarComponent_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
 #include <maths/time_series/CCalendarComponentAdaptiveBucketing.h>
@@ -127,7 +127,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! as a percentage.
-    TDoubleDoublePr value(core_t::TTime time, double confidence) const;
+    TVector2x1 value(core_t::TTime time, double confidence) const;
 
     //! Get the mean value of the component.
     double meanValue() const;
@@ -137,13 +137,13 @@ public:
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the
     //! variance as a percentage.
-    TDoubleDoublePr variance(core_t::TTime time, double confidence) const;
+    TVector2x1 variance(core_t::TTime time, double confidence) const;
 
     //! Get the mean variance of the component residuals.
     double meanVariance() const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;

@@ -16,10 +16,11 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace model {
@@ -35,28 +36,27 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inse
     }
     for (const auto& sketch : m_Sketches) {
         inserter.insertValue(DETECTOR_TAG, sketch.first);
-        inserter.insertLevel(
-            SKETCH_TAG, std::bind(&maths::common::CQuantileSketch::acceptPersistInserter,
-                                  std::cref(sketch.second), std::placeholders::_1));
+        inserter.insertLevel(SKETCH_TAG, [& sketch = sketch.second](auto& inserter_) {
+            sketch.acceptPersistInserter(inserter_);
+        });
     }
 }
 
 bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    boost::optional<int> detector;
+    std::optional<int> detector;
     do {
-        const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(DETECTOR_TAG, detector.reset(0),
+        const std::string& name{traverser.name()};
+        RESTORE_SETUP_TEARDOWN(DETECTOR_TAG, detector.emplace(0),
                                core::CStringUtils::stringToType(traverser.value(), *detector),
                                /**/)
         if (name == SKETCH_TAG) {
-            if (!detector) {
+            if (detector == std::nullopt) {
                 LOG_ABORT(<< "Expected the detector label first");
             }
-            m_Sketches.emplace_back(*detector, maths::common::CQuantileSketch(
-                                                   SKETCH_INTERPOLATION, SKETCH_SIZE));
-            if (traverser.traverseSubLevel(std::bind(
-                    &maths::common::CQuantileSketch::acceptRestoreTraverser,
-                    std::ref(m_Sketches.back().second), std::placeholders::_1)) == false) {
+            m_Sketches.emplace_back(*detector, maths::common::CQuantileSketch{SKETCH_SIZE});
+            if (traverser.traverseSubLevel([& sketch = m_Sketches.back().second](auto& traverser_) {
+                    return sketch.acceptRestoreTraverser(traverser_);
+                }) == false) {
                 LOG_ERROR(<< "Failed to restore SKETCH_TAG, got " << traverser.value());
                 m_Sketches.pop_back();
                 return false;
@@ -107,7 +107,7 @@ double CDetectorEqualizer::correct(int detector, double probability) {
             }
         }
         std::sort(logps.begin(), logps.end());
-        LOG_TRACE(<< "quantiles = " << core::CContainerPrinter::print(logps));
+        LOG_TRACE(<< "quantiles = " << logps);
 
         std::size_t n = logps.size();
         double logpc = n % 2 == 0 ? (logps[n / 2 - 1] + logps[n / 2]) / 2.0
@@ -131,7 +131,7 @@ void CDetectorEqualizer::age(double factor) {
     }
 }
 
-uint64_t CDetectorEqualizer::checksum() const {
+std::uint64_t CDetectorEqualizer::checksum() const {
     return maths::common::CChecksum::calculate(0, m_Sketches);
 }
 
@@ -143,14 +143,11 @@ maths::common::CQuantileSketch& CDetectorEqualizer::sketch(int detector) {
     auto i = std::lower_bound(m_Sketches.begin(), m_Sketches.end(), detector,
                               maths::common::COrderings::SFirstLess());
     if (i == m_Sketches.end() || i->first != detector) {
-        i = m_Sketches.insert(i, {detector, maths::common::CQuantileSketch(
-                                                SKETCH_INTERPOLATION, SKETCH_SIZE)});
+        i = m_Sketches.insert(i, {detector, maths::common::CQuantileSketch{SKETCH_SIZE}});
     }
     return i->second;
 }
 
-const maths::common::CQuantileSketch::EInterpolation
-    CDetectorEqualizer::SKETCH_INTERPOLATION(maths::common::CQuantileSketch::E_Linear);
 const std::size_t CDetectorEqualizer::SKETCH_SIZE(100);
 const double CDetectorEqualizer::MINIMUM_COUNT_FOR_CORRECTION(1.5);
 }

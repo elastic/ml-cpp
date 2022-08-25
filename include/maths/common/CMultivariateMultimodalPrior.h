@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateMultimodalPrior_h
 #define INCLUDED_ml_maths_common_CMultivariateMultimodalPrior_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -35,8 +34,7 @@
 #include <maths/common/CSetTools.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
-
-#include <boost/numeric/conversion/bounds.hpp>
+#include <maths/common/MathsTypesForVectorTypes.h>
 
 #include <algorithm>
 #include <cmath>
@@ -358,12 +356,12 @@ public:
                     }
                     maths_t::setCount(cluster.second, N, weight[0]);
                     if (maths_t::isWinsorised(weight)) {
-                        TDouble10Vec ww = maths_t::winsorisationWeight(weight[0]);
+                        TDouble10Vec ww = maths_t::outlierWeight(weight[0]);
                         double f = (k->weight() + cluster.second) / Z;
                         for (auto& w : ww) {
                             w = std::max(1.0 - (1.0 - w) / f, w * f);
                         }
-                        maths_t::setWinsorisationWeight(ww, weight[0]);
+                        maths_t::setOutlierWeight(ww, weight[0]);
                     }
                     k->s_Prior->addSamples(sample, weight);
                     n += this->smallest(maths_t::countForUpdate(weight[0]));
@@ -677,7 +675,7 @@ public:
             // underflow and pollute the floating point environment. This
             // may cause issues for some library function implementations
             // (see fe*exceptflag for more details).
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -723,7 +721,7 @@ public:
                 maths_t::EFloatingPointErrorStatus status = detail::jointLogMarginalLikelihood(
                     m_Modes, sample, weight, modeLogLikelihoods, sampleLogLikelihood);
                 if ((status & maths_t::E_FpOverflowed) != 0) {
-                    result = boost::numeric::bounds<double>::lowest();
+                    result = std::numeric_limits<double>::lowest();
                     return status;
                 }
                 if ((status & maths_t::E_FpFailed) != 0) {
@@ -741,8 +739,8 @@ public:
         maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
         if ((status & maths_t::E_FpFailed) != 0) {
             LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR(<< "samples = " << samples);
+            LOG_ERROR(<< "weights = " << weights);
         }
         return status;
     }
@@ -809,16 +807,16 @@ public:
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CMultivariateMultimodalPrior");
-        core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
-        core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
-        core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
+        core::memory_debug::dynamicSize("m_Clusterer", m_Clusterer, mem);
+        core::memory_debug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
+        core::memory_debug::dynamicSize("m_Modes", m_Modes, mem);
     }
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const override {
-        std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
-        mem += core::CMemory::dynamicSize(m_SeedPrior);
-        mem += core::CMemory::dynamicSize(m_Modes);
+        std::size_t mem = core::memory::dynamicSize(m_Clusterer);
+        mem += core::memory::dynamicSize(m_SeedPrior);
+        mem += core::memory::dynamicSize(m_Modes);
         return mem;
     }
 
@@ -920,7 +918,7 @@ private:
                         leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
                 }
-                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << samples);
 
                 double wl = pLeft * numberSamples;
                 double ws = std::min(wl, static_cast<double>(N + 2));
@@ -950,7 +948,7 @@ private:
                         rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex);
                 }
-                LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "samples = " << samples);
 
                 double wr = pRight * numberSamples;
                 double ws = std::min(wr, static_cast<double>(N + 2));

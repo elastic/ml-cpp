@@ -7,7 +7,7 @@ To ensure everything is consistent for redistributable builds we build all redis
 You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
-- `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
+- `CPP_SRC_HOME` - Only required if building the C++ code directly using `cmake`, as Gradle sets it automatically.
 - `PATH` - Must have `/usr/local/gcc103/bin` before `/usr/bin` and `/bin`.
 - `LD_LIBRARY_PATH` - Must have `/usr/local/gcc103/lib64` and `/usr/local/gcc103/lib` before `/usr/lib` and `/lib`.
 
@@ -18,16 +18,16 @@ umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
 export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-# Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
+# Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
 ### OS Packages
 
-You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
+You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
 
 ```
-sudo yum install bzip2 gcc-c++ libffi-devel openssl-devel texinfo tzdata unzip zlib-devel
+sudo yum install bzip2 gcc-c++ libffi-devel openssl-devel texinfo tzdata unzip xz zlib-devel
 ```
 
 On other Linux distributions the package names are generally the same and you just need to use the correct package manager to install these packages.
@@ -47,7 +47,7 @@ unset LIBRARY_PATH
 
 For aarch64 replace `-msse4.2 -mfpmath=sse` with `-march=armv8-a+crc+crypto`.
 
-These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our build system).
 
 ### gcc
 
@@ -154,7 +154,7 @@ Without the `prefix=/usr` bit, you'll end up with a personal Git build in `~/bin
 
 ### libxml2
 
-Anonymous FTP to ftp.xmlsoft.org, change directory to libxml2, switch to binary mode, and get `libxml2-2.9.7.tar.gz`.
+Download `libxml2-2.9.14.tar.xz` from <https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz>.
 
 Uncompress and untar the resulting file. Then run:
 
@@ -173,7 +173,7 @@ to install.
 
 ### Boost 1.77.0
 
-Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
@@ -239,12 +239,12 @@ to complete the build.
 
 ### CMake
 
-CMake version 3.5 is the minimum required to build PyTorch. Download version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh> and install:
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-Linux-x86_64.sh> and install:
 
 ```
-chmod +x cmake-3.19.3-Linux-x86_64.sh
+chmod +x cmake-3.23.2-Linux-x86_64.sh
 sudo mkdir /usr/local/cmake
-sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
+sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 ```
 
 Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.

@@ -10,12 +10,14 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:7
+FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:9
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Copy the current Git repository into the container
 COPY . /ml-cpp/
+
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake
 
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=

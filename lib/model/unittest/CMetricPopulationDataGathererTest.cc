@@ -29,9 +29,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -46,7 +46,7 @@ using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TStrStrPr = std::pair<std::string, std::string>;
 using TStrStrPrDoubleMap = std::map<TStrStrPr, double>;
-using TOptionalStr = boost::optional<std::string>;
+using TOptionalStr = std::optional<std::string>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, SMetricFeatureData>;
 using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
@@ -532,9 +532,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = meanSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -551,9 +551,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = minSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -570,9 +570,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                 }
                 TDoubleVec& samples = maxSamples[key];
                 for (std::size_t k = 0;
-                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -655,11 +655,11 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     // people are removed.
 
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TStrFeatureDataPr = std::pair<std::string, SMetricFeatureData>;
     using TStrFeatureDataPrVec = std::vector<TStrFeatureDataPr>;
-    using TStrSizeMap = std::map<std::string, uint64_t>;
+    using TStrSizeMap = std::map<std::string, std::uint64_t>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -722,8 +722,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
             }
         }
     }
-    LOG_DEBUG(<< "expectedNonZeroCounts = "
-              << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << expectedNonZeroCounts);
 
     LOG_TRACE(<< "Expected");
     TStrFeatureDataPrVec expectedFeatureData;
@@ -762,8 +761,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = nonZeroCounts[i].second;
     }
-    LOG_DEBUG(<< "actualNonZeroCounts = "
-              << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
                         core::CContainerPrinter::print(actualNonZeroCounts));
@@ -980,7 +978,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                            influencerNames, searchKey, features, startTime, 2u);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
+    for (std::size_t i = 0u, b = 0; i < std::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -1010,8 +1008,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                     std::sort(statistics.begin(), statistics.end(),
                               maths::common::COrderings::SFirstLess());
 
-                    LOG_DEBUG(<< "statistics = "
-                              << core::CContainerPrinter::print(statistics));
+                    LOG_DEBUG(<< "statistics = " << statistics);
                     LOG_DEBUG(<< "expected   = " << *expected);
                     BOOST_REQUIRE_EQUAL(*(expected++),
                                         core::CContainerPrinter::print(statistics));

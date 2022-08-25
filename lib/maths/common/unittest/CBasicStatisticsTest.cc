@@ -14,6 +14,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CSmallVector.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsCovariances.h>
@@ -26,7 +27,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -56,8 +56,6 @@ using TMeanVarSkewAccumulatorVec = std::vector<TMeanVarSkewAccumulator>;
 const std::string TAG("a");
 
 struct SRestore {
-    using result_type = bool;
-
     template<typename T>
     bool operator()(std::vector<T>& restored, core::CStateRestoreTraverser& traverser) const {
         return core::CPersistUtils::restore(TAG, restored, traverser);
@@ -223,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanAccumulator acc1;
             TMeanAccumulator acc2;
 
-            for (size_t i = 0; i < boost::size(samples); ++i) {
+            for (size_t i = 0; i < std::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
                 for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
@@ -238,7 +236,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanVarAccumulator acc1;
             TMeanVarAccumulator acc2;
 
-            for (size_t i = 0; i < boost::size(samples); ++i) {
+            for (size_t i = 0; i < std::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
                 for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
@@ -256,7 +254,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanVarSkewAccumulator acc1;
             TMeanVarSkewAccumulator acc2;
 
-            for (size_t i = 0; i < boost::size(samples); ++i) {
+            for (size_t i = 0; i < std::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
                 for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
@@ -589,7 +587,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -617,7 +615,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -643,7 +641,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -672,7 +670,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -698,7 +696,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarSkewAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -727,7 +725,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarSkewAccumulatorVec restored;
                 BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
-                LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
+                LOG_DEBUG(<< "restored = " << restored);
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
@@ -877,8 +875,8 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         maths::common::CBasicStatistics::SSampleCovariances<maths::common::CDenseVector<double>> covariances3(
             3);
 
-        for (std::size_t i = 0; i < boost::size(raw); ++i) {
-            LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(raw[i]));
+        for (std::size_t i = 0; i < std::size(raw); ++i) {
+            LOG_DEBUG(<< "v = " << raw[i]);
             covariances1.add(maths::common::CVectorNx1<double, 3>(raw[i]));
             covariances2.add(maths::common::CVector<double>(std::begin(raw[i]),
                                                             std::end(raw[i])));
@@ -901,11 +899,11 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         LOG_DEBUG(<< "covariances3 =\n"
                   << maths::common::CBasicStatistics::covariances(covariances3));
 
-        BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_REQUIRE_EQUAL(static_cast<double>(std::size(raw)),
                             maths::common::CBasicStatistics::count(covariances1));
-        BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_REQUIRE_EQUAL(static_cast<double>(std::size(raw)),
                             maths::common::CBasicStatistics::count(covariances2));
-        BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_REQUIRE_EQUAL(static_cast<double>(std::size(raw)),
                             maths::common::CBasicStatistics::count(covariances3));
 
         for (std::size_t i = 0; i < 3; ++i) {
@@ -1048,12 +1046,12 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
     maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator error;
     maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator errorLW;
 
-    for (std::size_t i = 0; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < std::size(means); ++i) {
         LOG_DEBUG(<< "*** test " << i << " ***");
 
         TDoubleVec mean(std::begin(means[i]), std::end(means[i]));
         TDoubleVecVec covariance;
-        for (std::size_t j = 0; j < boost::size(covariances[i]); ++j) {
+        for (std::size_t j = 0; j < std::size(covariances[i]); ++j) {
             covariance.emplace_back(std::begin(covariances[i][j]),
                                     std::end(covariances[i][j]));
         }
@@ -1121,63 +1119,14 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
 }
 
 BOOST_AUTO_TEST_CASE(testMedian) {
-    {
-        maths::common::CBasicStatistics::TDoubleVec sampleVec;
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(0.0, median);
-    }
-    {
-        double sample[] = {1.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(1.0, median);
-    }
-    {
-        double sample[] = {2.0, 1.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(1.5, median);
-    }
-    {
-        double sample[] = {3.0, 1.0, 2.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(2.0, median);
-    }
-    {
-        double sample[] = {3.0, 5.0, 9.0, 1.0, 2.0, 6.0, 7.0, 4.0, 8.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(5.0, median);
-    }
-    {
-        double sample[] = {3.0, 5.0, 10.0, 2.0, 6.0, 7.0, 1.0, 9.0, 4.0, 8.0};
-
-        maths::common::CBasicStatistics::TDoubleVec sampleVec(
-            sample, sample + sizeof(sample) / sizeof(sample[0]));
-
-        double median = maths::common::CBasicStatistics::median(sampleVec);
-
-        BOOST_REQUIRE_EQUAL(5.5, median);
-    }
+    BOOST_REQUIRE_EQUAL(0.0, maths::common::CBasicStatistics::median({}));
+    BOOST_REQUIRE_EQUAL(1.0, maths::common::CBasicStatistics::median({1.0}));
+    BOOST_REQUIRE_EQUAL(1.5, maths::common::CBasicStatistics::median({2.0, 1.0}));
+    BOOST_REQUIRE_EQUAL(2.0, maths::common::CBasicStatistics::median({3.0, 1.0, 2.0}));
+    BOOST_REQUIRE_EQUAL(5.0, maths::common::CBasicStatistics::median(
+                                 {3.0, 5.0, 9.0, 1.0, 2.0, 6.0, 7.0, 4.0, 8.0}));
+    BOOST_REQUIRE_EQUAL(5.5, maths::common::CBasicStatistics::median(
+                                 {3.0, 5.0, 10.0, 2.0, 6.0, 7.0, 1.0, 9.0, 4.0, 8.0}));
 }
 
 BOOST_AUTO_TEST_CASE(testMad) {
@@ -1237,10 +1186,10 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
         TMinStatsStack minFirstHalf;
         TMinStatsStack minSecondHalf;
 
-        for (size_t i = 0; i < boost::size(data); ++i) {
+        for (size_t i = 0; i < std::size(data); ++i) {
             minValues.add(data[i]);
             maxValues.add(data[i]);
-            (2 * i < boost::size(data) ? minFirstHalf : minSecondHalf).add(data[i]);
+            (2 * i < std::size(data) ? minFirstHalf : minSecondHalf).add(data[i]);
         }
 
         std::sort(std::begin(data), std::end(data));
@@ -1302,7 +1251,7 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
         TMaxStatsHeap max3Values(3);
         TMaxStatsHeap max20Values(20);
 
-        for (size_t i = 0; i < boost::size(data); ++i) {
+        for (size_t i = 0; i < std::size(data); ++i) {
             min2Values.add(data[i]);
             max3Values.add(data[i]);
             max20Values.add(data[i]);
@@ -1320,7 +1269,7 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
         BOOST_TEST_REQUIRE(std::equal(max3Values.begin(), max3Values.end(), data));
 
         max20Values.sort();
-        BOOST_REQUIRE_EQUAL(boost::size(data), max20Values.count());
+        BOOST_REQUIRE_EQUAL(std::size(data), max20Values.count());
         BOOST_TEST_REQUIRE(std::equal(max20Values.begin(), max20Values.end(), data));
 
         // Test persist is idempotent.

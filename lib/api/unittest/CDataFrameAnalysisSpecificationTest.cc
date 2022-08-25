@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(),
             jsonSpec("foo", "", "20", "100000", "2", "ml", {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "", "100000", "2", "ml",
                                         {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(),
             jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "", "ml",
                                         {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "2", "ml", {}, "")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "-3", "20", "100000", "2", "ml",
                                         {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "0", "100000", "2", "ml",
                                         {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "\"ZZ\"", "2",
                                         "ml", {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "-1",
                                         "ml", {}, "outlier_detection")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(),
             jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                                 "}"};
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{runnerFactories(), jsonSpecStr};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                                         "outlier_detection", "{\"n_neighbors\": -1}")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                                         "outlier_detection", "{\"method\": \"lofe\"}")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             runnerFactories(),
             jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                      "outlier_detection", "{\"compute_feature_influence\": 1}")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outlier_detection",
                                         "{\"compute_feature_influences\": true}")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "2", "100000", "2", "ml",
                                         {}, "outlier_detection", "", "threeds")};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
                 "testJob", 10000, 5, 100000000, 1, "", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
                 "testJob", 10000, 5, 100000000, 1, "", {"value"}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
                 "testJob", 10000, 5, 100000000, 1, "42", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                         .classificationWeights({{"a", 0.1}, {"b", 0.4}, {"c", 0.5}})
                         .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                         "target");
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< errors);
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 }

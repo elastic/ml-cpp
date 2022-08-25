@@ -12,15 +12,12 @@
 #include <model/CForecastModelPersist.h>
 
 #include <core/CLogger.h>
-#include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/MathsTypes.h>
 
 #include <maths/time_series/CModelStateSerialiser.h>
-
-#include <model/CAnomalyDetectorModelConfig.h>
 
 namespace ml {
 namespace model {

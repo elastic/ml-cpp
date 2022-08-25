@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_maths_common_CKMeans_h
 #define INCLUDED_ml_maths_common_CKMeans_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -226,7 +225,7 @@ protected:
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TMeanAccumulator =
         typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
-    using TOptionalMeanAccumulator = boost::optional<TMeanAccumulator>;
+    using TOptionalMeanAccumulator = std::optional<TMeanAccumulator>;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TBoundingBox = CBoundingBox<TBarePoint>;
     using TNode = typename TKdTree::SNode;
@@ -278,8 +277,8 @@ protected:
     private:
         //! Initialize the centroid if it is null.
         void initialize(const POINT& x) const {
-            if (!m_Centroid) {
-                m_Centroid.reset(TMeanAccumulator(las::zero(x)));
+            if (m_Centroid == std::nullopt) {
+                m_Centroid.emplace(las::zero(x));
             }
         }
 
@@ -535,7 +534,7 @@ public:
     using TPointVec = std::vector<POINT>;
 
 public:
-    CKMeansPlusPlusInitialization(RNG& rng) : m_Rng(rng) {}
+    explicit CKMeansPlusPlusInitialization(RNG& rng) : m_Rng(rng) {}
 
     //! Run the k-means++ centre selection algorithm on \p points.
     //!
@@ -570,7 +569,7 @@ public:
             m_Probabilities.assign(m_Distances.begin(), m_Distances.end());
             result.push_back(beginPoints[CSampling::categoricalSample(m_Rng, m_Probabilities)]);
         }
-        LOG_TRACE(<< "selected = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "selected = " << result);
     }
 
 private:

@@ -11,11 +11,11 @@
 
 #include <model/FunctionTypes.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <boost/config.hpp>
 
+#include <map>
 #include <ostream>
 
 namespace ml {
@@ -1515,7 +1515,7 @@ EFunction function(const TFeatureVec& features) {
         candidates = functionsItr->second;
     }
 
-    LOG_TRACE(<< "candidate " << core::CContainerPrinter::print(candidates));
+    LOG_TRACE(<< "candidate " << candidates);
     TFunctionVec fallback = candidates;
 
     TFunctionVec tmp;
@@ -1527,8 +1527,7 @@ EFunction function(const TFeatureVec& features) {
             continue;
         }
 
-        LOG_TRACE(<< "candidate = "
-                  << core::CContainerPrinter::print(functionsItr->second));
+        LOG_TRACE(<< "candidate = " << functionsItr->second);
         std::set_intersection(candidates.begin(), candidates.end(),
                               functionsItr->second.begin(),
                               functionsItr->second.end(), std::back_inserter(tmp));
@@ -1538,8 +1537,8 @@ EFunction function(const TFeatureVec& features) {
 
     if (candidates.empty()) {
         EFunction result = mostSpecific(fallback);
-        LOG_ERROR(<< "Inconsistent features " << core::CContainerPrinter::print(features)
-                  << " defaulting to '" << print(result) << "'");
+        LOG_ERROR(<< "Inconsistent features " << features << " defaulting to '"
+                  << print(result) << "'");
         return result;
     }
 

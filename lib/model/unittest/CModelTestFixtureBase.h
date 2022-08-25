@@ -26,12 +26,12 @@
 #include <model/CModelFactory.h>
 #include <model/CResourceMonitor.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -42,12 +42,12 @@ public:
     using TBoolVec = std::vector<bool>;
 
     using TDouble1Vec = ml::core::CSmallVector<double, 1>;
-    using TOptionalDouble1Vec = boost::optional<TDouble1Vec>;
+    using TOptionalDouble1Vec = std::optional<TDouble1Vec>;
     using TDouble2Vec = ml::core::CSmallVector<double, 2>;
     using TDouble4Vec = ml::core::CSmallVector<double, 4>;
     using TDouble4Vec1Vec = ml::core::CSmallVector<TDouble4Vec, 1>;
     using TDoubleDoublePr = std::pair<double, double>;
-    using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
+    using TOptionalDoubleDoublePr = std::optional<TDoubleDoublePr>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleStrPr = std::pair<double, std::string>;
@@ -59,11 +59,11 @@ public:
     using TMeanAccumulator = ml::maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMultivariatePriorPtr = std::shared_ptr<ml::maths::common::CMultivariatePrior>;
 
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalStr = boost::optional<std::string>;
-    using TOptionalUInt = boost::optional<unsigned int>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalUInt = std::optional<unsigned int>;
+    using TOptionalUInt64 = std::optional<std::uint64_t>;
 
     using TPriorPtr = std::shared_ptr<ml::maths::common::CPrior>;
 
@@ -72,7 +72,7 @@ public:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
     using TSizeSizePrVecVec = std::vector<TSizeSizePrVec>;
-    using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64Map = std::map<TSizeSizePr, std::uint64_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
     using TSizeVecVecVec = std::vector<TSizeVecVec>;
@@ -80,19 +80,19 @@ public:
     using TStrSizePrVec = std::vector<TStrSizePr>;
     using TStrSizePrVecVec = std::vector<TStrSizePrVec>;
     using TStrSizePrVecVecVec = std::vector<TStrSizePrVecVec>;
-    using TStrUInt64Map = std::map<std::string, uint64_t>;
+    using TStrUInt64Map = std::map<std::string, std::uint64_t>;
 
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
 
     using TTimeDoublePr = std::pair<ml::core_t::TTime, double>;
     using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
-    using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
+    using TOptionalTimeDoublePr = std::optional<TTimeDoublePr>;
     using TTimeStrVecPr = std::pair<ml::core_t::TTime, TStrVec>;
     using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
     using TTimeVec = std::vector<ml::core_t::TTime>;
 
-    using TUInt64Vec = std::vector<uint64_t>;
+    using TUInt64Vec = std::vector<std::uint64_t>;
     using TUIntVec = std::vector<unsigned int>;
 
 protected:

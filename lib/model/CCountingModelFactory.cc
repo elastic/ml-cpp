@@ -11,12 +11,8 @@
 
 #include <model/CCountingModelFactory.h>
 
-#include <core/CStateRestoreTraverser.h>
-
 #include <maths/common/CConstantPrior.h>
 #include <maths/common/CMultivariateConstantPrior.h>
-
-#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>
@@ -100,7 +96,7 @@ CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {
-    if (!m_SearchKeyCache) {
+    if (m_SearchKeyCache == std::nullopt) {
         m_SearchKeyCache.emplace(m_DetectorIndex, function_t::function(m_Features),
                                  m_UseNull, this->modelParams().s_ExcludeFrequent,
                                  "", m_PersonFieldName, "", m_PartitionFieldName);

@@ -13,7 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CCountMinSketch_h
 
 #include <core/CHashing.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
@@ -58,7 +58,7 @@ public:
     CCountMinSketch(std::size_t rows, std::size_t columns);
 
     //! Create by traversing a state document.
-    CCountMinSketch(core::CStateRestoreTraverser& traverser);
+    explicit CCountMinSketch(core::CStateRestoreTraverser& traverser);
 
     //! Efficient swap the contents of two sketches.
     void swap(CCountMinSketch& sketch) noexcept;
@@ -87,14 +87,14 @@ public:
     //!
     //! \note \p count can be negative in which case the count is
     //! removed from the sketch.
-    void add(uint32_t category, double count);
+    void add(std::uint32_t category, double count);
 
     //! Remove \p category from the sketch altogether.
     //!
     //! \note That one can decrement the counts by calling add with
     //! a negative count. However, if we have not sketched the counts
     //! this removes the map entry for \p category.
-    void removeFromMap(uint32_t category);
+    void removeFromMap(std::uint32_t category);
 
     //! Age the counts forwards \p time.
     void age(double alpha);
@@ -103,16 +103,16 @@ public:
     double totalCount() const;
 
     //! Get the count of category \p category.
-    double count(uint32_t category) const;
+    double count(std::uint32_t category) const;
 
     //! Get the fraction of category \p category.
-    double fraction(uint32_t category) const;
+    double fraction(std::uint32_t category) const;
 
     //! Check if the counts are sketched.
     bool sketched() const;
 
     //! Get a checksum for the sketch.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this sketch.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -126,7 +126,7 @@ private:
     using TFloatVecVec = std::vector<TFloatVec>;
 
     //! Wraps up the sketch data.
-    struct MATHS_TIME_SERIES_EXPORT SSketch {
+    struct SSketch {
         SSketch() = default;
         SSketch(std::size_t rows, std::size_t columns);
 
@@ -145,7 +145,7 @@ private:
         TFloatVecVec s_Counts;
     };
 
-    using TUInt32FloatPr = std::pair<uint32_t, common::CFloatStorage>;
+    using TUInt32FloatPr = std::pair<std::uint32_t, common::CFloatStorage>;
     using TUInt32FloatPrVec = std::vector<TUInt32FloatPr>;
     using TUInt32FloatPrVecOrSketch = std::variant<TUInt32FloatPrVec, SSketch>;
 

@@ -19,9 +19,9 @@
 #include <model/CSample.h>
 #include <model/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -50,7 +50,8 @@ struct MODEL_EXPORT SEventRateFeatureData {
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
     using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
 
-    SEventRateFeatureData(uint64_t count);
+    SEventRateFeatureData(std::uint64_t count);
+    ~SEventRateFeatureData();
 
     //! Efficiently swap the contents of this and \p other.
     void swap(SEventRateFeatureData& other);
@@ -64,14 +65,14 @@ struct MODEL_EXPORT SEventRateFeatureData {
     //! Get the memory usage of this component in a tree structure.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
-    uint64_t s_Count;
+    std::uint64_t s_Count;
     TStrCRefDouble1VecDoublePrPrVecVec s_InfluenceValues;
 };
 
 //! \brief The data for a metric series feature.
 struct MODEL_EXPORT SMetricFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TOptionalSample = boost::optional<CSample>;
+    using TOptionalSample = std::optional<CSample>;
     using TSampleVec = std::vector<CSample>;
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
@@ -87,8 +88,8 @@ struct MODEL_EXPORT SMetricFeatureData {
                        bool isInteger,
                        bool isNonNegative,
                        const TSampleVec& samples);
-
     SMetricFeatureData(bool isInteger, bool isNonNegative, const TSampleVec& samples);
+    ~SMetricFeatureData();
 
     //! Print the data for debug.
     std::string print() const;

@@ -13,7 +13,7 @@
 
 #include <core/ImportExport.h>
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ml {
 namespace core {
@@ -61,16 +61,16 @@ public:
     CMonotonicTime();
 
     //! Get the number of milliseconds since some fixed point in the past
-    uint64_t milliseconds() const;
+    std::uint64_t milliseconds() const;
 
     //! Get the number of nanoseconds since some fixed point in the past
-    uint64_t nanoseconds() const;
+    std::uint64_t nanoseconds() const;
 
 private:
     //! Operating system specific scaling factors
-    uint64_t m_ScalingFactor1;
-    uint64_t m_ScalingFactor2;
-    uint64_t m_ScalingFactor3;
+    std::uint64_t m_ScalingFactor1;
+    std::uint64_t m_ScalingFactor2;
+    std::uint64_t m_ScalingFactor3;
 };
 }
 }

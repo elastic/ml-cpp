@@ -14,11 +14,8 @@
 
 #include <core/ImportExport.h>
 
-#include <boost/unordered_map.hpp>
-
-#include <atomic>
 #include <cstdint>
-#include <mutex>
+#include <utility>
 
 namespace ml {
 namespace core {
@@ -29,7 +26,7 @@ namespace core {
 //! This implements global throttling for a program per line log line. By default
 //! the same log line will only be emitted once per hour.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is thread safe but uses a very simple strategy: all accesses to a single
 //! hash map are sychronised. We assume that log throttling is only applied to
 //! messages which normally occur infrequently; for example, this is only currently
@@ -41,8 +38,11 @@ namespace core {
 class CORE_EXPORT CLoggerThrottler {
 public:
     CLoggerThrottler();
+    ~CLoggerThrottler();
     CLoggerThrottler(const CLoggerThrottler&) = delete;
+    CLoggerThrottler(CLoggerThrottler&&) = delete;
     CLoggerThrottler& operator=(const CLoggerThrottler&) = delete;
+    CLoggerThrottler& operator=(const CLoggerThrottler&&) = delete;
 
     //! Set the minimum interval between repeated log messages.
     //!
@@ -63,7 +63,7 @@ public:
     //! happen for logging in a header. This is not expected to be important (it
     //! might result in slightly more logging) and it is possible to work around
     //! this by explicitly wrapping the logging, for example:
-    //! \code
+    //! \code{.cpp}
     //! if (core::CLogger::instance().throttler().skip("my unique string", 0) == false) {
     //!     LOG_ERROR(<< ...)
     //! }
@@ -71,15 +71,10 @@ public:
     std::pair<std::size_t, bool> skip(const char* file, int line);
 
 private:
-    using TConstCharPtrIntPr = std::pair<const char*, int>;
-    using TInt64SizePr = std::pair<std::int64_t, std::size_t>;
-    using TConstCharPtrIntPrInt64SizePrUMap =
-        boost::unordered_map<TConstCharPtrIntPr, TInt64SizePr>;
+    class CImpl;
 
 private:
-    std::int64_t m_MinimumLogIntervalMs;
-    std::mutex m_Mutex;
-    TConstCharPtrIntPrInt64SizePrUMap m_LastLogTimesAndCounts;
+    CImpl* m_Impl;
 };
 }
 }

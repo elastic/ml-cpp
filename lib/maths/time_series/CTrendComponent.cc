@@ -11,7 +11,6 @@
 
 #include <maths/time_series/CTrendComponent.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -25,6 +24,8 @@
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CNaiveBayes.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
@@ -35,14 +36,12 @@
 #include <algorithm>
 #include <cmath>
 #include <exception>
-#include <numeric>
-#include <tuple>
 
 namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-using TDoubleDoublePr = std::pair<double, double>;
+using TVector2x1 = CTrendComponent::TVector2x1;
 
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
 const std::size_t NUMBER_MODELS{std::size(TIME_SCALES)};
@@ -68,20 +67,20 @@ double scaleTime(core_t::TTime time, core_t::TTime origin) {
 }
 
 //! Get the \p confidence interval for \p prediction and \p variance.
-TDoubleDoublePr confidenceInterval(double prediction, double variance, double confidence) {
+TVector2x1 confidenceInterval(double prediction, double variance, double confidence) {
     if (variance > 0.0) {
         try {
             boost::math::normal normal{prediction, std::sqrt(variance)};
             double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
-            return {ql, qu};
+            return TVector2x1{{ql, qu}};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
                       << ", prediction = " << prediction << ", variance = " << variance
                       << ", confidence = " << confidence);
         }
     }
-    return {prediction, prediction};
+    return TVector2x1{prediction};
 }
 
 common::CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) {
@@ -311,7 +310,7 @@ void CTrendComponent::dontShiftLevel(core_t::TTime time, double value) {
 }
 
 void CTrendComponent::linearScale(core_t::TTime time, double scale) {
-    double shift{(scale - 1.0) * common::CBasicStatistics::mean(this->value(time, 0.0))};
+    double shift{(scale - 1.0) * this->value(time, 0.0).mean()};
     this->shiftLevel(shift);
 }
 
@@ -330,7 +329,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     // Update the models.
 
-    double prediction{common::CBasicStatistics::mean(this->value(time, 0.0))};
+    double prediction{this->value(time, 0.0).mean()};
 
     double count{this->count()};
     if (count > 0.0) {
@@ -343,7 +342,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double scaledTime{scaleTime(time, m_RegressionOrigin)};
     for (auto& model : m_TrendModels) {
-        TVector mse;
+        TVector3x1 mse;
         for (std::size_t order = 1; order <= TRegression::N; ++order) {
             mse(order - 1) = value - model.s_Regression.predict(order, scaledTime, MAX_CONDITION);
         }
@@ -384,10 +383,9 @@ void CTrendComponent::propagateForwardsByTime(core_t::TTime interval) {
     m_MagnitudeOfLevelChangeModel.propagateForwardsByTime(interval_);
 }
 
-CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
-                                                        double confidence) const {
+CTrendComponent::TVector2x1 CTrendComponent::value(core_t::TTime time, double confidence) const {
     if (this->initialized() == false) {
-        return {0.0, 0.0};
+        return TVector2x1{0.0};
     }
 
     double a{this->weightOfPrediction(time)};
@@ -420,7 +418,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
         return confidenceInterval(prediction, variance, confidence);
     }
 
-    return {prediction, prediction};
+    return TVector2x1{prediction};
 }
 
 CTrendComponent::TPredictor CTrendComponent::predictor() const {
@@ -469,10 +467,10 @@ core_t::TTime CTrendComponent::maximumForecastInterval() const {
     return static_cast<core_t::TTime>(interval * timescale);
 }
 
-CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) const {
+CTrendComponent::TVector2x1 CTrendComponent::variance(double confidence) const {
 
     if (this->initialized() == false) {
-        return {0.0, 0.0};
+        return TVector2x1{0.0};
     }
 
     double variance{m_PredictionErrorVariance};
@@ -483,20 +481,21 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
             boost::math::chi_squared chi{df};
             double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
-            return {ql * variance / df, qu * variance / df};
+            return TVector2x1{{ql * variance / df, qu * variance / df}};
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
                       << ", df = " << df << ", confidence = " << confidence);
         }
     }
 
-    return {variance, variance};
+    return TVector2x1{variance};
 }
 
 void CTrendComponent::forecast(core_t::TTime startTime,
                                core_t::TTime endTime,
                                core_t::TTime step,
                                double confidence,
+                               bool isNonNegative,
                                const TSeasonalForecast& seasonal,
                                const TWriteForecastResult& writer) const {
     if (endTime < startTime) {
@@ -513,15 +512,14 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     LOG_TRACE(<< "forecasting = " << this->print());
 
     TSizeVec selectedModelOrders(this->selectModelOrdersForForecasting());
-    LOG_TRACE(<< "Selected model orders = "
-              << core::CContainerPrinter::print(selectedModelOrders));
+    LOG_TRACE(<< "Selected model orders = " << selectedModelOrders);
 
     TDoubleVec factors;
     this->smoothingFactors(step, factors);
-    TDoubleVec modelWeights(this->initialForecastModelWeights());
-    TDoubleVec errorWeights(this->initialForecastErrorWeights());
+    TDoubleVec modelWeights(this->initialForecastModelWeights(NUMBER_MODELS));
+    TDoubleVec errorWeights(this->initialForecastModelWeights(NUMBER_MODELS + 1));
     TRegressionArrayVec models(NUMBER_MODELS);
-    TMatrixVec modelCovariances(NUMBER_MODELS);
+    TMatrix3x3Vec modelCovariances(NUMBER_MODELS);
     TDoubleVec mse(NUMBER_MODELS);
     for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         // Note in the following we multiply the bias by the sample count
@@ -539,7 +537,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         mse[i] = common::CBasicStatistics::mean(model.s_Mse)(order - 1);
         model.s_Regression.parameters(order, models[i], MAX_CONDITION);
         model.s_Regression.covariances(order, n * mse[i], modelCovariances[i], MAX_CONDITION);
-        LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
+        LOG_TRACE(<< "params      = " << models[i]);
         LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited());
         LOG_TRACE(<< "mse         = " << mse[i]);
     }
@@ -552,7 +550,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     TDoubleVec variances(NUMBER_MODELS + 1);
     for (core_t::TTime time = startTime; time < endTime; time += step) {
         double scaledDt{scaleTime(time, startTime)};
-        TVector times({0.0, scaledDt, scaledDt * scaledDt});
+        TVector3x1 times({0.0, scaledDt, scaledDt * scaledDt});
 
         double a{this->weightOfPrediction(time)};
         double b{1.0 - a};
@@ -574,21 +572,23 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         for (std::size_t j = 0; j < NUMBER_MODELS; ++j) {
             variance_.add(variances[j], errorWeights[j]);
         }
-
-        double prediction{this->value(modelWeights, models,
-                                      scaleTime(time, m_RegressionOrigin))};
-        TDouble3Vec seasonal_(seasonal(time));
-        TDouble3Vec level_(level.forecast(time, seasonal_[1] + prediction, confidence));
-
-        double ql;
-        double qu;
         double variance{a * common::CBasicStatistics::mean(variance_) +
                         b * common::CBasicStatistics::variance(m_ValueMoments)};
-        std::tie(ql, qu) = confidenceInterval(0.0, variance, confidence);
 
-        writer(time, {level_[0] + seasonal_[0] + prediction + ql,
-                      level_[1] + seasonal_[1] + prediction,
-                      level_[2] + seasonal_[2] + prediction + qu});
+        TVector2x1 trend{confidenceInterval(
+            this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin)),
+            variance, confidence)};
+        TDouble3Vec seasonal_(seasonal(time));
+        TDouble3Vec level_(level.forecast(time, seasonal_[1] + trend.mean(), confidence));
+
+        TDouble3Vec forecast{level_[0] + trend(0) + seasonal_[0],
+                             level_[1] + trend.mean() + seasonal_[1],
+                             level_[2] + trend(1) + seasonal_[2]};
+        forecast[0] = isNonNegative ? std::max(forecast[0], 0.0) : forecast[0];
+        forecast[1] = isNonNegative ? std::max(forecast[1], 0.0) : forecast[1];
+        forecast[2] = isNonNegative ? std::max(forecast[2], 0.0) : forecast[2];
+
+        writer(time, forecast);
     }
 }
 
@@ -671,22 +671,12 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
     return result;
 }
 
-CTrendComponent::TDoubleVec CTrendComponent::initialForecastModelWeights() const {
-    TDoubleVec result(NUMBER_MODELS);
-    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
+CTrendComponent::TDoubleVec CTrendComponent::initialForecastModelWeights(std::size_t n) const {
+    TDoubleVec result(n);
+    for (std::size_t i = 0; i < n; ++i) {
         result[i] = std::exp(static_cast<double>(NUMBER_MODELS / 2) -
                              static_cast<double>(i));
     }
-    return result;
-}
-
-CTrendComponent::TDoubleVec CTrendComponent::initialForecastErrorWeights() const {
-    TDoubleVec result(NUMBER_MODELS + 1);
-    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
-        result[i] = std::exp(static_cast<double>(NUMBER_MODELS / 2) -
-                             static_cast<double>(i));
-    }
-    result[NUMBER_MODELS] = result[NUMBER_MODELS - 1] / std::exp(1.0);
     return result;
 }
 
@@ -764,7 +754,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         // immediately after upgrade. These values will be aged out reasonably
         // quickly.
 
-        TVector mse;
+        TVector3x1 mse;
         for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 3) {
             mse(order - 1) =
                 static_cast<double>(scale) *

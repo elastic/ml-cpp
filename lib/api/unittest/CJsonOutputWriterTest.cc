@@ -16,8 +16,6 @@
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
-#include <maths/common/CTools.h>
-
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
@@ -36,7 +34,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
-#include <set>
 #include <sstream>
 #include <string>
 
@@ -280,7 +277,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
         }
 
-        BOOST_REQUIRE_EQUAL(uint64_t(10ll), bucket["processing_time_ms"].GetUint64());
+        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll), bucket["processing_time_ms"].GetUint64());
     }
 
     for (rapidjson::SizeType i = 0; i < arrayDoc.Size(); i = i + 2) {

@@ -19,8 +19,6 @@
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
 
-#include <maths/common/CTools.h>
-
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalyzer.h>
 
@@ -43,7 +41,7 @@ public:
     using TLossUPtr = std::unique_ptr<maths::analytics::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
     using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
-    using TSizeOptional = boost::optional<std::size_t>;
+    using TSizeOptional = std::optional<std::size_t>;
 
 public:
     static void addPredictionTestData(TLossFunctionType type,
@@ -55,7 +53,7 @@ public:
 
         test::CRandomNumbers rng;
         if (seed) {
-            rng.seed(seed.get());
+            rng.seed(*seed);
         }
 
         TDoubleVec weights;
@@ -98,13 +96,14 @@ public:
                                       double softTreeDepthTolerance = -1.0,
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
+                                      double downsampleFactor = 0.0,
                                       double featureBagFraction = 0.0,
                                       double lossFunctionParameter = 1.0,
                                       TSizeOptional seed = {}) {
 
         test::CRandomNumbers rng;
         if (seed) {
-            rng.seed(seed.get());
+            rng.seed(*seed);
         }
 
         TDoubleVec weights;
@@ -176,6 +175,9 @@ public:
         if (maximumNumberTrees > 0) {
             treeFactory.maximumNumberTrees(maximumNumberTrees);
         }
+        if (downsampleFactor > 0.0) {
+            treeFactory.downsampleFactor({downsampleFactor});
+        }
         if (featureBagFraction > 0.0) {
             treeFactory.featureBagFraction({featureBagFraction});
         }
@@ -184,14 +186,14 @@ public:
             "testJob", core::constants::BYTES_IN_GIGABYTES);
         treeFactory.analysisInstrumentation(instrumentation);
 
-        auto tree = treeFactory.buildFor(*frame, weights.size());
+        auto tree = treeFactory.buildForTrain(*frame, weights.size());
 
         tree->train();
         tree->predict();
 
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = tree->readAndAdjustPrediction(*row);
+                auto prediction = tree->adjustedPrediction(*row);
                 appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
             }
         });

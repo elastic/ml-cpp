@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CXMeansOnline1d_h
 #define INCLUDED_ml_maths_common_CXMeansOnline1d_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CClusterer.h>
 #include <maths/common/CNaturalBreaksClassifier.h>
@@ -20,8 +20,7 @@
 #include <maths/common/Constants.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -116,7 +115,7 @@ public:
     using TDoubleVec = CClusterer1d::TPointPreciseVec;
     using TDoubleDoublePrVec = CClusterer1d::TPointPreciseDoublePrVec;
     using TClusterClusterPr = std::pair<CCluster, CCluster>;
-    using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
+    using TOptionalClusterClusterPr = std::optional<TClusterClusterPr>;
     using TDoubleDoublePr = std::pair<double, double>;
     using CClusterer1d::add;
 
@@ -176,7 +175,7 @@ public:
         //! \param[in] minimumCount The minimum count of a cluster
         //! in the split.
         //! \param[in] smallest The smallest sample added to date.
-        //! \param[in] interval The Winsorisation interval.
+        //! \param[in] interval The Winsorization interval.
         //! \param[in] indexGenerator The unique cluster identifier
         //! generator.
         TOptionalClusterClusterPr split(CAvailableModeDistributions distributions,
@@ -191,7 +190,7 @@ public:
         //! \param[in] distributions The distributions available to
         //! model the clusters.
         //! \param[in] smallest The smallest sample added to date.
-        //! \param[in] interval The Winsorisation interval.
+        //! \param[in] interval The Winsorization interval.
         bool shouldMerge(CCluster& other,
                          CAvailableModeDistributions distributions,
                          double smallest,
@@ -215,7 +214,7 @@ public:
     private:
         CCluster(std::size_t index,
                  const CNormalMeanPrecConjugate& prior,
-                 const CNaturalBreaksClassifier& structure);
+                 CNaturalBreaksClassifier structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -230,11 +229,10 @@ public:
 
     using TClusterVec = std::vector<CCluster>;
     using TClusterVecItr = TClusterVec::iterator;
-    using TClusterVecCItr = TClusterVec::const_iterator;
 
 public:
     //! The central confidence interval on which to Winsorise.
-    static const double WINSORISATION_CONFIDENCE_INTERVAL;
+    static const double WINSORIZATION_CONFIDENCE_INTERVAL;
 
 public:
     //! Construct a new clusterer.
@@ -252,7 +250,7 @@ public:
     //! cluster.
     //! \param[in] minimumCategoryCount The minimum count of a category
     //! in the sketch to cluster.
-    //! \param[in] winsorisationConfidenceInterval The central confidence
+    //! \param[in] winsorizationConfidenceInterval The central confidence
     //! interval on which to Winsorise.
     //! \param[in] splitFunc Optional callback for when a cluster is split.
     //! \param[in] mergeFunc Optional callback for when two clusters are
@@ -263,7 +261,7 @@ public:
                     double minimumClusterFraction = MINIMUM_CLUSTER_SPLIT_FRACTION,
                     double minimumClusterCount = MINIMUM_CLUSTER_SPLIT_COUNT,
                     double minimumCategoryCount = MINIMUM_CATEGORY_COUNT,
-                    double winsorisationConfidenceInterval = WINSORISATION_CONFIDENCE_INTERVAL,
+                    double winsorizationConfidenceInterval = WINSORIZATION_CONFIDENCE_INTERVAL,
                     const TSplitFunc& splitFunc = CDoNothing(),
                     const TMergeFunc& mergeFunc = CDoNothing());
 
@@ -427,8 +425,8 @@ private:
     //! Remove any clusters which are effectively dead.
     bool prune();
 
-    //! Get the Winsorisation interval.
-    TDoubleDoublePr winsorisationInterval() const;
+    //! Get the Winsorization interval.
+    TDoubleDoublePr winsorizationInterval() const;
 
 private:
     //! The type of data being clustered.
@@ -459,7 +457,7 @@ private:
     CFloatStorage m_MinimumCategoryCount;
 
     //! The data central confidence interval on which to Winsorise.
-    CFloatStorage m_WinsorisationConfidenceInterval;
+    CFloatStorage m_WinsorizationConfidenceInterval;
 
     //! A generator of unique cluster indices.
     CIndexGenerator m_ClusterIndexGenerator;

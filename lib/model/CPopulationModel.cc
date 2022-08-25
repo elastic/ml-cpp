@@ -12,7 +12,7 @@
 #include <model/CPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
-#include <core/CContainerPrinter.h>
+#include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/Constants.h>
@@ -21,17 +21,13 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
-#include <maths/common/CPriorStateSerialiser.h>
-
-#include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/common/CTools.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CModelTools.h>
 #include <model/CResourceMonitor.h>
 
 #include <algorithm>
+#include <map>
 
 namespace ml {
 namespace model {
@@ -39,7 +35,7 @@ namespace model {
 namespace {
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
 enum EEntity { E_Person, E_Attribute };
 
@@ -75,7 +71,7 @@ void hashActive(EEntity entity,
                 TStrCRefUInt64Map& hashes) {
     for (std::size_t id = 0; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
-            uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
+            std::uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
             hash = maths::common::CChecksum::calculate(hash, values[id]);
         }
     }
@@ -107,10 +103,9 @@ CPopulationModel::CPopulationModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
       m_NewDistinctPersonCounts(BJKST_HASHES, BJKST_MAX_SIZE) {
     const model_t::TFeatureVec& features = dataGatherer->features();
-    for (std::size_t i = 0; i < features.size(); ++i) {
-        if (!model_t::isCategorical(features[i]) && !model_t::isConstant(features[i])) {
-            m_NewPersonBucketCounts.reset(maths::time_series::CCountMinSketch(
-                COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS));
+    for (auto feature : features) {
+        if (!model_t::isCategorical(feature) && !model_t::isConstant(feature)) {
+            m_NewPersonBucketCounts.emplace(COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS);
             break;
         }
     }
@@ -180,9 +175,9 @@ void CPopulationModel::sample(core_t::TTime startTime,
             m_AttributeFirstBucketTimes[cid] = startTime;
         }
         m_AttributeLastBucketTimes[cid] = startTime;
-        m_DistinctPersonCounts[cid].add(static_cast<int32_t>(pid));
+        m_DistinctPersonCounts[cid].add(static_cast<std::int32_t>(pid));
         if (cid < m_PersonAttributeBucketCounts.size()) {
-            m_PersonAttributeBucketCounts[cid].add(static_cast<int32_t>(pid), 1.0);
+            m_PersonAttributeBucketCounts[cid].add(static_cast<std::int32_t>(pid), 1.0);
         }
     }
 
@@ -192,8 +187,8 @@ void CPopulationModel::sample(core_t::TTime startTime,
     }
 }
 
-uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
-    uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
+std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
+    std::uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     const CDataGatherer& gatherer = this->dataGatherer();
     TStrCRefUInt64Map hashes;
@@ -202,7 +197,7 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -210,28 +205,28 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
 void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPopulationModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_PersonLastBucketTimes", m_PersonLastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeFirstBucketTimes",
+    core::memory_debug::dynamicSize("m_PersonLastBucketTimes", m_PersonLastBucketTimes, mem);
+    core::memory_debug::dynamicSize("m_AttributeFirstBucketTimes",
                                     m_AttributeFirstBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_AttributeLastBucketTimes",
+    core::memory_debug::dynamicSize("m_AttributeLastBucketTimes",
                                     m_AttributeLastBucketTimes, mem);
-    core::CMemoryDebug::dynamicSize("m_NewDistinctPersonCounts",
+    core::memory_debug::dynamicSize("m_NewDistinctPersonCounts",
                                     m_NewDistinctPersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_DistinctPersonCounts", m_DistinctPersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_PersonAttributeBucketCounts",
+    core::memory_debug::dynamicSize("m_DistinctPersonCounts", m_DistinctPersonCounts, mem);
+    core::memory_debug::dynamicSize("m_NewPersonBucketCounts", m_NewPersonBucketCounts, mem);
+    core::memory_debug::dynamicSize("m_PersonAttributeBucketCounts",
                                     m_PersonAttributeBucketCounts, mem);
 }
 
 std::size_t CPopulationModel::memoryUsage() const {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
-    mem += core::CMemory::dynamicSize(m_PersonLastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_AttributeFirstBucketTimes);
-    mem += core::CMemory::dynamicSize(m_AttributeLastBucketTimes);
-    mem += core::CMemory::dynamicSize(m_NewDistinctPersonCounts);
-    mem += core::CMemory::dynamicSize(m_DistinctPersonCounts);
-    mem += core::CMemory::dynamicSize(m_NewPersonBucketCounts);
-    mem += core::CMemory::dynamicSize(m_PersonAttributeBucketCounts);
+    mem += core::memory::dynamicSize(m_PersonLastBucketTimes);
+    mem += core::memory::dynamicSize(m_AttributeFirstBucketTimes);
+    mem += core::memory::dynamicSize(m_AttributeLastBucketTimes);
+    mem += core::memory::dynamicSize(m_NewDistinctPersonCounts);
+    mem += core::memory::dynamicSize(m_DistinctPersonCounts);
+    mem += core::memory::dynamicSize(m_NewPersonBucketCounts);
+    mem += core::memory::dynamicSize(m_PersonAttributeBucketCounts);
     return mem;
 }
 
@@ -259,7 +254,7 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
     const maths::time_series::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
     const maths::common::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
 
-    double personCount = counts.count(static_cast<uint32_t>(pid)) -
+    double personCount = counts.count(static_cast<std::uint32_t>(pid)) -
                          counts.oneMinusDeltaError();
     if (personCount <= 0.0) {
         return 1.0;
@@ -348,8 +343,7 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time,
         std::min(numberExistingPeople, gatherer.numberActivePeople()),
         std::min(numberExistingAttributes, gatherer.numberActiveAttributes()),
         0); // # correlations
-    std::size_t ourUsage = usageEstimate ? usageEstimate.get()
-                                         : this->computeMemoryUsage();
+    std::size_t ourUsage = usageEstimate ? *usageEstimate : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
     std::size_t numberNewPeople = gatherer.numberPeople();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople
@@ -540,7 +534,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
 void CPopulationModel::removePeople(const TSizeVec& peopleToRemove) {
     for (std::size_t i = 0; i < peopleToRemove.size(); ++i) {
-        uint32_t pid = static_cast<uint32_t>(peopleToRemove[i]);
+        std::uint32_t pid = static_cast<std::uint32_t>(peopleToRemove[i]);
         for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
             m_PersonAttributeBucketCounts[cid].removeFromMap(pid);
         }
@@ -582,7 +576,8 @@ bool CPopulationModel::CCorrectionKey::operator==(const CCorrectionKey& rhs) con
 }
 
 std::size_t CPopulationModel::CCorrectionKey::hash() const {
-    uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(m_Feature), m_Pid);
+    std::uint64_t seed =
+        core::CHashing::hashCombine(static_cast<std::uint64_t>(m_Feature), m_Pid);
     seed = core::CHashing::hashCombine(seed, m_Cid);
     return static_cast<std::size_t>(core::CHashing::hashCombine(seed, m_Correlate));
 }

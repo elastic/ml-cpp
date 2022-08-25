@@ -11,12 +11,10 @@
 
 #include <model/CFeatureData.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 
 #include <boost/iterator/counting_iterator.hpp>
-#include <boost/utility/in_place_factory.hpp>
 
 #include <vector>
 
@@ -68,8 +66,11 @@ const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
 
 ////// SEventRateFeatureData //////
 
-SEventRateFeatureData::SEventRateFeatureData(uint64_t count) : s_Count(count) {
+SEventRateFeatureData::SEventRateFeatureData(std::uint64_t count)
+    : s_Count(count) {
 }
+
+SEventRateFeatureData::~SEventRateFeatureData() = default;
 
 void SEventRateFeatureData::swap(SEventRateFeatureData& other) {
     std::swap(s_Count, other.s_Count);
@@ -87,13 +88,13 @@ std::string SEventRateFeatureData::print() const {
 
 std::size_t SEventRateFeatureData::memoryUsage() const {
     std::size_t mem = sizeof(*this);
-    mem += core::CMemory::dynamicSize(s_InfluenceValues);
+    mem += core::memory::dynamicSize(s_InfluenceValues);
     return mem;
 }
 
 void SEventRateFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData", sizeof(*this));
-    core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
+    core::memory_debug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
 }
 
 ////// SMetricFeatureData //////
@@ -106,7 +107,7 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
                                        bool isInteger,
                                        bool isNonNegative,
                                        const TSampleVec& samples)
-    : s_BucketValue(boost::in_place(bucketTime, bucketValue, bucketVarianceScale, bucketCount)),
+    : s_BucketValue(std::in_place, bucketTime, bucketValue, bucketVarianceScale, bucketCount),
       s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
     s_InfluenceValues.swap(influenceValues);
 }
@@ -114,6 +115,8 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
 SMetricFeatureData::SMetricFeatureData(bool isInteger, bool isNonNegative, const TSampleVec& samples)
     : s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
 }
+
+SMetricFeatureData::~SMetricFeatureData() = default;
 
 std::string SMetricFeatureData::print() const {
     std::ostringstream result;
@@ -124,17 +127,17 @@ std::string SMetricFeatureData::print() const {
 }
 
 std::size_t SMetricFeatureData::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(s_BucketValue);
-    mem += core::CMemory::dynamicSize(s_InfluenceValues);
-    mem += core::CMemory::dynamicSize(s_Samples);
+    std::size_t mem = core::memory::dynamicSize(s_BucketValue);
+    mem += core::memory::dynamicSize(s_InfluenceValues);
+    mem += core::memory::dynamicSize(s_Samples);
     return mem;
 }
 
 void SMetricFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData");
-    core::CMemoryDebug::dynamicSize("s_BucketValue", s_BucketValue, mem);
-    core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
-    core::CMemoryDebug::dynamicSize("s_Samples", s_Samples, mem);
+    core::memory_debug::dynamicSize("s_BucketValue", s_BucketValue, mem);
+    core::memory_debug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
+    core::memory_debug::dynamicSize("s_Samples", s_Samples, mem);
 }
 }
 }

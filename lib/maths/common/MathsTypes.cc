@@ -13,8 +13,8 @@
 
 #include <maths/common/CMathsFuncs.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CSmallVector.h>
 #include <core/CStringUtils.h>
 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -51,35 +51,35 @@ void setCount(double weight, std::size_t dimension, TDouble10VecWeightsAry& weig
 }
 
 double countForUpdate(const TDoubleWeightsAry& weights) {
-    return weights[E_SampleCountWeight] * weights[E_SampleWinsorisationWeight];
+    return weights[E_SampleCountWeight] * weights[E_SampleOutlierWeight];
 }
 
 TDouble10Vec countForUpdate(const TDouble10VecWeightsAry& weights) {
     TDouble10Vec result(weights[E_SampleCountWeight]);
-    for (std::size_t i = 0; i < weights[E_SampleWinsorisationWeight].size(); ++i) {
-        result[i] *= weights[E_SampleWinsorisationWeight][i];
+    for (std::size_t i = 0; i < weights[E_SampleOutlierWeight].size(); ++i) {
+        result[i] *= weights[E_SampleOutlierWeight][i];
     }
     return result;
 }
 
-TDoubleWeightsAry winsorisationWeight(double weight) {
+TDoubleWeightsAry outlierWeight(double weight) {
     TDoubleWeightsAry result(CUnitWeights::UNIT);
-    result[E_SampleWinsorisationWeight] = weight;
+    result[E_SampleOutlierWeight] = weight;
     return result;
 }
 
-TDouble10VecWeightsAry winsorisationWeight(double weight, std::size_t dimension) {
+TDouble10VecWeightsAry outlierWeight(double weight, std::size_t dimension) {
     TDouble10VecWeightsAry result(CUnitWeights::unit<TDouble10Vec>(dimension));
-    result[E_SampleWinsorisationWeight] = TDouble10Vec(dimension, weight);
+    result[E_SampleOutlierWeight] = TDouble10Vec(dimension, weight);
     return result;
 }
 
-void setWinsorisationWeight(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights) {
-    weights[E_SampleWinsorisationWeight] = TDouble10Vec(dimension, weight);
+void setOutlierWeight(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights) {
+    weights[E_SampleOutlierWeight] = TDouble10Vec(dimension, weight);
 }
 
 bool isWinsorised(const TDoubleWeightsAry& weights) {
-    return weights[E_SampleWinsorisationWeight] != 1.0;
+    return weights[E_SampleOutlierWeight] != 1.0;
 }
 
 bool isWinsorised(const TDoubleWeightsAry1Vec& weights) {

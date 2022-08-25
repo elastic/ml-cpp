@@ -40,6 +40,7 @@ class CORE_EXPORT CStoredStringPtr {
 public:
     //! NULL constructor.
     CStoredStringPtr() noexcept;
+    ~CStoredStringPtr();
 
     void swap(CStoredStringPtr& other) noexcept;
 
@@ -74,7 +75,7 @@ public:
     //! Claim memory usage is 0 in the main memory usage calculation, on the
     //! assumption that the actual memory usage will be accounted for in a
     //! string store.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     //! Get the actual memory usage of the string.  For use by the string
     //! store.

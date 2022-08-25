@@ -11,7 +11,6 @@
 
 #include <maths/common/CEntropySketch.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CPRNG.h>
@@ -27,7 +26,7 @@ namespace common {
 CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0) {
 }
 
-void CEntropySketch::add(std::size_t category, uint64_t count) {
+void CEntropySketch::add(std::size_t category, std::uint64_t count) {
     m_Y += count;
     TDoubleVec projection;
     this->generateProjection(category, projection);
@@ -55,7 +54,7 @@ void CEntropySketch::generateProjection(std::size_t category, TDoubleVec& projec
             std::log(w2 * std::cos(w1) / (boost::math::double_constants::half_pi - w1));
     }
     projection.resize(m_Yi.size());
-    LOG_TRACE(<< "projection = " << core::CContainerPrinter::print(projection));
+    LOG_TRACE(<< "projection = " << projection);
 }
 }
 }

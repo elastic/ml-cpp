@@ -11,49 +11,30 @@
 #ifndef INCLUDED_ml_api_CInferenceModelDefinition_h
 #define INCLUDED_ml_api_CInferenceModelDefinition_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
-
-#include <maths/analytics/CDataFrameCategoryEncoder.h>
-
+#include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CRapidJsonConcurrentLineWriter;
+}
 namespace api {
-
-//! \brief Abstract class for all elements the the inference definition
-//! that can will be serialized into JSON.
-class API_EXPORT CSerializableToJsonDocument {
-public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
-
-public:
-    virtual ~CSerializableToJsonDocument() = default;
-    //! Serialize the object as JSON items under the \p parentObject using the specified \p writer.
-    virtual void addToJsonDocument(rapidjson::Value& parentObject,
-                                   TRapidJsonWriter& writer) const = 0;
-};
-
-class API_EXPORT CSerializableToJsonStream {
-public:
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
-
-public:
-    virtual ~CSerializableToJsonStream() = default;
-    virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const = 0;
-};
 
 //! Abstract class for output aggregation.
 class API_EXPORT CAggregateOutput : public CSerializableToJsonStream {
+public:
+    static const std::string JSON_WEIGHTS_TAG;
+
 public:
     //! Aggregation type as a string.
     virtual const std::string& stringType() const = 0;
@@ -64,6 +45,8 @@ public:
 class API_EXPORT CWeightedMode final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
+
+    static const std::string JSON_WEIGHTED_MODE_TAG;
 
 public:
     ~CWeightedMode() override = default;
@@ -83,6 +66,8 @@ class API_EXPORT CWeightedSum final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
 
+    static const std::string JSON_WEIGHTED_SUM_TAG;
+
 public:
     ~CWeightedSum() override = default;
     //! Construct with the \p weights vector.
@@ -96,13 +81,17 @@ private:
     TDoubleVec m_Weights;
 };
 
-//! Allows to use logistic regression aggregation.
+//! \brief Logistic regression aggregation.
 //!
-//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
-//! it computes the logistic regression function \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
+//! DESCRIPTION:\n
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from
+//! the ensemble $\vec{x}$, it computes the logistic regression function
+//! \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
 class API_EXPORT CLogisticRegression final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
+
+    static const std::string JSON_LOGISTIC_REGRESSION_TAG;
 
 public:
     ~CLogisticRegression() override = default;
@@ -117,13 +106,16 @@ private:
     TDoubleVec m_Weights;
 };
 
-//! Allows to use exponent aggregation.
+//! \brief Exponent aggregation.
 //!
-//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
-//! it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
+//! DESCRIPTION:\n
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the
+//! ensemble $\vec{x}$, it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
 class API_EXPORT CExponent final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
+
+    static const std::string JSON_EXPONENT_TAG;
 
 public:
     ~CExponent() override = default;
@@ -145,12 +137,47 @@ class API_EXPORT CTrainedModel : public CSerializableToJsonStream {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
-    using TOptionalDoubleVec = boost::optional<TDoubleVec>;
-    using TOptionalStringVec = boost::optional<TStringVec>;
+    using TOptionalDoubleVec = std::optional<TDoubleVec>;
+    using TOptionalStringVec = std::optional<TStringVec>;
 
     enum ETargetType { E_Classification, E_Regression };
 
+    //! \brief Provides feature names.
+    //!
+    //! DESCRIPTION:\n
+    //! Trained model features include any input feature and any synthetic features
+    //! which training adds, which include, for example, category encodings. Any code
+    //! which references trained model features by name needs to use consistent naming.
+    //! We standardise by using this class to encapsulate naming trained model features
+    //! from the input feature names, the category names and the type of operation used
+    //! to generate the feature.
+    class CFeatureNameProvider {
+    public:
+        using TStrVec = std::vector<std::string>;
+        using TStrVecVec = std::vector<TStrVec>;
+
+    public:
+        CFeatureNameProvider(TStrVec fieldNames, TStrVecVec categoryNames);
+
+        const std::string& fieldName(std::size_t inputColumnIndex) const;
+        const std::string& category(std::size_t inputColumnIndex, std::size_t hotCategory) const;
+        std::string identityEncodingName(std::size_t inputColumnIndex) const;
+        std::string oneHotEncodingName(std::size_t inputColumnIndex,
+                                       std::size_t hotCategory) const;
+        std::string targetMeanEncodingName(std::size_t inputColumnIndex) const;
+        std::string frequencyEncodingName(std::size_t inputColumnIndex) const;
+
+    private:
+        TStrVec m_FieldNames;
+        TStrVecVec m_CategoryNames;
+    };
+
+    //! \brief A measure of the model complexity.
     class CSizeInfo : public CSerializableToJsonDocument {
+    public:
+        static const std::string JSON_NUM_CLASSES_TAG;
+        static const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG;
+
     public:
         explicit CSizeInfo(const CTrainedModel& trainedModel);
         void addToJsonDocument(rapidjson::Value& parentObject,
@@ -163,21 +190,25 @@ public:
     };
     using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
 
+    static const std::string JSON_CLASSIFICATION_LABELS_TAG;
+    static const std::string JSON_CLASSIFICATION_WEIGHTS_TAG;
+    static const std::string JSON_FEATURE_NAMES_TAG;
+    static const std::string JSON_TARGET_TYPE_CLASSIFICATION;
+    static const std::string JSON_TARGET_TYPE_REGRESSION;
+    static const std::string JSON_TARGET_TYPE_TAG;
+
 public:
-    ~CTrainedModel() override = default;
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
-    virtual const TStringVec& featureNames() const;
-    virtual TStringVec& featureNames();
+    const TStringVec& featureNames() const;
     //! Names of the features used by the model.
-    virtual void featureNames(const TStringVec& featureNames);
-    virtual void featureNames(TStringVec&& featureNames);
+    virtual void featureNames(TStringVec featureNames);
     //! Sets target type (regression or classification).
     virtual void targetType(ETargetType targetType);
     //! Returns target type (regression or classification).
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
-    virtual TStringVec removeUnusedFeatures() = 0;
+    virtual const TStringVec& removeUnusedFeatures() = 0;
     //! Set the labels to use for each class.
     virtual void classificationLabels(const TStringVec& classificationLabels);
     //! Get the labels to use for each class.
@@ -188,6 +219,9 @@ public:
     virtual const TOptionalDoubleVec& classificationWeights() const;
     //! Get the object for model size with information for estimation.
     virtual TSizeInfoUPtr sizeInfo() const = 0;
+
+protected:
+    TStringVec& featureNames();
 
 private:
     TStringVec m_FeatureNames;
@@ -203,8 +237,20 @@ public:
     public:
         using TDoubleVec = std::vector<double>;
         using TNodeIndex = std::uint32_t;
-        using TOptionalNodeIndex = boost::optional<TNodeIndex>;
-        using TOptionalDouble = boost::optional<double>;
+        using TOptionalNodeIndex = std::optional<TNodeIndex>;
+        using TOptionalDouble = std::optional<double>;
+
+        static const std::string JSON_DECISION_TYPE_TAG;
+        static const std::string JSON_DEFAULT_LEFT_TAG;
+        static const std::string JSON_LEAF_VALUE_TAG;
+        static const std::string JSON_LEFT_CHILD_TAG;
+        static const std::string JSON_LT;
+        static const std::string JSON_NODE_INDEX_TAG;
+        static const std::string JSON_NUMBER_SAMPLES_TAG;
+        static const std::string JSON_RIGHT_CHILD_TAG;
+        static const std::string JSON_SPLIT_FEATURE_TAG;
+        static const std::string JSON_SPLIT_GAIN_TAG;
+        static const std::string JSON_THRESHOLD_TAG;
 
     public:
         CTreeNode(TNodeIndex nodeIndex,
@@ -237,6 +283,10 @@ public:
 
     class CSizeInfo : public CTrainedModel::CSizeInfo {
     public:
+        static const std::string JSON_NUM_NODES_TAG;
+        static const std::string JSON_NUM_LEAVES_TAG;
+
+    public:
         explicit CSizeInfo(const CTree& tree);
         void addToJsonDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const override;
@@ -248,11 +298,14 @@ public:
 
     using TTreeNodeVec = std::vector<CTreeNode>;
 
+    static const std::string JSON_TREE_TAG;
+    static const std::string JSON_TREE_STRUCTURE_TAG;
+
 public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
-    TStringVec removeUnusedFeatures() override;
+    const TStringVec& removeUnusedFeatures() override;
     TTreeNodeVec& treeStructure();
     //! Get the object for model size with information for estimation.
     TSizeInfoUPtr sizeInfo() const override;
@@ -270,6 +323,12 @@ public:
 
     class CSizeInfo : public CTrainedModel::CSizeInfo {
     public:
+        static const std::string JSON_FEATURE_NAME_LENGTHS_TAG;
+        static const std::string JSON_NUM_OPERATIONS_TAG;
+        static const std::string JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG;
+        static const std::string JSON_TREE_SIZES_TAG;
+
+    public:
         explicit CSizeInfo(const CEnsemble& ensemble);
         void addToJsonDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const override;
@@ -279,18 +338,21 @@ public:
         const CEnsemble* m_Ensemble;
     };
 
+    static const std::string JSON_AGGREGATE_OUTPUT_TAG;
+    static const std::string JSON_ENSEMBLE_TAG;
+    static const std::string JSON_TRAINED_MODELS_TAG;
+
 public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Aggregation mechanism for the output from individual models.
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
     const TAggregateOutputUPtr& aggregateOutput() const;
-    const TStringVec& featureNames() const override;
-    void featureNames(const TStringVec& featureNames) override;
+    void featureNames(TStringVec featureNames) override;
     //! List of trained models withing this ensemble.
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
-    TStringVec removeUnusedFeatures() override;
+    const TStringVec& removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
     //! Set the labels to use for each class.
     void classificationLabels(const TStringVec& classificationLabels) override;
@@ -300,6 +362,7 @@ public:
     TSizeInfoUPtr sizeInfo() const override;
     using CTrainedModel::classificationLabels;
     using CTrainedModel::classificationWeights;
+    using CTrainedModel::featureNames;
     using CTrainedModel::targetType;
 
 private:
@@ -310,6 +373,11 @@ private:
 class API_EXPORT CEncoding : public CSerializableToJsonStream {
 public:
     class CSizeInfo : public CSerializableToJsonDocument {
+    public:
+        static const std::string JSON_FEATURE_NAME_LENGTH_TAG;
+        static const std::string JSON_FIELD_VALUE_LENGTHS_TAG;
+        static const std::string JSON_FIELD_LENGTH_TAG;
+
     public:
         void addToJsonDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const override;
@@ -326,6 +394,9 @@ public:
         const CEncoding* m_Encoding;
     };
     using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
+    static const std::string JSON_FIELD_TAG;
+    static const std::string JSON_FEATURE_NAME_TAG;
 
 public:
     ~CEncoding() override = default;
@@ -361,6 +432,9 @@ public:
     };
     using TStringDoubleUMap = const boost::unordered_map<std::string, double>;
 
+    static const std::string JSON_FREQUENCY_MAP_TAG;
+    static const std::string JSON_FREQUENCY_ENCODING_TAG;
+
 public:
     ~CFrequencyEncoding() override = default;
     CFrequencyEncoding(const std::string& field, std::string featureName, TStringDoubleUMap frequencyMap);
@@ -384,6 +458,9 @@ class API_EXPORT COneHotEncoding final : public CEncoding {
 public:
     class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
+        static const std::string JSON_FEATURE_NAME_LENGTHS_TAG;
+
+    public:
         explicit CSizeInfo(const COneHotEncoding& encoding);
         void addToJsonDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const override;
@@ -392,21 +469,24 @@ public:
     private:
         const COneHotEncoding& m_Encoding;
     };
-    using TStringStringUMap = std::map<std::string, std::string>;
+    using TStrStrMap = std::map<std::string, std::string>;
+
+    static const std::string JSON_HOT_MAP_TAG;
+    static const std::string JSON_ONE_HOT_ENCODING_TAG;
 
 public:
     ~COneHotEncoding() override = default;
-    COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
+    COneHotEncoding(const std::string& field, TStrStrMap hotMap);
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
-    const TStringStringUMap& hotMap() const;
-    TStringStringUMap& hotMap();
+    const TStrStrMap& hotMap() const;
+    TStrStrMap& hotMap();
     const std::string& typeString() const override;
     //! Get the object for model size with information for estimation.
     TSizeInfoUPtr sizeInfo() const override;
 
 private:
-    TStringStringUMap m_HotMap;
+    TStrStrMap m_HotMap;
 };
 
 //! \brief Mapping from categorical columns to numerical values related to the target value.
@@ -423,6 +503,10 @@ public:
         const CTargetMeanEncoding& m_Encoding;
     };
     using TStringDoubleUMap = boost::unordered_map<std::string, double>;
+
+    static const std::string JSON_TARGET_MAP_TAG;
+    static const std::string JSON_TARGET_MEAN_ENCODING_TAG;
+    static const std::string JSON_DEFAULT_VALUE_TAG;
 
 public:
     ~CTargetMeanEncoding() override = default;
@@ -451,7 +535,7 @@ private:
 //! \brief A JSON blob defining a custom encoding or an array of custom encodings.
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
-    COpaqueEncoding(const rapidjson::Document& object);
+    explicit COpaqueEncoding(const rapidjson::Document& object);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
@@ -460,7 +544,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonStream {
+class API_EXPORT CInferenceModelDefinition : public CSerializableToCompressedChunkedJson {
 public:
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
@@ -476,6 +560,11 @@ public:
 
     class API_EXPORT CSizeInfo final : public CSerializableToJsonDocument {
     public:
+        static const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG;
+        static const std::string JSON_MODEL_SIZE_INFO_TAG;
+        static const std::string JSON_TRAINED_MODEL_SIZE_TAG;
+
+    public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
         void addToJsonDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const override;
@@ -488,6 +577,11 @@ public:
 
     using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
 
+    static const std::string JSON_COMPRESSED_INFERENCE_MODEL_TAG;
+    static const std::string JSON_DEFINITION_TAG;
+    static const std::string JSON_PREPROCESSORS_TAG;
+    static const std::string JSON_TRAINED_MODEL_TAG;
+
 public:
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const { return m_Preprocessors; }
@@ -498,11 +592,8 @@ public:
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
-    void addToJsonStream(TGenericLineWriter& writer) const override;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const;
-    std::string jsonString() const;
-    void jsonStream(std::ostream& jsonStrm) const;
-    std::stringstream jsonCompressedStream() const;
+    void addToJsonStream(TGenericLineWriter& writer) const final;
+    void addCompressedToJsonStream(TRapidJsonWriter& writer) const final;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

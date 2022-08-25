@@ -15,7 +15,6 @@
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -23,6 +22,7 @@
 #include <cstdint>
 #include <cstring>
 #include <istream>
+#include <optional>
 #include <string>
 #include <thread>
 
@@ -41,7 +41,7 @@ private:
         std::streampos m_Tellg;
     };
 
-    using TOptionalTellgStore = boost::optional<CTellgStore>;
+    using TOptionalTellgStore = std::optional<CTellgStore>;
 
 public:
     CInputThread(ml::core::CDualThreadStreamBuf& buffer, std::uint32_t delay = 0, size_t fatalAfter = 0)

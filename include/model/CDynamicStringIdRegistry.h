@@ -13,7 +13,7 @@
 #define INCLUDED_ml_model_CDynamicStringIdRegistry_h
 
 #include <core/CCompressedDictionary.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CProgramCounters.h>
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
@@ -134,7 +134,7 @@ public:
     void clear();
 
     //! Get the checksum of this registry.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Debug the memory used by this registry.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;

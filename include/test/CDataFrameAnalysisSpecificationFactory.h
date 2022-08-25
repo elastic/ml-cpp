@@ -17,17 +17,18 @@
 
 #include <maths/analytics/CBoostedTreeLoss.h>
 
+#include <api/ApiTypes.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/ImportExport.h>
 
 #include <rapidjson/document.h>
 
-#include <boost/optional.hpp>
-
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,9 @@ public:
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
     using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
+    using TTask = api_t::EDataFrameTrainBoostedTreeTask;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        api::CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -94,6 +98,10 @@ public:
     CDataFrameAnalysisSpecificationFactory&
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
     CDataFrameAnalysisSpecificationFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
+    CDataFrameAnalysisSpecificationFactory& task(TTask task);
+    CDataFrameAnalysisSpecificationFactory& dataSummarizationFraction(double fraction);
+    CDataFrameAnalysisSpecificationFactory& previousTrainLossGap(double lossGap);
+    CDataFrameAnalysisSpecificationFactory& previousTrainNumberRows(std::size_t number);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -108,17 +116,20 @@ public:
     classificationWeights(const TStrDoublePrVec& weights);
 
     std::string outlierParams() const;
-    TSpecificationUPtr outlierSpec() const;
+    TSpecificationUPtr
+    outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
     std::string predictionParams(const std::string& analysis,
                                  const std::string& dependentVariable) const;
-    TSpecificationUPtr predictionSpec(const std::string& analysis,
-                                      const std::string& dependentVariable) const;
+    TSpecificationUPtr
+    predictionSpec(const std::string& analysis,
+                   const std::string& dependentVariable,
+                   TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalDouble = boost::optional<double>;
-    using TOptionalLossFunctionType = boost::optional<TLossFunctionType>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalDouble = std::optional<double>;
+    using TOptionalLossFunctionType = std::optional<TLossFunctionType>;
 
 private:
     // Shared
@@ -150,6 +161,10 @@ private:
     TPersisterSupplier* m_PersisterSupplier{nullptr};
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier{nullptr};
     rapidjson::Document m_CustomProcessors;
+    TTask m_Task{TTask::E_Train};
+    double m_DataSummarizationFraction{-1.0};
+    double m_PreviousTrainLossGap{-1.0};
+    std::size_t m_PreviousTrainNumberRows{0};
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

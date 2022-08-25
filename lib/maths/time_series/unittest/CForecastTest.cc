@@ -9,13 +9,11 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CTriple.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CIntegerTools.h>
-#include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CModel.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CSpline.h>
@@ -29,7 +27,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -62,17 +59,18 @@ public:
 public:
     ~CDebugGenerator() {
         if (ENABLED) {
-            std::ofstream file;
-            file.open("results.py");
+            std::ofstream file_;
+            file_.open("results.py");
+            auto file = (file_ << core::CScopePrintContainers{});
             file << "import matplotlib.pyplot as plt;\n";
-            file << "t = " << core::CContainerPrinter::print(m_ValueTimes) << ";\n";
-            file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
-            file << "tp = " << core::CContainerPrinter::print(m_PredictionTimes) << ";\n";
-            file << "fp = " << core::CContainerPrinter::print(m_Predictions) << ";\n";
-            file << "tf = " << core::CContainerPrinter::print(m_ForecastTimes) << ";\n";
-            file << "fl = " << core::CContainerPrinter::print(m_ForecastLower) << ";\n";
-            file << "fm = " << core::CContainerPrinter::print(m_ForecastMean) << ";\n";
-            file << "fu = " << core::CContainerPrinter::print(m_ForecastUpper) << ";\n";
+            file << "t = " << m_ValueTimes << ";\n";
+            file << "f = " << m_Values << ";\n";
+            file << "tp = " << m_PredictionTimes << ";\n";
+            file << "fp = " << m_Predictions << ";\n";
+            file << "tf = " << m_ForecastTimes << ";\n";
+            file << "fl = " << m_ForecastLower << ";\n";
+            file << "fm = " << m_ForecastMean << ";\n";
+            file << "fu = " << m_ForecastUpper << ";\n";
             file << "plt.plot(t, f);\n";
             file << "plt.plot(tp, fp, 'k');\n";
             file << "plt.plot(tf, fl, 'r');\n";
@@ -115,8 +113,8 @@ private:
 
 const double DECAY_RATE{0.0005};
 const std::size_t TAG{0};
-const TDouble2Vec MINIMUM_VALUE{boost::numeric::bounds<double>::lowest()};
-const TDouble2Vec MAXIMUM_VALUE{boost::numeric::bounds<double>::highest()};
+const TDouble2Vec MINIMUM_VALUE{std::numeric_limits<double>::lowest()};
+const TDouble2Vec MAXIMUM_VALUE{std::numeric_limits<double>::max()};
 
 maths::common::CModelParams params(core_t::TTime bucketLength) {
     using TTimeDoubleMap = std::map<core_t::TTime, double>;
@@ -197,7 +195,7 @@ public:
 
             for (std::size_t i = 0; i < noise.size(); ++i, time += m_BucketLength) {
                 maths::common::CModelAddSamplesParams params;
-                params.integer(false)
+                params.isInteger(false)
                     .propagationInterval(1.0)
                     .trendWeights(weights)
                     .priorWeights(weights);
@@ -442,8 +440,8 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); value != noise.end(); ++value, time += bucketLength) {
             maths::common::CModelAddSamplesParams params;
-            params.integer(false)
-                .nonNegative(true)
+            params.isInteger(false)
+                .isNonNegative(true)
                 .propagationInterval(1.0)
                 .trendWeights(weights)
                 .priorWeights(weights);
@@ -526,7 +524,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t i = 0; i < n; ++i) {
         maths::common::CModelAddSamplesParams params;
-        params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+        params.isInteger(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
         model.addSamples(
             params, {core::make_triple(timeseries[i].first,
                                        TDouble2Vec{timeseries[i].second}, TAG)});
@@ -588,7 +586,10 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
 
         for (core_t::TTime time = 0; time < dataEndTime; time += bucketLength) {
             maths::common::CModelAddSamplesParams params;
-            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+            params.isInteger(false)
+                .propagationInterval(1.0)
+                .trendWeights(weights)
+                .priorWeights(weights);
             double yi{static_cast<double>(time)};
             model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
         }

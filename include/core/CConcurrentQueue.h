@@ -11,14 +11,14 @@
 #ifndef INCLUDED_ml_core_CConcurrentQueue_h
 #define INCLUDED_ml_core_CConcurrentQueue_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
 
 #include <condition_variable>
 #include <mutex>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -40,7 +40,7 @@ namespace core {
 template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
-    using TOptional = boost::optional<T>;
+    using TOptional = std::optional<T>;
 
 public:
     CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
@@ -68,7 +68,7 @@ public:
     TOptional tryPop(PREDICATE allowed) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         if (m_Queue.empty() || allowed(m_Queue.front()) == false) {
-            return boost::none;
+            return std::nullopt;
         }
 
         size_t oldSize{m_Queue.size()};
@@ -123,11 +123,11 @@ public:
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CConcurrentQueue");
-        CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
+        memory_debug::dynamicSize("m_Queue", m_Queue, mem);
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const { return memory::dynamicSize(m_Queue); }
 
     //! Return the number of items currently in the queue
     size_t size() {

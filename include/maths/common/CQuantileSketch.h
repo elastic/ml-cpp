@@ -21,8 +21,14 @@
 #include <boost/operators.hpp>
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
+namespace CQuantileSketchTest {
+struct testOrderAndDeduplicate;
+struct testFastSketchComputeMergeCosts;
+struct testFastSketchFastReduce;
+}
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -51,15 +57,21 @@ namespace common {
 //! estimation.
 class MATHS_COMMON_EXPORT CQuantileSketch : private boost::addable<CQuantileSketch> {
 public:
+    using TFloatVec = std::vector<CFloatStorage>;
     using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
     using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
-
     //! The types of interpolation used for computing the quantile.
     enum EInterpolation { E_Linear, E_PiecewiseConstant };
+    using TOptionalInterpolation = std::optional<EInterpolation>;
 
 public:
-    CQuantileSketch(EInterpolation interpolation, std::size_t size);
-    virtual ~CQuantileSketch() = default;
+    //! The default reduction factor.
+    static constexpr double REDUCTION_FACTOR{0.9};
+
+public:
+    CQuantileSketch(const TFloatVec& splits, const TFloatVec& counts);
+    explicit CQuantileSketch(std::size_t size);
+    virtual ~CQuantileSketch();
 
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -80,7 +92,7 @@ public:
     void age(double factor);
 
     //! Get the c.d.f at \p x.
-    bool cdf(double x, double& result) const;
+    bool cdf(double x, double& result, TOptionalInterpolation interpolation = std::nullopt) const;
 
     //! Get the minimum value added.
     bool minimum(double& result) const;
@@ -92,10 +104,9 @@ public:
     bool mad(double& result) const;
 
     //! Get the quantile corresponding to \p percentage.
-    bool quantile(double percentage, double& result) const;
-
-    //! Get the knot values.
-    const TFloatFloatPrVec& knots() const;
+    bool quantile(double percentage,
+                  double& result,
+                  TOptionalInterpolation interpolation = std::nullopt) const;
 
     //! Get the total count of points added.
     double count() const;
@@ -121,30 +132,48 @@ public:
 protected:
     using TBoolVec = std::vector<bool>;
     using TSizeVec = std::vector<std::size_t>;
+    using TFloatFloatPrVecItr = TFloatFloatPrVec::iterator;
 
 protected:
     //! Reduce to the maximum permitted size.
-    virtual void reduce();
+    void reduceWithSuppliedCosts(std::size_t target,
+                                 TFloatFloatPrVec& mergeCosts,
+                                 TSizeVec& mergeCandidates,
+                                 TBoolVec& stale);
 
-    //! Get the target size for sketch post reduce.
-    virtual std::size_t target() const;
+    //! Fully order the values.
+    void order();
 
-    //! Reduce to the maximum permitted size.
-    void reduce(CPRNG::CXorOShiro128Plus& rng,
-                TFloatFloatPrVec& mergeCosts,
-                TSizeVec& mergeCandidates,
-                TBoolVec& stale);
+    //! Combine any co-located values.
+    void deduplicate(TFloatFloatPrVecItr begin, TFloatFloatPrVecItr end);
 
-    //! Sort and combine any co-located values.
-    void orderAndDeduplicate();
+    //! The result of merging knots at positions \p l and \p r.
+    TFloatFloatPr mergedKnot(std::size_t l, std::size_t r) const;
 
     //! Compute the cost of combining \p vl and \p vr.
-    static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
+    static double mergeCost(const TFloatFloatPr& l, const TFloatFloatPr& r);
+
+    //! Get read only knots.
+    const TFloatFloatPrVec& knots() const { return m_Knots; }
+    //! Get the knots which can be written.
+    TFloatFloatPrVec& knots() { return m_Knots; }
 
     //! The maximum permitted size for the sketch.
     std::size_t maxSize() const { return m_MaxSize; }
 
 private:
+    static constexpr std::size_t MINIMUM_MAX_SIZE{3};
+
+private:
+    //! Get the target size for fastReduce.
+    virtual std::size_t fastReduceTargetSize() const;
+
+    //! A possibly accelerated implementation of reduce.
+    virtual void fastReduce();
+
+    //! Reduce to \p target size.
+    void reduce(std::size_t target);
+
     //! Compute quantiles on the supplied knots.
     static void quantile(EInterpolation interpolation,
                          const TFloatFloatPrVec& knots,
@@ -152,25 +181,28 @@ private:
                          double percentage,
                          double& result);
 
+    //! The interpolation scheme to use for the cdf and quantile calculation.
+    EInterpolation cdfAndQuantileInterpolation() const;
+
 private:
-    //! The style of interpolation to use.
-    EInterpolation m_Interpolation;
     //! The maximum permitted size for the sketch.
-    std::size_t m_MaxSize;
+    std::size_t m_MaxSize{MINIMUM_MAX_SIZE};
     //! The number of unsorted values.
-    std::size_t m_Unsorted;
-    //! The values and counts used as knot points to interpolate the c.d.f.
-    TFloatFloatPrVec m_Knots;
+    std::size_t m_Unsorted{0};
     //! The total count of points in the sketch.
-    double m_Count;
+    double m_Count{0.0};
+    //! The knots of the histogram sketch.
+    TFloatFloatPrVec m_Knots;
+
+    friend CQuantileSketchTest::testOrderAndDeduplicate;
 };
 
 //! \brief Template wrapper for fixed size sketches which can be
 //! default constructed.
-template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
+template<std::size_t N>
 class CFixedQuantileSketch final : public CQuantileSketch {
 public:
-    CFixedQuantileSketch() : CQuantileSketch(INTERPOLATION, N) {}
+    CFixedQuantileSketch() : CQuantileSketch(N) {}
 
     //! Get a checksum of this object.
     //!
@@ -181,7 +213,7 @@ public:
 
     //! Debug the memory used by this object.
     //!
-    //! \note Needs to be redeclared to work with CMemoryDebug.
+    //! \note Needs to be redeclared to work with memory_debug.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         this->CQuantileSketch::debugMemoryUsage(mem);
     }
@@ -197,17 +229,22 @@ public:
 //! \brief This tunes the quantile sketch for performance when space is less important.
 //!
 //! DESCRIPTION:\n
-//! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 2.0x
+//! This uses around 3x the memory than CQuantileSketch but updating is around 3-4x
 //! faster when using its default reduction factor.
 class MATHS_COMMON_EXPORT CFastQuantileSketch final : public CQuantileSketch {
 public:
-    CFastQuantileSketch(EInterpolation interpolation,
-                        std::size_t size,
-                        CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{},
-                        double reductionFraction = 0.8)
-        : CQuantileSketch{interpolation, size}, m_Rng{rng}, m_ReductionFraction{reductionFraction} {
-    }
+    using TOptionalDouble = std::optional<double>;
 
+public:
+    //! The default reduction factor.
+    static constexpr double REDUCTION_FACTOR{0.7};
+
+public:
+    CFastQuantileSketch(const TFloatVec& splits, const TFloatVec& counts)
+        : CQuantileSketch{splits, counts} {}
+    explicit CFastQuantileSketch(std::size_t size,
+                                 CPRNG::CXorOShiro128Plus rng = {},
+                                 TOptionalDouble reductionFraction = std::nullopt);
     // We don't bother to checksum or persist and restore the bookkeeping state because
     // it is reinitialised at the start of each reduce.
 
@@ -224,21 +261,29 @@ public:
     std::size_t staticSize() const override;
 
 private:
-    using CQuantileSketch::reduce;
+    using TUInt32Vec = std::vector<std::uint32_t>;
 
 private:
+    //! Get the target size for fastReduce.
+    std::size_t fastReduceTargetSize() const override;
+
     //! Reduce to the maximum permitted size.
-    void reduce() override;
+    void fastReduce() override;
 
-    //! Get the target size for sketch post reduce.
-    std::size_t target() const override;
+    //! Compute the merge costs.
+    void computeMergeCosts(TFloatFloatPrVec& knots);
+
+    //! Compute the knots to merge.
+    void computeMergeCandidates(std::size_t numberToMerge);
 
 private:
-    CPRNG::CXorOShiro128Plus m_Rng;
-    TFloatFloatPrVec m_MergeCosts;
-    TSizeVec m_MergeCandidates;
-    TBoolVec m_Stale;
-    double m_ReductionFraction;
+    TFloatVec m_Tiebreakers;
+    TFloatVec m_MergeCosts;
+    TUInt32Vec m_MergeCandidates;
+    double m_ReductionFactor{REDUCTION_FACTOR};
+
+    friend CQuantileSketchTest::testFastSketchComputeMergeCosts;
+    friend CQuantileSketchTest::testFastSketchFastReduce;
 };
 
 //! Write to stream using print member.

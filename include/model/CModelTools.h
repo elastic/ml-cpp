@@ -12,22 +12,20 @@
 #ifndef INCLUDED_ml_model_CModelTools_h
 #define INCLUDED_ml_model_CModelTools_h
 
-#include <core/CAllocationStrategy.h>
+#include <core/CHashing.h>
 #include <core/CLogger.h>
+#include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CModel.h>
-#include <maths/common/CMultivariatePrior.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/ProbabilityAggregators.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
 #include <boost/container/flat_map.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
@@ -38,13 +36,11 @@
 namespace ml {
 namespace maths {
 namespace common {
-class CModel;
 class CMultinomialConjugate;
 }
 }
 namespace model {
 class CSample;
-struct SModelParams;
 
 //! \brief A collection of utility functionality for the CModel hierarchy.
 //!

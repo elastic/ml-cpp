@@ -19,13 +19,13 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/linux_builder/Dockerfile.
 
-if [ `uname -m` != aarch64 ] ; then
+if [ `uname -m` != aarch64 -a `uname -m` != arm64 ] ; then
     echo "Native build images must be built on the correct hardware architecture"
-    echo "Required: aarch64, Current:" `uname -m`
+    echo "Required: aarch64 or arm64, Current:" `uname -m`
     exit 1
 fi
 
-DOCKER_DIR=`docker info 2>/dev/null | grep '^Docker Root Dir' | awk -F: '{ print $2 }' | sed 's/^ *//'`
+DOCKER_DIR=`docker info 2>/dev/null | grep '^ *Docker Root Dir' | awk -F: '{ print $2 }' | sed 's/^ *//'`
 echo "Building this image may require up to 50GB of space for Docker"
 echo "Current space available in $DOCKER_DIR"
 df -h "$DOCKER_DIR"
@@ -34,7 +34,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-native-build
-VERSION=7
+VERSION=9
 
 set -e
 

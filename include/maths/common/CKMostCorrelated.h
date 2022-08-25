@@ -21,12 +21,15 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <utility>
 #include <vector>
 
-#include <stdint.h>
-
 namespace ml {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
 namespace maths {
 namespace common {
 //! \brief Randomized linear complexity search for the most correlated
@@ -110,7 +113,7 @@ public:
     void capture();
 
     //! Get the checksum of this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -142,7 +145,7 @@ protected:
     //! from the projected data.
     struct MATHS_COMMON_EXPORT SCorrelation {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
         SCorrelation();
         SCorrelation(std::size_t X,
@@ -180,7 +183,7 @@ protected:
                                   const core::CPackedBitVector& iy);
 
         //! Get the checksum of this object.
-        uint64_t checksum(uint64_t seed) const;
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Print for debug.
         std::string print() const;

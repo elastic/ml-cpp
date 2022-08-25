@@ -16,11 +16,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/CCompositeFunctions.h>
-#include <maths/common/CEqualWithTolerance.h>
-#include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/COrderings.h>
 #include <maths/common/CPriorDetail.h>
 #include <maths/common/CSolvers.h>
 
@@ -182,7 +178,7 @@ CPrior::SPlot CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double w
     return plot;
 }
 
-uint64_t CPrior::checksum(uint64_t seed) const {
+std::uint64_t CPrior::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     return CChecksum::calculate(seed, m_NumberSamples);
@@ -297,8 +293,8 @@ double CPrior::adjustOffsetWithCost(const TDouble1Vec& samples,
         double likelihoodStandardDeviation;
         CSolvers::globalMinimize(trialOffsets, cost, offset, likelihood,
                                  likelihoodStandardDeviation);
-        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
-                  << ", offset = " << offset << ", likelihood = " << likelihood);
+        LOG_TRACE(<< "samples = " << samples << ", offset = " << offset
+                  << ", likelihood = " << likelihood);
     }
 
     apply(offset);
@@ -328,9 +324,6 @@ const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50;
 const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";
 
 ////////// CPrior::CModelFilter Implementation //////////
-
-CPrior::CModelFilter::CModelFilter() : m_Filter(0) {
-}
 
 CPrior::CModelFilter& CPrior::CModelFilter::remove(EPrior model) {
     m_Filter = m_Filter | model;
@@ -421,9 +414,9 @@ double CPrior::COffsetCost::computeCost(double offset) const {
         status = this->prior().jointLogMarginalLikelihood(
             this->resamples(), this->resamplesWeights(), resamplesLogLikelihood);
         if (status != maths_t::E_FpNoErrors) {
-            LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for samples "
-                      << core::CContainerPrinter::print(this->resamples()) << " and weights "
-                      << core::CContainerPrinter::print(this->resamplesWeights()) << ", the prior is "
+            LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset
+                      << " for samples " << this->resamples() << " and weights "
+                      << this->resamplesWeights() << ", the prior is "
                       << this->prior().print() << ": status " << status);
         }
     }
@@ -432,8 +425,7 @@ double CPrior::COffsetCost::computeCost(double offset) const {
         this->samples(), this->weights(), samplesLogLikelihood);
     if (status != maths_t::E_FpNoErrors) {
         LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for "
-                  << core::CContainerPrinter::print(this->samples()) << " and weights "
-                  << core::CContainerPrinter::print(this->weights()) << ", the prior is "
+                  << this->samples() << " and weights " << this->weights() << ", the prior is "
                   << this->prior().print() << ": status " << status);
     }
     return -(resamplesLogLikelihood + samplesLogLikelihood);

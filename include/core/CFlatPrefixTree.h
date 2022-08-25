@@ -14,10 +14,9 @@
 
 #include <core/ImportExport.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -45,7 +44,7 @@ namespace core {
 //! the associated char nodes. For the input of (ab, abd, bdf)
 //! the vector would look like:
 //! [($, $, 2) (a, b, 3) (b, b, 7) ($, $, 1) (b, *, 5) ($, $, 1) (d, l, -) ($, $, 1) (d, b, 9) ($, $, 1) (f, l, -) ]
-//! where '-' means no child and is actually represented by max(uint32_t).
+//! where '-' means no child and is actually represented by max(std::uint32_t).
 //! This representation allows for search by visiting the first node, applying
 //! binary search on the first character, moving on to the node indicated by
 //! the characters next index, applying binary search on the second character,
@@ -60,14 +59,14 @@ public:
 private:
     struct SNode {
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
-        SNode(char c, char type, uint32_t next);
+        SNode(char c, char type, std::uint32_t next);
 
         bool operator<(char rhs) const;
         char s_Char;
         char s_Type;
-        uint32_t s_Next;
+        std::uint32_t s_Next;
     };
 
     struct SDistinctChar {

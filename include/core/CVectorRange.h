@@ -13,8 +13,9 @@
 #define INCLUDED_ml_core_CVectorRange_h
 
 #include <algorithm>
-#include <exception>
-#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
 
 namespace ml {
 namespace core {
@@ -255,9 +256,8 @@ private:
     //! Check if \p pos is in range.
     void range_check(size_type pos) const {
         if (m_A + pos >= m_B) {
-            std::ostringstream message;
-            message << "out of range: " << pos << " >= " << m_B - m_A;
-            throw std::out_of_range(message.str());
+            throw std::out_of_range("out of range: " + std::to_string(pos) +
+                                    " >= " + std::to_string(m_B - m_A));
         }
     }
 
@@ -309,6 +309,13 @@ void swap(CVectorRange<VECTOR>& lhs, CVectorRange<VECTOR>& rhs) {
 template<typename VECTOR>
 CVectorRange<VECTOR> make_range(VECTOR& vector, std::size_t a, std::size_t b) {
     return CVectorRange<VECTOR>(vector, a, b);
+}
+
+//! Make a const vector subrange.
+template<typename VECTOR>
+CVectorRange<const std::remove_const_t<VECTOR>>
+make_const_range(VECTOR& vector, std::size_t a, std::size_t b) {
+    return CVectorRange<const std::remove_const_t<VECTOR>>(vector, a, b);
 }
 }
 }

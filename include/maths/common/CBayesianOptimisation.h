@@ -21,9 +21,8 @@
 #include <maths/common/CPRNG.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <functional>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -59,8 +58,9 @@ class MATHS_COMMON_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TVector = CDenseVector<double>;
+    using TVectorVectorPr = std::pair<TVector, TVector>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
     using TEIFunc = std::function<double(const TVector&)>;
@@ -76,6 +76,8 @@ public:
 public:
     explicit CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
                                    std::size_t restarts = RESTARTS);
+    explicit CBayesianOptimisation(TVectorVectorPr parameterBounds,
+                                   std::size_t restarts = RESTARTS);
     explicit CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
@@ -86,13 +88,17 @@ public:
     //! shouldn't be included in the kernel.
     void explainedErrorVariance(double vx);
 
+    //! Get the number of restarts to use in global optimisation.
+    std::size_t restarts() const;
+
     //! Get the bounding box (in the function domain) in which we're minimizing.
-    std::pair<TVector, TVector> boundingBox() const;
+    TVectorVectorPr boundingBox() const;
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
     std::pair<TVector, TOptionalDouble>
-    maximumExpectedImprovement(double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
+    maximumExpectedImprovement(std::size_t numberRounds = 1,
+                               double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
 
     //! Estimate the maximum booking memory used by this class for optimising
     //! \p numberParameters using \p numberRounds rounds.
@@ -106,16 +112,17 @@ public:
     //! \p dimension for the values \p input.
     double evaluate1D(double input, int dimension) const;
 
-    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
-    double anovaConstantFactor() const;
+    //! Get the coefficient of variation after subtracting the measurement error
+    //! variance for the Gaussian process in the search bounding box using ANOVA
+    //! decomposition.
+    double excessCoefficientOfVariation();
 
     //! Get the total variance of the Gaussian process in the search bounding box
     //! using ANOVA decomposition.
     double anovaTotalVariance() const;
 
-    //! Get the coefficiet of variation of the Gaussian process in the search
-    //! bounding box using ANOVA decomposition.
-    double anovaTotalCoefficientOfVariation();
+    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
+    double anovaConstantFactor() const;
 
     //! Get the main effect of the parameter \p dimension in the Gaussian process
     //! using ANOVA decomposition.
@@ -151,7 +158,7 @@ public:
     std::pair<TEIFunc, TEIGradientFunc> minusExpectedImprovementAndGradient() const;
 
     //! Compute the maximum likelihood kernel parameters.
-    const TVector& maximumLikelihoodKernel();
+    const TVector& maximumLikelihoodKernel(std::size_t numberRounds = 1);
     //@}
 
 private:

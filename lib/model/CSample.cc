@@ -12,14 +12,14 @@
 #include <model/CSample.h>
 
 #include <core/CIEEE754.h>
-#include <core/CMemory.h>
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CChecksum.h>
 
 #include <model/CFeatureData.h>
-#include <model/ModelTypes.h>
 
 namespace ml {
 namespace model {
@@ -90,8 +90,8 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     return result;
 }
 
-uint64_t CSample::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_Time);
+std::uint64_t CSample::checksum() const {
+    std::uint64_t seed = static_cast<std::uint64_t>(m_Time);
     seed = maths::common::CChecksum::calculate(seed, m_Value);
     seed = maths::common::CChecksum::calculate(seed, m_VarianceScale);
     return maths::common::CChecksum::calculate(seed, m_Count);
@@ -106,11 +106,11 @@ std::string CSample::print() const {
 
 void CSample::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSample");
-    core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
+    core::memory_debug::dynamicSize("m_Value", m_Value, mem);
 }
 
 std::size_t CSample::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Value);
+    return core::memory::dynamicSize(m_Value);
 }
 }
 }

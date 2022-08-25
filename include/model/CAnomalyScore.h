@@ -20,17 +20,16 @@
 
 #include <model/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace CAnomalyScoreTest {
 struct testNormalizerGetMaxScore;
@@ -40,14 +39,8 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths {
-namespace common {
-class CPrior;
-}
-}
 namespace model {
 class CAnomalyDetectorModelConfig;
-class CLimits;
 
 //! \brief An anomaly score calculator.
 //!
@@ -107,7 +100,7 @@ public:
     //! based on historic values percentiles.
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
-        using TOptionalBool = boost::optional<bool>;
+        using TOptionalBool = std::optional<bool>;
         using TMaxValueAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
@@ -138,7 +131,7 @@ public:
         };
 
     public:
-        CNormalizer(const CAnomalyDetectorModelConfig& config);
+        explicit CNormalizer(const CAnomalyDetectorModelConfig& config);
 
         //! Does this normalizer have enough information to normalize
         //! anomaly scores?
@@ -191,11 +184,12 @@ public:
         //@}
 
         //! Get a checksum of the object.
-        uint64_t checksum() const;
+        std::uint64_t checksum() const;
 
     private:
         using TDoubleDoublePr = std::pair<double, double>;
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+
         //! \brief Wraps a maximum score.
         class CMaxScore {
         public:
@@ -218,7 +212,7 @@ public:
             bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
             //! Get a checksum of the object.
-            uint64_t checksum() const;
+            std::uint64_t checksum() const;
 
         private:
             TMaxValueAccumulator m_Score;
@@ -229,33 +223,33 @@ public:
     private:
         //! Used to convert raw scores in to integers so that we
         //! can use the q-digest.
-        constexpr static double DISCRETIZATION_FACTOR = 1000.0;
+        constexpr static double DISCRETIZATION_FACTOR{1000.0};
 
         //! We maintain a separate digest for the scores greater
         //! than some high percentile (specified by this constant).
         //! This is because we want the highest resolution in the
         //! scores for the extreme (high quantile) raw scores.
-        constexpr static double HIGH_PERCENTILE = 90.0;
+        constexpr static double HIGH_PERCENTILE{90.0};
 
         //! The time between aging quantiles. These age at a slower
         //! rate which we achieve by only aging them after a certain
         //! period has elapsed.
-        constexpr static double QUANTILE_DECAY_TIME = 20.0;
+        constexpr static double QUANTILE_DECAY_TIME{20.0};
 
         //! The number of "buckets" we'll remember maximum scores
         //! for without receiving a new value.
-        constexpr static double FORGET_MAX_SCORE_INTERVAL = 50.0;
+        constexpr static double FORGET_MAX_SCORE_INTERVAL{50.0};
 
         //! The increase in maximum score that will be considered a
         //! big change when updating the quantiles.
-        constexpr static double BIG_CHANGE_FACTOR = 1.1;
+        constexpr static double BIG_CHANGE_FACTOR{1.1};
 
     private:
         //! Compute the discrete score from a raw score.
-        uint32_t discreteScore(double rawScore) const;
+        std::uint32_t discreteScore(double rawScore) const;
 
         //! Extract the raw score from a discrete score.
-        double rawScore(uint32_t discreteScore) const;
+        double rawScore(std::uint32_t discreteScore) const;
 
         //! Retrieve the maximum score for a partition
         bool maxScore(const CMaximumScoreScope& scope, double& maxScore) const;
@@ -268,13 +262,13 @@ public:
         //! The normalized anomaly score knot points.
         TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
         //! The maximum possible normalized score.
-        double m_MaximumNormalizedScore = 100.0;
+        double m_MaximumNormalizedScore{100.0};
 
         //! The approximate HIGH_PERCENTILE percentile raw score.
-        uint32_t m_HighPercentileScore;
+        std::uint32_t m_HighPercentileScore;
         //! The number of scores less than the approximate
         //! HIGH_PERCENTILE percentile raw score.
-        uint64_t m_HighPercentileCount = 0;
+        std::uint64_t m_HighPercentileCount{0};
 
         //! True if this normalizer applies to results for individual
         //! members of a population analysis.
@@ -284,13 +278,11 @@ public:
         //! The set of maximum scores ever received for partitions.
         TWordMaxScoreUMap m_MaxScores;
 
-        //! The factor used to scale the quantile scores to convert
-        //! values per bucket length to values in absolute time. We
-        //! scale all values to an effective bucket length 30 mins.
-        //! So, a percentile of 99% would correspond to a 1 in 50
-        //! hours event.
-        double m_BucketNormalizationFactor;
-
+        //! We update the quantiles with one in every count per sample.
+        std::size_t m_CountPerSample{1};
+        std::size_t m_CountSinceLastSample{0};
+        //! The we sample the maximum score in every count per sample.
+        double m_Sample{0.0};
         //! A quantile summary of the raw scores.
         maths::common::CQDigest m_RawScoreQuantileSummary;
         //! A quantile summary of the raw score greater than the

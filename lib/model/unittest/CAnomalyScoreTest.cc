@@ -9,12 +9,15 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
@@ -24,15 +27,14 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/optional.hpp>
-#include <boost/range.hpp>
-#include <boost/test/unit_test.hpp>
-
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
+#include <set>
 #include <sstream>
 #include <stdio.h>
 
@@ -61,21 +63,21 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
     // Test 1: single value.
     // Expect deviation of the probability.
     {
-        TDoubleVec p1(1u, 0.001);
+        TDoubleVec p1(1, 0.001);
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p1, overallScore, overallProbability);
         LOG_DEBUG(<< "1) score 1 = " << overallScore);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(0.078557, overallScore, 5e-7);
 
-        TDoubleVec p2(1u, 0.02);
+        TDoubleVec p2(1, 0.02);
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p2, overallScore, overallProbability);
         LOG_DEBUG(<< "1) score 2 = " << overallScore);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(0.002405, overallScore, 5e-7);
 
-        TDoubleVec p3(1u, 0.1);
+        TDoubleVec p3(1, 0.1);
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p3, overallScore, overallProbability);
@@ -119,7 +121,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "3) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "3) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -150,7 +152,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "4) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "4) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -182,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG(<< "5) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "5) probabilities = " << probabilities);
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
@@ -197,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
 
-        LOG_DEBUG(<< "6) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "6) probabilities = " << probabilities);
         LOG_DEBUG(<< "   overallScore = " << overallScore);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(86.995953, overallScore, 5e-7);
     }
@@ -205,7 +207,6 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
 
 BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
     using TDoubleMSet = std::multiset<double>;
-    using TDoubleMSetItr = TDoubleMSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -230,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
         scores.insert(samples[i]);
         normalizer.updateQuantiles({"", "", "bucket_time", ""}, samples[i]);
 
-        TDoubleMSetItr itr = scores.upper_bound(samples[i]);
+        auto itr = scores.upper_bound(samples[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
                               static_cast<double>(scores.size());
 
@@ -259,7 +260,6 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
 // The quantile state will differ but still should be within reasonable bounds
 BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
     using TDoubleMSet = std::multiset<double>;
-    using TDoubleMSetItr = TDoubleMSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
         normalizer.updateQuantiles({"airline", "KLM", "", ""}, samplesAAL[i]);
         normalizer.updateQuantiles({"airline", "JAL", "", ""}, samplesAAL[i]);
 
-        TDoubleMSetItr itr = scores.upper_bound(samplesAAL[i]);
+        auto itr = scores.upper_bound(samplesAAL[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
                               static_cast<double>(scores.size());
 
@@ -328,7 +328,6 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
 
 BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     using TDoubleSizeMap = std::multimap<double, std::size_t>;
-    using TDoubleSizeMapCItr = TDoubleSizeMap::const_iterator;
 
     test::CRandomNumbers rng;
 
@@ -342,14 +341,14 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
         }
     }
 
-    std::size_t largeAnomalyTimes[] = {50,  110, 190, 220,  290,  310,  600,
-                                       620, 790, 900, 1100, 1400, 1600, 1900};
+    TSizeVec largeAnomalyTimes{50,  110, 190, 220,  290,  310,  600,
+                               620, 790, 900, 1100, 1400, 1600, 1900};
 
-    double largeAnomalies[] = {50.0,  350.0, 30.0,  100.0, 30.0, 45.0, 100.0,
-                               120.0, 60.0,  130.0, 100.0, 90.0, 45.0, 30.0};
+    TDoubleVec largeAnomalies{50.0,  350.0, 30.0,  100.0, 30.0, 45.0, 100.0,
+                              120.0, 60.0,  130.0, 100.0, 90.0, 45.0, 30.0};
 
     // Add in the big anomalies.
-    for (size_t i = 0; i < boost::size(largeAnomalyTimes); ++i) {
+    for (size_t i = 0; i < largeAnomalyTimes.size(); ++i) {
         samples[largeAnomalyTimes[i]] += largeAnomalies[i];
     }
 
@@ -376,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
         //raw << " " << samples[i];
         //normalized << " " << sample;
 
-        if (maxScores.size() < boost::size(largeAnomalyTimes)) {
+        if (maxScores.size() < std::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
         } else if (sample > maxScores.begin()->first) {
             LOG_TRACE(<< "normalized = " << sample << " removing "
@@ -392,16 +391,16 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     //f.open("scores.m");
     //f << raw.str() << "\n" << normalized.str();
 
-    LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
+    LOG_DEBUG(<< "maxScores = " << maxScores);
 
     TSizeVec times;
 
-    for (TDoubleSizeMapCItr itr = maxScores.begin(); itr != maxScores.end(); ++itr) {
-        times.push_back(itr->second);
+    for (const auto& maxScore : maxScores) {
+        times.push_back(maxScore.second);
     }
     std::sort(times.begin(), times.end());
 
-    LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
+    LOG_DEBUG(<< "times = " << times);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
                         core::CContainerPrinter::print(times));
@@ -412,7 +411,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     // (partitions are not totally independent and interact via the shared quantile state)
 
     // scores from a single partition
-    const double expectedAALScores[] = {10.31767, 20.24881, 20.35545, 25.07737, 94.09136};
+    TDoubleVec expectedAALScores{10.31767, 20.24881, 20.35545, 25.07737, 94.09136};
 
     test::CRandomNumbers rng;
 
@@ -423,11 +422,11 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     TDoubleVec samplesKLM;
     rng.generateUniformSamples(0.0, 0.1, 500, samplesKLM);
 
-    std::size_t anomalyTimes[] = {50, 110, 190, 220, 290};
-    double anomalies[] = {2.0, 4.0, 4.0, 5.0, 30.0};
+    TSizeVec anomalyTimes{50, 110, 190, 220, 290};
+    TDoubleVec anomalies{2.0, 4.0, 4.0, 5.0, 30.0};
 
     // Add in the anomalies.
-    for (size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (size_t i = 0; i < anomalyTimes.size(); ++i) {
         samplesAAL[anomalyTimes[i]] += anomalies[i];
         samplesKLM[anomalyTimes[i]] += anomalies[i];
     }
@@ -443,7 +442,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     }
 
     TDoubleVec actualAALScores;
-    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < std::size(anomalyTimes); ++i) {
         double sampleAAL = samplesAAL[anomalyTimes[i]];
         double sampleKLM = samplesKLM[anomalyTimes[i]];
         LOG_DEBUG(<< "sampleAAL = " << sampleAAL);
@@ -453,9 +452,9 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
         actualAALScores.push_back(sampleAAL);
     }
     std::sort(actualAALScores.begin(), actualAALScores.end());
-    LOG_DEBUG(<< "actualAALScores = " << core::CContainerPrinter::print(actualAALScores));
+    LOG_DEBUG(<< "actualAALScores = " << actualAALScores);
 
-    for (std::size_t i = 0; i < boost::size(expectedAALScores); ++i) {
+    for (std::size_t i = 0; i < std::size(expectedAALScores); ++i) {
         double pctChange = 100.0 *
                            (std::fabs(actualAALScores[i] - expectedAALScores[i])) /
                            expectedAALScores[i];
@@ -474,11 +473,11 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 0.1, 500, samples);
 
-    std::size_t anomalyTimes[] = {50, 110, 190, 220, 290};
-    double anomalies[] = {2.0, 4.0, 4.0, 5.0, 20.0};
+    TSizeVec anomalyTimes{50, 110, 190, 220, 290};
+    TDoubleVec anomalies{2.0, 4.0, 4.0, 5.0, 20.0};
 
     // Add in the anomalies.
-    for (size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < anomalyTimes.size(); ++i) {
         samples[anomalyTimes[i]] += anomalies[i];
     }
 
@@ -492,16 +491,16 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     }
 
     TDoubleVec scores;
-    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < std::size(anomalyTimes); ++i) {
         double sample = samples[anomalyTimes[i]];
         normalizer.normalize({"", "", "bucket_time", ""}, sample);
         scores.push_back(sample);
     }
     std::sort(scores.begin(), scores.end());
-    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << scores);
 
-    for (std::size_t i = 0; i + 1 < boost::size(anomalies); ++i) {
-        double change = 100.0 * anomalies[i] / anomalies[boost::size(anomalies) - 1];
+    for (std::size_t i = 0; i + 1 < anomalies.size(); ++i) {
+        double change = 100.0 * anomalies[i] / anomalies[anomalies.size() - 1];
         double uplift = scores[i] - change;
         LOG_DEBUG(<< "uplift = " << uplift << " scores[" << i << "] = " << scores[i] << " anomalies["
                   << i << "] = " << anomalies[i] << " change = " << change);
@@ -528,17 +527,17 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
         std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
-    for (std::size_t i = 0; i < boost::size(nonZeroCounts); ++i) {
+    for (std::size_t i = 0; i < std::size(nonZeroCounts); ++i) {
         LOG_DEBUG(<< "non-zero count = " << nonZeroCounts[i]);
 
-        TDoubleVec samples(500u, 0.0);
+        TDoubleVec samples(500, 0.0);
         for (std::size_t j = 0; j < nonZeroCounts[i]; ++j) {
             if (std::find(std::begin(anomalyTimes), std::end(anomalyTimes), j) ==
                 std::end(anomalyTimes)) {
                 samples[j] += 0.0055;
             }
         }
-        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < std::size(anomalyTimes); ++j) {
             samples[anomalyTimes[j]] += anomalies[j];
         }
 
@@ -552,12 +551,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         }
 
         TDoubleVec maxScores;
-        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < std::size(anomalyTimes); ++j) {
             double sample = samples[anomalyTimes[j]];
             normalizer.normalize({"", "", "bucket_time", ""}, sample);
             maxScores.push_back(sample);
         }
-        LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
+        LOG_DEBUG(<< "maxScores = " << maxScores);
 
         BOOST_REQUIRE_EQUAL(expectedScores[i], core::CContainerPrinter::print(maxScores));
     }
@@ -614,17 +613,17 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
     TDoubleVec samplesKLM;
     rng.generateUniformSamples(0.0, 0.1, 500, samplesKLM);
 
-    std::size_t anomalyTimesAAL[] = {50, 110, 190, 220, 290};
-    double anomaliesAAL[] = {1.0, 3.0, 4.0, 5.0, 40.0};
+    TSizeVec anomalyTimesAAL{50, 110, 190, 220, 290};
+    TDoubleVec anomaliesAAL{1.0, 3.0, 4.0, 5.0, 40.0};
 
-    std::size_t anomalyTimesKLM[] = {45, 120, 210, 220, 300};
-    double anomaliesKLM[] = {2.0, 3.0, 4.0, 6.0, 30.0};
+    TSizeVec anomalyTimesKLM{45, 120, 210, 220, 300};
+    TDoubleVec anomaliesKLM{2.0, 3.0, 4.0, 6.0, 30.0};
 
     // Add in the anomalies.
-    for (size_t i = 0; i < boost::size(anomalyTimesAAL); ++i) {
+    for (size_t i = 0; i < anomalyTimesAAL.size(); ++i) {
         samplesAAL[anomalyTimesAAL[i]] += anomaliesAAL[i];
     }
-    for (size_t i = 0; i < boost::size(anomalyTimesKLM); ++i) {
+    for (size_t i = 0; i < anomalyTimesKLM.size(); ++i) {
         samplesAAL[anomalyTimesKLM[i]] += anomaliesKLM[i];
     }
 
@@ -654,6 +653,72 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
     // (and hence different from one another)
     BOOST_REQUIRE_CLOSE_ABSOLUTE(expecteMaxScoreAAL, maxScoreAAL, 5e-5);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(expecteMaxScoreKLM, maxScoreKLM, 5e-5);
+}
+
+BOOST_AUTO_TEST_CASE(testNoiseForDifferentBucketLengths) {
+    // Simulate noise in different bucket lengths and check that distribution
+    // alert severities. Because there are multiple factors which affect the
+    // score we don't necessarily get the same distribution for all bucket
+    // lengths. However, we do have an approximate upper bound on the count
+    // by severity based on the rate limiting we perform.
+
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
+
+    test::CRandomNumbers rng;
+
+    TMeanAccumulatorVecVec averageCounts;
+    TDoubleVec probabilities;
+    for (std::size_t samplesPerInterval : {1, 2, 6, 9, 12}) {
+        averageCounts.emplace_back(5);
+        for (std::size_t trial = 0; trial < 10; ++trial) {
+            model::CAnomalyDetectorModelConfig config{
+                model::CAnomalyDetectorModelConfig::defaultConfig(1800 / samplesPerInterval)};
+            model::CAnomalyScore::CNormalizer normalizer(config);
+            normalizer.isForMembersOfPopulation(false);
+
+            TDoubleVec scoreThresholds{50.0, 60.0, 70.0, 80.0, 90.0, 100.0};
+            TSizeVec scoreCounts{0, 0, 0, 0, 0};
+            for (std::size_t i = 0; i < 10000; ++i) {
+
+                rng.generateUniformSamples(0.0, 1.0, samplesPerInterval, probabilities);
+
+                double maxScore{0.0};
+                for (auto p : probabilities) {
+                    double score{maths::common::CTools::anomalyScore(p)};
+                    normalizer.updateQuantiles({"", "", "", ""}, score);
+                    normalizer.normalize({"", "", "", ""}, score);
+                    normalizer.propagateForwardByTime(1.0);
+                    maxScore = std::max(maxScore, score);
+                }
+                if (i < 1000) {
+                    continue;
+                }
+
+                auto j = std::upper_bound(scoreThresholds.begin(),
+                                          scoreThresholds.end(), maxScore) -
+                         scoreThresholds.begin();
+                if (j > 0) {
+                    ++scoreCounts[j - 1];
+                }
+            }
+
+            for (std::size_t i = 0; i < scoreCounts.size(); ++i) {
+                averageCounts.back()[i].add(scoreCounts[i]);
+            }
+        }
+    }
+
+    TDoubleVec rateLimits{9000 * 0.0025, 9000 * 0.0025, 9000 * 0.0025,
+                          9000 * 0.0025, 9000 * 0.001};
+    for (const auto& averageCountsForBucketLength : averageCounts) {
+        LOG_DEBUG(<< "averageCountsForBucketLength = " << averageCountsForBucketLength);
+        for (std::size_t i = 0; i < rateLimits.size(); ++i) {
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(
+                                   averageCountsForBucketLength[i]) < 1.1 * rateLimits[i]);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testJsonConversion) {

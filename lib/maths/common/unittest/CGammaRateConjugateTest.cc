@@ -25,13 +25,11 @@
 #include "TestUtils.h"
 
 #include <boost/math/distributions/gamma.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <iterator>
 #include <vector>
 
@@ -71,7 +69,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     TDoubleVec samples;
     rng.generateGammaSamples(shape, scale, 100, samples);
 
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         CGammaRateConjugate filter1(makePrior(dataTypes[i]));
         CGammaRateConjugate filter2(filter1);
 
@@ -90,7 +88,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     TDoubleVec scaledSamples;
     rng.generateGammaSamples(shape / 2.0, 2.0 * scale, 100, scaledSamples);
 
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         CGammaRateConjugate filter1(makePrior(dataTypes[i]));
         filter1.addSamples(samples);
         CGammaRateConjugate filter2(filter1);
@@ -110,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
     // Test the count weight is equivalent to adding repeated samples.
 
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
         CGammaRateConjugate filter1(makePrior(dataTypes[i]));
         CGammaRateConjugate filter2(filter1);
 
@@ -168,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testShapeEstimation) {
 
     const double decayRates[] = {0.0, 0.001, 0.01};
 
-    for (size_t i = 0; i < boost::size(decayRates); ++i) {
+    for (size_t i = 0; i < std::size(decayRates); ++i) {
         test::CRandomNumbers rng;
 
         double tests = 0.0;
@@ -235,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testRateEstimation) {
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
-    for (size_t i = 0; i < boost::size(decayRates); ++i) {
+    for (size_t i = 0; i < std::size(decayRates); ++i) {
         test::CRandomNumbers rng;
 
         unsigned int errors[] = {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
@@ -255,7 +253,7 @@ BOOST_AUTO_TEST_CASE(testRateEstimation) {
                 filter.propagateForwardsByTime(1.0);
             }
 
-            for (size_t j = 0; j < boost::size(testIntervals); ++j) {
+            for (size_t j = 0; j < std::size(testIntervals); ++j) {
                 TDoubleDoublePr confidenceInterval =
                     filter.confidenceIntervalRate(testIntervals[j]);
 
@@ -265,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testRateEstimation) {
             }
         }
 
-        for (size_t j = 0; j < boost::size(testIntervals); ++j) {
+        for (size_t j = 0; j < std::size(testIntervals); ++j) {
             // The number of errors should be inside the percentile bounds.
             unsigned int maximumErrors = static_cast<unsigned int>(
                 std::ceil((1.0 - testIntervals[j] / 100.0) * nTests));
@@ -280,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testRateEstimation) {
 BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {maths_t::E_ContinuousData, maths_t::E_IntegerData};
-    for (std::size_t t = 0; t < boost::size(dataTypes); ++t) {
+    for (std::size_t t = 0; t < std::size(dataTypes); ++t) {
         CGammaRateConjugate filter(makePrior());
 
         const double shape = 1.0;
@@ -293,11 +291,11 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         filter.addSamples(samples);
 
         TWeightFunc weightsFuncs[]{static_cast<TWeightFunc>(maths_t::countWeight),
-                                   static_cast<TWeightFunc>(maths_t::winsorisationWeight)};
+                                   static_cast<TWeightFunc>(maths_t::outlierWeight)};
         double weights[]{0.1, 0.9, 10.0};
 
-        for (std::size_t i = 0; i < boost::size(weightsFuncs); ++i) {
-            for (std::size_t j = 0; j < boost::size(weights); ++j) {
+        for (std::size_t i = 0; i < std::size(weightsFuncs); ++i) {
+            for (std::size_t j = 0; j < std::size(weights); ++j) {
                 double lb, ub;
                 filter.minusLogJointCdf({1000.0}, {weightsFuncs[i](weights[j])}, lb, ub);
                 LOG_DEBUG(<< "-log(c.d.f) = " << (lb + ub) / 2.0);
@@ -324,11 +322,11 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     unsigned int numberSamples[] = {4u, 10u, 300u, 500u};
     const double tolerances[] = {1e-8, 1e-8, 0.01, 0.001};
 
-    for (size_t i = 0; i < boost::size(numberSamples); ++i) {
+    for (size_t i = 0; i < std::size(numberSamples); ++i) {
         TDoubleVec samples;
         rng.generateGammaSamples(shape, scale, numberSamples[i], samples);
 
-        for (size_t j = 0; j < boost::size(decayRates); ++j) {
+        for (size_t j = 0; j < std::size(decayRates); ++j) {
             CGammaRateConjugate filter(
                 makePrior(maths_t::E_ContinuousData, 0.0, decayRates[j]));
 
@@ -344,7 +342,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             double deltas[] = {-2.0, -1.6, -1.2, -0.8, -0.4, -0.2, 0.0,
                                0.5,  1.0,  2.0,  3.0,  4.0,  5.0};
 
-            for (size_t k = 0; k < boost::size(deltas); ++k) {
+            for (size_t k = 0; k < std::size(deltas); ++k) {
                 double x = mean + deltas[k] * std::sqrt(variance);
                 TDouble1Vec sample(1, x);
 
@@ -432,14 +430,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         // what we'd expect for various variance scales.
 
         TMeanAccumulator error;
-        for (std::size_t i = 0; i < boost::size(percentages); ++i) {
+        for (std::size_t i = 0; i < std::size(percentages); ++i) {
             double q1, q2;
             filter.marginalLikelihoodQuantileForTest(50.0 - percentages[i] / 2.0, 1e-3, q1);
             filter.marginalLikelihoodQuantileForTest(50.0 + percentages[i] / 2.0, 1e-3, q2);
             TDoubleDoublePr interval =
                 filter.marginalLikelihoodConfidenceInterval(percentages[i]);
             LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                      << ", interval = " << core::CContainerPrinter::print(interval));
+                      << ", interval = " << interval);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.02);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.02);
             error.add(std::fabs(interval.first - q1));
@@ -451,12 +449,12 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     {
         maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
         TMeanAccumulator totalError;
-        for (std::size_t i = 0; i < boost::size(varianceScales); ++i) {
+        for (std::size_t i = 0; i < std::size(varianceScales); ++i) {
             TMeanAccumulator error;
             double vs = varianceScales[i];
             maths_t::setCountVarianceScale(vs, weight);
             LOG_DEBUG(<< "*** vs = " << vs << " ***");
-            for (std::size_t j = 0; j < boost::size(percentages); ++j) {
+            for (std::size_t j = 0; j < std::size(percentages); ++j) {
                 boost::math::gamma_distribution<> scaledGamma(shape / vs, vs * scale);
                 double q1 = boost::math::quantile(
                     scaledGamma, (50.0 - percentages[j] / 2.0) / 100.0);
@@ -465,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 TDoubleDoublePr interval =
                     filter.marginalLikelihoodConfidenceInterval(percentages[j], weight);
                 LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
-                          << ", interval = " << core::CContainerPrinter::print(interval));
+                          << ", interval = " << interval);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.4);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.4);
                 error.add(std::fabs(interval.first - q1));
@@ -489,8 +487,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(shapes); ++i) {
-        for (std::size_t j = 0; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < std::size(shapes); ++i) {
+        for (std::size_t j = 0; j < std::size(scales); ++j) {
             LOG_DEBUG(<< "*** shape = " << shapes[i] << ", scale = " << scales[j] << " ***");
 
             CGammaRateConjugate filter(makePrior());
@@ -531,8 +529,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(shapes); ++i) {
-        for (std::size_t j = 0; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < std::size(shapes); ++i) {
+        for (std::size_t j = 0; j < std::size(scales); ++j) {
             LOG_DEBUG(<< "*** shape = " << shapes[i] << ", scale = " << scales[j] << " ***");
 
             CGammaRateConjugate filter(makePrior());
@@ -543,7 +541,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
             TMeanAccumulator relativeError;
             maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
-            for (std::size_t k = 0; k < boost::size(varianceScales); ++k) {
+            for (std::size_t k = 0; k < std::size(varianceScales); ++k) {
                 double vs = varianceScales[k];
                 maths_t::setCountVarianceScale(vs, weight);
                 boost::math::gamma_distribution<> scaledGamma(shapes[i] / vs,
@@ -574,8 +572,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0; i < boost::size(shapes); ++i) {
-        for (std::size_t j = 0; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < std::size(shapes); ++i) {
+        for (std::size_t j = 0; j < std::size(scales); ++j) {
             LOG_DEBUG(<< "*** shape = " << shapes[i] << ", scale = " << scales[j] << " ***");
 
             CGammaRateConjugate filter(makePrior());
@@ -775,8 +773,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
     TMeanAccumulator meanError;
 
-    for (size_t i = 0; i < boost::size(shapes); ++i) {
-        for (size_t j = 0; j < boost::size(scales); ++j) {
+    for (size_t i = 0; i < std::size(shapes); ++i) {
+        for (size_t j = 0; j < std::size(scales); ++j) {
             LOG_DEBUG(<< "shape = " << shapes[i] << ", scale = " << scales[j]);
 
             TDoubleVec samples;
@@ -823,7 +821,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 meanError.add(std::fabs(px - (lb + ub) / 2.0));
             }
 
-            for (std::size_t k = 0; k < boost::size(vs); ++k) {
+            for (std::size_t k = 0; k < std::size(vs); ++k) {
                 double mode = filter.marginalLikelihoodMode(
                     maths_t::countVarianceScaleWeight(vs[k]));
                 double ss[] = {0.9 * mode, 1.1 * mode};
@@ -921,8 +919,8 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     double totalFalsePositiveRate = 0.0;
     std::size_t totalPositives[] = {0u, 0u, 0u};
 
-    for (size_t i = 0; i < boost::size(shapes); ++i) {
-        for (size_t j = 0; j < boost::size(scales); ++j) {
+    for (size_t i = 0; i < std::size(shapes); ++i) {
+        for (size_t j = 0; j < std::size(scales); ++j) {
             LOG_DEBUG(<< "shape = " << shapes[i] << ", scale = " << scales[j]);
 
             boost::math::gamma_distribution<> gamma(shapes[i], scales[j]);
@@ -930,7 +928,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
             TDoubleVec samples;
             rng.generateGammaSamples(shapes[i], scales[j], 500, samples);
 
-            for (size_t k = 0; k < boost::size(decayRates); ++k) {
+            for (size_t k = 0; k < std::size(decayRates); ++k) {
                 CGammaRateConjugate filter(
                     makePrior(maths_t::E_ContinuousData, 0.0, decayRates[k]));
 
@@ -1004,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     totalFalsePositiveRate /= static_cast<double>(test);
 
     LOG_DEBUG(<< "totalFalsePositiveRate = " << totalFalsePositiveRate);
-    for (size_t i = 0; i < boost::size(totalPositives); ++i) {
+    for (size_t i = 0; i < std::size(totalPositives); ++i) {
         LOG_DEBUG(<< "positives = " << totalPositives[i]);
 
         BOOST_TEST_REQUIRE(totalPositives[i] >= 24);
@@ -1032,9 +1030,9 @@ BOOST_AUTO_TEST_CASE(testOffset) {
     TDoubleVec samples;
     rng.generateGammaSamples(shape, scale, 100, samples);
 
-    for (size_t i = 0; i < boost::size(dataTypes); ++i) {
-        for (size_t j = 0; j < boost::size(offsets); ++j) {
-            for (size_t k = 0; k < boost::size(decayRates); ++k) {
+    for (size_t i = 0; i < std::size(dataTypes); ++i) {
+        for (size_t j = 0; j < std::size(offsets); ++j) {
+            for (size_t k = 0; k < std::size(decayRates); ++k) {
                 CGammaRateConjugate filter1(
                     makePrior(dataTypes[i], offsets[j], decayRates[k]));
                 CGammaRateConjugate filter2(makePrior(dataTypes[i], 0.0, decayRates[k]));
@@ -1088,8 +1086,8 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
     const double scales[] = {0.2, 1.0, 4.5};
     const std::size_t nSamples = 25000;
 
-    for (size_t i = 0; i < boost::size(shapes); ++i) {
-        for (size_t j = 0; j < boost::size(scales); ++j) {
+    for (size_t i = 0; i < std::size(shapes); ++i) {
+        for (size_t j = 0; j < std::size(scales); ++j) {
             test::CRandomNumbers rng;
 
             TDoubleVec samples;
@@ -1119,8 +1117,8 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
 
     TMeanAccumulator meanError;
 
-    for (size_t i = 0; i < boost::size(shapes); ++i) {
-        for (size_t j = 0; j < boost::size(scales); ++j) {
+    for (size_t i = 0; i < std::size(shapes); ++i) {
+        for (size_t j = 0; j < std::size(scales); ++j) {
             test::CRandomNumbers rng;
 
             TDoubleVec seedSamples;
@@ -1184,7 +1182,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG(<< "68% confidence interval " << core::CContainerPrinter::print(interval)
+        LOG_DEBUG(<< "68% confidence interval " << interval
                   << ", approximate variance = " << sigma * sigma);
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, 1.0 / (sigma * sigma), 0.5);
@@ -1197,7 +1195,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG(<< "68% confidence interval " << core::CContainerPrinter::print(interval)
+        LOG_DEBUG(<< "68% confidence interval " << interval
                   << ", approximate s.t.d. = " << sigma);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1e-4, sigma / 430.5, 5e-6);
     }
@@ -1234,7 +1232,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::common::MINIMUM_CLUSTER_SPLIT_COUNT, maths::common::MINIMUM_CATEGORY_COUNT);
     maths::common::CGammaRateConjugate restoredFilter(params, traverser);
 
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
     BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
@@ -1272,7 +1270,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
         static_cast<TWeightFunc>(maths_t::seasonalVarianceScaleWeight),
         static_cast<TWeightFunc>(maths_t::countVarianceScaleWeight)};
 
-    for (std::size_t s = 0; s < boost::size(weightsFuncs); ++s) {
+    for (std::size_t s = 0; s < std::size(weightsFuncs); ++s) {
         const double shape = 3.0;
         const double scale = 3.0;
 
@@ -1317,7 +1315,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                 }
                 std::sort(probabilities.begin(), probabilities.end());
 
-                for (size_t i = 0; i < boost::size(percentiles); ++i) {
+                for (size_t i = 0; i < std::size(percentiles); ++i) {
                     std::size_t index = static_cast<std::size_t>(
                         static_cast<double>(nScaledSamples) * percentiles[i] / 100.0);
                     double error = fabs(probabilities[index] - percentiles[i] / 100.0);
@@ -1326,7 +1324,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                 }
             }
 
-            for (size_t i = 0; i < boost::size(varianceScales); ++i) {
+            for (size_t i = 0; i < std::size(varianceScales); ++i) {
                 LOG_DEBUG(<< "**** variance scale = " << varianceScales[i] << " ****");
 
                 double scaledShape = shape / varianceScales[i];
@@ -1353,7 +1351,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                 std::sort(probabilities.begin(), probabilities.end());
 
                 double totalError = 0.0;
-                for (size_t j = 0; j < boost::size(percentiles); ++j) {
+                for (size_t j = 0; j < std::size(percentiles); ++j) {
                     std::size_t index = static_cast<std::size_t>(
                         static_cast<double>(nScaledSamples) * percentiles[j] / 100.0);
                     double error = fabs(probabilities[index] - percentiles[j] / 100.0);
@@ -1379,7 +1377,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
         LOG_DEBUG(<< "");
         LOG_DEBUG(<< "****** jointLogMarginalLikelihood ******");
 
-        for (size_t i = 0; i < boost::size(varianceScales); ++i) {
+        for (size_t i = 0; i < std::size(varianceScales); ++i) {
             LOG_DEBUG(<< "**** variance scale = " << varianceScales[i] << " ****");
 
             double scaledShape = shape / varianceScales[i];
@@ -1427,8 +1425,8 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
     const double maximumMeanMeanError[] = {0.01, 0.01};
     const double maximumMeanVarianceError[] = {0.08, 0.05};
 
-    for (std::size_t s = 0; s < boost::size(weightsFuncs); ++s) {
-        for (std::size_t t = 0; t < boost::size(dataTypes); ++t) {
+    for (std::size_t s = 0; s < std::size(weightsFuncs); ++s) {
+        for (std::size_t t = 0; t < std::size(dataTypes); ++t) {
             const double shapes[] = {1.0,    10.0,     100.0,
                                      1000.0, 100000.0, 1000000.0};
             const double rates[] = {1.0,    10.0,     100.0,
@@ -1443,8 +1441,8 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
             TMeanAccumulator meanMeanError;
             TMeanAccumulator meanVarianceError;
 
-            for (std::size_t i = 0; i < boost::size(shapes); ++i) {
-                for (std::size_t j = 0; j < boost::size(rates); ++j) {
+            for (std::size_t i = 0; i < std::size(shapes); ++i) {
+                for (std::size_t j = 0; j < std::size(rates); ++j) {
                     double shape = shapes[i];
                     double rate = rates[j];
 
@@ -1458,7 +1456,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                     double mean = shape / rate;
                     double variance = mean / rate;
 
-                    for (std::size_t k = 0; k < boost::size(varianceScales); ++k) {
+                    for (std::size_t k = 0; k < std::size(varianceScales); ++k) {
                         double scale = varianceScales[k];
                         LOG_TRACE(<< "*** scale = " << scale << " ***");
 

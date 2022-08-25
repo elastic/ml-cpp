@@ -12,22 +12,18 @@
 #ifndef INCLUDED_ml_model_CModelFactory_h
 #define INCLUDED_ml_model_CModelFactory_h
 
-#include <core/CNonCopyable.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
-#include <model/CSearchKey.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/optional.hpp>
-#include <boost/unordered_map.hpp>
-
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -52,7 +48,6 @@ class CTimeSeriesDecompositionInterface;
 namespace model {
 class CAnomalyDetectorModel;
 class CDataGatherer;
-class CDetectionRule;
 class CInfluenceCalculator;
 class CInterimBucketCorrector;
 class CSearchKey;
@@ -77,7 +72,7 @@ class MODEL_EXPORT CModelFactory {
 public:
     using TFeatureVec = std::vector<model_t::EFeature>;
     using TStrVec = std::vector<std::string>;
-    using TOptionalUInt = boost::optional<unsigned int>;
+    using TOptionalUInt = std::optional<unsigned int>;
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
@@ -380,7 +375,7 @@ public:
 
 protected:
     using TMultivariatePriorUPtrVec = std::vector<TMultivariatePriorUPtr>;
-    using TOptionalSearchKey = boost::optional<CSearchKey>;
+    using TOptionalSearchKey = std::optional<CSearchKey>;
 
 protected:
     //! Get the singleton interim bucket correction calculator.

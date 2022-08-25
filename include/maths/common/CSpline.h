@@ -12,11 +12,11 @@
 #ifndef INCLUDED_ml_maths_common_CSpline_h
 #define INCLUDED_ml_maths_common_CSpline_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/UnwrapRef.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ImportExport.h>
@@ -404,8 +404,7 @@ public:
         }
         if (knots.size() != values.size()) {
             LOG_ERROR(<< "Number knots not equal to number of values: "
-                      << " knots = " << core::CContainerPrinter::print(knots)
-                      << " values = " << core::CContainerPrinter::print(values));
+                      << " knots = " << knots << " values = " << values);
             return false;
         }
 
@@ -445,8 +444,8 @@ public:
         this->valuesRef().erase(this->valuesRef().begin() + last + 1,
                                 this->valuesRef().end());
         n = this->knots().size();
-        LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(this->knots()));
-        LOG_TRACE(<< "values = " << core::CContainerPrinter::print(this->values()));
+        LOG_TRACE(<< "knots = " << this->knots());
+        LOG_TRACE(<< "values = " << this->values());
 
         if (this->knots().size() < 2) {
             LOG_ERROR(<< "Insufficient distinct knot points supplied");
@@ -611,26 +610,26 @@ public:
     }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         seed = CChecksum::calculate(seed, m_Type);
         seed = CChecksum::calculate(seed, m_Knots);
         seed = CChecksum::calculate(seed, m_Values);
         return CChecksum::calculate(seed, m_Curvatures);
     }
 
-    //! Get the memory used by this component
+    //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSpline");
-        core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
-        core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
-        core::CMemoryDebug::dynamicSize("m_Curvatures", m_Curvatures, mem);
+        core::memory_debug::dynamicSize("m_Knots", m_Knots, mem);
+        core::memory_debug::dynamicSize("m_Values", m_Values, mem);
+        core::memory_debug::dynamicSize("m_Curvatures", m_Curvatures, mem);
     }
 
-    //! Get the memory used by this component
+    //! Get the memory used by this object.
     std::size_t memoryUsage() const {
-        std::size_t mem = core::CMemory::dynamicSize(m_Knots);
-        mem += core::CMemory::dynamicSize(m_Values);
-        mem += core::CMemory::dynamicSize(m_Curvatures);
+        std::size_t mem = core::memory::dynamicSize(m_Knots);
+        mem += core::memory::dynamicSize(m_Values);
+        mem += core::memory::dynamicSize(m_Curvatures);
         return mem;
     }
 

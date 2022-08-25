@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 
-#include <core/CSmallVector.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/CInferenceModelMetadata.h>
@@ -21,9 +21,6 @@
 #include <rapidjson/fwd.h>
 
 namespace ml {
-namespace maths {
-class CTreeShapFeatureImportance;
-}
 namespace api {
 
 //! \brief Runs boosted tree classification on a core::CDataFrame.
@@ -54,11 +51,13 @@ public:
     static const std::string CLASSIFICATION_WEIGHTS_WEIGHT;
 
 public:
+    //! Get the runner's configuration parameter reader.
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
     CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec,
-                                               const CDataFrameAnalysisParameters& parameters);
+                                               const CDataFrameAnalysisParameters& parameters,
+                                               TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
@@ -82,7 +81,7 @@ public:
                              const TStrVecVec& categoryNames) const override;
 
     //! \return A serialisable metadata of the trained regression model.
-    TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
+    const CInferenceModelMetadata* inferenceModelMetadata() const override;
 
 private:
     static TLossFunctionUPtr loss(std::size_t numberClasses);
@@ -94,6 +93,7 @@ private:
                                      core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
+    std::size_t m_NumClasses;
     std::ptrdiff_t m_NumTopClasses;
     EPredictionFieldType m_PredictionFieldType;
     mutable CInferenceModelMetadata m_InferenceModelMetadata;
@@ -109,9 +109,11 @@ public:
     const std::string& name() const override;
 
 private:
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters) const override;
+                         TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value& jsonParameters,
+                         TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
 };
 }
 }

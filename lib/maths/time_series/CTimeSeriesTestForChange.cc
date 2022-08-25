@@ -35,13 +35,9 @@
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 #include <maths/time_series/CTrendComponent.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-#include <boost/math/constants/constants.hpp>
-
 #include <algorithm>
 #include <limits>
 #include <memory>
-#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -89,6 +85,38 @@ const core::TPersistenceTag TYPE_TAG{"a", "change_type"};
 const core::TPersistenceTag TIME_TAG{"b", "change_time"};
 const core::TPersistenceTag VALUE_TAG{"c", "change_value"};
 const core::TPersistenceTag SIGNIFICANT_P_VALUE_TAG{"d", "significant_p_value"};
+const core::TPersistenceTag MAGNITUDE_TAG{"e", "magnitude"};
+}
+
+COutlierWeightDerate::COutlierWeightDerate(double magnitude)
+    : m_Magnitude{std::fabs(magnitude)} {
+}
+
+double COutlierWeightDerate::value(double error) const {
+    // We do not want to model every change for a signal which flip-flops back
+    // and forward between similar values generating anomalies every time it
+    // changes. Therefore, we derate the weight we apply to outlying values if
+    // they are similar in magnitude to any change we just detected. However,
+    // extreme outliers after a change can significantly pollute the model if
+    // we apply a blanket derate. Any choice here which forces the error to
+    // grow is sufficient to prevent flip-flopping.
+    return std::max(1.0 - 0.5 * std::fabs(error) / m_Magnitude, 0.0);
+}
+
+bool COutlierWeightDerate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name{traverser.name()};
+        RESTORE_BUILT_IN(MAGNITUDE_TAG, m_Magnitude)
+    } while (traverser.next());
+    return true;
+}
+
+void COutlierWeightDerate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(MAGNITUDE_TAG, m_Magnitude, core::CIEEE754::E_DoublePrecision);
+}
+
+std::uint64_t COutlierWeightDerate::checksum(std::uint64_t seed) const {
+    return common::CChecksum::calculate(seed, m_Magnitude);
 }
 
 CChangePoint::CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec residuals, double significantPValue)
@@ -247,6 +275,17 @@ CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significa
 
 CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
     return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
+}
+
+COutlierWeightDerate CTimeShift::outlierWeightDerate(core_t::TTime startTime,
+                                                     core_t::TTime endTime,
+                                                     const TPredictor& predictor) const {
+    TMeanAccumulator result;
+    for (core_t::TTime t = startTime, dt = (endTime - startTime) / 20;
+         t <= endTime; t += dt) {
+        result.add(std::fabs(predictor(t) - predictor(t + m_Shift)));
+    }
+    return COutlierWeightDerate{common::CBasicStatistics::mean(result)};
 }
 
 bool CTimeShift::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
@@ -485,9 +524,8 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         std::size_t shiftIndex{largestShift(shifts)};
         std::size_t changeIndex{segments[shiftIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts)
-                  << ", shift index = " << shiftIndex);
+        LOG_TRACE(<< "trend segments = " << segments);
+        LOG_TRACE(<< "shifts = " << shifts << ", shift index = " << shiftIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
@@ -539,9 +577,8 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
         std::size_t scaleIndex{largestScale(scales)};
         std::size_t changeIndex{segments[scaleIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales)
-                  << ", scale index = " << scaleIndex);
+        LOG_TRACE(<< "scale segments = " << segments);
+        LOG_TRACE(<< "scales = " << scales << ", scale index = " << scaleIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
@@ -649,8 +686,8 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         double truncatedVarianceH1;
         std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
         std::size_t changeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
-        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
+        LOG_TRACE(<< "shift segments = " << segments);
+        LOG_TRACE(<< "shifts = " << shifts);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
@@ -659,7 +696,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         double parametersH1{static_cast<double>(segments.size() - 1)};
         double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
                                    varianceH1, truncatedVarianceH1, parametersH1, n)};
-        LOG_TRACE(<< "time shift p-value = " << pValue);
+        LOG_INFO(<< "time shift p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
             auto changePoint = std::make_unique<CTimeShift>(

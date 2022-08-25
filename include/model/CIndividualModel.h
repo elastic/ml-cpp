@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CIndividualModel_h
 #define INCLUDED_ml_model_CIndividualModel_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
@@ -20,13 +20,10 @@
 #include <model/CMemoryUsageEstimator.h>
 #include <model/ImportExport.h>
 
-#include <boost/unordered_set.hpp>
-
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
@@ -54,9 +51,9 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TFeatureSizeSizeTriple = core::CTriple<model_t::EFeature, std::size_t, std::size_t>;
-    using TFeatureSizeSizeTripleDouble1VecUMap =
-        boost::unordered_map<TFeatureSizeSizeTriple, TDouble1Vec>;
+    using TFeatureSizeSizeTr = core::CTriple<model_t::EFeature, std::size_t, std::size_t>;
+    using TFeatureSizeSizeTrDouble1VecUMap =
+        boost::unordered_map<TFeatureSizeSizeTr, TDouble1Vec>;
 
 public:
     //! \name Life-cycle
@@ -258,11 +255,11 @@ protected:
                                    std::size_t pid,
                                    model_t::CResultType type,
                                    const TSizeDoublePr1Vec& correlated,
-                                   const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+                                   const TFeatureSizeSizeTrDouble1VecUMap& corrections,
                                    TDouble1Vec& baseline) const;
 
     //! Get the amount by which to derate the initial decay rate
-    //! and the minimum Winsorisation weight for \p pid at \p time.
+    //! and the minimum outlier weight for \p pid at \p time.
     double derate(std::size_t pid, core_t::TTime time) const;
 
     //! Print the current bucketing interval.

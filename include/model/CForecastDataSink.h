@@ -11,30 +11,33 @@
 #ifndef INCLUDED_ml_model_CForecastDataSink_h
 #define INCLUDED_ml_model_CForecastDataSink_h
 
-#include <core/CConcurrentWrapper.h>
-#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CNonCopyable.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CoreTypes.h>
-
-#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <rapidjson/allocators.h>
 #include <rapidjson/fwd.h>
 
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <string>
 
-#include <stdint.h>
-
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
+namespace maths {
+namespace common {
+class CModel;
+struct SErrorBar;
+}
+}
 namespace model {
 
 //! \brief

@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -27,11 +26,11 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CEventRatePopulationDataGathererTest)
@@ -59,7 +58,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TEventRateDataGathererPtr = std::shared_ptr<CDataGatherer>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;
 using TSizeSet = std::set<std::size_t>;
 using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
@@ -105,13 +104,13 @@ void generateTestMessages(test::CRandomNumbers& rng,
     TStrVec categories = allCategories();
     TStrVec people = allPeople();
 
-    const double rates[] = {1.0, 0.3, 10.1, 25.0, 105.0};
+    const TDoubleVec rates{1.0, 0.3, 10.1, 25.0, 105.0};
 
     TSizeVec bucketCounts;
     for (std::size_t j = 0; j < categories.size(); ++j) {
-        double rate = rates[j % boost::size(rates)];
+        double rate = rates[j % rates.size()];
         TUIntVec sample;
-        rng.generatePoissonSamples(rate, 1u, sample);
+        rng.generatePoissonSamples(rate, 1, sample);
         bucketCounts.push_back(sample[0]);
     }
 
@@ -124,7 +123,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
     for (std::size_t i = a; i < b; ++i) {
         bucketPeople.push_back(i);
     }
-    LOG_DEBUG(<< "bucketPeople = " << core::CContainerPrinter::print(bucketPeople));
+    LOG_DEBUG(<< "bucketPeople = " << bucketPeople);
 
     for (std::size_t i = 0; i < categories.size(); ++i) {
         TDoubleVec offsets;
@@ -322,9 +321,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         attributeIds.push_back(cid);
         BOOST_REQUIRE_EQUAL(expectedAttributeOrder[categories[i]], cid);
     }
-    LOG_DEBUG(<< "attribute ids = " << core::CContainerPrinter::print(attributeIds));
-    LOG_DEBUG(<< "expected attribute ids = "
-              << core::CContainerPrinter::print(expectedAttributeOrder));
+    LOG_DEBUG(<< "attribute ids = " << attributeIds);
+    LOG_DEBUG(<< "expected attribute ids = " << expectedAttributeOrder);
 
     TStrVec people = allPeople();
     TSizeVec peopleIds;
@@ -334,9 +332,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
         peopleIds.push_back(pid);
         BOOST_REQUIRE_EQUAL(expectedPeopleOrder[people[i]], pid);
     }
-    LOG_DEBUG(<< "people ids = " << core::CContainerPrinter::print(peopleIds));
-    LOG_DEBUG(<< "expected people ids = "
-              << core::CContainerPrinter::print(expectedPeopleOrder));
+    LOG_DEBUG(<< "people ids = " << peopleIds);
+    LOG_DEBUG(<< "expected people ids = " << expectedPeopleOrder);
 }
 
 BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
@@ -538,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
             expectedBucketCompressedLengthPerPerson[key] = length;
         }
         LOG_DEBUG(<< "Time " << time << " bucketCompressedLengthPerPerson "
-                  << core::CContainerPrinter::print(bucketCompressedLengthPerPerson));
+                  << bucketCompressedLengthPerPerson);
         BOOST_REQUIRE_EQUAL(expectedBucketCompressedLengthPerPerson.size(),
                             bucketCompressedLengthPerPerson.size());
         for (TSizeSizePrFeatureDataPrVec::const_iterator j =
@@ -556,7 +553,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     using TStrSizeMap = std::map<std::string, std::size_t>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 
     const core_t::TTime startTime = 1367280000;
@@ -613,8 +610,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
             }
         }
     }
-    LOG_DEBUG(<< "expectedNonZeroCounts = "
-              << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << expectedNonZeroCounts);
 
     std::string expectedFeatureData;
     {
@@ -654,8 +650,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = static_cast<size_t>(nonZeroCounts[i].second);
     }
-    LOG_DEBUG(<< "actualNonZeroCounts = "
-              << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << actualNonZeroCounts);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
                         core::CContainerPrinter::print(actualNonZeroCounts));

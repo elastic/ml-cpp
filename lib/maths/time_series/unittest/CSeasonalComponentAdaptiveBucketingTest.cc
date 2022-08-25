@@ -9,9 +9,7 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -23,7 +21,6 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -94,8 +91,8 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::time_series::CGeneralPeriodTime time2(120);
     maths::time_series::CSeasonalComponentAdaptiveBucketing bucketing2(time2, 0.1);
 
-    uint64_t checksum1 = bucketing1.checksum();
-    uint64_t checksum2 = bucketing2.checksum();
+    std::uint64_t checksum1 = bucketing1.checksum();
+    std::uint64_t checksum2 = bucketing2.checksum();
 
     bucketing1.swap(bucketing2);
 
@@ -134,8 +131,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
             for (core_t::TTime t = 0; t < 86400; t += 1800) {
                 core_t::TTime x = start + t;
 
-                ptrdiff_t i = std::lower_bound(std::begin(times), std::end(times), t) -
-                              std::begin(times);
+                std::ptrdiff_t i = std::lower_bound(std::begin(times), std::end(times), t) -
+                                   std::begin(times);
 
                 double x0 = static_cast<double>(times[i - 1]);
                 double x1 = static_cast<double>(times[i]);
@@ -156,8 +153,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t = static_cast<core_t::TTime>(
                 0.5 * (endpoints1[i] + endpoints1[i - 1] + 1.0));
-            ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
-                          std::begin(times);
+            std::ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
+                               std::begin(times);
             double x0 = static_cast<double>(times[j - 1]);
             double x1 = static_cast<double>(times[j]);
             double y0 = function[j - 1];
@@ -174,8 +171,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t = static_cast<core_t::TTime>(
                 0.5 * (endpoints2[i] + endpoints2[i - 1] + 1.0));
-            ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
-                          std::begin(times);
+            std::ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
+                               std::begin(times);
             double x0 = static_cast<double>(times[j - 1]);
             double x1 = static_cast<double>(times[j]);
             double y0 = function[j - 1];
@@ -221,9 +218,9 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         const TFloatVec& endpoints = bucketing.endpoints();
         TDoubleVec values = bucketing.values(5100);
         TDoubleVec variances = bucketing.variances();
-        LOG_DEBUG(<< "endpoints = " << core::CContainerPrinter::print(endpoints));
-        LOG_DEBUG(<< "values    = " << core::CContainerPrinter::print(values));
-        LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+        LOG_DEBUG(<< "endpoints = " << endpoints);
+        LOG_DEBUG(<< "values    = " << values);
+        LOG_DEBUG(<< "variances = " << variances);
 
         TMeanAccumulator meanError;
         TMeanAccumulator varianceError;
@@ -337,9 +334,9 @@ BOOST_AUTO_TEST_CASE(testMinimumBucketLength) {
     using TSizeVec = std::vector<std::size_t>;
 
     const double bucketLength{3600.0};
-    const double function[]{0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
-                            15.0, 1.0, 0.0,  0.0,  0.0,  0.0};
-    std::size_t n = boost::size(function);
+    const TDoubleVec function{0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
+                              15.0, 1.0, 0.0,  0.0,  0.0,  0.0};
+    std::size_t n{function.size()};
 
     test::CRandomNumbers rng;
 
@@ -502,8 +499,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                             maths::common::CSplineTypes::E_Periodic, knots,
                             values, variances);
-            LOG_DEBUG(<< "knots  = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+            LOG_DEBUG(<< "knots  = " << knots);
+            LOG_DEBUG(<< "values = " << values);
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
@@ -548,8 +545,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
                 bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                                 maths::common::CSplineTypes::E_Periodic, knots,
                                 values, variances);
-                LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
-                LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+                LOG_DEBUG(<< "knots     = " << knots);
+                LOG_DEBUG(<< "variances = " << variances);
 
                 TMeanAccumulator meanError;
                 TMeanAccumulator meanVariance;
@@ -608,9 +605,9 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)),
                             maths::common::CSplineTypes::E_Periodic, knots,
                             values, variances);
-            LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
-            LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
+            LOG_DEBUG(<< "knots     = " << knots);
+            LOG_DEBUG(<< "values = " << values);
+            LOG_DEBUG(<< "variances = " << variances);
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
@@ -736,7 +733,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origBucketing.refine(static_cast<core_t::TTime>(86400 * (p + 1)));
     }
 
-    uint64_t checksum = origBucketing.checksum();
+    std::uint64_t checksum = origBucketing.checksum();
 
     std::string origXml;
     {

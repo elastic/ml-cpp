@@ -17,7 +17,10 @@
 #include <core/CStateCompressor.h>
 #include <core/Constants.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataSummarizationJsonWriter.h>
+#include <api/CInferenceModelDefinition.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
@@ -48,6 +51,20 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
+CDataFrameAnalysisRunner::TDataFrameUPtrTemporaryDirectoryPtrPr
+CDataFrameAnalysisRunner::makeDataFrame() const {
+    auto result = this->storeDataFrameInMainMemory()
+                      ? core::makeMainStorageDataFrame(m_Spec.numberColumns(),
+                                                       this->dataFrameSliceCapacity())
+                      : core::makeDiskStorageDataFrame(
+                            m_Spec.temporaryDirectory(), m_Spec.numberColumns(),
+                            m_Spec.numberRows(), this->dataFrameSliceCapacity());
+    result.first->missingString(m_Spec.missingFieldValue());
+    result.first->reserve(m_Spec.numberThreads(),
+                          m_Spec.numberColumns() + this->numberExtraColumns());
+    return result;
+}
+
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     std::size_t numberRows{m_Spec.numberRows()};
     std::size_t numberColumns{m_Spec.numberColumns()};
@@ -67,67 +84,6 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     };
     writer.write(roundUpToNearestMb(expectedMemoryWithoutDisk),
                  roundUpToNearestMb(expectedMemoryWithDisk));
-}
-
-void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
-
-    std::size_t numberRows{m_Spec.numberRows()};
-    std::size_t numberColumns{m_Spec.numberColumns()};
-    std::size_t memoryLimit{m_Spec.memoryLimit()};
-
-    LOG_TRACE(<< "memory limit = " << memoryLimit);
-
-    // Find the smallest number of partitions such that the size per partition
-    // is less than the memory limit.
-
-    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
-    std::size_t memoryUsage{0};
-
-    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions; ++m_NumberPartitions) {
-        std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
-        memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);
-        LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
-        LOG_TRACE(<< "memory usage = " << memoryUsage);
-        if (memoryUsage <= memoryLimit) {
-            break;
-        }
-        // If we are not allowed to spill over to disk then only one partition
-        // is possible.
-        if (m_Spec.diskUsageAllowed() == false) {
-            LOG_TRACE(<< "stop partition number computation since disk usage is turned off");
-            break;
-        }
-    }
-
-    LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
-
-    if (memoryUsage > memoryLimit) {
-        auto roundMb = [](std::size_t memory) {
-            return 0.01 * static_cast<double>((100 * memory) / core::constants::BYTES_IN_MEGABYTES);
-        };
-        // Simply log the limit being configured too low. If we exceed the limit
-        // during the run, we will fail and the user will have to update the
-        // limit and attempt to re-run.
-        LOG_INFO(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower"
-                 << " than the estimate " << std::ceil(roundMb(memoryUsage)) << "MB."
-                 << "The analytics process may fail due to hitting the memory limit.");
-    }
-    if (m_NumberPartitions > 1) {
-        // The maximum number of rows is found by binary search in the interval
-        // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
-
-        m_MaximumNumberRowsPerPartition = *std::lower_bound(
-            boost::make_counting_iterator(numberRows / m_NumberPartitions),
-            boost::make_counting_iterator(numberRows / (m_NumberPartitions - 1)),
-            memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
-                return this->estimateMemoryUsage(numberRows, partitionNumberRows,
-                                                 numberColumns) < limit;
-            });
-
-        LOG_TRACE(<< "maximum rows per partition = " << m_MaximumNumberRowsPerPartition);
-    } else {
-        m_MaximumNumberRowsPerPartition = numberRows;
-    }
 }
 
 bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {
@@ -164,6 +120,80 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
 }
 
+void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
+
+    std::size_t numberRows{m_Spec.numberRows()};
+    std::size_t numberColumns{m_Spec.numberColumns()};
+    std::size_t memoryLimit{m_Spec.memoryLimit()};
+
+    LOG_TRACE(<< "memory limit = " << memoryLimit);
+
+    // Find the smallest number of partitions such that the size per partition
+    // is less than the memory limit.
+
+    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
+    std::size_t memoryUsage{0};
+
+    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions; ++m_NumberPartitions) {
+        std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
+        memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);
+        LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
+        LOG_TRACE(<< "memory usage = " << memoryUsage);
+        if (memoryUsage <= memoryLimit) {
+            break;
+        }
+        if (m_Spec.diskUsageAllowed() == false) {
+            LOG_TRACE(<< "stop partition number computation since disk usage is disabled");
+            break;
+        }
+    }
+
+    LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
+
+    if (memoryUsage > memoryLimit) {
+        auto roundMb = [](std::size_t memory) {
+            double scale{std::max(
+                std::pow(10.0, std::ceil(std::log(static_cast<double>(core::constants::BYTES_IN_MEGABYTES) /
+                                                  static_cast<double>(memory)) /
+                                         std::log(10.0))),
+                100.0)};
+            return std::round(scale * static_cast<double>(memory) /
+                              static_cast<double>(core::constants::BYTES_IN_MEGABYTES)) /
+                   scale;
+        };
+        // Simply log the limit being configured too low. If we exceed the limit
+        // during the run, we will fail and the user will have to update the
+        // limit and attempt to re-run.
+        LOG_INFO(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower"
+                 << " than the estimate " << roundMb(memoryUsage) << "MB."
+                 << "The analytics process may fail due to hitting the memory limit.");
+    }
+    if (m_NumberPartitions > 1) {
+        // The maximum number of rows is found by binary search in the interval
+        // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
+
+        m_MaximumNumberRowsPerPartition = *std::lower_bound(
+            boost::make_counting_iterator(numberRows / m_NumberPartitions),
+            boost::make_counting_iterator(numberRows / (m_NumberPartitions - 1)),
+            memoryLimit, [&](std::size_t partitionNumberRows, std::size_t limit) {
+                return this->estimateMemoryUsage(numberRows, partitionNumberRows,
+                                                 numberColumns) < limit;
+            });
+
+        LOG_TRACE(<< "maximum rows per partition = " << m_MaximumNumberRowsPerPartition);
+    } else {
+        m_MaximumNumberRowsPerPartition = numberRows;
+    }
+}
+
+void CDataFrameAnalysisRunner::numberPartitions(std::size_t partitions) {
+    m_NumberPartitions = partitions;
+}
+
+void CDataFrameAnalysisRunner::maximumNumberRowsPerPartition(std::size_t rowsPerPartition) {
+    m_MaximumNumberRowsPerPartition = rowsPerPartition;
+}
+
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumberRows,
                                                           std::size_t partitionNumberRows,
                                                           std::size_t numberColumns) const {
@@ -175,7 +205,7 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumbe
 }
 
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
-    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) {
         auto persister = m_Spec.persister();
         if (persister != nullptr) {
             core::CStateCompressor compressor(*persister);
@@ -196,26 +226,42 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
 CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/,
                                                    const TStrVecVec& /*categoryNames*/) const {
-    return TInferenceModelDefinitionUPtr();
+    return {};
 }
 
-CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
-CDataFrameAnalysisRunner::inferenceModelMetadata() const {
-    return TOptionalInferenceModelMetadata();
+CDataFrameAnalysisRunner::TDataSummarizationJsonWriterUPtr
+CDataFrameAnalysisRunner::dataSummarization() const {
+    return {};
+}
+
+const CInferenceModelMetadata* CDataFrameAnalysisRunner::inferenceModelMetadata() const {
+    return nullptr;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
-    auto result = this->makeImpl(spec);
-    result->computeAndSaveExecutionStrategy();
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
+                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
+    auto result = this->makeImpl(spec, frameAndDirectory);
+    if (result->numberPartitions() == 0) {
+        HANDLE_FATAL(<< "You need to call 'computeAndSaveExecutionStrategy' in the derived runner constructor.");
+    }
+    if (frameAndDirectory != nullptr && frameAndDirectory->first == nullptr) {
+        *frameAndDirectory = result->makeDataFrame();
+    }
     return result;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& jsonParameters) const {
-    auto result = this->makeImpl(spec, jsonParameters);
-    result->computeAndSaveExecutionStrategy();
+                                      const rapidjson::Value& jsonParameters,
+                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
+    auto result = this->makeImpl(spec, jsonParameters, frameAndDirectory);
+    if (result->numberPartitions() == 0) {
+        HANDLE_FATAL(<< "You need to call 'computeAndSaveExecutionStrategy' in the derived runner constructor.");
+    }
+    if (frameAndDirectory != nullptr && frameAndDirectory->first == nullptr) {
+        *frameAndDirectory = result->makeDataFrame();
+    }
     return result;
 }
 }

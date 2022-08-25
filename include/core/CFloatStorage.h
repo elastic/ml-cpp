@@ -12,7 +12,9 @@
 #ifndef INCLUDED_ml_core_CFloatStorage_h
 #define INCLUDED_ml_core_CFloatStorage_h
 
+#ifdef CFLOATSTORAGE_BOUNDS_CHECK
 #include <core/CLogger.h>
+#endif
 #include <core/CStringUtils.h>
 
 #include <maths/common/ImportExport.h>
@@ -67,14 +69,15 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 class CORE_EXPORT CFloatStorage {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Default construction of the floating point value.
-    CFloatStorage() : m_Value() {}
+    constexpr CFloatStorage() : m_Value() {}
 
     //! Integer promotion. So one can write things like CFloatStorage(1).
-    CFloatStorage(int value) : m_Value(float(value)) {
+    constexpr CFloatStorage(int value) noexcept
+        : m_Value(static_cast<float>(value)) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
         if (value > MAX_PRECISE_INTEGER_FLOAT || -value < MAX_PRECISE_INTEGER_FLOAT) {
             LOG_WARN(<< "Loss of precision assigning int " << value << " to float");
@@ -83,48 +86,66 @@ public:
     }
 
     //! Implicit construction from a float.
-    CFloatStorage(float value) : m_Value(value) {}
+    constexpr CFloatStorage(float value) noexcept : m_Value(value) {}
 
     //! Implicit construction from a double.
-    CFloatStorage(double value) : m_Value() { this->set(value); }
+    constexpr CFloatStorage(double value) noexcept : m_Value() {
+        this->set(value);
+    }
 
     //! \name Operators
     //@{
-    CFloatStorage operator-() const { return CFloatStorage{-m_Value}; }
-    bool operator==(const CFloatStorage& rhs) const {
+    constexpr CFloatStorage operator-() const noexcept {
+        return CFloatStorage{-m_Value};
+    }
+    constexpr bool operator==(CFloatStorage rhs) const noexcept {
         return m_Value == rhs.m_Value;
     }
-    bool operator==(const double& rhs) const {
+    constexpr bool operator==(float rhs) const noexcept {
+        return m_Value == rhs;
+    }
+    constexpr bool operator==(double rhs) const noexcept {
         return static_cast<double>(m_Value) == rhs;
     }
-    bool operator!=(const CFloatStorage& rhs) const {
+    constexpr bool operator!=(CFloatStorage rhs) const noexcept {
         return m_Value != rhs.m_Value;
     }
-    bool operator!=(const double& rhs) const {
+    constexpr bool operator!=(float rhs) const noexcept {
+        return m_Value != rhs;
+    }
+    constexpr bool operator!=(double rhs) const noexcept {
         return static_cast<double>(m_Value) != rhs;
     }
-    bool operator<(const CFloatStorage& rhs) const {
+    constexpr bool operator<(CFloatStorage rhs) const noexcept {
         return m_Value < rhs.m_Value;
     }
-    bool operator<(const double& rhs) const {
+    constexpr bool operator<(float rhs) const noexcept { return m_Value < rhs; }
+    constexpr bool operator<(double rhs) const noexcept {
         return static_cast<double>(m_Value) < rhs;
     }
-    bool operator<=(const CFloatStorage& rhs) const {
+    constexpr bool operator<=(CFloatStorage rhs) const noexcept {
         return m_Value <= rhs.m_Value;
     }
-    bool operator<=(const double& rhs) const {
+    constexpr bool operator<=(float rhs) const noexcept {
+        return m_Value <= rhs;
+    }
+    constexpr bool operator<=(double rhs) const noexcept {
         return static_cast<double>(m_Value) <= rhs;
     }
-    bool operator>(const CFloatStorage& rhs) const {
+    constexpr bool operator>(CFloatStorage rhs) const noexcept {
         return m_Value > rhs.m_Value;
     }
-    bool operator>(const double& rhs) const {
+    constexpr bool operator>(float rhs) const noexcept { return m_Value > rhs; }
+    constexpr bool operator>(double rhs) const noexcept {
         return static_cast<double>(m_Value) > rhs;
     }
-    bool operator>=(const CFloatStorage& rhs) const {
+    constexpr bool operator>=(CFloatStorage rhs) const noexcept {
         return m_Value >= rhs.m_Value;
     }
-    bool operator>=(const double& rhs) const {
+    constexpr bool operator>=(float rhs) const noexcept {
+        return m_Value >= rhs;
+    }
+    constexpr bool operator>=(double rhs) const noexcept {
         return static_cast<double>(m_Value) >= rhs;
     }
     //@}
@@ -148,42 +169,45 @@ public:
     //! \name Double Assignment
     //@{
     //! Assign from a double.
-    CFloatStorage& operator=(double value) {
+    constexpr CFloatStorage& operator=(double value) noexcept {
         this->set(value);
         return *this;
     }
     //! Plus assign from double.
-    CFloatStorage& operator+=(double value) {
+    constexpr CFloatStorage& operator+=(double value) noexcept {
         this->set(static_cast<double>(m_Value) + value);
         return *this;
     }
     //! Minus assign from double.
-    CFloatStorage& operator-=(double value) {
+    constexpr CFloatStorage& operator-=(double value) noexcept {
         this->set(static_cast<double>(m_Value) - value);
         return *this;
     }
     //! Multiply assign from double.
-    CFloatStorage& operator*=(double value) {
+    constexpr CFloatStorage& operator*=(double value) noexcept {
         this->set(static_cast<double>(m_Value) * value);
         return *this;
     }
     //! Divide assign from double.
-    CFloatStorage& operator/=(double value) {
+    constexpr CFloatStorage& operator/=(double value) noexcept {
         this->set(static_cast<double>(m_Value) / value);
         return *this;
     }
     //@}
 
     //! Implicit conversion to a double.
-    operator double() const { return static_cast<double>(m_Value); }
+    constexpr operator double() const noexcept {
+        return static_cast<double>(m_Value);
+    }
 
-protected:
-    const float& storage() const { return m_Value; }
-    float& storage() { return m_Value; }
+    //! Constant reference access to the underlying storage.
+    constexpr const float& cstorage() const noexcept { return m_Value; }
+    //! Writeable reference access to the underlying storage.
+    constexpr float& storage() noexcept { return m_Value; }
 
 private:
     //! Utility to actually set the floating point value.
-    void set(double value) {
+    constexpr void set(double value) noexcept {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
         if (value > std::numeric_limits<float>::max() ||
             -value > std::numeric_limits<float>::max()) {

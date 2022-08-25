@@ -11,17 +11,14 @@
 
 #include <model/CMetricModel.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CFunctional.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CChecksum.h>
-#include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
@@ -33,16 +30,12 @@
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
-#include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <algorithm>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -155,7 +148,7 @@ CMetricModel::TDouble1Vec CMetricModel::currentBucketValue(model_t::EFeature fea
                                                            std::size_t /*cid*/,
                                                            core_t::TTime time) const {
     const TFeatureData* data = this->featureData(feature, pid, time);
-    if (data) {
+    if (data != nullptr) {
         const TOptionalSample& value = data->s_BucketValue;
         return value ? value->value(model_t::dimension(feature)) : TDouble1Vec();
     }
@@ -169,7 +162,7 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
                                                            const TSizeDoublePr1Vec& correlated,
                                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, pid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -230,8 +223,7 @@ void CMetricModel::sample(core_t::TTime startTime,
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(<< model_t::print(feature)
-                      << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << " data = " << data);
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
             for (const auto& data_ : data) {
@@ -265,7 +257,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 }
 
                 const TOptionalSample& bucket = data_.second.s_BucketValue;
-                if (model_t::isSampled(feature) && bucket != boost::none) {
+                if (model_t::isSampled(feature) && bucket != std::nullopt) {
                     values.assign(1, core::make_triple(
                                          bucket->time(), TDouble2Vec(bucket->value(dimension)),
                                          model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
@@ -286,7 +278,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                          ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
                          : 1.0) *
                     this->learnRate(feature) * initialCountWeight;
-                double winsorisationDerate = this->derate(pid, sampleTime);
+                double outlierWeightDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
                 // end up too flat.
@@ -294,9 +286,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                 double scaledCountWeight = emptyBucketWeight * countWeight;
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
-                          << ", feature = " << model_t::print(feature)
-                          << ", samples = " << core::CContainerPrinter::print(samples)
-                          << ", isInteger = " << data_.second.s_IsInteger
+                          << ", feature = " << model_t::print(feature) << ", samples = "
+                          << samples << ", isInteger = " << data_.second.s_IsInteger
                           << ", person = " << this->personName(pid)
                           << ", dimension = " << dimension << ", count weight = " << countWeight
                           << ", scaled count weight = " << scaledCountWeight
@@ -314,7 +305,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                         ithSampleValue, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
                     model->countWeights(ithSampleTime, ithSampleValue,
                                         countWeight, scaledCountWeight,
-                                        winsorisationDerate, countVarianceScale,
+                                        outlierWeightDerate, countVarianceScale,
                                         trendWeights[i], priorWeights[i]);
                 }
 
@@ -331,11 +322,17 @@ void CMetricModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(data_.second.s_IsInteger)
-                    .nonNegative(data_.second.s_IsNonNegative)
+                params.isInteger(data_.second.s_IsInteger)
+                    .isNonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
+                    .firstValueTime(pid < this->firstBucketTimes().size()
+                                        ? this->firstBucketTimes()[pid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -376,13 +373,13 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     pJoint.addAggregator(maths::common::CProbabilityOfExtremeSample());
 
     bool skippedResults{false};
-    for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = gatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
             continue;
         }
         const TFeatureData* data = this->featureData(feature, pid, startTime);
-        if (!data || !data->s_BucketValue) {
+        if ((data == nullptr) || !data->s_BucketValue) {
             continue;
         }
         const TOptionalSample& bucket = data->s_BucketValue;
@@ -442,10 +439,11 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     return true;
 }
 
-uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
-    uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
 #define KEY(pid) std::cref(this->personName(pid))
 
@@ -455,11 +453,11 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
             m_CurrentBucketStats.s_FeatureData;
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             for (std::size_t j = 0; j < featureData[i].second.size(); ++j) {
-                uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
+                std::uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData& data = featureData[i].second[j].second;
                 hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(
-                    hash, static_cast<uint64_t>(data.s_IsInteger));
+                    hash, static_cast<std::uint64_t>(data.s_IsInteger));
                 hash = maths::common::CChecksum::calculate(hash, data.s_Samples);
             }
         }
@@ -468,7 +466,7 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 #undef KEY
 
     LOG_TRACE(<< "seed = " << seed);
-    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "hashes = " << hashes);
 
     return maths::common::CChecksum::calculate(seed, hashes);
 }
@@ -476,15 +474,15 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 void CMetricModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
                                     m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
                                     m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
-    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+    core::memory_debug::dynamicSize("m_CurrentBucketStats.s_Annotations",
                                     m_CurrentBucketStats.s_Annotations, mem);
-    core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
+    core::memory_debug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
 
@@ -494,11 +492,11 @@ std::size_t CMetricModel::memoryUsage() const {
 
 std::size_t CMetricModel::computeMemoryUsage() const {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
-    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
-    mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::memory::dynamicSize(m_CurrentBucketStats.s_Annotations);
+    mem += core::memory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
 
@@ -528,7 +526,7 @@ void CMetricModel::currentBucketStartTime(core_t::TTime time) {
     m_CurrentBucketStats.s_StartTime = time;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
+CIndividualModel::TFeatureSizeSizeTrDouble1VecUMap&
 CMetricModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -644,7 +642,7 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     params.s_Feature = feature;
     params.s_Model = model;
-    params.s_ElapsedTime = boost::numeric::bounds<core_t::TTime>::highest();
+    params.s_ElapsedTime = std::numeric_limits<core_t::TTime>::max();
     params.s_Times.resize(correlates.size());
     params.s_Values.resize(correlates.size());
     params.s_Counts.resize(correlates.size());

@@ -12,10 +12,9 @@
 #ifndef INCLUDED_ml_maths_common_CBasicStatistics_h
 #define INCLUDED_ml_maths_common_CBasicStatistics_h
 
-#include <core/CContainerPrinter.h>
-#include <core/CHashing.h>
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CLoggerTrace.h>
+#include <core/CMemoryFwd.h>
+#include <core/CSmallVectorFwd.h>
 #include <core/WindowsSafe.h>
 
 #include <maths/common/CLinearAlgebraShims.h>
@@ -29,7 +28,6 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -66,10 +64,10 @@ public:
     static double mean(const TDoubleVec& data);
 
     //! Compute the sample median.
-    static double median(const TDoubleVec& data);
+    static double median(TDoubleVec data);
 
     //! Compute the median absolute deviation.
-    static double mad(const TDoubleVec& data);
+    static double mad(TDoubleVec data);
 
     //! Compute the maximum of \p first, \p second and \p third.
     template<typename T>
@@ -158,7 +156,7 @@ public:
         using TValue = T;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 
@@ -677,27 +675,13 @@ public:
     //@{
     //! Print a mean accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator);
     //! Print a mean and variance accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator);
     //! Print a mean, variance and skew accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator) {
-        std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ", " << skewness(accumulator) << ')';
-        return result.str();
-    }
+    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator);
     //@}
 
     //! Get a copy of \p moments with count scaled by \p scale.
@@ -740,7 +724,7 @@ public:
     template<typename POINT>
     struct SSampleCovariances {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
         }
 
@@ -894,14 +878,7 @@ public:
 
     //! Print a covariances accumulator.
     template<typename POINT>
-    static inline std::string print(const SSampleCovariances<POINT>& accumulator) {
-        std::ostringstream result;
-        result << "\n{\n"
-               << count(accumulator) << ",\n"
-               << mean(accumulator) << ",\n"
-               << covariances(accumulator) << "\n}";
-        return result.str();
-    }
+    static inline std::string print(const SSampleCovariances<POINT>& accumulator);
 
     //! Interface for Ledoit Wolf shrinkage estimator of the sample
     //! covariance matrix.
@@ -926,7 +903,7 @@ private:
     //! This implements the underlying algorithm for determining the first
     //! n order statistics online.
     //!
-    //! IMPLEMENTATION:\n
+    //! IMPLEMENTATION DECISIONS:\n
     //! This maintains the statistics in a heap for worst case complexity
     //! \f$O(N log(n))\f$ and typical complexity \f$O(N)\f$ (by checking
     //! against the maximum value) for \f$n << N\f$.
@@ -1009,7 +986,8 @@ private:
                     std::make_heap(this->begin(), this->end(), m_Less);
                 }
                 return true;
-            } else if (m_Less(x, *this->begin())) {
+            }
+            if (m_Less(x, *this->begin())) {
                 // We need to drop the largest value and update the heap.
                 std::pop_heap(this->begin(), this->end(), m_Less);
                 m_Statistics.back() = x;
@@ -1116,11 +1094,6 @@ private:
         //! Get a checksum of this object.
         std::uint64_t checksum(std::uint64_t seed) const;
 
-        //! Print for debug.
-        std::string print() const {
-            return core::CContainerPrinter::print(this->begin(), this->end());
-        }
-
     protected:
         //! Get the statistics.
         CONTAINER& statistics() { return m_Statistics; }
@@ -1184,7 +1157,7 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 
@@ -1284,14 +1257,14 @@ public:
                                       const LESS& less = LESS{})
             : TImpl{std::vector<T>(std::max(n, std::size_t(1)), initial), less} {
             if (n == 0) {
-                LOG_DEBUG(<< "Invalid size of 0 for order statistics accumulator");
+                LOG_TRACE(<< "Invalid size of 0 for order statistics accumulator");
             }
         }
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
             if (n == 0) {
-                LOG_DEBUG(<< "Invalid resize to 0 for order statistics accumulator");
+                LOG_TRACE(<< "Invalid resize to 0 for order statistics accumulator");
                 n = 1;
             }
             this->clear();
@@ -1361,7 +1334,7 @@ public:
     class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>> {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() {
+        static constexpr bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
         }
 
@@ -1427,9 +1400,7 @@ public:
         }
 
         //! Get a checksum for this object.
-        std::uint64_t checksum() const {
-            return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
-        }
+        std::uint64_t checksum() const;
 
     private:
         //! The set minimum.
@@ -1438,36 +1409,6 @@ public:
         COrderStatisticsStack<T, 1, GREATER> m_Max;
     };
 };
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
-    return o << CBasicStatistics::print(accumulator);
-}
-
-template<typename T, std::size_t N, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
-    return o << accumulator.print();
-}
-
-template<typename T, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
-    return o << accumulator.print();
-}
 
 namespace basic_statistics_detail {
 

@@ -30,6 +30,8 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
+
 BOOST_AUTO_TEST_SUITE(CModelToolsTest)
 
 using namespace ml;
@@ -200,7 +202,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         rng.random_shuffle(samples.begin(), samples.end());
         for (auto sample : samples) {
             maths::common::CModelAddSamplesParams params;
-            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+            params.isInteger(false)
+                .propagationInterval(1.0)
+                .trendWeights(weights)
+                .priorWeights(weights);
             model.addSamples(
                 params, {core::make_triple(time_, TDouble2Vec(1, sample), TAG)});
         }

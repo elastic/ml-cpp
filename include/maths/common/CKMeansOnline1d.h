@@ -122,7 +122,7 @@ public:
     double probability(std::size_t index) const override;
 
     //! Get a checksum for this object.
-    std::uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;

@@ -9,16 +9,16 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CThread.h>
 
 #include <model/CStringStore.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <memory>
+#include <optional>
 #include <tuple>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CStoredStringPtr)
@@ -37,7 +37,7 @@ using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 class CStringThread : public core::CThread {
 private:
     using TSizeSizeStrTr = std::tuple<std::size_t, std::size_t, core::CStoredStringPtr>;
-    using TOptionalSizeSizeStrTr = boost::optional<TSizeSizeStrTr>;
+    using TOptionalSizeSizeStrTr = std::optional<TSizeSizeStrTr>;
 
 public:
     CStringThread(std::size_t i, const TStrVec& strings)

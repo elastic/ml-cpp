@@ -14,13 +14,10 @@
 
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
-#include <maths/common/CMultivariatePrior.h>
 
 #include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
 #include <maths/time_series/ImportExport.h>
 
-#include <boost/array.hpp>
-#include <boost/circular_buffer.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
@@ -29,6 +26,7 @@
 namespace ml {
 namespace maths {
 namespace common {
+class CMultivariatePrior;
 class CPrior;
 struct SModelRestoreParams;
 struct SDistributionRestoreParams;
@@ -156,7 +154,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;
@@ -248,7 +246,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec residuals);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const common::CModelProbabilityParams& params,
@@ -278,10 +277,10 @@ private:
     std::size_t m_Id;
 
     //! True if the data are non-negative.
-    bool m_IsNonNegative;
+    bool m_IsNonNegative{false};
 
     //! True if the model can be forecast.
-    bool m_IsForecastable;
+    bool m_IsForecastable{true};
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
@@ -308,7 +307,7 @@ private:
     TAnomalyModelPtr m_AnomalyModel;
 
     //! Models the correlations between time series.
-    CTimeSeriesCorrelations* m_Correlations;
+    CTimeSeriesCorrelations* m_Correlations{nullptr};
 };
 
 //! \brief Manages the creation correlate models.
@@ -343,7 +342,7 @@ public:
 //! pairs. Note that the allocator (supplied to refresh) defines how many correlates
 //! can be modeled.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! The individual time series models hold a reference to this and update it with
 //! their samples, add and remove themselves as part of their life-cycle management
 //! and use it to correct their predictions and probability calculation as appropriate.
@@ -392,6 +391,8 @@ public:
 
 public:
     CTimeSeriesCorrelations(double minimumSignificantCorrelation, double decayRate);
+    ~CTimeSeriesCorrelations();
+
     const CTimeSeriesCorrelations& operator=(const CTimeSeriesCorrelations&) = delete;
 
     //! Create a copy of this model passing ownership to the caller.
@@ -636,7 +637,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;
@@ -719,7 +720,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec10Vec residuals);
 
     //! Get the model dimension.
     std::size_t dimension() const;
@@ -730,7 +732,7 @@ private:
 
 private:
     //! True if the data are non-negative.
-    bool m_IsNonNegative;
+    bool m_IsNonNegative{false};
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).

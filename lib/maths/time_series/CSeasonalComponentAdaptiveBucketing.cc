@@ -11,8 +11,8 @@
 
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -23,9 +23,6 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
-#include <maths/common/CLinearAlgebra.h>
-#include <maths/common/CLinearAlgebraPersist.h>
-#include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CTools.h>
@@ -318,14 +315,14 @@ std::uint64_t CSeasonalComponentAdaptiveBucketing::checksum(std::uint64_t seed) 
 void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonalComponentAdaptiveBucketing");
-    core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
-    core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);
-    core::CMemoryDebug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
-    core::CMemoryDebug::dynamicSize("m_Buckets", m_Buckets, mem);
+    core::memory_debug::dynamicSize("m_Endpoints", this->endpoints(), mem);
+    core::memory_debug::dynamicSize("m_Centres", this->centres(), mem);
+    core::memory_debug::dynamicSize("m_LargeErrorCounts", this->largeErrorCounts(), mem);
+    core::memory_debug::dynamicSize("m_Buckets", m_Buckets, mem);
 }
 
 std::size_t CSeasonalComponentAdaptiveBucketing::memoryUsage() const {
-    return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Buckets);
+    return this->CAdaptiveBucketing::memoryUsage() + core::memory::dynamicSize(m_Buckets);
 }
 
 bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -337,8 +334,7 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
                 return CSeasonalTimeStateSerializer::acceptRestoreTraverser(m_Time, traverser_);
             }))
-            RESTORE(BUCKETS_6_3_TAG,
-                    core::CPersistUtils::restore(BUCKETS_6_3_TAG, m_Buckets, traverser))
+            RESTORE_WITH_UTILS(BUCKETS_6_3_TAG, m_Buckets)
         }
     } else {
         return false;
@@ -499,10 +495,10 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         }
     }
 
-    LOG_TRACE(<< "old endpoints   = " << core::CContainerPrinter::print(oldEndpoints));
-    LOG_TRACE(<< "old centres     = " << core::CContainerPrinter::print(oldCentres));
-    LOG_TRACE(<< "new endpoints   = " << core::CContainerPrinter::print(newEndpoints));
-    LOG_TRACE(<< "new centres     = " << core::CContainerPrinter::print(newCentres));
+    LOG_TRACE(<< "old endpoints   = " << oldEndpoints);
+    LOG_TRACE(<< "old centres     = " << oldCentres);
+    LOG_TRACE(<< "new endpoints   = " << newEndpoints);
+    LOG_TRACE(<< "new centres     = " << newCentres);
     m_Buckets.swap(buckets);
     this->centres().swap(newCentres);
     this->largeErrorCounts().swap(newLargeErrorCounts);

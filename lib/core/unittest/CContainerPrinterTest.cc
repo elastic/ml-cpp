@@ -9,77 +9,107 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
+#include <tuple>
 #include <utility>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CContainerPrinterTest)
 
 using namespace ml;
-using namespace core;
 
-BOOST_AUTO_TEST_CASE(testAll) {
+namespace {
+class CPrintable {
+public:
+    std::string print() const { return "printable"; }
+};
+}
+
+BOOST_AUTO_TEST_CASE(testContainerPrinter) {
+
+    // Test various containers and containers of containers.
+
     std::vector<double> vec;
-    LOG_DEBUG(<< "vec = " << CContainerPrinter::print(vec));
-    BOOST_TEST_REQUIRE(CContainerPrinter::print(vec) == "[]");
+    LOG_DEBUG(<< "vec = " << vec);
+    BOOST_TEST_REQUIRE(core::CContainerPrinter::print(vec) == "[]");
     vec.push_back(1.1);
     vec.push_back(3.2);
-    LOG_DEBUG(<< "vec = " << CContainerPrinter::print(vec));
-    BOOST_REQUIRE_EQUAL(std::string("[1.1, 3.2]"), CContainerPrinter::print(vec));
+    LOG_DEBUG(<< "vec = " << vec);
+    BOOST_REQUIRE_EQUAL("[1.1, 3.2]", core::CContainerPrinter::print(vec));
 
-    std::list<std::pair<int, int>> list;
-    list.push_back(std::make_pair(1, 2));
-    list.push_back(std::make_pair(2, 2));
-    list.push_back(std::make_pair(3, 2));
-    LOG_DEBUG(<< "list = " << CContainerPrinter::print(list));
-    BOOST_REQUIRE_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
-                        CContainerPrinter::print(list));
+    std::list<std::pair<int, int>> list{{1, 2}, {2, 2}, {3, 2}};
+    LOG_DEBUG(<< "list = " << list);
+    BOOST_REQUIRE_EQUAL("[(1, 2), (2, 2), (3, 2)]", core::CContainerPrinter::print(list));
+
+    std::vector<std::tuple<double, double, double>> tuples{{1.1, 1.2, 1.3},
+                                                           {2.2, 2.3, 2.4}};
+    LOG_DEBUG(<< "tuples = " << tuples);
+    BOOST_REQUIRE_EQUAL("[(1.1, 1.2, 1.3), (2.2, 2.3, 2.4)]",
+                        core::CContainerPrinter::print(tuples));
 
     std::list<std::shared_ptr<double>> plist;
     plist.push_back(std::shared_ptr<double>());
     plist.push_back(std::shared_ptr<double>(new double(3.0)));
     plist.push_back(std::shared_ptr<double>(new double(1.1)));
-    LOG_DEBUG(<< "plist = " << CContainerPrinter::print(plist));
-    BOOST_REQUIRE_EQUAL(std::string("[\"null\", 3, 1.1]"), CContainerPrinter::print(plist));
+    LOG_DEBUG(<< "plist = " << plist);
+    BOOST_REQUIRE_EQUAL("[\"null\", 3, 1.1]", core::CContainerPrinter::print(plist));
 
     double three = 3.0;
     double fivePointOne = 5.1;
     std::map<double, double*> map;
-    map.insert(std::make_pair(1.1, &three));
-    map.insert(std::make_pair(3.3, &fivePointOne));
-    map.insert(std::make_pair(1.0, static_cast<double*>(nullptr)));
-    LOG_DEBUG(<< "map = " << CContainerPrinter::print(map));
-    BOOST_REQUIRE_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
-                        CContainerPrinter::print(map));
+    map.emplace(1.1, &three);
+    map.emplace(3.3, &fivePointOne);
+    map.emplace(1.0, static_cast<double*>(nullptr));
+    LOG_DEBUG(<< "map = " << map);
+    BOOST_REQUIRE_EQUAL("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]",
+                        core::CContainerPrinter::print(map));
 
-    std::unique_ptr<int> pints[] = {std::unique_ptr<int>(new int(2)),
-                                    std::unique_ptr<int>(new int(3)),
-                                    std::unique_ptr<int>(new int(2))};
-    LOG_DEBUG(<< "pints = "
-              << CContainerPrinter::print(std::begin(pints), std::end(pints)));
-    BOOST_REQUIRE_EQUAL(std::string("[2, 3, 2]"),
-                        CContainerPrinter::print(std::begin(pints), std::end(pints)));
+    std::unique_ptr<int> pints[]{std::make_unique<int>(2), std::make_unique<int>(3),
+                                 std::make_unique<int>(2)};
+    LOG_DEBUG(<< "pints = " << pints);
+    BOOST_REQUIRE_EQUAL("[2, 3, 2]", core::CContainerPrinter::print(pints));
 
-    std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
-    LOG_DEBUG(<< "ovec = " << CContainerPrinter::print(ovec));
+    std::vector<std::optional<double>> ovec(2, std::optional<double>());
+    LOG_DEBUG(<< "ovec = " << ovec);
     BOOST_REQUIRE_EQUAL(std::string("[\"null\", \"null\"]"),
-                        CContainerPrinter::print(ovec));
+                        core::CContainerPrinter::print(ovec));
 
     std::vector<std::pair<std::list<std::pair<int, int>>, double>> aggregate;
-    aggregate.push_back(std::make_pair(list, 1.3));
-    aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
-    aggregate.push_back(std::make_pair(list, 5.1));
-    LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
-    BOOST_REQUIRE_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
-                        CContainerPrinter::print(aggregate));
+    aggregate.emplace_back(list, 1.3);
+    aggregate.emplace_back(std::list<std::pair<int, int>>(), 0.0);
+    aggregate.emplace_back(list, 5.1);
+    LOG_DEBUG(<< "aggregate = " << aggregate);
+    BOOST_REQUIRE_EQUAL("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]",
+                        core::CContainerPrinter::print(aggregate));
+
+    std::vector<CPrintable> printables(5);
+    LOG_DEBUG(<< printables);
+    BOOST_REQUIRE_EQUAL("[printable, printable, printable, printable, printable]",
+                        core::CContainerPrinter::print(printables));
+}
+
+BOOST_AUTO_TEST_CASE(testPrintContainers) {
+
+    // Test manipulating a stream to print containers.
+
+    std::ostringstream o;
+
+    int array[]{1, 2, 3};
+    o << core::CScopePrintContainers{} // activates container printing
+      << "a vec = " << std::vector<double>{1.0, 2.0, 3.0}
+      << ", a map = " << std::map<int, double>{{1, 1.5}, {2, 2.5}}
+      << ", a pair = " << std::make_pair(3, true) << ", an array = " << array;
+
+    LOG_DEBUG(<< o.str());
+    BOOST_REQUIRE_EQUAL("a vec = [1, 2, 3], a map = [(1, 1.5), (2, 2.5)], a pair = (3, true), an array = [1, 2, 3]",
+                        o.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

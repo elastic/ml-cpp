@@ -11,7 +11,6 @@
 
 #include <maths/common/CStatisticalTests.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -22,7 +21,6 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/distributions/fisher_f.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -149,10 +147,10 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
     std::size_t ny = y.size();
 
     std::sort(x.begin(), x.end());
-    x.push_back(boost::numeric::bounds<double>::highest());
+    x.push_back(std::numeric_limits<double>::max());
 
     std::sort(y.begin(), y.end());
-    y.push_back(boost::numeric::bounds<double>::highest());
+    y.push_back(std::numeric_limits<double>::max());
 
     double D = 0.0;
     for (std::size_t i = 0, j = 0; i < nx && j < ny; /**/) {
@@ -246,16 +244,16 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     // Linearly interpolate between the rows of the T statistic
     // values.
     double tt[16];
-    ptrdiff_t row =
+    std::ptrdiff_t row =
         CTools::truncate(std::lower_bound(std::begin(N), std::end(N), m_Size + 1) - N,
-                         ptrdiff_t(1), ptrdiff_t(12));
+                         std::ptrdiff_t(1), std::ptrdiff_t(12));
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) /
                    static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
     for (std::size_t i = 0; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
-    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));
+    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << tt);
 
     double t = CBasicStatistics::mean(m_T);
     LOG_TRACE(<< "t = " << t);
@@ -264,8 +262,9 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
         return 1.0;
     }
 
-    ptrdiff_t col = CTools::truncate(std::lower_bound(std::begin(tt), std::end(tt), t) - tt,
-                                     ptrdiff_t(1), ptrdiff_t(15));
+    std::ptrdiff_t col =
+        CTools::truncate(std::lower_bound(std::begin(tt), std::end(tt), t) - tt,
+                         std::ptrdiff_t(1), std::ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];

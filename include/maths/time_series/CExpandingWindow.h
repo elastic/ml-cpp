@@ -13,6 +13,7 @@
 #define INCLUDED_ml_maths_time_series_CExpandingWindow_h
 
 #include <core/CFloatStorage.h>
+#include <core/CNonCopyable.h>
 #include <core/CVectorRange.h>
 #include <core/CoreTypes.h>
 
@@ -42,7 +43,7 @@ namespace time_series {
 //! the beginning of the window exceeds "size" x "maximum bucket length", it
 //! re-initializes the bucketing and updates the start time.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! It is expected that the full window of values only needs to be accessed
 //! infrequently. For example, this class is currently used by the test for
 //! seasonal components and as such the full window of values is only accessed

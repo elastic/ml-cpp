@@ -13,7 +13,7 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
@@ -299,11 +299,11 @@ std::uint64_t CPackedBitVector::checksum() const {
 
 void CPackedBitVector::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedBitVector");
-    CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengthBytes, mem);
+    memory_debug::dynamicSize("m_RunLengths", m_RunLengthBytes, mem);
 }
 
 std::size_t CPackedBitVector::memoryUsage() const {
-    return CMemory::dynamicSize(m_RunLengthBytes);
+    return memory::dynamicSize(m_RunLengthBytes);
 }
 
 template<typename RUN_OP>
@@ -438,8 +438,8 @@ std::size_t CPackedBitVector::popRunLength(TUInt8VecCItr& runLengthBytes) {
 
 void CPackedBitVector::writeRunLength(std::size_t runLength, TUInt8VecItr runLengthBytes) {
     std::size_t lowestBits{runLength & ((0xFF ^ NUMBER_BYTES_MASK) >> NUMBER_BYTES_MASK_BITS)};
-    *runLengthBytes = (bytes(runLength) - 1) +
-                      static_cast<std::uint8_t>(lowestBits << NUMBER_BYTES_MASK_BITS);
+    *runLengthBytes = static_cast<std::uint8_t>(
+        (bytes(runLength) - 1) + (lowestBits << NUMBER_BYTES_MASK_BITS));
     ++runLengthBytes;
     for (runLength /= 256 >> NUMBER_BYTES_MASK_BITS; runLength > 0; runLength /= 256) {
         *runLengthBytes = static_cast<std::uint8_t>(runLength & 0xFF);

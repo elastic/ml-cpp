@@ -11,15 +11,15 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
-#include <model/ModelTypes.h>
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
+
+#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <sstream>
@@ -818,7 +818,7 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     m_Writer.EndObject();
 
     persistTime = core::CTimeUtils::now();
-    LOG_DEBUG(<< "Wrote quantiles state at " << persistTime);
+    LOG_TRACE(<< "Wrote quantiles state at " << persistTime);
 }
 
 void CJsonOutputWriter::pushAllocator(const std::string& allocatorName) {

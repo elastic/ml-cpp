@@ -43,7 +43,7 @@ class CStateRestoreTraverser;
 //!   -# \f$\delta\f$ is the transition function \f$\delta : S \cross \Sigma \leftarrow S\f$.
 //!   -# \f$s_0\f$ Is the initial state.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Most of the state is stored statically and unique machines are identified
 //! by their alphabet, states, and transition table. This state can be shared
 //! by many instances of the machine and so the only state that needs to be
@@ -110,7 +110,7 @@ public:
     std::string printSymbol(std::size_t symbol) const;
 
     //! Get a checksum of this object.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Print all the state machines.
     static std::size_t numberMachines();
@@ -159,7 +159,7 @@ private:
     //!   -# It must be possible for push_back to occur concurrently with
     //!      lookup of an existing item in the container.
     //!
-    //! IMPLEMENTATION:\n
+    //! IMPLEMENTATION DECISIONS:\n
     //! With std::deque implementations any invocation of operator[] can
     //! fail if there is a concurrent push_back. The code using this class
     //! ensures that it only ever asks for an element which already exists

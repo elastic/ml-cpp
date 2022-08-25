@@ -14,6 +14,7 @@
 
 #include <core/CStateRestoreTraverser.h>
 
+#include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -25,6 +26,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -33,19 +35,23 @@
 namespace ml {
 namespace maths {
 namespace analytics {
+class CDataFrameCategoryEncoder;
 namespace boosted_tree_detail {
 class MATHS_ANALYTICS_EXPORT CArgMinLossImpl {
 public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
+    using TNodeVec = analytics::CBoostedTree::TNodeVec;
 
 public:
-    CArgMinLossImpl(double lambda);
+    explicit CArgMinLossImpl(double lambda);
     virtual ~CArgMinLossImpl() = default;
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
-    virtual void add(const TMemoryMappedFloatVector& prediction,
+    virtual void add(const CEncodedDataFrameRowRef& row,
+                     bool newExample,
+                     const TMemoryMappedFloatVector& prediction,
                      double actual,
                      double weight = 1.0) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
@@ -60,20 +66,56 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which minimises the
 //! regularized MSE w.r.t. the actual values.
-class MATHS_ANALYTICS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinMseImpl : public CArgMinLossImpl {
 public:
-    CArgMinMseImpl(double lambda);
+    explicit CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+protected:
+    using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+protected:
+    const TMeanAccumulator& meanError() const { return m_MeanError; }
+
+private:
+    TMeanAccumulator m_MeanError;
+};
+
+//! \brief Finds the value to add to a set of predictions which minimises the
+//! adjusted regularized MSE difference w.r.t. the actual values for incremental
+//! training.
+//!
+//! DESCRIPTION:\n
+//! This applies a correction to the loss based on the difference from the
+//! predictions of a supplied tree (the one being retrained).
+class MATHS_ANALYTICS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinMseImpl {
+public:
+    CArgMinMseIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
 private:
-    using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
-    TMeanAccumulator m_MeanError;
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
+    TMeanAccumulator m_MeanTreePredictions;
 };
 
 //! \brief Finds the value to add to a set of predictions which approximately
@@ -83,10 +125,17 @@ public:
     using TObjective = std::function<double(double)>;
 
 public:
-    CArgMinMsleImpl(double lambda, double offset = 1.0);
+    explicit CArgMinMsleImpl(double lambda, double offset = 1.0);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -128,8 +177,8 @@ private:
     }
 
 private:
-    std::size_t m_CurrentPass = 0;
-    double m_Offset = 1.0;
+    double m_Offset{1.0};
+    std::size_t m_CurrentPass{0};
     TMinMaxAccumulator m_ExpPredictionMinMax;
     TMinMaxAccumulator m_LogActualMinMax;
     TVectorMeanAccumulatorVecVec m_Buckets;
@@ -147,9 +196,14 @@ public:
     CArgMinPseudoHuberImpl(double lambda, double delta);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& predictionVector,
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
+             const TMemoryMappedFloatVector& prediction,
              double actual,
-             double weight = 1.0) override;
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -175,8 +229,8 @@ private:
     }
 
 private:
-    double m_DeltaSquared = 1.0;
-    std::size_t m_CurrentPass = 0;
+    double m_DeltaSquared{1.0};
+    std::size_t m_CurrentPass{0};
     TMeanAccumulatorVec m_Buckets;
     TMinMaxAccumulator m_ErrorMinMax;
 };
@@ -200,46 +254,110 @@ private:
 //! Here, \f$B\f$ ranges over the buckets, \f$\bar{p}_B\f$ denotes the B'th bucket
 //! centre and \f$c_{0,B}\f$ and \f$c_{1,B}\f$ denote the counts of actual classes
 //! 0 and 1, respectively, in the bucket \f$B\f$.
-class MATHS_ANALYTICS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinBinomialLogisticLossImpl : public CArgMinLossImpl {
 public:
-    CArgMinBinomialLogisticLossImpl(double lambda);
+    explicit CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
-private:
+protected:
     using TMinMaxAccumulator = common::CBasicStatistics::CMinMax<double>;
     using TDoubleVector2x1 = common::CVectorNx1<double, 2>;
     using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
+    using TObjective = std::function<double(double)>;
 
-private:
-    static constexpr std::size_t NUMBER_BUCKETS = 128;
+protected:
+    static constexpr std::size_t NUMBER_BUCKETS{128};
 
-private:
-    std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
+protected:
+    static std::size_t bucket(const TMinMaxAccumulator& minmax, double prediction) {
+        double bucket{(prediction - minmax.min()) / bucketWidth(minmax)};
+        return std::min(static_cast<std::size_t>(bucket), NUMBER_BUCKETS - 1);
     }
 
-    double bucketCentre(std::size_t bucket) const {
-        return m_PredictionMinMax.min() +
-               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
+    static double bucketCentre(const TMinMaxAccumulator& minmax, std::size_t bucket) {
+        return minmax.min() + (static_cast<double>(bucket) + 0.5) * bucketWidth(minmax);
     }
 
-    double bucketWidth() const {
-        return m_PredictionMinMax.initialized()
-                   ? m_PredictionMinMax.range() /
-                         static_cast<double>(m_BucketsClassCounts.size())
-                   : 0.0;
+    static double bucketWidth(const TMinMaxAccumulator& minmax) {
+        return minmax.initialized() ? minmax.range() / static_cast<double>(NUMBER_BUCKETS)
+                                    : 0.0;
+    }
+
+    static double mid(const TMinMaxAccumulator& minmax) {
+        return minmax.initialized() ? (minmax.min() + minmax.max()) / 2.0 : 0.0;
+    }
+
+    const TMinMaxAccumulator& predictionMinMax() const {
+        return m_PredictionMinMax;
+    }
+    const TDoubleVector2x1& classCounts() const { return m_ClassCounts; }
+    const TDoubleVector2x1Vec& bucketsClassCounts() const {
+        return m_BucketsClassCounts;
     }
 
 private:
-    std::size_t m_CurrentPass = 0;
+    virtual TObjective objective() const;
+    virtual double minWeight() const {
+        return std::numeric_limits<double>::max();
+    }
+    virtual double maxWeight() const {
+        return -std::numeric_limits<double>::max();
+    }
+
+private:
+    std::size_t m_CurrentPass{0};
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_ClassCounts;
     TDoubleVector2x1Vec m_BucketsClassCounts;
+};
+
+//! \brief Finds the value to add to a set of predicted log-odds which minimises
+//! adjusted regularised cross entropy loss w.r.t. the actual categories for
+//! incremental training.
+//!
+//! DESCRIPTION:\n
+//! This applies a correction to the loss based on the cross entropy between the
+//! new predictions and the predictions of a supplied tree (the one being retrained).
+class MATHS_ANALYTICS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final
+    : public CArgMinBinomialLogisticLossImpl {
+public:
+    CArgMinBinomialLogisticLossIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+
+private:
+    using TDoubleVec = std::vector<double>;
+
+private:
+    TObjective objective() const override;
+    double minWeight() const override { return m_TreePredictionMinMax.min(); }
+    double maxWeight() const override { return m_TreePredictionMinMax.max(); }
+
+private:
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
+    std::size_t m_CurrentPass{0};
+    TMinMaxAccumulator m_TreePredictionMinMax;
+    double m_Count{0.0};
+    TDoubleVec m_BucketsCount;
 };
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
@@ -276,7 +394,14 @@ public:
                                        const common::CPRNG::CXorOShiro128Plus& rng);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -289,11 +414,11 @@ private:
     using TSampler = common::CSampling::CVectorDissimilaritySampler<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 96;
+    static constexpr std::size_t NUMBER_CENTRES{96};
 
 private:
-    std::size_t m_NumberClasses = 0;
-    std::size_t m_CurrentPass = 0;
+    std::size_t m_NumberClasses{0};
+    std::size_t m_CurrentPass{0};
     mutable common::CPRNG::CXorOShiro128Plus m_Rng;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;
@@ -332,7 +457,11 @@ public:
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
+    void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0);
 
     //! Get the minimiser over the predictions and actual values added to both
     //! this and \p other.
@@ -349,7 +478,7 @@ private:
     using TArgMinLossImplUPtr = std::unique_ptr<boosted_tree_detail::CArgMinLossImpl>;
 
 private:
-    CArgMinLoss(const boosted_tree_detail::CArgMinLossImpl& impl);
+    explicit CArgMinLoss(const boosted_tree_detail::CArgMinLossImpl& impl);
 
 private:
     TArgMinLossImplUPtr m_Impl;
@@ -357,18 +486,21 @@ private:
     friend class CLoss;
 };
 
-//! \brief Defines the loss function for the regression problem.
+//! \brief Defines the loss function for the regression or classification problem.
 class MATHS_ANALYTICS_EXPORT CLoss {
 public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
     using TLossUPtr = std::unique_ptr<CLoss>;
+    using TNodeVec = CBoostedTree::TNodeVec;
 
 public:
     virtual ~CLoss() = default;
     //! Clone the loss.
-    virtual std::unique_ptr<CLoss> clone() const = 0;
+    virtual TLossUPtr clone() const = 0;
+    //! Clone the loss for retraining \p tree.
+    virtual TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const = 0;
 
     //! Get the type of prediction problem to which this loss applies.
     virtual ELossType type() const = 0;
@@ -380,17 +512,26 @@ public:
                          double actual,
                          double weight = 1.0) const = 0;
     //! The gradient of the loss function.
-    virtual void gradient(const TMemoryMappedFloatVector& prediction,
+    virtual void gradient(const CEncodedDataFrameRowRef& row,
+                          bool newExample,
+                          const TMemoryMappedFloatVector& prediction,
                           double actual,
-                          TWriter writer,
+                          const TWriter& writer,
                           double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
-    virtual void curvature(const TMemoryMappedFloatVector& prediction,
+    virtual void curvature(const CEncodedDataFrameRowRef& row,
+                           bool newExample,
+                           const TMemoryMappedFloatVector& prediction,
                            double actual,
-                           TWriter writer,
+                           const TWriter& writer,
                            double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
+
+    //! Compute a matched difference between predictions.
+    virtual double difference(const TMemoryMappedFloatVector& prediction,
+                              const TMemoryMappedFloatVector& previousPrediction,
+                              double weight = 1.0) const = 0;
 
     //! Transforms a prediction from the forest to the target space.
     virtual TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const = 0;
@@ -412,7 +553,7 @@ public:
     static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
 
 protected:
-    CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
+    static CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl);
 
 private:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -420,29 +561,48 @@ private:
 };
 
 //! \brief The MSE loss function.
-class MATHS_ANALYTICS_EXPORT CMse final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CMse : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    CMse(core::CStateRestoreTraverser& traverser);
     CMse() = default;
-    std::unique_ptr<CLoss> clone() const override;
+    explicit CMse(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
-                   double weight = 1.0) const override;
+                   const TWriter& writer,
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
-    //! \return \p prediction.
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -453,7 +613,61 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
-//! \brief Implements loss for binomial logistic regression.
+//! \brief The MSE loss function for incremental training.
+class MATHS_ANALYTICS_EXPORT CMseIncremental final : public CMse {
+public:
+    static const std::string NAME;
+
+public:
+    CMseIncremental(double eta, double mu, const TNodeVec& tree);
+    [[noreturn]] explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
+    ELossType type() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& row,
+                  bool newExample,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(newExample, prediction, actual, writer, weight);
+    }
+    void curvature(bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const;
+    bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
+    //! \return \p prediction.
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+
+private:
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser&) override;
+
+private:
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
+};
+
+//! \brief The loss for binomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross entropy loss using the tree to predict class log-odds:
@@ -462,28 +676,48 @@ private:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_ANALYTICS_EXPORT CBinomialLogisticLoss final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CBinomialLogisticLoss : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CBinomialLogisticLoss() = default;
-    std::unique_ptr<CLoss> clone() const override;
+    explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
-                   double weight = 1.0) const override;
+                   const TWriter& writer,
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
@@ -495,7 +729,58 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
-//!  \brief Implements loss for multinomial logistic regression.
+//! \brief The loss for incremental binomial logistic regression.
+//!
+//! DESCRIPTION:\n
+//! This augments the standard loss function by adding the cross-entropy between
+//! predictions and the supplied tree predictions.
+class MATHS_ANALYTICS_EXPORT CBinomialLogisticLossIncremental final : public CBinomialLogisticLoss {
+public:
+    static const std::string NAME;
+
+public:
+    CBinomialLogisticLossIncremental(double eta, double mu, const TNodeVec& tree);
+    [[noreturn]] explicit CBinomialLogisticLossIncremental(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
+    ELossType type() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& row,
+                  bool newExample,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override;
+    void curvature(const CEncodedDataFrameRowRef& row,
+                   bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
+    //! \return (P(class 0), P(class 1)).
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+
+private:
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+private:
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
+};
+
+//!  \brief The loss for multinomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross-entropy loss using the forest to predict the class
@@ -511,23 +796,43 @@ public:
     static const std::string NAME;
 
 public:
-    CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
-    CMultinomialLogisticLoss(std::size_t numberClasses);
+    explicit CMultinomialLogisticLoss(std::size_t numberClasses);
+    explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
-                   double weight = 1.0) const override;
+                   const TWriter& writer,
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& predictions,
+                      const TMemoryMappedFloatVector& previousPredictions,
+                      double weight = 1.0) const override;
     //! \return (P(class 0), P(class 1), ..., P(class n)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
@@ -546,10 +851,10 @@ private:
 //!
 //! DESCRIPTION:\n
 //! Formally, the MSLE loss definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of MSLE loss function. For example, if the
-//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
-//! as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of MSLE loss function
+//! at the current prediction. For example, if the current prediction for the i'th
+//! training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
 //! </pre>
@@ -560,23 +865,43 @@ public:
     static const std::string NAME;
 
 public:
-    CMsle(core::CStateRestoreTraverser& traverser);
     explicit CMsle(double offset = 1.0);
+    explicit CMsle(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
-                   double weight = 1.0) const override;
+                   const TWriter& writer,
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& logPrediction,
+                      const TMemoryMappedFloatVector& logPreviousPrediction,
+                      double weight = 1.0) const override;
     //! \return exp(\p prediction).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;
@@ -596,10 +921,10 @@ private:
 //! DESCRIPTION:\n
 //! Formally, the pseudo-Huber loss definition we use is
 //! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of the pseudo-Huber loss function. For example,
-//! if the current prediction for the i'th training point is \f$p_i\f$, the loss is
-//! defined as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of the pseudo-Huber loss
+//! function at the current prediction. For example, if the current prediction for
+//! the i'th training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //! \f[
 //!     l_i(p) = \delta^2 \left(\sqrt{1 + \frac{(a_i - p_i)^{2}}{\delta^2}} - 1\right) +
@@ -607,9 +932,9 @@ private:
 //!              \frac{-a_i+p_i}{2\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}(a_i-p_i)} (p - p_i)^2
 //! \f]
 //! </pre>
-//! For this approximation we compute first and second derivative (gradient and curvature)
-//! with respect to p and then substitute p=p_i.
-//! As a result we obtain the following formulas for the gradient:
+//! For this approximation we compute first and second derivative (gradient and
+//! curvature) with respect to p and then substitute \f$p = p_i\f$. As a result we
+//! obtain the following formulas for the gradient:
 //!   \f[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\f]
@@ -618,23 +943,43 @@ public:
     static const std::string NAME;
 
 public:
-    CPseudoHuber(core::CStateRestoreTraverser& traverser);
     explicit CPseudoHuber(double delta);
+    explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
-    double value(const TMemoryMappedFloatVector& predictionVec,
+    double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
-                   double weight = 1.0) const override;
+                   const TWriter& writer,
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;

@@ -14,17 +14,19 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
-#include <core/CTriple.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
-#include <maths/common/COrderings.h>
+
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <list>
 #include <numeric>
 
 namespace ml {
@@ -250,6 +252,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncod
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder)
     : CDataFrameCategoryEncoder(builder) {
+    SUPPRESS_USAGE_WARNING(print);
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
@@ -367,8 +370,7 @@ void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visi
     for (const auto& encoding : m_Encodings) {
         if (encoding->type() == E_IdentityEncoding) {
             visitor.addIdentityEncoding(encoding->inputColumnIndex());
-        }
-        if (encoding->type() == E_OneHot) {
+        } else if (encoding->type() == E_OneHot) {
             const auto* enc = static_cast<const COneHotEncoding*>(encoding.get());
             visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
         } else if (encoding->type() == E_Frequency) {
@@ -591,7 +593,7 @@ CMakeDataFrameCategoryEncoder::minimumRowsPerFeature(std::size_t minimumRowsPerF
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble minimumFrequencyToOneHotEncode) {
-    if (minimumFrequencyToOneHotEncode != boost::none) {
+    if (minimumFrequencyToOneHotEncode != std::nullopt) {
         m_MinimumFrequencyToOneHotEncode = *minimumFrequencyToOneHotEncode;
     }
     return *this;
@@ -599,7 +601,7 @@ CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble mi
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight) {
-    if (redundancyWeight != boost::none) {
+    if (redundancyWeight != std::nullopt) {
         m_RedundancyWeight = *redundancyWeight;
     }
     return *this;
@@ -607,7 +609,7 @@ CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight
 
 CMakeDataFrameCategoryEncoder&
 CMakeDataFrameCategoryEncoder::minimumRelativeMicToSelectFeature(TOptionalDouble minimumRelativeMicToSelectFeature) {
-    if (minimumRelativeMicToSelectFeature != boost::none) {
+    if (minimumRelativeMicToSelectFeature != std::nullopt) {
         m_MinimumRelativeMicToSelectFeature = *minimumRelativeMicToSelectFeature;
     }
     return *this;
@@ -640,7 +642,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
                                   m_Frame->columnIsCategorical()[i];
                        }),
         metricColumnMask.end());
-    LOG_TRACE(<< "metric column mask = " << core::CContainerPrinter::print(metricColumnMask));
+    LOG_TRACE(<< "metric column mask = " << metricColumnMask);
 
     TSizeVec categoricalColumnMask(m_ColumnMask);
     categoricalColumnMask.erase(
@@ -650,8 +652,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
                                   m_Frame->columnIsCategorical()[i] == false;
                        }),
         categoricalColumnMask.end());
-    LOG_TRACE(<< "categorical column mask = "
-              << core::CContainerPrinter::print(categoricalColumnMask));
+    LOG_TRACE(<< "categorical column mask = " << categoricalColumnMask);
 
     // The top-level strategy is as follows:
     //
@@ -666,6 +667,54 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
     this->finishEncoding(this->selectFeatures(metricColumnMask, categoricalColumnMask));
 
     return this->readEncodings();
+}
+
+std::size_t CMakeDataFrameCategoryEncoder::memoryUsage() const {
+    return core::memory::dynamicSize(m_RowMask) + core::memory::dynamicSize(m_ColumnMask) +
+           core::memory::dynamicSize(m_InputColumnUsesFrequencyEncoding) +
+           core::memory::dynamicSize(m_OneHotEncodedCategories) +
+           core::memory::dynamicSize(m_RareCategories) +
+           core::memory::dynamicSize(m_CategoryFrequencies) +
+           core::memory::dynamicSize(m_MeanCategoryFrequencies) +
+           core::memory::dynamicSize(m_CategoryTargetMeanValues) +
+           core::memory::dynamicSize(m_MeanCategoryTargetMeanValues) +
+           core::memory::dynamicSize(m_EncodedColumnMics) +
+           core::memory::dynamicSize(m_EncodedColumnInputColumnMap) +
+           core::memory::dynamicSize(m_EncodedColumnEncodingMap);
+}
+
+std::size_t CMakeDataFrameCategoryEncoder::estimateMemoryUsage(std::size_t numberRows,
+                                                               std::size_t numberColumns,
+                                                               std::size_t numberCategoricalColumns) {
+
+    // We don't know in advance how many distinct categories. For useful features we
+    // estimate we'll have no more than 1000 on average.
+    std::size_t maximumNumberCategories{1000};
+    // Assuming either many or few missing rows, we get good compression of the bit
+    // vector. Specifically, we'll assume the average run length is 64 for which
+    // we get a constant 8 / 64.
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberRows / 64};
+    std::size_t columnMaskMemoryUsage{numberColumns * sizeof(std::size_t)};
+    std::size_t frequencyEncodingMemoryUsage{numberColumns / 8};
+    std::size_t oneHotMemoryUsage{
+        numberCategoricalColumns * core::memory::dynamicSize(TSizeVec(static_cast<std::size_t>(
+                                       1.0 / MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE))) +
+        (numberColumns - numberCategoricalColumns) * core::memory::dynamicSize(TSizeVec())};
+    std::size_t rareCategoriesMemoryUsage{
+        numberCategoricalColumns * core::memory::dynamicSize(TSizeUSet(maximumNumberCategories)) +
+        (numberColumns - numberCategoricalColumns) * core::memory::dynamicSize(TSizeUSet())};
+    std::size_t meanFrequencyMemoryUsage{numberColumns * sizeof(double)};
+    std::size_t meanValuesMemoryUsage{
+        numberColumns * sizeof(double) +
+        numberCategoricalColumns * core::memory::dynamicSize(TDoubleVec(1000)) +
+        (numberColumns - numberCategoricalColumns) *
+            core::memory::dynamicSize(TDoubleVec())};
+    std::size_t micsMemoryUsage{numberColumns * sizeof(double)};
+    std::size_t encodingMapMemoryUsage{2 * numberColumns * sizeof(std::size_t)};
+    return sizeof(CMakeDataFrameCategoryEncoder) + missingFeatureMaskMemoryUsage +
+           columnMaskMemoryUsage + frequencyEncodingMemoryUsage +
+           oneHotMemoryUsage + rareCategoriesMemoryUsage + meanFrequencyMemoryUsage +
+           meanValuesMemoryUsage + micsMemoryUsage + encodingMapMemoryUsage;
 }
 
 CMakeDataFrameCategoryEncoder::TEncodingUPtrVec
@@ -790,7 +839,7 @@ CMakeDataFrameCategoryEncoder::mics(const CDataFrameUtils::CColumnValue& target,
             mics[i].emplace_back(CATEGORY_FOR_METRICS, metricMics[i]);
         }
     }
-    LOG_TRACE(<< "MICe = " << core::CContainerPrinter::print(mics));
+    LOG_TRACE(<< "MICe = " << mics);
 
     return mics;
 }
@@ -799,8 +848,7 @@ void CMakeDataFrameCategoryEncoder::setupFrequencyEncoding(const TSizeVec& categ
 
     m_CategoryFrequencies = CDataFrameUtils::categoryFrequencies(
         m_NumberThreads, *m_Frame, m_RowMask, categoricalColumnMask);
-    LOG_TRACE(<< "category frequencies = "
-              << core::CContainerPrinter::print(m_CategoryFrequencies));
+    LOG_TRACE(<< "category frequencies = " << m_CategoryFrequencies);
 
     m_MeanCategoryFrequencies.resize(m_CategoryFrequencies.size());
     m_RareCategories.resize(m_CategoryFrequencies.size());
@@ -817,9 +865,8 @@ void CMakeDataFrameCategoryEncoder::setupFrequencyEncoding(const TSizeVec& categ
             }
         }
     }
-    LOG_TRACE(<< "mean category frequencies = "
-              << core::CContainerPrinter::print(m_MeanCategoryFrequencies));
-    LOG_TRACE(<< "rare categories = " << core::CContainerPrinter::print(m_RareCategories));
+    LOG_TRACE(<< "mean category frequencies = " << m_MeanCategoryFrequencies);
+    LOG_TRACE(<< "rare categories = " << m_RareCategories);
 }
 
 void CMakeDataFrameCategoryEncoder::setupTargetMeanValueEncoding(const TSizeVec& categoricalColumnMask) {
@@ -827,8 +874,7 @@ void CMakeDataFrameCategoryEncoder::setupTargetMeanValueEncoding(const TSizeVec&
     m_CategoryTargetMeanValues = CDataFrameUtils::meanValueOfTargetForCategories(
         CDataFrameUtils::CMetricColumnValue{m_TargetColumn}, m_NumberThreads,
         *m_Frame, m_RowMask, categoricalColumnMask);
-    LOG_TRACE(<< "category target mean values = "
-              << core::CContainerPrinter::print(m_CategoryTargetMeanValues));
+    LOG_TRACE(<< "category target mean values = " << m_CategoryTargetMeanValues);
 
     m_MeanCategoryTargetMeanValues.resize(m_CategoryTargetMeanValues.size());
     for (std::size_t i = 0; i < m_CategoryTargetMeanValues.size(); ++i) {
@@ -837,8 +883,7 @@ void CMakeDataFrameCategoryEncoder::setupTargetMeanValueEncoding(const TSizeVec&
                 ? 0.0
                 : common::CBasicStatistics::mean(m_CategoryTargetMeanValues[i]);
     }
-    LOG_TRACE(<< "mean category target mean values = "
-              << core::CContainerPrinter::print(m_MeanCategoryTargetMeanValues));
+    LOG_TRACE(<< "mean category target mean values = " << m_MeanCategoryTargetMeanValues);
 }
 
 CMakeDataFrameCategoryEncoder::TSizeSizePrDoubleMap
@@ -867,8 +912,7 @@ CMakeDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics
         }
     }
 
-    LOG_TRACE(<< "one-hot encoded = "
-              << core::CContainerPrinter::print(m_OneHotEncodedCategories));
+    LOG_TRACE(<< "one-hot encoded = " << m_OneHotEncodedCategories);
 
     return selectedFeatureMics;
 }
@@ -893,7 +937,7 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
     TSizeDoublePrVecVec mics(this->mics(CDataFrameUtils::CMetricColumnValue{m_TargetColumn},
                                         metricColumnMask, categoricalColumnMask));
     this->discardNuisanceFeatures(mics);
-    LOG_TRACE(<< "features MICe = " << core::CContainerPrinter::print(mics));
+    LOG_TRACE(<< "features MICe = " << mics);
 
     std::size_t numberAvailableFeatures{this->numberAvailableFeatures(mics)};
     std::size_t maximumNumberFeatures{
@@ -955,10 +999,8 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
         std::sort(categories.begin(), categories.end());
     }
 
-    LOG_TRACE(<< "one-hot encoded = "
-              << core::CContainerPrinter::print(m_OneHotEncodedCategories));
-    LOG_TRACE(<< "selected features MICe = "
-              << core::CContainerPrinter::print(selectedFeatureMics));
+    LOG_TRACE(<< "one-hot encoded = " << m_OneHotEncodedCategories);
+    LOG_TRACE(<< "selected features MICe = " << selectedFeatureMics);
 
     return selectedFeatureMics;
 }
@@ -1021,12 +1063,9 @@ void CMakeDataFrameCategoryEncoder::finishEncoding(TSizeSizePrDoubleMap selected
         encoding = i->first.first == feature ? encoding + 1 : 0;
     }
 
-    LOG_TRACE(<< "feature vector MICe = "
-              << core::CContainerPrinter::print(m_EncodedColumnMics));
-    LOG_TRACE(<< "feature vector index to column map = "
-              << core::CContainerPrinter::print(m_EncodedColumnInputColumnMap));
-    LOG_TRACE(<< "feature vector index to encoding map = "
-              << core::CContainerPrinter::print(m_EncodedColumnEncodingMap));
+    LOG_TRACE(<< "feature vector MICe = " << m_EncodedColumnMics);
+    LOG_TRACE(<< "feature vector index to column map = " << m_EncodedColumnInputColumnMap);
+    LOG_TRACE(<< "feature vector index to encoding map = " << m_EncodedColumnEncodingMap);
 }
 
 void CMakeDataFrameCategoryEncoder::discardNuisanceFeatures(TSizeDoublePrVecVec& mics) const {

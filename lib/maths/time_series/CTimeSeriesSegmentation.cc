@@ -11,14 +11,14 @@
 
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
-#include <core/CContainerPrinter.h>
-#include <core/CTriple.h>
+#include <core/CLogger.h>
 #include <core/CVectorRange.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 
@@ -94,7 +94,7 @@ CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(TFloatMeanAccumula
         steps.push_back(predict(j - 0.05) - predict(j + 0.05));
     }
     steps.push_back(0.0);
-    LOG_TRACE(<< "steps = " << core::CContainerPrinter::print(steps));
+    LOG_TRACE(<< "steps = " << steps);
 
     std::partial_sum(steps.rbegin(), steps.rend(), steps.rbegin());
     for (std::size_t i = segmentation.size() - 1; i > 0; --i) {
@@ -160,9 +160,9 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     TFloatMeanAccumulatorVec scaledValues;
     fitPiecewiseLinearScaledSeasonal(values, periods, segmentation, outlierFraction,
                                      scaledValues, models, scales);
-    LOG_TRACE(<< "models = " << core::CContainerPrinter::print(models));
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+    LOG_TRACE(<< "models = " << models);
+    LOG_TRACE(<< "segmentation = " << segmentation);
+    LOG_TRACE(<< "scales = " << scales);
 
     double constantScale{computeConstantScale(segmentation, scales)};
     LOG_TRACE(<< "scale = " << constantScale);
@@ -197,7 +197,7 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
         weights.push_back(common::CTools::linearlyInterpolate(
             residualRmse, 4.0 * residualRmse, 0.0, 1.0, valueRmse));
     }
-    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+    LOG_TRACE(<< "weights = " << weights);
 
     for (std::size_t i = 0; i < scaledValues.size(); ++i) {
         if (std::any_of(periods.begin(), periods.end(),
@@ -308,9 +308,8 @@ void CTimeSeriesSegmentation::selectSegmentation(std::size_t maxSegments,
                 return common::COrderings::lexicographical_compare(
                     lhs.first, -lhs.second, rhs.first, -rhs.second);
             });
-        LOG_TRACE(<< "depth and p-values = "
-                  << core::CContainerPrinter::print(depthAndPValue));
-        LOG_TRACE(<< "splits = " << core::CContainerPrinter::print(splits));
+        LOG_TRACE(<< "depth and p-values = " << depthAndPValue);
+        LOG_TRACE(<< "splits = " << splits);
         segmentation.resize(maxSegments + 1);
     }
     std::sort(segmentation.begin(), segmentation.end());
@@ -525,7 +524,7 @@ CTimeSeriesSegmentation::fitPiecewiseLinear(const TSizeVec& segmentation,
                                        static_cast<double>(a));
         models[i - 1].parameters(parameters[i - 1]);
     }
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+    LOG_TRACE(<< "segmentation = " << segmentation);
 
     auto predict = [&](std::size_t i) {
         double time{static_cast<double>(i)};
@@ -712,7 +711,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
         }
     };
 
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+    LOG_TRACE(<< "segmentation = " << segmentation);
 
     // First pass to re-weight any large outliers.
     reweighted = values;
@@ -721,14 +720,14 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
 
     // Fit the model adjusting for scales.
     computeScales();
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+    LOG_TRACE(<< "scales = " << scales);
 
     // Re-weight outliers based on the new model.
     reweighted = values;
     if (CSignal::reweightOutliers(scaledModel, outlierFraction, reweighted)) {
         // If any re-weighting happened fine tune.
         computeScales();
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+        LOG_TRACE(<< "scales = " << scales);
     }
 }
 
@@ -797,7 +796,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
         }
     };
 
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
+    LOG_TRACE(<< "segmentation = " << segmentation);
 
     // First pass to re-weight any large outliers.
     reweighted = values;
@@ -806,16 +805,16 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
 
     // Fit the model adjusting for scales.
     fitScaledSeasonalModels(scale);
-    LOG_TRACE(<< "models = " << core::CContainerPrinter::print(models));
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+    LOG_TRACE(<< "models = " << models);
+    LOG_TRACE(<< "scales = " << scales);
 
     // Re-weight outliers based on the new model.
     reweighted = values;
     if (CSignal::reweightOutliers(scaledModel, outlierFraction, reweighted)) {
         // If any re-weighting happened fine tune.
         fitScaledSeasonalModels(scale);
-        LOG_TRACE(<< "model = " << core::CContainerPrinter::print(models));
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
+        LOG_TRACE(<< "model = " << models);
+        LOG_TRACE(<< "scales = " << scales);
     }
 }
 

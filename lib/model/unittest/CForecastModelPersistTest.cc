@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         BOOST_REQUIRE_EQUAL(core_t::TTime(50), lastDataTime);
         BOOST_REQUIRE_EQUAL(std::string("some_by_field"), restoredByFieldValue);
         BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_REQUIRE_EQUAL(size_t(1), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(1, restoredModel->identifier());
         BOOST_REQUIRE_EQUAL(maths_t::E_ContinuousData, restoredModel->dataType());
 
         CForecastModelPersist::TMathsModelPtr timeSeriesModelForForecast{
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
         BOOST_REQUIRE_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
         BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_REQUIRE_EQUAL(size_t(2), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(2, restoredModel->identifier());
         BOOST_REQUIRE_EQUAL(maths_t::E_MixedData, restoredModel->dataType());
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelForForecast{
             otherTimeSeriesModel.cloneForForecast()};
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
         BOOST_REQUIRE_EQUAL(std::string(), restoredByFieldValue);
         BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_REQUIRE_EQUAL(size_t(3), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(3, restoredModel->identifier());
         BOOST_REQUIRE_EQUAL(maths_t::E_DiscreteData, restoredModel->dataType());
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelEmptyByFieldForForecast{
             otherTimeSeriesModelEmptyByField.cloneForForecast()};

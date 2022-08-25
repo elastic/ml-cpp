@@ -20,14 +20,18 @@
 #include <core/ImportExport.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
+#include <optional>
+#include <sstream>
 #include <string>
+#include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -40,6 +44,7 @@ const TPersistenceTag FIRST_TAG("a", "first");
 const TPersistenceTag SECOND_TAG("b", "second");
 const TPersistenceTag MAP_TAG("c", "map");
 const TPersistenceTag SIZE_TAG("d", "size");
+const std::string TUPLE_PREFIX{"t_"};
 
 template<typename T>
 struct remove_const {
@@ -62,18 +67,6 @@ class ContainerRestore {};
 class MemberRestore {};
 class MemberFromDelimited {};
 
-//! Auxiliary type used by has_const_iterator to test for a nested typedef.
-template<typename T, typename R = void>
-struct enable_if {
-    using type = R;
-};
-
-//! Auxiliary type used by has_persist_function to test for a nested member function.
-template<typename T, T, typename R = void>
-struct enable_if_is {
-    using type = R;
-};
-
 //! \name Class used to select the appropriate persist implementation for containers.
 //@{
 template<typename T, typename ITR = void>
@@ -81,25 +74,29 @@ struct persist_container_selector {
     using value = BasicPersist;
 };
 template<typename T>
-struct persist_container_selector<T, typename enable_if<typename T::const_iterator>::type> {
+struct persist_container_selector<T, std::void_t<typename T::const_iterator>> {
     using value = ContainerPersist;
 };
 //@}
 
 //! \name Class used to select the appropriate persist implementation.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct persist_selector {
     using value = typename persist_container_selector<T>::value;
 };
 template<typename T>
-struct persist_selector<T, typename enable_if_is<void (T::*)(CStatePersistInserter&) const, &T::acceptPersistInserter>::type> {
+struct persist_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::acceptPersistInserter), void (T::*)(CStatePersistInserter&) const>>> {
     using value = MemberPersist;
 };
 template<typename T>
-struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T::toDelimited>::type> {
+struct persist_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::toDelimited), std::string (T::*)() const>>> {
     using value = MemberToDelimited;
 };
+// clang-format on
 //@}
 
 //! \brief Specialisations of this class implement persist methods based on object features.
@@ -120,25 +117,29 @@ struct restore_container_selector {
     using value = BasicRestore;
 };
 template<typename T>
-struct restore_container_selector<T, typename enable_if<typename T::iterator>::type> {
+struct restore_container_selector<T, std::void_t<typename T::iterator>> {
     using value = ContainerRestore;
 };
 //@}
 
 //! \name Class used to select appropriate restore implementation.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct restore_selector {
     using value = typename restore_container_selector<T>::value;
 };
 template<typename T>
-struct restore_selector<T, typename enable_if_is<bool (T::*)(CStateRestoreTraverser&), &T::acceptRestoreTraverser>::type> {
+struct restore_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::acceptRestoreTraverser), bool (T::*)(CStateRestoreTraverser&)>>> {
     using value = MemberRestore;
 };
 template<typename T>
-struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&), &T::fromDelimited>::type> {
+struct restore_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::fromDelimited), bool (T::*)(const std::string&)>>> {
     using value = MemberFromDelimited;
 };
+// clang-format on
 //@}
 
 //! \brief Specialisations of this class implement restore methods based on object features.
@@ -156,14 +157,17 @@ class CanReserve {};
 
 //! \name Class used to check for the reserve function.
 //@{
+// clang-format off
 template<typename T, typename ENABLE = void>
 struct reserve_selector {
     using value = ENABLE;
 };
 template<typename T>
-struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::reserve>::type> {
+struct reserve_selector<T, std::enable_if_t<
+            std::is_same_v<decltype(&T::reserve), void (T::*)(std::size_t)>>> {
     using value = CanReserve;
 };
+// clang-format on
 //@}
 
 //! \brief Implementation of the pre-allocation class for objects which don't
@@ -210,7 +214,7 @@ public:
     //! \brief Converts a built in type to a string using CStringUtils functions.
     class CORE_EXPORT CBuiltinToString {
     public:
-        CBuiltinToString(const char pairDelimiter)
+        explicit CBuiltinToString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         std::string operator()(double value) const {
@@ -243,8 +247,8 @@ public:
         }
 
         template<typename T>
-        std::string operator()(const boost::optional<T>& value) const {
-            return value ? this->operator()(std::make_pair(true, value.get()))
+        std::string operator()(const std::optional<T>& value) const {
+            return value ? this->operator()(std::make_pair(true, *value))
                          : this->operator()(std::make_pair(false, T{}));
         }
 
@@ -254,6 +258,22 @@ public:
                    this->operator()(value.second);
         }
 
+        template<typename... T>
+        std::string operator()(const std::tuple<T...>& value) const {
+            std::ostringstream result;
+            std::apply(
+                [&](const auto&... element) {
+                    ((result << this->operator()(element) << m_PairDelimiter), ...);
+                },
+                value);
+            return result.str();
+        }
+
+        template<typename T>
+        std::string operator()(const std::atomic<T>& value) const {
+            return this->operator()(value.load());
+        }
+
     private:
         char m_PairDelimiter;
     };
@@ -261,7 +281,7 @@ public:
     //! \brief Converts a string to a built in type using CStringUtils functions.
     class CORE_EXPORT CBuiltinFromString {
     public:
-        CBuiltinFromString(const char pairDelimiter)
+        explicit CBuiltinFromString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         template<typename T>
@@ -310,11 +330,11 @@ public:
         }
 
         template<typename T>
-        bool operator()(const std::string& token, boost::optional<T>& value) const {
+        bool operator()(const std::string& token, std::optional<T>& value) const {
             std::pair<bool, T> pairValue;
             if (this->operator()(token, pairValue)) {
-                value = pairValue.first ? boost::optional<T>{pairValue.second}
-                                        : boost::optional<T>{};
+                value = pairValue.first ? std::optional<T>{pairValue.second}
+                                        : std::optional<T>{};
                 return true;
             }
             return false;
@@ -332,6 +352,42 @@ public:
             }
             m_Token.assign(token, delimPos + 1, token.length() - delimPos);
             return this->operator()(m_Token, value.second);
+        }
+
+        template<typename... T>
+        bool operator()(const std::string& token, std::tuple<T...>& value) const {
+            if (std::count(token.begin(), token.end(), m_PairDelimiter) != sizeof...(T)) {
+                return false;
+            }
+
+            auto popOneItem = [this](std::string_view& tokenView, auto& element) {
+                std::size_t delimPos(tokenView.find(m_PairDelimiter));
+                if (delimPos == std::string::npos) {
+                    return false;
+                }
+                m_Token = tokenView.substr(0, delimPos);
+                bool result{this->operator()(m_Token, element)};
+                tokenView.remove_prefix(delimPos + 1);
+                return result;
+            };
+
+            bool success{true};
+            std::string_view tokenView{token};
+            std::apply(
+                [&](auto&... element) {
+                    // Note we want to shortcircuit if not successful.
+                    ((success = success && popOneItem(tokenView, element)), ...);
+                },
+                value);
+            return success;
+        }
+
+        template<typename T>
+        bool operator()(const std::string& token, std::atomic<T>& value) const {
+            T value_;
+            bool result{CStringUtils::stringToType(token, value_)};
+            value.store(value_);
+            return result;
         }
 
     private:
@@ -697,6 +753,24 @@ public:
                              [&t](auto& inserter_) { newLevel(t, inserter_); });
     }
 
+    template<typename... T>
+    static void dispatch(const std::string& tag,
+                         const std::tuple<T...>& t,
+                         CStatePersistInserter& inserter) {
+        auto newLevel = [](std::size_t pos, const auto& element,
+                           CStatePersistInserter& inserter_) {
+            persist(TUPLE_PREFIX + std::to_string(pos), element, inserter_);
+        };
+        inserter.insertLevel(tag, [&](auto& inserter_) {
+            std::size_t pos{0};
+            std::apply(
+                [&](const auto&... element) {
+                    ((newLevel(pos++, element, inserter_)), ...);
+                },
+                t);
+        });
+    }
+
 private:
     template<typename A, typename B>
     static void newLevel(const std::pair<A, B>& t, CStatePersistInserter& inserter) {
@@ -879,6 +953,55 @@ public:
             }
             return traverser.traverseSubLevel(
                 [&t](auto& traverser_) { return subLevel(t, traverser_); });
+        }
+        return true;
+    }
+
+    template<typename... T>
+    static bool
+    dispatch(const std::string& tag, std::tuple<T...>& t, CStateRestoreTraverser& traverser) {
+        if (traverser.name() == tag) {
+            if (traverser.hasSubLevel() == false) {
+                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
+                return false;
+            }
+            // GCC doesn't handle expanding the logging macro in the lambda context.
+            std::ostringstream errors;
+            auto subLevel = [&errors](std::size_t pos, auto& element,
+                                      CStateRestoreTraverser& traverser_) {
+                if (traverser_.name() != TUPLE_PREFIX + std::to_string(pos)) {
+                    errors << "Tag mismatch at " << traverser_.name()
+                           << ", expected " << TUPLE_PREFIX + std::to_string(pos);
+                    return false;
+                }
+                if (restore(traverser_.name(), element, traverser_) == false) {
+                    errors << "Restore error at " << traverser_.name() << ": "
+                           << traverser_.value();
+                    return false;
+                }
+                if (pos + 1 < sizeof...(T)) {
+                    if (traverser_.next() == false) {
+                        errors << "Restore error at " << traverser_.name()
+                               << ": " << traverser_.value();
+                        return false;
+                    }
+                }
+                return true;
+            };
+            if (traverser.traverseSubLevel([&](auto& traverser_) {
+                    bool success{true};
+                    std::size_t pos{0};
+                    std::apply(
+                        [&](auto&... element) {
+                            // Note we want to shortcircuit if not successful.
+                            ((success = success && subLevel(pos++, element, traverser_)), ...);
+                        },
+                        t);
+                    return success;
+                }) == false) {
+                LOG_ERROR(<< errors.str());
+                return false;
+            }
         }
         return true;
     }

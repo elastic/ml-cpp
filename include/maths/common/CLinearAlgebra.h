@@ -14,22 +14,21 @@
 
 #include <core/CHashing.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
-#include <core/CSmallVector.h>
+#include <core/CMemoryFwd.h>
+#include <core/CSmallVectorFwd.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/adapted/std_array.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/operators.hpp>
 
 #include <cmath>
 #include <cstddef>
+#include <numeric>
 
 BOOST_GEOMETRY_REGISTER_STD_ARRAY_CS(cs::cartesian)
 
@@ -168,7 +167,7 @@ struct SSymmetricMatrix {
     //! The Frobenius norm.
     double frobenius(std::size_t d) const {
         double result = 0.0;
-        for (std::size_t i = 0u, i_ = 0; i < d; ++i, ++i_) {
+        for (std::size_t i = 0, i_ = 0; i < d; ++i, ++i_) {
             for (std::size_t j = 0; j < i; ++j, ++i_) {
                 result += 2.0 * m_LowerTriangle[i_] * m_LowerTriangle[i_];
             }
@@ -177,10 +176,17 @@ struct SSymmetricMatrix {
         return std::sqrt(result);
     }
 
+    //! Get the mean of the matrix elements.
+    double mean(std::size_t d) const {
+        return (2.0 * std::accumulate(m_LowerTriangle.begin(), m_LowerTriangle.end(), 0.0) -
+                this->trace(d)) /
+               static_cast<double>(d * d);
+    }
+
     //! Convert to the MATRIX representation.
     template<typename MATRIX>
     inline MATRIX& toType(std::size_t d, MATRIX& result) const {
-        for (std::size_t i = 0u, i_ = 0; i < d; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < d; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 result(i, j) = result(j, i) = m_LowerTriangle[i_];
             }
@@ -255,7 +261,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -319,7 +325,7 @@ public:
 
     //! Assignment if the underlying type is implicitly convertible.
     template<typename U>
-    const CSymmetricMatrixNxN& operator=(const CSymmetricMatrixNxN<U, N>& other) {
+    CSymmetricMatrixNxN& operator=(const CSymmetricMatrixNxN<U, N>& other) {
         this->assign(other.base());
         return *this;
     }
@@ -427,6 +433,9 @@ public:
 
     //! Get the Frobenius norm.
     double frobenius() const { return this->TBase::frobenius(N); }
+
+    //! Get the mean of the matrix elements.
+    double mean() const { return this->TBase::mean(N); }
 
     //! Convert to a vector of vectors.
     template<typename VECTOR_OF_VECTORS>
@@ -593,7 +602,7 @@ public:
     //! \note Because this is template it is *not* an copy assignment
     //! operator so this class has implicit move semantics.
     template<typename U>
-    const CSymmetricMatrix& operator=(const CSymmetricMatrix<U>& other) {
+    CSymmetricMatrix& operator=(const CSymmetricMatrix<U>& other) {
         m_D = other.m_D;
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
         this->assign(other.base());
@@ -713,6 +722,9 @@ public:
 
     //! The Frobenius norm.
     double frobenius() const { return this->TBase::frobenius(m_D); }
+
+    //! Get the mean of the matrix elements.
+    double mean() const { return this->TBase::mean(m_D); }
 
     //! Convert to a vector of vectors.
     template<typename VECTOR_OF_VECTORS>
@@ -891,6 +903,12 @@ struct SVector {
         return result;
     }
 
+    //! Get the mean of the vector components.
+    double mean() const {
+        return std::accumulate(m_X.begin(), m_X.end(), 0.0) /
+               static_cast<double>(m_X.size());
+    }
+
     //! Convert to the VECTOR representation.
     template<typename VECTOR>
     inline VECTOR& toType(VECTOR& result) const {
@@ -954,12 +972,12 @@ private:
 
 public:
     using TArray = T[N];
-    using TBoostArray = std::array<T, N>;
-    using TConstIterator = typename TBoostArray::const_iterator;
+    using TStdArray = std::array<T, N>;
+    using TConstIterator = typename TStdArray::const_iterator;
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() {
+    static constexpr bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
     }
 
@@ -1024,7 +1042,7 @@ public:
 
     //! Assignment if the underlying type is implicitly convertible.
     template<typename U>
-    const CVectorNx1& operator=(const CVectorNx1<U, N>& other) {
+    CVectorNx1& operator=(const CVectorNx1<U, N>& other) {
         this->assign(other.base());
         return *this;
     }
@@ -1142,6 +1160,9 @@ public:
     //! Euclidean norm.
     double euclidean() const { return std::sqrt(this->inner(*this)); }
 
+    //! Get the mean of the vector components.
+    double mean() const { return this->TBase::mean(); }
+
     //! Convert to a vector on a different underlying type.
     template<typename U>
     inline CVectorNx1<U, N> to() const {
@@ -1155,7 +1176,7 @@ public:
     }
 
     //! Convert to a boost array.
-    inline TBoostArray toBoostArray() const { return TBase::m_X; }
+    inline TStdArray toArray() const { return TBase::m_X; }
 
     //! Convert to the specified vector representation.
     //!
@@ -1171,13 +1192,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVectorNx1& smallest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::lowest());
+        static const CVectorNx1 result(std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVectorNx1& largest() {
-        static const CVectorNx1 result(boost::numeric::bounds<T>::highest());
+        static const CVectorNx1 result(std::numeric_limits<T>::max());
         return result;
     }
 };
@@ -1257,7 +1278,7 @@ public:
 
 public:
     //! Set to multiple of ones vector.
-    explicit CVector(std::size_t d = 0u, T v = T(0)) {
+    explicit CVector(std::size_t d = 0, T v = T(0)) {
         if (d > 0) {
             TBase::m_X.resize(d, v);
         }
@@ -1308,7 +1329,7 @@ public:
     //! \note Because this is template it is *not* an copy assignment
     //! operator so this class has implicit move semantics.
     template<typename U>
-    const CVector& operator=(const CVector<U>& other) {
+    CVector& operator=(const CVector<U>& other) {
         TBase::m_X.resize(other.dimension());
         this->TBase::assign(other.base());
         return *this;
@@ -1449,6 +1470,9 @@ public:
     //! Euclidean norm.
     double euclidean() const { return std::sqrt(this->inner(*this)); }
 
+    //! Get the mean of the vector components.
+    double mean() const { return this->TBase::mean(); }
+
     //! Convert to a vector on a different underlying type.
     template<typename U>
     inline CVector<U> to() const {
@@ -1475,13 +1499,13 @@ public:
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::lowest());
+        static const CVector result(d, std::numeric_limits<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
     static const CVector& largest(std::size_t d) {
-        static const CVector result(d, boost::numeric::bounds<T>::highest());
+        static const CVector result(d, std::numeric_limits<T>::max());
         return result;
     }
 };
@@ -1492,14 +1516,14 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+        for (std::size_t i = 0, i_ = 0; i < x.dimension(); ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+        for (std::size_t i = 0, i_ = 0; i < x.dimension(); ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }

@@ -13,16 +13,18 @@
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
+#include <core/CVectorRange.h>
 
 #include <maths/common/COrderings.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
+#include <optional>
 #include <ostream>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -40,7 +42,7 @@ using namespace ml;
 
 namespace {
 
-using TOptionalDouble = boost::optional<double>;
+using TOptionalDouble = std::optional<double>;
 
 class CDictionary {
 public:
@@ -48,7 +50,7 @@ public:
     static std::size_t ms_Copies;
 
 public:
-    CDictionary(const TStrVec& words) : m_Words(words) {}
+    explicit CDictionary(TStrVec words) : m_Words{std::move(words)} {}
 
     CDictionary(const CDictionary&) = default;
 
@@ -68,7 +70,7 @@ private:
     TStrVec m_Words;
 };
 
-std::size_t CDictionary::ms_Copies(0u);
+std::size_t CDictionary::ms_Copies(0);
 
 void swap(CDictionary& lhs, CDictionary& rhs) {
     lhs.swap(rhs);
@@ -376,19 +378,19 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
 
-    double values_[]{10.0, 1.0, 5.0, 3.0, 1.0};
-    TDoubleVec values(std::begin(values_), std::end(values_));
+    TDoubleVec values{10.0, 1.0, 5.0, 3.0, 1.0};
     TDoubleVecCItrVec iterators;
-    for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
+    for (auto i = values.begin(); i != values.end(); ++i) {
         iterators.push_back(i);
     }
 
     std::sort(iterators.begin(), iterators.end(),
               core::CFunctional::SDereference<maths::common::COrderings::SLess>());
-    std::sort(std::begin(values_), std::end(values_));
+    TDoubleVec orderedValues{values};
+    std::sort(orderedValues.begin(), orderedValues.end());
     for (std::size_t i = 0; i < values.size(); ++i) {
-        LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
-        BOOST_REQUIRE_EQUAL(values_[i], *iterators[i]);
+        LOG_DEBUG(<< "expected " << orderedValues[i] << ", got " << *iterators[i]);
+        BOOST_REQUIRE_EQUAL(orderedValues[i], *iterators[i]);
     }
 }
 
@@ -563,7 +565,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
     using TStrVec = std::vector<std::string>;
     using TDictionaryVec = std::vector<CDictionary>;
     using TDoubleRangeVec = core::CVectorRange<TDoubleVec>;
-    using TDoubleTuple = boost::tuple<double, double, double, double>;
+    using TDoubleTuple = std::tuple<double, double, double, double>;
     using TDoubleDoubleTupleMap = std::map<double, TDoubleTuple>;
 
     {
@@ -576,8 +578,8 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         std::string expectedValues("[c, !, z, q, a, p]");
 
         maths::common::COrderings::simultaneousSort(keys, values);
-        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "keys = " << keys);
+        LOG_DEBUG(<< "values = " << values);
         BOOST_REQUIRE_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         BOOST_REQUIRE_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 
@@ -598,9 +600,9 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         std::string expectedValues2("[(1.3, 1.9), (1.2, 10.1), (2.1, 1.1), (3.2, 12.9), (1.3, 6.2), (2, 1)]");
 
         maths::common::COrderings::simultaneousSort(keys, values1, values2);
-        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "keys = " << keys);
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
         BOOST_REQUIRE_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         BOOST_REQUIRE_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
@@ -620,35 +622,35 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         TDictionaryVec values3;
         for (std::size_t i = 0; i < rawWords.size(); i += 5) {
             TStrVec words(rawWords.begin() + i, rawWords.begin() + i + 5);
-            values3.push_back(CDictionary(words));
+            values3.emplace_back(std::move(words));
         }
-        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
+        LOG_DEBUG(<< "values3 = " << values3);
         std::string expectedKeys("[0.1, 0.7, 0.9, 1.4, 4, 5.1, 7.1, 80]");
         std::string expectedValues1("[23, ;;, ~1, b4, pq, zz, a1, sss]");
         std::string expectedValues2("[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), (7.2, 22.9), (10.3, 13.2), (0.3, 16.2), (1, 1), (21.2, 11.1)]");
 
         maths::common::COrderings::simultaneousSort(keys, values1, values2, values3);
-        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "keys = " << keys);
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
         LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
         BOOST_REQUIRE_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         BOOST_REQUIRE_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            BOOST_REQUIRE_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_REQUIRE_EQUAL(0, value.ms_Copies);
         }
 
         maths::common::COrderings::simultaneousSort(keys, values1, values2, values3);
-        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "keys = " << keys);
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
         LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
         BOOST_REQUIRE_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         BOOST_REQUIRE_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            BOOST_REQUIRE_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_REQUIRE_EQUAL(0, value.ms_Copies);
         }
     }
     {
@@ -663,8 +665,8 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
 
         maths::common::COrderings::simultaneousSort(range1, range2);
 
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
         BOOST_REQUIRE_EQUAL(std::string("[5, 2, 3, 4, 1]"),
                             core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 5, 2, 3, 4]"),
@@ -672,9 +674,9 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
 
         maths::common::COrderings::simultaneousSort(range2, range1, range3);
 
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
+        LOG_DEBUG(<< "values3 = " << values3);
         BOOST_REQUIRE_EQUAL(std::string("[5, 3, 4, 2, 1]"),
                             core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2, 3, 5, 4]"),
@@ -684,10 +686,10 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
 
         maths::common::COrderings::simultaneousSort(range4, range1, range2, range3);
 
-        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
-        LOG_DEBUG(<< "values4 = " << core::CContainerPrinter::print(values4));
+        LOG_DEBUG(<< "values1 = " << values1);
+        LOG_DEBUG(<< "values2 = " << values2);
+        LOG_DEBUG(<< "values3 = " << values3);
+        LOG_DEBUG(<< "values4 = " << values4);
         BOOST_REQUIRE_EQUAL(std::string("[5, 3, 2, 4, 1]"),
                             core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2, 5, 3, 4]"),
@@ -716,15 +718,15 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
 
             maths::common::COrderings::simultaneousSort(keys, values1, values2,
                                                         values3, values4);
-            LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
+            LOG_DEBUG(<< "keys = " << keys);
 
             auto itr = expected.begin();
             for (std::size_t j = 0; j < keys.size(); ++j, ++itr) {
                 BOOST_REQUIRE_EQUAL(itr->first, keys[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<0>(), values1[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<1>(), values2[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<2>(), values3[j]);
-                BOOST_REQUIRE_EQUAL(itr->second.get<3>(), values4[j]);
+                BOOST_REQUIRE_EQUAL(std::get<0>(itr->second), values1[j]);
+                BOOST_REQUIRE_EQUAL(std::get<1>(itr->second), values2[j]);
+                BOOST_REQUIRE_EQUAL(std::get<2>(itr->second), values3[j]);
+                BOOST_REQUIRE_EQUAL(std::get<3>(itr->second), values4[j]);
             }
         }
     }

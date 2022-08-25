@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
 
         for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] = std::floor(counts[i]);
-            sketch.add(static_cast<uint32_t>(i), counts[i]);
+            sketch.add(static_cast<std::uint32_t>(i), counts[i]);
         }
         LOG_DEBUG(<< "error = " << sketch.oneMinusDeltaError());
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
         double errorCount = 0.0;
         for (std::size_t i = 0; i < counts.size(); ++i) {
             double count = counts[i];
-            double estimated = sketch.count(static_cast<uint32_t>(i));
+            double estimated = sketch.count(static_cast<std::uint32_t>(i));
             if (i % 50 == 0) {
                 LOG_DEBUG(<< "category = " << i << ", true count = " << count
                           << ", estimated count = " << estimated);
@@ -95,18 +95,18 @@ BOOST_AUTO_TEST_CASE(testCounts) {
 
         for (std::size_t i = 0; i < heavyHitters.size(); ++i) {
             heavyHitters[i] = std::floor(heavyHitters[i]);
-            sketch.add(static_cast<uint32_t>(i), heavyHitters[i]);
+            sketch.add(static_cast<std::uint32_t>(i), heavyHitters[i]);
         }
         for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] = std::floor(counts[i]);
-            sketch.add(static_cast<uint32_t>(i + heavyHitters.size()), counts[i]);
+            sketch.add(static_cast<std::uint32_t>(i + heavyHitters.size()), counts[i]);
         }
         LOG_DEBUG(<< "error = " << sketch.oneMinusDeltaError());
 
         TMeanAccumulator meanRelativeError;
         for (std::size_t i = 0; i < heavyHitters.size(); ++i) {
             double count = heavyHitters[i];
-            double estimated = sketch.count(static_cast<uint32_t>(i));
+            double estimated = sketch.count(static_cast<std::uint32_t>(i));
             LOG_DEBUG(<< "category = " << i << ", true count = " << count
                       << ", estimated count = " << estimated);
 
@@ -139,22 +139,22 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::time_series::CCountMinSketch sketch3(3, 300);
     maths::time_series::CCountMinSketch sketch4(2, 400);
     for (std::size_t i = 0; i < counts1.size(); ++i) {
-        sketch1.add(static_cast<uint32_t>(i), counts1[i]);
+        sketch1.add(static_cast<std::uint32_t>(i), counts1[i]);
     }
     for (std::size_t i = 0; i < counts2.size(); ++i) {
-        sketch2.add(static_cast<uint32_t>(i), counts2[i]);
+        sketch2.add(static_cast<std::uint32_t>(i), counts2[i]);
     }
     for (std::size_t i = 0; i < counts3.size(); ++i) {
-        sketch3.add(static_cast<uint32_t>(i), counts3[i]);
+        sketch3.add(static_cast<std::uint32_t>(i), counts3[i]);
     }
     for (std::size_t i = 0; i < counts4.size(); ++i) {
-        sketch4.add(static_cast<uint32_t>(i), counts4[i]);
+        sketch4.add(static_cast<std::uint32_t>(i), counts4[i]);
     }
 
-    uint64_t checksum1 = sketch1.checksum();
-    uint64_t checksum2 = sketch2.checksum();
-    uint64_t checksum3 = sketch3.checksum();
-    uint64_t checksum4 = sketch4.checksum();
+    std::uint64_t checksum1 = sketch1.checksum();
+    std::uint64_t checksum2 = sketch2.checksum();
+    std::uint64_t checksum3 = sketch3.checksum();
+    std::uint64_t checksum4 = sketch4.checksum();
     LOG_DEBUG(<< "checksum1 = " << checksum1);
     LOG_DEBUG(<< "checksum2 = " << checksum2);
     LOG_DEBUG(<< "checksum3 = " << checksum3);
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     maths::time_series::CCountMinSketch origSketch(2, 600);
     for (std::size_t i = 0; i < counts.size(); ++i) {
-        origSketch.add(static_cast<uint32_t>(i), counts[i]);
+        origSketch.add(static_cast<std::uint32_t>(i), counts[i]);
     }
 
     std::string origXml;
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec moreCounts;
     rng.generateUniformSamples(2.0, 301.0, 500, moreCounts);
     for (std::size_t i = 0; i < moreCounts.size(); ++i) {
-        origSketch.add(static_cast<uint32_t>(counts.size() + i), moreCounts[i]);
+        origSketch.add(static_cast<std::uint32_t>(counts.size() + i), moreCounts[i]);
     }
 
     origXml.clear();

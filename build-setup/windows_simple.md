@@ -12,7 +12,7 @@ It is possible to build on Windows Server 2012r2, Windows Server 2016 and Window
 
 ### Base requirements
 
-Follow the instructions (**only!**) for Windows 8 SDK and Git for Windows from [windows.md](windows.md).
+Follow the instructions (**only!**) for Windows 8 SDK, CMake and Git for Windows from [windows.md](windows.md).
 
 ### Microsoft C++ build tools
 
@@ -34,7 +34,6 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/$VCBASE/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/$VCBASE/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/$VCBASE/Common7/IDE:/c/$WINSDKBASE/8.0/bin/x64:/c/$WINSDKBASE/8.0/bin/x86:/c/$VCBASE/TEAMTO~1/PERFOR~1/x64:/c/$VCBASE/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
-export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows"
-alias make=gnumake
+export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows:/c/PROGRA~1/CMake/bin"
 ```
 

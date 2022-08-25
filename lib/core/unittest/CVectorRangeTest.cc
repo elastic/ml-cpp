@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CVectorRange.h>
 
@@ -119,11 +118,11 @@ BOOST_AUTO_TEST_CASE(testSizing) {
 
     TDoubleRng range11{values, 1, 1};
     BOOST_TEST_REQUIRE(range11.empty());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), range11.size());
+    BOOST_REQUIRE_EQUAL(0, range11.size());
 
     const TDoubleRng crange23{values, 1, 2};
     BOOST_TEST_REQUIRE(!crange23.empty());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), crange23.size());
+    BOOST_REQUIRE_EQUAL(1, crange23.size());
 
     BOOST_REQUIRE_EQUAL(values.max_size(), range11.max_size());
 
@@ -146,7 +145,7 @@ BOOST_AUTO_TEST_CASE(testModifiers) {
     BOOST_TEST_REQUIRE(range111.empty());
     range111.push_back(1.2);
     range111.push_back(2.2);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), range111.size());
+    BOOST_REQUIRE_EQUAL(2, range111.size());
     range111.clear();
     BOOST_TEST_REQUIRE(range111.empty());
     BOOST_REQUIRE_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
@@ -158,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testModifiers) {
                         core::CContainerPrinter::print(values1));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
                         core::CContainerPrinter::print(range125));
-    BOOST_REQUIRE_EQUAL(std::size_t(7), range125.size());
+    BOOST_REQUIRE_EQUAL(7, range125.size());
     range125.erase(range125.begin(), range125.begin() + 4);
     BOOST_REQUIRE_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
                         core::CContainerPrinter::print(values1));
@@ -171,25 +170,25 @@ BOOST_AUTO_TEST_CASE(testModifiers) {
                         core::CContainerPrinter::print(values2));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
                         core::CContainerPrinter::print(range203));
-    BOOST_REQUIRE_EQUAL(std::size_t(4), range203.size());
+    BOOST_REQUIRE_EQUAL(4, range203.size());
     range203.push_back(3.2);
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2, 1.8]"),
                         core::CContainerPrinter::print(values2));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2]"),
                         core::CContainerPrinter::print(range203));
-    BOOST_REQUIRE_EQUAL(std::size_t(5), range203.size());
+    BOOST_REQUIRE_EQUAL(5, range203.size());
     range203.pop_back();
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"),
                         core::CContainerPrinter::print(values2));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
                         core::CContainerPrinter::print(range203));
-    BOOST_REQUIRE_EQUAL(std::size_t(4), range203.size());
+    BOOST_REQUIRE_EQUAL(4, range203.size());
     range203.pop_back();
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1, 1.8]"),
                         core::CContainerPrinter::print(values2));
     BOOST_REQUIRE_EQUAL(std::string("[2, 3.5, 8.1]"),
                         core::CContainerPrinter::print(range203));
-    BOOST_REQUIRE_EQUAL(std::size_t(3), range203.size());
+    BOOST_REQUIRE_EQUAL(3, range203.size());
 
     TDoubleRng range102{values1, 0, 2};
     range102.resize(3, 5.0);
@@ -222,16 +221,16 @@ BOOST_AUTO_TEST_CASE(testComparisons) {
 
     TDoubleRng range103{values1, 0, 3};
     TDoubleRng range202{values2, 0, 2};
-    LOG_DEBUG(<< "range103 = " << core::CContainerPrinter::print(range103));
-    LOG_DEBUG(<< "range202 = " << core::CContainerPrinter::print(range202));
+    LOG_DEBUG(<< "range103 = " << range103);
+    LOG_DEBUG(<< "range202 = " << range202);
 
     BOOST_TEST_REQUIRE(range103 != range202);
     BOOST_TEST_REQUIRE(!(range103 == range202));
 
     TDoubleRng range114{values1, 1, 4};
     TDoubleRng range214{values2, 1, 4};
-    LOG_DEBUG(<< "range114 = " << core::CContainerPrinter::print(range114));
-    LOG_DEBUG(<< "range214 = " << core::CContainerPrinter::print(range214));
+    LOG_DEBUG(<< "range114 = " << range114);
+    LOG_DEBUG(<< "range214 = " << range214);
 
     BOOST_TEST_REQUIRE(range114 == range214);
     BOOST_TEST_REQUIRE(!(range114 < range214));

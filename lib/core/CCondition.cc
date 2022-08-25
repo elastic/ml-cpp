@@ -46,7 +46,7 @@ bool CCondition::wait() {
     return true;
 }
 
-bool CCondition::wait(uint32_t t) {
+bool CCondition::wait(std::uint32_t t) {
     timespec tm;
 
     if (CCondition::convert(t, tm) == false) {
@@ -80,7 +80,7 @@ void CCondition::broadcast() {
     }
 }
 
-bool CCondition::convert(uint32_t t, timespec& tm) {
+bool CCondition::convert(std::uint32_t t, timespec& tm) {
     timeval now;
     if (::gettimeofday(&now, nullptr) < 0) {
         LOG_WARN(<< ::strerror(errno));
@@ -91,12 +91,12 @@ bool CCondition::convert(uint32_t t, timespec& tm) {
     // with overflows + convert timeval to timespec
     tm.tv_sec = now.tv_sec + (t / 1000);
 
-    uint32_t remainder(static_cast<uint32_t>(t % 1000));
+    std::uint32_t remainder(static_cast<std::uint32_t>(t % 1000));
     if (remainder == 0) {
         tm.tv_nsec = now.tv_usec * 1000;
     } else {
         // s is in microseconds
-        uint32_t s((remainder * 1000U) + static_cast<uint32_t>(now.tv_usec));
+        std::uint32_t s((remainder * 1000U) + static_cast<std::uint32_t>(now.tv_usec));
 
         tm.tv_sec = tm.tv_sec + (s / 1000000U);
         tm.tv_nsec = (s % 1000000U) * 1000;

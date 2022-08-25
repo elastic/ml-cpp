@@ -9,8 +9,9 @@
  * limitation.
  */
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDec.h>
+#include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -60,9 +61,9 @@ void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields&
     LOG_DEBUG(<< "Debug memory report = " << strm.str());
     BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
 
-    LOG_TRACE(<< "Dynamic size = " << ml::core::CMemory::dynamicSize(&categorizer));
+    LOG_TRACE(<< "Dynamic size = " << ml::core::memory::dynamicSize(&categorizer));
     BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(TTokenListDataCategorizerKeepsFields),
-                        ml::core::CMemory::dynamicSize(&categorizer));
+                        ml::core::memory::dynamicSize(&categorizer));
 }
 }
 
@@ -135,16 +136,16 @@ BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                     500));
 
@@ -173,15 +174,15 @@ BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
                         categorizer.computeCategory(false, " [1111529792] INFO  proxy <45409105041220090733@192.168.251.123> - +++++++++++++++ CREATING ProxyCore ++++++++++++++++",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
                         categorizer.computeCategory(false, " [1091504448] INFO  transactionuser <3c26709ab9f0-iih26eh8pxxa> - +++++++++++++++ CREATING PresenceAgent ++++++++++++++++",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{5},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
                         categorizer.computeCategory(false,
-                                                    " [1111529792] INFO  session <45409105041220090733@192.168.251.123> - ----------------- PROXY "
-                                                    "Session DESTROYED --------------------",
+                                                    " [1111529792] INFO  session <45409105041220090733@192.168.251.123> - ----------------- "
+                                                    "PROXY Session DESTROYED --------------------",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{6},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
                         categorizer.computeCategory(false,
                                                     " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- "
                                                     "PROXY Session DESTROYED --------------------",
@@ -330,6 +331,24 @@ BOOST_FIXTURE_TEST_CASE(testVmwareDataLengthGrowth, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "Jul 10 13:04:45 prelert-esxi1.prelert.com Hostd: -->          value = \"naa.644a84202f3712001d0c56a3304f87cf\",",
                                                     109));
+
+    checkMemoryUsageInstrumentation(categorizer);
+}
+
+BOOST_FIXTURE_TEST_CASE(testDreamhostData, CTestFixture) {
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    // Examples from https://log-sharing.dreamhosters.com
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "combo ftpd[7045]: connection from 84.232.2.50 () at Mon Jan  9 23:44:50 2006",
+                                                    76));
+
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false,
+                                                    "combo ftpd[6527]: connection from 60.45.101.89 "
+                                                    "(p15025-ipadfx01yosida.nagano.ocn.ne.jp) at Mon Jan  9 17:39:05 2006",
+                                                    115));
 
     checkMemoryUsageInstrumentation(categorizer);
 }
@@ -605,109 +624,50 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
                         categorizer.computeCategory(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                     500));
 
     TTokenListDataCategorizerKeepsFields::TStrStrUMap fields;
 
-    // The pre-tokenised tokens exactly match those of the other message in
-    // category 4, so this should get put it category 4
+    // The pre-tokenised tokens exactly match those of the last message in
+    // category 1, so this should get put it category 1
     fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] =
         "ml00-4201.1.p2ps,Info,Service,CUBE_CHIX,has,shut,down";
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{4},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                     500));
 
     // Here we cheat.  The pre-tokenised tokens exactly match those of the
     // first message, so this should get put in category 1.  But the full
-    // message is indentical to that of the category 4 message, so if this test
-    // ever fails with the message being put in category 4 then it probably
+    // message is indentical to that of the last category 2 message, so if this
+    // test ever fails with the message being put in category 4 then it probably
     // means there's a bug where the pre-tokenised tokens are being ignored.
     // (Obviously in production we wouldn't get the discrepancy between the
     // pre-tokenised tokens and the full message.)
     fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] =
         "ml13-4608.1.p2ps,Info,Source,ML_SERVICE2,on,has,shut,down";
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
-                        categorizer.computeCategory(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
+                        categorizer.computeCategory(false, fields, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.",
                                                     500));
 
     // Similar principle, but with Chinese, Japanese and Korean tokens, so
     // should go in a new category.
     fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] = "编码,コーディング,코딩";
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{5},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
                         categorizer.computeCategory(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                     500));
 
     checkMemoryUsageInstrumentation(categorizer);
-}
-
-BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
-    static const std::size_t TEST_SIZE{100000};
-    ml::core::CStopWatch stopWatch;
-
-    std::uint64_t inlineTokenisationTime{0};
-    {
-        TTokenListDataCategorizerKeepsFields categorizer{
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
-
-        LOG_DEBUG(<< "Before test with inline tokenisation");
-
-        stopWatch.start();
-        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
-            BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
-                                categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
-                                                            103));
-        }
-        inlineTokenisationTime = stopWatch.stop();
-
-        LOG_DEBUG(<< "After test with inline tokenisation");
-        LOG_DEBUG(<< "Inline tokenisation test took " << inlineTokenisationTime << "ms");
-    }
-
-    stopWatch.reset();
-
-    TTokenListDataCategorizerKeepsFields::TStrStrUMap fields;
-    fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] =
-        "Vpxa,verbose,VpxaHalCnxHostagent,opID,WFU-ddeadb59,WaitForUpdatesDone,Received,callback";
-
-    std::uint64_t preTokenisationTime{0};
-    {
-        TTokenListDataCategorizerKeepsFields categorizer{
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
-
-        LOG_DEBUG(<< "Before test with pre-tokenisation");
-
-        stopWatch.start();
-        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
-            BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
-                                categorizer.computeCategory(false, fields, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
-                                                            103));
-        }
-        preTokenisationTime = stopWatch.stop();
-
-        LOG_DEBUG(<< "After test with pre-tokenisation");
-        LOG_DEBUG(<< "Pre-tokenisation test took " << preTokenisationTime << "ms");
-    }
-
-    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
-    bool likelyInCi{keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0'};
-    if (likelyInCi) {
-        // CI is most likely running on a VM, and this test can fail quite often
-        // due to the VM stalling or being slowed down by noisy neighbours
-        LOG_INFO(<< "Skipping test pre-tokenised performance assertion");
-    } else {
-        BOOST_TEST_REQUIRE(preTokenisationTime <= inlineTokenisationTime);
-    }
 }
 
 BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {

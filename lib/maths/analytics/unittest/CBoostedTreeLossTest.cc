@@ -10,8 +10,13 @@
  */
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeImpl.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CPRNG.h>
@@ -21,6 +26,8 @@
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
+
+#include "BoostedTreeTestData.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -38,13 +45,24 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleVector = maths::analytics::boosted_tree::CLoss::TDoubleVector;
 using TDoubleVectorVec = std::vector<TDoubleVector>;
+using TRowRef = core::CDataFrame::TRowRef;
+using TRowItr = core::CDataFrame::TRowItr;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TArgMinLossVec = std::vector<maths::analytics::boosted_tree::CArgMinLoss>;
 using TMemoryMappedFloatVector = maths::analytics::boosted_tree::CLoss::TMemoryMappedFloatVector;
 using maths::analytics::boosted_tree::CBinomialLogisticLoss;
+using maths::analytics::boosted_tree::CBinomialLogisticLossIncremental;
+using maths::analytics::boosted_tree::CMse;
+using maths::analytics::boosted_tree::CMseIncremental;
 using maths::analytics::boosted_tree::CMultinomialLogisticLoss;
 using maths::analytics::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
 using maths::analytics::boosted_tree_detail::CArgMinMsleImpl;
 using maths::analytics::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 using maths::analytics::boosted_tree_detail::CArgMinPseudoHuberImpl;
+using maths::analytics::boosted_tree_detail::readActual;
+using maths::analytics::boosted_tree_detail::readExampleWeight;
+using maths::analytics::boosted_tree_detail::readPrediction;
+using maths::analytics::boosted_tree_detail::root;
 
 namespace {
 void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
@@ -68,7 +86,7 @@ void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
 }
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticArgminEdgeCases) {
 
     // All predictions equal and zero.
     {
@@ -148,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticArgminRandom) {
 
     // Test that we a good approximation of the additive term for the log-odds
     // which minimises the exact cross entropy objective.
@@ -202,8 +220,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
             LOG_DEBUG(<< "expected = " << expected
                       << " objective(expected) = " << objectiveAtExpected);
 
+            CArgMinBinomialLogisticLossImpl argminPartition[2]{
+                CArgMinBinomialLogisticLossImpl{lambda},
+                CArgMinBinomialLogisticLossImpl{lambda}};
             CArgMinBinomialLogisticLossImpl argmin{lambda};
-            CArgMinBinomialLogisticLossImpl argminPartition[2]{{lambda}, {lambda}};
             auto nextPass = [&] {
                 bool done{argmin.nextPass() == false};
                 done &= (argminPartition[0].nextPass() == false);
@@ -386,7 +406,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminObjective) {
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminObjectiveFunction) {
 
     // Test that the gradient function is close to the numerical derivative
     // of the objective.
@@ -444,7 +464,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminObjective) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminEdgeCases) {
 
     maths::common::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -582,7 +602,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminRandom) {
 
     // Test that we have a good approximation of the additive term for the log-odds
     // which minimises the exact cross entropy objective.
@@ -593,8 +613,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
     TDoubleVec labels;
     TDoubleVectorVec predictions;
 
-    double scales[]{6.0, 1.0};
-    double lambdas[]{0.0, 10.0};
+    TDoubleVec scales{6.0, 1.0};
+    TDoubleVec lambdas{0.0, 10.0};
 
     for (auto i : {0, 1}) {
 
@@ -837,9 +857,9 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
+BOOST_AUTO_TEST_CASE(testMsleArgminObjectiveFunction) {
+
     // Test that the calculated objective function is close to the correct value.
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::common::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -922,8 +942,9 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
-    // test on a single data point with known output
+BOOST_AUTO_TEST_CASE(testMsleArgmin) {
+
+    // Test on a single data point with known output.
     {
         double lambda{0.0};
         CArgMinMsleImpl argmin{lambda};
@@ -946,11 +967,11 @@ BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
         } while (argmin.nextPass());
         double expectedWeight{std::log(targets[0] / predictions[0])};
         double estimatedWeight{argmin.value()[0]};
-        // LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeight, estimatedWeight, 1e-3);
     }
 
-    // test against scipy and scikit learn
+    // Test against scipy and scikit learn.
+    //
     // To reproduce run in Python:
     // from sklearn.metrics import mean_squared_log_error
     // import numpy as np
@@ -985,9 +1006,9 @@ BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
+BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjectiveFunction) {
+
     // Test that the calculated objective function is close to the correct value.
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::common::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -1049,8 +1070,9 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {
-    // test on a single data point with known output
+BOOST_AUTO_TEST_CASE(testPseudoHuberArgmin) {
+
+    // Test on a single data point with known output.
     {
         double lambda{0.0};
         double delta{1.0};
@@ -1111,6 +1133,437 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {
         double estimatedObjective{argmin.objective()(estimatedWeight)};
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncrementalArgmin) {
+
+    // Test that the minimizer finds a local minimum of the adjusted MSE loss
+    // function (it's convex so this is unique).
+
+    double eps{0.01};
+    std::size_t min{0};
+    std::size_t minMinusEps{1};
+    std::size_t minPlusEps{2};
+    std::size_t rows{200};
+    std::size_t cols{5};
+
+    auto frame = setupLinearRegressionProblem(rows, cols);
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+    regression->train();
+    regression->predict();
+
+    double lambda{
+        regression->impl().hyperparameters().leafWeightPenaltyMultiplier().value()};
+    double eta{regression->impl().hyperparameters().eta().value()};
+    double mu{0.1};
+    auto forest = regression->impl().trainedModel();
+
+    BOOST_TEST_REQUIRE(forest.size() > 1);
+
+    const auto& tree = forest[1];
+    const auto& extraColumns = regression->impl().extraColumns();
+    const auto& encoder = regression->impl().encoder();
+    maths::analytics::boosted_tree::CMseIncremental mse{eta, mu, tree};
+
+    auto adjustedLoss = [&](const TRowRef& row, double x) {
+        double actual{readActual(row, regression->columnHoldingDependentVariable())};
+        auto prediction = readPrediction(row, extraColumns, mse.numberParameters());
+        double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
+        double weight{readExampleWeight(row, extraColumns)};
+        return weight * (maths::common::CTools::pow2(actual - (prediction(0) + x)) +
+                         mu * maths::common::CTools::pow2(treePrediction / eta - x));
+    };
+
+    TDoubleVec leafMinimizers(tree.size(), 0.0);
+    {
+        maths::common::CPRNG::CXorOShiro128Plus rng;
+        TArgMinLossVec leafValues(tree.size(), mse.minimizer(lambda, rng));
+        auto result = frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TArgMinLossVec& leafValues_, const TRowItr& beginRows, const TRowItr& endRows) {
+                       std::size_t numberLossParameters{mse.numberParameters()};
+                       const auto& rootNode = root(tree);
+                       for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                           auto row = *row_;
+                           auto encodedRow = encoder.encode(row);
+                           auto prediction = readPrediction(row, extraColumns,
+                                                            numberLossParameters);
+                           double actual{readActual(
+                               row, regression->columnHoldingDependentVariable())};
+                           double weight{readExampleWeight(row, extraColumns)};
+                           leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
+                               encodedRow, false /*new example*/, prediction, actual, weight);
+                       }
+                   },
+                   std::move(leafValues)));
+        leafValues = std::move(result.first[0].s_FunctionState);
+        leafMinimizers.reserve(leafValues.size());
+        for (std::size_t i = 0; i < leafValues.size(); ++i) {
+            if (tree[i].isLeaf()) {
+                leafMinimizers[i] = leafValues[i].value()(0);
+            }
+        }
+    }
+
+    TDoubleVecVec leafLosses(leafMinimizers.size(), TDoubleVec(3));
+    for (std::size_t i = 0; i < leafMinimizers.size(); ++i) {
+        leafLosses[i][min] = lambda * maths::common::CTools::pow2(leafMinimizers[i]);
+        leafLosses[i][minMinusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
+        leafLosses[i][minPlusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
+    }
+    {
+        auto result = frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TDoubleVecVec& adjustedLosses_, const TRowItr& beginRows,
+                       const TRowItr& endRows) {
+                       const auto& rootNode = root(tree);
+                       for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                           auto row = *row_;
+                           auto encodedRow = encoder.encode(row);
+                           auto i = rootNode.leafIndex(encodedRow, tree);
+                           double x{leafMinimizers[i]};
+                           adjustedLosses_[i][min] += adjustedLoss(row, x);
+                           adjustedLosses_[i][minMinusEps] += adjustedLoss(row, x - eps);
+                           adjustedLosses_[i][minPlusEps] += adjustedLoss(row, x + eps);
+                       }
+                   },
+                   std::move(leafLosses)));
+        leafLosses = std::move(result.first[0].s_FunctionState);
+    }
+
+    double decrease{0.0};
+    for (const auto& leafLoss : leafLosses) {
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minMinusEps]);
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minPlusEps]);
+        decrease += leafLoss[minMinusEps] - leafLoss[min];
+        decrease += leafLoss[minPlusEps] - leafLoss[min];
+    }
+    LOG_DEBUG(<< "total decrease = " << decrease);
+    BOOST_TEST_REQUIRE(decrease > 0.0);
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncrementalGradientAndCurvature) {
+
+    // Test that:
+    //   1. The gradient and curvature of the loss match MSE when mu is zero.
+    //   2. The gradient is corrected towards the old prediction, i.e. if the
+    //      old prediction for a row is positive (negative) the gradient is
+    //      larger (smaller) than the gradient of MSE.
+
+    std::size_t rows{200};
+    std::size_t cols{5};
+
+    auto frame = setupLinearRegressionProblem(rows, cols);
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+    regression->train();
+    regression->predict();
+
+    double eta{regression->impl().hyperparameters().eta().value()};
+    double mu{0.1};
+    auto forest = regression->impl().trainedModel();
+
+    BOOST_TEST_REQUIRE(forest.size() > 1);
+
+    const auto& tree = forest[1];
+    const auto& extraColumns = regression->impl().extraColumns();
+    const auto& encoder = regression->impl().encoder();
+    maths::analytics::boosted_tree::CMse mse;
+
+    // Test mu == 0
+    {
+        maths::analytics::boosted_tree::CMseIncremental mseIncremental{eta, 0.0, tree};
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            std::size_t numberLossParameters{mse.numberParameters()};
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
+                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                double actual{readActual(row, regression->columnHoldingDependentVariable())};
+                double expectedGradient;
+                double expectedCurvature;
+                double actualGradient;
+                double actualCurvature;
+                mse.gradient(prediction, actual, [&](std::size_t, double gradient) {
+                    expectedGradient = gradient;
+                });
+                mse.curvature(prediction, actual, [&](std::size_t, double curvature) {
+                    expectedCurvature = curvature;
+                });
+                mseIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
+                                            actualGradient = gradient;
+                                        });
+                mseIncremental.curvature(encodedRow, false /*new example*/, prediction,
+                                         actual, [&](std::size_t, double curvature) {
+                                             actualCurvature = curvature;
+                                         });
+                BOOST_TEST_REQUIRE(expectedGradient, actualGradient);
+            }
+        });
+    }
+
+    // Test mu == 0.1
+    {
+        maths::analytics::boosted_tree::CMseIncremental mseIncremental{eta, mu, tree};
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            std::size_t numberLossParameters{mse.numberParameters()};
+            const auto& rootNode = root(tree);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
+                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                double treePrediction{rootNode.value(encodedRow, tree)(0)};
+                double actual{readActual(row, regression->columnHoldingDependentVariable())};
+                double mseGradient;
+                double mseIncrementalGradient;
+                mse.gradient(prediction, actual, [&](std::size_t, double gradient) {
+                    mseGradient = gradient;
+                });
+                mseIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
+                                            mseIncrementalGradient = gradient;
+                                        });
+                LOG_TRACE(<< "tree prediction = " << treePrediction
+                          << ", MSE gradient = " << mseGradient
+                          << ", incremental MSE gradient = " << mseIncrementalGradient);
+                if (treePrediction < 0.0) {
+                    BOOST_TEST_REQUIRE(mseIncrementalGradient < mseGradient);
+                }
+                if (treePrediction > 0.0) {
+                    BOOST_TEST_REQUIRE(mseIncrementalGradient > mseGradient);
+                }
+            }
+        });
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
+
+    // Test that the minimizer finds a local minimum of the adjusted binomial
+    // logistic loss function (it's convex so this is unique).
+
+    double eps{0.01};
+    std::size_t min{0};
+    std::size_t minMinusEps{1};
+    std::size_t minPlusEps{2};
+    std::size_t rows{200};
+    std::size_t cols{5};
+
+    auto frame = setupLinearBinaryClassificationProblem(rows, cols);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .buildForTrain(*frame, cols - 1);
+    classifier->train();
+    classifier->predict();
+
+    double lambda{
+        classifier->impl().hyperparameters().leafWeightPenaltyMultiplier().value()};
+    double eta{classifier->impl().hyperparameters().eta().value()};
+    double mu{0.1};
+    auto forest = classifier->impl().trainedModel();
+
+    BOOST_TEST_REQUIRE(forest.size() > 1);
+
+    const auto& tree = forest[1];
+    const auto& extraColumns = classifier->impl().extraColumns();
+    const auto& encoder = classifier->impl().encoder();
+    maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bll{eta, mu, tree};
+
+    auto adjustedLoss = [&](const TRowRef& row, double x) {
+        double actual{readActual(row, classifier->columnHoldingDependentVariable())};
+        auto prediction = readPrediction(row, extraColumns, bll.numberParameters());
+        double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
+        double weight{readExampleWeight(row, extraColumns)};
+        double po1{maths::common::CTools::logisticFunction(treePrediction / eta)};
+        double pn1{maths::common::CTools::logisticFunction(x)};
+        double p1{maths::common::CTools::logisticFunction(prediction(0) + x)};
+        return -weight *
+               ((1.0 - actual) * std::log(1 - p1) + actual * std::log(p1) +
+                mu * ((1.0 - po1) * std::log(1.0 - pn1) + po1 * std::log(pn1)));
+    };
+
+    TDoubleVec leafMinimizers(tree.size(), 0.0);
+    {
+        maths::common::CPRNG::CXorOShiro128Plus rng;
+        TArgMinLossVec leafValues(tree.size(), bll.minimizer(lambda, rng));
+        for (std::size_t i = 0; i < 2; ++i) {
+            auto result = frame->readRows(
+                1, core::bindRetrievableState(
+                       [&](TArgMinLossVec& leafValues_,
+                           const TRowItr& beginRows, const TRowItr& endRows) {
+                           std::size_t numberLossParameters{bll.numberParameters()};
+                           const auto& rootNode = root(tree);
+                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                               auto row = *row_;
+                               auto encodedRow = encoder.encode(row);
+                               auto prediction = readPrediction(
+                                   row, extraColumns, numberLossParameters);
+                               double actual{readActual(
+                                   row, classifier->columnHoldingDependentVariable())};
+                               double weight{readExampleWeight(row, extraColumns)};
+                               leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
+                                   encodedRow, false /*new example*/,
+                                   prediction, actual, weight);
+                           }
+                       },
+                       std::move(leafValues)));
+            leafValues = std::move(result.first[0].s_FunctionState);
+            for (auto& leaf : leafValues) {
+                leaf.nextPass();
+            }
+        }
+        for (std::size_t i = 0; i < leafValues.size(); ++i) {
+            if (tree[i].isLeaf()) {
+                leafMinimizers[i] = leafValues[i].value()(0);
+            }
+        }
+    }
+
+    TDoubleVecVec leafLosses(leafMinimizers.size(), TDoubleVec(3));
+    for (std::size_t i = 0; i < leafMinimizers.size(); ++i) {
+        leafLosses[i][min] = lambda * maths::common::CTools::pow2(leafMinimizers[i]);
+        leafLosses[i][minMinusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
+        leafLosses[i][minPlusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
+    }
+    {
+        auto result = frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TDoubleVecVec& adjustedLosses_, const TRowItr& beginRows,
+                       const TRowItr& endRows) {
+                       const auto& rootNode = root(tree);
+                       for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                           auto row = *row_;
+                           auto encodedRow = encoder.encode(row);
+                           auto i = rootNode.leafIndex(encodedRow, tree);
+                           double x{leafMinimizers[i]};
+                           adjustedLosses_[i][min] += adjustedLoss(row, x);
+                           adjustedLosses_[i][minMinusEps] += adjustedLoss(row, x - eps);
+                           adjustedLosses_[i][minPlusEps] += adjustedLoss(row, x + eps);
+                       }
+                   },
+                   std::move(leafLosses)));
+        leafLosses = std::move(result.first[0].s_FunctionState);
+    }
+
+    double decrease{0.0};
+    for (const auto& leafLoss : leafLosses) {
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minMinusEps]);
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minPlusEps]);
+        decrease += leafLoss[minMinusEps] - leafLoss[min];
+        decrease += leafLoss[minPlusEps] - leafLoss[min];
+    }
+    BOOST_TEST_REQUIRE(decrease > 0.0);
+}
+
+BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
+
+    // Test that:
+    //   1. The gradient and curvature of the loss match binomial logistic
+    //      loss when mu is zero.
+    //   2. The gradient is corrected towards the old prediction, i.e. if the
+    //      old tree's prediction for a row is larger (smaller) than the new
+    //      prediction the gradient is less (greater) than the gradient of the
+    //      binomial logistic loss.
+
+    std::size_t rows{200};
+    std::size_t cols{5};
+
+    auto frame = setupLinearBinaryClassificationProblem(rows, cols);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .buildForTrain(*frame, cols - 1);
+    classifier->train();
+    classifier->predict();
+
+    double eta{classifier->impl().hyperparameters().eta().value()};
+    double mu{0.1};
+    auto forest = classifier->impl().trainedModel();
+
+    BOOST_TEST_REQUIRE(forest.size() > 1);
+
+    const auto& tree = forest[1];
+    const auto& extraColumns = classifier->impl().extraColumns();
+    const auto& encoder = classifier->impl().encoder();
+    maths::analytics::boosted_tree::CBinomialLogisticLoss bll;
+
+    // Test mu == 0
+    {
+        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
+            eta, 0.0, tree};
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            std::size_t numberLossParameters{bll.numberParameters()};
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
+                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                double actual{readActual(row, classifier->columnHoldingDependentVariable())};
+                double expectedGradient;
+                double expectedCurvature;
+                double actualGradient;
+                double actualCurvature;
+                bll.gradient(prediction, actual, [&](std::size_t, double gradient) {
+                    expectedGradient = gradient;
+                });
+                bll.curvature(prediction, actual, [&](std::size_t, double curvature) {
+                    expectedCurvature = curvature;
+                });
+                bllIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
+                                            actualGradient = gradient;
+                                        });
+                bllIncremental.curvature(encodedRow, false /*new example*/, prediction,
+                                         actual, [&](std::size_t, double curvature) {
+                                             actualCurvature = curvature;
+                                         });
+                BOOST_TEST_REQUIRE(expectedGradient, actualGradient);
+            }
+        });
+    }
+
+    // Test mu == 0.1
+    {
+        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
+            eta, mu, tree};
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            std::size_t numberLossParameters{bll.numberParameters()};
+            const auto& rootNode = root(tree);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
+                auto prediction = readPrediction(row, extraColumns, numberLossParameters);
+                double treePrediction{rootNode.value(encodedRow, tree)(0) / eta};
+                double actual{readActual(row, classifier->columnHoldingDependentVariable())};
+                double bllGradient;
+                double bllIncrementalGradient;
+                bll.gradient(prediction, actual, [&](std::size_t, double gradient) {
+                    bllGradient = gradient;
+                });
+                bllIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
+                                            bllIncrementalGradient = gradient;
+                                        });
+                LOG_TRACE(<< "tree prediction = " << treePrediction
+                          << ", MSE gradient = " << bllGradient
+                          << ", incremental MSE gradient = " << bllIncrementalGradient);
+                if (treePrediction > prediction(0)) {
+                    BOOST_TEST_REQUIRE(bllIncrementalGradient < bllGradient);
+                }
+                if (treePrediction < prediction(0)) {
+                    BOOST_TEST_REQUIRE(bllIncrementalGradient > bllGradient);
+                }
+            }
+        });
     }
 }
 

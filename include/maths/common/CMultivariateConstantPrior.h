@@ -12,13 +12,13 @@
 #ifndef INCLUDED_ml_maths_common_CMultivariateConstantPrior_h
 #define INCLUDED_ml_maths_common_CMultivariateConstantPrior_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/CMultivariatePrior.h>
 
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -37,7 +37,7 @@ namespace common {
 //! manner to all other types of data.
 class MATHS_COMMON_EXPORT CMultivariateConstantPrior : public CMultivariatePrior {
 public:
-    using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
+    using TOptionalDouble10Vec = std::optional<TDouble10Vec>;
 
     // Lift all overloads of into scope.
     //{

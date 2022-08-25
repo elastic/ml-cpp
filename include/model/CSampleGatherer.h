@@ -12,9 +12,8 @@
 #ifndef INCLUDED_ml_model_CSampleGatherer_h
 #define INCLUDED_ml_model_CSampleGatherer_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
+#include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStoredStringPtr.h>
@@ -27,6 +26,7 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CDataClassifier.h>
+#include <model/CFeatureData.h>
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
 #include <model/CSampleQueue.h>
@@ -34,6 +34,8 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
+
+#include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <vector>
@@ -115,12 +117,12 @@ public:
         inserter.insertLevel(CLASSIFIER_TAG,
                              std::bind(&CDataClassifier::acceptPersistInserter,
                                        &m_Classifier, std::placeholders::_1));
-        if (m_SampleStats.size() > 0) {
+        if (m_SampleStats.empty() == false) {
             inserter.insertLevel(SAMPLE_STATS_TAG,
                                  std::bind(&TSampleQueue::acceptPersistInserter,
                                            &m_SampleStats, std::placeholders::_1));
         }
-        if (m_BucketStats.size() > 0) {
+        if (m_BucketStats.empty() == false) {
             inserter.insertLevel(
                 BUCKET_STATS_TAG,
                 std::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
@@ -314,19 +316,19 @@ public:
     //! Debug the memory used by this gatherer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSampleGatherer", sizeof(*this));
-        core::CMemoryDebug::dynamicSize("m_SampleStats", m_SampleStats, mem);
-        core::CMemoryDebug::dynamicSize("m_BucketStats", m_BucketStats, mem);
-        core::CMemoryDebug::dynamicSize("m_InfluencerBucketStats",
+        core::memory_debug::dynamicSize("m_SampleStats", m_SampleStats, mem);
+        core::memory_debug::dynamicSize("m_BucketStats", m_BucketStats, mem);
+        core::memory_debug::dynamicSize("m_InfluencerBucketStats",
                                         m_InfluencerBucketStats, mem);
-        core::CMemoryDebug::dynamicSize("m_Samples", m_Samples, mem);
+        core::memory_debug::dynamicSize("m_Samples", m_Samples, mem);
     }
 
     //! Get the memory used by this gatherer.
     std::size_t memoryUsage() const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_SampleStats) +
-               core::CMemory::dynamicSize(m_BucketStats) +
-               core::CMemory::dynamicSize(m_InfluencerBucketStats) +
-               core::CMemory::dynamicSize(m_Samples);
+        return sizeof(*this) + core::memory::dynamicSize(m_SampleStats) +
+               core::memory::dynamicSize(m_BucketStats) +
+               core::memory::dynamicSize(m_InfluencerBucketStats) +
+               core::memory::dynamicSize(m_Samples);
     }
 
     //! Print this gatherer for debug.
@@ -334,8 +336,7 @@ public:
         std::ostringstream result;
         result << m_Classifier.isInteger() << ' ' << m_Classifier.isNonNegative()
                << ' ' << m_BucketStats.print() << ' ' << m_SampleStats.print()
-               << ' ' << core::CContainerPrinter::print(m_Samples) << ' '
-               << core::CContainerPrinter::print(m_InfluencerBucketStats);
+               << ' ' << m_Samples << ' ' << m_InfluencerBucketStats;
         return result.str();
     }
 

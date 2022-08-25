@@ -12,11 +12,11 @@
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CTimezone.h>
-#include <core/CTriple.h>
 #include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -36,6 +36,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <mutex>
 #include <string>
 
 namespace ml {
@@ -43,14 +44,6 @@ namespace maths {
 namespace time_series {
 namespace {
 using TTimeVec = std::vector<core_t::TTime>;
-
-//! \brief Sets the time zone to a specified value in a constructor
-//! call so it can be called once by static initialisation.
-struct SSetTimeZone {
-    explicit SSetTimeZone(const std::string& zone) {
-        core::CTimezone::instance().timezoneName(zone);
-    }
-};
 
 //! \brief Hashes a calendar feature.
 struct SHashFeature {
@@ -87,12 +80,14 @@ const double VERY_LARGE_ERROR_PERCENTILE{99.99};
 const unsigned int MINIMUM_REPEATS{4};
 //! The maximum significance to accept a feature.
 const double MAXIMUM_SIGNIFICANCE{0.01};
+//! Used to guard setting the timezone.
+std::once_flag setTimeZone;
 }
 
 CCalendarCyclicTest::CCalendarCyclicTest(double decayRate)
-    : m_DecayRate{decayRate}, m_ErrorQuantiles{common::CQuantileSketch::E_Linear, 20},
-      m_CurrentBucketTime{0}, m_CurrentBucketIndex{0} {
-    static const SSetTimeZone timezone("GMT");
+    : m_DecayRate{decayRate}, m_ErrorQuantiles{20}, m_CurrentBucketTime{0}, m_CurrentBucketIndex{0} {
+    std::call_once(setTimeZone,
+                   [] { core::CTimezone::instance().timezoneName("GMT"); });
     TErrorStatsVec stats(SIZE);
     this->deflate(stats);
 }
@@ -146,7 +141,7 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
 }
 
 void CCalendarCyclicTest::forgetErrorDistribution() {
-    m_ErrorQuantiles = common::CQuantileSketch{common::CQuantileSketch::E_Linear, 20};
+    m_ErrorQuantiles = common::CQuantileSketch{20};
 }
 
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {
@@ -182,10 +177,10 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
         if (error >= largeError) {
             bool isVeryLarge{100.0 * (1.0 - this->survivalFunction(error)) >=
                              VERY_LARGE_ERROR_PERCENTILE};
-            m_CurrentBucketErrorStats.s_LargeErrorCount +=
-                std::min(std::numeric_limits<std::size_t>::max() -
-                             m_CurrentBucketErrorStats.s_LargeErrorCount,
-                         static_cast<std::size_t>(isVeryLarge ? (1 << 17) + 1 : 1));
+            m_CurrentBucketErrorStats.s_LargeErrorCount += std::min(
+                std::numeric_limits<std::uint32_t>::max() -
+                    m_CurrentBucketErrorStats.s_LargeErrorCount,
+                static_cast<std::uint32_t>(isVeryLarge ? (1 << 17) + 1 : 1));
             m_CurrentBucketErrorStats.s_LargeErrorSum += this->winsorise(error);
         }
     }
@@ -193,8 +188,11 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
 CCalendarCyclicTest::TOptionalFeatureTimePr CCalendarCyclicTest::test() const {
 
-    // The statistics we need in order to be able to test for calendar
-    // features.
+    if (m_ErrorQuantiles.count() == 0) {
+        return {};
+    }
+
+    // The statistics we need in order to be able to test for calendar features.
     struct SStats {
         core_t::TTime s_Offset{0};
         unsigned int s_Repeats{0};
@@ -263,8 +261,8 @@ CCalendarCyclicTest::TOptionalFeatureTimePr CCalendarCyclicTest::test() const {
     }
 
     return mostSignificantError > 0
-               ? std::make_pair(mostSignificantFeature, mostSignificantOffset)
-               : TOptionalFeatureTimePr();
+               ? TOptionalFeatureTimePr{std::in_place, mostSignificantFeature, mostSignificantOffset}
+               : TOptionalFeatureTimePr{};
 }
 
 std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
@@ -279,14 +277,14 @@ std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
 
 void CCalendarCyclicTest::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarCyclicTest");
-    core::CMemoryDebug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
-    core::CMemoryDebug::dynamicSize("m_CompressedBucketErrorStats",
+    core::memory_debug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
+    core::memory_debug::dynamicSize("m_CompressedBucketErrorStats",
                                     m_CompressedBucketErrorStats, mem);
 }
 
 std::size_t CCalendarCyclicTest::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_ErrorQuantiles)};
-    mem += core::CMemory::dynamicSize(m_CompressedBucketErrorStats);
+    std::size_t mem{core::memory::dynamicSize(m_ErrorQuantiles)};
+    mem += core::memory::dynamicSize(m_CompressedBucketErrorStats);
     return mem;
 }
 

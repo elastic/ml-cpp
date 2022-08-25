@@ -14,7 +14,6 @@
 
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
 #include <core/CRapidJsonPoolAllocator.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
@@ -25,8 +24,8 @@
 #include <rapidjson/writer.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/unordered/unordered_map.hpp>
-#include <boost/unordered/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <cmath>
 #include <memory>
@@ -376,14 +375,14 @@ public:
 
     //! Adds a signed integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addIntFieldToObj(const std::string& fieldName, int64_t value, TValue& obj) const {
+    void addIntFieldToObj(const std::string& fieldName, std::int64_t value, TValue& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds an unsigned integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addUIntFieldToObj(const std::string& fieldName, uint64_t value, TValue& obj) const {
+    void addUIntFieldToObj(const std::string& fieldName, std::uint64_t value, TValue& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }

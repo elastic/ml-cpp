@@ -18,9 +18,8 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>
 
-#include <boost/optional.hpp>
-
 #include <iosfwd>
+#include <optional>
 
 namespace ml {
 namespace core {
@@ -53,7 +52,7 @@ namespace common {
 class MATHS_COMMON_EXPORT CJointProbabilityOfLessLikelySamples
     : private boost::addable<CJointProbabilityOfLessLikelySamples> {
 public:
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
 
     //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
     struct SAddProbability {
@@ -88,7 +87,7 @@ public:
     double numberSamples() const;
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Print the joint probability for debugging.
     std::ostream& print(std::ostream& o) const;
@@ -212,7 +211,7 @@ public:
     bool calculate(double& result) const;
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Print the extreme probability for debugging.
     std::ostream& print(std::ostream& o) const;
@@ -301,7 +300,7 @@ public:
     bool calibrated(double& result);
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
 private:
     using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;

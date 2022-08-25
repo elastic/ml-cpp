@@ -54,16 +54,16 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
     BOOST_TEST_REQUIRE(cancellerThread.start());
 
     // The CBlockingCallCancellingStreamMonitor should wake up the blocking open
-    // of the named pipe "test_pipe".  Without this wake up, it would block
-    // indefinitely as nothing will ever connect to the other end.  The wake up
-    // happens when a stream being monitored encounters end-of-file.  In the
-    // real program this would be STDIN, but in this test another thread is the
-    // source, and it runs out of data after 0.2 seconds.
+    // of the named pipe "controller_test_pipe".  Without this wake up, it would
+    // block indefinitely as nothing will ever connect to the other end.  The
+    // wake up happens when a stream being monitored encounters end-of-file.  In
+    // the real program this would be STDIN, but in this test another thread is
+    // the source, and it runs out of data after 0.2 seconds.
 
     CEofThread eofThread{buf};
     BOOST_TEST_REQUIRE(eofThread.start());
 
-    std::string testPipeName{ml::core::CNamedPipeFactory::defaultPath() + "test_pipe"};
+    std::string testPipeName{ml::core::CNamedPipeFactory::defaultPath() + "controller_test_pipe"};
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm{ml::core::CNamedPipeFactory::openPipeStreamRead(
         testPipeName, cancellerThread.hasCancelledBlockingCall())};
     BOOST_TEST_REQUIRE(pipeStrm == nullptr);

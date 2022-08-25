@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_SMultimodalPriorMode_h
 #define INCLUDED_ml_maths_common_SMultimodalPriorMode_h
 
-#include <core/CMemory.h>
+#include <core/CMemoryDec.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -49,7 +49,7 @@ struct SMultimodalPriorMode {
     double weight() const { return s_Prior->numberSamples(); }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const {
+    std::uint64_t checksum(std::uint64_t seed) const {
         seed = CChecksum::calculate(seed, s_Index);
         return CChecksum::calculate(seed, s_Prior);
     }
@@ -57,12 +57,12 @@ struct SMultimodalPriorMode {
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMultimodalPrior::SMode");
-        core::CMemoryDebug::dynamicSize("s_Prior", s_Prior, mem);
+        core::memory_debug::dynamicSize("s_Prior", s_Prior, mem);
     }
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const {
-        return core::CMemory::dynamicSize(s_Prior);
+        return core::memory::dynamicSize(s_Prior);
     }
 
     //! Create from part of a state document.

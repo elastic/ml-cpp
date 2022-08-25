@@ -11,24 +11,21 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/common/CBasicStatistics.h>
-#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
 
+#include <algorithm>
 #include <cmath>
 #include <string>
 #include <utility>
@@ -37,22 +34,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-
-using TDoubleDoublePr = maths_t::TDoubleDoublePr;
-using TVector2x1 = common::CVectorNx1<double, 2>;
-
-//! Convert a double pair to a 2x1 vector.
-TVector2x1 vector2x1(const TDoubleDoublePr& p) {
-    TVector2x1 result;
-    result(0) = p.first;
-    result(1) = p.second;
-    return result;
-}
-
-//! Convert a 2x1 vector to a double pair.
-TDoubleDoublePr pair(const TVector2x1& v) {
-    return {v(0), v(1)};
-}
 
 // Version 7.11
 const std::string VERSION_7_11_TAG("7.11");
@@ -223,7 +204,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
-                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
+                                        double occupancy,
+                                        core_t::TTime firstValueTime) {
 
     if (common::CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");
@@ -241,30 +224,38 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_LastValueTime = std::max(m_LastValueTime, time);
     this->propagateForwardsTo(time);
 
-    auto testForSeasonality = m_Components.makeTestForSeasonality(
-        [this](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
-            return common::CBasicStatistics::mean(
-                this->value(time_, 0.0, E_Seasonal, removedSeasonalMask));
-        });
+    auto testForSeasonality = m_Components.makeTestForSeasonality([this] {
+        auto predictor_ = this->predictor(E_Seasonal);
+        return [ predictor = std::move(predictor_),
+                 this ](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
+            return predictor(time_, removedSeasonalMask) +
+                   this->smooth(
+                       [&](core_t::TTime shiftedTime) {
+                           return predictor(shiftedTime - m_TimeShift, removedSeasonalMask);
+                       },
+                       time_ + m_TimeShift, E_Seasonal);
+        };
+    });
 
-    SAddValue message{
-        time,
-        lastTime,
-        m_TimeShift,
-        value,
-        weights,
-        common::CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
-        common::CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
-        common::CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
-        *this,
-        [this] {
-            auto predictor_ = this->predictor(E_All | E_TrendForced);
-            return [predictor = std::move(predictor_)](core_t::TTime time_) {
-                return predictor(time_, {});
-            };
-        },
-        [this] { return this->predictor(E_Seasonal | E_Calendar); },
-        testForSeasonality};
+    SAddValue message{time,
+                      lastTime,
+                      m_TimeShift,
+                      value,
+                      weights,
+                      occupancy,
+                      firstValueTime,
+                      this->value(time, 0.0, E_TrendForced, true).mean(),
+                      this->value(time, 0.0, E_Seasonal, true).mean(),
+                      this->value(time, 0.0, E_Calendar, true).mean(),
+                      *this,
+                      [this] {
+                          auto predictor_ = this->predictor(E_All | E_TrendForced);
+                          return [predictor = std::move(predictor_)](core_t::TTime time_) {
+                              return predictor(time_, {});
+                          };
+                      },
+                      [this] { return this->predictor(E_Seasonal | E_Calendar); },
+                      testForSeasonality};
 
     m_ChangePointTest.handle(message);
     m_Components.handle(message);
@@ -293,30 +284,25 @@ double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const {
     return m_Components.meanValue(time);
 }
 
-TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
-                                                double confidence,
-                                                int components,
-                                                const TBoolVec& removedSeasonalMask,
-                                                bool smooth) const {
-    TVector2x1 baseline{0.0};
+CTimeSeriesDecomposition::TVector2x1
+CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, int components, bool smooth) const {
+
+    TVector2x1 result{0.0};
 
     time += m_TimeShift;
 
     if ((components & E_TrendForced) != 0) {
-        baseline += vector2x1(m_Components.trend().value(time, confidence));
+        result += m_Components.trend().value(time, confidence);
     } else if ((components & E_Trend) != 0) {
         if (m_Components.usingTrendForPrediction()) {
-            baseline += vector2x1(m_Components.trend().value(time, confidence));
+            result += m_Components.trend().value(time, confidence);
         }
     }
 
     if ((components & E_Seasonal) != 0) {
-        const auto& seasonal = m_Components.seasonal();
-        for (std::size_t i = 0; i < seasonal.size(); ++i) {
-            if (seasonal[i].initialized() &&
-                (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
-                seasonal[i].time().inWindow(time)) {
-                baseline += vector2x1(seasonal[i].value(time, confidence));
+        for (const auto& component : m_Components.seasonal()) {
+            if (component.initialized() && component.time().inWindow(time)) {
+                result += component.value(time, confidence);
             }
         }
     }
@@ -324,37 +310,48 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     if ((components & E_Calendar) != 0) {
         for (const auto& component : m_Components.calendar()) {
             if (component.initialized() && component.feature().inWindow(time)) {
-                baseline += vector2x1(component.value(time, confidence));
+                result += component.value(time, confidence);
             }
         }
     }
 
     if (smooth) {
-        baseline += vector2x1(this->smooth(
+        result += this->smooth(
             [&](core_t::TTime time_) {
                 return this->value(time_ - m_TimeShift, confidence,
-                                   components & E_Seasonal, removedSeasonalMask, false);
+                                   components & E_Seasonal, false);
             },
-            time, components));
+            time, components);
     }
 
-    return pair(baseline);
+    return result;
+}
+
+CTimeSeriesDecomposition::TVector2x1
+CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNonNegative) const {
+    auto result = this->value(time, confidence, E_All, true);
+    return isNonNegative ? max(result, 0.0) : result;
 }
 
 CTimeSeriesDecomposition::TFilteredPredictor
 CTimeSeriesDecomposition::predictor(int components) const {
-    CTrendComponent::TPredictor trend_{m_Components.trend().predictor()};
+
+    auto trend_ = (((components & E_TrendForced) != 0) || ((components & E_Trend) != 0))
+                      ? m_Components.trend().predictor()
+                      : [](core_t::TTime) { return 0.0; };
+
     return [ components, trend = std::move(trend_),
              this ](core_t::TTime time, const TBoolVec& removedSeasonalMask) {
-        double baseline{0.0};
+
+        double result{0.0};
 
         time += m_TimeShift;
 
         if ((components & E_TrendForced) != 0) {
-            baseline += trend(time);
+            result += trend(time);
         } else if ((components & E_Trend) != 0) {
             if (m_Components.usingTrendForPrediction()) {
-                baseline += trend(time);
+                result += trend(time);
             }
         }
 
@@ -364,7 +361,7 @@ CTimeSeriesDecomposition::predictor(int components) const {
                 if (seasonal[i].initialized() &&
                     (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
                     seasonal[i].time().inWindow(time)) {
-                    baseline += common::CBasicStatistics::mean(seasonal[i].value(time, 0.0));
+                    result += seasonal[i].value(time, 0.0).mean();
                 }
             }
         }
@@ -372,12 +369,12 @@ CTimeSeriesDecomposition::predictor(int components) const {
         if ((components & E_Calendar) != 0) {
             for (const auto& component : m_Components.calendar()) {
                 if (component.initialized() && component.feature().inWindow(time)) {
-                    baseline += common::CBasicStatistics::mean(component.value(time, 0.0));
+                    result += component.value(time, 0.0).mean();
                 }
             }
         }
 
-        return baseline;
+        return result;
     };
 }
 
@@ -390,6 +387,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
                                         core_t::TTime step,
                                         double confidence,
                                         double minimumScale,
+                                        bool isNonNegative,
                                         const TWriteForecastResult& writer) {
     if (endTime < startTime) {
         LOG_ERROR(<< "Bad forecast range: [" << startTime << "," << endTime << "]");
@@ -400,19 +398,19 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         return;
     }
 
-    auto seasonal = [this, confidence](core_t::TTime time) {
+    auto seasonal = [this, confidence](core_t::TTime time) -> TVector2x1 {
         TVector2x1 prediction{0.0};
         for (const auto& component : m_Components.seasonal()) {
             if (component.initialized() && component.time().inWindow(time)) {
-                prediction += vector2x1(component.value(time, confidence));
+                prediction += component.value(time, confidence);
             }
         }
         for (const auto& component : m_Components.calendar()) {
             if (component.initialized() && component.feature().inWindow(time)) {
-                prediction += vector2x1(component.value(time, confidence));
+                prediction += component.value(time, confidence);
             }
         }
-        return pair(prediction);
+        return prediction;
     };
 
     startTime += m_TimeShift;
@@ -422,19 +420,18 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     auto forecastSeasonal = [&](core_t::TTime time) -> TDouble3Vec {
         m_Components.interpolateForForecast(time);
 
-        TVector2x1 bounds{vector2x1(seasonal(time))};
+        TVector2x1 bounds{seasonal(time)};
 
         // Decompose the smoothing into shift plus stretch and ensure that the
         // smoothed interval between the prediction bounds remains positive length.
-        TDoubleDoublePr smoothing{this->smooth(seasonal, time, E_Seasonal)};
-        double shift{common::CBasicStatistics::mean(smoothing)};
-        double stretch{std::max(smoothing.second - smoothing.first, bounds(0) - bounds(1))};
+        TVector2x1 smoothing{this->smooth(seasonal, time, E_Seasonal)};
+        double shift{smoothing.mean()};
+        double stretch{std::max(smoothing(1) - smoothing(0), bounds(0) - bounds(1))};
         bounds += TVector2x1{{shift - stretch / 2.0, shift + stretch / 2.0}};
 
         double variance{this->meanVariance()};
         double boundsScale{std::sqrt(std::max(
-            minimumScale, common::CBasicStatistics::mean(
-                              this->varianceScaleWeight(time, variance, 0.0))))};
+            minimumScale, this->varianceScaleWeight(time, variance, 0.0).mean()))};
         double prediction{(bounds(0) + bounds(1)) / 2.0};
         double interval{boundsScale * (bounds(1) - bounds(0))};
 
@@ -442,60 +439,60 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     };
 
     m_Components.trend().forecast(startTime, endTime, step, confidence,
-                                  forecastSeasonal, writer);
+                                  isNonNegative, forecastSeasonal, writer);
 }
 
 double CTimeSeriesDecomposition::detrend(core_t::TTime time,
                                          double value,
                                          double confidence,
-                                         core_t::TTime maximumTimeShift,
-                                         int components) const {
+                                         bool isNonNegative,
+                                         core_t::TTime maximumTimeShift) const {
     if (this->initialized() == false) {
         return value;
     }
 
-    TDoubleDoublePr interval{this->value(time, confidence, (E_All ^ E_Seasonal) & components)};
-    value = std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
-
-    if ((components & E_Seasonal) == 0) {
-        return value;
-    }
+    TVector2x1 interval{this->value(time, confidence, E_All ^ E_Seasonal, true)};
+    auto shiftedInterval = [&](core_t::TTime shift) -> TVector2x1 {
+        TVector2x1 result{interval + this->value(time + shift, confidence, E_Seasonal, true)};
+        return isNonNegative ? max(result, 0.0) : result;
+    };
 
     core_t::TTime shift{0};
     if (maximumTimeShift > 0) {
-        auto loss = [&](double offset) {
-            TDoubleDoublePr seasonalInterval{this->value(
-                time + static_cast<core_t::TTime>(offset + 0.5), confidence, E_Seasonal)};
-            return std::fabs(std::min(value - seasonalInterval.first, 0.0) +
-                             std::max(value - seasonalInterval.second, 0.0));
+        auto loss = [&](double shift_) -> double {
+            TVector2x1 interval_{shiftedInterval(static_cast<core_t::TTime>(shift_ + 0.5))};
+            return std::fabs(std::min(value - interval_(0), 0.0) +
+                             std::max(value - interval_(1), 0.0));
         };
         std::tie(shift, std::ignore) =
             CSeasonalComponent::likelyShift(maximumTimeShift, 0, loss);
     }
 
-    interval = this->value(time + shift, confidence, E_Seasonal);
-    return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
+    interval = shiftedInterval(shift);
+
+    return std::min(value - interval(0), 0.0) + std::max(value - interval(1), 0.0);
 }
 
 double CTimeSeriesDecomposition::meanVariance() const {
     return m_Components.meanVarianceScale() * m_Components.meanVariance();
 }
 
-TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
-                                                              double variance,
-                                                              double confidence,
-                                                              bool smooth) const {
+CTimeSeriesDecomposition::TVector2x1
+CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
+                                              double variance,
+                                              double confidence,
+                                              bool smooth) const {
     if (this->initialized() == false) {
-        return {1.0, 1.0};
+        return TVector2x1{1.0};
     }
 
     if (common::CMathsFuncs::isFinite(variance) == false) {
         LOG_ERROR(<< "Supplied variance is " << variance << ".");
-        return {1.0, 1.0};
+        return TVector2x1{1.0};
     }
     double mean{this->meanVariance()};
     if (mean <= 0.0 || variance <= 0.0) {
-        return {1.0, 1.0};
+        return TVector2x1{1.0};
     }
 
     time += m_TimeShift;
@@ -503,17 +500,17 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
     double components{0.0};
     TVector2x1 scale(0.0);
     if (m_Components.usingTrendForPrediction()) {
-        scale += vector2x1(m_Components.trend().variance(confidence));
+        scale += m_Components.trend().variance(confidence);
     }
     for (const auto& component : m_Components.seasonal()) {
         if (component.initialized() && component.time().inWindow(time)) {
-            scale += vector2x1(component.variance(time, confidence));
+            scale += component.variance(time, confidence);
             components += 1.0;
         }
     }
     for (const auto& component : m_Components.calendar()) {
         if (component.initialized() && component.feature().inWindow(time)) {
-            scale += vector2x1(component.variance(time, confidence));
+            scale += component.variance(time, confidence);
             components += 1.0;
         }
     }
@@ -522,36 +519,44 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
     if (m_Components.usingTrendForPrediction()) {
         bias *= (components + 1.0) / std::max(components, 1.0);
     }
-    LOG_TRACE(<< "mean = " << mean << " variance = " << variance << " bias = " << bias
-              << " scale = " << core::CContainerPrinter::print(scale));
+    LOG_TRACE(<< "mean = " << mean << " variance = " << variance
+              << " bias = " << bias << " scale = " << scale);
 
     scale *= m_Components.meanVarianceScale() / mean;
     scale = max(TVector2x1{1.0} + bias * (scale - TVector2x1{1.0}), TVector2x1{0.0});
 
     if (smooth) {
-        scale += vector2x1(this->smooth(
+        scale += this->smooth(
             [&](core_t::TTime time_) {
                 return this->varianceScaleWeight(time_ - m_TimeShift, variance,
                                                  confidence, false);
             },
-            time, E_All));
+            time, E_All);
     }
 
     // If anything overflowed just bail and don't scale.
-    return pair(common::CMathsFuncs::isFinite(scale) ? scale : TVector2x1{1.0});
+    return common::CMathsFuncs::isFinite(scale) ? scale : TVector2x1{1.0};
+}
+
+CTimeSeriesDecomposition::TVector2x1
+CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
+                                              double variance,
+                                              double confidence) const {
+    return this->varianceScaleWeight(time, variance, confidence, true);
 }
 
 double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
     return m_ChangePointTest.countWeight(time);
 }
 
-double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time) const {
-    return m_ChangePointTest.winsorisationDerate(time);
+double CTimeSeriesDecomposition::outlierWeightDerate(core_t::TTime time, double error) const {
+    return m_ChangePointTest.outlierWeightDerate(time, error);
 }
 
-CTimeSeriesDecomposition::TFloatMeanAccumulatorVec CTimeSeriesDecomposition::residuals() const {
-    return m_SeasonalityTest.residuals([this](core_t::TTime time) {
-        return common::CBasicStatistics::mean(this->value(time, 0.0));
+CTimeSeriesDecomposition::TFloatMeanAccumulatorVec
+CTimeSeriesDecomposition::residuals(bool isNonNegative) const {
+    return m_SeasonalityTest.residuals([&](core_t::TTime time) {
+        return this->value(time, 0.0, isNonNegative).mean();
     });
 }
 
@@ -571,19 +576,19 @@ std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
 
 void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecomposition");
-    core::CMemoryDebug::dynamicSize("m_Mediator", m_Mediator, mem);
-    core::CMemoryDebug::dynamicSize("m_ChangePointTest", m_ChangePointTest, mem);
-    core::CMemoryDebug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
-    core::CMemoryDebug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
-    core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
+    core::memory_debug::dynamicSize("m_Mediator", m_Mediator, mem);
+    core::memory_debug::dynamicSize("m_ChangePointTest", m_ChangePointTest, mem);
+    core::memory_debug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
+    core::memory_debug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
+    core::memory_debug::dynamicSize("m_Components", m_Components, mem);
 }
 
 std::size_t CTimeSeriesDecomposition::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Mediator) +
-           core::CMemory::dynamicSize(m_ChangePointTest) +
-           core::CMemory::dynamicSize(m_SeasonalityTest) +
-           core::CMemory::dynamicSize(m_CalendarCyclicTest) +
-           core::CMemory::dynamicSize(m_Components);
+    return core::memory::dynamicSize(m_Mediator) +
+           core::memory::dynamicSize(m_ChangePointTest) +
+           core::memory::dynamicSize(m_SeasonalityTest) +
+           core::memory::dynamicSize(m_CalendarCyclicTest) +
+           core::memory::dynamicSize(m_Components);
 }
 
 std::size_t CTimeSeriesDecomposition::staticSize() const {
@@ -611,15 +616,18 @@ void CTimeSeriesDecomposition::initializeMediator() {
 }
 
 template<typename F>
-TDoubleDoublePr
-CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const {
+auto CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const
+    -> decltype(f(time)) {
+
+    using TResultType = decltype(f(time));
+
     if ((components & E_Seasonal) != E_Seasonal) {
-        return {0.0, 0.0};
+        return TResultType{0.0};
     }
 
     auto offset = [&f, time](core_t::TTime discontinuity) {
-        TVector2x1 baselineMinusEps{vector2x1(f(discontinuity - 1))};
-        TVector2x1 baselinePlusEps{vector2x1(f(discontinuity + 1))};
+        auto baselineMinusEps = f(discontinuity - 1);
+        auto baselinePlusEps = f(discontinuity + 1);
         return 0.5 *
                std::max((1.0 - static_cast<double>(std::abs(time - discontinuity)) /
                                    static_cast<double>(SMOOTHING_INTERVAL)),
@@ -641,15 +649,15 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
         if (timeInWindow == false && inWindowBefore) {
             core_t::TTime discontinuity{times.startOfWindow(time - SMOOTHING_INTERVAL) +
                                         times.windowLength()};
-            return pair(-offset(discontinuity));
+            return -offset(discontinuity);
         }
         if (timeInWindow == false && inWindowAfter) {
             core_t::TTime discontinuity{component.time().startOfWindow(time + SMOOTHING_INTERVAL)};
-            return pair(offset(discontinuity));
+            return offset(discontinuity);
         }
     }
 
-    return {0.0, 0.0};
+    return TResultType{0.0};
 }
 
 const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{14400};

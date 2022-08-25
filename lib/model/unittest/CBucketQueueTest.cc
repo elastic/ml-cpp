@@ -12,6 +12,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 
 #include <model/CBucketQueue.h>
@@ -19,40 +20,42 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <set>
+
 BOOST_AUTO_TEST_SUITE(CBucketQueueTest)
 
 using namespace ml;
 using namespace model;
 
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
-using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64UMapQueue = model::CBucketQueue<TSizeSizePrUInt64UMap>;
 using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
 
 BOOST_AUTO_TEST_CASE(testConstructorFillsQueue) {
     CBucketQueue<int> queue(3, 5, 15);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
+    BOOST_REQUIRE_EQUAL(4, queue.size());
 
     std::set<const int*> values;
     values.insert(&queue.get(0));
     values.insert(&queue.get(5));
     values.insert(&queue.get(10));
     values.insert(&queue.get(15));
-    BOOST_REQUIRE_EQUAL(std::size_t(4), values.size());
+    BOOST_REQUIRE_EQUAL(4, values.size());
 }
 
 BOOST_AUTO_TEST_CASE(testPushGivenEarlierTime) {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
     queue.push("b", 10);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
 
     queue.push("c", 3);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
     BOOST_REQUIRE_EQUAL(std::string("a"), queue.get(7));
     BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(12));
 }
@@ -62,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testGetGivenFullQueueWithNoPop) {
     queue.push("a", 5);
     queue.push("b", 10);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
     BOOST_REQUIRE_EQUAL(std::string("a"), queue.get(5));
     BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(10));
 }
@@ -73,25 +76,25 @@ BOOST_AUTO_TEST_CASE(testGetGivenFullQueueAfterPop) {
     queue.push("b", 10);
     queue.push("c", 15);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(2, queue.size());
     BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(11));
     BOOST_REQUIRE_EQUAL(std::string("c"), queue.get(19));
 }
 
 BOOST_AUTO_TEST_CASE(testClear) {
     CBucketQueue<int> queue(2, 5, 0);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
     queue.push(0, 5);
     queue.push(1, 10);
     queue.push(2, 15);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 
     queue.clear();
     BOOST_REQUIRE_EQUAL(int(0), queue.get(5));
     BOOST_REQUIRE_EQUAL(int(0), queue.get(10));
     BOOST_REQUIRE_EQUAL(int(0), queue.get(15));
 
-    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(3, queue.size());
 }
 
 BOOST_AUTO_TEST_CASE(testIterators) {
@@ -106,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testIterators) {
         strings.push_back(*itr);
     }
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), strings.size());
+    BOOST_REQUIRE_EQUAL(2, strings.size());
     BOOST_REQUIRE_EQUAL(std::string("b"), strings[0]);
     BOOST_REQUIRE_EQUAL(std::string("a"), strings[1]);
 }
@@ -123,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testReverseIterators) {
         strings.push_back(*itr);
     }
 
-    BOOST_REQUIRE_EQUAL(std::size_t(2), strings.size());
+    BOOST_REQUIRE_EQUAL(2, strings.size());
     BOOST_REQUIRE_EQUAL(std::string("a"), strings[0]);
     BOOST_REQUIRE_EQUAL(std::string("b"), strings[1]);
 }
@@ -163,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testBucketQueueUMap) {
                 queue.latest()[TSizeSizePr(i, j)] = 99 * i * j + 12;
             }
         }
-        usageBefore = core::CMemory::dynamicSize(queue);
+        usageBefore = core::memory::dynamicSize(queue);
         core::CJsonStatePersistInserter inserter(ss);
         core::CPersistUtils::persist(queueTag, queue, inserter);
     }
@@ -171,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testBucketQueueUMap) {
         TSizeSizePrUInt64UMapQueue queue(4, 1000, 5000);
         core::CJsonStateRestoreTraverser traverser(ss);
         core::CPersistUtils::restore(queueTag, queue, traverser);
-        std::size_t usageAfter = core::CMemory::dynamicSize(queue);
+        std::size_t usageAfter = core::memory::dynamicSize(queue);
         BOOST_REQUIRE_EQUAL(usageBefore, usageAfter);
     }
 }

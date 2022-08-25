@@ -30,7 +30,6 @@
 #include <rapidjson/pointer.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <fstream>
 #include <set>
@@ -215,9 +214,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     TStrSet partitions = getUniqueValues("partition_field_value", out);
     TStrSet people = getUniqueValues("over_field_value", out);
     TStrSet attributes = getUniqueValues("by_field_value", out);
-    BOOST_REQUIRE_EQUAL(std::size_t(3), partitions.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), attributes.size());
+    BOOST_REQUIRE_EQUAL(3, partitions.size());
+    BOOST_REQUIRE_EQUAL(2, people.size());
+    BOOST_REQUIRE_EQUAL(2, attributes.size());
 
     outputStrm.str("");
     outputStrm.clear();
@@ -269,13 +268,13 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     partitions = getUniqueValues("partition_field_value", out);
     people = getUniqueValues("over_field_value", out);
     attributes = getUniqueValues("by_field_value", out);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), partitions.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), attributes.size());
+    BOOST_REQUIRE_EQUAL(1, partitions.size());
+    BOOST_REQUIRE_EQUAL(2, people.size());
+    BOOST_REQUIRE_EQUAL(1, attributes.size());
 }
 
 BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDouble = std::optional<double>;
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TGenerator = std::function<TOptionalDouble(core_t::TTime)>;
@@ -313,7 +312,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
     TGenerator sparse = [&rng, &level](core_t::TTime time) {
         TDoubleVec uniform01;
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-        return uniform01[0] < 0.1 ? level(time) : boost::none;
+        return uniform01[0] < 0.1 ? level(time) : std::nullopt;
     };
 
     // We assert on the number of by, partition and over fields we can
@@ -384,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                       << memoryLimit * core::constants::BYTES_IN_MEGABYTES);
             BOOST_TEST_REQUIRE(used.s_ByFields > testParam.s_ExpectedByFields);
             BOOST_TEST_REQUIRE(used.s_ByFields < 800);
-            BOOST_REQUIRE_EQUAL(std::size_t(2), used.s_PartitionFields);
+            BOOST_REQUIRE_EQUAL(2, used.s_PartitionFields);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /

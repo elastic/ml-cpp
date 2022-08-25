@@ -13,18 +13,16 @@
 #define INCLUDED_ml_maths_common_CTools_h
 
 #include <core/CIEEE754.h>
+#include <core/CNonCopyable.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/policies/policy.hpp>
-#include <boost/optional.hpp>
-#include <boost/static_assert.hpp>
 
 #include <array>
 #include <cmath>
@@ -32,7 +30,6 @@
 #include <cstring>
 #include <iosfwd>
 #include <limits>
-#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -153,140 +150,7 @@ public:
     //! from a mixture model.
     //!
     //! \sa CProbabilityOfLessLikelySample
-    class MATHS_COMMON_EXPORT CMixtureProbabilityOfLessLikelySample {
-    public:
-        //! Computes the value of the smooth kernel of an integral
-        //! which approximates the probability of less likely samples.
-        //!
-        //! In particular, we write the integral as
-        //! <pre class="fragment">
-        //!   \f$P(\{s : f(s) < f(x)\}) = \int{I(f(s) < f(x)) f(s)}ds\f$
-        //! </pre>
-        //!
-        //! and approximate the indicator function as
-        //! <pre class="fragment">
-        //!   \f$\displaystyle I(f(s) < f(x)) \approx (1+e^{-k}) \frac{e^{-k(f(s)/f(x)-1)}}{1+e^{-k(f(s)/f(x)-1)}}\f$
-        //! </pre>
-        //!
-        //! Note that the larger the value of \f$k\f$ the better the
-        //! approximation. Note also that this computes the scaled
-        //! kernel, i.e. \f$k'(s) = k(s)/f(x)\f$ so the output must
-        //! be scaled by \f$f(x)\f$ to recover the true probability.
-        template<typename LOGF>
-        class CSmoothedKernel : private core::CNonCopyable {
-        public:
-            CSmoothedKernel(LOGF logf, double logF0, double k);
-
-            void k(double k);
-            bool operator()(double x, double& result) const;
-
-        private:
-            LOGF m_LogF;
-            double m_LogF0;
-            double m_K;
-            double m_Scale;
-        };
-
-    public:
-        //! \param[in] n The number of modes.
-        //! \param[in] x The sample.
-        //! \param[in] logFx The log of the p.d.f. at the sample.
-        //! \param[in] a The left end of the interval to integrate.
-        //! \param[in] b The left end of the interval to integrate.
-        CMixtureProbabilityOfLessLikelySample(std::size_t n, double x, double logFx, double a, double b);
-
-        //! Reinitialize the object for computing the the probability
-        //! of \f$\{y : f(y) <= f(x)\}\f$.
-        //!
-        //! \param[in] x The sample.
-        //! \param[in] logFx The log of the p.d.f. at the sample.
-        void reinitialize(double x, double logFx);
-
-        //! Add a mode of the distribution with mean \p mean and
-        //! standard deviation \p sd with normalized weight \p weight.
-        //!
-        //! \param[in] weight The mode weight, i.e. the proportion of
-        //! samples in the mode.
-        //! \param[in] modeMean The mode mean.
-        //! \param[in] modeSd The mode standard deviation.
-        void addMode(double weight, double modeMean, double modeSd);
-
-        //! Find the left tail argument with the same p.d.f. value as
-        //! the sample.
-        //!
-        //! \param[in] logf The function which computes the log of the
-        //! mixture p.d.f.
-        //! \param[in] iterations The number of maximum number of
-        //! evaluations of the logf function.
-        //! \param[in] equal The function to test if two argument values
-        //! are equal.
-        //! \param[out] result Filled in with the argument with the same
-        //! p.d.f. value as the sample in the left tail.
-        //!
-        //! \tparam LOGF The type of the function (object) which computes
-        //! the log of the mixture p.d.f. It is expected to have a function
-        //! like signature double (double).
-        template<typename LOGF, typename EQUAL>
-        bool leftTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
-
-        //! Find the right tail argument with the same p.d.f. value
-        //! as the sample.
-        //!
-        //! \param[in] logf The function which computes the log of the
-        //! mixture p.d.f.
-        //! \param[in] iterations The number of maximum number of
-        //! evaluations of the logf function.
-        //! \param[in] equal The function to test if two argument values
-        //! are equal.
-        //! \param[out] result Filled in with the argument with the same
-        //! p.d.f. value as the sample in the right tail.
-        //!
-        //! \tparam LOGF The type of the function (object) which computes
-        //! the log of the mixture p.d.f. It is expected to have a function
-        //! like signature double (double).
-        template<typename LOGF, typename EQUAL>
-        bool rightTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
-
-        //! Compute the probability of a less likely sample.
-        //!
-        //! \param[in] logf The function which computes the log of the
-        //! mixture p.d.f.
-        //! \param[in] pTails The probability in the distribution tails,
-        //! which can be found from the c.d.f., and is not account for
-        //! by the integration.
-        //!
-        //! \tparam LOGF The type of the function (object) which computes
-        //! the log of the mixture p.d.f. It is expected to have a function
-        //! like signature bool (double, double &) where the first argument
-        //! is the p.d.f. argument and the second argument is filled in
-        //! with the log p.d.f. at the first argument.
-        template<typename LOGF>
-        double calculate(const LOGF& logf, double pTails);
-
-    private:
-        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
-
-    private:
-        static const double LOG_ROOT_TWO_PI;
-
-    private:
-        //! Compute the seed integration intervals.
-        void intervals(TDoubleDoublePrVec& intervals);
-
-    private:
-        //! The sample.
-        double m_X;
-        //! The log p.d.f. of the sample for which to compute the
-        //! probability.
-        double m_LogFx;
-        //! The integration interval [a, b].
-        double m_A, m_B;
-        //! Filled in with the end points of the seed intervals for
-        //! adaptive quadrature.
-        TDoubleVec m_Endpoints;
-        //! The maximum deviation of the sample from any mode.
-        TMaxAccumulator m_MaxDeviation;
-    };
+    class MATHS_COMMON_EXPORT CMixtureProbabilityOfLessLikelySample;
 
     //! \brief Computes the expectation conditioned on a particular interval.
     //!
@@ -395,7 +259,7 @@ public:
     template<typename T>
     class CDifferentialEntropyKernel {
     public:
-        CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
+        explicit CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture)
             : m_Mixture(&mixture) {}
 
         inline bool operator()(double x, double& result) const {
@@ -605,32 +469,11 @@ public:
     //! \tparam COLLECTION Is assumed to be a collection type, i.e. it
     //! must support iterator based access.
     template<typename COLLECTION>
-    static void inplaceSoftmax(COLLECTION& z) {
-        double Z{0.0};
-        double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& zi : z) {
-            zi = stableExp(zi - zmax);
-            Z += zi;
-        }
-        for (auto& zi : z) {
-            zi /= Z;
-        }
-    }
+    static void inplaceSoftmax(COLLECTION& z);
 
     //! Compute the log of the softmax for the multinomial logit values \p logit.
     template<typename COLLECTION>
-    static void inplaceLogSoftmax(COLLECTION& z) {
-        double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& zi : z) {
-            zi -= zmax;
-        }
-        double logZ{std::log(std::accumulate(
-            z.begin(), z.end(), 0.0,
-            [](double sum, const auto& zi) { return sum + std::exp(zi); }))};
-        for (auto& zi : z) {
-            zi -= logZ;
-        }
-    }
+    static void inplaceLogSoftmax(COLLECTION& z);
 
     //! Specialize the softmax for CDenseVector.
     template<typename T>
@@ -642,11 +485,6 @@ public:
 
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);
-
-    //! Log-linearly interpolate a function on the interval [\p a, \p b].
-    //!
-    //! \warning The caller must ensure that \p a and \p b are positive.
-    static double logLinearlyInterpolate(double a, double b, double fa, double fb, double x);
 
     //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
     //!

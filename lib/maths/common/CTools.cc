@@ -11,7 +11,6 @@
 
 #include <maths/common/CTools.h>
 
-#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/Constants.h>
@@ -38,10 +37,10 @@
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/tools/precision.hpp>
-#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
 #include <ostream>
 
 namespace boost {
@@ -50,7 +49,7 @@ namespace policies {
 
 template<class T>
 T user_overflow_error(const char* /*function*/, const char* /*message*/, const T& /*val*/) {
-    return boost::numeric::bounds<T>::highest();
+    return std::numeric_limits<T>::max();
 }
 }
 }
@@ -63,7 +62,7 @@ namespace {
 
 using TDoubleBoolPr = std::pair<double, bool>;
 using TDoubleDoublePr = std::pair<double, double>;
-using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
+using TOptionalDoubleDoublePr = std::optional<TDoubleDoublePr>;
 
 namespace adapters {
 
@@ -207,8 +206,8 @@ inline double discreteSafeCdfComplement(const Distribution& distribution, double
 
 const double EPSILON = std::numeric_limits<double>::epsilon();
 const double MIN_DOUBLE = std::numeric_limits<double>::min();
-const double NEG_INF = boost::numeric::bounds<double>::lowest();
-const double POS_INF = boost::numeric::bounds<double>::highest();
+const double NEG_INF = std::numeric_limits<double>::lowest();
+const double POS_INF = std::numeric_limits<double>::max();
 
 } // unnamed::
 
@@ -598,10 +597,10 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
         //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
         double logx = std::log(x);
-        double squareScale = CTools::pow2(logNormal.scale());
-        double discriminant = std::sqrt(CTools::pow2(squareScale) +
-                                        (logx - logNormal.location() + 2.0 * squareScale) *
-                                            (logx - logNormal.location()));
+        double squareScale = pow2(logNormal.scale());
+        double discriminant = std::sqrt(
+            pow2(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
+                                    (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
         double y = m * std::exp(x > m ? -discriminant : discriminant);
@@ -1215,8 +1214,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
         std::swap(fBracket.first, fBracket.second);
     }
 
-    LOG_TRACE(<< "Initial bracket = " << core::CContainerPrinter::print(bracket)
-              << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+    LOG_TRACE(<< "Initial bracket = " << bracket << ", f(bracket) = " << fBracket);
 
     try {
         double eps = 0.05 / fx;
@@ -1227,9 +1225,9 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
         CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second,
                         makePdf(beta_, fx), maxIterations, equal, candidate);
 
-        LOG_TRACE(<< "bracket = " << core::CContainerPrinter::print(bracket)
-                  << ", iterations = " << maxIterations << ", f(candidate) = "
-                  << safePdf(beta_, candidate) - fx << ", eps = " << eps);
+        LOG_TRACE(<< "bracket = " << bracket << ", iterations = " << maxIterations
+                  << ", f(candidate) = " << safePdf(beta_, candidate) - fx
+                  << ", eps = " << eps);
 
         if (std::fabs(safePdf(beta_, candidate) - fx) < std::fabs(fy - fx)) {
             y[i % 2] = candidate;
@@ -1241,8 +1239,7 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
             y[i % 2] = bracket.second;
         } else {
             LOG_ERROR(<< "Failed in bracketed solver: " << e.what() << ", x = " << x
-                      << ", bracket " << core::CContainerPrinter::print(bracket)
-                      << ", f(bracket) = " << core::CContainerPrinter::print(fBracket));
+                      << ", bracket " << bracket << ", f(bracket) = " << fBracket);
             return 1.0;
         }
     }
@@ -1354,7 +1351,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec
     for (std::size_t i = 1; i < m_Endpoints.size(); ++i) {
         intervals.emplace_back(m_Endpoints[i - 1], m_Endpoints[i]);
     }
-    LOG_TRACE(<< "intervals = " << core::CContainerPrinter::print(intervals));
+    LOG_TRACE(<< "intervals = " << intervals);
 }
 
 const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI =
@@ -1366,26 +1363,33 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
+    }
+    if (a == b) {
+        return a;
+    }
+    if (a == b) {
+        return a;
     }
 
     double mean = normal_.mean();
     double sd = normal_.standard_deviation();
     double s = std::sqrt(2.0) * sd;
-    double a_ = a == NEG_INF ? a : (a - mean) / s;
-    double b_ = b == POS_INF ? b : (b - mean) / s;
-    double expa = a_ == NEG_INF ? 0.0 : std::exp(-a_ * a_);
-    double expb = b_ == POS_INF ? 0.0 : std::exp(-b_ * b_);
-    double erfa = a_ == NEG_INF ? -1.0 : std::erf(a_);
-    double erfb = b_ == POS_INF ? 1.0 : std::erf(b_);
+    double a_ = a <= NEG_INF ? a : (a - mean) / s;
+    double b_ = b >= POS_INF ? b : (b - mean) / s;
+    double expa = a_ <= NEG_INF ? 0.0 : std::exp(-a_ * a_);
+    double expb = b_ >= POS_INF ? 0.0 : std::exp(-b_ * b_);
+    double erfa = a_ <= NEG_INF ? -1.0 : std::erf(a_);
+    double erfb = b_ >= POS_INF ? 1.0 : std::erf(b_);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
         return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
     }
 
-    return mean + 2.0 * sd * (expa - expb) /
-                      boost::math::double_constants::root_two_pi / (erfb - erfa);
+    return truncate(mean + 2.0 * sd * (expa - expb) /
+                               boost::math::double_constants::root_two_pi / (erfb - erfa),
+                    -POS_INF, POS_INF);
 }
 
 double CTools::SIntervalExpectation::
@@ -1393,63 +1397,92 @@ operator()(const lognormal& logNormal, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
     }
     if (b <= 0.0) {
         return 0.0;
     }
+    if (a == b) {
+        return a;
+    }
 
     double location = logNormal.location();
     double scale = logNormal.scale();
+    if (a <= 1e-8) {
+        lognormal logNormalShift{location + pow2(scale), scale};
+        // If F(b) underflows we're in the extreme left tail. We can fallback to
+        // computing an asymptotic expansion of the ratio. The leading term (by
+        // L'Hospital) turns out to just be b. This intuitively makes sense since
+        // the distribution is concentrated at the right end of the interval.
+        double cdf = boost::math::cdf(logNormal, b);
+        return (cdf == 0.0 ? b
+                           : boost::math::mean(logNormal) *
+                                 boost::math::cdf(logNormalShift, b) / cdf);
+    }
+
     double mean = boost::math::mean(logNormal);
-    double loga = a <= 0.0 ? NEG_INF : std::log(a);
-    double logb = b == POS_INF ? POS_INF : std::log(b);
-    double c = location + scale * scale;
+    double loga = std::log(a);
+    double logb = std::log(b);
+    double c = location + pow2(scale);
     double s = std::sqrt(2.0) * scale;
-    double a_ = loga == NEG_INF ? NEG_INF : (loga - location) / s;
-    double b_ = logb == POS_INF ? POS_INF : (logb - location) / s;
-    double erfa = loga == NEG_INF ? -1.0 : std::erf((loga - c) / s);
-    double erfb = logb == POS_INF ? 1.0 : std::erf((logb - c) / s);
+    double a_ = (loga - location) / s;
+    double b_ = (logb - location) / s;
+    double erfa = std::erf((loga - c) / s);
+    double erfb = std::erf((logb - c) / s);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
-        double expa = loga == NEG_INF ? 0.0 : std::exp(-a_ * a_);
-        double expb = logb == POS_INF ? 0.0 : std::exp(-b_ * b_);
+        double expa = std::exp(-a_ * a_);
+        double expb = std::exp(-b_ * b_);
         return expa == expb ? (2.0 * a / (a + b)) * b
                             : (expa + expb) / (expa / a + expb / b);
     }
 
-    double erfa_ = a_ == NEG_INF ? -1.0 : std::erf(a_);
-    double erfb_ = b_ == POS_INF ? 1.0 : std::erf(b_);
-    return mean * (erfb - erfa) / (erfb_ - erfa_);
+    double erfa_ = std::erf(a_);
+    double erfb_ = std::erf(b_);
+    return truncate(
+        (erfb - erfa) == (erfb_ - erfa_) ? mean : mean * (erfb - erfa) / (erfb_ - erfa_),
+        -POS_INF, POS_INF);
 }
 
 double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
     }
     if (b <= 0.0) {
         return 0.0;
     }
-
-    double shape = gamma_.shape();
-    double rate = 1.0 / gamma_.scale();
-    double mean = boost::math::mean(gamma_);
-    double gama = a <= 0.0 ? 0.0 : boost::math::gamma_p(shape + 1.0, rate * a);
-    double gamb = b == POS_INF ? 1.0 : boost::math::gamma_p(shape + 1.0, rate * b);
-
-    if (gamb - gama < std::sqrt(EPSILON)) {
-        double expa = a <= 0.0 ? 0.0 : std::exp((shape - 1.0) * std::log(a) - rate * a);
-        double expb = b == POS_INF ? 0.0 : std::exp((shape - 1.0) * std::log(b) - rate * b);
-        return (a * expa + b * expb) / (expa + expb);
+    if (a == b) {
+        return a;
     }
 
-    double gama_ = a <= 0.0 ? 0.0 : boost::math::gamma_p(shape, rate * a);
-    double gamb_ = b == POS_INF ? 1.0 : boost::math::gamma_p(shape, rate * b);
-    return mean * (gamb - gama) / (gamb_ - gama_);
+    double shape = gamma_.shape();
+    double scale = gamma_.scale();
+    if (a <= 1e-8) {
+        boost::math::gamma_distribution<> gammaShift_{shape + 1.0, scale};
+        return boost::math::mean(gamma_) * boost::math::cdf(gammaShift_, b) /
+               boost::math::cdf(gamma_, b);
+    }
+
+    double rate = 1.0 / scale;
+    double mean = boost::math::mean(gamma_);
+    double gama = boost::math::gamma_p(shape + 1.0, rate * a);
+    double gamb = b >= POS_INF ? 1.0 : boost::math::gamma_p(shape + 1.0, rate * b);
+
+    if (gamb - gama < std::sqrt(EPSILON)) {
+        double expa = std::exp((shape - 1.0) * std::log(a) - rate * a);
+        double expb = std::exp((shape - 1.0) * std::log(b) - rate * b);
+        return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
+    }
+
+    double gama_ = boost::math::gamma_p(shape, rate * a);
+    double gamb_ = boost::math::gamma_p(shape, rate * b);
+    return truncate(
+        (gamb - gama) == (gamb_ - gama_) ? mean : mean * (gamb - gama) / (gamb_ - gama_),
+        -POS_INF, POS_INF);
 }
 
 //////// smallestProbability Implementation ////////
@@ -1835,7 +1868,7 @@ double CTools::differentialEntropy(const lognormal& logNormal) {
     double location = logNormal.location();
     double scale = logNormal.scale();
     return 0.5 * std::log(boost::math::double_constants::two_pi *
-                          boost::math::double_constants::e * CTools::pow2(scale)) +
+                          boost::math::double_constants::e * pow2(scale)) +
            location;
 }
 
@@ -1859,7 +1892,7 @@ namespace {
 const double EPS{0.1};
 const double COEFFS[]{-1.0,        +1.0 / 2.0,   -1.0 / 6.0,
                       +1.0 / 24.0, -1.0 / 120.0, +1.0 / 720.0};
-const std::size_t N{boost::size(COEFFS)};
+const std::size_t N{std::size(COEFFS)};
 }
 
 double CTools::shiftLeft(double x, double eps) {
@@ -1877,6 +1910,10 @@ double CTools::shiftRight(double x, double eps) {
 }
 
 double CTools::linearlyInterpolate(double a, double b, double fa, double fb, double x) {
+    if (a > b) {
+        std::swap(a, b);
+        std::swap(fa, fb);
+    }
     if (x <= a) {
         return fa;
     }
@@ -1886,22 +1923,6 @@ double CTools::linearlyInterpolate(double a, double b, double fa, double fb, dou
     if (b == a) {
         return 0.5 * (fa + fb);
     }
-    return ((b - x) * fa + (x - a) * fb) / (b - a);
-}
-
-double CTools::logLinearlyInterpolate(double a, double b, double fa, double fb, double x) {
-    if (x <= a) {
-        return fa;
-    }
-    if (x >= b) {
-        return fb;
-    }
-    if (b == a) {
-        return 0.5 * (fa + fb);
-    }
-    a = std::log(a);
-    b = std::log(b);
-    x = std::log(x);
     return ((b - x) * fa + (x - a) * fb) / (b - a);
 }
 

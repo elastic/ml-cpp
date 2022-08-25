@@ -12,8 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 
-#include <core/CSmallVector.h>
-#include <core/CVectorRange.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -21,24 +19,26 @@
 #include <maths/common/CFuzzyLogic.h>
 #include <maths/common/CLinearAlgebra.h>
 
-#include <maths/time_series/ImportExport.h>
-
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
+#include <maths/time_series/ImportExport.h>
 
-#include <boost/math/distributions/binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace ml {
+namespace core {
+template<typename VECTOR>
+class CVectorRange;
+}
 namespace maths {
 namespace time_series {
 
@@ -77,7 +77,7 @@ private:
 //! \brief A summary of a new seasonal component.
 class MATHS_TIME_SERIES_EXPORT CNewSeasonalComponentSummary {
 public:
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -149,7 +149,7 @@ private:
 class MATHS_TIME_SERIES_EXPORT CSeasonalDecomposition {
 public:
     using TBoolVec = std::vector<bool>;
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -197,13 +197,13 @@ public:
     std::string print() const;
 
 private:
-    using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
+    using TOptionalNewTrendSummary = std::optional<CNewTrendSummary>;
 
 private:
     TOptionalNewTrendSummary m_Trend;
     TNewSeasonalComponentVec m_Seasonal;
     TBoolVec m_SeasonalToRemoveMask;
-    double m_WithinBucketVariance = 0.0;
+    double m_WithinBucketVariance{0.0};
 };
 
 //! \brief Discovers the seasonal components present in the values in a time window
@@ -217,8 +217,8 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    static constexpr double OUTLIER_FRACTION = 0.1;
-    static constexpr std::size_t MAXIMUM_NUMBER_SEGMENTS = 4;
+    static constexpr double OUTLIER_FRACTION{0.1};
+    static constexpr std::size_t MAXIMUM_NUMBER_SEGMENTS{4};
 
 public:
     CTimeSeriesTestForSeasonality(core_t::TTime valuesStartTime,
@@ -226,7 +226,7 @@ public:
                                   core_t::TTime bucketLength,
                                   core_t::TTime sampleInterval,
                                   TFloatMeanAccumulatorVec values,
-                                  double sampleVariance = 0.0,
+                                  double occupancy = 1.0,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
@@ -243,7 +243,7 @@ public:
                                 std::size_t size);
 
     //! Add a predictor for the currently modelled seasonal conponents.
-    void modelledSeasonalityPredictor(const TPredictor& predictor);
+    void modelledSeasonalityPredictor(TPredictor predictor);
 
     //! Fit and remove any seasonality we're modelling and can't test.
     void prepareWindowForDecompose();
@@ -256,26 +256,6 @@ public:
 
     //! \name Parameters
     //@{
-    CTimeSeriesTestForSeasonality& lowAutocorrelation(double value) {
-        m_LowAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& mediumAutocorrelation(double value) {
-        m_MediumAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& highAutocorrelation(double value) {
-        m_HighAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& significantPValue(double value) {
-        m_SignificantPValue = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& verySignificantPValue(double value) {
-        m_VerySignificantPValue = value;
-        return *this;
-    }
     CTimeSeriesTestForSeasonality& acceptedFalsePostiveRate(double value) {
         m_AcceptedFalsePostiveRate = value;
         return *this;
@@ -296,14 +276,18 @@ public:
         m_MaximumNumberComponents = value;
         return *this;
     }
+    CTimeSeriesTestForSeasonality& sampleVariance(double value) {
+        m_SampleVariance = value;
+        return *this;
+    }
     //@}
 
 private:
     using TDoubleVec = std::vector<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalSize = std::optional<std::size_t>;
+    using TOptionalTime = std::optional<core_t::TTime>;
     using TMaxAccumulator =
         common::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -620,31 +604,31 @@ private:
                                   TFloatMeanAccumulatorVec& values);
 
 private:
-    double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
-    double m_MinimumRepeatsPerSegmentToTestAmplitude = 5.0;
-    double m_LowAutocorrelation = 0.3;
-    double m_MediumAutocorrelation = 0.5;
-    double m_HighAutocorrelation = 0.7;
-    double m_PValueToEvict = 0.4;
-    double m_SignificantPValue = 5e-3;
-    double m_VerySignificantPValue = 1e-6;
-    double m_AcceptedFalsePostiveRate = 1e-4;
-    std::ptrdiff_t m_MaximumNumberComponents = 10;
-    std::size_t m_MinimumModelSize = 24;
-    std::size_t m_MaximumModelSize = std::numeric_limits<std::size_t>::max();
+    std::size_t m_MaximumNumberSegments{MAXIMUM_NUMBER_SEGMENTS};
+    double m_MinimumRepeatsPerSegmentToTestVariance{3.0};
+    double m_MinimumRepeatsPerSegmentToTestAmplitude{5.0};
+    double m_LowAutocorrelation{0.3};
+    double m_MediumAutocorrelation{0.5};
+    double m_HighAutocorrelation{0.7};
+    double m_PValueToEvict{0.4};
+    double m_SignificantPValue{5e-3};
+    double m_VerySignificantPValue{1e-6};
+    double m_AcceptedFalsePostiveRate{1e-4};
+    std::ptrdiff_t m_MaximumNumberComponents{10};
+    std::size_t m_MinimumModelSize{24};
+    std::size_t m_MaximumModelSize{std::numeric_limits<std::size_t>::max()};
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_StartOfWeekTimeOverride;
-    core_t::TTime m_MinimumPeriod = 0;
-    core_t::TTime m_ValuesStartTime = 0;
-    core_t::TTime m_BucketsStartTime = 0;
-    core_t::TTime m_BucketLength = 0;
-    core_t::TTime m_SampleInterval = 0;
-    double m_SampleVariance = 0.0;
-    double m_OutlierFraction = OUTLIER_FRACTION;
-    double m_EpsVariance = 0.0;
-    TPredictor m_ModelledPredictor = [](core_t::TTime, const TBoolVec&) {
-        return 0.0;
-    };
+    core_t::TTime m_MinimumPeriod{0};
+    core_t::TTime m_ValuesStartTime{0};
+    core_t::TTime m_BucketsStartTime{0};
+    core_t::TTime m_BucketLength{0};
+    core_t::TTime m_SampleInterval{0};
+    double m_SampleVariance{0.0};
+    double m_OutlierFraction{OUTLIER_FRACTION};
+    double m_EpsVariance{0.0};
+    TPredictor m_ModelledPredictor{
+        [](core_t::TTime, const TBoolVec&) { return 0.0; }};
     TSeasonalComponentVec m_ModelledPeriods;
     TSizeVec m_ModelledPeriodsSizes;
     TBoolVec m_ModelledPeriodsTestable;

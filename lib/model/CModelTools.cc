@@ -11,14 +11,15 @@
 
 #include <model/CModelTools.h>
 
+#include <core/CLogger.h>
+#include <core/CMemoryDef.h>
+
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CModel.h>
 #include <maths/common/CMultinomialConjugate.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
-
-#include <model/CSample.h>
 
 #include <algorithm>
 #include <functional>
@@ -174,8 +175,8 @@ std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::
 operator()(const TTimeDouble2VecPr& value) const {
     return static_cast<std::size_t>(std::accumulate(
         value.second.begin(), value.second.end(),
-        static_cast<uint64_t>(value.first), [](uint64_t seed, double v) {
-            return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
+        static_cast<std::uint64_t>(value.first), [](std::uint64_t seed, double v) {
+            return core::CHashing::hashCombine(seed, static_cast<std::uint64_t>(v));
         }));
 }
 
@@ -282,8 +283,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         TDoubleVec lb;
         TDoubleVec ub;
         m_Prior->probabilitiesOfLessLikelyCategories(maths_t::E_TwoSided, lb, ub);
-        LOG_TRACE(<< "P({c}) >= " << core::CContainerPrinter::print(lb));
-        LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
+        LOG_TRACE(<< "P({c}) >= " << lb);
+        LOG_TRACE(<< "P({c}) <= " << ub);
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
         for (std::size_t i = 0; i < ub.size(); ++i) {
@@ -303,14 +304,14 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
 void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTools::CLessLikelyProbability");
-    core::CMemoryDebug::dynamicSize("m_Cache", m_Cache, mem->addChild());
+    core::memory_debug::dynamicSize("m_Cache", m_Cache, mem->addChild());
     if (m_Prior) {
         m_Prior->debugMemoryUsage(mem->addChild());
     }
 }
 
 std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_Cache)};
+    std::size_t mem{core::memory::dynamicSize(m_Cache)};
     if (m_Prior) {
         mem += m_Prior->memoryUsage();
     }
@@ -389,7 +390,7 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                            (right + 1)->second.s_Probability};
                     double tolerance{m_MaximumError *
                                      std::min(probabilities[1], probabilities[2])};
-                    LOG_TRACE(<< "p = " << core::CContainerPrinter::print(probabilities));
+                    LOG_TRACE(<< "p = " << probabilities);
 
                     if ((std::is_sorted(std::begin(probabilities), std::end(probabilities)) ||
                          std::is_sorted(std::begin(probabilities), std::end(probabilities),

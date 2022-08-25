@@ -13,20 +13,20 @@
 #define INCLUDED_ml_maths_common_CBjkstUniqueValues_h
 
 #include <core/CHashing.h>
-#include <core/CMemory.h>
-#include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
+#include <core/CMemoryUsage.h>
 
 #include <maths/common/ImportExport.h>
 
 #include <cstddef>
-#include <utility>
+#include <cstdint>
 #include <variant>
 #include <vector>
 
-#include <stdint.h>
-
 namespace ml {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
 namespace maths {
 namespace common {
 //! \brief The BJSKT algorithm for estimating the number of unique values
@@ -54,7 +54,7 @@ namespace common {
 //! IMPLEMENTATION DECISIONS:\n
 //! This implementation is reasonably space efficient but doesn't pack
 //! the hash map into a bit array for simplicity and better runtime
-//! constants. Also, since it uses an array of uint8_t to store the
+//! constants. Also, since it uses an array of std::uint8_t to store the
 //! hash map I've chosen to restrict the map hash function to 16 bits
 //! rather than the minimum value needed to get reasonable collision
 //! probability. This should be plenty big enough for all sizes of
@@ -78,7 +78,7 @@ public:
 
 public:
     //! Get the count of trailing zeros in value.
-    static uint8_t trailingZeros(uint32_t value);
+    static std::uint8_t trailingZeros(std::uint32_t value);
 
 public:
     //! \param numberHashes The number of independent hashes.
@@ -104,16 +104,16 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Add a new value.
-    void add(uint32_t value);
+    void add(std::uint32_t value);
 
     //! Remove a value.
-    void remove(uint32_t value);
+    void remove(std::uint32_t value);
 
     //! Get an estimate of the number of unique values added.
-    uint32_t number() const;
+    std::uint32_t number() const;
 
     //! Get a checksum for the sketch.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this sketch.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -122,9 +122,9 @@ public:
     std::size_t memoryUsage() const;
 
 private:
-    using TUInt8Vec = std::vector<uint8_t>;
+    using TUInt8Vec = std::vector<std::uint8_t>;
     using TUInt8VecVec = std::vector<TUInt8Vec>;
-    using TUInt32Vec = std::vector<uint32_t>;
+    using TUInt32Vec = std::vector<std::uint32_t>;
     using TUInt32VecItr = TUInt32Vec::iterator;
     using TUInt32VecCItr = TUInt32Vec::const_iterator;
 
@@ -144,13 +144,13 @@ private:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Add a new value.
-        void add(std::size_t maxSize, uint32_t value);
+        void add(std::size_t maxSize, std::uint32_t value);
 
         //! Remove a value.
-        void remove(uint32_t value);
+        void remove(std::uint32_t value);
 
         //! Get an estimate of the number of unique values added.
-        uint32_t number() const;
+        std::uint32_t number() const;
 
         //! The secondary hash function.
         TUInt32HashVec s_G;

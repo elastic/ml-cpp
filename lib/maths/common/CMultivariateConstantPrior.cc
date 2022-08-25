@@ -12,6 +12,8 @@
 #include <maths/common/CMultivariateConstantPrior.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CMemoryDef.h>
+#include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
@@ -19,16 +21,11 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CConstantPrior.h>
-#include <maths/common/CLinearAlgebraPersist.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 
-#include <boost/optional.hpp>
-
-#include <iomanip>
 #include <ios>
 #include <limits>
-#include <sstream>
+#include <optional>
 
 namespace ml {
 namespace maths {
@@ -36,7 +33,7 @@ namespace common {
 namespace {
 
 using TDouble10Vec = core::CSmallVector<double, 10>;
-using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
+using TOptionalDouble10Vec = std::optional<TDouble10Vec>;
 
 //! \brief Converts a constant value to a string.
 class CConstantToString {
@@ -47,13 +44,13 @@ public:
 };
 
 //! Set the constant, validating the input.
-void setConstant(std::size_t dimension, const TDouble10Vec& value, TOptionalDouble10Vec& result) {
+void setConstant(std::size_t dimension, TDouble10Vec value, TOptionalDouble10Vec& result) {
     if (value.size() != dimension) {
         LOG_ERROR(<< "Unexpected dimension: " << value.size() << " != " << dimension);
     } else if (CMathsFuncs::isNan(value)) {
         LOG_ERROR(<< "NaN constant");
     } else {
-        result.reset(value);
+        result.emplace(std::move(value));
     }
 }
 
@@ -86,7 +83,7 @@ bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTrave
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(CONSTANT_TAG, TDouble10Vec constant,
                                core::CPersistUtils::fromString(traverser.value(), constant),
-                               m_Constant.reset(constant))
+                               m_Constant.emplace(constant))
     } while (traverser.next());
 
     return true;
@@ -130,8 +127,8 @@ CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 1) {
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                  << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                  << ", condition '" << core::CContainerPrinter::print(condition) << "'");
+                  << "marginalize '" << marginalize << "'"
+                  << ", condition '" << condition << "'");
         return {};
     }
 
@@ -156,8 +153,8 @@ CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 2) {
         LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
-                  << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                  << ", condition '" << core::CContainerPrinter::print(condition) << "'");
+                  << "marginalize '" << marginalize << "'"
+                  << ", condition '" << condition << "'");
         return {};
     }
 
@@ -175,8 +172,8 @@ CMultivariateConstantPrior::marginalLikelihoodSupport() const {
     TDouble10Vec lowest(m_Dimension);
     TDouble10Vec highest(m_Dimension);
     for (std::size_t i = 0; i < m_Dimension; ++i) {
-        lowest[i] = boost::numeric::bounds<double>::lowest();
-        highest[i] = boost::numeric::bounds<double>::highest();
+        lowest[i] = std::numeric_limits<double>::lowest();
+        highest[i] = std::numeric_limits<double>::max();
     }
     return {lowest, highest};
 }
@@ -200,7 +197,7 @@ CMultivariateConstantPrior::marginalLikelihoodCovariance() const {
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative()) {
         for (std::size_t i = 0; i < m_Dimension; ++i) {
-            result[i][i] = boost::numeric::bounds<double>::highest();
+            result[i][i] = std::numeric_limits<double>::max();
         }
     }
     return result;
@@ -209,7 +206,7 @@ CMultivariateConstantPrior::marginalLikelihoodCovariance() const {
 CMultivariateConstantPrior::TDouble10Vec
 CMultivariateConstantPrior::marginalLikelihoodVariances() const {
     return TDouble10Vec(m_Dimension, this->isNonInformative()
-                                         ? boost::numeric::bounds<double>::highest()
+                                         ? std::numeric_limits<double>::max()
                                          : 0.0);
 }
 
@@ -225,9 +222,8 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& s
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples) << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << samples << "' and weights '"
+                  << weights << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -240,7 +236,7 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& s
         // underflow and pollute the floating point environment. This
         // may cause issues for some library function implementations
         // (see fe*exceptflag for more details).
-        result = boost::numeric::bounds<double>::lowest();
+        result = std::numeric_limits<double>::lowest();
         return maths_t::E_FpOverflowed;
     }
 
@@ -253,7 +249,7 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& s
         }
         if (!std::equal(samples[i].begin(), samples[i].end(), m_Constant->begin())) {
             // Technically infinite, but just use minus max double.
-            result = boost::numeric::bounds<double>::lowest();
+            result = std::numeric_limits<double>::lowest();
             return maths_t::E_FpOverflowed;
         }
 
@@ -292,11 +288,11 @@ std::uint64_t CMultivariateConstantPrior::checksum(std::uint64_t seed) const {
 
 void CMultivariateConstantPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateConstantPrior");
-    core::CMemoryDebug::dynamicSize("m_Constant", m_Constant, mem);
+    core::memory_debug::dynamicSize("m_Constant", m_Constant, mem);
 }
 
 std::size_t CMultivariateConstantPrior::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Constant);
+    return core::memory::dynamicSize(m_Constant);
 }
 
 std::size_t CMultivariateConstantPrior::staticSize() const {

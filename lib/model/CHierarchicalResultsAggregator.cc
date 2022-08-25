@@ -19,13 +19,9 @@
 
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CTools.h>
-#include <maths/common/Constants.h>
-#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CAnomalyScore.h>
-#include <model/CLimits.h>
-#include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
@@ -172,8 +168,8 @@ bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreT
     return true;
 }
 
-uint64_t CHierarchicalResultsAggregator::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_DecayRate);
+std::uint64_t CHierarchicalResultsAggregator::checksum() const {
+    std::uint64_t seed = static_cast<std::uint64_t>(m_DecayRate);
     seed = maths::common::CChecksum::calculate(seed, m_Parameters);
     seed = maths::common::CChecksum::calculate(seed, m_MaximumAnomalousProbability);
     return this->TBase::checksum(seed);
@@ -210,7 +206,7 @@ void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot
     if (!this->partitionChildProbabilities(node, pivot, numberDetectors, partition)) {
         return;
     }
-    LOG_TRACE(<< "partition = " << core::CContainerPrinter::print(partition));
+    LOG_TRACE(<< "partition = " << partition);
 
     int detector;
     int aggregation;
@@ -295,7 +291,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
             pMinDescendent[0], maths::common::CTools::smallestProbability(), 1.0);
     }
     numberDetectors = detectors.size();
-    LOG_TRACE(<< "detector = " << core::CContainerPrinter::print(detectors));
+    LOG_TRACE(<< "detector = " << detectors);
 
     return haveResult;
 }

@@ -10,7 +10,7 @@
  */
 #include <model/CTokenListReverseSearchCreator.h>
 
-#include <core/CMemory.h>
+#include <core/CMemoryDef.h>
 #include <core/CRegex.h>
 
 namespace ml {
@@ -90,11 +90,11 @@ const std::string& CTokenListReverseSearchCreator::fieldName() const {
 
 void CTokenListReverseSearchCreator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListReverseSearchCreator");
-    core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
+    core::memory_debug::dynamicSize("m_FieldName", m_FieldName, mem);
 }
 
 std::size_t CTokenListReverseSearchCreator::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_FieldName);
+    return core::memory::dynamicSize(m_FieldName);
 }
 }
 }
