@@ -9,12 +9,9 @@
  * limitation.
  */
 
-#include "core/CContainerPrinter.h"
-#include "maths/common/CBasicStatistics.h"
-#include "maths/common/CSpline.h"
-#include <limits>
 #include <maths/analytics/COutliers.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
@@ -23,9 +20,11 @@
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/CSpline.h>
 #include <maths/common/CTools.h>
 
 #include <maths/common/CMathsFuncs.h>
@@ -33,6 +32,7 @@
 #include <boost/math/distributions/lognormal.hpp>
 
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <sstream>
 #include <string>
@@ -228,10 +228,10 @@ private:
                               const TMemoryUsageCallback& recordMemoryUsage) const;
 
         std::size_t memoryUsage() const {
-            return core::CMemory::dynamicSize(m_Lookup) +
-                   core::CMemory::dynamicSize(m_Projection) +
-                   core::CMemory::dynamicSize(m_Method) +
-                   core::CMemory::dynamicSize(m_LogScoreMoments);
+            return core::memory::dynamicSize(m_Lookup) +
+                   core::memory::dynamicSize(m_Projection) +
+                   core::memory::dynamicSize(m_Method) +
+                   core::memory::dynamicSize(m_LogScoreMoments);
         }
 
         static std::size_t estimateMemoryUsage(TMethodSize methodSize,
@@ -603,13 +603,25 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
 
     auto pOutlierGiven = [] {
         static const TDoubleVec LOG_KNOTS{
-            common::CTools::fastLog(1e-5), common::CTools::fastLog(1e-3),
-            common::CTools::fastLog(0.01), common::CTools::fastLog(0.1),
-            common::CTools::fastLog(0.2),  common::CTools::fastLog(0.4),
-            common::CTools::fastLog(0.5),  common::CTools::fastLog(0.6),
-            common::CTools::fastLog(0.8),  common::CTools::fastLog(1.0)};
-        static const TDoubleVec KNOTS_P_OUTLIER{0.98, 0.87, 0.76, 0.65, 0.6,
-                                                0.5,  0.5,  0.5,  0.3,  0.3};
+            common::CTools::fastLog(std::numeric_limits<double>::min()),
+            common::CTools::fastLog(1e-5),
+            common::CTools::fastLog(1e-3),
+            common::CTools::fastLog(0.01),
+            common::CTools::fastLog(0.1),
+            common::CTools::fastLog(0.2),
+            common::CTools::fastLog(0.4),
+            common::CTools::fastLog(0.5),
+            common::CTools::fastLog(0.6),
+            common::CTools::fastLog(0.8),
+            common::CTools::fastLog(1.0)};
+        static const TDoubleVec KNOTS_P_OUTLIER{
+            0.9999, 0.99, 0.96, 0.82, 0.67, 0.62, 0.51, 0.5, 0.5, 0.35, 0.33};
+        static common::CSpline<> P_OUTLIER{[&] {
+            common::CSpline<> result{common::CSplineTypes::E_Linear};
+            result.interpolate(LOG_KNOTS, KNOTS_P_OUTLIER,
+                               common::CSplineTypes::E_ParabolicRunout);
+            return result;
+        }()};
 
         return [&](double cdfComplement) {
             double logCdfComplement{common::CTools::fastLog(

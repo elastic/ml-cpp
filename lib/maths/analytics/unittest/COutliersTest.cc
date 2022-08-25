@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <algorithm>
 #include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
@@ -33,6 +32,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <atomic>
 #include <numeric>
 #include <optional>

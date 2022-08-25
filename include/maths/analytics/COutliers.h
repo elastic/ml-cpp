@@ -208,8 +208,8 @@ public:
     std::size_t staticSize() const override { return sizeof(*this); }
 
     std::size_t memoryUsage() const override {
-        return core::CMemory::dynamicSize(m_KDistances) +
-               core::CMemory::dynamicSize(m_Lrd) + core::CMemory::dynamicSize(m_LrdAtEps);
+        return core::memory::dynamicSize(m_KDistances) +
+               core::memory::dynamicSize(m_Lrd) + core::memory::dynamicSize(m_LrdAtEps);
     }
 
     static std::size_t estimateOwnMemoryOverhead(bool computeFeatureInfluence,
