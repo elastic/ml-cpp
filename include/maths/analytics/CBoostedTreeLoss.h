@@ -987,7 +987,7 @@ private:
     const TNodeVec* m_Tree{nullptr};
 };
 
-//!  \brief The loss for multinomial logistic regression.
+//! \brief The loss for multinomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross-entropy loss using the forest to predict the class
@@ -1062,6 +1062,18 @@ private:
     std::size_t m_NumberClasses;
 };
 
+//! \brief The loss for multinomial logistic regression over a subset of classes.
+//!
+//! DESCRIPTION:\n
+//! Working with the loss Hessian for multinomial logisitic regression becomes
+//! cost prohibitive if there are many classes. We take the approach of working
+//! on a dynamic observed subset of classes for each round of boosting (the "in"
+//! classes of this type). We choose to observe the classes with the highest
+//! total loss (for details on this see CMultinomialLogisticLoss::project). All
+//! classes not being observed (the "out" classes of this type) are treated in
+//! the average sense: specifically, we compute the expectation of the various
+//! derivatives of cross-entropy with respect to their predicted probabilities.
+//! Otherwise, the calculation matches CMultinomialLogisticLoss.
 class MATHS_ANALYTICS_EXPORT CMultinomialLogisticSubsetLoss final
     : public CMultinomialLogisticLoss {
 public:
