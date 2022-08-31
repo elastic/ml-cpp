@@ -475,9 +475,11 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
-    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::size_t dimensionPrediction{m_TreeImpl->m_Loss->dimensionPrediction()};
+    std::size_t dimensionGradient{m_TreeImpl->m_Loss->dimensionGradient()};
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
-        m_TreeImpl->m_NumberThreads, extraColumnsForTrain(numberLossParameters));
+        m_TreeImpl->m_NumberThreads,
+        extraColumnsForTrain(dimensionPrediction, dimensionGradient));
     auto extraColumnTags = extraColumnTagsForTrain();
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
     for (std::size_t i = 0; i < extraColumns.size(); ++i) {
@@ -499,9 +501,9 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
     std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
-    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::size_t dimensionPrediction{m_TreeImpl->m_Loss->dimensionPrediction()};
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
-        m_TreeImpl->m_NumberThreads, extraColumnsForIncrementalTrain(numberLossParameters));
+        m_TreeImpl->m_NumberThreads, extraColumnsForIncrementalTrain(dimensionPrediction));
     auto extraColumnTags = extraColumnTagsForIncrementalTrain();
     for (std::size_t i = 0; i < extraColumns.size(); ++i) {
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
@@ -519,8 +521,8 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
         for (auto row_ = beginRows; row_ != endRows; ++row_) {
             auto row = *row_;
             writePreviousPrediction(
-                row, m_TreeImpl->m_ExtraColumns, numberLossParameters,
-                readPrediction(row, m_TreeImpl->m_ExtraColumns, numberLossParameters));
+                row, m_TreeImpl->m_ExtraColumns, dimensionPrediction,
+                readPrediction(row, m_TreeImpl->m_ExtraColumns, dimensionPrediction));
         }
     });
 }
@@ -533,9 +535,9 @@ void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) co
     std::size_t oldFrameMemory{core::memory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
-    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::size_t dimensionPrediction{m_TreeImpl->m_Loss->dimensionPrediction()};
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
-        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(numberLossParameters));
+        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(dimensionPrediction));
     auto extraColumnTags = extraColumnTagsForPredict();
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
     for (std::size_t i = 0; i < extraColumns.size(); ++i) {
@@ -1748,8 +1750,10 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForEncode() {
     return 0;
 }
 
-std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
-                                                              std::size_t numberLossParameters) {
+std::size_t
+CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
+                                                  std::size_t dimensionPrediction,
+                                                  std::size_t dimensionGradient) {
     // We store as follows:
     //   1. The predicted values
     //   2. The gradient of the loss function
@@ -1757,28 +1761,31 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t number
     //   4. The example's splits packed into std::uint8_t
     //
     // See prepareDataFrameForTrain and initializeSplitsCache for details.
-    return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
+    return dimensionPrediction + dimensionGradient * (dimensionGradient + 3) / 2 +
+           (numberColumns + 2) / 4;
 }
 
 std::size_t
 CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
-                                                             std::size_t numberLossParameters) {
+                                                             std::size_t dimensionPrediction,
+                                                             std::size_t dimensionGradient) {
     // We store as follows:
     //   1. The predicted values
-    //   2. The gradient of the loss function
-    //   3. The upper triangle of the hessian of the loss function
-    //   4. The previous prediction
+    //   2. The previous prediction
+    //   3. The gradient of the loss function
+    //   4. The upper triangle of the hessian of the loss function
     //   5. The example's splits packed into std::uint8_t
     //
     // See prepareDataFrameForTrainIncremental and initializeSplitsCache for details.
-    return numberLossParameters * (numberLossParameters + 7) / 2 + (numberColumns + 2) / 4;
+    return 2 * dimensionPrediction +
+           dimensionGradient * (dimensionGradient + 3) / 2 + (numberColumns + 2) / 4;
 }
 
-std::size_t CBoostedTreeFactory::estimateExtraColumnsForPredict(std::size_t numberLossParameters) {
+std::size_t CBoostedTreeFactory::estimateExtraColumnsForPredict(std::size_t dimensionPrediction) {
     // We store the predicted values.
     //
     // See prepareDataFrameForPredict for details.
-    return numberLossParameters;
+    return dimensionPrediction;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {

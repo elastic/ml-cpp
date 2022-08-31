@@ -47,7 +47,7 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeLeafNodeStatisticsScratch final
 public:
     CBoostedTreeLeafNodeStatisticsScratch(std::size_t id,
                                           const TSizeVec& extraColumns,
-                                          std::size_t numberLossParameters,
+                                          std::size_t dimensionGradient,
                                           const core::CDataFrame& frame,
                                           const TRegularization& regularization,
                                           const TFloatVecVec& candidateSplits,
@@ -111,7 +111,7 @@ private:
 
 private:
     CBoostedTreeLeafNodeStatisticsScratch(const TSizeVec& extraColumns,
-                                          std::size_t numberLossParameters,
+                                          std::size_t dimensionGradient,
                                           const TFloatVecVec& candidateSplits,
                                           CSplitsDerivatives derivatives);
     SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,

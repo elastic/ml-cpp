@@ -357,7 +357,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
 // clang-format off
 // The MAX_NUMBER_CLASSES must match the value used in the Java code. See the
 // MAX_DEPENDENT_VARIABLE_CARDINALITY in the x-pack classification code.
-const std::size_t CDataFrameTrainBoostedTreeClassifierRunner::MAX_NUMBER_CLASSES{30};
+const std::size_t CDataFrameTrainBoostedTreeClassifierRunner::MAX_NUMBER_CLASSES{100};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES{"num_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};

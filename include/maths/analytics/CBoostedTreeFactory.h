@@ -223,12 +223,15 @@ public:
     static std::size_t estimateExtraColumnsForEncode();
     //! Estimate the number of columns training the model will add to the data frame.
     static std::size_t estimateExtraColumnsForTrain(std::size_t numberColumns,
-                                                    std::size_t numberLossParameters);
+                                                    std::size_t dimensionPrediction,
+                                                    std::size_t dimensionGradient);
     //! Estimate the number of columns updating the model will add to the data frame.
-    static std::size_t estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
-                                                               std::size_t numberLossParameters);
+    static std::size_t
+    estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
+                                            std::size_t dimensionPrediction,
+                                            std::size_t dimensionGradient);
     //! Estimate the number of columns predicting the model will add to the data frame.
-    static std::size_t estimateExtraColumnsForPredict(std::size_t numberLossParameters);
+    static std::size_t estimateExtraColumnsForPredict(std::size_t dimensionPrediction);
 
     //! Build a boosted tree object for encoding on \p frame.
     TBoostedTreeUPtr buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable);
