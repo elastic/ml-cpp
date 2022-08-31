@@ -625,6 +625,8 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
             }
         }
     }
+    std::copy(other.m_ProbabilityExplanations.begin(), other.m_ProbabilityExplanations.end(), 
+    std::back_inserter(m_ProbabilityExplanations));
 }
 
 bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
@@ -716,7 +718,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
         mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
         m_Probability.add(probability, weight);
         m_ProbabilityExplanations.clear();
-        m_ProbabilityExplanations = std::move(result.s_ProbabilityExplanation);
+        m_ProbabilityExplanations = result.s_ProbabilityExplanation;
     };
 
     // Check the cache.
@@ -736,6 +738,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
     TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
     maths::common::SModelProbabilityResult result;
     if (model.probability(computeProbabilityParams, time, values, result)) {
+        LOG_INFO(<< "After model.probability with explanations " << result.s_ProbabilityExplanation.size());
         if (model_t::isConstant(feature) == false) {
             readResult(result);
             if (m_ProbabilityCache) {
@@ -744,6 +747,8 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
             }
         } else {
             probability = result.s_Probability;
+            m_ProbabilityExplanations.clear();
+            m_ProbabilityExplanations = result.s_ProbabilityExplanation;
             tail = std::move(result.s_Tail);
             type.set(model_t::CResultType::E_Unconditional);
             mostAnomalousCorrelate.clear();

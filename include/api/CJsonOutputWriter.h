@@ -158,6 +158,8 @@ public:
         // new records with a higher probability
         double s_HighestProbability;
 
+        std::string s_ProbabilityExplanations;
+
         // Used for filtering new influencers
         // when the number to write is limited
         double s_LowestInfluencerScore;
@@ -222,8 +224,7 @@ public:
     void acceptBucketTimeInfluencer(core_t::TTime time,
                                     double probability,
                                     double rawAnomalyScore,
-                                    double normalizedAnomalyScore,
-                                    const std::vector<std::string>& probabilityExplanations);
+                                    double normalizedAnomalyScore);
 
     //! This method must be called after all the results for a given bucket
     //! are available.  It triggers the writing of the results.

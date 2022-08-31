@@ -273,6 +273,13 @@ public:
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    double sumPredictionError() const {
+        if (!m_Anomaly) {
+            return 0.0;
+        }
+        return m_Anomaly->sumPredictionError();
+    }
+
 private:
     using TMultivariateNormalConjugate = common::CMultivariateNormalConjugate<2>;
     using TMultivariateNormalConjugateVec = std::vector<TMultivariateNormalConjugate>;
@@ -339,6 +346,10 @@ private:
                                  core::CIEEE754::E_SinglePrecision);
             inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                                  m_MeanAbsPredictionError.toDelimited());
+        }
+
+        double sumPredictionError() const {
+            return m_SumPredictionError;
         }
 
     private:
@@ -964,12 +975,21 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
 
         if (maths_t::seasonalVarianceScale(weights[0]) > 1) {
-            LOG_DEBUG(<< "Variation at similar times is larger than is typical => the score is reduced.");
             result.s_ProbabilityExplanation.emplace_back("Variation at similar times is larger than is typical => the score is reduced. ");
         } 
         if (maths_t::countVarianceScale(weights[0]) > 1) {
-            LOG_DEBUG(<< "The bucket contains fewer values than is typical => the score is reduced.");
             result.s_ProbabilityExplanation.emplace_back("The bucket contains fewer values than is typical => the score is reduced.");
+        }
+
+        switch (tail) {
+        case maths_t::ETail::E_LeftTail:
+            result.s_ProbabilityExplanation.emplace_back("The value is unusually low.");
+            break;
+        case  maths_t::ETail::E_RightTail:
+            result.s_ProbabilityExplanation.emplace_back("The value is unusually high.");
+            break;
+        default:
+            break;
         }
 
     } else {
@@ -1000,7 +1020,6 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         }
 
         if (pMultiBucket < probabilities.back()) {
-            LOG_DEBUG(<<"The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
             result.s_ProbabilityExplanation.emplace_back("The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
         }
         probabilities.push_back(pMultiBucket);
@@ -1024,11 +1043,17 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         double pOverallOld{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
         if (pOverall < pOverallOld) {
-            LOG_DEBUG(<< "The anomaly is shorter than other anomalies seen before (short spike) => the score is reduced.");
-            result.s_ProbabilityExplanation.emplace_back("The anomaly is shorter than other anomalies seen before (short spike) => the score is reduced. ");
+            result.s_ProbabilityExplanation.emplace_back("The anomaly is shorter than other anomalies seen before (short spike) => the score is increased. ");
         } else if (pOverall > pOverallOld) {
-            LOG_DEBUG(<< "The anomaly is longer than others we’ve seen before  => the score is increased.");
-            result.s_ProbabilityExplanation.emplace_back("The anomaly is longer than others we’ve seen before  => the score is increased.");
+            result.s_ProbabilityExplanation.emplace_back("The anomaly is longer than others we’ve seen before  => the score is reduced.");
+        }
+
+        // TODO: m_AnomalyModel.length() => Length in bucket
+        if (m_AnomalyModel->sumPredictionError() > 0) {
+            result.s_ProbabilityExplanation.emplace_back("This anomaly is a spike.");
+        }
+        else if (m_AnomalyModel->sumPredictionError() < 0) {
+            result.s_ProbabilityExplanation.emplace_back("This anomaly is a dip.");
         }
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(

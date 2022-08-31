@@ -773,8 +773,7 @@ void CAnomalyJob::writeOutResults(bool interim,
         // Note that the influencer will only be accepted if there are records.
         m_JsonOutputWriter.acceptBucketTimeInfluencer(
             bucketTime, results.root()->s_AnnotatedProbability.s_Probability,
-            results.root()->s_RawAnomalyScore, results.root()->s_NormalizedAnomalyScore, 
-            results.root() -> s_AnnotatedProbability.s_ProbabilityExplanations);
+            results.root()->s_RawAnomalyScore, results.root()->s_NormalizedAnomalyScore);
 
         if (m_JsonOutputWriter.endOutputBatch(interim, processingTime) == false) {
             LOG_ERROR(<< "Problem writing anomaly output");

@@ -12,6 +12,7 @@
 #include <api/CJsonOutputWriter.h>
 
 #include <core/CTimeUtils.h>
+#include <core/CStringUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
 
@@ -317,8 +318,7 @@ bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
 void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
                                                    double probability,
                                                    double rawAnomalyScore,
-                                                   double normalizedAnomalyScore, 
-                                                   const std::vector<std::string>& probabilityExplanations) {
+                                                   double normalizedAnomalyScore) {
     SBucketData& bucketData = m_BucketDataByTime[time];
     if (bucketData.s_RecordCount == 0) {
         return;
@@ -335,10 +335,6 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     m_Writer.addDoubleFieldToObj(RAW_ANOMALY_SCORE, rawAnomalyScore, *newDoc);
     m_Writer.addDoubleFieldToObj(INITIAL_SCORE, normalizedAnomalyScore, *newDoc);
     m_Writer.addDoubleFieldToObj(ANOMALY_SCORE, normalizedAnomalyScore, *newDoc);
-
-    std::string explanationsCombined = std::accumulate(probabilityExplanations.begin(), probabilityExplanations.end(), std::string(""));
-    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, std::move(explanationsCombined), *newDoc);
-
 
     bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore = std::max(
         bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, normalizedAnomalyScore);
@@ -511,9 +507,8 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    std::string explanationsCombined = std::accumulate(results.s_ProbabilityExplanations.begin(), 
-    results.s_ProbabilityExplanations.end(), std::string(""));
-    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, std::move(explanationsCombined), *docPtr);
+    std::string explanationsCombined =  core::CStringUtils::join(results.s_ProbabilityExplanations, " ");   
+    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
@@ -755,6 +750,8 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+    std::string explanationsCombined = core::CStringUtils::join(results.s_ProbabilityExplanations, " ");   
+    m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {

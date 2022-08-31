@@ -113,7 +113,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result13));
             BOOST_TEST_REQUIRE(writer.acceptResult(result14));
             BOOST_TEST_REQUIRE(writer.acceptResult(result14));
-            writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0, {});
+            writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);
         }
 
         {
@@ -162,7 +162,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result23));
             BOOST_TEST_REQUIRE(writer.acceptResult(result24));
             BOOST_TEST_REQUIRE(writer.acceptResult(result24));
-            writer.acceptBucketTimeInfluencer(2, 0.01, 13.44, 70.0, {});
+            writer.acceptBucketTimeInfluencer(2, 0.01, 13.44, 70.0);
         }
 
         {
@@ -185,21 +185,21 @@ void testBucketWriteHelper(bool isInterim) {
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
-                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST, {"result32 explanation"});
 
             ml::api::CHierarchicalResultsWriter::SResults result33(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, {"result33 explanation"});
 
             ml::api::CHierarchicalResultsWriter::SResults result34(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue,
                 correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
                 TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST, {"result34 explanation"});
 
             // 3rd bucket
             BOOST_TEST_REQUIRE(writer.acceptResult(result31));
@@ -211,7 +211,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result33));
             BOOST_TEST_REQUIRE(writer.acceptResult(result34));
             BOOST_TEST_REQUIRE(writer.acceptResult(result34));
-            writer.acceptBucketTimeInfluencer(3, 0.01, 13.44, 70.0, {});
+            writer.acceptBucketTimeInfluencer(3, 0.01, 13.44, 70.0);
         }
 
         // Finished adding results
@@ -905,7 +905,7 @@ void testThroughputHelper(bool useScopedAllocator) {
         false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
     // 1st bucket
-    writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0, {});
+    writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);
 
     // Write the record this many times
     static const size_t TEST_SIZE(75000);
@@ -1112,7 +1112,7 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
             0.0, 0.0, 1.0, 30, emptyString, influences, false, false, 1, 100);
 
         BOOST_TEST_REQUIRE(writer.acceptResult(result));
-        writer.acceptBucketTimeInfluencer(1, 1.0, 0.0, 0.0, {});
+        writer.acceptBucketTimeInfluencer(1, 1.0, 0.0, 0.0);
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
         writer.finalise();
     }
@@ -1446,7 +1446,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
 
         BOOST_TEST_REQUIRE(writer.acceptResult(result));
 
-        writer.acceptBucketTimeInfluencer(ml::core_t::TTime(0), 0.6, 1.0, 10.0, {});
+        writer.acceptBucketTimeInfluencer(ml::core_t::TTime(0), 0.6, 1.0, 10.0);
 
         // Finished adding results
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));

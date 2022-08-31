@@ -53,6 +53,7 @@ public:
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
+    using TStrVec = std::vector<std::string>;
 
 public:
     enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };
@@ -109,7 +110,7 @@ public:
                  int identifier,
                  core_t::TTime bucketSpan,
                  TStr1Vec scheduledEventDescriptions,
-                 TStr1Vec probabilityExplanations);
+                 TStrVec probabilityExplanations);
 
         EResultType s_ResultType;
         bool s_IsAllTimeResult;
@@ -141,7 +142,7 @@ public:
         const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
-        TStr1Vec s_ProbabilityExplanations;
+        TStrVec s_ProbabilityExplanations;
     };
 
 public:
