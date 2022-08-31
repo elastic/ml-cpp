@@ -86,7 +86,7 @@ public:
 
 public:
     CBoostedTreeNode() = default;
-    explicit CBoostedTreeNode(std::size_t numberLossParameters);
+    explicit CBoostedTreeNode(std::size_t dimensionPrediction);
 
     //! Check if this is a leaf node.
     bool isLeaf() const { return m_LeftChild == std::nullopt; }
@@ -193,9 +193,9 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-    //! Get the node's memory usage for a loss function with \p numberLossParameters
+    //! Get the node's memory usage for a loss function with \p dimensionPrediction
     //! parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
+    static std::size_t estimateMemoryUsage(std::size_t dimensionPrediction);
 
     //! Get the memory the node will will use in bytes when deployed.
     std::size_t deployedSize() const;

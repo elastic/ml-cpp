@@ -50,31 +50,30 @@ public:
                                                                 std::size_t rows);
 
     //! Get the number of threads to use to add split derivatives.
-    static std::size_t
-    numberThreadsForAddSplitsDerivatives(std::size_t numberThreads,
-                                         std::size_t features,
-                                         std::size_t numberLossParameters,
-                                         std::size_t numberDerivatives);
+    static std::size_t numberThreadsForAddSplitsDerivatives(std::size_t numberThreads,
+                                                            std::size_t features,
+                                                            std::size_t dimensionGradient,
+                                                            std::size_t numberDerivatives);
 
     //! Get the number of threads to use to subtract split derivatives.
     static std::size_t
     numberThreadsForSubtractSplitsDerivatives(std::size_t numberThreads,
                                               std::size_t features,
-                                              std::size_t numberLossParameters,
+                                              std::size_t dimensionGradient,
                                               std::size_t numberDerivatives);
 
     //! Get the number of threads to use to remap curvatures of split derivatives.
     static std::size_t
     numberThreadsForRemapSplitsDerivatives(std::size_t numberThreads,
                                            std::size_t features,
-                                           std::size_t numberLossParameters,
+                                           std::size_t dimensionGradient,
                                            std::size_t numberDerivatives);
 
     //! Get the number of threads to use to compute the best split statistics.
     static std::size_t
     numberThreadsForComputeBestSplitStatistics(std::size_t numberThreads,
                                                std::size_t features,
-                                               std::size_t numberLossParameters,
+                                               std::size_t dimensionGradient,
                                                std::size_t numberDerivatives);
 
     //! Compute the number of threads which optimises throughput given \p totalWork.
@@ -84,17 +83,16 @@ public:
     static double threadCost(double numberThreads);
 
     //! Make the loss function to use for computing leaf node split gain.
-    static TMinimumLoss makeThreadLocalMinimumLossFunction(int numberLossParameters,
-                                                           double lambda);
+    static TMinimumLoss makeThreadLocalMinimumLossFunction(int dimensionGradient, double lambda);
 
 private:
-    static double addSplitsDerivativesTotalWork(std::size_t numberLossParameters,
+    static double addSplitsDerivativesTotalWork(std::size_t dimensionGradient,
                                                 std::size_t numberDerivatives);
-    static double subtractSplitsDerivativesTotalWork(std::size_t numberLossParameters,
+    static double subtractSplitsDerivativesTotalWork(std::size_t dimensionGradient,
                                                      std::size_t numberDerivatives);
-    static double remapSplitsDerivativesTotalWork(std::size_t numberLossParameters,
+    static double remapSplitsDerivativesTotalWork(std::size_t dimensionGradient,
                                                   std::size_t numberDerivatives);
-    static double computeBestSplitStatisticsTotalWork(std::size_t numberLossParameters,
+    static double computeBestSplitStatisticsTotalWork(std::size_t dimensionGradient,
                                                       std::size_t numberDerivatives);
     template<int d>
     static TMinimumLoss makeThreadLocalMinimumLossFunction(double lambda);

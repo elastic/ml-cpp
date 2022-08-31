@@ -41,9 +41,9 @@ std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForAggregateLo
 std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForAddSplitsDerivatives(
     std::size_t numberThreads,
     std::size_t features,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
-    double totalWork{addSplitsDerivativesTotalWork(numberLossParameters, numberDerivatives)};
+    double totalWork{addSplitsDerivativesTotalWork(dimensionGradient, numberDerivatives)};
     return common::CBasicStatistics::min(maximumThroughputNumberThreads(totalWork),
                                          features, numberThreads);
 }
@@ -51,9 +51,9 @@ std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForAddSplitsDe
 std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForSubtractSplitsDerivatives(
     std::size_t numberThreads,
     std::size_t features,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
-    double totalWork{subtractSplitsDerivativesTotalWork(numberLossParameters, numberDerivatives)};
+    double totalWork{subtractSplitsDerivativesTotalWork(dimensionGradient, numberDerivatives)};
     return common::CBasicStatistics::min(maximumThroughputNumberThreads(totalWork),
                                          features, numberThreads);
 }
@@ -61,9 +61,9 @@ std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForSubtractSpl
 std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForRemapSplitsDerivatives(
     std::size_t numberThreads,
     std::size_t features,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
-    double totalWork{remapSplitsDerivativesTotalWork(numberLossParameters, numberDerivatives)};
+    double totalWork{remapSplitsDerivativesTotalWork(dimensionGradient, numberDerivatives)};
     return common::CBasicStatistics::min(maximumThroughputNumberThreads(totalWork),
                                          features, numberThreads);
 }
@@ -71,15 +71,15 @@ std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForRemapSplits
 std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForComputeBestSplitStatistics(
     std::size_t numberThreads,
     std::size_t features,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
-    double totalWork{computeBestSplitStatisticsTotalWork(numberLossParameters, numberDerivatives)};
+    double totalWork{computeBestSplitStatisticsTotalWork(dimensionGradient, numberDerivatives)};
     return common::CBasicStatistics::min(maximumThroughputNumberThreads(totalWork),
                                          features, numberThreads);
 }
 
 double CBoostedTreeLeafNodeStatisticsThreading::addSplitsDerivativesTotalWork(
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
 
     // Interestingly, you get a much better fit using a function of the form
@@ -87,30 +87,30 @@ double CBoostedTreeLeafNodeStatisticsThreading::addSplitsDerivativesTotalWork(
     // proportional to n p (p + 1) / 2.
 
     double n{static_cast<double>(numberDerivatives)};
-    double p{static_cast<double>(numberLossParameters * (numberLossParameters + 3) / 2)};
+    double p{static_cast<double>(dimensionGradient * (dimensionGradient + 3) / 2)};
     return n * (1.0 / 2500.0 + p / 5000.0);
 }
 
 double CBoostedTreeLeafNodeStatisticsThreading::subtractSplitsDerivativesTotalWork(
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
     double n{static_cast<double>(numberDerivatives)};
-    double p{static_cast<double>(numberLossParameters * (numberLossParameters + 1))};
+    double p{static_cast<double>(dimensionGradient * (dimensionGradient + 1))};
     return n * (1.0 / 400.0 + p / 20000.0);
 }
 
 double CBoostedTreeLeafNodeStatisticsThreading::remapSplitsDerivativesTotalWork(
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
     double n{static_cast<double>(numberDerivatives)};
-    double p{static_cast<double>(numberLossParameters * (numberLossParameters + 1) / 2)};
+    double p{static_cast<double>(dimensionGradient * (dimensionGradient + 1) / 2)};
     return n * (1.0 / 500.0 + p / 4000.0);
 }
 
 double CBoostedTreeLeafNodeStatisticsThreading::computeBestSplitStatisticsTotalWork(
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     std::size_t numberDerivatives) {
-    double d{static_cast<double>(numberLossParameters)};
+    double d{static_cast<double>(dimensionGradient)};
     double n{static_cast<double>(numberDerivatives)};
     if (d == 1.0) {
         return n / 50.0;
@@ -191,12 +191,12 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(doub
 }
 
 CBoostedTreeLeafNodeStatisticsThreading::TMinimumLoss
-CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(int numberLossParameters,
+CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(int dimensionGradient,
                                                                             double lambda) {
 
     // For very small numbers of classes it is significantly faster to use stack
     // based matrices and vectors.
-    switch (numberLossParameters) {
+    switch (dimensionGradient) {
     case 1:
         return makeThreadLocalMinimumLossFunction<1>(lambda);
     case 2:
@@ -216,7 +216,7 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(int 
     // up as a bottleneck and creates contention which largely kills threading
     // advantages. Note that this means one copy of the function must be used
     // per thread.
-    int d{static_cast<int>(numberLossParameters)};
+    int d{static_cast<int>(dimensionGradient)};
     return [
         hessian = Eigen::MatrixXd{d, d}, hessianInvg = Eigen::VectorXd{d},
         llt = Eigen::LLT<Eigen::MatrixXd>{d}, lambda, d

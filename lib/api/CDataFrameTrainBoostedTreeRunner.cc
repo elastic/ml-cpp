@@ -127,8 +127,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisParameters& parameters,
     TLossFunctionUPtr loss,
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
-    : CDataFrameAnalysisRunner{spec}, m_NumberLossParameters{loss->numberParameters()},
-      m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+    : CDataFrameAnalysisRunner{spec}, m_DimensionPrediction{loss->dimensionPrediction()},
+      m_DimensionGradient{loss->dimensionGradient()}, m_Instrumentation{spec.jobId(),
+                                                                        spec.memoryLimit()} {
 
     if (loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must provide a loss function for training."
@@ -332,13 +333,13 @@ std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode();
     case api_t::E_Train:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
-            this->spec().numberColumns(), m_NumberLossParameters);
+            this->spec().numberColumns(), m_DimensionPrediction, m_DimensionGradient);
     case api_t::E_Update:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
-            this->spec().numberColumns(), m_NumberLossParameters);
+            this->spec().numberColumns(), m_DimensionPrediction, m_DimensionGradient);
     case api_t::E_Predict:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
-            m_NumberLossParameters);
+            m_DimensionPrediction);
     }
 }
 
