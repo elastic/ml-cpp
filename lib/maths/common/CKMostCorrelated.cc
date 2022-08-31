@@ -664,8 +664,8 @@ void CKMostCorrelated::SCorrelation::acceptPersistInserter(core::CStatePersistIn
 }
 
 bool CKMostCorrelated::SCorrelation::operator<(const SCorrelation& rhs) const {
-    return COrderings::lexicographical_compare(
-        -this->absCorrelation(), s_X, s_Y, -rhs.absCorrelation(), rhs.s_X, rhs.s_Y);
+    return COrderings::lexicographicalCompare(-this->absCorrelation(), s_X, s_Y,
+                                              -rhs.absCorrelation(), rhs.s_X, rhs.s_Y);
 }
 
 void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUMap& projected) {

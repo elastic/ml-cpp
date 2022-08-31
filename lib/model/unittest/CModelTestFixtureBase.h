@@ -146,7 +146,7 @@ protected:
               s_Inf1(inf1), s_Inf2(inf2), s_Value(value) {}
 
         bool operator<(const SMessage& other) const {
-            return ml::maths::common::COrderings::lexicographical_compare(
+            return ml::maths::common::COrderings::lexicographicalCompare(
                 s_Time, s_Person, s_Attribute, other.s_Time, other.s_Person,
                 other.s_Attribute);
         }

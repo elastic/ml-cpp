@@ -186,7 +186,7 @@ private:
     struct SLossStatsOrder {
     public:
         bool operator()(const TLossStats& lhs, const TLossStats& rhs) const {
-            return common::COrderings::lexicographical_compare(
+            return common::COrderings::lexicographicalCompare(
                 common::CBasicStatistics::mean(std::get<TEST_LOSS>(lhs)),
                 std::get<NUMBER_TREES>(lhs),
                 -common::CBasicStatistics::mean(std::get<TRAIN_LOSS>(lhs)),

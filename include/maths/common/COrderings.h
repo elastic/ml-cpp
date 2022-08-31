@@ -16,8 +16,11 @@
 #include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
+#include <maths/common/ImportExport.h>
+
 #include <memory>
 #include <optional>
+#include <type_traits>
 #include <utility>
 
 namespace ml {
@@ -29,88 +32,41 @@ namespace common {
 //! DESCRIPTION:\n
 //! This implements some generic commonly occurring ordering functionality.
 //! In particular,
-//!   -# Assorted comparison objects which handle derefencing optional, pointer
-//!      and reference wrapped types and ordering on the underlying types.
-//!   -# Lexicographical compare for small collections of objects with distinct
+//!   -# Assorted comparison objects which handle derefencing optional and pointer
+//!      types, and unwrapping reference wrapped types.
+//!   -# Lexicographical comparison for small collections of objects with distinct
 //!      types (std::lexicographical_compare only supports a single type).
-//!   -# Efficiently, O(N log(N)), simultaneously sorting multiple vectors using
-//!      one of the vectors to provide the ordering.
+//!   -# Efficiently, O(N log(N)), simultaneously sorting equal length collections
+//!      supporting random access iteration using one the collections to to define
+//!      the order for all.
 class COrderings : private core::CNonInstantiatable {
 public:
-    //! \brief Orders two optional values such that non-null are less than
-    //! null values and otherwise compares using std::less<>.
-    struct SOptionalLess {
-        //! \note U and V must be convertible to T or optional<T>
-        //! for some type T and T must support operator <.
-        template<typename U, typename V>
-        inline bool operator()(const U& lhs, const V& rhs) const {
+    //! \brief Orders two pointers or std::optional values such that non-null
+    //! are less than null values and otherwise compares using std::less<>.
+    struct MATHS_COMMON_EXPORT SDerefLess {
+        template<typename T>
+        inline bool operator()(const T* lhs, const T* rhs) const {
             return less(lhs, rhs);
         }
 
         template<typename T>
-        static inline bool less(const std::optional<T>& lhs, const std::optional<T>& rhs) {
-            bool lInitialized(lhs);
-            bool rInitialized(rhs);
-            return lInitialized && rInitialized
-                       ? s_Less(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
-                       : rInitialized < lInitialized;
-        }
-        template<typename T>
-        static inline bool less(const T& lhs, const std::optional<T>& rhs) {
-            return !rhs ? true : s_Less(core::unwrap_ref(lhs), core::unwrap_ref(*rhs));
-        }
-        template<typename T>
-        static inline bool less(const std::optional<T>& lhs, const T& rhs) {
-            return !lhs ? false : s_Less(core::unwrap_ref(*lhs), core::unwrap_ref(rhs));
-        }
-
-        static constexpr std::less<> s_Less;
-    };
-
-    //! \brief Orders two optional values such that null are greater than
-    //! non-null values and otherwise compares using std::greater<>.
-    struct SOptionalGreater {
-        //! \note U and V must be convertible to T or optional<T>
-        //! for some type T and T must support operator >.
-        template<typename U, typename V>
-        inline bool operator()(const U& lhs, const V& rhs) const {
-            return greater(lhs, rhs);
-        }
-
-        template<typename T>
-        static inline bool
-        greater(const std::optional<T>& lhs, const std::optional<T>& rhs) {
-            bool lInitialized(lhs);
-            bool rInitialized(rhs);
-            return lInitialized && rInitialized
-                       ? s_Greater(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
-                       : rInitialized > lInitialized;
-        }
-        template<typename T>
-        static inline bool greater(const T& lhs, const std::optional<T>& rhs) {
-            return !rhs ? false
-                        : s_Greater(core::unwrap_ref(lhs), core::unwrap_ref(*rhs));
-        }
-        template<typename T>
-        static inline bool greater(const std::optional<T>& lhs, const T& rhs) {
-            return !lhs ? true : s_Greater(core::unwrap_ref(*lhs), core::unwrap_ref(rhs));
-        }
-
-        static constexpr std::greater<> s_Greater;
-    };
-
-    //! \brief Orders two pointers such that non-null are less than
-    //! null values and otherwise compares using std::less<>
-    struct SPtrLess {
-        template<typename T>
-        inline bool operator()(const T* lhs, const T* rhs) const {
+        inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return less(lhs, rhs);
         }
 
         template<typename T>
         static inline bool less(const T* lhs, const T* rhs) {
-            bool lInitialized(lhs != nullptr);
-            bool rInitialized(rhs != nullptr);
+            bool lInitialized{lhs != nullptr};
+            bool rInitialized{rhs != nullptr};
+            return lInitialized && rInitialized
+                       ? s_Less(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
+                       : rInitialized < lInitialized;
+        }
+
+        template<typename T>
+        static inline bool less(const std::optional<T>& lhs, const std::optional<T>& rhs) {
+            bool lInitialized{lhs != std::nullopt};
+            bool rInitialized{rhs != std::nullopt};
             return lInitialized && rInitialized
                        ? s_Less(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
                        : rInitialized < lInitialized;
@@ -119,18 +75,33 @@ public:
         static constexpr std::less<> s_Less;
     };
 
-    //! \brief Orders two pointers such that null are greater than
-    //! non-null values and otherwise compares using std::greater<>.
-    struct SPtrGreater {
+    //! \brief Orders two pointers or std::optional types such that null are
+    //! greater than non-null values and otherwise compares using std::greater<>.
+    struct MATHS_COMMON_EXPORT SDerefGreater {
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
             return greater(lhs, rhs);
         }
 
         template<typename T>
+        inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
+            return greater(lhs, rhs);
+        }
+
+        template<typename T>
         static inline bool greater(const T* lhs, const T* rhs) {
-            bool lInitialized(lhs != nullptr);
-            bool rInitialized(rhs != nullptr);
+            bool lInitialized{lhs != nullptr};
+            bool rInitialized{rhs != nullptr};
+            return lInitialized && rInitialized
+                       ? s_Greater(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
+                       : rInitialized > lInitialized;
+        }
+
+        template<typename T>
+        static inline bool
+        greater(const std::optional<T>& lhs, const std::optional<T>& rhs) {
+            bool lInitialized{lhs != std::nullopt};
+            bool rInitialized{rhs != std::nullopt};
             return lInitialized && rInitialized
                        ? s_Greater(core::unwrap_ref(*lhs), core::unwrap_ref(*rhs))
                        : rInitialized > lInitialized;
@@ -141,7 +112,7 @@ public:
 
     //! \brief Orders two reference wrapped objects which are
     //! comparable with std::less<>.
-    struct SReferenceLess {
+    struct MATHS_COMMON_EXPORT SReferenceLess {
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return less(lhs, rhs);
@@ -172,90 +143,84 @@ public:
     };
 
     //! \brief Wrapper around various less than comparisons.
-    struct SLess {
-        template<typename U, typename V>
-        bool operator()(const U& lhs, const V& rhs) const {
+    struct MATHS_COMMON_EXPORT SLess {
+        template<typename U, typename V, std::enable_if_t<!std::is_pointer_v<U> || !std::is_pointer_v<V>>* = nullptr>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return SReferenceLess::less(lhs, rhs);
         }
 
         template<typename T>
-        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
-            return SOptionalLess::less(lhs, rhs);
+        inline bool operator()(const T* lhs, const T* rhs) const {
+            return SDerefLess::less(lhs, rhs);
         }
 
         template<typename T>
-        bool operator()(const T* lhs, const T* rhs) const {
-            return SPtrLess::less(lhs, rhs);
+        inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
+            return SDerefLess::less(lhs, rhs);
+        }
+
+        inline bool operator()(const core::CStoredStringPtr& lhs,
+                               const core::CStoredStringPtr& rhs) {
+            return SDerefLess::less(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        bool operator()(T* lhs, T* rhs) const {
-            return SPtrLess::less(lhs, rhs);
-        }
-
-        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) {
-            return SPtrLess::less(lhs.get(), rhs.get());
+        inline bool
+        operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
+            return SDerefLess::less(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
-            return SPtrLess::less(lhs.get(), rhs.get());
-        }
-
-        template<typename T>
-        bool operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
-            return SPtrLess::less(lhs.get(), rhs.get());
+        inline bool
+        operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
+            return SDerefLess::less(lhs.get(), rhs.get());
         }
 
         template<typename U, typename V>
-        bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
-            return lexicographical_compare_with(*this, // compare with SLess
-                                                lhs.first, lhs.second,
-                                                rhs.first, rhs.second);
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+            return lexicographicalCompareWith(*this, // compare with SLess
+                                              lhs.first, lhs.second, rhs.first, rhs.second);
         }
     };
 
     //! \brief Wrapper around various less than comparisons.
-    struct SGreater {
-        template<typename U, typename V>
-        bool operator()(const U& lhs, const V& rhs) const {
+    struct MATHS_COMMON_EXPORT SGreater {
+        template<typename U, typename V, std::enable_if_t<!std::is_pointer_v<U> || !std::is_pointer_v<V>>* = nullptr>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return SReferenceGreater::greater(lhs, rhs);
         }
 
         template<typename T>
-        bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
-            return SOptionalGreater::greater(lhs, rhs);
+        inline bool operator()(const T* lhs, const T* rhs) const {
+            return SDerefGreater::greater(lhs, rhs);
         }
 
         template<typename T>
-        bool operator()(const T* lhs, const T* rhs) const {
-            return SPtrGreater::greater(lhs, rhs);
+        inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
+            return SDerefGreater::greater(lhs, rhs);
+        }
+
+        inline bool operator()(const core::CStoredStringPtr& lhs,
+                               const core::CStoredStringPtr& rhs) {
+            return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        bool operator()(T* lhs, T* rhs) const {
-            return SPtrGreater::greater(lhs, rhs);
-        }
-
-        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) {
-            return SPtrGreater::greater(lhs.get(), rhs.get());
+        inline bool
+        operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
+            return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
-            return SPtrGreater::greater(lhs.get(), rhs.get());
-        }
-
-        template<typename T>
-        bool operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
-            return SPtrGreater::greater(lhs.get(), rhs.get());
+        inline bool
+        operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
+            return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename U, typename V>
-        bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
-            return lexicographical_compare_with(*this, // Compare with SGreater
-                                                lhs.first, lhs.second,
-                                                rhs.first, rhs.second);
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+            return lexicographicalCompareWith(*this, // Compare with SGreater
+                                              lhs.first, lhs.second, rhs.first, rhs.second);
         }
     };
 
@@ -264,7 +229,7 @@ public:
     //! \note That while this functionality can be implemented by boost
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
-    struct SFirstLess {
+    struct MATHS_COMMON_EXPORT SFirstLess {
         template<typename U, typename V>
         inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.first, rhs.first);
@@ -288,7 +253,7 @@ public:
     //! \note That while this functionality can be implemented by bind
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
-    struct SFirstGreater {
+    struct MATHS_COMMON_EXPORT SFirstGreater {
         template<typename U, typename V>
         inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.first, rhs.first);
@@ -312,7 +277,7 @@ public:
     //! \note That while this functionality can be implemented by boost
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
-    struct SSecondLess {
+    struct MATHS_COMMON_EXPORT SSecondLess {
         template<typename U, typename V>
         inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.second, rhs.second);
@@ -336,7 +301,7 @@ public:
     //! \note That while this functionality can be implemented by boost
     //! bind, since it overloads the comparison operators, the resulting
     //! code is more than an order of magnitude slower than this version.
-    struct SSecondGreater {
+    struct MATHS_COMMON_EXPORT SSecondGreater {
         template<typename U, typename V>
         inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.second, rhs.second);
@@ -357,7 +322,7 @@ public:
 
 private:
     template<std::size_t I, typename PRED, typename... ARGS>
-    static bool lexicographical_compare_at(const PRED& pred, const ARGS&... args) {
+    static bool lexicographicalCompareAt(const PRED& pred, const ARGS&... args) {
         static_assert(sizeof...(ARGS) % 2 == 0, "The number of values to compare must be equal");
         const auto& lhs = std::get<I>(std::forward_as_tuple(args...));
         const auto& rhs = std::get<I + sizeof...(ARGS) / 2>(std::forward_as_tuple(args...));
@@ -366,7 +331,7 @@ private:
         }
         if constexpr (sizeof...(args) > 2 * (I + 1)) {
             return pred(rhs, lhs) == false &&
-                   lexicographical_compare_at<I + 1>(pred, args...);
+                   lexicographicalCompareAt<I + 1>(pred, args...);
         }
         return false;
     }
@@ -376,14 +341,14 @@ public:
     //!
     //! Uses \p pred for comparison which must be able to compare each type.
     template<typename PRED, typename... ARGS>
-    static bool lexicographical_compare_with(const PRED& pred, const ARGS&... args) {
-        return lexicographical_compare_at<0>(pred, args...);
+    static bool lexicographicalCompareWith(const PRED& pred, const ARGS&... args) {
+        return lexicographicalCompareAt<0>(pred, args...);
     }
 
-    //! Calls lexicographical_compare_with supplying std::less<> for comparison.
+    //! Calls lexicographicalCompareWith supplying std::less<> for comparison.
     template<typename... ARGS>
-    static bool lexicographical_compare(const ARGS&... args) {
-        return lexicographical_compare_with(std::less<>(), args...);
+    static bool lexicographicalCompare(const ARGS&... args) {
+        return lexicographicalCompareWith(std::less<>{}, args...);
     }
 
     //! Simultaneously sort multiple vectors using \p pred order of \p keys.

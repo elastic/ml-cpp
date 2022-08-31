@@ -811,7 +811,7 @@ protected:
         }
 
         bool operator<(const SSplitStatistics& rhs) const {
-            return common::COrderings::lexicographical_compare(
+            return common::COrderings::lexicographicalCompare(
                 s_Gain, s_Curvature, s_Feature, s_SplitAt, // <- lhs
                 rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature, rhs.s_SplitAt);
         }

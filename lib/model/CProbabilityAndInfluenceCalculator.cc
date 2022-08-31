@@ -94,8 +94,8 @@ public:
         double mr = maths::common::CBasicStatistics::mean(r);
         double nr = maths::common::CBasicStatistics::count(r);
         return m_Tail == maths_t::E_LeftTail
-                   ? maths::common::COrderings::lexicographical_compare(mr, nl, ml, nr)
-                   : maths::common::COrderings::lexicographical_compare(ml, nl, mr, nr);
+                   ? maths::common::COrderings::lexicographicalCompare(mr, nl, ml, nr)
+                   : maths::common::COrderings::lexicographicalCompare(ml, nl, mr, nr);
     }
 
 private:
@@ -129,8 +129,8 @@ public:
         double vr = maths::common::CBasicStatistics::maximumLikelihoodVariance(r);
         double nr = maths::common::CBasicStatistics::count(r);
         return m_Tail == maths_t::E_LeftTail
-                   ? maths::common::COrderings::lexicographical_compare(vr, nl, vl, nr)
-                   : maths::common::COrderings::lexicographical_compare(vl, nl, vr, nr);
+                   ? maths::common::COrderings::lexicographicalCompare(vr, nl, vl, nr)
+                   : maths::common::COrderings::lexicographicalCompare(vl, nl, vr, nr);
     }
 
 private:

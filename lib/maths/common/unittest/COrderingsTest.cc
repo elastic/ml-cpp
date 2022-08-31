@@ -77,75 +77,64 @@ void swap(CDictionary& lhs, CDictionary& rhs) {
 }
 }
 
-BOOST_AUTO_TEST_CASE(testOptionalOrdering) {
-    TOptionalDouble null;
-    TOptionalDouble one(1.0);
-    TOptionalDouble two(2.0);
-    TOptionalDouble big(std::numeric_limits<double>::max());
+BOOST_AUTO_TEST_CASE(testDerefOrdering) {
 
-    maths::common::COrderings::SOptionalLess less;
+    maths::common::COrderings::SDerefLess less;
+    maths::common::COrderings::SDerefGreater greater;
 
-    BOOST_TEST_REQUIRE(less(big, null));
-    BOOST_TEST_REQUIRE(!less(null, big));
-    BOOST_TEST_REQUIRE(!less(null, null));
-    BOOST_TEST_REQUIRE(less(100.0, null));
-    BOOST_TEST_REQUIRE(!less(null, 100.0));
-    BOOST_TEST_REQUIRE(less(one, two));
-    BOOST_TEST_REQUIRE(less(one, 2.0));
-    BOOST_TEST_REQUIRE(!less(two, one));
-    BOOST_TEST_REQUIRE(!less(2.0, one));
-    BOOST_TEST_REQUIRE(!less(one, one));
-    BOOST_TEST_REQUIRE(less(one, big));
+    {
+        const double* null(nullptr);
+        double one_(1.0);
+        double two_(2.0);
+        double hundred_(100.0);
+        double big_(std::numeric_limits<double>::max());
+        const double* one(&one_);
+        const double* two(&two_);
+        const double* hundred(&hundred_);
+        const double* big(&big_);
 
-    maths::common::COrderings::SOptionalGreater greater;
+        BOOST_TEST_REQUIRE(less(big, null));
+        BOOST_TEST_REQUIRE(!less(null, big));
+        BOOST_TEST_REQUIRE(!less(null, null));
+        BOOST_TEST_REQUIRE(less(hundred, null));
+        BOOST_TEST_REQUIRE(!less(null, hundred));
+        BOOST_TEST_REQUIRE(less(one, two));
+        BOOST_TEST_REQUIRE(!less(two, one));
+        BOOST_TEST_REQUIRE(!less(one, one));
+        BOOST_TEST_REQUIRE(less(one, big));
 
-    BOOST_TEST_REQUIRE(!greater(big, null));
-    BOOST_TEST_REQUIRE(greater(null, big));
-    BOOST_TEST_REQUIRE(!greater(null, null));
-    BOOST_TEST_REQUIRE(!greater(100.0, null));
-    BOOST_TEST_REQUIRE(greater(null, 100.0));
-    BOOST_TEST_REQUIRE(!greater(one, two));
-    BOOST_TEST_REQUIRE(!greater(one, 2.0));
-    BOOST_TEST_REQUIRE(greater(two, one));
-    BOOST_TEST_REQUIRE(greater(2.0, one));
-    BOOST_TEST_REQUIRE(!greater(one, one));
-    BOOST_TEST_REQUIRE(!greater(one, big));
-}
+        BOOST_TEST_REQUIRE(!greater(big, null));
+        BOOST_TEST_REQUIRE(greater(null, big));
+        BOOST_TEST_REQUIRE(!greater(null, null));
+        BOOST_TEST_REQUIRE(!greater(hundred, null));
+        BOOST_TEST_REQUIRE(greater(null, hundred));
+        BOOST_TEST_REQUIRE(!greater(one, two));
+        BOOST_TEST_REQUIRE(greater(two, one));
+        BOOST_TEST_REQUIRE(!greater(one, one));
+        BOOST_TEST_REQUIRE(!greater(one, big));
+    }
+    {
+        TOptionalDouble null;
+        TOptionalDouble one(1.0);
+        TOptionalDouble two(2.0);
+        TOptionalDouble big(std::numeric_limits<double>::max());
 
-BOOST_AUTO_TEST_CASE(testPtrOrdering) {
-    const double* null = nullptr;
-    double one_(1.0);
-    double two_(2.0);
-    double hundred_(100.0);
-    double big_(std::numeric_limits<double>::max());
-    const double* one(&one_);
-    const double* two(&two_);
-    const double* hundred(&hundred_);
-    const double* big(&big_);
+        BOOST_TEST_REQUIRE(less(big, null));
+        BOOST_TEST_REQUIRE(!less(null, big));
+        BOOST_TEST_REQUIRE(!less(null, null));
+        BOOST_TEST_REQUIRE(less(one, two));
+        BOOST_TEST_REQUIRE(!less(two, one));
+        BOOST_TEST_REQUIRE(!less(one, one));
+        BOOST_TEST_REQUIRE(less(one, big));
 
-    maths::common::COrderings::SPtrLess less;
-
-    BOOST_TEST_REQUIRE(less(big, null));
-    BOOST_TEST_REQUIRE(!less(null, big));
-    BOOST_TEST_REQUIRE(!less(null, null));
-    BOOST_TEST_REQUIRE(less(hundred, null));
-    BOOST_TEST_REQUIRE(!less(null, hundred));
-    BOOST_TEST_REQUIRE(less(one, two));
-    BOOST_TEST_REQUIRE(!less(two, one));
-    BOOST_TEST_REQUIRE(!less(one, one));
-    BOOST_TEST_REQUIRE(less(one, big));
-
-    maths::common::COrderings::SPtrGreater greater;
-
-    BOOST_TEST_REQUIRE(!greater(big, null));
-    BOOST_TEST_REQUIRE(greater(null, big));
-    BOOST_TEST_REQUIRE(!greater(null, null));
-    BOOST_TEST_REQUIRE(!greater(hundred, null));
-    BOOST_TEST_REQUIRE(greater(null, hundred));
-    BOOST_TEST_REQUIRE(!greater(one, two));
-    BOOST_TEST_REQUIRE(greater(two, one));
-    BOOST_TEST_REQUIRE(!greater(one, one));
-    BOOST_TEST_REQUIRE(!greater(one, big));
+        BOOST_TEST_REQUIRE(!greater(big, null));
+        BOOST_TEST_REQUIRE(greater(null, big));
+        BOOST_TEST_REQUIRE(!greater(null, null));
+        BOOST_TEST_REQUIRE(!greater(one, two));
+        BOOST_TEST_REQUIRE(greater(two, one));
+        BOOST_TEST_REQUIRE(!greater(one, one));
+        BOOST_TEST_REQUIRE(!greater(one, big));
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testLess) {
@@ -420,141 +409,141 @@ BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
     BOOST_TEST_REQUIRE(v1 < v2);
     BOOST_TEST_REQUIRE(s1 < s2);
 
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(i1, i2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(i1, i1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(i2, i1));
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(i1, i2));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(i1, i1));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(i2, i1));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare_with(greater, i1, i2));
+        !maths::common::COrderings::lexicographicalCompareWith(greater, i1, i2));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare_with(greater, i1, i1));
+        !maths::common::COrderings::lexicographicalCompareWith(greater, i1, i1));
     BOOST_TEST_REQUIRE(
-        maths::common::COrderings::lexicographical_compare_with(greater, i2, i1));
+        maths::common::COrderings::lexicographicalCompareWith(greater, i2, i1));
 
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(i1, p1, i2, p1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(i1, p1, i1, p2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(i1, p1, i1, p1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(i2, p1, i1, p1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(i1, p2, i1, p1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(i1, p1, i2, p1));
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(i1, p1, i1, p2));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(i1, p1, i1, p1));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(i2, p1, i1, p1));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(i1, p2, i1, p1));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, i2, p1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, i1, p2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, i1, p1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i2, p1, i1, p1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p2, i1, p1));
 
     BOOST_TEST_REQUIRE(
-        maths::common::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1));
+        maths::common::COrderings::lexicographicalCompare(i1, p1, d1, i2, p1, d1));
     BOOST_TEST_REQUIRE(
-        maths::common::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1));
+        maths::common::COrderings::lexicographicalCompare(i1, p1, d1, i1, p2, d1));
     BOOST_TEST_REQUIRE(
-        maths::common::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2));
+        maths::common::COrderings::lexicographicalCompare(i1, p1, d1, i1, p1, d2));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1));
+        !maths::common::COrderings::lexicographicalCompare(i1, p1, d1, i1, p1, d1));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1));
+        !maths::common::COrderings::lexicographicalCompare(i2, p1, d1, i1, p1, d1));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1));
+        !maths::common::COrderings::lexicographicalCompare(i1, p2, d1, i1, p1, d1));
     BOOST_TEST_REQUIRE(
-        !maths::common::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+        !maths::common::COrderings::lexicographicalCompare(i1, p1, d2, i1, p1, d1));
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, i2, p1, d1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, i1, p2, d1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, i1, p1, d2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, i1, p1, d1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i2, p1, d1, i1, p1, d1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p2, d1, i1, p1, d1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d2, i1, p1, d1));
 
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, i2, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, i1, p2, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, i1, p1, d2, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, i1, p1, d1, v2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i2, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p2, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d2, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v2, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, i2, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, i1, p2, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, i1, p1, d2, v1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, i1, p1, d1, v2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i2, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p2, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d2, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v2, i1, p1, d1, v1));
 
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i2, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i1, p2, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i1, p1, d2, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i1, p1, d1, v2, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i2, p1, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p2, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d2, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v2, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompare(
         i1, p1, d1, v1, s2, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i2, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i1, p2, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i1, p1, d2, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i1, p1, d1, v2, s1));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i1, p1, d1, v1, s2));
-    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(!maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i2, p1, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p2, d1, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d2, v1, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v2, s1, i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographical_compare_with(
+    BOOST_TEST_REQUIRE(maths::common::COrderings::lexicographicalCompareWith(
         greater, i1, p1, d1, v1, s2, i1, p1, d1, v1, s1));
 }
 

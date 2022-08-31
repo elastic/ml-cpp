@@ -440,8 +440,8 @@ protected:
                 }
                 std::size_t c = k->second;
                 std::size_t n_ = voters[j].size();
-                if (COrderings::lexicographical_compare_with(std::greater<>(), c,
-                                                             n_, cmax, nmax)) {
+                if (COrderings::lexicographicalCompareWith(std::greater<>(), c,
+                                                           n_, cmax, nmax)) {
                     jmax = j;
                     cmax = c;
                     nmax = n_;

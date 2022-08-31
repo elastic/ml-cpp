@@ -71,7 +71,7 @@ bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
 //! Orders nodes by the value of their person field.
 struct SPersonValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::common::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographicalCompare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *lhs->s_Spec.s_PersonFieldValue,
             lhs->s_Spec.s_IsPopulation, *rhs->s_Spec.s_PartitionFieldName,
@@ -83,7 +83,7 @@ struct SPersonValueLess {
 //! Orders nodes by the name of their person field.
 struct SPersonNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::common::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographicalCompare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *rhs->s_Spec.s_PartitionFieldName,
             *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName);
@@ -93,7 +93,7 @@ struct SPersonNameLess {
 //! Orders nodes by the value of their partition field.
 struct SPartitionValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::common::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographicalCompare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *rhs->s_Spec.s_PartitionFieldName, *rhs->s_Spec.s_PartitionFieldValue);
     }

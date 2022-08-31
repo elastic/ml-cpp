@@ -650,7 +650,7 @@ CBayesianOptimisation::maximumLikelihoodKernel(std::size_t numberRounds) {
         double la;
         TVector a;
         std::tie(a, la) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
-        if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+        if (COrderings::lexicographicalCompare(la, a.norm(), lmax, amax.norm())) {
             lmax = la;
             amax = a;
         }
@@ -670,7 +670,7 @@ CBayesianOptimisation::maximumLikelihoodKernel(std::size_t numberRounds) {
                     0.0, 1.0, std::log(0.2), std::log(2.0), scale[i]));
             }
             la = l(a);
-            if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+            if (COrderings::lexicographicalCompare(la, a.norm(), lmax, amax.norm())) {
                 lmax = la;
                 amax = a;
             }
@@ -679,7 +679,7 @@ CBayesianOptimisation::maximumLikelihoodKernel(std::size_t numberRounds) {
 
         for (auto& a0 : probes) {
             std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
-            if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+            if (COrderings::lexicographicalCompare(la, a.norm(), lmax, amax.norm())) {
                 lmax = la;
                 amax = std::move(a);
             }

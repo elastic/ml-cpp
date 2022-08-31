@@ -1440,7 +1440,7 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs) {
-                         return common::COrderings::lexicographical_compare(
+                         return common::COrderings::lexicographicalCompare(
                              samples[lhs].first, samples[lhs].second,
                              samples[rhs].first, samples[rhs].second);
                      });
@@ -2827,7 +2827,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs) {
-                         return common::COrderings::lexicographical_compare(
+                         return common::COrderings::lexicographicalCompare(
                              samples[lhs].first, samples[lhs].second,
                              samples[rhs].first, samples[rhs].second);
                      });

@@ -304,7 +304,7 @@ void CTimeSeriesSegmentation::selectSegmentation(std::size_t maxSegments,
         auto splits = core::make_range(segmentation, 2, segmentation.size());
         common::COrderings::simultaneousSortWith(
             [](const TDoubleDoublePr& lhs, const TDoubleDoublePr& rhs) {
-                return common::COrderings::lexicographical_compare(
+                return common::COrderings::lexicographicalCompare(
                     lhs.first, -lhs.second, rhs.first, -rhs.second);
             },
             depthAndPValue, splits);
