@@ -69,11 +69,13 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
     std::size_t workWeight{0};
     std::size_t minReweightedWorkWeight{0};
     std::size_t maxReweightedWorkWeight{0};
+    std::size_t preExistingTokenCount{m_TokenIdLookup.size()};
     auto preTokenisedIter = fields.find(PRETOKENISED_TOKEN_FIELD);
     if (preTokenisedIter != fields.end()) {
         if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds,
                                         m_WorkTokenUniqueIds, workWeight, minReweightedWorkWeight,
                                         maxReweightedWorkWeight) == false) {
+            this->discardLatestTokens(preExistingTokenCount);
             return CLocalCategoryId::softFailure();
         }
     } else {
@@ -144,6 +146,7 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
             CLocalCategoryId categoryId{iter->second};
             this->addCategoryMatch(isDryRun, str, rawStringLen, m_WorkTokenIds,
                                    m_WorkTokenUniqueIds, iter);
+            this->discardLatestTokens(preExistingTokenCount);
             return categoryId;
         }
 
@@ -167,6 +170,7 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         CLocalCategoryId categoryId{bestSoFarIter->second};
         this->addCategoryMatch(isDryRun, str, rawStringLen, m_WorkTokenIds,
                                m_WorkTokenUniqueIds, bestSoFarIter);
+        this->discardLatestTokens(preExistingTokenCount);
         return categoryId;
     }
 
@@ -176,6 +180,7 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         if (++m_MemoryCategorizationFailures == 1) {
             LOG_WARN(<< "Categories are not being created due to lack of memory");
         }
+        this->discardLatestTokens(preExistingTokenCount);
         return CLocalCategoryId::hardFailure();
     }
 
@@ -464,6 +469,12 @@ void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
     // deserves this
     if (swapIter != iter) {
         std::iter_swap(swapIter, iter);
+    }
+}
+
+void CTokenListDataCategorizerBase::discardLatestTokens(std::size_t previousTokenCount) {
+    while (m_TokenIdLookup.size() > previousTokenCount) {
+        m_TokenIdLookup.pop_back();
     }
 }
 
