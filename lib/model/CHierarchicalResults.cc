@@ -42,7 +42,7 @@ const std::string COUNT("count");
 core::CStoredStringPtr UNSET_STRING(core::CStoredStringPtr::makeStoredString(std::string()));
 
 //! Check if a string reference is unset.
-bool unset(core::CStoredStringPtr value) {
+bool unset(const core::CStoredStringPtr& value) {
     return value.get() == UNSET_STRING.get();
 }
 
@@ -53,7 +53,7 @@ bool isLeaf(const SNode& node) {
 
 //! True if the node is aggregate.
 bool isAggregate(const SNode& node) {
-    return node.s_Children.size() > 0;
+    return node.s_Children.empty() == false;
 }
 
 //! Check if the underlying strings are equal.
@@ -168,7 +168,7 @@ public:
     ~CCommonInfluencePropagator() override = default;
 
     void visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
-        if (this->isLeaf(node)) {
+        if (isLeaf(node)) {
             std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
                       node.s_AnnotatedProbability.s_Influences.end(),
                       maths::common::COrderings::SFirstLess());
@@ -349,19 +349,20 @@ void CHierarchicalResults::addModelResult(int detector,
     spec.s_FunctionName = CStringStore::names().get(functionName);
     spec.s_Function = function;
     spec.s_IsPopulation = isPopulation;
-    spec.s_UseNull = (model ? model->dataGatherer().useNull() : false);
+    spec.s_UseNull = (model != nullptr ? model->dataGatherer().useNull() : false);
     spec.s_PartitionFieldName = CStringStore::names().get(partitionFieldName);
     spec.s_PartitionFieldValue = CStringStore::names().get(partitionFieldValue);
     spec.s_PersonFieldName = CStringStore::names().get(personFieldName);
     spec.s_PersonFieldValue = CStringStore::names().get(personFieldValue);
     spec.s_ValueFieldName = CStringStore::names().get(valueFieldName);
     spec.s_ByFieldName =
-        (model ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName())
-               : UNSET_STRING);
+        (model != nullptr
+             ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName())
+             : UNSET_STRING);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
     leaf.s_BucketStartTime = bucketStartTime;
-    leaf.s_BucketLength = (model ? model->bucketLength() : 0);
+    leaf.s_BucketLength = (model != nullptr ? model->bucketLength() : 0);
 }
 
 void CHierarchicalResults::addInfluencer(const std::string& name) {
@@ -644,7 +645,8 @@ bool CHierarchicalResultsVisitor::isPopulation(const TNode& node) {
 const CHierarchicalResultsVisitor::TNode*
 CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode& node) {
     const TNode* result = &node;
-    for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false);
+    for (result = result->s_Parent;
+         (result != nullptr) && !isTypeForWhichWeWriteResults(*result, false);
          result = result->s_Parent) {
     }
     return result;
@@ -689,7 +691,7 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits& limits,
     // nothing.
     static const double OUTPUT_TOLERANCE(1.2);
     const TNode* ancestor = nearestAncestorForWhichWeWriteResults(node);
-    if (ancestor && p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability &&
+    if ((ancestor != nullptr) && p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability &&
         shouldWriteResult(limits, results, *ancestor, pivot)) {
         return true;
     }
@@ -702,7 +704,8 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits& limits,
     for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
         const TNode* influencer =
             results.influencer(influence.first.first, influence.first.second);
-        if (influencer && p <= OUTPUT_TOLERANCE * influencer->s_SmallestDescendantProbability &&
+        if ((influencer != nullptr) &&
+            p <= OUTPUT_TOLERANCE * influencer->s_SmallestDescendantProbability &&
             shouldWriteResult(limits, results, *influencer, /*pivot = */ true)) {
             return true;
         }

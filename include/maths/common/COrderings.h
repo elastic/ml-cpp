@@ -160,19 +160,19 @@ public:
         }
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) {
+                               const core::CStoredStringPtr& rhs) const {
             return SDerefLess::less(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        inline bool
-        operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
+        inline bool operator()(const std::shared_ptr<T>& lhs,
+                               const std::shared_ptr<T>& rhs) const {
             return SDerefLess::less(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        inline bool
-        operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
+        inline bool operator()(const std::unique_ptr<T>& lhs,
+                               const std::unique_ptr<T>& rhs) const {
             return SDerefLess::less(lhs.get(), rhs.get());
         }
 
@@ -201,19 +201,19 @@ public:
         }
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) {
+                               const core::CStoredStringPtr& rhs) const {
             return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        inline bool
-        operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) {
+        inline bool operator()(const std::shared_ptr<T>& lhs,
+                               const std::shared_ptr<T>& rhs) const {
             return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename T>
-        inline bool
-        operator()(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs) {
+        inline bool operator()(const std::unique_ptr<T>& lhs,
+                               const std::unique_ptr<T>& rhs) const {
             return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
