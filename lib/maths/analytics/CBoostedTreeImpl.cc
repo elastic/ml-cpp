@@ -41,7 +41,6 @@
 #include <maths/common/COrderings.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/CSampling.h>
-#include <maths/common/CSetTools.h>
 #include <maths/common/CSpline.h>
 #include <maths/common/MathsTypes.h>
 
@@ -187,7 +186,7 @@ private:
     struct SLossStatsOrder {
     public:
         bool operator()(const TLossStats& lhs, const TLossStats& rhs) const {
-            return common::COrderings::lexicographical_compare(
+            return common::COrderings::lexicographicalCompare(
                 common::CBasicStatistics::mean(std::get<TEST_LOSS>(lhs)),
                 std::get<NUMBER_TREES>(lhs),
                 -common::CBasicStatistics::mean(std::get<TRAIN_LOSS>(lhs)),
@@ -1931,7 +1930,9 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     std::iota(present.begin(), present.end(), 0);
     TSizeVec ordered{missing};
     std::sort(ordered.begin(), ordered.end());
-    common::CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
+    present.erase(std::set_difference(present.begin(), present.end(), ordered.begin(),
+                                      ordered.end(), present.begin()),
+                  present.end());
     LOG_TRACE(<< "present = " << present);
 
     // Get the current round feature vector. Fixed so computed outside the loop.

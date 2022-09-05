@@ -22,7 +22,6 @@
 #include <maths/common/COrderings.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSampling.h>
-#include <maths/common/CSetTools.h>
 #include <maths/common/CSolvers.h>
 #include <maths/common/CTools.h>
 
@@ -257,8 +256,10 @@ void CLowess<N>::setupMasks(std::size_t numberFolds,
                                 testingMasks[i].end(),
                                 std::back_inserter(trainingMasks[i]));
 
-            CSetTools::inplace_set_difference(remaining, testingMasks[i].begin(),
-                                              testingMasks[i].end());
+            remaining.erase(std::set_difference(remaining.begin(), remaining.end(),
+                                                testingMasks[i].begin(),
+                                                testingMasks[i].end(), remaining.begin()),
+                            remaining.end());
             rng.discard(100000);
         }
     }

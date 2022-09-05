@@ -1440,7 +1440,7 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs) {
-                         return common::COrderings::lexicographical_compare(
+                         return common::COrderings::lexicographicalCompare(
                              samples[lhs].first, samples[lhs].second,
                              samples[rhs].first, samples[rhs].second);
                      });
@@ -1874,7 +1874,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
 
         // Remove the remaining most weakly correlated models subject
         // to the capacity constraint.
-        common::COrderings::simultaneousSort(presentRank, present, std::greater<>());
+        common::COrderings::simultaneousSortWith(std::greater<>(), presentRank, present);
         for (std::size_t i = 0; m_CorrelationDistributionModels.size() >
                                 allocator.maxNumberCorrelations();
              ++i) {
@@ -2827,7 +2827,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs) {
-                         return common::COrderings::lexicographical_compare(
+                         return common::COrderings::lexicographicalCompare(
                              samples[lhs].first, samples[lhs].second,
                              samples[rhs].first, samples[rhs].second);
                      });

@@ -477,8 +477,8 @@ public:
                         this->sphericalClusters(clusters);
                         TSizeVec indexes(clusters.size());
                         std::iota(indexes.begin(), indexes.end(), 0);
-                        COrderings::simultaneousSort(
-                            clusters, indexes, typename CSphericalCluster<TPoint>::SLess());
+                        COrderings::simultaneousSortWith(
+                            typename CSphericalCluster<TPoint>::SLess(), clusters, indexes);
                         for (std::size_t i = 0; i < candidate.size(); ++i) {
                             for (const auto& x : candidate[i]) {
                                 std::size_t j = std::lower_bound(clusters.begin(),

@@ -474,6 +474,18 @@ struct SConstant<CSymmetricMatrixNxN<T, N>> {
     }
 };
 
+//! \brief Gets the identity matrix with specified dimesion.
+template<typename T, std::size_t N>
+struct SIdentity<CSymmetricMatrixNxN<T, N>> {
+    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) {
+        CSymmetricMatrixNxN<T, N> result(T{0});
+        for (std::size_t i = 0; i < N; ++i) {
+            result(i, i) = T{1};
+        }
+        return result;
+    }
+};
+
 // ************************ HEAP SYMMETRIC MATRIX ************************
 
 //! \brief A heap based lightweight dense symmetric matrix class.
@@ -762,6 +774,18 @@ template<typename T>
 struct SConstant<CSymmetricMatrix<T>> {
     static CSymmetricMatrix<T> get(std::size_t dimension, T constant) {
         return CSymmetricMatrix<T>(dimension, constant);
+    }
+};
+
+//! \brief Gets the identity matrix with specified dimesion.
+template<typename T>
+struct SIdentity<CSymmetricMatrix<T>> {
+    static CSymmetricMatrix<T> get(std::size_t dimension) {
+        CSymmetricMatrix<T> result(dimension, T{0});
+        for (std::size_t i = 0; i < dimension; ++i) {
+            result(i, i) = T{1};
+        }
+        return result;
     }
 };
 

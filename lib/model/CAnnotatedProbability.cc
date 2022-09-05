@@ -57,7 +57,7 @@ SAttributeProbability::SAttributeProbability(std::size_t cid,
 }
 
 bool SAttributeProbability::operator<(const SAttributeProbability& other) const {
-    return maths::common::COrderings::lexicographical_compare(
+    return maths::common::COrderings::lexicographicalCompare(
         s_Probability, *s_Attribute, s_Feature, s_Type.asUint(), s_Correlated,
         other.s_Probability, *other.s_Attribute, other.s_Feature,
         other.s_Type.asUint(), other.s_Correlated);

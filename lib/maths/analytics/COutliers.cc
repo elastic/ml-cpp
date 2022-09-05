@@ -11,6 +11,7 @@
 
 #include <maths/analytics/COutliers.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CMemoryDef.h>
 #include <core/CProgramCounters.h>
@@ -19,9 +20,11 @@
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/CSpline.h>
 #include <maths/common/CTools.h>
 
 #include <maths/common/CMathsFuncs.h>
@@ -29,6 +32,7 @@
 #include <boost/math/distributions/lognormal.hpp>
 
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <sstream>
 #include <string>
@@ -101,7 +105,7 @@ public:
 
     public:
         CModelBuilder(common::CPRNG::CXorOShiro128Plus& rng,
-                      TSizeSizePrVec&& methodAndNumberNeighbours,
+                      TSizeSizePrVec&& methodsAndNumberNeighbours,
                       std::size_t sampleSize,
                       TMatrix&& projection);
 
@@ -131,7 +135,6 @@ public:
     class CScorer {
     public:
         void add(const TMeanVarAccumulator2Vec& logScoreMoments,
-                 const TMatrix& columnNormalizedProjection,
                  const TDouble1Vec2Vec& scores);
 
         //! Compute the posterior probability that the point is an outlier
@@ -153,12 +156,11 @@ public:
         double ensembleSize() const { return m_State[0]; }
         common::CFloatStorage& ensembleSize() { return m_State[0]; }
 
-        double logLikelihoodOutlier() const { return m_State[1]; }
-        common::CFloatStorage& logLikelihoodOutlier() { return m_State[1]; }
-
-        double influence(std::size_t index) const { return m_State[index + 2]; }
-        common::CFloatStorage& influence(std::size_t index) {
-            return m_State[index + 2];
+        double logLikelihoodOutlier(std::size_t index) const {
+            return m_State[index + 1];
+        }
+        common::CFloatStorage& logLikelihoodOutlier(std::size_t index) {
+            return m_State[index + 1];
         }
 
         std::size_t numberInfluences() const { return m_State.size() - 2; }
@@ -181,12 +183,12 @@ public:
 
     CEnsemble(const CEnsemble&) = delete;
     CEnsemble& operator=(const CEnsemble&) = delete;
-    CEnsemble(CEnsemble&&) = default;
-    CEnsemble& operator=(CEnsemble&&) = default;
+    CEnsemble(CEnsemble&&) noexcept = default;
+    CEnsemble& operator=(CEnsemble&&) noexcept = default;
 
     //! Make the builders for the ensemble models.
     static TModelBuilderVec
-    makeBuilders(const TSizeVecVec& algorithms,
+    makeBuilders(const TSizeVecVec& methods,
                  std::size_t numberPoints,
                  std::size_t dimension,
                  std::size_t numberNeighbours,
@@ -213,7 +215,7 @@ private:
     class CModel {
     public:
         CModel(const TMethodFactoryVec& methodFactories,
-               TSizeSizePrVec methodAndNumberNeighbours,
+               TSizeSizePrVec methodsAndNumberNeighbours,
                TPointVec samples,
                TMatrix projection);
 
@@ -228,7 +230,6 @@ private:
         std::size_t memoryUsage() const {
             return core::memory::dynamicSize(m_Lookup) +
                    core::memory::dynamicSize(m_Projection) +
-                   core::memory::dynamicSize(m_RowNormalizedProjection) +
                    core::memory::dynamicSize(m_Method) +
                    core::memory::dynamicSize(m_LogScoreMoments);
         }
@@ -244,7 +245,6 @@ private:
     private:
         TKdTreeUPtr m_Lookup;
         TMatrix m_Projection;
-        TMatrix m_RowNormalizedProjection;
         TMethodUPtr m_Method;
         TMeanVarAccumulator2Vec m_LogScoreMoments;
     };
@@ -379,7 +379,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
         result.emplace_back(rng, std::move(methodsAndNumberNeighbours),
                             sampleSize, std::move(projections[i]));
 
-        rng.discard(1ull < 63);
+        rng.jump();
     }
 
     return result;
@@ -428,9 +428,8 @@ std::size_t CEnsemble<POINT>::estimateMemoryUsage(TMethodSize methodSize,
     // The scores for a single method plus bookkeeping overhead for a single partition.
     std::size_t partitionScoringMemory{
         numberMethodsPerModel * partitionNumberPoints *
-            (sizeof(TDouble1Vec) +
-             (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
-        methodSize(maxNumberNeighbours, partitionNumberPoints, projectionDimension)};
+            (sizeof(TDouble1Vec) + (computeFeatureInfluence ? dimension * sizeof(double) : 0)) +
+        methodSize(maxNumberNeighbours, partitionNumberPoints, dimension)};
 
     return pointsMemory + scorersMemory + numberModels * modelMemory + partitionScoringMemory;
 }
@@ -563,8 +562,10 @@ CEnsemble<POINT>::CModelBuilder::makeSampler(common::CPRNG::CXorOShiro128Plus& r
 
 template<typename POINT>
 void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMoments,
-                                    const TMatrix& rowNormalizedProjection,
                                     const TDouble1Vec2Vec& scores) {
+    if (scores.empty()) {
+        return;
+    }
 
     // The basic idea is to map score percentile to a probability that the data
     // point is an outlier. We use a monotonic function for this which is flat
@@ -578,7 +579,7 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
     // We lower bound the coefficient of variation (to 1e-4) of the log-normal we
     // use to compute the score c.d.f. This is log(1 + CV^2) which for small CV is
     // very nearly CV^2.
-    static const double MINIMUM_VARIANCE{1e-8};
+    constexpr double MINIMUM_VARIANCE{1e-8};
 
     auto scoreCdfComplement = [&](std::size_t i, std::size_t j) {
         double location{common::CBasicStatistics::mean(logScoreMoments[i])};
@@ -600,79 +601,68 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
         return 0.5;
     };
 
-    auto pOutlierGiven = [](double cdfComplement) {
-
+    auto pOutlierGiven = [] {
         static const TDoubleVec LOG_KNOTS{
-            common::CTools::fastLog(1e-5), common::CTools::fastLog(1e-3),
-            common::CTools::fastLog(0.01), common::CTools::fastLog(0.1),
-            common::CTools::fastLog(0.2),  common::CTools::fastLog(0.4),
-            common::CTools::fastLog(0.5),  common::CTools::fastLog(0.6),
-            common::CTools::fastLog(0.8),  common::CTools::fastLog(1.0)};
-        static const TDoubleVec KNOTS_P_OUTLIER{0.98, 0.87, 0.76, 0.65, 0.6,
-                                                0.5,  0.5,  0.5,  0.3,  0.3};
+            common::CTools::fastLog(std::numeric_limits<double>::min()),
+            common::CTools::fastLog(1e-5),
+            common::CTools::fastLog(1e-3),
+            common::CTools::fastLog(0.01),
+            common::CTools::fastLog(0.1),
+            common::CTools::fastLog(0.2),
+            common::CTools::fastLog(0.4),
+            common::CTools::fastLog(0.5),
+            common::CTools::fastLog(0.6),
+            common::CTools::fastLog(0.8),
+            common::CTools::fastLog(1.0)};
+        static const TDoubleVec KNOTS_P_OUTLIER{
+            0.9999, 0.99, 0.96, 0.82, 0.67, 0.62, 0.51, 0.5, 0.5, 0.35, 0.33};
+        static common::CSpline<> P_OUTLIER{[&] {
+            common::CSpline<> result{common::CSplineTypes::E_Linear};
+            result.interpolate(LOG_KNOTS, KNOTS_P_OUTLIER,
+                               common::CSplineTypes::E_ParabolicRunout);
+            return result;
+        }()};
 
-        double logCdfComplement{common::CTools::fastLog(std::max(cdfComplement, 1e-5))};
-        auto k = std::upper_bound(LOG_KNOTS.begin(), LOG_KNOTS.end(), logCdfComplement);
-
-        return common::CTools::linearlyInterpolate(
-            *(k - 1), *k, KNOTS_P_OUTLIER[k - LOG_KNOTS.begin() - 1],
-            KNOTS_P_OUTLIER[k - LOG_KNOTS.begin()], logCdfComplement);
-    };
+        return [&](double cdfComplement) {
+            double logCdfComplement{common::CTools::fastLog(
+                std::max(cdfComplement, std::numeric_limits<double>::min()))};
+            return P_OUTLIER.value(logCdfComplement);
+        };
+    }();
 
     static const double EXPECTED_P_OUTLIER{[=] {
         double result{0.0};
-        for (double x = 0.0; x < 0.99; x += 0.1) {
+        for (double x = 0.0, dx = 0.05; x < 0.99; x += dx) {
             double interval;
             common::CIntegration::gaussLegendre<common::CIntegration::OrderTwo>(
                 [=](double x_, double& r) {
                     r = pOutlierGiven(x_);
                     return true;
                 },
-                x, x + 0.1, interval);
+                x, x + dx, interval);
             result += interval;
         }
         return result;
     }()};
 
-    double logLikelihoodOutlier{0.0};
-    double logLikelihoodInlier{0.0};
-    TDouble2Vec weights(scores.size(), 0.0);
-    for (std::size_t i = 0; i < scores.size(); ++i) {
-        double pOutlier{0.5 / EXPECTED_P_OUTLIER * pOutlierGiven(scoreCdfComplement(i, 0))};
-        logLikelihoodOutlier += common::CTools::fastLog(pOutlier);
-        logLikelihoodInlier += common::CTools::fastLog(1.0 - pOutlier);
-        weights[i] = pOutlier;
-    }
-    double likelihoodOutlier{std::exp(logLikelihoodOutlier)};
-    double likelihoodInlier{std::exp(logLikelihoodInlier)};
-    double pOutlier{likelihoodOutlier / (likelihoodInlier + likelihoodOutlier)};
-    double pInlier{1.0 - pOutlier};
+    m_State.resize(scores[0].size() + 1, 0.0);
 
-    m_State.resize(2);
     this->ensembleSize() += 1.0;
-    this->logLikelihoodOutlier() += common::CTools::fastLog(pOutlier) -
-                                    common::CTools::fastLog(pInlier);
 
-    std::size_t numberScores{scores[0].size()};
-    if (numberScores > 1) {
-        TPoint influences{common::SConstant<TPoint>::get(numberScores - 1, 0)};
+    for (std::size_t j = 0; j < scores[0].size(); ++j) {
+        double logLikelihoodOutlier{0.0};
+        double logLikelihoodInlier{0.0};
         for (std::size_t i = 0; i < scores.size(); ++i) {
-            double fi0{scoreCdfComplement(i, 0)};
-            for (std::size_t j = 1; j < numberScores; ++j) {
-                double fij{scoreCdfComplement(i, j)};
-                influences(j - 1) += weights[i] *
-                                     std::max(common::CTools::fastLog(fij) -
-                                                  common::CTools::fastLog(fi0),
-                                              0.0);
-            }
+            double pOutlier{0.5 / EXPECTED_P_OUTLIER *
+                            pOutlierGiven(scoreCdfComplement(i, j))};
+            logLikelihoodOutlier += std::log(pOutlier);
+            logLikelihoodInlier += std::log(1.0 - pOutlier);
         }
-        influences = rowNormalizedProjection * influences;
-        std::size_t numberInfluences{common::las::dimension(influences)};
-
-        m_State.resize(numberInfluences + 2, 0.0);
-        for (std::size_t i = 0; i < numberInfluences; ++i) {
-            this->influence(i) += influences(i);
-        }
+        double likelihoodOutlier{std::exp(logLikelihoodOutlier)};
+        double likelihoodInlier{std::exp(logLikelihoodInlier)};
+        double pOutlier{likelihoodOutlier / (likelihoodInlier + likelihoodOutlier)};
+        double pInlier{1.0 - pOutlier};
+        this->logLikelihoodOutlier(j) += std::log(pOutlier) - std::log(pInlier);
     }
 }
 
@@ -683,23 +673,24 @@ TDouble1Vec CEnsemble<POINT>::CScorer::compute(double pOutlier) const {
     // confident. For a high degree of confidence we instead require that the
     // point has a significant chance of being an outlier for a significant
     // fraction of the ensemble models, i.e. 4 out of 5.
-    double logLikelihoodOutlier{this->logLikelihoodOutlier() / (0.8 * this->ensembleSize())};
 
-    // The conditional probability follows from Bayes rule.
-    double likelihoodOutlier{
-        std::exp(logLikelihoodOutlier + common::CTools::fastLog(pOutlier))};
-    double likelihoodInlier{std::exp(common::CTools::fastLog(1.0 - pOutlier))};
-
-    TDouble1Vec result{likelihoodOutlier / (likelihoodOutlier + likelihoodInlier)};
+    TDouble1Vec result(this->numberInfluences() + 1, 0.0);
+    double Z{0.0};
+    for (std::size_t i = 0; i < this->numberInfluences() + 1; ++i) {
+        double logLikelihoodOutlier{this->logLikelihoodOutlier(i) /
+                                    (0.8 * this->ensembleSize())};
+        // The conditional probability follows from Bayes rule.
+        double likelihoodOutlier{
+            std::exp(logLikelihoodOutlier + common::CTools::fastLog(pOutlier))};
+        double likelihoodInlier{std::exp(common::CTools::fastLog(1.0 - pOutlier))};
+        result[i] = likelihoodOutlier / (likelihoodOutlier + likelihoodInlier);
+        Z += std::fabs(result[i] - result[0]);
+    }
 
     // The normalised feature influence.
-    result.resize(this->numberInfluences() + 1);
-    double Z{0.0};
     for (std::size_t i = 1; i < result.size(); ++i) {
-        Z += result[i] = this->influence(i - 1);
-    }
-    for (std::size_t i = 1; Z > 0.0 && i < result.size(); ++i) {
-        result[i] /= Z;
+        result[i] = Z == 0.0 ? 1.0 / static_cast<double>(result.size() - 1)
+                             : std::fabs(result[i] - result[0]) / Z;
     }
 
     return result;
@@ -710,19 +701,7 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
                                  TSizeSizePrVec methodsAndNumberNeighbours,
                                  TPointVec sample,
                                  TMatrix projection)
-    : m_Lookup{std::make_unique<TKdTree>()}, m_Projection{std::move(projection)},
-      m_RowNormalizedProjection(m_Projection.cols(), m_Projection.rows()) {
-
-    // Column normalized absolute projection values.
-    for (std::ptrdiff_t i = 0; i < m_Projection.rows(); ++i) {
-        double Z{0.0};
-        for (std::ptrdiff_t j = 0; j < m_Projection.cols(); ++j) {
-            Z += std::fabs(m_Projection(i, j));
-        }
-        for (std::ptrdiff_t j = 0; j < m_Projection.cols(); ++j) {
-            m_RowNormalizedProjection(j, i) = std::fabs(m_Projection(i, j)) / Z;
-        }
-    }
+    : m_Lookup{std::make_unique<TKdTree>()}, m_Projection{std::move(projection)} {
 
     m_Lookup->reserve(sample.size());
     m_Lookup->build(sample);
@@ -745,12 +724,12 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
 
     for (auto& method : methods) {
         method->progressRecorder().swap(noop);
-        TDouble1VecVec2Vec scores(method->run(sample, sample.size()));
+        TDouble1VecVec2Vec scores(method->run(sample, m_Projection, 0.0, sample.size()));
         method->progressRecorder().swap(noop);
 
         m_LogScoreMoments.emplace_back();
-        for (std::size_t i = 0; i < scores[0].size(); ++i) {
-            m_LogScoreMoments.back().add(common::CTools::fastLog(shift(scores[0][i][0])));
+        for (auto& score : scores[0]) {
+            m_LogScoreMoments.back().add(common::CTools::fastLog(shift(score[0])));
         }
     }
     m_Method = std::make_unique<CMultipleMethods<TPoint, const TKdTree&>>(
@@ -776,16 +755,20 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
 
     TPointVec points_;
     points_.reserve(points.size());
+    TMeanAccumulator meanNorm;
     for (std::size_t i = 0; i < points.size(); ++i, ++index) {
         points_.emplace_back(m_Projection * points[i], index);
+        meanNorm.add(common::las::norm(points[i]));
     }
+    double eps{COutliers::EPS * common::CBasicStatistics::mean(meanNorm)};
+    LOG_TRACE(<< "eps = " << eps);
 
     std::int64_t pointsMemory{signedMemoryUsage(points_)};
     recordMemoryUsage(pointsMemory);
     std::int64_t methodMemoryBeforeRun{signedMemoryUsage(m_Method)};
 
     // Run the method.
-    TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
+    TDouble1VecVec2Vec methodScores(m_Method->run(points_, m_Projection, eps, index));
 
     std::int64_t methodMemoryAfterRun{signedMemoryUsage(m_Method)};
     recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
@@ -803,7 +786,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         for (std::size_t j = 0; j < methodScores.size(); ++j) {
             pointScores[j] = std::move(methodScores[j][index]);
         }
-        scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
+        scores[i].add(m_LogScoreMoments, pointScores);
     }
 
     recordMemoryUsage(signedMemoryUsage(scores) - scoresMemoryBeforeAdd - pointsMemory);
@@ -818,8 +801,8 @@ std::size_t CEnsemble<POINT>::CModel::estimateMemoryUsage(TMethodSize methodSize
     std::size_t lookupMemory{TKdTree::estimateMemoryUsage(sampleSize, projectionDimension)};
     std::size_t projectionMemory{projectionDimension * dimension *
                                  sizeof(typename common::SCoordinate<TPoint>::Type)};
-    return sizeof(CModel) + lookupMemory + 2 * projectionMemory +
-           methodSize(numberNeighbours, sampleSize, projectionDimension);
+    return sizeof(CModel) + lookupMemory + projectionMemory +
+           methodSize(numberNeighbours, sampleSize, dimension);
 }
 
 template<typename POINT>
@@ -955,11 +938,11 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
     }
 
-    std::size_t dimension{frame.numberColumns()};
+    std::size_t numberColumns{frame.numberColumns()};
 
     auto writeScores = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{dimension};
+            std::size_t index{numberColumns};
             for (auto value : scores[row->index()].compute(params.s_OutlierFraction)) {
                 row->writeColumn(index++, value);
             }
@@ -968,7 +951,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     std::int64_t frameMemory{signedMemoryUsage(frame)};
     frame.resizeColumns(params.s_NumberThreads,
-                        (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
+                        (params.s_ComputeFeatureInfluence ? 2 : 1) * numberColumns + 1);
     instrumentation.updateMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     bool successful;
@@ -1117,20 +1100,19 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
                                                    std::size_t dimension) {
     using TLof = CLof<TAnnotatedPoint<POINT>, common::CKdTree<TAnnotatedPoint<POINT>>>;
 
-    auto methodSize = [=](std::size_t k, std::size_t numberPoints,
-                          std::size_t projectionDimension) {
+    auto methodSize = [=](std::size_t k, std::size_t numberPoints, std::size_t dimension) {
 
         k = params.s_NumberNeighbours > 0 ? params.s_NumberNeighbours : k;
 
         if (params.s_Method == E_Ensemble) {
             // On average half of models use CLof.
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, projectionDimension) /
+                                                   k, numberPoints, dimension) /
                    2;
         }
         if (params.s_Method == E_Lof) {
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, projectionDimension);
+                                                   k, numberPoints, dimension);
         }
         return std::size_t{0};
     };

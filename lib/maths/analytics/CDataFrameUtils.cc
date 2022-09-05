@@ -897,7 +897,7 @@ CDataFrameUtils::categoricalMicWithColumn(const CColumnValue& target,
         for (auto& categoryMics : encoderMics) {
             std::sort(categoryMics.begin(), categoryMics.end(),
                       [](const TSizeDoublePr& lhs, const TSizeDoublePr& rhs) {
-                          return common::COrderings::lexicographical_compare(
+                          return common::COrderings::lexicographicalCompare(
                               -lhs.second, lhs.first, -rhs.second, rhs.first);
                       });
         }

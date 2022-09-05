@@ -239,7 +239,7 @@ public:
     }
 };
 
-//! Free efficient efficient swap for ADLU.
+//! Free efficient swap for ADLU.
 template<typename SCALAR>
 void swap(CDenseMatrix<SCALAR>& lhs, CDenseMatrix<SCALAR>& rhs) {
     lhs.swap(rhs);
@@ -254,6 +254,14 @@ struct SConstant<CDenseMatrix<SCALAR>> {
     }
     static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant) {
         return CDenseMatrix<SCALAR>::Constant(rows, cols, constant);
+    }
+};
+
+//! \brief Gets the identity dense square matrix with specified dimension.
+template<typename SCALAR>
+struct SIdentity<CDenseMatrix<SCALAR>> {
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t dimension) {
+        return CDenseMatrix<SCALAR>::Identity(dimension, dimension);
     }
 };
 
@@ -355,7 +363,7 @@ public:
 template<typename SCALAR>
 const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
 
-//! Free efficient efficient swap for ADLU.
+//! Free efficient swap for ADLU.
 template<typename SCALAR>
 void swap(CDenseVector<SCALAR>& lhs, CDenseVector<SCALAR>& rhs) {
     lhs.swap(rhs);
@@ -445,7 +453,7 @@ private:
     }
 };
 
-//! Free efficient efficient swap for ADLU.
+//! Free efficient swap for ADLU.
 template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
 void swap(CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& lhs,
           CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& rhs) {
@@ -463,6 +471,15 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant)
         -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(rows, cols, constant);
+    }
+};
+
+//! \brief Gets the identity dense matrix with specified dimension.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SIdentity<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
+    static auto get(std::ptrdiff_t dimension)
+        -> decltype(SIdentity<CDenseMatrix<SCALAR>>::get(dimension)) {
+        return SIdentity<CDenseMatrix<SCALAR>>::get(dimension);
     }
 };
 
@@ -568,7 +585,7 @@ private:
     }
 };
 
-//! Free efficient efficient swap for ADLU.
+//! Free efficient swap for ADLU.
 template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
 void swap(CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& lhs,
           CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& rhs) {

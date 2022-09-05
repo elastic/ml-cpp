@@ -88,7 +88,7 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
     std::sort(ordered.begin(), ordered.end(),
               [](TSizeSizePrStoredStringPtrPrUInt64UMapCItr lhs,
                  TSizeSizePrStoredStringPtrPrUInt64UMapCItr rhs) {
-                  return maths::common::COrderings::lexicographical_compare(
+                  return maths::common::COrderings::lexicographicalCompare(
                       lhs->first.first, *lhs->first.second, lhs->second,
                       rhs->first.first, *rhs->first.second, rhs->second);
               });
@@ -523,7 +523,7 @@ std::uint64_t CBucketGatherer::checksum() const {
             personAttributeCounts.emplace_back(key, CDataGatherer::extractData(count));
         }
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end(),
-                  maths::common::COrderings::SLexicographicalCompare());
+                  maths::common::COrderings::SLess());
         result = maths::common::CChecksum::calculate(result, personAttributeCounts);
     }
 
@@ -540,8 +540,7 @@ std::uint64_t CBucketGatherer::checksum() const {
             personAttributeExplicitNulls.push_back(key);
         }
         std::sort(personAttributeExplicitNulls.begin(),
-                  personAttributeExplicitNulls.end(),
-                  maths::common::COrderings::SLexicographicalCompare());
+                  personAttributeExplicitNulls.end(), maths::common::COrderings::SLess());
         result = maths::common::CChecksum::calculate(result, personAttributeExplicitNulls);
     }
 

@@ -100,7 +100,7 @@ void CTreeShapFeatureImportance::shap(const TRowRef& row, TShapWriter writer) {
     if (m_NumberTopShapValues < m_TopShapValues.size()) {
         std::nth_element(m_TopShapValues.begin(), m_TopShapValues.begin() + m_NumberTopShapValues,
                          m_TopShapValues.end(), [this](std::size_t lhs, std::size_t rhs) {
-                             return common::COrderings::lexicographical_compare(
+                             return common::COrderings::lexicographicalCompare(
                                  -common::las::L1(m_ReducedShapValues[lhs]), lhs,
                                  -common::las::L1(m_ReducedShapValues[rhs]), rhs);
                          });

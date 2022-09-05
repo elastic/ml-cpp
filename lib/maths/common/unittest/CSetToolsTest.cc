@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CSetTools.h>
@@ -19,6 +20,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <numeric>
+#include <tuple>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CSetToolsTest)
@@ -28,80 +31,98 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 
-BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
-    // Test some edge cases.
+BOOST_AUTO_TEST_CASE(testSimultaneousRemoveIf) {
+
+    LOG_DEBUG(<< "Edge cases");
     {
-        LOG_DEBUG(<< "Edge cases");
+        TSizeVec keys{1, 0, 1, 0, 1, 0, 0, 0};
+        TSizeVec values{1, 2, 3, 4, 5, 6, 7, 8, 9};
+        BOOST_TEST_REQUIRE(maths::common::CSetTools::simultaneousRemoveIf(
+                               [](auto key) { return key == 1; }, keys, values) == false);
+    }
+    {
+        TSizeVec keys{1, 1, 1, 1, 1};
+        TSizeVec values{1, 2, 3, 4, 5};
 
-        double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
-        TDoubleVec A(std::begin(a), std::end(a));
+        BOOST_TEST_REQUIRE(maths::common::CSetTools::simultaneousRemoveIf(
+            [](auto key) { return key == 0; }, keys, values));
+        LOG_DEBUG(<< "keys = " << keys << ", values = " << values);
+        BOOST_TEST_REQUIRE("[1, 1, 1, 1, 1]", core::CContainerPrinter::print(keys));
+        BOOST_REQUIRE_EQUAL("[1, 2, 3, 4, 5]", core::CContainerPrinter::print(values));
 
-        for (std::size_t i = 0; i < std::size(a); ++i) {
-            TDoubleVec left;
-            for (std::size_t j = 0; j < i; ++j) {
-                left.push_back(a[j]);
-            }
-            TDoubleVec expected;
-            std::set_difference(A.begin(), A.end(), left.begin(), left.end(),
-                                std::back_inserter(expected));
-            TDoubleVec test = A;
-            maths::common::CSetTools::inplace_set_difference(test, left.begin(),
-                                                             left.end());
-            LOG_DEBUG(<< "A = " << A << ", B = " << left << ", A - B = " << test);
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                                core::CContainerPrinter::print(test));
-
-            TDoubleVec right;
-            for (std::size_t j = i; j < std::size(a); ++j) {
-                right.push_back(a[j]);
-            }
-            expected.clear();
-            std::set_difference(A.begin(), A.end(), right.begin(), right.end(),
-                                std::back_inserter(expected));
-            test = A;
-            maths::common::CSetTools::inplace_set_difference(test, right.begin(),
-                                                             right.end());
-            LOG_DEBUG(<< "A = " << A << ", B = " << right << ", A - B = " << test);
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                                core::CContainerPrinter::print(test));
-        }
+        BOOST_TEST_REQUIRE(maths::common::CSetTools::simultaneousRemoveIf(
+            [](auto key) { return key == 1; }, keys, values));
+        LOG_DEBUG(<< "keys = " << keys << ", values = " << values);
+        BOOST_TEST_REQUIRE(keys.empty());
+        BOOST_TEST_REQUIRE(values.empty());
     }
 
     LOG_DEBUG(<< "Random");
 
     test::CRandomNumbers rng;
 
+    TSizeVec actualKeys;
+    TSizeVec actualValues1;
+    TSizeVec actualValues2;
+    TSizeVec actualValues3;
+    TSizeVec expectedKeys;
+    TSizeVec expectedValues1;
+    TSizeVec expectedValues2;
+    TSizeVec expectedValues3;
+
     for (std::size_t t = 0; t < 100; ++t) {
-        TDoubleVec A;
-        rng.generateUniformSamples(0.0, 100.0, t, A);
-        std::sort(A.begin(), A.end());
+        rng.generateUniformSamples(0, 5, 20, actualKeys);
+        actualValues1.resize(20);
+        actualValues2.resize(20);
+        actualValues3.resize(20);
+        std::iota(actualValues1.begin(), actualValues1.end(), 0);
+        std::iota(actualValues2.begin(), actualValues2.end(), 0);
+        std::iota(actualValues3.begin(), actualValues3.end(), 0);
 
-        TDoubleVec B;
-        TDoubleVec mask;
-        rng.generateUniformSamples(0.0, 1.0, t, mask);
-        for (std::size_t i = 0; i < mask.size(); ++i) {
-            if (mask[i] < 0.2) {
-                B.push_back(A[i]);
-            }
+        expectedKeys = actualKeys;
+        expectedValues1 = actualValues1;
+        expectedValues2 = actualValues2;
+        expectedValues3 = actualValues3;
+
+        expectedValues1.erase(
+            std::remove_if(expectedValues1.begin(), expectedValues1.end(),
+                           [&](auto value) { return expectedKeys[value] == 1; }),
+            expectedValues1.end());
+        expectedValues2.erase(
+            std::remove_if(expectedValues2.begin(), expectedValues2.end(),
+                           [&](auto value) { return expectedKeys[value] == 1; }),
+            expectedValues2.end());
+        expectedValues3.erase(
+            std::remove_if(expectedValues3.begin(), expectedValues3.end(),
+                           [&](auto value) { return expectedKeys[value] == 1; }),
+            expectedValues3.end());
+        expectedKeys.erase(std::remove_if(expectedKeys.begin(), expectedKeys.end(),
+                                          [&](auto key) { return key == 1; }),
+                           expectedKeys.end());
+
+        BOOST_TEST_REQUIRE(maths::common::CSetTools::simultaneousRemoveIf(
+            [](auto key) { return key == 1; }, actualKeys, actualValues1,
+            actualValues2, actualValues3));
+
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedKeys),
+                            core::CContainerPrinter::print(actualKeys));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedValues1),
+                            core::CContainerPrinter::print(actualValues1));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedValues2),
+                            core::CContainerPrinter::print(actualValues2));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedValues3),
+                            core::CContainerPrinter::print(actualValues3));
+
+        if (t % 20 == 0) {
+            LOG_DEBUG(<< "actual keys   = " << actualKeys);
+            LOG_DEBUG(<< "expected keys = " << expectedKeys);
+            LOG_DEBUG(<< "actual values1   = " << actualValues1);
+            LOG_DEBUG(<< "expected values1 = " << expectedValues1);
+            LOG_DEBUG(<< "actual values2   = " << actualValues2);
+            LOG_DEBUG(<< "expected values2 = " << expectedValues2);
+            LOG_DEBUG(<< "actual values3   = " << actualValues3);
+            LOG_DEBUG(<< "expected values3 = " << expectedValues3);
         }
-
-        TDoubleVec expected;
-        std::set_difference(A.begin(), A.end(), B.begin(), B.end(),
-                            std::back_inserter(expected));
-
-        if ((t + 1) % 10 == 0) {
-            LOG_DEBUG(<< "A = " << A);
-            LOG_DEBUG(<< "B = " << B);
-        }
-
-        maths::common::CSetTools::inplace_set_difference(A, B.begin(), B.end());
-
-        if ((t + 1) % 10 == 0) {
-            LOG_DEBUG(<< "A - B = " << A);
-        }
-
-        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                            core::CContainerPrinter::print(A));
     }
 }
 
@@ -109,13 +130,12 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
     {
         LOG_DEBUG(<< "Edge cases");
 
-        double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
-        TDoubleVec A(std::begin(a), std::end(a));
+        TDoubleVec A{1.0, 1.1, 1.2, 3.4, 7.8};
 
-        for (std::size_t i = 0; i < std::size(a); ++i) {
+        for (std::size_t i = 0; i < A.size(); ++i) {
             TDoubleVec left;
             for (std::size_t j = 0; j < i; ++j) {
-                left.push_back(a[j]);
+                left.push_back(A[j]);
             }
             TDoubleVec expected;
             std::set_intersection(A.begin(), A.end(), left.begin(), left.end(),
@@ -126,8 +146,8 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             TDoubleVec right;
-            for (std::size_t j = i; j < std::size(a); ++j) {
-                right.push_back(a[j]);
+            for (std::size_t j = i; j < A.size(); ++j) {
+                right.push_back(A[j]);
             }
             expected.clear();
             std::set_intersection(A.begin(), A.end(), right.begin(),
@@ -198,16 +218,18 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
 }
 
 BOOST_AUTO_TEST_CASE(testJaccard) {
+    LOG_DEBUG(<< "Edge cases");
     {
-        LOG_DEBUG(<< "Edge cases");
-
-        double A[] = {0.0, 1.2, 3.2};
-        double B[] = {0.0, 1.2, 3.2, 5.1};
-
-        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::jaccard(A, A, B, B));
-        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::jaccard(A, A + 3, B, B + 3));
-        BOOST_REQUIRE_EQUAL(0.75, maths::common::CSetTools::jaccard(A, A + 3, B, B + 4));
-        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::jaccard(A, A + 3, B + 3, B + 4));
+        TDoubleVec A{0.0, 1.2, 3.2};
+        TDoubleVec B{0.0, 1.2, 3.2, 5.1};
+        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::jaccard(
+                                     A.begin(), A.begin(), B.begin(), B.begin()));
+        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::jaccard(
+                                     A.begin(), A.end(), B.begin(), B.begin() + 3));
+        BOOST_REQUIRE_EQUAL(0.75, maths::common::CSetTools::jaccard(
+                                      A.begin(), A.end(), B.begin(), B.end()));
+        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::jaccard(
+                                     A.begin(), A.end(), B.begin() + 3, B.end()));
     }
 
     LOG_DEBUG(<< "Random");
@@ -249,16 +271,18 @@ BOOST_AUTO_TEST_CASE(testJaccard) {
 }
 
 BOOST_AUTO_TEST_CASE(testOverlap) {
+    LOG_DEBUG(<< "Edge cases");
     {
-        LOG_DEBUG(<< "Edge cases");
-
-        double A[] = {0.0, 1.2, 3.2};
-        double B[] = {0.0, 1.2, 3.2, 5.1};
-
-        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::overlap(A, A, B, B));
-        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::overlap(A, A + 3, B, B + 3));
-        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::overlap(A, A + 3, B, B + 4));
-        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::overlap(A, A + 3, B + 3, B + 4));
+        TDoubleVec A{0.0, 1.2, 3.2};
+        TDoubleVec B{0.0, 1.2, 3.2, 5.1};
+        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::overlap(
+                                     A.begin(), A.begin(), B.begin(), B.begin()));
+        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::overlap(
+                                     A.begin(), A.end(), B.begin(), B.begin() + 3));
+        BOOST_REQUIRE_EQUAL(1.0, maths::common::CSetTools::overlap(
+                                     A.begin(), A.end(), B.begin(), B.end()));
+        BOOST_REQUIRE_EQUAL(0.0, maths::common::CSetTools::overlap(
+                                     A.begin(), A.end(), B.begin() + 3, B.end()));
     }
 
     LOG_DEBUG(<< "Random");

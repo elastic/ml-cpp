@@ -48,6 +48,24 @@ std::size_t dimension(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
     return dimension(static_cast<const VECTOR&>(x));
 }
 
+//! Get the number of columns of a matrix.
+template<typename MATRIX>
+std::size_t columns(const MATRIX& m) {
+    return m.columns();
+}
+
+//! Get the Euclidean norm of an Eigen dense vector.
+template<typename SCALAR>
+std::size_t columns(const CDenseMatrix<SCALAR>& x) {
+    return x.cols();
+}
+
+//! Get the Euclidean norm of an Eigen memory mapped matrix.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+std::size_t columns(const CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& x) {
+    return x.cols();
+}
+
 //! Get the concomitant zero vector.
 template<typename VECTOR>
 auto zero(const VECTOR& x) -> decltype(SConstant<VECTOR>::get(dimension(x), 0)) {
