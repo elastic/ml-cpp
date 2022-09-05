@@ -262,6 +262,12 @@ protected:
     //! being seen for the first time)
     std::size_t idForToken(const std::string& token);
 
+    //! Discard the most recently added tokens from the token to ID map.
+    //! This must only be called if the caller is certain that none of
+    //! the tokens that will be discarded are referenced in any other part
+    //! of the categorizer state.
+    void discardLatestTokens(std::size_t previousTokenCount);
+
     //! Is the category considered rare?
     bool isCategoryCountRare(std::size_t count) const;
 

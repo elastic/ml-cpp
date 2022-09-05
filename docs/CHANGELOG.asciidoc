@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.4.2
+
+=== Bug Fixes
+
+* Do not retain categorization tokens when existing category matches. (See {ml-pull}2398[#2398].)
+
 == {es} version 8.4.0
 
 === Enhancements
