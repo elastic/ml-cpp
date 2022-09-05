@@ -72,7 +72,7 @@ public:
                        : rInitialized < lInitialized;
         }
 
-        static constexpr std::less<> s_Less;
+        static const std::less<> s_Less;
     };
 
     //! \brief Orders two pointers or std::optional types such that null are
@@ -107,7 +107,7 @@ public:
                        : rInitialized > lInitialized;
         }
 
-        static constexpr std::greater<> s_Greater;
+        static const std::greater<> s_Greater;
     };
 
     //! \brief Orders two reference wrapped objects which are
@@ -123,7 +123,7 @@ public:
             return s_Less(core::unwrap_ref(lhs), core::unwrap_ref(rhs));
         }
 
-        static constexpr std::less<> s_Less;
+        static const std::less<> s_Less;
     };
 
     //! \brief Orders two reference wrapped objects which are
@@ -139,7 +139,7 @@ public:
             return s_Greater(core::unwrap_ref(lhs), core::unwrap_ref(rhs));
         }
 
-        static constexpr std::greater<> s_Greater;
+        static const std::greater<> s_Greater;
     };
 
     //! \brief Wrapper around various less than comparisons.

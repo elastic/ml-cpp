@@ -10,3 +10,14 @@
  */
 
 #include <maths/common/COrderings.h>
+
+namespace ml {
+namespace maths {
+namespace common {
+const std::less<> COrderings::SDerefLess::s_Less;
+const std::greater<> COrderings::SDerefGreater::s_Greater;
+const std::less<> COrderings::SReferenceLess::s_Less;
+const std::greater<> COrderings::SReferenceGreater::s_Greater;
+}
+}
+}
