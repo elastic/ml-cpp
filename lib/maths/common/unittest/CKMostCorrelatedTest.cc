@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(I1) < 0.1);
 
     for (std::size_t i = 0; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+        for (std::size_t j = 0, X = 0; j < variables; j += 2) {
             for (std::size_t k = 0; k < std::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     }
 
     // This should trigger the next projection to be generated.
-    for (std::size_t i = 0u, X = 0; i < variables; i += 2) {
+    for (std::size_t i = 0, X = 0; i < variables; i += 2) {
         for (std::size_t j = 0; j < std::size(combinations); ++j, ++X) {
             double x = combinations[j][0] * samples[19 * variables + i] +
                        combinations[j][1] * samples[19 * variables + i + 1];
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     mostCorrelated.addVariables((variables * std::size(combinations)) / 2);
 
     for (std::size_t i = 0; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+        for (std::size_t j = 0, X = 0; j < variables; j += 2) {
             for (std::size_t k = 0; k < std::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
@@ -622,13 +622,13 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
     // Test the case that some of the metric values are missing.
     //
     // For ten variables [0, ..., 9] create correlated pairs { (0, 1), (2, 3),
-    // (4, 5), (6, 7), (8, 9) }. We drop 20% of values at random from variables
+    // (4, 5), (6, 7), (8, 9) }. We drop 10% of values at random from variables
     // 4 and 6 and test we find the corresponding correlated pairs but reduce
     // their estimated correlation.
 
     maths::common::CSampling::seed();
 
-    double combinations[][2] = {{0.8, 0.2}};
+    double combinations[][2] = {{0.7, 0.3}};
 
     test::CRandomNumbers rng;
 
@@ -650,7 +650,7 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
             if (j == 4 || j == 6) {
                 TDoubleVec test;
                 rng.generateUniformSamples(0.0, 1.0, 1, test);
-                if (test[0] < 0.2) {
+                if (test[0] < 0.1) {
                     continue;
                 }
             }
@@ -719,7 +719,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
         TDoubleVecVec samples(b, TDoubleVec(n[s]));
         const TDoubleVec* samples_[] = {&uniform, &gamma, &normal};
         for (std::size_t i = 0; i < b; ++i) {
-            for (std::size_t j = 0u, l = 0; j < 3; ++j) {
+            for (std::size_t j = 0, l = 0; j < 3; ++j) {
                 std::size_t m = samples_[j]->size() / b;
                 for (std::size_t k = 0; k < m; ++k, ++l) {
                     samples[i][labels[l]] = scales[k] * (*samples_[j])[i * m + k];
