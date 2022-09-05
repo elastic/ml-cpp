@@ -49,14 +49,23 @@ public:
     static const char DELIMITER = ',';
 };
 
-//! \brief Get a constant initialized version of \p TYPE.
+//! \brief Gets a constant initialized version of \p TYPE.
 //!
-//! Each of our vector and matrix types provides a specialization
-//! of this class and define a static get method which takes the
-//! dimension(s) and the constant value.
+//! Each of our vector and matrix types provides a specialization of this
+//! class and define a static get method which takes the dimension(s) and
+//! the constant value.
 template<typename TYPE>
 struct SConstant {
     static_assert(sizeof(TYPE) < 0, "Missing specialisation of SConstant");
+};
+
+//! \brief Gets an identity version of \p MATRIX.
+//!
+//! Each matrix types provides a specialization of this class and define
+//! a static get method which takes the dimension and the constant value.
+template<typename MATRIX>
+struct SIdentity {
+    static_assert(sizeof(MATRIX) < 0, "Missing specialisation of SIdentity");
 };
 
 template<typename T, std::size_t N>
