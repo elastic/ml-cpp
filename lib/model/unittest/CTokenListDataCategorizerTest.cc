@@ -15,7 +15,6 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CStopWatch.h>
 #include <core/CWordDictionary.h>
 
 #include <model/CLimits.h>
@@ -790,6 +789,32 @@ BOOST_FIXTURE_TEST_CASE(testHardMemoryLimit, CTestFixture) {
         m_Limits.resourceMonitor().refresh(categorizer);
     }
     BOOST_TEST_REQUIRE(categoryId.isHardFailure());
+}
+
+BOOST_FIXTURE_TEST_CASE(testManyUniqueTokens, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    ml::model::CLocalCategoryId categoryId;
+    for (int messageNum = 0; messageNum < 20000; ++messageNum) {
+        std::string message{"transaction id [" + makeUniqueToken() + "] completed"};
+        categoryId = categorizer.computeCategory(false, message, message.length());
+    }
+
+    std::string differentMessage{"something entirely different"};
+    categoryId = categorizer.computeCategory(false, differentMessage,
+                                             differentMessage.length());
+    BOOST_REQUIRE_EQUAL(2, categoryId.id());
+
+    m_Limits.resourceMonitor().refresh(categorizer);
+
+    // We should not have stored all the unique tokens that weren't necessary
+    // to define the category. If we have then the memory usage of the
+    // categorizer will be far greater than the number of messages that were
+    // categorized. If we didn't store all the unnecessary unique tokens then
+    // the memory usage will be low, as there are only two categories.
+    BOOST_TEST_REQUIRE(ml::core::memory::dynamicSize(&categorizer) < 20000);
 }
 
 BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToRareCategories, CTestFixture) {

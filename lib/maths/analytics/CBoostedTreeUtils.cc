@@ -82,32 +82,32 @@ CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree) {
     return tree[rootIndex()];
 }
 
-void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
-    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionPrediction) {
+    for (std::size_t i = 0; i < dimensionPrediction; ++i) {
         row.writeColumn(extraColumns[E_Prediction] + i, 0.0);
     }
 }
 
 void writePrediction(const TRowRef& row,
                      const TSizeVec& extraColumns,
-                     std::size_t numberLossParameters,
+                     std::size_t dimensionPrediction,
                      const TMemoryMappedFloatVector& value) {
-    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+    for (std::size_t i = 0; i < dimensionPrediction; ++i) {
         row.writeColumn(extraColumns[E_Prediction] + i, value(i));
     }
 }
 
 void writePreviousPrediction(const TRowRef& row,
                              const TSizeVec& extraColumns,
-                             std::size_t numberLossParameters,
+                             std::size_t dimensionPrediction,
                              const TMemoryMappedFloatVector& value) {
-    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+    for (std::size_t i = 0; i < dimensionPrediction; ++i) {
         row.writeColumn(extraColumns[E_PreviousPrediction] + i, value(i));
     }
 }
 
-void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
-    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionGradient) {
+    for (std::size_t i = 0; i < dimensionGradient; ++i) {
         row.writeColumn(extraColumns[E_Gradient] + i, 0.0);
     }
 }
@@ -129,8 +129,8 @@ void writeLossGradient(const TRowRef& row,
                   [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 
-void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
-    for (std::size_t i = 0, size = lossHessianUpperTriangleSize(numberLossParameters);
+void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t dimensionGradient) {
+    for (std::size_t i = 0, size = lossHessianUpperTriangleSize(dimensionGradient);
          i < size; ++i) {
         row.writeColumn(extraColumns[E_Curvature] + i, 0.0);
     }

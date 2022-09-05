@@ -11,7 +11,9 @@
 
 #include <maths/analytics/CBoostedTreeLoss.h>
 
+#include <core/CDataFrame.h>
 #include <core/CPersistUtils.h>
+#include <core/Concurrency.h>
 
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
@@ -25,13 +27,16 @@
 #include <maths/common/CTools.h>
 #include <maths/common/CToolsDetail.h>
 
+#include <algorithm>
 #include <exception>
 #include <limits>
+#include <memory>
 
 namespace ml {
 namespace maths {
 namespace analytics {
 using namespace boosted_tree_detail;
+using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
 const double EPSILON{100.0 * std::numeric_limits<double>::epsilon()};
@@ -867,9 +872,6 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         if (lossFunctionName == CMse::NAME) {
             return std::make_unique<CMse>(traverser);
         }
-        if (lossFunctionName == CMseIncremental::NAME) {
-            return std::make_unique<CMse>(traverser);
-        }
         if (lossFunctionName == CMsle::NAME) {
             return std::make_unique<CMsle>(traverser);
         }
@@ -878,9 +880,6 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         }
         if (lossFunctionName == CBinomialLogisticLoss::NAME) {
             return std::make_unique<CBinomialLogisticLoss>(traverser);
-        }
-        if (lossFunctionName == CBinomialLogisticLossIncremental::NAME) {
-            return std::make_unique<CMse>(traverser);
         }
         if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
             return std::make_unique<CMultinomialLogisticLoss>(traverser);
@@ -950,11 +949,24 @@ CMse::TLossUPtr CMse::incremental(double eta, double mu, const TNodeVec& tree) c
     return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
+CMse::TLossUPtr CMse::project(std::size_t /*numberThreads*/,
+                              core::CDataFrame& /*frame*/,
+                              const core::CPackedBitVector& /*rowMask*/,
+                              std::size_t /*targetColumn*/,
+                              const TSizeVec& /*extrColumns*/,
+                              common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
 ELossType CMse::type() const {
     return E_MseRegression;
 }
 
-std::size_t CMse::numberParameters() const {
+std::size_t CMse::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CMse::dimensionGradient() const {
     return 1;
 }
 
@@ -1011,12 +1023,6 @@ bool CMse::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */)
 
 const std::string CMse::NAME{"mse"};
 
-CMseIncremental::CMseIncremental(core::CStateRestoreTraverser&) {
-    // We purposely don't persist and restore the state since this only exists
-    // temporarily between persistence events.
-    throw std::runtime_error{"restore is not supported for CMseIncremental"};
-}
-
 CMseIncremental::CMseIncremental(double eta, double mu, const TNodeVec& tree)
     : m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
 }
@@ -1030,11 +1036,25 @@ CMseIncremental::incremental(double eta, double mu, const TNodeVec& tree) const 
     return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
+CMseIncremental::TLossUPtr
+CMseIncremental::project(std::size_t /*numberThreads*/,
+                         core::CDataFrame& /*frame*/,
+                         const core::CPackedBitVector& /*rowMask*/,
+                         std::size_t /*targetColumn*/,
+                         const TSizeVec& /*extrColumns*/,
+                         common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
 ELossType CMseIncremental::type() const {
     return E_MseRegression;
 }
 
-std::size_t CMseIncremental::numberParameters() const {
+std::size_t CMseIncremental::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CMseIncremental::dimensionGradient() const {
     return 1;
 }
 
@@ -1115,10 +1135,6 @@ CMsle::CMsle(core::CStateRestoreTraverser& traverser) {
     }
 }
 
-ELossType CMsle::type() const {
-    return E_MsleRegression;
-}
-
 CMsle::TLossUPtr CMsle::clone() const {
     return std::make_unique<CMsle>(*this);
 }
@@ -1127,7 +1143,24 @@ CMsle::TLossUPtr CMsle::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
-std::size_t CMsle::numberParameters() const {
+CMsle::TLossUPtr CMsle::project(std::size_t /*numberThreads*/,
+                                core::CDataFrame& /*frame*/,
+                                const core::CPackedBitVector& /*rowMask*/,
+                                std::size_t /*targetColumn*/,
+                                const TSizeVec& /*extrColumns*/,
+                                common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
+ELossType CMsle::type() const {
+    return E_MsleRegression;
+}
+
+std::size_t CMsle::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CMsle::dimensionGradient() const {
     return 1;
 }
 
@@ -1223,10 +1256,6 @@ CPseudoHuber::CPseudoHuber(core::CStateRestoreTraverser& traverser) {
     }
 }
 
-ELossType CPseudoHuber::type() const {
-    return E_HuberRegression;
-}
-
 CPseudoHuber::TLossUPtr CPseudoHuber::clone() const {
     return std::make_unique<CPseudoHuber>(*this);
 }
@@ -1235,7 +1264,24 @@ CPseudoHuber::TLossUPtr CPseudoHuber::incremental(double, double, const TNodeVec
     return nullptr;
 }
 
-std::size_t CPseudoHuber::numberParameters() const {
+CPseudoHuber::TLossUPtr CPseudoHuber::project(std::size_t /*numberThreads*/,
+                                              core::CDataFrame& /*frame*/,
+                                              const core::CPackedBitVector& /*rowMask*/,
+                                              std::size_t /*targetColumn*/,
+                                              const TSizeVec& /*extrColumns*/,
+                                              common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
+ELossType CPseudoHuber::type() const {
+    return E_HuberRegression;
+}
+
+std::size_t CPseudoHuber::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CPseudoHuber::dimensionGradient() const {
     return 1;
 }
 
@@ -1328,11 +1374,25 @@ CBinomialLogisticLoss::incremental(double eta, double mu, const TNodeVec& tree) 
     return std::make_unique<CBinomialLogisticLossIncremental>(eta, mu, tree);
 }
 
+CBinomialLogisticLoss::TLossUPtr
+CBinomialLogisticLoss::project(std::size_t /*numberThreads*/,
+                               core::CDataFrame& /*frame*/,
+                               const core::CPackedBitVector& /*rowMask*/,
+                               std::size_t /*targetColumn*/,
+                               const TSizeVec& /*extrColumns*/,
+                               common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
 ELossType CBinomialLogisticLoss::type() const {
     return E_BinaryClassification;
 }
 
-std::size_t CBinomialLogisticLoss::numberParameters() const {
+std::size_t CBinomialLogisticLoss::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CBinomialLogisticLoss::dimensionGradient() const {
     return 1;
 }
 
@@ -1415,12 +1475,6 @@ CBinomialLogisticLossIncremental::CBinomialLogisticLossIncremental(double eta,
     : m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
 }
 
-CBinomialLogisticLossIncremental::CBinomialLogisticLossIncremental(core::CStateRestoreTraverser&) {
-    // We purposely don't persist and restore the state since this only exists
-    // temporarily between persistence events.
-    throw std::runtime_error{"restore is not supported for CBinomialLogisticLossIncremental"};
-}
-
 CBinomialLogisticLossIncremental::TLossUPtr CBinomialLogisticLossIncremental::clone() const {
     return std::make_unique<CBinomialLogisticLossIncremental>(*this);
 }
@@ -1430,11 +1484,25 @@ CBinomialLogisticLossIncremental::incremental(double eta, double mu, const TNode
     return std::make_unique<CBinomialLogisticLossIncremental>(eta, mu, tree);
 }
 
+CBinomialLogisticLossIncremental::TLossUPtr
+CBinomialLogisticLossIncremental::project(std::size_t /*numberThreads*/,
+                                          core::CDataFrame& /*frame*/,
+                                          const core::CPackedBitVector& /*rowMask*/,
+                                          std::size_t /*targetColumn*/,
+                                          const TSizeVec& /*extrColumns*/,
+                                          common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
 ELossType CBinomialLogisticLossIncremental::type() const {
     return E_BinaryClassification;
 }
 
-std::size_t CBinomialLogisticLossIncremental::numberParameters() const {
+std::size_t CBinomialLogisticLossIncremental::dimensionPrediction() const {
+    return 1;
+}
+
+std::size_t CBinomialLogisticLossIncremental::dimensionGradient() const {
     return 1;
 }
 
@@ -1541,68 +1609,113 @@ CMultinomialLogisticLoss::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
+CMultinomialLogisticLoss::TLossUPtr
+CMultinomialLogisticLoss::project(std::size_t numberThreads,
+                                  core::CDataFrame& frame,
+                                  const core::CPackedBitVector& rowMask,
+                                  std::size_t targetColumn,
+                                  const TSizeVec& extraColumns,
+                                  common::CPRNG::CXorOShiro128Plus rng) const {
+    if (m_NumberClasses <= MAX_GRADIENT_DIMENSION) {
+        return this->clone();
+    }
+
+    // Compute total loss over masked rows.
+    auto result =
+        frame
+            .readRows(
+                numberThreads, 0, frame.numberRows(),
+                core::bindRetrievableState(
+                    [&](TDoubleVec& losses, const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            auto prediction = readPrediction(*row, extraColumns, m_NumberClasses);
+                            double actual{readActual(*row, targetColumn)};
+                            double weight{readExampleWeight(*row, extraColumns)};
+                            losses[static_cast<int>(actual)] +=
+                                this->value(prediction, actual, weight);
+                        }
+                    },
+                    TDoubleVec(m_NumberClasses, 0.0)),
+                &rowMask)
+            .first;
+
+    auto losses = std::move(result[0].s_FunctionState);
+    for (std::size_t i = 1; i < result.size(); ++i) {
+        for (std::size_t j = 1; j < losses.size(); ++j) {
+            losses[j] += result[i].s_FunctionState[j];
+        }
+    }
+
+    TSizeVec classes;
+    common::CSampling::categoricalSampleWithoutReplacement(
+        rng, losses, MAX_GRADIENT_DIMENSION - 1, classes);
+    std::sort(classes.begin(), classes.end());
+
+    return std::make_unique<CMultinomialLogisticSubsetLoss>(m_NumberClasses, classes);
+}
+
 ELossType CMultinomialLogisticLoss::type() const {
     return E_MulticlassClassification;
 }
 
-std::size_t CMultinomialLogisticLoss::numberParameters() const {
+std::size_t CMultinomialLogisticLoss::dimensionPrediction() const {
     return m_NumberClasses;
 }
 
-double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& predictions,
+std::size_t CMultinomialLogisticLoss::dimensionGradient() const {
+    return std::min(m_NumberClasses, MAX_GRADIENT_DIMENSION);
+}
+
+double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& prediction,
                                        double actual,
                                        double weight) const {
-    double zmax{predictions.maxCoeff()};
+    double zmax{prediction.maxCoeff()};
     double logZ{0.0};
-    for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+    for (int i = 0; i < prediction.size(); ++i) {
+        logZ += std::exp(prediction(i) - zmax);
     }
     logZ = zmax + common::CTools::stableLog(logZ);
 
     // i.e. -log(z(actual))
-    return weight * (logZ - predictions(static_cast<std::size_t>(actual)));
+    return weight * (logZ - prediction(static_cast<int>(actual)));
 }
 
-void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predictions,
+void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& prediction,
                                         double actual,
                                         const TWriter& writer,
                                         double weight) const {
 
     // We prefer an implementation which avoids any memory allocations.
 
-    double zmax{predictions.maxCoeff()};
-    double eps{0.0};
+    double zmax{prediction.maxCoeff()};
+    double pEps{0.0};
     double logZ{0.0};
-    for (int i = 0; i < predictions.size(); ++i) {
-        if (predictions(i) - zmax < LOG_EPSILON) {
+    for (int i = 0; i < prediction.size(); ++i) {
+        if (prediction(i) - zmax < LOG_EPSILON) {
             // Sum the contributions from classes whose predicted probability
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
-            eps += std::exp(predictions(i) - zmax);
+            pEps += std::exp(prediction(i) - zmax);
         } else {
-            logZ += std::exp(predictions(i) - zmax);
+            logZ += std::exp(prediction(i) - zmax);
         }
     }
-    eps = common::CTools::stable(eps);
+    pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
 
-    for (int i = 0; i < predictions.size(); ++i) {
+    for (int i = 0; i < prediction.size(); ++i) {
+        double pi{common::CTools::stableExp(prediction(i) - logZ)};
         if (i == static_cast<int>(actual)) {
-            double probability{common::CTools::stableExp(predictions(i) - logZ)};
-            if (probability == 1.0) {
-                // We have that p = 1 / (1 + eps) and the gradient is p - 1.
-                // Use a Taylor expansion and drop terms of O(eps^2) to get:
-                writer(i, -weight * eps);
-            } else {
-                writer(i, weight * (probability - 1.0));
-            }
+            // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(i, weight * (pi == 1.0 ? -pEps : pi - 1.0));
         } else {
-            writer(i, weight * common::CTools::stableExp(predictions(i) - logZ));
+            writer(i, weight * pi);
         }
     }
 }
 
-void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predictions,
+void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction,
                                          double /*actual*/,
                                          const TWriter& writer,
                                          double weight) const {
@@ -1611,60 +1724,58 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
 
     // We prefer an implementation which avoids any memory allocations.
 
-    double zmax{predictions.maxCoeff()};
-    double eps{0.0};
+    double zmax{prediction.maxCoeff()};
+    double pEps{0.0};
     double logZ{0.0};
-    for (int i = 0; i < predictions.size(); ++i) {
-        if (predictions(i) - zmax < LOG_EPSILON) {
+    for (int i = 0; i < prediction.size(); ++i) {
+        double pAdj{std::exp(prediction(i) - zmax)};
+        if (prediction(i) - zmax < LOG_EPSILON) {
             // Sum the contributions from classes whose predicted probability
             // is less than epsilon, for which we'd lose all nearly precision
             // when adding to the normalisation coefficient.
-            eps += std::exp(predictions(i) - zmax);
+            pEps += pAdj;
         } else {
-            logZ += std::exp(predictions(i) - zmax);
+            logZ += pAdj;
         }
     }
-    eps = common::CTools::stable(eps);
+    pEps = common::CTools::stable(pEps / logZ);
     logZ = zmax + common::CTools::stableLog(logZ);
 
-    for (std::size_t i = 0, k = 0; i < m_NumberClasses; ++i) {
-        double probability{common::CTools::stableExp(predictions(i) - logZ)};
-        if (probability == 1.0) {
-            // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
-            // Use a Taylor expansion and drop terms of O(eps^2) to get:
-            writer(k++, weight * eps);
-        } else {
-            writer(k++, weight * probability * (1.0 - probability));
-        }
-        for (std::size_t j = i + 1; j < m_NumberClasses; ++j) {
-            double probabilities[]{common::CTools::stableExp(predictions(i) - logZ),
-                                   common::CTools::stableExp(predictions(j) - logZ)};
-            writer(k++, -weight * probabilities[0] * probabilities[1]);
+    std::size_t k{0};
+    for (int i = 0; i < prediction.size(); ++i) {
+        double pi{common::CTools::stableExp(prediction(i) - logZ)};
+        // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+        // Use a Taylor expansion and drop terms of O(eps^2) to get:
+        writer(k++, weight * (pi == 1.0 ? pEps : pi * (1.0 - pi)));
+        for (int j = i + 1; j < prediction.size(); ++j) {
+            double pij{common::CTools::stableExp(prediction(i) + prediction(j) - 2.0 * logZ)};
+            writer(k++, -weight * pij);
         }
     }
+    LOG_TRACE(<< "Wrote " << k << " curvatures");
 }
 
 bool CMultinomialLogisticLoss::isCurvatureConstant() const {
     return false;
 }
 
-double CMultinomialLogisticLoss::difference(const TMemoryMappedFloatVector& predictions,
-                                            const TMemoryMappedFloatVector& previousPredictions,
+double CMultinomialLogisticLoss::difference(const TMemoryMappedFloatVector& prediction,
+                                            const TMemoryMappedFloatVector& previousPrediction,
                                             double weight) const {
 
     // The cross entropy of the new predicted probabilities given the previous ones.
 
-    double zmax{predictions.maxCoeff()};
+    double zmax{prediction.maxCoeff()};
     double logZ{0.0};
-    for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+    for (int i = 0; i < prediction.size(); ++i) {
+        logZ += std::exp(prediction(i) - zmax);
     }
     logZ = zmax + common::CTools::stableLog(logZ);
 
     double result{0};
-    auto previousProbabilities = this->transform(previousPredictions);
-    for (int i = 0; i < predictions.size(); ++i) {
-        result += previousProbabilities(i) * (logZ - predictions(i));
+    auto previousProbabilities = this->transform(previousPrediction);
+    for (int i = 0; i < prediction.size(); ++i) {
+        result += previousProbabilities(i) * (logZ - prediction(i));
     }
 
     return weight * result;
@@ -1705,6 +1816,143 @@ bool CMultinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTravers
 }
 
 const std::string CMultinomialLogisticLoss::NAME{"multinomial_logistic"};
+
+CMultinomialLogisticSubsetLoss::CMultinomialLogisticSubsetLoss(std::size_t numberClasses,
+                                                               const TSizeVec& classes)
+    : CMultinomialLogisticLoss{numberClasses} {
+    m_InClasses.reserve(classes.size());
+    for (auto i : classes) {
+        if (i >= numberClasses) {
+            HANDLE_FATAL(<< "Invalid class " << i << " out-of-range [0, "
+                         << numberClasses << ").");
+        }
+        m_InClasses.push_back(static_cast<int>(i));
+    }
+    m_OutClasses.resize(numberClasses);
+    std::iota(m_OutClasses.begin(), m_OutClasses.end(), 0);
+    m_OutClasses.erase(std::set_difference(m_OutClasses.begin(), m_OutClasses.end(),
+                                           m_InClasses.begin(), m_InClasses.end(),
+                                           m_OutClasses.begin()),
+                       m_OutClasses.end());
+    LOG_TRACE(<< "in = " << m_InClasses << ", out = " << m_OutClasses);
+}
+
+CMultinomialLogisticSubsetLoss::TLossUPtr CMultinomialLogisticSubsetLoss::clone() const {
+    return std::make_unique<CMultinomialLogisticSubsetLoss>(*this);
+}
+
+CMultinomialLogisticSubsetLoss::TLossUPtr
+CMultinomialLogisticSubsetLoss::incremental(double, double, const TNodeVec&) const {
+    return nullptr;
+}
+
+CMultinomialLogisticSubsetLoss::TLossUPtr
+CMultinomialLogisticSubsetLoss::project(std::size_t /*numberThreads*/,
+                                        core::CDataFrame& /*frame*/,
+                                        const core::CPackedBitVector& /*rowMask*/,
+                                        std::size_t /*targetColumn*/,
+                                        const TSizeVec& /*extrColumns*/,
+                                        common::CPRNG::CXorOShiro128Plus /*rng*/) const {
+    return this->clone();
+}
+
+void CMultinomialLogisticSubsetLoss::gradient(const TMemoryMappedFloatVector& prediction,
+                                              double actual,
+                                              const TWriter& writer,
+                                              double weight) const {
+
+    // We prefer an implementation which avoids any memory allocations.
+
+    int actual_{static_cast<int>(actual)};
+
+    double pEps{0.0};
+    double logZ{0.0};
+    bool isActualIn{false};
+    double zmax{prediction.maxCoeff()};
+    for (auto i : m_InClasses) {
+        double pAdj{std::exp(prediction(i) - zmax)};
+        // Sum the contributions from classes whose predicted probability
+        // is less than epsilon, for which we'd lose all nearly precision
+        // when adding to the normalisation coefficient.
+        (prediction(i) - zmax < LOG_EPSILON ? pEps : logZ) += pAdj;
+        isActualIn |= (actual_ == i);
+    }
+    double pAgg{std::accumulate(
+        m_OutClasses.begin(), m_OutClasses.end(), 0.0,
+        [&](auto p, auto i) { return p + std::exp(prediction(i) - zmax); })};
+    (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
+    pEps = common::CTools::stable(pEps / logZ);
+    logZ = zmax + std::log(logZ);
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
+                                  static_cast<double>(m_OutClasses.size()));
+    LOG_TRACE(<< "p(agg) = " << pAgg);
+
+    for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
+        bool iAgg{i < m_InClasses.size()};
+        double pi{iAgg ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ) : pAgg};
+        bool isActual{iAgg ? (m_InClasses[i] == actual_) : (isActualIn == false)};
+        if (isActual) {
+            // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(i, weight * (pi == 1.0 ? -pEps : pi - 1.0));
+        } else {
+            writer(i, weight * pi);
+        }
+    }
+}
+
+void CMultinomialLogisticSubsetLoss::curvature(const TMemoryMappedFloatVector& prediction,
+                                               double /*actual*/,
+                                               const TWriter& writer,
+                                               double weight) const {
+
+    // Return the lower triangle of the Hessian column major.
+
+    // We prefer an implementation which avoids any memory allocations.
+
+    double pEps{0.0};
+    double logZ{0.0};
+    double zmax{prediction.maxCoeff()};
+    for (auto i : m_InClasses) {
+        double pAdj{std::exp(prediction(i) - zmax)};
+        if (prediction(i) - zmax < LOG_EPSILON) {
+            // Sum the contributions from classes whose predicted probability
+            // is less than epsilon, for which we'd lose all nearly precision
+            // when adding to the normalisation coefficient.
+            pEps += pAdj;
+        } else {
+            logZ += pAdj;
+        }
+    }
+    double pAgg{std::accumulate(
+        m_OutClasses.begin(), m_OutClasses.end(), 0.0,
+        [&](auto p, auto i) { return p + std::exp(prediction(i) - zmax); })};
+    (pAgg < EPSILON * logZ ? pEps : logZ) += pAgg;
+    pEps = common::CTools::stable(pEps / logZ);
+    logZ = zmax + common::CTools::stableLog(logZ);
+    pAgg = common::CTools::stable(pAgg * std::exp(zmax - logZ) /
+                                  static_cast<double>(m_OutClasses.size()));
+    LOG_TRACE(<< "p(agg) = " << pAgg);
+
+    auto probability = [&](std::size_t i) {
+        return i < m_InClasses.size()
+                   ? common::CTools::stableExp(prediction(m_InClasses[i]) - logZ)
+                   : pAgg;
+    };
+
+    std::size_t k{0};
+    for (std::size_t i = 0; i <= m_InClasses.size(); ++i) {
+        double pi{probability(i)};
+        // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+        // Use a Taylor expansion and drop terms of O(eps^2) to get:
+        writer(k++, weight * (pi == 1.0 ? pEps : pi * (1.0 - pi)));
+        for (std::size_t j = i + 1; j <= m_InClasses.size(); ++j) {
+            double pij{pi * probability(j)};
+            writer(k++, -weight * pij);
+        }
+    }
+    LOG_TRACE(<< "Wrote " << k << " curvatures");
+}
 }
 }
 }
