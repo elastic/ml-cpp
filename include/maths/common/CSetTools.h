@@ -34,13 +34,13 @@ class MATHS_COMMON_EXPORT CSetTools {
 public:
     //! \brief Checks if an indexed object is in a specified collection
     //! of indices.
-    class CIndexInSet {
+    class MATHS_COMMON_EXPORT CIndexInSet {
     public:
         using TSizeSet = std::set<std::size_t>;
 
     public:
-        CIndexInSet(std::size_t index) : m_IndexSet(index) {}
-        CIndexInSet(const TSizeSet& indexSet) : m_IndexSet(indexSet) {}
+        explicit CIndexInSet(std::size_t index) : m_IndexSet(index) {}
+        explicit CIndexInSet(const TSizeSet& indexSet) : m_IndexSet(indexSet) {}
 
         template<typename T>
         bool operator()(const T& indexedObject) const {
@@ -48,7 +48,7 @@ public:
             if (index) {
                 return indexedObject.s_Index == *index;
             }
-            const TSizeSet& indexSet = std::get<TSizeSet>(m_IndexSet);
+            const auto& indexSet = std::get<TSizeSet>(m_IndexSet);
             return indexSet.count(indexedObject.s_Index) > 0;
         }
 
@@ -59,95 +59,35 @@ public:
         TSizeOrSizeSet m_IndexSet;
     };
 
-    //! Compute the difference between \p S and [\p begin, \p end).
-    template<typename CONTAINER, typename ITR>
-    static void inplace_set_difference(CONTAINER& S, ITR begin, ITR end) {
-        auto i = S.begin(), last = i;
-        for (ITR j = begin; i != S.end() && j != end; /**/) {
-            if (*i < *j) {
-                if (last != i) {
-                    std::iter_swap(last, i);
+    //! Remove all instances of \p keys for which \p pred is true and
+    //! corresponding values of \p others.
+    //!
+    //! \note All containers must have the same size.
+    //! \tparam K must support size(), begin(), end() and erase().
+    //! \tparam V each must support size(), begin(), end() and erase().
+    //! \tparam PRED must support operator() taking key value type.
+    template<typename PRED, typename K, typename... V>
+    static bool simultaneousRemoveIf(PRED pred, K& keys, V&... others) {
+        if (((others.size() != keys.size()) && ...)) {
+            return false;
+        }
+        auto removeIf = [&](auto& other) {
+            auto i = other.begin();
+            auto j = keys.begin();
+            for (auto k = other.begin(); k != other.end(); ++j, (void)++k) {
+                if (i != k) {
+                    *i = std::move(*k);
                 }
-                ++i;
-                ++last;
-            } else if (*j < *i) {
-                ++j;
-            } else {
-                ++i;
-                ++j;
+                if (pred(*j) == false) {
+                    ++i;
+                }
             }
-        }
-        if (last != i) {
-            S.erase(std::swap_ranges(i, S.end(), last), S.end());
-        }
+            other.erase(i, other.end());
+        };
+        (removeIf(others), ...);
+        keys.erase(std::remove_if(keys.begin(), keys.end(), pred), keys.end());
+        return true;
     }
-
-#define SIMULTANEOUS_REMOVE_IF_IMPL                                            \
-    using std::swap;                                                           \
-    std::size_t last{0u};                                                      \
-    std::size_t n{values1.size()};                                             \
-    for (std::size_t i = 0; i < n; ++i) {                                      \
-        if (last != i) {                                                       \
-            CUSTOM_SWAP_VALUES                                                 \
-        }                                                                      \
-        if (!pred(values1[last])) {                                            \
-            ++last;                                                            \
-        }                                                                      \
-    }                                                                          \
-    if (last < n) {                                                            \
-        CUSTOM_ERASE_VALUES                                                    \
-        return true;                                                           \
-    }                                                                          \
-    return false;
-
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[i], values1[last]);                                           \
-    swap(values2[i], values2[last]);
-#define CUSTOM_ERASE_VALUES                                                    \
-    values1.erase(values1.begin() + last, values1.end());                      \
-    values2.erase(values2.begin() + last, values2.end());
-
-    //! Remove all instances of \p values1 for which \p pred is true
-    //! and corresponding values of \p values2.
-    template<typename T1, typename T2, typename F>
-    static bool
-    simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, const F& pred) {
-        if (values1.size() != values2.size()) {
-            return false;
-        }
-
-        SIMULTANEOUS_REMOVE_IF_IMPL
-    }
-
-#undef CUSTOM_SWAP_VALUES
-#undef CUSTOM_ERASE_VALUES
-
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[i], values1[last]);                                           \
-    swap(values2[i], values2[last]);                                           \
-    swap(values3[i], values3[last]);
-#define CUSTOM_ERASE_VALUES                                                    \
-    values1.erase(values1.begin() + last, values1.end());                      \
-    values2.erase(values2.begin() + last, values2.end());                      \
-    values3.erase(values3.begin() + last, values3.end());
-
-    //! Remove all instances of \p values1 for which \p pred is true
-    //! and corresponding values of \p values2 and \p values3.
-    template<typename T1, typename T2, typename T3, typename F>
-    static bool simultaneousRemoveIf(std::vector<T1>& values1,
-                                     std::vector<T2>& values2,
-                                     std::vector<T3>& values3,
-                                     const F& pred) {
-        if (values1.size() != values2.size() || values2.size() != values3.size()) {
-            return false;
-        }
-
-        SIMULTANEOUS_REMOVE_IF_IMPL
-    }
-
-#undef CUSTOM_SWAP_VALUES
-#undef CUSTOM_ERASE_VALUES
-#undef SIMULTANEOUS_REMOVE_IF_IMPL
 
     //! Compute the number of elements in the intersection of the
     //! ranges [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).

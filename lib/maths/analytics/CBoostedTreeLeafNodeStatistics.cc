@@ -35,8 +35,8 @@ using namespace boosted_tree_detail;
 using TRowItr = core::CDataFrame::TRowItr;
 
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
-    return common::COrderings::lexicographical_compare(m_BestSplit, m_Id,
-                                                       rhs.m_BestSplit, rhs.m_Id);
+    return common::COrderings::lexicographicalCompare(m_BestSplit, m_Id,
+                                                      rhs.m_BestSplit, rhs.m_Id);
 }
 
 double CBoostedTreeLeafNodeStatistics::gain() const {

@@ -75,8 +75,8 @@ public:
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
         bool operator<(const CCluster& rhs) const {
-            return COrderings::lexicographical_compare(m_Checksum, m_Points,
-                                                       rhs.m_Checksum, rhs.m_Points);
+            return COrderings::lexicographicalCompare(m_Checksum, m_Points,
+                                                      rhs.m_Checksum, rhs.m_Points);
         }
 
         //! Get the number of points in the cluster.
@@ -181,8 +181,7 @@ protected:
     //! \param[in] kmeansIterations The limit on the number of
     //! iterations of Lloyd's algorithm to use.
     void improveParams(std::size_t kmeansIterations) {
-        using TClusterCPtr = const CCluster*;
-        using TClusterCPtrVec = std::vector<TClusterCPtr>;
+        using TClusterCPtrVec = std::vector<const CCluster*>;
 
         std::size_t n = m_Clusters.size();
 
@@ -196,7 +195,7 @@ protected:
             oldCentres.push_back(m_Clusters[i].centre());
             oldClusters.push_back(&m_Clusters[i]);
         }
-        std::sort(oldClusters.begin(), oldClusters.end(), COrderings::SPtrLess());
+        std::sort(oldClusters.begin(), oldClusters.end(), COrderings::SDerefLess{});
         m_Kmeans.setCentres(oldCentres);
 
         // k-means to improve parameters.
@@ -220,7 +219,7 @@ protected:
             cluster.centre(newCentres[i]);
             cluster.points(newClusterPoints[i]);
             auto j = std::lower_bound(oldClusters.begin(), oldClusters.end(),
-                                      &cluster, COrderings::SPtrLess());
+                                      &cluster, COrderings::SDerefLess{});
             if (j != oldClusters.end() && **j == cluster) {
                 cluster.cost((*j)->cost());
                 preserved.insert(cluster.checksum());

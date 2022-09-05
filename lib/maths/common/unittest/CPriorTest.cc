@@ -16,7 +16,6 @@
 #include <maths/common/CGammaRateConjugate.h>
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
-#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CPriorDetail.h>
 #include <maths/common/CTools.h>

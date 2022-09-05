@@ -16,6 +16,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CXMeans.h>
 #include <maths/common/CXMeansOnline.h>

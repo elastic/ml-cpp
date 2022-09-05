@@ -248,7 +248,7 @@ public:
     using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
     using TNodeDeque = std::deque<TNode>;
     using TStoredStringPtrStoredStringPtrPrNodeMap =
-        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::common::COrderings::SLexicographicalCompare>;
+        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::common::COrderings::SLess>;
     using TStoredStringPtrNodeMap =
         std::map<TStoredStringPtr, TNode, maths::common::COrderings::SLess>;
 

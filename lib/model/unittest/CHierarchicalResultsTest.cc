@@ -171,7 +171,7 @@ class CPrinter : public model::CHierarchicalResultsVisitor {
 public:
     CPrinter() : m_ShouldPrintWrittenNodesOnly(false) {}
 
-    CPrinter(bool shouldOnlyPrintWrittenNodes)
+    explicit CPrinter(bool shouldOnlyPrintWrittenNodes)
         : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
     void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override {

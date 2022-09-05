@@ -75,7 +75,7 @@ public:
     //! \brief A total ordering of spherical clusters.
     struct SLess {
         bool operator()(const Type& lhs, const Type& rhs) const {
-            return COrderings::lexicographical_compare(
+            return COrderings::lexicographicalCompare(
                 static_cast<const POINT&>(lhs), lhs.annotation().s_Count,
                 lhs.annotation().s_Variance, static_cast<const POINT&>(rhs),
                 rhs.annotation().s_Count, rhs.annotation().s_Variance);

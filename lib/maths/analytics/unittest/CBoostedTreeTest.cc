@@ -1044,7 +1044,7 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
 
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
-            return maths::common::COrderings::lexicographical_compare(
+            return maths::common::COrderings::lexicographicalCompare(
                 lhs != std::nullopt ? 0 : 1, *lhs, rhs != std::nullopt ? 0 : 1, *rhs);
         });
 
@@ -1152,7 +1152,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     auto roundLosses = regression->impl().foldRoundTestLosses()[0];
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
-            return maths::common::COrderings::lexicographical_compare(
+            return maths::common::COrderings::lexicographicalCompare(
                 lhs == std::nullopt ? 1 : 0, *lhs, rhs == std::nullopt ? 1 : 0, *rhs);
         });
 

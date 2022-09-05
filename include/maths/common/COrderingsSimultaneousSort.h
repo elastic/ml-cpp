@@ -15,6 +15,8 @@
 #include <maths/common/COrderings.h>
 
 #include <algorithm>
+#include <numeric>
+#include <vector>
 
 namespace ml {
 namespace maths {
@@ -33,97 +35,39 @@ namespace common {
 // N steps. Each time a swap is made at least one more item is in its correct
 // place, and we update the ordering accordingly. So the containers are sorted
 // in at most O(N) additional steps to the N * log(N) taken to sort the indices.
-#define SIMULTANEOUS_SORT_IMPL                                                 \
-    if (std::is_sorted(keys.begin(), keys.end(), comp)) {                      \
-        return true;                                                           \
-    }                                                                          \
-    using TSizeVec = std::vector<std::size_t>;                                 \
-    TSizeVec ordering;                                                         \
-    ordering.reserve(keys.size());                                             \
-    for (std::size_t i = 0; i < keys.size(); ++i) {                            \
-        ordering.push_back(i);                                                 \
-    }                                                                          \
-    std::stable_sort(ordering.begin(), ordering.end(),                         \
-                     CIndexLess<KEY_VECTOR, COMP>(keys, comp));                \
-    for (std::size_t i = 0; i < ordering.size(); ++i) {                        \
-        std::size_t j_ = i;                                                    \
-        std::size_t j = ordering[j_];                                          \
-        while (i != j) {                                                       \
-            using std::swap;                                                   \
-            swap(keys[j_], keys[j]);                                           \
-            CUSTOM_SWAP_VALUES                                                 \
-            ordering[j_] = j_;                                                 \
-            j_ = j;                                                            \
-            j = ordering[j_];                                                  \
-        }                                                                      \
-        ordering[j_] = j_;                                                     \
-    }                                                                          \
+template<typename PRED, typename K, typename... V>
+bool COrderings::simultaneousSortWith(const PRED& pred, K&& keys, V&&... values) {
+    if (((keys.size() != values.size()) && ...)) {
+        return false;
+    }
+    if (std::is_sorted(keys.begin(), keys.end(), pred)) {
+        return true;
+    }
+
+    std::vector<std::size_t> ordering(keys.size());
+    std::iota(ordering.begin(), ordering.end(), 0);
+    std::stable_sort(ordering.begin(), ordering.end(), [&](auto lhs, auto rhs) {
+        return pred(keys[lhs], keys[rhs]);
+    });
+
+    using std::swap;
+    auto swapValue = [](auto& value, auto j_, auto j) {
+        swap(value[j_], value[j]);
+    };
+    for (std::size_t i = 0; i < ordering.size(); ++i) {
+        std::size_t j_ = i;
+        std::size_t j = ordering[j_];
+        while (i != j) {
+            swap(keys[j_], keys[j]);
+            (swapValue(values, j_, j), ...);
+            ordering[j_] = j_;
+            j_ = j;
+            j = ordering[j_];
+        }
+        ordering[j_] = j_;
+    }
     return true;
-
-template<typename KEY_VECTOR, typename VALUE_VECTOR, typename COMP>
-bool COrderings::simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
-    if (keys.size() != values.size()) {
-        return false;
-    }
-#define CUSTOM_SWAP_VALUES swap(values[j_], values[j]);
-    SIMULTANEOUS_SORT_IMPL
-#undef CUSTOM_SWAP_VALUES
 }
-
-template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
-bool COrderings::simultaneousSort(KEY_VECTOR& keys,
-                                  VALUE1_VECTOR& values1,
-                                  VALUE2_VECTOR& values2,
-                                  const COMP& comp) {
-    if (keys.size() != values1.size() || values1.size() != values2.size()) {
-        return false;
-    }
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);
-    SIMULTANEOUS_SORT_IMPL
-#undef CUSTOM_SWAP_VALUES
-}
-
-template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename COMP>
-bool COrderings::simultaneousSort(KEY_VECTOR& keys,
-                                  VALUE1_VECTOR& values1,
-                                  VALUE2_VECTOR& values2,
-                                  VALUE3_VECTOR& values3,
-                                  const COMP& comp) {
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);
-    if (keys.size() != values1.size() || values1.size() != values2.size() ||
-        values2.size() != values3.size()) {
-        return false;
-    }
-    SIMULTANEOUS_SORT_IMPL
-#undef CUSTOM_SWAP_VALUES
-}
-
-template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename VALUE4_VECTOR, typename COMP>
-bool COrderings::simultaneousSort(KEY_VECTOR& keys,
-                                  VALUE1_VECTOR& values1,
-                                  VALUE2_VECTOR& values2,
-                                  VALUE3_VECTOR& values3,
-                                  VALUE4_VECTOR& values4,
-                                  const COMP& comp) {
-    if (keys.size() != values1.size() || values1.size() != values2.size() ||
-        values2.size() != values3.size() || values3.size() != values4.size()) {
-        return false;
-    }
-#define CUSTOM_SWAP_VALUES                                                     \
-    swap(values1[j_], values1[j]);                                             \
-    swap(values2[j_], values2[j]);                                             \
-    swap(values3[j_], values3[j]);                                             \
-    swap(values4[j_], values4[j]);
-    SIMULTANEOUS_SORT_IMPL
-#undef CUSTOM_SWAP_VALUES
-}
-
-#undef SIMULTANEOUS_SORT_IMPL
 }
 }
 }

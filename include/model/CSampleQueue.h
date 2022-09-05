@@ -466,7 +466,7 @@ private:
         bool rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
         core_t::TTime leftDistance = time - left.s_End;
         core_t::TTime rightDistance = right.s_Start - time;
-        SSubSample& candidate = maths::common::COrderings::lexicographical_compare(
+        SSubSample& candidate = maths::common::COrderings::lexicographicalCompare(
                                     -static_cast<int>(sameBucketWithLeft),
                                     -static_cast<int>(leftHasSpace), leftDistance,
                                     -static_cast<int>(sameBucketWithRight),

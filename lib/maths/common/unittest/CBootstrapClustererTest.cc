@@ -14,6 +14,7 @@
 #include <maths/common/CBootstrapClusterer.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraTools.h>
+#include <maths/common/CSetTools.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
