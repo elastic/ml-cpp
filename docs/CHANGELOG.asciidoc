@@ -37,6 +37,12 @@
 * Increase the limit on the maximum number of classes to 100 for training classification
   models. (See {ml-pull}2395[#2395] issue: {ml-issue}2246[#2246].)
 
+== {es} version 8.4.2
+
+=== Bug Fixes
+
+* Do not retain categorization tokens when existing category matches. (See {ml-pull}2398[#2398].)
+
 == {es} version 8.4.0
 
 === Enhancements
