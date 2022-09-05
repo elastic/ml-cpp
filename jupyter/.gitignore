@@ -5,3 +5,5 @@ notebooks/datasets
 **egg-info
 .requirements.log
 config.ini
+Makefile
+CTestTestfile.cmake

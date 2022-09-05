@@ -51,8 +51,8 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
 }
 
-CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
-    : m_NodeValue{TVector::Zero(numberLossParameters)} {
+CBoostedTreeNode::CBoostedTreeNode(std::size_t dimensionPrediction)
+    : m_NodeValue{TVector::Zero(dimensionPrediction)} {
 }
 
 CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
@@ -128,9 +128,9 @@ std::size_t CBoostedTreeNode::memoryUsage() const {
     return core::memory::dynamicSize(m_NodeValue);
 }
 
-std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParameters) {
+std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t dimensionPrediction) {
     return sizeof(CBoostedTreeNode) +
-           common::las::estimateMemoryUsage<TVector>(numberLossParameters);
+           common::las::estimateMemoryUsage<TVector>(dimensionPrediction);
 }
 
 std::size_t CBoostedTreeNode::deployedSize() const {
@@ -280,14 +280,15 @@ const core::CPackedBitVector& CBoostedTree::newTrainingRowMask() const {
 CBoostedTree::TDouble2Vec CBoostedTree::prediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
-        .transform(readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
+        .transform(readPrediction(row, m_Impl->extraColumns(), loss.dimensionPrediction()))
         .to<TDouble2Vec>();
 }
 
 CBoostedTree::TDouble2Vec CBoostedTree::previousPrediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
-        .transform(readPreviousPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
+        .transform(readPreviousPrediction(row, m_Impl->extraColumns(),
+                                          loss.dimensionPrediction()))
         .to<TDouble2Vec>();
 }
 
@@ -296,7 +297,7 @@ CBoostedTree::TDouble2Vec CBoostedTree::adjustedPrediction(const TRowRef& row) c
     const auto& loss = m_Impl->loss();
 
     auto prediction = loss.transform(
-        readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()));
+        readPrediction(row, m_Impl->extraColumns(), loss.dimensionPrediction()));
 
     switch (loss.type()) {
     case E_BinaryClassification:

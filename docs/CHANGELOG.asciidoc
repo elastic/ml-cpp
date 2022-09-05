@@ -34,6 +34,8 @@
 
 * Improve classification and regression model train runtimes for data sets with many
   numeric features. (See {ml-pull}2380[#2380], {ml-pull}2388[#2388] and {ml-pull}2388[#2390].)
+* Increase the limit on the maximum number of classes to 100 for training classification
+  models. (See {ml-pull}2395[#2395] issue: {ml-issue}2246[#2246].)
 
 == {es} version 8.4.0
 

@@ -38,7 +38,7 @@ const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     std::size_t id,
     const TSizeVec& extraColumns,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     const core::CDataFrame& frame,
     const TRegularization& regularization,
     const TFloatVecVec& candidateSplits,
@@ -47,8 +47,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t depth,
     const core::CPackedBitVector& rowMask,
     CWorkspace& workspace)
-    : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns,
-                                     numberLossParameters, candidateSplits} {
+    : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns, dimensionGradient, candidateSplits} {
 
     this->computeAggregateLossDerivatives(CNoLookAheadBound{},
                                           workspace.numberThreads(), frame,
@@ -80,7 +79,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     const CBoostedTreeNode& split,
     CWorkspace& workspace)
     : CBoostedTreeLeafNodeStatistics{id, parent.depth() + 1, parent.extraColumns(),
-                                     parent.numberLossParameters(),
+                                     parent.dimensionGradient(),
                                      parent.candidateSplits()} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
@@ -118,7 +117,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     : CBoostedTreeLeafNodeStatistics{id,
                                      parent.depth() + 1,
                                      parent.extraColumns(),
-                                     parent.numberLossParameters(),
+                                     parent.dimensionGradient(),
                                      parent.candidateSplits(),
                                      std::move(parent.derivatives())} {
 
@@ -148,13 +147,13 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
 CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     const TSizeVec& extraColumns,
-    std::size_t numberLossParameters,
+    std::size_t dimensionGradient,
     const TFloatVecVec& candidateSplits,
     CSplitsDerivatives derivatives)
     : CBoostedTreeLeafNodeStatistics{0, // Id
                                      0, // Depth
                                      extraColumns,
-                                     numberLossParameters,
+                                     dimensionGradient,
                                      candidateSplits,
                                      std::move(derivatives)} {
 }
@@ -226,7 +225,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     using TSplitStatisticsVec = std::vector<SSplitStatistics>;
 
     numberThreads = TThreading::numberThreadsForComputeBestSplitStatistics(
-        numberThreads, featureBag.size(), this->numberLossParameters(),
+        numberThreads, featureBag.size(), this->dimensionGradient(),
         this->derivatives().numberDerivatives(featureBag));
     LOG_TRACE(<< "number threads = " << numberThreads);
 
@@ -263,7 +262,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::featureBestSplitSearch(
     using TDoubleMatrix = common::CDenseMatrix<double>;
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
 
-    int d{static_cast<int>(this->numberLossParameters())};
+    int d{static_cast<int>(this->dimensionGradient())};
     double lambda{regularization.leafWeightPenaltyMultiplier().value()};
 
     auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
@@ -392,7 +391,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::featureBestSplitSearch(
         SSplitStatistics candidate{
             totalGain,
             common::CBasicStatistics::variance(gainMoments),
-            h.trace() / static_cast<double>(this->numberLossParameters()),
+            h.trace() / static_cast<double>(this->dimensionGradient()),
             feature,
             splitAt,
             std::min(leftChildRowCount, c - leftChildRowCount),
