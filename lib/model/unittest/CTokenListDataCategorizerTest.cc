@@ -812,7 +812,7 @@ BOOST_FIXTURE_TEST_CASE(testManyUniqueTokens, CTestFixture) {
     // categorizer will be far greater than the number of messages that were
     // categorized. If we didn't store all the unnecessary unique tokens then
     // the memory usage will be low, as there are only two categories.
-    BOOST_TEST_REQUIRE(ml::core::memory::dynamicSize(&categorizer) < 20000);
+    BOOST_TEST_REQUIRE(ml::core::CMemory::dynamicSize(&categorizer) < 20000);
 }
 
 BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToRareCategories, CTestFixture) {
