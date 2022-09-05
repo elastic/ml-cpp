@@ -457,7 +457,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     if (addPersonProbability && count && *count != 0) {
         double p;
         if (m_Probabilities.lookup(pid, p)) {
-            LOG_DEBUG(<< "P(" << gatherer.personName(pid) << ") = " << p);
+            LOG_TRACE(<< "P(" << gatherer.personName(pid) << ") = " << p);
             pJoint.addProbability(p);
         }
     }

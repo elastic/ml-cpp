@@ -11,8 +11,8 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <core/CTimeUtils.h>
 #include <core/CStringUtils.h>
+#include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
 
@@ -507,7 +507,8 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    std::string explanationsCombined =  core::CStringUtils::join(results.s_ProbabilityExplanations, " ");   
+    std::string explanationsCombined =
+        core::CStringUtils::join(results.s_ProbabilityExplanations, " ");
     m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
@@ -750,7 +751,8 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
-    std::string explanationsCombined = core::CStringUtils::join(results.s_ProbabilityExplanations, " ");   
+    std::string explanationsCombined =
+        core::CStringUtils::join(results.s_ProbabilityExplanations, " ");
     m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);

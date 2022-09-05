@@ -348,9 +348,7 @@ private:
                                  m_MeanAbsPredictionError.toDelimited());
         }
 
-        double sumPredictionError() const {
-            return m_SumPredictionError;
-        }
+        double sumPredictionError() const { return m_SumPredictionError; }
 
     private:
         //! The time at which the first anomalous bucket was detected.
@@ -974,18 +972,21 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
 
+        // TODO add threshold
         if (maths_t::seasonalVarianceScale(weights[0]) > 1) {
-            result.s_ProbabilityExplanation.emplace_back("Variation at similar times is larger than is typical => the score is reduced. ");
-        } 
+            result.s_ProbabilityExplanation.emplace_back(
+                "Variation at similar times is larger than is typical => the score is reduced. ");
+        }
         if (maths_t::countVarianceScale(weights[0]) > 1) {
-            result.s_ProbabilityExplanation.emplace_back("The bucket contains fewer values than is typical => the score is reduced.");
+            result.s_ProbabilityExplanation.emplace_back(
+                "The bucket contains fewer values than is typical => the score is reduced.");
         }
 
         switch (tail) {
         case maths_t::ETail::E_LeftTail:
             result.s_ProbabilityExplanation.emplace_back("The value is unusually low.");
             break;
-        case  maths_t::ETail::E_RightTail:
+        case maths_t::ETail::E_RightTail:
             result.s_ProbabilityExplanation.emplace_back("The value is unusually high.");
             break;
         default:
@@ -1020,7 +1021,8 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         }
 
         if (pMultiBucket < probabilities.back()) {
-            result.s_ProbabilityExplanation.emplace_back("The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
+            result.s_ProbabilityExplanation.emplace_back(
+                "The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
         }
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
@@ -1042,17 +1044,19 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         double pAnomaly;
         double pOverallOld{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
+        // TODO add threshold
         if (pOverall < pOverallOld) {
-            result.s_ProbabilityExplanation.emplace_back("The anomaly is shorter than other anomalies seen before (short spike) => the score is increased. ");
+            result.s_ProbabilityExplanation.emplace_back(
+                "The anomaly is longer than other anomalies seen before => the score is increased. ");
         } else if (pOverall > pOverallOld) {
-            result.s_ProbabilityExplanation.emplace_back("The anomaly is longer than others we’ve seen before  => the score is reduced.");
+            result.s_ProbabilityExplanation.emplace_back(
+                "The anomaly is shorter than others we’ve seen before => the score is reduced.");
         }
 
         // TODO: m_AnomalyModel.length() => Length in bucket
         if (m_AnomalyModel->sumPredictionError() > 0) {
             result.s_ProbabilityExplanation.emplace_back("This anomaly is a spike.");
-        }
-        else if (m_AnomalyModel->sumPredictionError() < 0) {
+        } else if (m_AnomalyModel->sumPredictionError() < 0) {
             result.s_ProbabilityExplanation.emplace_back("This anomaly is a dip.");
         }
         probabilities.push_back(pAnomaly);

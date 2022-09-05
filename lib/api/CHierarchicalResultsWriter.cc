@@ -261,7 +261,8 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
         node.probability(), node.s_AnnotatedProbability.s_MultiBucketImpact,
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
-        node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST, node.s_AnnotatedProbability.s_ProbabilityExplanations);
+        node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST,
+        node.s_AnnotatedProbability.s_ProbabilityExplanations);
 
     m_ResultWriterFunc(individualResult);
 }
@@ -299,7 +300,7 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
         -1.0 * model::CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE,
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
-        node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions, 
+        node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions,
         node.s_AnnotatedProbability.s_ProbabilityExplanations));
 }
 

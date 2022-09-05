@@ -625,8 +625,9 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
             }
         }
     }
-    std::copy(other.m_ProbabilityExplanations.begin(), other.m_ProbabilityExplanations.end(), 
-    std::back_inserter(m_ProbabilityExplanations));
+    std::copy(other.m_ProbabilityExplanations.begin(),
+              other.m_ProbabilityExplanations.end(),
+              std::back_inserter(m_ProbabilityExplanations));
 }
 
 bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
@@ -738,7 +739,6 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
     TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
     maths::common::SModelProbabilityResult result;
     if (model.probability(computeProbabilityParams, time, values, result)) {
-        LOG_INFO(<< "After model.probability with explanations " << result.s_ProbabilityExplanation.size());
         if (model_t::isConstant(feature) == false) {
             readResult(result);
             if (m_ProbabilityCache) {

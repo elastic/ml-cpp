@@ -84,24 +84,25 @@ void testBucketWriteHelper(bool isInterim) {
 
             ml::api::CHierarchicalResultsWriter::SResults result12(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0,
-                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+                false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result13(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
-                fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                correlatedByFieldValue, 1, function, functionDescription, 42.0,
+                79, TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5,
+                0.0, -5.0, fieldName, influences, false, false, 3, 100,
+                EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result14(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+                false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             // 1st bucket
             BOOST_TEST_REQUIRE(writer.acceptResult(result11));
@@ -133,24 +134,25 @@ void testBucketWriteHelper(bool isInterim) {
 
             ml::api::CHierarchicalResultsWriter::SResults result22(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0,
-                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                2, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+                false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result23(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                correlatedByFieldValue, 2, function, functionDescription, 42.0,
+                79, TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0,
+                0.0, -5.0, fieldName, influences, false, false, 3, 100,
+                EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result24(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 2, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                2, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+                false, false, 4, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
             // 2nd bucket
             BOOST_TEST_REQUIRE(writer.acceptResult(result21));
@@ -182,24 +184,25 @@ void testBucketWriteHelper(bool isInterim) {
 
             ml::api::CHierarchicalResultsWriter::SResults result32(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0,
-                -5.0, fieldName, influences, false, true, 2, 100, EMPTY_STRING_LIST, {"result32 explanation"});
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                3, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+                false, true, 2, 100, EMPTY_STRING_LIST, {"result32 explanation"});
 
             ml::api::CHierarchicalResultsWriter::SResults result33(
                 ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                 partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, {"result33 explanation"});
+                correlatedByFieldValue, 3, function, functionDescription, 42.0,
+                79, TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0,
+                0.0, -5.0, fieldName, influences, false, false, 3, 100,
+                EMPTY_STRING_LIST, {"result33 explanation"});
 
             ml::api::CHierarchicalResultsWriter::SResults result34(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-                partitionFieldValue, byFieldName, byFieldValue,
-                correlatedByFieldValue, 3, function, functionDescription, 42.0, 79,
-                TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0,
-                fieldName, influences, false, false, 4, 100, EMPTY_STRING_LIST, {"result34 explanation"});
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                3, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+                false, false, 4, 100, EMPTY_STRING_LIST, {"result34 explanation"});
 
             // 3rd bucket
             BOOST_TEST_REQUIRE(writer.acceptResult(result31));
@@ -505,32 +508,32 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result111));
 
             ml::api::CHierarchicalResultsWriter::SResults result112(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.2, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.2, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result112));
 
             ml::api::CHierarchicalResultsWriter::SResults result113(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 2.0, 0.0, 0.4, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 2.0, 0.0, 0.4, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result113));
 
             ml::api::CHierarchicalResultsWriter::SResults result114(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 1,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 12.0, 0.0, 0.4, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 12.0, 0.0, 0.4, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result114));
             BOOST_TEST_REQUIRE(writer.acceptResult(result114));
 
@@ -589,24 +592,24 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 1.0, 0.0, 0.05, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 1.0, 0.0, 0.05, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result211));
 
             ml::api::CHierarchicalResultsWriter::SResults result212(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 7.0, 0.0, 0.001, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 7.0, 0.0, 0.001, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result212));
 
             ml::api::CHierarchicalResultsWriter::SResults result213(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 2,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 0.6, 0.0, 0.1, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 0.6, 0.0, 0.1, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result213));
             BOOST_TEST_REQUIRE(writer.acceptResult(result213));
 
@@ -652,8 +655,8 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, emptyString, 3,
                 function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 30.0, 0.0, 0.02, -5.0, fieldName,
-                influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                TDouble1Vec(1, 10090.0), 30.0, 0.0, 0.02, -5.0, fieldName, influences,
+                false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result311));
 
             overFieldName = "ofn";
@@ -891,11 +894,11 @@ void testThroughputHelper(bool useScopedAllocator) {
         false, true, 2, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
     ml::api::CHierarchicalResultsWriter::SResults result13(
-        ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-        partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-        correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-        TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
-        fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+        ml::api::CHierarchicalResultsWriter::E_SimpleCountResult, partitionFieldName,
+        partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+        1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+        TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0, fieldName, influences,
+        false, false, 3, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
 
     ml::api::CHierarchicalResultsWriter::SResults result14(
         ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
@@ -982,11 +985,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             typical[0] = 90.0;
             typical[1] = -90.0;
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result,
-                partitionFieldName, partitionFieldValue, byFieldName,
-                byFieldValue, correlatedByFieldValue, 1, function,
-                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
-                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+                partitionFieldValue, byFieldName, byFieldValue,
+                correlatedByFieldValue, 1, function, functionDescription, 2.24,
+                79, typical, actual, 10.0, 10.0, 0.5, 0.0, fieldName, influences,
+                false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1026,11 +1029,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             TDouble1Vec actual(1, 500);
             TDouble1Vec typical(1, 64);
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result,
-                partitionFieldName, partitionFieldValue, byFieldName,
-                byFieldValue, correlatedByFieldValue, 1, function,
-                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
-                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+                partitionFieldValue, byFieldName, byFieldValue,
+                correlatedByFieldValue, 1, function, functionDescription, 2.24,
+                79, typical, actual, 10.0, 10.0, 0.5, 0.0, fieldName, influences,
+                false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1065,11 +1068,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             TDouble1Vec actual(1, 500);
             TDouble1Vec typical(1, 64);
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result,
-                partitionFieldName, partitionFieldValue, byFieldName,
-                byFieldValue, correlatedByFieldValue, 1, "mean",
-                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
-                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+                partitionFieldValue, byFieldName, byFieldValue,
+                correlatedByFieldValue, 1, "mean", functionDescription, 2.24,
+                79, typical, actual, 10.0, 10.0, 0.5, 0.0, fieldName, influences,
+                false, true, 1, 1, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1844,21 +1847,21 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
 
         // This result has no scheduled events
         ml::api::CHierarchicalResultsWriter::SResults result(
-            ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-            partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-            emptyString, 100, function, functionDescription, 42.0, 79,
-            TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1,
-            -5.0, fieldName, influences, false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::E_SimpleCountResult, partitionFieldName,
+            partitionFieldValue, byFieldName, byFieldValue, emptyString, 100,
+            function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+            TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName, influences,
+            false, true, 1, 100, EMPTY_STRING_LIST, EMPTY_STRING_LIST);
         BOOST_TEST_REQUIRE(writer.acceptResult(result));
 
         // This result has 2 scheduled events
         std::vector<std::string> eventDescriptions{"event-foo", "event-bar"};
         ml::api::CHierarchicalResultsWriter::SResults result2(
-            ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-            partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-            emptyString, 200, function, functionDescription, 42.0, 79,
-            TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1,
-            -5.0, fieldName, influences, false, true, 1, 100, eventDescriptions, EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::E_SimpleCountResult, partitionFieldName,
+            partitionFieldValue, byFieldName, byFieldValue, emptyString, 200,
+            function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+            TDouble1Vec(1, 10090.0), 0.0, 0.1, 0.1, -5.0, fieldName, influences,
+            false, true, 1, 100, eventDescriptions, EMPTY_STRING_LIST);
 
         BOOST_TEST_REQUIRE(writer.acceptResult(result2));
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
