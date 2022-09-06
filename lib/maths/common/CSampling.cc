@@ -294,6 +294,11 @@ void doCategoricalSampleWithoutReplacement(RNG& rng, TDoubleVec& weights, std::s
         std::partial_sum(weights.begin(), weights.end(), weights.begin());
         TBoolVec mask(weights.size(), false);
         for (std::size_t i = 0, m = 0; 2 * i < 3 * n; ++i) {
+            // Note that weights contains cumulative sums up to the last item,
+            // which is proportional to the cumulative density function, so to
+            // perform inverse transform sampling we generate s ~ U[0,w] with
+            // w the sum of all weights and read off the first item x with
+            // s <= F(x).
             auto j = std::min(std::lower_bound(weights.begin(), weights.end(),
                                                doUniformSample(rng, 0.0, weights.back())) -
                                   weights.begin(),
@@ -323,7 +328,7 @@ void doCategoricalSampleWithoutReplacement(RNG& rng, TDoubleVec& weights, std::s
         return;
     }
 
-    // Use the inverse density transform to generate exponential samples.
+    // Use the inverse transformation method to generate exponential samples.
     for (auto i : result) {
         weights[i] = -CTools::fastLog(doUniformSample(rng, 0.0, 1.0)) / weights[i];
     }
