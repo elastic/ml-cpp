@@ -128,7 +128,7 @@ public:
 
     //! \brief Orders two reference wrapped objects which are
     //! comparable with std::greater<>.
-    struct SReferenceGreater {
+    struct MATHS_COMMON_EXPORT SReferenceGreater {
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
             return greater(lhs, rhs);
