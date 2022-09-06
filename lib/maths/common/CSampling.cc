@@ -211,60 +211,52 @@ void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
 
 //! Implementation of categorical sampling.
 template<typename RNG>
-std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
+std::size_t doCategoricalSample(RNG& rng, TDoubleVec& weights) {
     // We use inverse transform sampling to generate the categorical
-    // samples from a random samples on [0,1].
+    // samples from a random samples on [0,w] with w the sum of weights.
 
-    std::size_t p = probabilities.size();
+    std::size_t m{weights.size()};
 
     // Construct the transform function.
-    for (std::size_t i = 1; i < p; ++i) {
-        probabilities[i] += probabilities[i - 1];
+    std::partial_sum(weights.begin(), weights.end(), weights.begin());
+
+    if (weights[m - 1] == 0.0) {
+        return doUniformSample(rng, static_cast<std::size_t>(0), m);
     }
 
-    if (probabilities[p - 1] == 0.0) {
-        return doUniformSample(rng, static_cast<std::size_t>(0), p);
-    }
-
-    double uniform0X{doUniformSample(rng, 0.0, probabilities[p - 1])};
-    return std::min(static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
-                                                              probabilities.end(), uniform0X) -
-                                             probabilities.begin()),
-                    probabilities.size() - 1);
+    return std::min(static_cast<std::size_t>(
+                        std::lower_bound(weights.begin(), weights.end(),
+                                         doUniformSample(rng, 0.0, weights[m - 1])) -
+                        weights.begin()),
+                    m - 1);
 }
 
 //! Implementation of categorical sampling with replacement.
 template<typename RNG>
-void doCategoricalSampleWithReplacement(RNG& rng,
-                                        TDoubleVec& probabilities,
-                                        std::size_t n,
-                                        TSizeVec& result) {
+void doCategoricalSampleWithReplacement(RNG& rng, TDoubleVec& weights, std::size_t n, TSizeVec& result) {
     // We use inverse transform sampling to generate the categorical
-    // samples from random samples on [0,1].
+    // samples from random samples on [0,w] with w the sum of weights.
 
     result.clear();
     if (n == 0) {
         return;
     }
 
-    std::size_t m{probabilities.size()};
+    std::size_t m{weights.size()};
 
-    // Construct the transform function.
-    for (std::size_t i = 1; i < m; ++i) {
-        probabilities[i] += probabilities[i - 1];
-    }
+    // Construct the cumulative density function.
+    std::partial_sum(weights.begin(), weights.end(), weights.begin());
 
-    if (probabilities[m - 1] == 0.0) {
+    if (weights[m - 1] == 0.0) {
         doUniformSample(rng, static_cast<std::size_t>(0), m, n, result);
     } else {
         result.reserve(n);
-        boost::random::uniform_real_distribution<> uniform(0.0, probabilities[m - 1]);
+        boost::random::uniform_real_distribution<> uniform(0.0, weights[m - 1]);
         for (std::size_t i = 0; i < n; ++i) {
-            double u0X{uniform(rng)};
             result.push_back(std::min(
-                static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
-                                                          probabilities.end(), u0X) -
-                                         probabilities.begin()),
+                static_cast<std::size_t>(
+                    std::lower_bound(weights.begin(), weights.end(), uniform(rng)) -
+                    weights.begin()),
                 m - 1));
         }
     }
