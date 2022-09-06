@@ -2179,12 +2179,14 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     const core::CPackedBitVector& rowMask,
     const TLossFunction& loss,
     const TUpdateRowPrediction& updateRowPrediction) const {
-    this->refreshPredictionsAndLossDerivatives(false /*new example*/, frame,
-                                               rowMask & ~m_NewTrainingRowMask,
-                                               loss, updateRowPrediction);
-    this->refreshPredictionsAndLossDerivatives(true /*new example*/, frame,
-                                               rowMask & m_NewTrainingRowMask,
-                                               loss, updateRowPrediction);
+    this->refreshPredictionsAndLossDerivatives(
+        false /*new example*/, frame,
+        m_Hyperparameters.incrementalTraining() ? rowMask & ~m_NewTrainingRowMask : rowMask,
+        loss, updateRowPrediction);
+    this->refreshPredictionsAndLossDerivatives(
+        true /*new example*/, frame,
+        m_Hyperparameters.incrementalTraining() ? rowMask & m_NewTrainingRowMask : m_NewTrainingRowMask,
+        loss, updateRowPrediction);
 }
 
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
