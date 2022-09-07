@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <algorithm>
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -40,6 +41,8 @@
 #include <cstddef>
 #include <limits>
 #include <numeric>
+#include <queue>
+#include <string>
 #include <tuple>
 
 namespace ml {
@@ -280,6 +283,13 @@ public:
         return m_Anomaly->sumPredictionError();
     }
 
+    std::size_t length() const {
+        if (!m_Anomaly) {
+            return static_cast<std::size_t>(0);
+        }
+        return m_Anomaly->length();
+    }
+
 private:
     using TMultivariateNormalConjugate = common::CMultivariateNormalConjugate<2>;
     using TMultivariateNormalConjugateVec = std::vector<TMultivariateNormalConjugate>;
@@ -323,6 +333,10 @@ private:
             seed = common::CChecksum::calculate(seed, m_LastAnomalousBucketTime);
             seed = common::CChecksum::calculate(seed, m_SumPredictionError);
             return common::CChecksum::calculate(seed, m_MeanAbsPredictionError);
+        }
+
+        std::size_t length() const {
+            return static_cast<std::size_t>(m_LastAnomalousBucketTime - m_FirstAnomalousBucketTime);
         }
 
         //! Initialize reading state from \p traverser.
@@ -957,6 +971,9 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
     TDouble4Vec probabilities;
     common::SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
 
+    double explanationsThreshold{0.0};
+    std::map<int, std::string> explanations;
+
     double pl;
     double pu;
     maths_t::ETail tail;
@@ -972,22 +989,25 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
 
-        // TODO add threshold
-        if (maths_t::seasonalVarianceScale(weights[0]) > 1) {
-            result.s_ProbabilityExplanation.emplace_back(
-                "Variation at similar times is larger than is typical => the score is reduced. ");
+        if (maths_t::seasonalVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back(
+                // "The score is reduced as the anomaly occurs in the period with a higher variation.");
+            explanations.emplace(0, "The score is reduced as the anomaly occurs in the period of higher variation. " + std::to_string(maths_t::seasonalVarianceScale(weights[0])));
         }
-        if (maths_t::countVarianceScale(weights[0]) > 1) {
-            result.s_ProbabilityExplanation.emplace_back(
-                "The bucket contains fewer values than is typical => the score is reduced.");
+        if (maths_t::countVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back(
+                // "The score is reduced as the bucket contains fewer values than is typical.");
+            explanations.emplace(10,  "The score is reduced as the bucket contains fewer values than is typical. " + std::to_string(maths_t::countVarianceScale(weights[0])));
         }
 
         switch (tail) {
         case maths_t::ETail::E_LeftTail:
-            result.s_ProbabilityExplanation.emplace_back("The value is unusually low.");
+            // result.s_ProbabilityExplanation.emplace_back("The value is unusually low.");
+            explanations.emplace(-100, "The value is unusually low.");
             break;
         case maths_t::ETail::E_RightTail:
-            result.s_ProbabilityExplanation.emplace_back("The value is unusually high.");
+            // result.s_ProbabilityExplanation.emplace_back("The value is unusually high.");
+            explanations.emplace(-100, "The value is unusually high.");
             break;
         default:
             break;
@@ -1021,8 +1041,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         }
 
         if (pMultiBucket < probabilities.back()) {
-            result.s_ProbabilityExplanation.emplace_back(
-                "The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
+            // result.s_ProbabilityExplanation.emplace_back(
+            //     "The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
+            explanations.emplace(-20, "The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced. " 
+            + std::to_string(pMultiBucket/probabilities.back()));
         }
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
@@ -1044,24 +1066,32 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         double pAnomaly;
         double pOverallOld{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
-        // TODO add threshold
-        if (pOverall < pOverallOld) {
-            result.s_ProbabilityExplanation.emplace_back(
-                "The anomaly is longer than other anomalies seen before => the score is increased. ");
-        } else if (pOverall > pOverallOld) {
-            result.s_ProbabilityExplanation.emplace_back(
-                "The anomaly is shorter than others we’ve seen before => the score is reduced.");
+        if (pOverallOld > 0.0 && (pOverall/pOverallOld) < (1.0 + explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back(
+            //     "The anomaly is longer than other anomalies seen before => the score is increased. ");
+            explanations.emplace(-80, "The anomaly is longer than other anomalies seen before => the score is increased. " + std::to_string(pOverall/pOverallOld));
+        } else if (pOverallOld > 0.0 && (pOverall/pOverallOld) > (1.0 + explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back(
+            //     "The anomaly is shorter than others we’ve seen before => the score is reduced.");
+            explanations.emplace(-80, "The anomaly is shorter than others we’ve seen before => the score is reduced. " + std::to_string(pOverall/pOverallOld));
         }
 
-        // TODO: m_AnomalyModel.length() => Length in bucket
-        if (m_AnomalyModel->sumPredictionError() > 0) {
-            result.s_ProbabilityExplanation.emplace_back("This anomaly is a spike.");
-        } else if (m_AnomalyModel->sumPredictionError() < 0) {
-            result.s_ProbabilityExplanation.emplace_back("This anomaly is a dip.");
+        if (m_AnomalyModel->sumPredictionError() > (0.0 + explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back("This anomaly is a spike that lasts for " + std::to_string(m_AnomalyModel->length()) + " bucket intervals.");
+            explanations.emplace(-90, "This anomaly is a spike that lasts for " + std::to_string(m_AnomalyModel->length()+1) + " buckets. " + std::to_string(m_AnomalyModel->sumPredictionError()));
+        } else if (m_AnomalyModel->sumPredictionError() < (0.0 - explanationsThreshold)) {
+            // result.s_ProbabilityExplanation.emplace_back("This anomaly is a dip that lasts for " + std::to_string(m_AnomalyModel->length()) + " bucket intervals.");
+            explanations.emplace(-90, "This anomaly is a dip that lasts for " + std::to_string(m_AnomalyModel->length()+1) + " buckets. "
+            + std::to_string(m_AnomalyModel->sumPredictionError()));
         }
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_AnomalyModelProbability, pAnomaly);
+    }
+
+    // std::transform(explanations.begin(), explanations.end(), result.s_ProbabilityExplanation.begin(), [](const auto& item) {return item.second;});
+    for (auto explanation : explanations) {
+        result.s_ProbabilityExplanation.emplace_back(explanation.second);
     }
 
     result.s_Probability = pOverall;

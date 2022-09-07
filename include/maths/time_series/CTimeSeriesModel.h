@@ -293,7 +293,7 @@ private:
 
     //! The time series' residual model.
     //!
-    //! \note This can be temporarily be shared with the change detector.
+//! \note This can be temporarily be shared with the change detector.
     TPriorPtr m_ResidualModel;
 
     //! The multi-bucket feature to use.
