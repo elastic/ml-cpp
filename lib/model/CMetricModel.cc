@@ -428,7 +428,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
-    resultBuilder.probabilityExplanations(result.s_ProbabilityExplanations);
+    resultBuilder.probabilityExplanations(pJoint.probabilityExplanations());
 
     double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
     if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
