@@ -80,7 +80,7 @@ do
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
     prefetch_docker_base_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
+    DOCKER_BUILDKIT=1 docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
     docker run --rm --workdir=/ml-cpp $TEMP_TAG tar cf - build/distributions | tar xvf -
