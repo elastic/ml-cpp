@@ -119,6 +119,16 @@ std::shared_ptr<common::CPrior> conditional(const common::CMultivariatePrior& pr
     return prior.univariate(NOTHING_TO_MARGINALIZE, condition).first;
 }
 
+std::string predicate(double probability) {
+    double minusLog{-std::log10(probability)};
+    if (minusLog > 10) {
+        return "Strong";
+    }
+    if (minusLog < 3) {
+        return "Slight";
+    }
+    return "Moderate";
+}
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
 const std::string VERSION_7_3_TAG("7.3");
@@ -990,7 +1000,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
         if (pSingleBucket < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-            explanations.emplace(-110, "The current bucket value contributes significantly to the initial record score.");
+            explanations.emplace(std::log(pSingleBucket)+1e-5, predicate(pSingleBucket) + " contribution to the initial record score by the difference between actual and typical." );
         }
 
         if (maths_t::seasonalVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
@@ -998,7 +1008,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
                 // "The score is reduced as the anomaly occurs in the period with a higher variation.");
             explanations.emplace(0, "The initial record score is reduced as the anomaly occurs during the interval with regularly higher variation.");
         }
-        explanations.emplace(75, "seasonalVarianceScale = " + std::to_string(maths_t::seasonalVarianceScale(weights[0])));
+        // explanations.emplace(75, "seasonalVarianceScale = " + std::to_string(maths_t::seasonalVarianceScale(weights[0])));
         if (maths_t::countVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
             // result.s_ProbabilityExplanation.emplace_back(
                 // "The score is reduced as the bucket contains fewer values than is typical.");
@@ -1050,10 +1060,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
             //     "The function value is unusual for the multi-bucket, but the current bucket is normal => the score is reduced.");
             // explanations.emplace(-20, "The detector identified unusual multi-bucket values in the preceeding interval, but the current bucket is normal (the initial record score is reduced).");
             // TODO use constant from CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURES_WINDOW_LENGTH
-            explanations.emplace(-100, "The bucket values of the last " + std::to_string(12) + " buckets contributes significantly to the initial record score (multi-bucket impact).");
+            explanations.emplace(std::log(pMultiBucket)+1e-3, predicate(pMultiBucket) +  " contribution to the initial record score by the difference between actual and typical of the last " + std::to_string(12) + " buckets (multi-bucket impact).");
         }
 
-        explanations.emplace(80, "pMultiBucket = " + std::to_string(pMultiBucket) + " pSingleBucket = " + std::to_string(probabilities.back()));
+        explanations.emplace(80, "-lg(pMultiBucket) = " + std::to_string(std::round(-std::log10(pMultiBucket))) + " -lg(pSingleBucket) = " + std::to_string(std::round(-std::log10(probabilities.back()))));
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_MultiBucketProbability, pMultiBucket);
@@ -1071,28 +1081,28 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
 
-        explanations.emplace(85,"residual = " + std::to_string(residual) 
-        + " sample[0] " + std::to_string(sample[0]) + " nearestMarginalLikelihoodMean = " + std::to_string(m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])));
+        // explanations.emplace(85,"residual = " + std::to_string(residual) 
+        // + " sample[0] " + std::to_string(sample[0]) + " nearestMarginalLikelihoodMean = " + std::to_string(m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])));
 
         double pAnomaly;
         double{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
         if (pAnomaly < common::LARGEST_SIGNIFICANT_PROBABILITY) {
             std::size_t anomalyLength = std::min(m_AnomalyModel->length(time), 12UL);
-            explanations.emplace(-95, "The anomaly model contributes significantly to the initial record score.");
-            if (anomalyLength > 0) {
-                if (m_AnomalyModel->sumPredictionError() > (0.0 + explanationsThreshold)) {
-                    // result.s_ProbabilityExplanation.emplace_back("This anomaly is a spike that lasts for " + std::to_string(m_AnomalyModel->length()) + " bucket intervals.");
-                    explanations.emplace(
-                        -90, "The identified anomaly is a spike that occurred within the last " +
-                                 std::to_string(anomalyLength) + " buckets.");
-                } else if (m_AnomalyModel->sumPredictionError() < (0.0 - explanationsThreshold)) {
-                    // result.s_ProbabilityExplanation.emplace_back("This anomaly is a dip that lasts for " + std::to_string(m_AnomalyModel->length()) + " bucket intervals.");
-                    explanations.emplace(
-                        -90, "This identified anomaly is a dip that occurred within the last " +
-                                 std::to_string(anomalyLength) + " buckets.");
-                }
-            }
+            
+            std::string anomalyLengthPredicate =
+                anomalyLength > 0
+                    ? "within the last " + std::to_string(anomalyLength) + " buckets"
+                    : "in the current bucket";
+            std::string anomalyType = (m_AnomalyModel->sumPredictionError() >
+                                       (0.0 + explanationsThreshold))
+                                          ? "spike"
+                                          : "dip";
+            explanations.emplace(std::log(pAnomaly) + 1e-6,
+                                 predicate(pAnomaly) + " contribution to the initial record score by the statistical properties of the current anomaly. " +
+                               "The identified anomaly is a " + anomalyType +  " that occurred " +
+                                     anomalyLengthPredicate +
+                                     " (longer anomalies are typically scored higher).");
         }
         // if (pOverallOld > 0.0 && (pOverall/pOverallOld) < (1.0 + explanationsThreshold)) {
         //     // result.s_ProbabilityExplanation.emplace_back(
@@ -1103,19 +1113,22 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         //     //     "The anomaly is shorter than others we’ve seen before => the score is reduced.");
         //     explanations.emplace(-80, "The anomaly is shorter than others we’ve seen before => the score is reduced. " + std::to_string(pOverall) + " " + std::to_string(pOverallOld));
         // }
-        explanations.emplace(100, "pAnomaly = " + std::to_string(pAnomaly) + " pOverall = " + std::to_string(pOverall));
+        explanations.emplace(100, "-lg(pAnomaly) = " + std::to_string(std::round(-std::log10(pAnomaly))));
 
         
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_AnomalyModelProbability, pAnomaly);
-        explanations.emplace(70, "sumPredictionError = " + std::to_string(m_AnomalyModel->sumPredictionError()));
+        // explanations.emplace(70, "sumPredictionError = " + std::to_string(m_AnomalyModel->sumPredictionError()));
     }
 
     // TODO output confidence intervals
-    // if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-    //     TDouble2Vec3Vec interval(this->confidenceInterval(time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()));
-    // }
+    if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
+        LOG_DEBUG(<< "Computing confidence bounds");
+        TDouble2Vec3Vec interval(this->confidenceInterval(time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
+        explanations.emplace(150, "confidence bounds: [" + std::to_string(interval[0][0]) + ", " 
+        + std::to_string(interval[1][0]) + ", " + std::to_string(interval[2][0]) + "]");
+    }
 
     // std::transform(explanations.begin(), explanations.end(), result.s_ProbabilityExplanation.begin(), [](const auto& item) {return item.second;});
     for (auto explanation : explanations) {
