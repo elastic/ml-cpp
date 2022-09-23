@@ -40,10 +40,6 @@
 * Increase the limit on the maximum number of classes to 100 for training classification
   models. (See {ml-pull}2395[#2395] issue: {ml-issue}2246[#2246].)
 
-=== Bug Fixes
-
-* Accept random number generator seed specified by user. (See {ml-pull}2404[#2404].)
-
 == {es} version 8.4.2
 
 === Bug Fixes
