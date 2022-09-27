@@ -108,9 +108,9 @@ public:
     private:
         CPRNG::CXorOShiro128Plus m_Rng;
         std::size_t m_TargetSampleSize;
-        std::size_t m_SampleSize = 0;
-        double m_StreamWeight = 0.0;
-        double m_SampleWeight = 0.0;
+        std::size_t m_SampleSize{0};
+        double m_StreamWeight{0.0};
+        double m_SampleWeight{0.0};
     };
 
     //! \brief This produces (very nearly) a uniform random sample of a stream of values
@@ -207,9 +207,14 @@ public:
             m_Probabilities.reserve(targetSampleSize + 1);
         }
 
-        const TVec& samples() const { return m_Samples; }
-        TVec& samples() { return m_Samples; }
-        const TDoubleVec& sampleWeights() const { return m_SampleWeights; }
+        TVec& samples() {
+            this->deduplicate();
+            return m_Samples;
+        }
+        TDoubleVec& sampleWeights() {
+            this->deduplicate();
+            return m_SampleWeights;
+        }
 
         void reset() override {
             this->CStreamSampler<T>::reset();
@@ -220,10 +225,7 @@ public:
         void merge(const CVectorDissimilaritySampler& other) {
             m_Samples.insert(m_Samples.end(), other.m_Samples.begin(),
                              other.m_Samples.end());
-            m_SampleWeights.resize(m_Samples.size());
-            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
-                m_SampleWeights[i] = this->weight(m_Samples[i]);
-            }
+            this->deduplicate();
             if (m_SampleWeights.size() > this->targetSampleSize()) {
                 TSizeVec selected;
                 m_Probabilities.assign(m_SampleWeights.begin(), m_SampleWeights.end());
@@ -252,11 +254,18 @@ public:
 
         double weight(const T& x) override {
             double result{0.0};
-            for (std::size_t i = 0; i < 10; ++i) {
-                result += las::distance(
-                    x, m_Samples[uniformSample(this->rng(), 0, m_Samples.size())]);
+            if (m_Samples.size() < 10) {
+                for (const auto& sample : m_Samples) {
+                    result += las::distance(x, sample);
+                }
+            } else {
+                for (std::size_t i = 0; i < 10; ++i) {
+                    const auto& sample =
+                        m_Samples[uniformSample(this->rng(), 0, m_Samples.size())];
+                    result += las::distance(x, sample);
+                }
             }
-            return result / 10.0;
+            return result / std::min(static_cast<double>(m_Samples.size()), 10.0);
         }
 
         double minWeight() const override { return m_MinWeight; }
@@ -279,20 +288,41 @@ public:
 
         double doSample(std::size_t slot, const T& x, double weight) override {
             if (m_Samples.size() <= slot) {
-                m_Samples.resize(slot + 1);
+                m_Samples.resize(slot + 1, x);
+                m_SampleWeights[slot] = weight;
+            } else {
+                m_Samples[slot] = x;
+                std::swap(m_SampleWeights[slot], weight);
+                if (weight == m_MinWeight) {
+                    m_MinWeight = *std::min_element(m_SampleWeights.begin(),
+                                                    m_SampleWeights.end());
+                }
             }
-            m_Samples[slot] = x;
-            std::swap(m_SampleWeights[slot], weight);
-            if (weight == m_MinWeight) {
-                m_MinWeight = *std::min_element(m_SampleWeights.begin(),
-                                                m_SampleWeights.end());
-            }
+            m_MinWeight = std::min(m_MinWeight, weight);
+            m_Deduplicated = false;
             return weight;
         }
 
+        void deduplicate() {
+            if (m_Deduplicated) {
+                return;
+            }
+            std::sort(m_Samples.begin(), m_Samples.end());
+            m_Samples.erase(std::unique(m_Samples.begin(), m_Samples.end()),
+                            m_Samples.end());
+            m_SampleWeights.resize(m_Samples.size());
+            m_MinWeight = std::numeric_limits<double>::max();
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
+                m_SampleWeights[i] = this->weight(m_Samples[i]);
+                m_MinWeight = std::min(m_MinWeight, m_SampleWeights[i]);
+            }
+            m_Deduplicated = true;
+        }
+
     private:
-        TVec m_Samples;
+        bool m_Deduplicated{true};
         double m_MinWeight{std::numeric_limits<double>::max()};
+        TVec m_Samples;
         TDoubleVec m_SampleWeights;
         TDoubleVec m_Probabilities;
     };
