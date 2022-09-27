@@ -293,11 +293,10 @@ public:
             } else {
                 m_Samples[slot] = x;
                 std::swap(m_SampleWeights[slot], weight);
-                if (weight == m_MinWeight) {
-                    m_MinWeight = *std::min_element(m_SampleWeights.begin(),
-                                                    m_SampleWeights.end());
-                }
-                m_MinWeight = std::min(m_MinWeight, weight);
+                m_MinWeight = weight == m_MinWeight
+                                  ? *std::min_element(m_SampleWeights.begin(),
+                                                      m_SampleWeights.end())
+                                  : std::min(m_MinWeight, weight);
             }
             m_Deduplicated = false;
             return weight;
