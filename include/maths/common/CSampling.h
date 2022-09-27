@@ -289,7 +289,7 @@ public:
         double doSample(std::size_t slot, const T& x, double weight) override {
             if (m_Samples.size() <= slot) {
                 m_Samples.resize(slot + 1, x);
-                m_SampleWeights[slot] = weight;
+                // Weights are not available until the sample set is its target size.
             } else {
                 m_Samples[slot] = x;
                 std::swap(m_SampleWeights[slot], weight);
@@ -297,8 +297,8 @@ public:
                     m_MinWeight = *std::min_element(m_SampleWeights.begin(),
                                                     m_SampleWeights.end());
                 }
+                m_MinWeight = std::min(m_MinWeight, weight);
             }
-            m_MinWeight = std::min(m_MinWeight, weight);
             m_Deduplicated = false;
             return weight;
         }
