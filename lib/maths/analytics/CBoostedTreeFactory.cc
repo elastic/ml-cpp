@@ -1258,11 +1258,11 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), 1);
 
-    CBoostedTreeImpl::TNodeVecVec forest{
-        m_TreeImpl
-            ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
-                          m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
-            .s_Forest};
+    auto forest = m_TreeImpl
+                      ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                                    m_TreeImpl->m_TestingRowMasks[0],
+                                    m_TreeImpl->m_TrainingProgress)
+                      .s_Forest;
 
     TDoubleDoublePrVec result;
     result.reserve(percentiles.size());

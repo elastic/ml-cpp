@@ -484,12 +484,9 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     if (m_CurrentPass++ == 0) {
         m_Centres = std::move(m_Sampler.samples());
-        std::sort(m_Centres.begin(), m_Centres.end());
-        m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
-                        m_Centres.end());
-        LOG_TRACE(<< "# centres = " << m_Centres.size());
         m_CurrentPass += m_Centres.size() == 1 ? 1 : 0;
         m_CentresClassCounts.resize(m_Centres.size(), TDoubleVector::Zero(m_NumberClasses));
+        LOG_TRACE(<< "# centres = " << m_Centres.size());
     }
 
     LOG_TRACE(<< "current pass = " << m_CurrentPass);
@@ -513,6 +510,10 @@ void CArgMinMultinomialLogisticLossImpl::add(const TMemoryMappedFloatVector& pre
         break;
     }
     case 1: {
+        if (m_Centres.empty()) {
+            HANDLE_FATAL(<< "Internal error: failed computing leaf weights.");
+            return;
+        }
         TMinAccumulator nearest;
         for (std::size_t i = 0; i < m_Centres.size(); ++i) {
             nearest.add({(m_Centres[i] - prediction).squaredNorm(), i});
