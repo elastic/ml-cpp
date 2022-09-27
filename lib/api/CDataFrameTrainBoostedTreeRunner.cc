@@ -148,7 +148,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         parameters[TRAINED_MODEL_MEMORY_USAGE].fallback(std::size_t{0});
 
     // Training parameters.
-    auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0});
+    auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::ptrdiff_t{0});
     auto numberHoldoutRows = parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0});
     auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
     auto trainFractionPerFold = parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0);
