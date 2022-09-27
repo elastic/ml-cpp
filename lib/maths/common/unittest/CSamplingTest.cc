@@ -349,15 +349,29 @@ BOOST_AUTO_TEST_CASE(testReservoirSampling) {
 
 BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
 
-    // Test the average distance between points is significantly larger than
-    // for uniform random sampling.
-
     using TVector = maths::common::CDenseVector<double>;
     using TVectorVec = std::vector<TVector>;
     using TReservoirSampler = maths::common::CSampling::CReservoirSampler<TVector>;
     using TDissimilaritySampler =
         maths::common::CSampling::CVectorDissimilaritySampler<TVector>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    // 1. Test edge case that all points are co-located,
+    {
+        TDissimilaritySampler dissimilaritySampler1{10};
+        TDissimilaritySampler dissimilaritySampler2{10};
+
+        TVector x{TVector::Zero(4)};
+        for (std::size_t i = 0; i < 20; ++i) {
+            dissimilaritySampler1.sample(x);
+            dissimilaritySampler2.sample(x);
+        }
+        dissimilaritySampler1.merge(dissimilaritySampler2);
+        BOOST_TEST_REQUIRE(dissimilaritySampler1.samples().size() > 0);
+    }
+
+    // 2. Test the average distance between points is significantly larger than
+    //    for uniform random sampling.
 
     std::size_t numberSamples{100};
 

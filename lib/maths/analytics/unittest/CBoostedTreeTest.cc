@@ -2844,7 +2844,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "KL divergence = "
                   << maths::common::CBasicStatistics::mean(klDivergence));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.16);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(klDivergence) < 0.21);
         meanKLDivergence.add(maths::common::CBasicStatistics::mean(klDivergence));
     }
 
