@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.6.0
+
+=== Bug Fixes
+
+* Fix for 'No statistics' error message. (See {ml-pull}2410[#2410].)
+
 == {es} version 8.5.0
 
 === Enhancements

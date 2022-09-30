@@ -133,8 +133,10 @@ bool CIndividualModel::isPopulation() const {
 CIndividualModel::TOptionalUInt64
 CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR(<< "No statistics at " << time
-                  << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << " for " << this->description()
+                  << ", current bucket = " << this->printCurrentBucket()
+                  << ", partitionFieldValue = " << this->dataGatherer().partitionFieldValue()
+                  << ", personName = " << this->dataGatherer().personName(pid));
         return TOptionalUInt64();
     }
 
