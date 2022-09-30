@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
     while (restoredJob.restoreState(restoreSearcher, completeToTime)) {
         assert(completeToTime > prevCompleteToTime);
         prevCompleteToTime = completeToTime;
-        LOG_DEBUG(<< "Restore complete to time " << completeToTime << std::endl);
+        LOG_DEBUG(<< "Restore complete to time " << completeToTime);
 
         core::CNamedPipeFactory::TOStreamP persistStrm{&ioMgr.outputStream(),
                                                        [](std::ostream*) {}};
