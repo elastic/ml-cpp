@@ -625,9 +625,10 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
             }
         }
     }
-    std::copy(other.m_ProbabilityExplanations.begin(),
-              other.m_ProbabilityExplanations.end(),
-              std::back_inserter(m_ProbabilityExplanations));
+    // TODO: do I need to fix this?
+    // std::copy(other.m_AnomalyScoreExplanation.begin(),
+    //           other.m_AnomalyScoreExplanation.end(),
+    //           std::back_inserter(m_AnomalyScoreExplanation));
 }
 
 bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
@@ -718,8 +719,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
                                       : model_t::CResultType::E_Unconditional);
         mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
         m_Probability.add(probability, weight);
-        m_ProbabilityExplanations.clear();
-        m_ProbabilityExplanations = result.s_ProbabilityExplanation;
+        m_AnomalyScoreExplanation = result.s_AnomalyScoreExplanation;
     };
 
     // Check the cache.
@@ -747,8 +747,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
             }
         } else {
             probability = result.s_Probability;
-            m_ProbabilityExplanations.clear();
-            m_ProbabilityExplanations = result.s_ProbabilityExplanation;
+            m_AnomalyScoreExplanation = result.s_AnomalyScoreExplanation;
             tail = std::move(result.s_Tail);
             type.set(model_t::CResultType::E_Unconditional);
             mostAnomalousCorrelate.clear();

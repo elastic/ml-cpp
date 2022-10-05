@@ -774,7 +774,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     }
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
     resultBuilder.probability(p);
-    resultBuilder.probabilityExplanations(result.s_ProbabilityExplanations);
+    resultBuilder.anomalyScoreExplanation(result.s_AnomalyScoreExplanation);
     resultBuilder.build();
 
     return true;

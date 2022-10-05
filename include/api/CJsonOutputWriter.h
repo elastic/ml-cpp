@@ -125,6 +125,8 @@ public:
 
     using TValuePtr = std::shared_ptr<rapidjson::Value>;
 
+    using TAnomalyScoreExplanation = CHierarchicalResultsWriter::TAnomalyScoreExplanation;
+
     //! Structure to buffer up information about each bucket that we have
     //! unwritten results for
     struct SBucketData {
@@ -158,7 +160,7 @@ public:
         // new records with a higher probability
         double s_HighestProbability;
 
-        std::string s_ProbabilityExplanations;
+        TAnomalyScoreExplanation s_AnomalyScoreExplanation;
 
         // Used for filtering new influencers
         // when the number to write is limited
@@ -302,6 +304,9 @@ private:
     //! Write the influence results.
     void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
                        TDocumentWeakPtr weakDoc);
+
+    void writeAnomalyScoreExplanationObject(const CHierarchicalResultsWriter::TResults& results,
+                                            rapidjson::Value& anomalyScoreExplanation);
 
 private:
     //! The job ID

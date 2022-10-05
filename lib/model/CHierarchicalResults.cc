@@ -277,9 +277,7 @@ std::string SNode::print() const {
            (s_AnnotatedProbability.s_Influences.empty()
                 ? ""
                 : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences)) +
-           +", " +
-           core::CStringUtils::join(s_AnnotatedProbability.s_ProbabilityExplanations,
-                                    std::string(" "));
+           +", " + s_AnnotatedProbability.s_AnomalyScoreExplanation.print();
 }
 
 void SNode::swap(SNode& other) noexcept {

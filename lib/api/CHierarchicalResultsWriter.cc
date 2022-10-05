@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CAnnotatedProbability.h"
 #include <api/CHierarchicalResultsWriter.h>
 
 #include <core/CLogger.h>
@@ -96,7 +97,7 @@ CHierarchicalResultsWriter::SResults::SResults(
     int identifier,
     core_t::TTime bucketSpan,
     TStr1Vec scheduledEventDescriptions,
-    TStrVec probabilityExplanations)
+    model::SAnnotatedProbability::TAnomalyScoreExplanation anomalyScoreExplanation)
     : s_ResultType(resultType), s_IsAllTimeResult(false), s_IsOverallResult(true),
       s_UseNull(useNull), s_IsMetric(metric), s_PartitionFieldName(partitionFieldName),
       s_PartitionFieldValue(partitionFieldValue), s_ByFieldName(byFieldName),
@@ -115,7 +116,7 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_Probability(probability), s_MultiBucketImpact{multiBucketImpact},
       s_Influences(influences), s_Identifier(identifier),
       s_ScheduledEventDescriptions(std::move(scheduledEventDescriptions)),
-      s_ProbabilityExplanations(std::move(probabilityExplanations)) {
+      s_AnomalyScoreExplanation(std::move(anomalyScoreExplanation)) {
 }
 
 CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits& limits,
@@ -262,7 +263,7 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
         node.s_Spec.s_Detector, node.s_BucketLength, EMPTY_STRING_LIST,
-        node.s_AnnotatedProbability.s_ProbabilityExplanations);
+        node.s_AnnotatedProbability.s_AnomalyScoreExplanation);
 
     m_ResultWriterFunc(individualResult);
 }
@@ -301,7 +302,7 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
         *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
         node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions,
-        node.s_AnnotatedProbability.s_ProbabilityExplanations));
+        node.s_AnnotatedProbability.s_AnomalyScoreExplanation));
 }
 
 void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node,

@@ -12,6 +12,8 @@
 #ifndef INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
 #define INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
 
+#include "maths/common/MathsTypes.h"
+#include <limits>
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
 
@@ -293,7 +295,7 @@ private:
 
     //! The time series' residual model.
     //!
-//! \note This can be temporarily be shared with the change detector.
+    //! \note This can be temporarily be shared with the change detector.
     TPriorPtr m_ResidualModel;
 
     //! The multi-bucket feature to use.

@@ -86,6 +86,7 @@ public:
     using TStoredStringPtrStoredStringPtrPrDoublePrVec =
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TAnomalyScoreExplanation = maths::common::SModelProbabilityResult::SAnomalyScoreExplanation;
 
     //! \brief Wraps up the parameters to the influence calculation.
     struct MODEL_EXPORT SParams : private core::CNonCopyable {
@@ -325,8 +326,8 @@ public:
     //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
     bool calculateMultiBucketImpact(double& multiBucketImpact) const;
 
-    const std::vector<std::string>& probabilityExplanations() const {
-        return m_ProbabilityExplanations;
+    TAnomalyScoreExplanation anomalyScoreExplanation() const {
+        return m_AnomalyScoreExplanation;
     }
 
 private:
@@ -364,7 +365,7 @@ private:
     //! allocated in a loop.
     TStoredStringPtrStoredStringPtrPrDoublePrVec m_Influences;
 
-    std::vector<std::string> m_ProbabilityExplanations;
+    TAnomalyScoreExplanation m_AnomalyScoreExplanation;
 };
 
 //! \brief Interface for influence calculations.

@@ -269,6 +269,37 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     };
     using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;
 
+    struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
+        enum EAnomalyType { E_UNKNOWN = 0, E_DIP, E_SPIKE };
+
+        EAnomalyType s_AnomalyType{E_UNKNOWN};
+        std::size_t s_AnomalyLength{0};
+        int s_SingleBucketImpact{0};
+        int s_MultiBucketImpact{0};
+        int s_AnomalyCharacteristicsImpact{0};
+        double s_LowerConfidenceBound{std::numeric_limits<double>::infinity()};
+        double s_TypicalValue{std::numeric_limits<double>::infinity()};
+        double s_UpperConfidenceBound{std::numeric_limits<double>::infinity()};
+        bool s_HighVariancePenalty{false};
+        bool s_IncompleteBucketPenalty{false};
+
+        std::string print() const {
+            return "Anomaly Score Explanation:\ntype: " + std::to_string(s_AnomalyType) +
+                   ", length: " + std::to_string(s_AnomalyLength) +
+                   "\n single bucket impact: " + std::to_string(s_SingleBucketImpact) +
+                   ", multi bucket impact: " + std::to_string(s_MultiBucketImpact) +
+                   ", anomaly characteristics impact: " +
+                   std::to_string(s_AnomalyCharacteristicsImpact) +
+                   "\n lower confidence bound: " + std::to_string(s_LowerConfidenceBound) +
+                   ", upper confidence bound: " + std::to_string(s_UpperConfidenceBound) +
+                   ", typical value: " + std::to_string(s_TypicalValue) +
+                   "\n high variance penalty: " +
+                   std::to_string(static_cast<int>(s_HighVariancePenalty)) +
+                   ", incomplete bucket_penalty: " +
+                   std::to_string(static_cast<int>(s_IncompleteBucketPenalty));
+        }
+    };
+
     //! The overall result probability.
     double s_Probability{1.0};
     //! True if the probability depends on the correlation between two
@@ -283,7 +314,7 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     //! if the result depends on the correlation structure).
     TSize1Vec s_MostAnomalousCorrelate;
 
-    std::vector<std::string> s_ProbabilityExplanation{};
+    SAnomalyScoreExplanation s_AnomalyScoreExplanation;
 };
 
 //! \brief The model interface.

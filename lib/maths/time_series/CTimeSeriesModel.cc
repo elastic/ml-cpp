@@ -9,8 +9,7 @@
  * limitation.
  */
 
-#include "core/CoreTypes.h"
-#include <algorithm>
+#include "maths/common/CModel.h"
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -42,8 +41,6 @@
 #include <cstddef>
 #include <limits>
 #include <numeric>
-#include <queue>
-#include <string>
 #include <tuple>
 
 namespace ml {
@@ -119,16 +116,6 @@ std::shared_ptr<common::CPrior> conditional(const common::CMultivariatePrior& pr
     return prior.univariate(NOTHING_TO_MARGINALIZE, condition).first;
 }
 
-std::string predicate(double probability) {
-    double minusLog{-std::log10(probability)};
-    if (minusLog > 10) {
-        return "Strong";
-    }
-    if (minusLog < 3) {
-        return "Slight";
-    }
-    return "Moderate";
-}
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
 const std::string VERSION_7_3_TAG("7.3");
@@ -298,7 +285,7 @@ public:
         if (!m_Anomaly) {
             return static_cast<std::size_t>(0);
         }
-        return m_Anomaly->length(time/m_BucketLength);
+        return m_Anomaly->length(time / m_BucketLength);
     }
 
 private:
@@ -982,9 +969,6 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
     TDouble4Vec probabilities;
     common::SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
 
-    double explanationsThreshold{0.0};
-    std::map<int, std::string> explanations;
-
     double pl;
     double pu;
     maths_t::ETail tail;
@@ -1000,14 +984,15 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
         if (pSingleBucket < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-            explanations.emplace(std::log(pSingleBucket)+1e-5, predicate(pSingleBucket) + " contribution to the initial record score by the difference between actual and typical." );
+            result.s_AnomalyScoreExplanation.s_SingleBucketImpact =
+                static_cast<int>(std::round(-std::log10(pSingleBucket)));
         }
 
-        if (maths_t::seasonalVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
-            explanations.emplace(0, "The initial record score is reduced as the anomaly occurs during the interval with regularly higher variation.");
+        if (maths_t::seasonalVarianceScale(weights[0]) > (1.0)) {
+            result.s_AnomalyScoreExplanation.s_HighVariancePenalty = true;
         }
-        if (maths_t::countVarianceScale(weights[0]) > (1.0 + explanationsThreshold)) {
-            explanations.emplace(10,  "The initial record score is reduced as the bucket contains fewer values than is typical.");
+        if (maths_t::countVarianceScale(weights[0]) > (1.0)) {
+            result.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty = true;
         }
 
     } else {
@@ -1038,11 +1023,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         }
 
         if (pMultiBucket < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-            // TODO use constant from CAnomalyDetectorModelConfig::MULTIBUCKET_FEATURES_WINDOW_LENGTH
-            explanations.emplace(std::log(pMultiBucket)+1e-3, predicate(pMultiBucket) +  " contribution to the initial record score by the difference between actual and typical of the last " + std::to_string(12) + " buckets (multi-bucket impact).");
+            result.s_AnomalyScoreExplanation.s_MultiBucketImpact =
+                static_cast<int>(std::round(-std::log10(pMultiBucket)));
         }
 
-        explanations.emplace(80, "-lg(pMultiBucket) = " + std::to_string(std::round(-std::log10(pMultiBucket))) + " -lg(pSingleBucket) = " + std::to_string(std::round(-std::log10(probabilities.back()))));
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_MultiBucketProbability, pMultiBucket);
@@ -1065,24 +1049,15 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
         if (pAnomaly < common::LARGEST_SIGNIFICANT_PROBABILITY) {
             std::size_t anomalyLength = std::min(m_AnomalyModel->length(time), 12UL);
-            
-            std::string anomalyLengthPredicate =
-                anomalyLength > 0
-                    ? "within the last " + std::to_string(anomalyLength) + " buckets"
-                    : "in the current bucket";
-            std::string anomalyType = (m_AnomalyModel->sumPredictionError() >
-                                       (0.0 + explanationsThreshold))
-                                          ? "spike"
-                                          : "dip";
-            explanations.emplace(std::log(pAnomaly) + 1e-6,
-                                 predicate(pAnomaly) + " contribution to the initial record score by the statistical properties of the current anomaly. " +
-                               "The identified anomaly is a " + anomalyType +  " that occurred " +
-                                     anomalyLengthPredicate +
-                                     " (longer anomalies are typically scored higher).");
+            result.s_AnomalyScoreExplanation.s_AnomalyType =
+                (m_AnomalyModel->sumPredictionError() > (0.0))
+                    ? common::SModelProbabilityResult::SAnomalyScoreExplanation::E_SPIKE
+                    : common::SModelProbabilityResult::SAnomalyScoreExplanation::E_DIP;
+            result.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
+                static_cast<int>(std::round(-std::log10(pAnomaly)));
+            result.s_AnomalyScoreExplanation.s_AnomalyLength = anomalyLength;
         }
-        explanations.emplace(100, "-lg(pAnomaly) = " + std::to_string(std::round(-std::log10(pAnomaly))));
 
-        
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_AnomalyModelProbability, pAnomaly);
@@ -1090,13 +1065,11 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
     if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
         LOG_DEBUG(<< "Computing confidence bounds");
-        TDouble2Vec3Vec interval(this->confidenceInterval(time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
-        explanations.emplace(150, "confidence bounds: [" + std::to_string(interval[0][0]) + ", " 
-        + std::to_string(interval[1][0]) + ", " + std::to_string(interval[2][0]) + "]");
-    }
-
-    for (auto explanation : explanations) {
-        result.s_ProbabilityExplanation.emplace_back(explanation.second);
+        TDouble2Vec3Vec interval(this->confidenceInterval(
+            time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
+        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
+        result.s_AnomalyScoreExplanation.s_TypicalValue = interval[1][0];
+        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[2][0];
     }
 
     result.s_Probability = pOverall;

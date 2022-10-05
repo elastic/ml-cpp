@@ -16,6 +16,8 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
+#include <maths/common/CModel.h>
+
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
 
@@ -54,6 +56,7 @@ public:
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TStrVec = std::vector<std::string>;
+    using TAnomalyScoreExplanation = maths::common::SModelProbabilityResult::SAnomalyScoreExplanation;
 
 public:
     enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };
@@ -110,7 +113,7 @@ public:
                  int identifier,
                  core_t::TTime bucketSpan,
                  TStr1Vec scheduledEventDescriptions,
-                 TStrVec probabilityExplanations);
+                 TAnomalyScoreExplanation anomalyScoreExplanation);
 
         EResultType s_ResultType;
         bool s_IsAllTimeResult;
@@ -142,7 +145,7 @@ public:
         const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
-        TStrVec s_ProbabilityExplanations;
+        TAnomalyScoreExplanation s_AnomalyScoreExplanation;
     };
 
 public:
