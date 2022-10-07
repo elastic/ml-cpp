@@ -211,60 +211,52 @@ void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
 
 //! Implementation of categorical sampling.
 template<typename RNG>
-std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
+std::size_t doCategoricalSample(RNG& rng, TDoubleVec& weights) {
     // We use inverse transform sampling to generate the categorical
-    // samples from a random samples on [0,1].
+    // samples from a random samples on [0,w] with w the sum of weights.
 
-    std::size_t p = probabilities.size();
+    std::size_t m{weights.size()};
 
     // Construct the transform function.
-    for (std::size_t i = 1; i < p; ++i) {
-        probabilities[i] += probabilities[i - 1];
+    std::partial_sum(weights.begin(), weights.end(), weights.begin());
+
+    if (weights[m - 1] == 0.0) {
+        return doUniformSample(rng, static_cast<std::size_t>(0), m);
     }
 
-    if (probabilities[p - 1] == 0.0) {
-        return doUniformSample(rng, std::size_t(0), p);
-    }
-
-    double uniform0X{doUniformSample(rng, 0.0, probabilities[p - 1])};
-    return std::min(static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
-                                                              probabilities.end(), uniform0X) -
-                                             probabilities.begin()),
-                    probabilities.size() - 1);
+    return std::min(static_cast<std::size_t>(
+                        std::lower_bound(weights.begin(), weights.end(),
+                                         doUniformSample(rng, 0.0, weights[m - 1])) -
+                        weights.begin()),
+                    m - 1);
 }
 
 //! Implementation of categorical sampling with replacement.
 template<typename RNG>
-void doCategoricalSampleWithReplacement(RNG& rng,
-                                        TDoubleVec& probabilities,
-                                        std::size_t n,
-                                        TSizeVec& result) {
+void doCategoricalSampleWithReplacement(RNG& rng, TDoubleVec& weights, std::size_t n, TSizeVec& result) {
     // We use inverse transform sampling to generate the categorical
-    // samples from random samples on [0,1].
+    // samples from random samples on [0,w] with w the sum of weights.
 
     result.clear();
     if (n == 0) {
         return;
     }
 
-    std::size_t m{probabilities.size()};
+    std::size_t m{weights.size()};
 
-    // Construct the transform function.
-    for (std::size_t i = 1; i < m; ++i) {
-        probabilities[i] += probabilities[i - 1];
-    }
+    // Construct the cumulative density function.
+    std::partial_sum(weights.begin(), weights.end(), weights.begin());
 
-    if (probabilities[m - 1] == 0.0) {
-        doUniformSample(rng, std::size_t(0), m, n, result);
+    if (weights[m - 1] == 0.0) {
+        doUniformSample(rng, static_cast<std::size_t>(0), m, n, result);
     } else {
         result.reserve(n);
-        boost::random::uniform_real_distribution<> uniform(0.0, probabilities[m - 1]);
+        boost::random::uniform_real_distribution<> uniform(0.0, weights[m - 1]);
         for (std::size_t i = 0; i < n; ++i) {
-            double u0X{uniform(rng)};
             result.push_back(std::min(
-                static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
-                                                          probabilities.end(), u0X) -
-                                         probabilities.begin()),
+                static_cast<std::size_t>(
+                    std::lower_bound(weights.begin(), weights.end(), uniform(rng)) -
+                    weights.begin()),
                 m - 1));
         }
     }
@@ -272,56 +264,71 @@ void doCategoricalSampleWithReplacement(RNG& rng,
 
 //! Implementation of categorical sampling without replacement.
 template<typename RNG>
-void doCategoricalSampleWithoutReplacement(RNG& rng,
-                                           TDoubleVec& probabilities,
-                                           std::size_t n,
-                                           TSizeVec& result) {
-    // We use inverse transform sampling to generate the categorical
-    // samples from random samples on [0,1] and update the probabilities
-    // throughout the sampling to exclude the values already taken.
+void doCategoricalSampleWithoutReplacement(RNG& rng, TDoubleVec& weights, std::size_t n, TSizeVec& result) {
+
+    // We switch between two strategies:
+    //   1. For n < eps |weights| we perform categorical sampling and discard
+    //      duplicates. This approach has better constants but compexity
+    //      O(|weights| + n log(|weights|))
+    //   2. Otherwise, we notionally reservoir sample n from a stream of size
+    //      |weights| and use the Efraimidis and Spirakis trick. This approach
+    //      has complexity O(|weights|).
+
+    using TBoolVec = std::vector<bool>;
 
     result.clear();
     if (n == 0) {
         return;
     }
 
-    std::size_t m{probabilities.size()};
-    result.assign(boost::counting_iterator<std::size_t>(0),
-                  boost::counting_iterator<std::size_t>(m));
+    if (5 * n < weights.size()) {
+        result.resize(n);
+        std::partial_sum(weights.begin(), weights.end(), weights.begin());
+        TBoolVec mask(weights.size(), false);
+        for (std::size_t i = 0, m = 0; 2 * i < 3 * n; ++i) {
+            // Note that weights contains cumulative sums up to the last item,
+            // which is proportional to the cumulative density function, so to
+            // perform inverse transform sampling we generate s ~ U[0,w] with
+            // w the sum of all weights and read off the first item x with
+            // s <= F(x).
+            auto j = std::min(std::lower_bound(weights.begin(), weights.end(),
+                                               doUniformSample(rng, 0.0, weights.back())) -
+                                  weights.begin(),
+                              static_cast<std::ptrdiff_t>(weights.size()) - 1);
 
-    if (n >= m) {
+            if (mask[j] == false) {
+                mask[j] = true;
+                result[m++] = j;
+                if (m == n) {
+                    return;
+                }
+            }
+        }
+        // This should happen rarely so the amortised cost is negligible.
+        std::adjacent_difference(weights.begin(), weights.end(), weights.begin());
+    }
+
+    result.resize(weights.size());
+    std::iota(result.begin(), result.end(), 0);
+
+    // We won't sample any values assigned zero weight.
+    result.erase(std::remove_if(result.begin(), result.end(),
+                                [&](auto i) { return weights[i] == 0.0; }),
+                 result.end());
+
+    if (n >= result.size()) {
         return;
     }
 
-    // Construct the transform function.
-    for (std::size_t i = 1; i < m; ++i) {
-        probabilities[i] += probabilities[i - 1];
+    // Use the inverse transformation method to generate exponential samples.
+    for (auto i : result) {
+        weights[i] = -CTools::fastLog(doUniformSample(rng, 0.0, 1.0)) / weights[i];
     }
 
-    for (std::size_t i = 0; i < n; ++i, --m) {
-        std::size_t s{0};
-        double x{probabilities[m - 1]};
-        if (x <= 0.0) {
-            s = doUniformSample(rng, std::size_t{0}, m);
-        } else {
-            boost::random::uniform_real_distribution<> uniform{0.0, x};
-            double u0X{uniform(rng)};
-            s = std::min(static_cast<std::size_t>(
-                             std::lower_bound(probabilities.begin(),
-                                              probabilities.begin() + m, u0X) -
-                             probabilities.begin()),
-                         m - 1);
-        }
-
-        double ps{probabilities[s] - (s == 0 ? 0.0 : probabilities[s - 1])};
-        for (std::size_t j = s + 1; j < m; ++j) {
-            probabilities[j - 1] = probabilities[j] - ps;
-            std::swap(result[j - 1], result[j]);
-        }
-    }
-
-    // The sampled values are at the end of the vector.
-    result.erase(result.begin(), result.begin() + m);
+    std::nth_element(
+        result.begin(), result.begin() + n, result.end(),
+        [&](auto lhs, auto rhs) { return weights[lhs] < weights[rhs]; });
+    result.resize(n);
 }
 
 //! Implementation of multivariate normal sampling.
@@ -731,11 +738,11 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
     //
     // The conditional mass function of category i given categories
     // j < i is found by marginalizing over the categories j > i of
-    // the full marginal distribution. The marginal distribution is
-    // multinomial with number of trials n - Sum_{j < i}{ nj } and
-    // probabilities p_j -> p_j / (1 - Sum_k{k < i}{ pk }). The marginal
-    // distribution is just binomial with the same number of trials
-    // and probability p_i (adjusted as above).
+    // the full distribution. The marginal distribution is multinomial
+    // with number of trials n - Sum_{j < i}{ nj } and probabilities
+    // p_j -> p_j / (1 - Sum_k{k < i}{ pk }). The marginal distribution
+    // is just binomial with the same number of trials and probability
+    // p_i (adjusted as above).
     //
     // In order to sample from the full distribution we sample each
     // marginal and then condition the next marginal on the values
@@ -744,15 +751,15 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
     //   P({n_i}) = Int{ Prod_i{ f(n_i | { n_j : j < i }) } }dn_i
     //            = Int{ f(n_i) }dn_i
     //
-    // So the samples are distributed according to the joint distribution
-    // function, i.e. multinomial in this case.
+    // So the samples are distributed according to the full distribution
+    // function as required.
     //
     // We sort the probabilities in descending order to make sampling
-    // as efficient as possible (since this means that the the loop
-    // will often terminate as early as possible on average).
+    // as efficient as possible: this means that the loop will terminate
+    // as early as possible on average.
 
     if (!sorted) {
-        std::sort(probabilities.begin(), probabilities.end(), std::greater<double>());
+        std::sort(probabilities.begin(), probabilities.end(), std::greater<>());
     }
 
     {
@@ -763,7 +770,7 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
         for (std::size_t i = 0; r > 0 && i < m; ++i) {
             boost::random::binomial_distribution<> binomial(static_cast<int>(r),
                                                             probabilities[i] / p);
-            std::size_t ni = static_cast<std::size_t>(binomial(defaultRng));
+            auto ni = static_cast<std::size_t>(binomial(defaultRng));
             sample.push_back(ni);
             r -= ni;
             p -= probabilities[i];
@@ -780,7 +787,7 @@ void CSampling::multinomialSampleStable(TDoubleVec probabilities, std::size_t n,
     for (std::size_t i = 0; i < probabilities.size(); ++i) {
         indices.push_back(i);
     }
-    COrderings::simultaneousSort(probabilities, indices, std::greater<double>());
+    COrderings::simultaneousSortWith(std::greater<>(), probabilities, indices);
 
     sample.reserve(probabilities.size());
 

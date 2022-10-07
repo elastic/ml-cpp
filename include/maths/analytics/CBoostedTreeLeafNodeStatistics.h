@@ -202,14 +202,14 @@ public:
         using TLoopBodyVec = std::vector<std::function<void(std::size_t)>>;
 
     public:
-        explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
-            : m_NumberLossParameters{numberLossParameters} {}
-        CSplitsDerivatives(const TFloatVecVec& candidateSplits, std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters} {
+        explicit CSplitsDerivatives(std::size_t dimensionGradient = 0)
+            : m_DimensionGradient{dimensionGradient} {}
+        CSplitsDerivatives(const TFloatVecVec& candidateSplits, std::size_t dimensionGradient)
+            : m_DimensionGradient{dimensionGradient} {
             this->initializeAndMapStorage(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
-            : m_NumberLossParameters{other.m_NumberLossParameters},
+            : m_DimensionGradient{other.m_DimensionGradient},
               m_PositiveDerivativesSum{other.m_PositiveDerivativesSum},
               m_NegativeDerivativesSum{other.m_NegativeDerivativesSum},
               m_PositiveDerivativesMax{other.m_PositiveDerivativesMax},
@@ -223,8 +223,8 @@ public:
         CSplitsDerivatives& operator=(CSplitsDerivatives&&) = default;
 
         //! Re-initialize recycling the allocated memory.
-        void reinitialize(const TFloatVecVec& candidateSplits, std::size_t numberLossParameters) {
-            m_NumberLossParameters = numberLossParameters;
+        void reinitialize(const TFloatVecVec& candidateSplits, std::size_t dimensionGradient) {
+            m_DimensionGradient = dimensionGradient;
             for (auto& derivatives : m_Derivatives) {
                 derivatives.clear();
             }
@@ -234,7 +234,7 @@ public:
 
         //! Efficiently swap this and \p other.
         void swap(CSplitsDerivatives& other) {
-            std::swap(m_NumberLossParameters, other.m_NumberLossParameters);
+            std::swap(m_DimensionGradient, other.m_DimensionGradient);
             std::swap(m_PositiveDerivativesSum, other.m_PositiveDerivativesSum);
             std::swap(m_NegativeDerivativesSum, other.m_NegativeDerivativesSum);
             std::swap(m_PositiveDerivativesMax, other.m_PositiveDerivativesMax);
@@ -399,7 +399,7 @@ public:
             m_NegativeDerivativesMin =
                 m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
             numberThreads = TThreading::numberThreadsForAddSplitsDerivatives(
-                numberThreads, featureBag.size(), m_NumberLossParameters,
+                numberThreads, featureBag.size(), m_DimensionGradient,
                 this->numberDerivatives(featureBag));
             TLoopBodyVec add(numberThreads, [&](std::size_t i) {
                 for (std::size_t j = 0; j < rhs.m_Derivatives[i].size(); ++j) {
@@ -416,7 +416,7 @@ public:
             m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
             numberThreads = TThreading::numberThreadsForSubtractSplitsDerivatives(
-                numberThreads, featureBag.size(), m_NumberLossParameters,
+                numberThreads, featureBag.size(), m_DimensionGradient,
                 this->numberDerivatives(featureBag));
             TLoopBodyVec subtract(numberThreads, [&](std::size_t i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
@@ -429,7 +429,7 @@ public:
         //! Remap the accumulated curvature to lower triangle row major format.
         void remapCurvature(std::size_t numberThreads, const TSizeVec& featureBag) {
             numberThreads = TThreading::numberThreadsForRemapSplitsDerivatives(
-                numberThreads, featureBag.size(), m_NumberLossParameters,
+                numberThreads, featureBag.size(), m_DimensionGradient,
                 this->numberDerivatives(featureBag));
             TLoopBodyVec remap(numberThreads, [this](std::size_t i) {
                 for (auto& derivatives : m_Derivatives[i]) {
@@ -444,18 +444,16 @@ public:
 
         //! Estimate the split derivatives' memory usage for a data frame with
         //! \p numberCols columns using \p numberSplitsPerFeature for a loss
-        //! function with \p numberLossParameters parameters.
+        //! function with \p dimensionGradient parameters.
         static std::size_t estimateMemoryUsage(std::size_t numberFeatures,
                                                std::size_t numberSplitsPerFeature,
-                                               std::size_t numberLossParameters);
+                                               std::size_t dimensionGradient);
 
         //! Get a checksum of this object.
         std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Get the number of loss function parameters.
-        std::size_t numberLossParameters() const {
-            return m_NumberLossParameters;
-        }
+        std::size_t dimensionGradient() const { return m_DimensionGradient; }
 
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
@@ -497,7 +495,7 @@ public:
             // Note we ensure 16 byte alignment because we're using aligned memory
             // mapped vectors which have better performance.
 
-            auto numberLossParameters = static_cast<int>(m_NumberLossParameters);
+            auto dimensionGradient = static_cast<int>(m_DimensionGradient);
             std::size_t numberFeatures{splits.size()};
             std::size_t numberGradients{this->numberGradients()};
             std::size_t countOffset{this->countOffset()};
@@ -507,7 +505,7 @@ public:
                 std::size_t size{numberSplits(splits[i])};
                 m_Derivatives[i].reserve(size);
                 for (std::size_t j = 0; j < size; ++j, storage += splitSize) {
-                    m_Derivatives[i].emplace_back(numberLossParameters, storage,
+                    m_Derivatives[i].emplace_back(dimensionGradient, storage,
                                                   storage + numberGradients,
                                                   storage + countOffset);
                 }
@@ -528,16 +526,16 @@ public:
 
         std::size_t numberGradients() const {
             return core::CAlignment::roundup<double>(core::CAlignment::E_Aligned16,
-                                                     m_NumberLossParameters);
+                                                     m_DimensionGradient);
         }
 
         std::size_t numberCurvatures() const {
             return core::CAlignment::roundup<double>(
-                core::CAlignment::E_Aligned16, m_NumberLossParameters * m_NumberLossParameters);
+                core::CAlignment::E_Aligned16, m_DimensionGradient * m_DimensionGradient);
         }
 
         std::size_t curvaturesPad() const {
-            return this->numberCurvatures() - m_NumberLossParameters * m_NumberLossParameters;
+            return this->numberCurvatures() - m_DimensionGradient * m_DimensionGradient;
         }
 
         std::size_t countOffset() const {
@@ -561,7 +559,7 @@ public:
         }
 
     private:
-        std::size_t m_NumberLossParameters{0};
+        std::size_t m_DimensionGradient{0};
         TDerivativesVecVec m_Derivatives;
         TAlignedDoubleVec m_Storage;
         TDerivatives2x1 m_PositiveDerivativesSum{TDerivatives2x1::Zero()};
@@ -585,8 +583,8 @@ public:
         using TNodeVec = std::vector<CBoostedTreeNode>;
 
     public:
-        explicit CWorkspace(std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters} {}
+        explicit CWorkspace(std::size_t dimensionGradient)
+            : m_DimensionGradient{dimensionGradient} {}
         CWorkspace(CWorkspace&&) = default;
         CWorkspace& operator=(const CWorkspace& other) = delete;
         CWorkspace& operator=(CWorkspace&&) = default;
@@ -609,10 +607,10 @@ public:
                 mask.clear();
             }
             for (auto& derivatives : m_Derivatives) {
-                derivatives.reinitialize(candidateSplits, m_NumberLossParameters);
+                derivatives.reinitialize(candidateSplits, m_DimensionGradient);
             }
             for (std::size_t j = m_Derivatives.size(); j < numberThreads; ++j) {
-                m_Derivatives.emplace_back(candidateSplits, m_NumberLossParameters);
+                m_Derivatives.emplace_back(candidateSplits, m_DimensionGradient);
             }
         }
 
@@ -692,7 +690,7 @@ public:
 
     private:
         const TNodeVec* m_TreeToRetrain{nullptr};
-        std::size_t m_NumberLossParameters{1};
+        std::size_t m_DimensionGradient{1};
         std::size_t m_NumberToReduce{0};
         double m_MinimumGain{0.0};
         bool m_ReducedMasks{false};
@@ -774,10 +772,10 @@ public:
 
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
     //! with \p numberFeatures columns using \p numberSplitsPerFeature for a loss function
-    //! with \p numberLossParameters parameters.
+    //! with \p dimensionGradient parameters.
     static std::size_t estimateMemoryUsage(std::size_t numberFeatures,
                                            std::size_t numberSplitsPerFeature,
-                                           std::size_t numberLossParameters);
+                                           std::size_t dimensionGradient);
 
     //! Get the best split info as a string.
     std::string print() const;
@@ -813,7 +811,7 @@ protected:
         }
 
         bool operator<(const SSplitStatistics& rhs) const {
-            return common::COrderings::lexicographical_compare(
+            return common::COrderings::lexicographicalCompare(
                 s_Gain, s_Curvature, s_Feature, s_SplitAt, // <- lhs
                 rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature, rhs.s_SplitAt);
         }
@@ -845,7 +843,7 @@ protected:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    std::size_t depth,
                                    const TSizeVec& extraColumns,
-                                   std::size_t numberLossParameters,
+                                   std::size_t dimensionGradient,
                                    const TFloatVecVec& candidateSplits,
                                    CSplitsDerivatives derivatives = CSplitsDerivatives{});
 
@@ -883,7 +881,7 @@ protected:
     const CSplitsDerivatives& derivatives() const;
     std::size_t depth() const;
     const TSizeVec& extraColumns() const;
-    std::size_t numberLossParameters() const;
+    std::size_t dimensionGradient() const;
     const TFloatVecVec& candidateSplits() const;
 
 private:
@@ -918,7 +916,7 @@ private:
 private:
     std::size_t m_Id;
     std::size_t m_Depth;
-    std::size_t m_NumberLossParameters;
+    std::size_t m_DimensionGradient;
     const TSizeVec& m_ExtraColumns;
     const TFloatVecVec& m_CandidateSplits;
     CSplitsDerivatives m_Derivatives;

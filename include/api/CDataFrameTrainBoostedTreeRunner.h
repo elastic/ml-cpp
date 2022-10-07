@@ -172,7 +172,8 @@ private:
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;
-    std::size_t m_NumberLossParameters{0};
+    std::size_t m_DimensionPrediction{0};
+    std::size_t m_DimensionGradient{0};
     std::size_t m_TrainedModelMemoryUsage{0};
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;

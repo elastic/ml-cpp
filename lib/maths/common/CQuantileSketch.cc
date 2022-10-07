@@ -574,7 +574,7 @@ void CQuantileSketch::reduceWithSuppliedCosts(std::size_t target,
                                               TBoolVec& stale) {
 
     auto mergeCostGreater = [&mergeCosts](std::size_t lhs, std::size_t rhs) {
-        return COrderings::lexicographical_compare(
+        return COrderings::lexicographicalCompare(
             -mergeCosts[lhs].first, mergeCosts[lhs].second,
             -mergeCosts[rhs].first, mergeCosts[rhs].second);
     };

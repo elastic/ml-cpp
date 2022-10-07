@@ -127,8 +127,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisParameters& parameters,
     TLossFunctionUPtr loss,
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
-    : CDataFrameAnalysisRunner{spec}, m_NumberLossParameters{loss->numberParameters()},
-      m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+    : CDataFrameAnalysisRunner{spec}, m_DimensionPrediction{loss->dimensionPrediction()},
+      m_DimensionGradient{loss->dimensionGradient()}, m_Instrumentation{spec.jobId(),
+                                                                        spec.memoryLimit()} {
 
     if (loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must provide a loss function for training."
@@ -147,7 +148,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         parameters[TRAINED_MODEL_MEMORY_USAGE].fallback(std::size_t{0});
 
     // Training parameters.
-    auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0});
+    auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::ptrdiff_t{0});
     auto numberHoldoutRows = parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0});
     auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
     auto trainFractionPerFold = parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0);
@@ -332,13 +333,13 @@ std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode();
     case api_t::E_Train:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
-            this->spec().numberColumns(), m_NumberLossParameters);
+            this->spec().numberColumns(), m_DimensionPrediction, m_DimensionGradient);
     case api_t::E_Update:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
-            this->spec().numberColumns(), m_NumberLossParameters);
+            this->spec().numberColumns(), m_DimensionPrediction, m_DimensionGradient);
     case api_t::E_Predict:
         return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
-            m_NumberLossParameters);
+            m_DimensionPrediction);
     }
 }
 
@@ -612,7 +613,7 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization() const {
 }
 
 // clang-format off
-const std::string CDataFrameTrainBoostedTreeRunner::RANDOM_NUMBER_GENERATOR_SEED{"seed"};
+const std::string CDataFrameTrainBoostedTreeRunner::RANDOM_NUMBER_GENERATOR_SEED{"randomize_seed"};
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAINING_PERCENT_FIELD_NAME{"training_percent"};

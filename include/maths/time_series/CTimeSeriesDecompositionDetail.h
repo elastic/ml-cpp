@@ -229,8 +229,8 @@ public:
     //! \brief Checks for sudden change or change events.
     class MATHS_TIME_SERIES_EXPORT CChangePointTest : public CHandler {
     public:
-        static constexpr double CHANGE_COUNT_WEIGHT = 0.1;
-        static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
+        static constexpr double CHANGE_COUNT_WEIGHT{0.1};
+        static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH{core::constants::HOUR};
 
     public:
         CChangePointTest(double decayRate, core_t::TTime bucketLength);

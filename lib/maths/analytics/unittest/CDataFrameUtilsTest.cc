@@ -1384,7 +1384,7 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
             for (const auto& mic : mics) {
                 BOOST_TEST_REQUIRE(std::is_sorted(
                     mic.begin(), mic.end(), [](const auto& lhs, const auto& rhs) {
-                        return maths::common::COrderings::lexicographical_compare(
+                        return maths::common::COrderings::lexicographicalCompare(
                             -lhs.second, lhs.first, -rhs.second, rhs.first);
                     }));
             }
@@ -1479,7 +1479,7 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumnWithMissing) {
         for (const auto& mic : mics) {
             BOOST_TEST_REQUIRE(std::is_sorted(
                 mic.begin(), mic.end(), [](const auto& lhs, const auto& rhs) {
-                    return maths::common::COrderings::lexicographical_compare(
+                    return maths::common::COrderings::lexicographicalCompare(
                         -lhs.second, lhs.first, -rhs.second, rhs.first);
                 }));
         }

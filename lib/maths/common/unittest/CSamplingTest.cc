@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalSampleWithoutReplacement) {
     // Edge cases:
     //   1. All values
     //   2. No values
-    //   3. All zero probabilities
+    //   3. Zero probabilities
 
     TSizeVec samples;
     TDoubleVec probabilities{0.2, 0.2, 0.2, 0.2, 0.2};
@@ -162,63 +162,62 @@ BOOST_AUTO_TEST_CASE(testCategoricalSampleWithoutReplacement) {
     maths::common::CSampling::categoricalSampleWithoutReplacement(probabilities, 0, samples);
     BOOST_TEST_REQUIRE(samples.empty());
 
-    {
-        TDoubleVec counts(5, 0);
+    for (std::size_t numberZeros = 1; numberZeros <= 5; ++numberZeros) {
+        std::fill_n(probabilities.begin(), numberZeros, 0.0);
         for (std::size_t i = 0; i < 500; ++i) {
-            std::fill_n(probabilities.begin(), 5, 0.0);
             maths::common::CSampling::categoricalSampleWithoutReplacement(
                 probabilities, 2, samples);
-            for (auto j : samples) {
-                BOOST_TEST_REQUIRE(j < counts.size());
-                counts[j] += 1.0;
-            }
-        }
-        LOG_DEBUG(<< "counts = " << counts);
-
-        // We should get a random sample.
-        for (auto count : counts) {
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(200.0, count, 20.0);
+            auto zeroWeightSample =
+                std::find_if(samples.begin(), samples.end(),
+                             [&](auto j) { return j < numberZeros; });
+            BOOST_TEST_REQUIRE(static_cast<bool>(zeroWeightSample == samples.end()));
         }
     }
 
     // For n draws without replacement the distribution of the counts is multivariate
     // hypergeometric. We test that the mean and variance converge to their expected
     // values.
-    TSizeVec colours{0, 1, 0, 3, 0, 2, 4, 5, 3, 2, 3};
-    auto accumulator = maths::common::CBasicStatistics::covariancesAccumulator(
-        TVector{0}, TVector{0}, TMatrix{0});
-    for (std::size_t i = 0; i < 500; ++i) {
-        TVector counts{0.0};
-        for (std::size_t j = 0; j < 100; ++j) {
-            probabilities.assign(11, 1.0);
-            maths::common::CSampling::categoricalSampleWithoutReplacement(
-                probabilities, 4, samples);
-            for (auto k : samples) {
-                BOOST_TEST_REQUIRE(k < probabilities.size());
-                counts(colours[k]) += 1.0;
+    for (std::size_t numberSamples : {2, 4}) {
+        TSizeVec colours{0, 1, 0, 3, 0, 2, 4, 5, 3, 2, 3};
+        auto accumulator = maths::common::CBasicStatistics::covariancesAccumulator(
+            TVector{0}, TVector{0}, TMatrix{0});
+        for (std::size_t i = 0; i < 2000; ++i) {
+            TVector counts{0.0};
+            for (std::size_t j = 0; j < 100; ++j) {
+                probabilities.assign(11, 1.0);
+                maths::common::CSampling::categoricalSampleWithoutReplacement(
+                    probabilities, numberSamples, samples);
+                for (auto k : samples) {
+                    BOOST_TEST_REQUIRE(k < probabilities.size());
+                    counts(colours[k]) += 1.0;
+                }
             }
+            accumulator.add(counts);
         }
-        accumulator.add(counts);
-    }
 
-    TDoubleVec k{3.0, 1.0, 2.0, 3.0, 1.0, 1.0};
-    for (std::size_t i = 0; i < k.size(); ++i) {
-        LOG_DEBUG(<< "mean expected = " << 100.0 * 4.0 * k[i] / 11.0);
-        LOG_DEBUG(<< "mean actual   = "
-                  << maths::common::CBasicStatistics::mean(accumulator)(i));
-        BOOST_REQUIRE_CLOSE(100.0 * 4.0 * k[i] / 11.0,
-                            maths::common::CBasicStatistics::mean(accumulator)(i),
-                            2.0 /*%*/);
-    }
-    for (std::size_t i = 0; i < k.size(); ++i) {
-        LOG_DEBUG(<< "variance expected = "
-                  << 100.0 * 4.0 * (11.0 - 4.0) / (11.0 - 1.0) * k[i] / 11.0 *
-                         (1.0 - k[i] / 11.0));
-        LOG_DEBUG(<< "variance actual   = "
-                  << maths::common::CBasicStatistics::covariances(accumulator)(i, i));
-        BOOST_REQUIRE_CLOSE(
-            100.0 * 4.0 * (11.0 - 4.0) / (11.0 - 1.0) * k[i] / 11.0 * (1.0 - k[i] / 11.0),
-            maths::common::CBasicStatistics::covariances(accumulator)(i, i), 15.0 /*%*/);
+        TDoubleVec k{3.0, 1.0, 2.0, 3.0, 1.0, 1.0};
+        for (std::size_t i = 0; i < k.size(); ++i) {
+            LOG_DEBUG(<< "mean expected = "
+                      << 100.0 * static_cast<double>(numberSamples) * k[i] / 11.0);
+            LOG_DEBUG(<< "mean actual   = "
+                      << maths::common::CBasicStatistics::mean(accumulator)(i));
+            BOOST_REQUIRE_CLOSE(100.0 * static_cast<double>(numberSamples) * k[i] / 11.0,
+                                maths::common::CBasicStatistics::mean(accumulator)(i),
+                                1.0); // %
+        }
+        for (std::size_t i = 0; i < k.size(); ++i) {
+            LOG_DEBUG(<< "variance expected = "
+                      << 100.0 * static_cast<double>(numberSamples) *
+                             (11.0 - static_cast<double>(numberSamples)) /
+                             (11.0 - 1.0) * k[i] / 11.0 * (1.0 - k[i] / 11.0));
+            LOG_DEBUG(<< "variance actual   = "
+                      << maths::common::CBasicStatistics::covariances(accumulator)(i, i));
+            BOOST_REQUIRE_CLOSE(
+                100.0 * static_cast<double>(numberSamples) *
+                    (11.0 - static_cast<double>(numberSamples)) / (11.0 - 1.0) *
+                    k[i] / 11.0 * (1.0 - k[i] / 11.0),
+                maths::common::CBasicStatistics::covariances(accumulator)(i, i), 10.0); // %
+        }
     }
 }
 
@@ -350,15 +349,29 @@ BOOST_AUTO_TEST_CASE(testReservoirSampling) {
 
 BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
 
-    // Test the average distance between points is significantly larger than
-    // for uniform random sampling.
-
     using TVector = maths::common::CDenseVector<double>;
     using TVectorVec = std::vector<TVector>;
     using TReservoirSampler = maths::common::CSampling::CReservoirSampler<TVector>;
     using TDissimilaritySampler =
         maths::common::CSampling::CVectorDissimilaritySampler<TVector>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    // 1. Test edge case that all points are co-located,
+    {
+        TDissimilaritySampler dissimilaritySampler1{10};
+        TDissimilaritySampler dissimilaritySampler2{10};
+
+        TVector x{TVector::Zero(4)};
+        for (std::size_t i = 0; i < 20; ++i) {
+            dissimilaritySampler1.sample(x);
+            dissimilaritySampler2.sample(x);
+        }
+        dissimilaritySampler1.merge(dissimilaritySampler2);
+        BOOST_TEST_REQUIRE(dissimilaritySampler1.samples().size() > 0);
+    }
+
+    // 2. Test the average distance between points is significantly larger than
+    //    for uniform random sampling.
 
     std::size_t numberSamples{100};
 

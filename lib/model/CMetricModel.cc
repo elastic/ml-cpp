@@ -189,13 +189,17 @@ void CMetricModel::sample(core_t::TTime startTime,
     CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
 
-    if (!gatherer.validateSampleTimes(startTime, endTime)) {
-        return;
-    }
+    m_CurrentBucketStats.s_StartTime = std::max(m_CurrentBucketStats.s_StartTime, startTime);
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     m_CurrentBucketStats.s_InterimCorrections.clear();
     m_CurrentBucketStats.s_Annotations.clear();
+    m_CurrentBucketStats.s_FeatureData.clear();
+    m_CurrentBucketStats.s_PersonCounts.clear();
+
+    if (!gatherer.validateSampleTimes(startTime, endTime)) {
+        return;
+    }
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");

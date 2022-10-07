@@ -1300,7 +1300,7 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(bool alreadyModelled,
             const auto& cutoff = std::max_element(
                 hypotheses.begin(), hypotheses.end(),
                 [&](const SHypothesisStats& lhs, const SHypothesisStats& rhs) {
-                    return common::COrderings::lexicographical_compare(
+                    return common::COrderings::lexicographicalCompare(
                         lhs.s_Period.s_Window == hypothesis.s_Period.s_Window, lhs.s_Truth,
                         rhs.s_Period.s_Window == hypothesis.s_Period.s_Window, rhs.s_Truth);
                 });
@@ -2070,7 +2070,7 @@ bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesis
     //   3. The amount of variance the hypothesis explains, which doesn't saturate
     //      like the truth value.
     double min{std::numeric_limits<double>::min()};
-    return common::COrderings::lexicographical_compare(
+    return common::COrderings::lexicographicalCompare(
         other.s_IsTestable, other.s_Truth.boolean(),
         1.0 * std::log(std::max(other.s_Truth.value(), min)) +
             0.5 * std::log(-std::log(std::max(other.s_ExplainedVariancePValue, min))),

@@ -145,8 +145,8 @@ bool CCalendarFeature::operator==(CCalendarFeature rhs) const {
 }
 
 bool CCalendarFeature::operator<(CCalendarFeature rhs) const {
-    return common::COrderings::lexicographical_compare(m_Feature, m_Value,
-                                                       rhs.m_Feature, rhs.m_Value);
+    return common::COrderings::lexicographicalCompare(m_Feature, m_Value,
+                                                      rhs.m_Feature, rhs.m_Value);
 }
 
 bool CCalendarFeature::testForTimeZoneOffset(core_t::TTime timeZoneOffset) const {

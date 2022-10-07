@@ -16,9 +16,9 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/COrderings.h>
-#include <maths/common/CSetTools.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -285,8 +285,10 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
 
         // Update the index set, the distance matrix, the sizes
         // and the rightmost direct address table.
-        std::size_t merged[]{a, b};
-        CSetTools::inplace_set_difference(S, merged, merged + 2);
+        std::array<std::size_t, 2> merged{a, b};
+        S.erase(std::set_difference(S.begin(), S.end(), merged.begin(),
+                                    merged.end(), S.begin()),
+                S.end());
         for (std::size_t x : S) {
             update(size, rightmost[x], ra, rb, distanceMatrix);
         }

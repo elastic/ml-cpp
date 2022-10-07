@@ -335,11 +335,11 @@ TFloatVecVec generateCandidateSplits(const TSizeVec& numberCandidateSplits) {
 
 TSplitsDerivatives generateSplitsDerivatives(test::CRandomNumbers& rng,
                                              const TSizeVec& numberCandidateSplits,
-                                             std::size_t numberLossParameters) {
+                                             std::size_t dimensionGradient) {
 
     TFloatVecVec candidateSplits(generateCandidateSplits(numberCandidateSplits));
 
-    TSplitsDerivatives derivatives{candidateSplits, numberLossParameters};
+    TSplitsDerivatives derivatives{candidateSplits, dimensionGradient};
     derivatives.zero();
 
     TAlignedFloatVec values;
@@ -347,8 +347,8 @@ TSplitsDerivatives generateSplitsDerivatives(test::CRandomNumbers& rng,
     for (std::size_t i = 0; i < numberCandidateSplits.size(); ++i) {
         for (std::size_t j = 0; j < numberCandidateSplits[i]; ++j) {
             rng.generateUniformSamples(
-                0.0, 1.0, numberLossParameters * (numberLossParameters + 3) / 2, values_);
-            for (std::size_t k = numberLossParameters, l = numberLossParameters;
+                0.0, 1.0, dimensionGradient * (dimensionGradient + 3) / 2, values_);
+            for (std::size_t k = dimensionGradient, l = dimensionGradient;
                  l > 0; k += l, --l) {
                 values_[k] += 2.0;
             }
@@ -356,8 +356,8 @@ TSplitsDerivatives generateSplitsDerivatives(test::CRandomNumbers& rng,
             derivatives.addDerivatives(
                 i, j,
                 maths::analytics::CBoostedTreeLeafNodeStatistics::TMemoryMappedFloatVector{
-                    values.data(), static_cast<int>((numberLossParameters *
-                                                     (numberLossParameters + 3) / 2))});
+                    values.data(),
+                    static_cast<int>((dimensionGradient * (dimensionGradient + 3) / 2))});
         }
     }
 

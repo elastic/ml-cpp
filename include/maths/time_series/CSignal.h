@@ -78,7 +78,7 @@ public:
                    s_WindowRepeat == rhs.s_WindowRepeat && s_Window == rhs.s_Window;
         }
         bool operator<(const SSeasonalComponentSummary& rhs) const {
-            return common::COrderings::lexicographical_compare(
+            return common::COrderings::lexicographicalCompare(
                 s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // lhs
                 rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
         }
