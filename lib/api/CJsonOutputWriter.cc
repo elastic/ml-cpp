@@ -11,8 +11,6 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <cmath>
-#include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
@@ -519,9 +517,6 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    // std::string explanationsCombined =
-    //     core::CStringUtils::join(results.s_ProbabilityExplanations, " ");
-    // m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
     rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
@@ -767,9 +762,7 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
-    // std::string explanationsCombined =
-    //     core::CStringUtils::join(results.s_ProbabilityExplanations, " ");
-    // m_Writer.addStringFieldCopyToObj(PROBABILITY_EXPLANATIONS, explanationsCombined, *docPtr);
+
     rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);

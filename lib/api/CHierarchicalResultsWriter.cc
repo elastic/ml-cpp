@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CAnnotatedProbability.h"
 #include <api/CHierarchicalResultsWriter.h>
 
 #include <core/CLogger.h>
@@ -97,7 +96,7 @@ CHierarchicalResultsWriter::SResults::SResults(
     int identifier,
     core_t::TTime bucketSpan,
     TStr1Vec scheduledEventDescriptions,
-    model::SAnnotatedProbability::TAnomalyScoreExplanation anomalyScoreExplanation)
+    TAnomalyScoreExplanation anomalyScoreExplanation)
     : s_ResultType(resultType), s_IsAllTimeResult(false), s_IsOverallResult(true),
       s_UseNull(useNull), s_IsMetric(metric), s_PartitionFieldName(partitionFieldName),
       s_PartitionFieldValue(partitionFieldValue), s_ByFieldName(byFieldName),

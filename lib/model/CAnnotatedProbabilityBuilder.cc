@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CAnnotatedProbability.h"
 #include <model/CAnnotatedProbabilityBuilder.h>
 
 #include <maths/common/CMultinomialConjugate.h>

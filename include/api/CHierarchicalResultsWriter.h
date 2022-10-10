@@ -16,8 +16,6 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
-#include <maths/common/CModel.h>
-
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
 
@@ -27,6 +25,9 @@
 #include <optional>
 
 namespace ml {
+namespace maths::common {
+struct SAnomalyScoreExplanation;
+}
 namespace api {
 
 //! \brief Writes out hierarchical results using a callback to write
@@ -55,8 +56,7 @@ public:
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
-    using TStrVec = std::vector<std::string>;
-    using TAnomalyScoreExplanation = maths::common::SModelProbabilityResult::SAnomalyScoreExplanation;
+    using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
 
 public:
     enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };

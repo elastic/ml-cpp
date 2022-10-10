@@ -28,12 +28,7 @@ ARG ML_DEBUG=
 
 ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-x86_64.cmake
 
-RUN \
-  rm /var/lib/rpm/__db.* && \
-  yum install -y epel-release && \
-  yum install -y ccache
-
 # Run the build
-RUN --mount=type=cache,target=/root/.ccache \
+RUN \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh
 

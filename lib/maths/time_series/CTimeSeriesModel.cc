@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "maths/common/CModel.h"
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -20,6 +19,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CModelDetail.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariatePrior.h>
@@ -988,10 +988,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
                 static_cast<int>(std::round(-std::log10(pSingleBucket)));
         }
 
-        if (maths_t::seasonalVarianceScale(weights[0]) > (1.0)) {
+        if (maths_t::seasonalVarianceScale(weights[0]) > 1.0) {
             result.s_AnomalyScoreExplanation.s_HighVariancePenalty = true;
         }
-        if (maths_t::countVarianceScale(weights[0]) > (1.0)) {
+        if (maths_t::countVarianceScale(weights[0]) > 1.0) {
             result.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty = true;
         }
 
@@ -1045,17 +1045,16 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
 
         double pAnomaly;
-        double{pOverall};
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
         if (pAnomaly < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-            std::size_t anomalyLength = std::min(m_AnomalyModel->length(time), 12UL);
             result.s_AnomalyScoreExplanation.s_AnomalyType =
                 (m_AnomalyModel->sumPredictionError() > (0.0))
-                    ? common::SModelProbabilityResult::SAnomalyScoreExplanation::E_SPIKE
-                    : common::SModelProbabilityResult::SAnomalyScoreExplanation::E_DIP;
+                    ? common::SAnomalyScoreExplanation::E_SPIKE
+                    : common::SAnomalyScoreExplanation::E_DIP;
+            result.s_AnomalyScoreExplanation.s_AnomalyLength =
+                std::min(m_AnomalyModel->length(time), 12UL);
             result.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
                 static_cast<int>(std::round(-std::log10(pAnomaly)));
-            result.s_AnomalyScoreExplanation.s_AnomalyLength = anomalyLength;
         }
 
         probabilities.push_back(pAnomaly);
@@ -1069,7 +1068,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
             time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
         result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
         result.s_AnomalyScoreExplanation.s_TypicalValue = interval[1][0];
-        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[2][0];
+        result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
     }
 
     result.s_Probability = pOverall;

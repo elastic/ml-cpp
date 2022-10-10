@@ -12,8 +12,6 @@
 #ifndef INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
 #define INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
 
-#include "maths/common/MathsTypes.h"
-#include <limits>
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
 

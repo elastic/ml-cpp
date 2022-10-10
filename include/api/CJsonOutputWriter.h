@@ -160,6 +160,8 @@ public:
         // new records with a higher probability
         double s_HighestProbability;
 
+        // Information explaining different impact factors of
+        // the anomaly score.
         TAnomalyScoreExplanation s_AnomalyScoreExplanation;
 
         // Used for filtering new influencers
@@ -305,6 +307,7 @@ private:
     void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
                        TDocumentWeakPtr weakDoc);
 
+    //! Write anomaly score explanation object.
     void writeAnomalyScoreExplanationObject(const CHierarchicalResultsWriter::TResults& results,
                                             rapidjson::Value& anomalyScoreExplanation);
 

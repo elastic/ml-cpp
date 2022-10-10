@@ -625,20 +625,37 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
             }
         }
     }
-    // TODO: do I need to fix this?
-    // std::copy(other.m_AnomalyScoreExplanation.begin(),
-    //           other.m_AnomalyScoreExplanation.end(),
-    //           std::back_inserter(m_AnomalyScoreExplanation));
-    m_AnomalyScoreExplanation.s_AnomalyType = std::max(m_AnomalyScoreExplanation.s_AnomalyType, other.m_AnomalyScoreExplanation.s_AnomalyType);
-    m_AnomalyScoreExplanation.s_AnomalyLength = std::max(m_AnomalyScoreExplanation.s_AnomalyLength, other.m_AnomalyScoreExplanation.s_AnomalyLength);
-    m_AnomalyScoreExplanation.s_SingleBucketImpact = std::max(m_AnomalyScoreExplanation.s_SingleBucketImpact, other. m_AnomalyScoreExplanation.s_SingleBucketImpact);
-    m_AnomalyScoreExplanation.s_MultiBucketImpact = std::max(m_AnomalyScoreExplanation.s_MultiBucketImpact, other. m_AnomalyScoreExplanation.s_MultiBucketImpact);
-    m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact = std::max(m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact, other. m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact);
-    m_AnomalyScoreExplanation.s_LowerConfidenceBound = std::min(m_AnomalyScoreExplanation.s_LowerConfidenceBound, other. m_AnomalyScoreExplanation.s_LowerConfidenceBound);
-    m_AnomalyScoreExplanation.s_TypicalValue = std::min(m_AnomalyScoreExplanation.s_TypicalValue, other. m_AnomalyScoreExplanation.s_TypicalValue);
-    m_AnomalyScoreExplanation.s_UpperConfidenceBound = std::max(m_AnomalyScoreExplanation.s_UpperConfidenceBound, other. m_AnomalyScoreExplanation.s_UpperConfidenceBound);
-    m_AnomalyScoreExplanation.s_HighVariancePenalty = m_AnomalyScoreExplanation.s_HighVariancePenalty || other. m_AnomalyScoreExplanation.s_HighVariancePenalty;
-    m_AnomalyScoreExplanation.s_IncompleteBucketPenalty = m_AnomalyScoreExplanation.s_IncompleteBucketPenalty || other. m_AnomalyScoreExplanation.s_IncompleteBucketPenalty;
+
+    m_AnomalyScoreExplanation.s_AnomalyType =
+        std::max(m_AnomalyScoreExplanation.s_AnomalyType,
+                 other.m_AnomalyScoreExplanation.s_AnomalyType);
+    m_AnomalyScoreExplanation.s_AnomalyLength =
+        std::max(m_AnomalyScoreExplanation.s_AnomalyLength,
+                 other.m_AnomalyScoreExplanation.s_AnomalyLength);
+    m_AnomalyScoreExplanation.s_SingleBucketImpact =
+        std::max(m_AnomalyScoreExplanation.s_SingleBucketImpact,
+                 other.m_AnomalyScoreExplanation.s_SingleBucketImpact);
+    m_AnomalyScoreExplanation.s_MultiBucketImpact =
+        std::max(m_AnomalyScoreExplanation.s_MultiBucketImpact,
+                 other.m_AnomalyScoreExplanation.s_MultiBucketImpact);
+    m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
+        std::max(m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact,
+                 other.m_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact);
+    m_AnomalyScoreExplanation.s_LowerConfidenceBound =
+        std::min(m_AnomalyScoreExplanation.s_LowerConfidenceBound,
+                 other.m_AnomalyScoreExplanation.s_LowerConfidenceBound);
+    m_AnomalyScoreExplanation.s_TypicalValue =
+        std::min(m_AnomalyScoreExplanation.s_TypicalValue,
+                 other.m_AnomalyScoreExplanation.s_TypicalValue);
+    m_AnomalyScoreExplanation.s_UpperConfidenceBound =
+        std::min(m_AnomalyScoreExplanation.s_UpperConfidenceBound,
+                 other.m_AnomalyScoreExplanation.s_UpperConfidenceBound);
+    m_AnomalyScoreExplanation.s_HighVariancePenalty =
+        m_AnomalyScoreExplanation.s_HighVariancePenalty ||
+        other.m_AnomalyScoreExplanation.s_HighVariancePenalty;
+    m_AnomalyScoreExplanation.s_IncompleteBucketPenalty =
+        m_AnomalyScoreExplanation.s_IncompleteBucketPenalty ||
+        other.m_AnomalyScoreExplanation.s_IncompleteBucketPenalty;
 }
 
 bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
