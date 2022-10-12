@@ -95,8 +95,6 @@ public:
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
-    virtual std::size_t capacity() const = 0;
-
 protected:
     //! Return weight.
     static common::CFloatStorage minweight(double weight) { return weight; }
@@ -250,8 +248,6 @@ public:
         inserter.insertValue(CAPACITY_TAG, m_SlidingWindow.capacity());
         core::CPersistUtils::persist(SLIDING_WINDOW_TAG, m_SlidingWindow, inserter);
     }
-
-    std::size_t capacity() const override { return m_SlidingWindow.capacity(); }
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
