@@ -1051,11 +1051,9 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
                 (m_AnomalyModel->sumPredictionError() > (0.0))
                     ? common::SAnomalyScoreExplanation::E_SPIKE
                     : common::SAnomalyScoreExplanation::E_DIP;
-            result.s_AnomalyScoreExplanation.s_AnomalyLength =
-                result.s_AnomalyScoreExplanation.s_MultiBucketImpact != 0
-                    ? std::max(m_AnomalyModel->length(time),
-                               m_MultibucketFeature->capacity())
-                    : m_AnomalyModel->length(time);
+
+            result.s_AnomalyScoreExplanation.s_AnomalyLength = m_AnomalyModel->length(time);
+
             result.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
                 static_cast<int>(std::round(-std::log10(pAnomaly)));
         }
