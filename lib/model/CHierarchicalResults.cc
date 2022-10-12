@@ -276,8 +276,7 @@ std::string SNode::print() const {
            core::CStringUtils::typeToStringPretty(s_RawAnomalyScore) +
            (s_AnnotatedProbability.s_Influences.empty()
                 ? ""
-                : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences)) +
-           +", " + s_AnnotatedProbability.s_AnomalyScoreExplanation.print();
+                : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
 }
 
 void SNode::swap(SNode& other) noexcept {
