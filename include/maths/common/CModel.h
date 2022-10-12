@@ -255,9 +255,9 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
     int s_SingleBucketImpact{0};
     int s_MultiBucketImpact{0};
     int s_AnomalyCharacteristicsImpact{0};
-    double s_LowerConfidenceBound{std::numeric_limits<double>::infinity()};
-    double s_TypicalValue{std::numeric_limits<double>::infinity()};
-    double s_UpperConfidenceBound{std::numeric_limits<double>::infinity()};
+    double s_LowerConfidenceBound{std::numeric_limits<double>::quiet_NaN()};
+    double s_TypicalValue{std::numeric_limits<double>::quiet_NaN()};
+    double s_UpperConfidenceBound{std::numeric_limits<double>::quiet_NaN()};
     bool s_HighVariancePenalty{false};
     bool s_IncompleteBucketPenalty{false};
 

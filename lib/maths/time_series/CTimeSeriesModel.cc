@@ -275,7 +275,7 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     double sumPredictionError() const {
-        if (!m_Anomaly) {
+        if (m_Anomaly == std::nullopt) {
             return 0.0;
         }
         return m_Anomaly->sumPredictionError();
@@ -1052,7 +1052,10 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
                     ? common::SAnomalyScoreExplanation::E_SPIKE
                     : common::SAnomalyScoreExplanation::E_DIP;
             result.s_AnomalyScoreExplanation.s_AnomalyLength =
-                std::min(m_AnomalyModel->length(time), 12UL);
+                result.s_AnomalyScoreExplanation.s_MultiBucketImpact != 0
+                    ? std::max(m_AnomalyModel->length(time),
+                               m_MultibucketFeature->capacity())
+                    : m_AnomalyModel->length(time);
             result.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
                 static_cast<int>(std::round(-std::log10(pAnomaly)));
         }
@@ -1063,7 +1066,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
     }
 
     if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
-        LOG_DEBUG(<< "Computing confidence bounds");
+        LOG_TRACE(<< "Computing confidence bounds");
         TDouble2Vec3Vec interval(this->confidenceInterval(
             time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
         result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
@@ -2479,7 +2482,7 @@ bool CMultivariateTimeSeriesModel::probability(const common::CModelProbabilityPa
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
     result = common::SModelProbabilityResult{
-        1.0, false, {{common::SModelProbabilityResult::E_SingleBucketProbability, 1.0}}, tail, {}};
+        1.0, false, {{common::SModelProbabilityResult::E_SingleBucketProbability, 1.0}}, tail, {}, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};

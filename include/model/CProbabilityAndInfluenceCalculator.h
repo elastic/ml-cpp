@@ -327,7 +327,7 @@ public:
     bool calculateMultiBucketImpact(double& multiBucketImpact) const;
 
     //! Return a structure with factors impacting the anomaly score.
-    TAnomalyScoreExplanation anomalyScoreExplanation() const {
+    const TAnomalyScoreExplanation& anomalyScoreExplanation() const {
         return m_AnomalyScoreExplanation;
     }
 

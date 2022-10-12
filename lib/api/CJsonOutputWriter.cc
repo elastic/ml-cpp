@@ -976,17 +976,17 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
                                   results.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact,
                                   anomalyScoreExplanation);
     }
-    if (std::isinf(results.s_AnomalyScoreExplanation.s_LowerConfidenceBound) == false) {
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_LowerConfidenceBound) == false) {
         m_Writer.addDoubleFieldToObj(LOWER_CONFIDENCE_BOUND,
                                      results.s_AnomalyScoreExplanation.s_LowerConfidenceBound,
                                      anomalyScoreExplanation);
     }
-    if (std::isinf(results.s_AnomalyScoreExplanation.s_TypicalValue) == false) {
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_TypicalValue) == false) {
         m_Writer.addDoubleFieldToObj(TYPICAL_VALUE,
                                      results.s_AnomalyScoreExplanation.s_TypicalValue,
                                      anomalyScoreExplanation);
     }
-    if (std::isinf(results.s_AnomalyScoreExplanation.s_UpperConfidenceBound) == false) {
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_UpperConfidenceBound) == false) {
         m_Writer.addDoubleFieldToObj(UPPER_CONFIDENCE_BOUND,
                                      results.s_AnomalyScoreExplanation.s_UpperConfidenceBound,
                                      anomalyScoreExplanation);
