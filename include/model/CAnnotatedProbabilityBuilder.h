@@ -54,6 +54,7 @@ public:
     void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
+    void anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanations);
     void multiBucketImpact(double multiBucketImpact);
     void addAttributeProbability(std::size_t cid,
                                  const core::CStoredStringPtr& attribute,

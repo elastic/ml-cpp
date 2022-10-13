@@ -86,6 +86,7 @@ public:
     using TStoredStringPtrStoredStringPtrPrDoublePrVec =
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
 
     //! \brief Wraps up the parameters to the influence calculation.
     struct MODEL_EXPORT SParams : private core::CNonCopyable {
@@ -325,6 +326,11 @@ public:
     //! \param[out] multiBucketImpact Filled in with the impact of constituent probabilities.
     bool calculateMultiBucketImpact(double& multiBucketImpact) const;
 
+    //! Return a structure with factors impacting the anomaly score.
+    const TAnomalyScoreExplanation& anomalyScoreExplanation() const {
+        return m_AnomalyScoreExplanation;
+    }
+
 private:
     //! Actually commit any influences we've found.
     void commitInfluences(model_t::EFeature feature, double logp, double weight);
@@ -359,6 +365,8 @@ private:
     //! Placeholder for the influence weights so that it isn't
     //! allocated in a loop.
     TStoredStringPtrStoredStringPtrPrDoublePrVec m_Influences;
+
+    TAnomalyScoreExplanation m_AnomalyScoreExplanation;
 };
 
 //! \brief Interface for influence calculations.

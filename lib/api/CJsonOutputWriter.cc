@@ -83,6 +83,18 @@ const std::string QUANTILES("quantiles");
 const std::string GEO_RESULTS("geo_results");
 const std::string ACTUAL_POINT("actual_point");
 const std::string TYPICAL_POINT("typical_point");
+const std::string ANOMALY_SCORE_EXPLANATION("anomaly_score_explanation");
+const std::string ANOMALY_TYPE("anomaly_type");
+const std::string ANOMALY_TYPE_DIP("dip");
+const std::string ANOMALY_TYPE_SPIKE("spike");
+const std::string ANOMALY_LENGTH("anomaly_length");
+const std::string SINGLE_BUCKET_IMPACT("single_bucket_impact");
+const std::string ANOMALY_CHARACTERISTICS_IMPACT("anomaly_characteristics_impact");
+const std::string LOWER_CONFIDENCE_BOUND("lower_confidence_bound");
+const std::string TYPICAL_VALUE("typical_value");
+const std::string UPPER_CONFIDENCE_BOUND("upper_confidence_bound");
+const std::string HIGH_VARIANCE_PENALTY("high_variance_penalty");
+const std::string INCOMPLETE_BUCKET_PENALTY("incomplete_bucket_penalty");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -504,6 +516,11 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+
+    rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
+    this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
+    m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
+
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
@@ -745,6 +762,11 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
                                  results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
+
+    rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
+    this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
+    m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
+
     m_Writer.addDoubleFieldToObj(MULTI_BUCKET_IMPACT, results.s_MultiBucketImpact, *docPtr);
     m_Writer.addStringFieldCopyToObj(FIELD_NAME, results.s_MetricValueField, *docPtr);
     if (!results.s_ByFieldName.empty()) {
@@ -918,6 +940,67 @@ CJsonOutputWriter::SBucketData::SBucketData()
     : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0), s_InputEventCount(0),
       s_RecordCount(0), s_BucketSpan(0), s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0), s_LowestBucketInfluencerScore(101.0) {
+}
+
+void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
+    const CHierarchicalResultsWriter::TResults& results,
+    rapidjson::Value& anomalyScoreExplanation) {
+    switch (results.s_AnomalyScoreExplanation.s_AnomalyType) {
+    case TAnomalyScoreExplanation::E_DIP:
+        m_Writer.addStringFieldCopyToObj(ANOMALY_TYPE, ANOMALY_TYPE_DIP, anomalyScoreExplanation);
+        break;
+    case TAnomalyScoreExplanation::E_SPIKE:
+        m_Writer.addStringFieldCopyToObj(ANOMALY_TYPE, ANOMALY_TYPE_SPIKE,
+                                         anomalyScoreExplanation);
+        break;
+    case TAnomalyScoreExplanation::E_UNKNOWN:
+        break;
+    }
+    if (results.s_AnomalyScoreExplanation.s_AnomalyLength > 0) {
+        m_Writer.addUIntFieldToObj(ANOMALY_LENGTH,
+                                   results.s_AnomalyScoreExplanation.s_AnomalyLength,
+                                   anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_SingleBucketImpact != 0) {
+        m_Writer.addIntFieldToObj(SINGLE_BUCKET_IMPACT,
+                                  results.s_AnomalyScoreExplanation.s_SingleBucketImpact,
+                                  anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_MultiBucketImpact != 0) {
+        m_Writer.addIntFieldToObj(MULTI_BUCKET_IMPACT,
+                                  results.s_AnomalyScoreExplanation.s_MultiBucketImpact,
+                                  anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact != 0) {
+        m_Writer.addIntFieldToObj(ANOMALY_CHARACTERISTICS_IMPACT,
+                                  results.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact,
+                                  anomalyScoreExplanation);
+    }
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_LowerConfidenceBound) == false) {
+        m_Writer.addDoubleFieldToObj(LOWER_CONFIDENCE_BOUND,
+                                     results.s_AnomalyScoreExplanation.s_LowerConfidenceBound,
+                                     anomalyScoreExplanation);
+    }
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_TypicalValue) == false) {
+        m_Writer.addDoubleFieldToObj(TYPICAL_VALUE,
+                                     results.s_AnomalyScoreExplanation.s_TypicalValue,
+                                     anomalyScoreExplanation);
+    }
+    if (std::isnan(results.s_AnomalyScoreExplanation.s_UpperConfidenceBound) == false) {
+        m_Writer.addDoubleFieldToObj(UPPER_CONFIDENCE_BOUND,
+                                     results.s_AnomalyScoreExplanation.s_UpperConfidenceBound,
+                                     anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_HighVariancePenalty) {
+        m_Writer.addBoolFieldToObj(HIGH_VARIANCE_PENALTY,
+                                   results.s_AnomalyScoreExplanation.s_HighVariancePenalty,
+                                   anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty) {
+        m_Writer.addBoolFieldToObj(INCOMPLETE_BUCKET_PENALTY,
+                                   results.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty,
+                                   anomalyScoreExplanation);
+    }
 }
 }
 }

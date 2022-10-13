@@ -15,6 +15,8 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
+#include <maths/common/CModel.h>
+
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
@@ -117,6 +119,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = std::optional<double>;
     using TOptionalUInt64 = std::optional<std::uint64_t>;
+    using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
 
     SAnnotatedProbability();
     SAnnotatedProbability(double p);
@@ -166,6 +169,9 @@ struct MODEL_EXPORT SAnnotatedProbability {
 
     //! Should the quantiles be updated?
     bool s_ShouldUpdateQuantiles{true};
+
+    //! Factors impacting the anomaly score.
+    TAnomalyScoreExplanation s_AnomalyScoreExplanation;
 };
 }
 }

@@ -602,6 +602,11 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
     if (!other.m_Probability.calculate(p)) {
         return;
     }
+
+    double pThis{1.0};
+    m_Probability.calculate(pThis);
+    double pOther{p};
+
     if (!other.m_Probability.empty()) {
         m_Probability.add(p, weight);
     }
@@ -624,6 +629,10 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
                 aggregator_.add(p, weight);
             }
         }
+    }
+
+    if (pOther < pThis) {
+        m_AnomalyScoreExplanation = other.m_AnomalyScoreExplanation;
     }
 }
 
@@ -715,6 +724,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
                                       : model_t::CResultType::E_Unconditional);
         mostAnomalousCorrelate = std::move(result.s_MostAnomalousCorrelate);
         m_Probability.add(probability, weight);
+        m_AnomalyScoreExplanation = result.s_AnomalyScoreExplanation;
     };
 
     // Check the cache.
@@ -742,6 +752,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(
             }
         } else {
             probability = result.s_Probability;
+            m_AnomalyScoreExplanation = result.s_AnomalyScoreExplanation;
             tail = std::move(result.s_Tail);
             type.set(model_t::CResultType::E_Unconditional);
             mostAnomalousCorrelate.clear();

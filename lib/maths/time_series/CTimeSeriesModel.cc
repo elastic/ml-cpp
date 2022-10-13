@@ -19,6 +19,7 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CModelDetail.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariatePrior.h>
@@ -273,6 +274,20 @@ public:
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    double sumPredictionError() const {
+        if (m_Anomaly == std::nullopt) {
+            return 0.0;
+        }
+        return m_Anomaly->sumPredictionError();
+    }
+
+    std::size_t length(core_t::TTime time) const {
+        if (!m_Anomaly) {
+            return static_cast<std::size_t>(0);
+        }
+        return m_Anomaly->length(time / m_BucketLength);
+    }
+
 private:
     using TMultivariateNormalConjugate = common::CMultivariateNormalConjugate<2>;
     using TMultivariateNormalConjugateVec = std::vector<TMultivariateNormalConjugate>;
@@ -318,6 +333,10 @@ private:
             return common::CChecksum::calculate(seed, m_MeanAbsPredictionError);
         }
 
+        std::size_t length(core_t::TTime time) const {
+            return static_cast<std::size_t>(time - m_FirstAnomalousBucketTime);
+        }
+
         //! Initialize reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
             do {
@@ -340,6 +359,8 @@ private:
             inserter.insertValue(MEAN_ABS_PREDICTION_ERROR_6_5_TAG,
                                  m_MeanAbsPredictionError.toDelimited());
         }
+
+        double sumPredictionError() const { return m_SumPredictionError; }
 
     private:
         //! The time at which the first anomalous bucket was detected.
@@ -962,6 +983,18 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         probabilities.push_back(pSingleBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
+        if (pSingleBucket < common::LARGEST_SIGNIFICANT_PROBABILITY) {
+            result.s_AnomalyScoreExplanation.s_SingleBucketImpact =
+                static_cast<int>(std::round(-std::log10(pSingleBucket)));
+        }
+
+        if (maths_t::seasonalVarianceScale(weights[0]) > 1.0) {
+            result.s_AnomalyScoreExplanation.s_HighVariancePenalty = true;
+        }
+        if (maths_t::countVarianceScale(weights[0]) > 1.0) {
+            result.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty = true;
+        }
+
     } else {
         LOG_ERROR(<< "Failed to compute P(" << sample
                   << " | weight = " << weights << ", time = " << time << ")");
@@ -988,6 +1021,12 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
             }
             correlation = m_MultibucketFeature->correlationWithBucketValue();
         }
+
+        if (pMultiBucket < common::LARGEST_SIGNIFICANT_PROBABILITY) {
+            result.s_AnomalyScoreExplanation.s_MultiBucketImpact =
+                static_cast<int>(std::round(-std::log10(pMultiBucket)));
+        }
+
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_MultiBucketProbability, pMultiBucket);
@@ -1007,9 +1046,30 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
         double pAnomaly;
         std::tie(pOverall, pAnomaly) = m_AnomalyModel->probability(pSingleBucket, pOverall);
+        if (pAnomaly < common::LARGEST_SIGNIFICANT_PROBABILITY) {
+            result.s_AnomalyScoreExplanation.s_AnomalyType =
+                (m_AnomalyModel->sumPredictionError() > (0.0))
+                    ? common::SAnomalyScoreExplanation::E_SPIKE
+                    : common::SAnomalyScoreExplanation::E_DIP;
+
+            result.s_AnomalyScoreExplanation.s_AnomalyLength = m_AnomalyModel->length(time);
+
+            result.s_AnomalyScoreExplanation.s_AnomalyCharacteristicsImpact =
+                static_cast<int>(std::round(-std::log10(pAnomaly)));
+        }
+
         probabilities.push_back(pAnomaly);
         featureProbabilities.emplace_back(
             common::SModelProbabilityResult::E_AnomalyModelProbability, pAnomaly);
+    }
+
+    if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
+        LOG_TRACE(<< "Computing confidence bounds");
+        TDouble2Vec3Vec interval(this->confidenceInterval(
+            time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
+        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
+        result.s_AnomalyScoreExplanation.s_TypicalValue = interval[1][0];
+        result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
     }
 
     result.s_Probability = pOverall;
@@ -2420,7 +2480,7 @@ bool CMultivariateTimeSeriesModel::probability(const common::CModelProbabilityPa
     TTail2Vec tail(coordinates.size(), maths_t::E_UndeterminedTail);
 
     result = common::SModelProbabilityResult{
-        1.0, false, {{common::SModelProbabilityResult::E_SingleBucketProbability, 1.0}}, tail, {}};
+        1.0, false, {{common::SModelProbabilityResult::E_SingleBucketProbability, 1.0}}, tail, {}, {}};
 
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};

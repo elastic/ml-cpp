@@ -477,6 +477,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
+    resultBuilder.anomalyScoreExplanation(pJoint.anomalyScoreExplanation());
 
     double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
     if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {

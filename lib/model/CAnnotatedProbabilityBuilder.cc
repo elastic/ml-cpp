@@ -74,6 +74,11 @@ void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(
 void CAnnotatedProbabilityBuilder::probability(double p) {
     m_Result.s_Probability = p;
 }
+
+void CAnnotatedProbabilityBuilder::anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanation) {
+    m_Result.s_AnomalyScoreExplanation = explanation;
+}
+
 void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
     m_Result.s_MultiBucketImpact = multiBucketImpact;
 }

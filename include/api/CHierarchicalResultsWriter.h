@@ -25,6 +25,9 @@
 #include <optional>
 
 namespace ml {
+namespace maths::common {
+struct SAnomalyScoreExplanation;
+}
 namespace api {
 
 //! \brief Writes out hierarchical results using a callback to write
@@ -53,6 +56,7 @@ public:
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
+    using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
 
 public:
     enum EResultType { E_SimpleCountResult, E_PopulationResult, E_Result };
@@ -108,7 +112,8 @@ public:
                  bool metric,
                  int identifier,
                  core_t::TTime bucketSpan,
-                 TStr1Vec scheduledEventDescriptions);
+                 TStr1Vec scheduledEventDescriptions,
+                 TAnomalyScoreExplanation anomalyScoreExplanation);
 
         EResultType s_ResultType;
         bool s_IsAllTimeResult;
@@ -140,6 +145,7 @@ public:
         const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
+        TAnomalyScoreExplanation s_AnomalyScoreExplanation;
     };
 
 public:

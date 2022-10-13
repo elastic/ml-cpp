@@ -168,6 +168,7 @@ void SAnnotatedProbability::swap(SAnnotatedProbability& other) noexcept {
     std::swap(s_CurrentBucketCount, other.s_CurrentBucketCount);
     std::swap(s_BaselineBucketCount, other.s_BaselineBucketCount);
     std::swap(s_ShouldUpdateQuantiles, other.s_ShouldUpdateQuantiles);
+    std::swap(s_AnomalyScoreExplanation, other.s_AnomalyScoreExplanation);
 }
 
 void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

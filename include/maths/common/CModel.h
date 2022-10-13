@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <string>
 
 namespace ml {
 namespace core {
@@ -245,6 +246,37 @@ private:
     double m_InitialCountWeight{1.0};
 };
 
+//! \brief Describes the impact of different factors on the anomaly score.
+struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
+    enum EAnomalyType { E_UNKNOWN = 0, E_DIP, E_SPIKE };
+
+    EAnomalyType s_AnomalyType{E_UNKNOWN};
+    std::size_t s_AnomalyLength{0};
+    int s_SingleBucketImpact{0};
+    int s_MultiBucketImpact{0};
+    int s_AnomalyCharacteristicsImpact{0};
+    double s_LowerConfidenceBound{std::numeric_limits<double>::quiet_NaN()};
+    double s_TypicalValue{std::numeric_limits<double>::quiet_NaN()};
+    double s_UpperConfidenceBound{std::numeric_limits<double>::quiet_NaN()};
+    bool s_HighVariancePenalty{false};
+    bool s_IncompleteBucketPenalty{false};
+
+    std::string print() const {
+        return "Anomaly Score Explanation:\ntype: " + std::to_string(s_AnomalyType) +
+               ", length: " + std::to_string(s_AnomalyLength) +
+               "\n single bucket impact: " + std::to_string(s_SingleBucketImpact) +
+               ", multi bucket impact: " + std::to_string(s_MultiBucketImpact) +
+               ", anomaly characteristics impact: " + std::to_string(s_AnomalyCharacteristicsImpact) +
+               "\n lower confidence bound: " + std::to_string(s_LowerConfidenceBound) +
+               ", upper confidence bound: " + std::to_string(s_UpperConfidenceBound) +
+               ", typical value: " + std::to_string(s_TypicalValue) +
+               "\n high variance penalty: " +
+               std::to_string(static_cast<int>(s_HighVariancePenalty)) +
+               ", incomplete bucket_penalty: " +
+               std::to_string(static_cast<int>(s_IncompleteBucketPenalty));
+    }
+};
+
 //! \brief Describes the result of the model probability calculation.
 struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     using TDouble4Vec = core::CSmallVector<double, 4>;
@@ -281,6 +313,8 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     //! has the smallest probability in the current bucket (if and only
     //! if the result depends on the correlation structure).
     TSize1Vec s_MostAnomalousCorrelate;
+    //! Describe the impact of different factors on the anomaly score.
+    SAnomalyScoreExplanation s_AnomalyScoreExplanation;
 };
 
 //! \brief The model interface.
