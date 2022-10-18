@@ -37,7 +37,8 @@ bool CCmdLineParser::parse(int argc,
                            std::int32_t& numThreadsPerAllocation,
                            std::int32_t& numAllocations,
                            std::size_t& cacheMemorylimitBytes,
-                           bool& validElasticLicenseKeyConfirmed) {
+                           bool& validElasticLicenseKeyConfirmed,
+                           bool& lowPriority) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -68,6 +69,7 @@ bool CCmdLineParser::parse(int argc,
                         "Optional memory in bytes that the inference cache can use - default is 0 which disables caching")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
                         "Confirmation that a valid Elastic license key is in use.")
+            ("lowPriority", "Execute process in low priority")
             ;
         // clang-format on
 
@@ -128,6 +130,9 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =
                 vm["validElasticLicenseKeyConfirmed"].as<bool>();
+        }
+        if (vm.count("lowPriority") > 0) {
+            lowPriority = true;
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

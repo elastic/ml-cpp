@@ -131,12 +131,13 @@ int main(int argc, char** argv) {
     std::int32_t numAllocations{1};
     std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
+    bool lowPriority{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
             outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
             logFileName, logProperties, numThreadsPerAllocation, numAllocations,
-            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed) == false) {
+            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed, lowPriority) == false) {
         return EXIT_FAILURE;
     }
 
@@ -198,6 +199,10 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
+    if (lowPriority == true) {
+        LOG_DEBUG(<< "Running with low priority");
+        ml::core::CProcessPriority::reduceCpuPriority();
+    }
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     if (ioMgr.initIo() == false) {

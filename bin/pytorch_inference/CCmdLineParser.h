@@ -50,7 +50,8 @@ public:
                       std::int32_t& numThreadsPerAllocation,
                       std::int32_t& numAllocations,
                       std::size_t& cacheMemorylimitBytes,
-                      bool& validElasticLicenseKeyConfirmed);
+                      bool& validElasticLicenseKeyConfirmed,
+                      bool& lowPriority);
 
 private:
     static const std::string DESCRIPTION;
