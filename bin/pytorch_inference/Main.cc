@@ -134,10 +134,11 @@ int main(int argc, char** argv) {
     bool lowPriority{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            logFileName, logProperties, numThreadsPerAllocation, numAllocations,
-            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed, lowPriority) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
+            numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
+            validElasticLicenseKeyConfirmed, lowPriority) == false) {
         return EXIT_FAILURE;
     }
 
@@ -199,15 +200,19 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
-    if (lowPriority == true) {
-        LOG_DEBUG(<< "Running with low priority");
-        ml::core::CProcessPriority::reduceCpuPriority();
-    }
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
+    }
+
+    if (lowPriority == true) {
+        LOG_DEBUG(<< "Running with low priority");
+        // Reduce CPU priority after connecting named pipes so the JVM gets more
+        // time when CPU is constrained.  Named pipe connection is time-sensitive,
+        // hence is done before reducing CPU priority.
+        ml::core::CProcessPriority::reduceCpuPriority();
     }
 
     // On Linux we use libgomp (GNU's OMP implementation) for threading and have
