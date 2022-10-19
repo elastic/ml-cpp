@@ -87,6 +87,7 @@ def parse_arguments():
     parser.add_argument('--output_file', default='output_file')
     parser.add_argument('--numThreadsPerAllocation', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
     parser.add_argument('--numAllocations', type=int, help='The number of allocations for parallel forwarding. Defaults to 1')
+    parser.add_argument('--lowPriority', action='store_true', help='Run model in low priority')
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
@@ -124,6 +125,9 @@ def launch_pytorch_app(args):
 
     if args.numAllocations:
         command.append('--numAllocations=' + str(args.numAllocations))
+
+    if args.lowPriority:
+        command.append('--lowPriority')
 
     subprocess.Popen(command).communicate()
 
@@ -239,7 +243,7 @@ def run_benchmark(args):
 
         # ignore the warmup results
         for i in range(NUM_WARM_UP_REQUESTS, len(result_docs)):
-            total_time_ms += result_docs[i]['result']['time_ms']
+            total_time_ms += result_docs[i]['time_ms']
             doc_count += 1
 
         avg_time_ms = total_time_ms / doc_count
@@ -291,7 +295,7 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['result']['time_ms']
+            total_time_ms += result['time_ms']
 
             # compare to expected
             if compare_results(expected, result['result'], tolerance) == False:

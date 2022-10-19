@@ -131,12 +131,14 @@ int main(int argc, char** argv) {
     std::int32_t numAllocations{1};
     std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
+    bool lowPriority{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            logFileName, logProperties, numThreadsPerAllocation, numAllocations,
-            cacheMemorylimitBytes, validElasticLicenseKeyConfirmed) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
+            numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
+            validElasticLicenseKeyConfirmed, lowPriority) == false) {
         return EXIT_FAILURE;
     }
 
@@ -203,6 +205,14 @@ int main(int argc, char** argv) {
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
+    }
+
+    if (lowPriority == true) {
+        LOG_DEBUG(<< "Running with low priority");
+        // Reduce CPU priority after connecting named pipes so the JVM gets more
+        // time when CPU is constrained.  Named pipe connection is time-sensitive,
+        // hence is done before reducing CPU priority.
+        ml::core::CProcessPriority::reduceCpuPriority();
     }
 
     // On Linux we use libgomp (GNU's OMP implementation) for threading and have
