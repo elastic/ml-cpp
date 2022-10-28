@@ -512,7 +512,7 @@ private:
     //! When restoring jobs that ran successfully for many buckets before
     //! being persisted by a version earlier than 8.6 this member will always
     //! have a value of 0, therefore it is crucial that this member is never
-    //! assumed to be non-zero and should only be used for it's intended purpose
+    //! assumed to be non-zero and should only be used for its intended purpose
     //! of aiding in detecting an incomplete initial bucket after state
     //! restoration.
     core_t::TTime m_InitialLastFinalisedBucketEndTime{0};
