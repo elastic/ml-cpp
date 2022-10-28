@@ -285,7 +285,7 @@ public:
         if (!m_Anomaly) {
             return static_cast<std::size_t>(0);
         }
-        return m_Anomaly->length(time / m_BucketLength);
+        return m_Anomaly->length(time / m_BucketLength) + 1;
     }
 
 private:
@@ -1065,6 +1065,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
     if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
         LOG_TRACE(<< "Computing confidence bounds");
+        // Temporarily deactivated to benchmark performance impact
         // TDouble2Vec3Vec interval(this->confidenceInterval(
         //     time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
         // result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
