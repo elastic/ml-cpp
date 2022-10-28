@@ -281,6 +281,8 @@ public:
         return m_Anomaly->sumPredictionError();
     }
 
+    //! Return the length of the anomaly until \p time in the number of buckets.
+    //! If this is the first bucket with the anomaly, the length is 1.
     std::size_t length(core_t::TTime time) const {
         if (!m_Anomaly) {
             return static_cast<std::size_t>(0);
@@ -333,6 +335,7 @@ private:
             return common::CChecksum::calculate(seed, m_MeanAbsPredictionError);
         }
 
+        //! Return the number of seconds from the first anomalous bucket until \p time.
         std::size_t length(core_t::TTime time) const {
             return static_cast<std::size_t>(time - m_FirstAnomalousBucketTime);
         }
