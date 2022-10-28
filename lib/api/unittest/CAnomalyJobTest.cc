@@ -323,10 +323,16 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
     std::string origSnapshotId;
     std::size_t numOrigDocs{0};
 
-    CTestAnomalyJob origJob{JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
+    CTestAnomalyJob origJob{JOB_ID,
+                            limits,
+                            jobConfig,
+                            modelConfig,
+                            wrappedOutputStream,
                             std::bind(&reportPersistComplete, std::placeholders::_1,
                                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
-                            nullptr, -1, api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME,
+                            nullptr,
+                            -1,
+                            api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME,
                             api::CAnomalyJob::EMPTY_STRING};
 
     api::CDataProcessor* firstProcessor{&origJob};
@@ -355,7 +361,11 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
     std::size_t numRestoredDocs{0};
 
     CTestAnomalyJob restoredJob{
-        JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
+        JOB_ID,
+        limits,
+        jobConfig,
+        modelConfig,
+        wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs))};
 
