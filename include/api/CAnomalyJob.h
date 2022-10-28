@@ -504,8 +504,17 @@ private:
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
 
+    //! Introduced in version 8.6
     //! The initial value of the end time of the last bucket
-    //! out of latency window we've seen
+    //! out of latency window we've seen, i.e. this member records
+    //! the first non-zero value of \p m_LastFinalisedBucketEndTime
+    //! and then never changes.
+    //! When restoring jobs that ran successfully for many buckets before
+    //! being persisted by a version earlier than 8.6 this member will always
+    //! have a value of 0, therefore it is crucial that this member is never
+    //! assumed to be non-zero and should only be used for it's intended purpose
+    //! of aiding in detecting an incomplete initial bucket after state
+    //! restoration.
     core_t::TTime m_InitialLastFinalisedBucketEndTime{0};
 
     // Test case access
