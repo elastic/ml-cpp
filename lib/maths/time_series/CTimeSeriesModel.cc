@@ -1065,11 +1065,14 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
     if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
         LOG_TRACE(<< "Computing confidence bounds");
-        TDouble2Vec3Vec interval(this->confidenceInterval(
-            time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
-        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
-        result.s_AnomalyScoreExplanation.s_TypicalValue = interval[1][0];
-        result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
+        // TDouble2Vec3Vec interval(this->confidenceInterval(
+        //     time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
+        // result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
+        // result.s_AnomalyScoreExplanation.s_TypicalValue = interval[1][0];
+        // result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
+        result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = 0.0;
+        result.s_AnomalyScoreExplanation.s_TypicalValue = 0.0;
+        result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = 0.0;
     }
 
     result.s_Probability = pOverall;
