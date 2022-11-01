@@ -12,6 +12,7 @@
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/COsFileFuncs.h>
 #include <core/CRegex.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -21,7 +22,8 @@
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CHierarchicalResultsWriter.h>
-#include <api/CJsonOutputWriter.h>
+#include <api/CNdJsonInputParser.h>
+#include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
@@ -42,6 +44,14 @@ BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::ConstMemberIterator)
 BOOST_AUTO_TEST_SUITE(CAnomalyJobTest)
 
 namespace {
+
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
+                           std::string& snapshotIdOut,
+                           size_t& numDocsOut) {
+    LOG_INFO(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotIdOut = modelSnapshotReport.s_SnapshotId;
+    numDocsOut = modelSnapshotReport.s_NumDocs;
+}
 
 //! \brief
 //! Mock object for state restore unit tests.
@@ -277,6 +287,118 @@ BOOST_AUTO_TEST_CASE(testOutOfSequence) {
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
         job.finalise();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
+    const std::string inputFileName{"testfiles/incomplete_initial_bucket.txt"};
+    const std::string configFileName{"testfiles/pop_sum_bytes_by_status_over_clientip.json"};
+
+    const char* logFile{"test.log"};
+    std::remove(logFile);
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
+        "testfiles/testLogErrors.boost.log.ini"));
+
+    // Start by creating a detector with non-trivial state
+    static const core_t::TTime BUCKET_SIZE{900};
+    static const std::string JOB_ID{"pop_sum_bytes_by_status_over_clientip"};
+
+    // Open the input and output files
+    std::ifstream inputStrm{inputFileName.c_str()};
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
+
+    std::ofstream outputStrm{core::COsFileFuncs::NULL_FILENAME};
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
+
+    model::CLimits limits;
+    api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
+
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE, model_t::E_None,
+                                                          "", 0, false);
+
+    core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
+
+    std::string origSnapshotId;
+    std::size_t numOrigDocs{0};
+
+    CTestAnomalyJob origJob{JOB_ID,
+                            limits,
+                            jobConfig,
+                            modelConfig,
+                            wrappedOutputStream,
+                            std::bind(&reportPersistComplete, std::placeholders::_1,
+                                      std::ref(origSnapshotId), std::ref(numOrigDocs)),
+                            nullptr,
+                            -1,
+                            api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME,
+                            api::CAnomalyJob::EMPTY_STRING};
+
+    api::CDataProcessor* firstProcessor{&origJob};
+
+    using TInputParserUPtr = std::unique_ptr<api::CInputParser>;
+    const TInputParserUPtr parser{[&inputStrm]() -> TInputParserUPtr {
+        return std::make_unique<api::CNdJsonInputParser>(inputStrm);
+    }()};
+
+    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
+        [firstProcessor](const api::CDataProcessor::TStrStrUMap& dataRowFields) {
+            return firstProcessor->handleRecord(
+                dataRowFields, api::CDataProcessor::TOptionalTime{});
+        }));
+
+    // Persist the detector state to a stringstream
+    std::ostringstream* strm{nullptr};
+    api::CSingleStreamDataAdder::TOStreamP ptr{strm = new std::ostringstream()};
+    api::CSingleStreamDataAdder persister{ptr};
+    BOOST_TEST_REQUIRE(firstProcessor->persistStateInForeground(persister, ""));
+    const std::string origPersistedState{strm->str()};
+
+    // restore the job and start the datafeed running in realtime
+
+    std::string restoredSnapshotId;
+    std::size_t numRestoredDocs{0};
+
+    CTestAnomalyJob restoredJob{
+        JOB_ID,
+        limits,
+        jobConfig,
+        modelConfig,
+        wrappedOutputStream,
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs))};
+
+    api::CDataProcessor* restoredFirstProcessor{&restoredJob};
+
+    core_t::TTime completeToTime{0};
+
+    auto restoredStrm = std::make_shared<boost::iostreams::filtering_istream>();
+    restoredStrm->push(api::CStateRestoreStreamFilter());
+    std::istringstream inputStream{origPersistedState};
+    restoredStrm->push(inputStream);
+
+    api::CSingleStreamSearcher retriever{restoredStrm};
+
+    BOOST_TEST_REQUIRE(restoredFirstProcessor->restoreState(retriever, completeToTime));
+    BOOST_TEST_REQUIRE(completeToTime > 0);
+
+    restoredJob.outputBucketResultsUntil(1585701000);
+
+    // Revert to the default logger settings
+    ml::core::CLogger::instance().reset();
+
+    std::ifstream log{logFile};
+    // Boost.Log only creates files when the first message is logged,
+    // and here we're asserting no messages logged
+    if (log.is_open()) {
+        char line[256];
+        while (log.getline(line, 256)) {
+            LOG_DEBUG(<< "Got '" << line << "'");
+            BOOST_TEST_REQUIRE(false);
+        }
+        log.close();
+        std::remove(logFile);
     }
 }
 

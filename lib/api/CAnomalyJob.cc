@@ -80,6 +80,7 @@ const std::string LATEST_RECORD_TIME_TAG("h");
 
 const std::string LAST_RESULTS_TIME_TAG("j");
 const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
+const std::string INITIAL_LAST_FINALISED_BUCKET_END_TIME("l");
 
 //! The minimum version required to read the state corresponding to a model snapshot.
 //! This should be updated every time there is a breaking change to the model state.
@@ -187,6 +188,8 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         LOG_ERROR(<< ss.str());
         return true;
     }
+
+    LOG_TRACE(<< "Handling record " << this->debugPrintRecord(dataRowFields));
 
     this->outputBucketResultsUntil(*time);
 
@@ -507,6 +510,7 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
         m_LastFinalisedBucketEndTime = std::max(
             m_LastFinalisedBucketEndTime,
             maths::common::CIntegerTools::floor(time, bucketLength) - latency);
+        m_InitialLastFinalisedBucketEndTime = m_LastFinalisedBucketEndTime;
     }
 
     m_Normalizer.resetBigChange();
@@ -514,6 +518,12 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
     for (core_t::TTime lastBucketEndTime = m_LastFinalisedBucketEndTime;
          lastBucketEndTime + bucketLength + latency <= time;
          lastBucketEndTime += bucketLength) {
+        if (lastBucketEndTime == m_InitialLastFinalisedBucketEndTime &&
+            m_RestoredStateDetail.s_RestoredStateStatus == E_Success) {
+            LOG_DEBUG(<< "Skipping incomplete first bucket with lastBucketEndTime = "
+                      << lastBucketEndTime << ", detected after state restoration");
+            continue;
+        }
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
         m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(
@@ -809,6 +819,22 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
     }
 }
 
+void CAnomalyJob::setDetectorsLastBucketEndTime(core_t::TTime lastBucketEndTime) {
+    for (const auto& detector_ : m_Detectors) {
+        model::CAnomalyDetector* detector(detector_.second.get());
+        if (detector == nullptr) {
+            LOG_ERROR(<< "Unexpected NULL pointer for key '"
+                      << pairDebug(detector_.first) << '\'');
+            continue;
+        }
+
+        const std::string& description = detector->description();
+        LOG_DEBUG(<< "Setting lastBucketEndTime to " << lastBucketEndTime
+                  << " in detector for '" << description << '\'');
+        detector->lastBucketEndTime() = lastBucketEndTime;
+    }
+}
+
 bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
                                core_t::TTime& completeToTime) {
     size_t numDetectors(0);
@@ -855,18 +881,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
             core_t::TTime lastBucketEndTime(maths::common::CIntegerTools::ceil(
                 completeToTime, m_ModelConfig.bucketLength()));
 
-            for (const auto& detector_ : m_Detectors) {
-                model::CAnomalyDetector* detector(detector_.second.get());
-                if (detector == nullptr) {
-                    LOG_ERROR(<< "Unexpected NULL pointer for key '"
-                              << pairDebug(detector_.first) << '\'');
-                    continue;
-                }
-
-                LOG_DEBUG(<< "Setting lastBucketEndTime to " << lastBucketEndTime
-                          << " in detector for '" << detector->description() << '\'');
-                detector->lastBucketEndTime() = lastBucketEndTime;
-            }
+            this->setDetectorsLastBucketEndTime(lastBucketEndTime);
         } else {
             if (!m_Detectors.empty()) {
                 LOG_ERROR(<< "Inconsistency - " << m_Detectors.size()
@@ -959,6 +974,9 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
             core::CPersistUtils::restore(LATEST_RECORD_TIME_TAG, m_LatestRecordTime, traverser);
         } else if (name == LAST_RESULTS_TIME_TAG) {
             core::CPersistUtils::restore(LAST_RESULTS_TIME_TAG, m_LastResultsTime, traverser);
+        } else if (name == INITIAL_LAST_FINALISED_BUCKET_END_TIME) {
+            core::CPersistUtils::restore(INITIAL_LAST_FINALISED_BUCKET_END_TIME,
+                                         m_InitialLastFinalisedBucketEndTime, traverser);
         }
     }
 
@@ -1125,8 +1143,8 @@ bool CAnomalyJob::doPersistStateInForeground(core::CDataAdder& persister,
         description, snapshotId, snapshotTimestamp, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
-        m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
-        m_LatestRecordTime, m_LastResultsTime, persister);
+        m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState, m_LatestRecordTime,
+        m_LastResultsTime, m_InitialLastFinalisedBucketEndTime, persister);
 }
 
 bool CAnomalyJob::backgroundPersistState() {
@@ -1144,8 +1162,8 @@ bool CAnomalyJob::backgroundPersistState() {
         m_LastFinalisedBucketEndTime,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
-        m_ModelConfig.interimBucketCorrector(), m_Aggregator,
-        m_LatestRecordTime, m_LastResultsTime);
+        m_ModelConfig.interimBucketCorrector(), m_Aggregator, m_LatestRecordTime,
+        m_LastResultsTime, m_InitialLastFinalisedBucketEndTime);
 
     // The normaliser is non-copyable, so we have to make do with JSONifying it now;
     // it should be relatively fast though
@@ -1207,10 +1225,10 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
                                   core::CTimeUtils::toIso8601(snapshotTimestamp)};
 
     return this->persistCopiedState(
-        description, snapshotId, snapshotTimestamp, args->s_Time,
-        args->s_Detectors, args->s_ModelSizeStats, args->s_InterimBucketCorrector,
-        args->s_Aggregator, args->s_NormalizerState, args->s_LatestRecordTime,
-        args->s_LastResultsTime, persister);
+        description, snapshotId, snapshotTimestamp, args->s_Time, args->s_Detectors,
+        args->s_ModelSizeStats, args->s_InterimBucketCorrector, args->s_Aggregator,
+        args->s_NormalizerState, args->s_LatestRecordTime, args->s_LastResultsTime,
+        args->s_InitialLastFinalizedBucketEndTime, persister);
 }
 
 bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
@@ -1242,7 +1260,11 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
 
                     detector->persistModelsState(*inserter);
 
-                    LOG_DEBUG(<< "Persisted state for '" << detector->description() << "'");
+                    const std::string& description = detector->description();
+
+                    LOG_DEBUG(<< "Persisted state for '" << description << "', at time "
+                              << timestamp << "detector->lastBucketEndTime() = "
+                              << detector->lastBucketEndTime());
                 }
             }
 
@@ -1270,6 +1292,7 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                                      const std::string& normalizerState,
                                      core_t::TTime latestRecordTime,
                                      core_t::TTime lastResultsTime,
+                                     core_t::TTime initialLastFinalisedBucketEndTime,
                                      core::CDataAdder& persister) {
     // Ensure that the cache of program counters is cleared upon exiting the current scope.
     // As the cache is cleared when the simple count detector is persisted this may seem
@@ -1326,6 +1349,9 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                 core::CPersistUtils::persist(LATEST_RECORD_TIME_TAG,
                                              latestRecordTime, inserter);
                 core::CPersistUtils::persist(LAST_RESULTS_TIME_TAG, lastResultsTime, inserter);
+
+                core::CPersistUtils::persist(INITIAL_LAST_FINALISED_BUCKET_END_TIME,
+                                             initialLastFinalisedBucketEndTime, inserter);
             }
 
             if (compressor.streamComplete(strm, true) == false || strm->bad()) {
@@ -1668,10 +1694,12 @@ CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
     const model::CInterimBucketCorrector& interimBucketCorrector,
     const model::CHierarchicalResultsAggregator& aggregator,
     core_t::TTime latestRecordTime,
-    core_t::TTime lastResultsTime)
+    core_t::TTime lastResultsTime,
+    core_t::TTime initialLastFinalisedBucketEndTime)
     : s_Time(time), s_ModelSizeStats(modelSizeStats),
       s_InterimBucketCorrector(interimBucketCorrector), s_Aggregator(aggregator),
-      s_LatestRecordTime(latestRecordTime), s_LastResultsTime(lastResultsTime) {
+      s_LatestRecordTime(latestRecordTime), s_LastResultsTime(lastResultsTime),
+      s_InitialLastFinalizedBucketEndTime(initialLastFinalisedBucketEndTime) {
 }
 }
 }

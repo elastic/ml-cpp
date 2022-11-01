@@ -37,6 +37,7 @@
 
 namespace CAnomalyJobTest {
 struct testParsePersistControlMessageArgs;
+struct testOutputBucketResultsUntilGivenIncompleteInitialBucket;
 }
 
 namespace ml {
@@ -99,7 +100,8 @@ public:
         E_NotRestoredToTime,
         E_NoDetectorsRecovered,
         E_Success,
-        E_Failure
+        E_Failure,
+        E_Uninitialised
     };
 
 public:
@@ -117,7 +119,7 @@ public:
     using TAnnotationVec = model::CAnomalyDetector::TAnnotationVec;
 
     struct API_EXPORT SRestoredStateDetail {
-        ERestoreStateStatus s_RestoredStateStatus;
+        ERestoreStateStatus s_RestoredStateStatus{E_Uninitialised};
         std::optional<std::string> s_Extra;
     };
 
@@ -127,7 +129,8 @@ public:
                                const model::CInterimBucketCorrector& interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
-                               core_t::TTime lastResultsTime);
+                               core_t::TTime lastResultsTime,
+                               core_t::TTime initialLastFinalisedBucketEndTime);
 
         core_t::TTime s_Time;
         model::CResourceMonitor::SModelSizeStats s_ModelSizeStats;
@@ -136,6 +139,7 @@ public:
         std::string s_NormalizerState;
         core_t::TTime s_LatestRecordTime;
         core_t::TTime s_LastResultsTime;
+        core_t::TTime s_InitialLastFinalizedBucketEndTime;
         TKeyCRefAnomalyDetectorPtrPrVec s_Detectors;
     };
 
@@ -223,6 +227,9 @@ private:
     //! 'i' => Generate interim results
     bool handleControlMessage(const std::string& controlMessage);
 
+    //! Helper function to set the last bucket end time in the detectors.
+    void setDetectorsLastBucketEndTime(core_t::TTime lastBucketEndTime);
+
     //! Write out the results for the bucket starting at \p bucketStartTime.
     void outputResults(core_t::TTime bucketStartTime);
 
@@ -275,6 +282,7 @@ private:
                             const std::string& normalizerState,
                             core_t::TTime latestRecordTime,
                             core_t::TTime lastResultsTime,
+                            core_t::TTime initialLastFinalisedBucketEndTime,
                             core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
@@ -496,8 +504,23 @@ private:
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
 
+    //! Introduced in version 8.6
+    //! The initial value of the end time of the last bucket
+    //! out of latency window we've seen, i.e. this member records
+    //! the first non-zero value of \p m_LastFinalisedBucketEndTime
+    //! and then never changes.
+    //! When restoring jobs that ran successfully for many buckets before
+    //! being persisted by a version earlier than 8.6 this member will always
+    //! have a value of 0, therefore it is crucial that this member is never
+    //! assumed to be non-zero and should only be used for its intended purpose
+    //! of aiding in detecting an incomplete initial bucket after state
+    //! restoration.
+    core_t::TTime m_InitialLastFinalisedBucketEndTime{0};
+
     // Test case access
     friend struct CAnomalyJobTest::testParsePersistControlMessageArgs;
+
+    friend struct CAnomalyJobTest::testOutputBucketResultsUntilGivenIncompleteInitialBucket;
 };
 }
 }

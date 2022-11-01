@@ -1,0 +1,21 @@
+{
+  "job_id": "pop_sum_bytes_by_status_over_clientip",
+  "analysis_config": {
+    "bucket_span": "15m",
+    "detectors": [
+      {
+        "detector_description": "sum(bytes) by status partitionfield=clientip",
+        "function": "sum",
+        "field_name": "bytes",
+        "by_field_name": "status",
+        "partition_field_name": "clientip"
+      }
+    ],
+    "influencers": [
+      "clientip",
+      "status"
+    ],
+    "model_prune_window": "30d"
+  }
+}
+
