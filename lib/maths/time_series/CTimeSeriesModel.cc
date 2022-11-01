@@ -281,11 +281,13 @@ public:
         return m_Anomaly->sumPredictionError();
     }
 
+    //! Return the length of the anomaly until \p time in the number of buckets.
+    //! If this is the first bucket with the anomaly, the length is 1.
     std::size_t length(core_t::TTime time) const {
         if (!m_Anomaly) {
             return static_cast<std::size_t>(0);
         }
-        return m_Anomaly->length(time / m_BucketLength);
+        return m_Anomaly->length(time / m_BucketLength) + 1;
     }
 
 private:
@@ -333,6 +335,7 @@ private:
             return common::CChecksum::calculate(seed, m_MeanAbsPredictionError);
         }
 
+        //! Return the number of seconds from the first anomalous bucket until \p time.
         std::size_t length(core_t::TTime time) const {
             return static_cast<std::size_t>(time - m_FirstAnomalousBucketTime);
         }
@@ -1065,6 +1068,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
     if (pOverall < common::LARGEST_SIGNIFICANT_PROBABILITY) {
         LOG_TRACE(<< "Computing confidence bounds");
+        // Temporarily deactivated to benchmark performance impact
         // TDouble2Vec3Vec interval(this->confidenceInterval(
         //     time, CModel::DEFAULT_BOUNDS_PERCENTILE, params.weights()[0]));
         // result.s_AnomalyScoreExplanation.s_LowerConfidenceBound = interval[0][0];
