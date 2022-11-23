@@ -4,4 +4,4 @@ steps:
   - label: "Validate formatting with clang-format"
     command: "dev-tools/check-style.sh"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
