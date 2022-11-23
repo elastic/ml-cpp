@@ -1,4 +1,7 @@
 ## 🏠/.buildkite/pipeline.yml
+
 steps:
-  - label: ":wave: Greetings"            # Label (with rich emojis https://ela.st/bk-emoji).
-    command: "echo 'My first pipeline!'" # Command to run (evaluated by Bash).
+  - label: "Validate formatting with clang-format"
+    command: "dev-tools/check-style.sh"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-check-style:2"
