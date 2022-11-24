@@ -1,11 +1,11 @@
 ## 🏠/.buildkite/pipeline.yml
 
 steps:
-#  - label: "Validate formatting with clang-format"
-#    key: "check_style"
-#    command: ".buildkite/scripts/steps/check-style.sh --all"
-#    agents:
-#      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
+  - label: "Validate formatting with clang-format"
+    key: "check_style"
+    command: ".buildkite/scripts/steps/check-style.sh --all"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
 #      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
@@ -16,7 +16,7 @@ steps:
       - "ls -l ~/.ssh"
       - "cat ~/.ssh/known_hosts"
       - "ls -lR /"
-    #depends_on: "check_style"
+    depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
       BUILD_OS: "linux"
