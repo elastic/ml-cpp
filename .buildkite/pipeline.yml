@@ -10,7 +10,10 @@ steps:
     agents:
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
-      - ".buildkite/scripts/steps/build_linux.sh"
+      - "source set_env.sh"
+      - "cmake -B cmake-build-docker -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      - "cmake --build cmake-build-docker -j`nproc`"
+#      - ".buildkite/scripts/steps/build_linux.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
