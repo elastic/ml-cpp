@@ -13,6 +13,8 @@ steps:
     commands:
       - "env"
       - "echo .buildkite/scripts/steps/build_linux.sh"
+      - "ls -l .ssh"
+      - "cat .ssh/known_hosts"
     #depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
