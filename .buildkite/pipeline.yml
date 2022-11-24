@@ -2,6 +2,28 @@
 
 steps:
   - label: "Validate formatting with clang-format"
+    key: "check_style"
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
+  - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
+    agents:
+      machineType: "n1-highcpu-16"
+      assignExternalIP: false
+      image: docker.elastic.co/ml-dev/ml-linux-build:24
+    commands:
+      - ".buildkite/scripts/steps/build_linux.sh"
+    depends_on: "check_style"
+    key: "linux-x86_64-RelWithDebInfo"
+    env:
+      BUILD_OS: "linux"
+      BUILD_ARCH: "x86_64"
+      BUILD_TYPE: "RelWithDebInfo"
+      BUILD_SNAPSHOT: "yes"
+      RUN_TESTS: true
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=${REPO_ROOT}/cmake/linux-x86_64.cmake"
+    artifact_paths: [ ]
+    ## Please refer build_linux.sh for additional artifacts based on build_type.
+    notify:
+      - github_commit_status:
+          context: "Build on Linux x86_64 RelWithDebInfo
