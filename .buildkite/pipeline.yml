@@ -15,6 +15,7 @@ steps:
       - "echo .buildkite/scripts/steps/build_linux.sh"
       - "ls -l ~/.ssh"
       - "cat ~/.ssh/known_hosts"
+      - "ls -lR /"
     #depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
@@ -24,3 +25,4 @@ steps:
       BUILD_SNAPSHOT: "yes"
       RUN_TESTS: true
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=${REPO_ROOT}/cmake/linux-x86_64.cmake"
+      GIT_SSH_COMMAND: "ssh -vvv"
