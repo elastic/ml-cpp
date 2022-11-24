@@ -13,7 +13,6 @@
 set -euo pipefail
 
 source ${REPO_ROOT}/.buildkite/scripts/common/base.sh
-source ${REPO_ROOT}/.buildkite/scripts/common/activate_service_account.sh
 
 echo "Running $0 from $(pwd)"
 
