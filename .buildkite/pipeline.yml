@@ -8,7 +8,9 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
+      provider: "gcp"
       machineType: "n1-highcpu-16"
+      memory: "6G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "source set_env.sh"
