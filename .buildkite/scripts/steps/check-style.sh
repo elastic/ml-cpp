@@ -73,7 +73,7 @@ fi
 
 RC=0
 
-if [ -n "${WRONG_FORMAT_FILES}" ] ; then
+if [ -n "${WRONG_FORMAT_FILES:-}" ] ; then
     echo -e "${RED}A format error has been detected within the following files${NOCOLOR}:"
     printf "%s\n" "${WRONG_FORMAT_FILES[@]}"
     RC=4
@@ -81,7 +81,7 @@ else
     echo "No format errors detected"
 fi
 
-if [ -n "${WRONG_COPYRIGHT_HEADER_FILES}" ] ; then
+if [ -n "${WRONG_COPYRIGHT_HEADER_FILES:-}" ] ; then
     echo "${RED}The following files do not contain the correct copyright header${NOCOLOR}:"
     printf "%s\n" "${WRONG_COPYRIGHT_HEADER_FILES[@]}"
     RC=5
