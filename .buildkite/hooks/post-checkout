@@ -1,0 +1,4 @@
+# This gets sourced right after checkout
+
+export REPO_ROOT="$(pwd -P)"
+export PATH=$PATH:~/google-cloud-sdk/bin
