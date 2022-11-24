@@ -22,8 +22,3 @@ steps:
       BUILD_SNAPSHOT: "yes"
       RUN_TESTS: true
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=${REPO_ROOT}/cmake/linux-x86_64.cmake"
-    artifact_paths: [ ]
-    ## Please refer build_linux.sh for additional artifacts based on build_type.
-    notify:
-      - github_commit_status:
-          context: "Build on Linux x86_64 RelWithDebInfo
