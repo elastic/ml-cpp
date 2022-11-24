@@ -8,9 +8,11 @@ steps:
 #      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+#      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
     commands:
-      - ".buildkite/scripts/steps/build_linux.sh"
+      - "env"
+      - "echo .buildkite/scripts/steps/build_linux.sh"
     #depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
