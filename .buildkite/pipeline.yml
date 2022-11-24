@@ -2,6 +2,6 @@
 
 steps:
   - label: "Validate formatting with clang-format"
-    command: ".buildkite/scripts/steps/check-style.sh"
+    command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
