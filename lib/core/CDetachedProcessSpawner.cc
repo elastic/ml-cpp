@@ -35,11 +35,14 @@ extern char** environ;
 
 namespace {
 
+//! Maximum number of newly opened files between calls to setupFileActions().
+const int MAX_NEW_OPEN_FILES{10};
+
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
 //! at all, but other errors are ignored.
-bool setupFileActions(posix_spawn_file_actions_t* fileActions) {
+bool setupFileActions(posix_spawn_file_actions_t* fileActions, int& maxFdHint) {
     if (::posix_spawn_file_actions_init(fileActions) != 0) {
         return false;
     }
@@ -50,17 +53,18 @@ bool setupFileActions(posix_spawn_file_actions_t* fileActions) {
         rlim.rlim_cur = 36; // POSIX default
     }
 
-    // Assume a limit on file descriptors that is greater than a million really
-    // means "unlimited".  In this case we would ideally pick up the compiled-in
-    // limit of the OS, but this would be another OS dependent piece of code and
-    // in reality it's unlikely that any file descriptors above a million will
-    // be open at the time this function is called.
-    int maxFd(rlim.rlim_cur > 1000000 ? 1000000 : static_cast<int>(rlim.rlim_cur));
-    for (int fd = 0; fd <= maxFd; ++fd) {
+    // Assume only a handful of new files have been opened since the last time
+    // this function was called. Doing this means we learn the practical limit
+    // on the number of open files, which will be a lot less than the enforced
+    // limit, and avoids making masses of expensive fcntl() calls.
+    int maxFdToTest{std::min(static_cast<int>(rlim.rlim_cur), maxFdHint + MAX_NEW_OPEN_FILES)};
+    for (int fd = 0; fd <= maxFdToTest; ++fd) {
         if (fd == STDIN_FILENO) {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_RDONLY, S_IRUSR);
+            maxFdHint = fd;
         } else if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_WRONLY, S_IWUSR);
+            maxFdHint = fd;
         } else {
             // Close other files that are open.  There is a race condition here,
             // in that files could be opened or closed between this code running
@@ -69,6 +73,7 @@ bool setupFileActions(posix_spawn_file_actions_t* fileActions) {
             // Doxygen description of this class.
             if (::fcntl(fd, F_GETFL) != -1) {
                 ::posix_spawn_file_actions_addclose(fileActions, fd);
+                maxFdHint = fd;
             }
         }
     }
@@ -260,7 +265,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
     argv.push_back(static_cast<char*>(nullptr));
 
     posix_spawn_file_actions_t fileActions;
-    if (setupFileActions(&fileActions) == false) {
+    if (setupFileActions(&fileActions, m_MaxObservedFd) == false) {
         LOG_ERROR(<< "Failed to set up file actions prior to spawn of '"
                   << processPath << "': " << ::strerror(errno));
         return false;
