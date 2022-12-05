@@ -108,6 +108,13 @@ private:
     //! Thread to track which processes that have been created are still
     //! alive.
     TTrackerThreadP m_TrackerThread;
+
+#ifndef Windows
+    //! On *nix testing which files need to be closed when spawning a process
+    //! can be expensive, so this variable is used to learn the highest file
+    //! descriptor that's in use.
+    int m_MaxObservedFd{1000000};
+#endif
 };
 }
 }
