@@ -8,15 +8,16 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
-      machineType: "n1-highcpu-32"
+      machineType: "n1-highcpu-16"
       memory: "32G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
-      - "source set_env.sh"
-      - "cmake -B cmake-build-docker -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      - "cmake --build cmake-build-docker -j8"
-      - "cmake --build cmake-build-docker -j8 -t test"
-#      - ".buildkite/scripts/steps/build_linux.sh"
+      #- "source set_env.sh"
+      #- "cmake -B cmake-build-linux-x86_64-RelWithDebInfo ${CMAKE_FLAGS}"
+      #- "cmake --build cmake-build-linux-x86_64-RelWithDebInfo -v -j`nproc` -t install"
+      #- "cmake --build cmake-build-linux-x86_64-RelWithDebInfo -v -j`nproc` -t test"
+      #- "${REPO_ROOT}/dev-tools/strip_binaries.sh"
+      - ".buildkite/scripts/steps/build_linux.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
@@ -25,5 +26,5 @@ steps:
       BUILD_ARCH: "x86_64"
       BUILD_TYPE: "RelWithDebInfo"
       BUILD_SNAPSHOT: "yes"
-      RUN_TESTS: true
+      RUN_TESTS: false
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=${REPO_ROOT}/cmake/linux-x86_64.cmake"
