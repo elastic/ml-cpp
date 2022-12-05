@@ -8,13 +8,14 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
-      machineType: "n1-highcpu-16"
-      memory: "10G"
+      machineType: "n1-highcpu-32"
+      #memory: "16G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "source set_env.sh"
       - "cmake -B cmake-build-docker -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       - "cmake --build cmake-build-docker -j8"
+      - "cmake --build cmake-build-docker -j8 -t test"
 #      - ".buildkite/scripts/steps/build_linux.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
