@@ -9,7 +9,7 @@ steps:
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
       machineType: "n1-highcpu-16"
-      memory: "8G"
+      memory: "10G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "source set_env.sh"
@@ -19,6 +19,7 @@ steps:
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
+      BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
       BUILD_OS: "linux"
       BUILD_ARCH: "x86_64"
       BUILD_TYPE: "RelWithDebInfo"
