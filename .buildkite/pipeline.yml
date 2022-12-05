@@ -14,7 +14,7 @@ steps:
     commands:
       - "source set_env.sh"
       - "cmake -B cmake-build-docker -DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      - "cmake --build cmake-build-docker" -j8
+      - "cmake --build cmake-build-docker -j8"
 #      - ".buildkite/scripts/steps/build_linux.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
