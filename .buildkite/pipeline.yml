@@ -27,4 +27,4 @@ steps:
       BUILD_TYPE: "RelWithDebInfo"
       BUILD_SNAPSHOT: "yes"
       RUN_TESTS: false
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=${REPO_ROOT}/cmake/linux-x86_64.cmake"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
