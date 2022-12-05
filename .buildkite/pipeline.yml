@@ -8,15 +8,10 @@ steps:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
-      machineType: "n1-highcpu-16"
-      memory: "32G"
+      machineType: "n1-highcpu-32"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
-      #- "source set_env.sh"
-      #- "cmake -B cmake-build-linux-x86_64-RelWithDebInfo ${CMAKE_FLAGS}"
-      #- "cmake --build cmake-build-linux-x86_64-RelWithDebInfo -v -j`nproc` -t install"
-      #- "cmake --build cmake-build-linux-x86_64-RelWithDebInfo -v -j`nproc` -t test"
-      #- "${REPO_ROOT}/dev-tools/strip_binaries.sh"
       - ".buildkite/scripts/steps/build_linux.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
