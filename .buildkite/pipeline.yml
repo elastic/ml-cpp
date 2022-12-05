@@ -23,3 +23,4 @@ steps:
       BUILD_SNAPSHOT: "yes"
       RUN_TESTS: false
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      CPP_SRC_HOME: "."
