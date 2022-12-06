@@ -1,4 +1,12 @@
 ## 🏠/.buildkite/pipeline.yml
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 
 steps:
   - label: "Validate formatting with clang-format"
@@ -9,12 +17,26 @@ steps:
     env:
       BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
     agents:
-      machineType: "n1-highcpu-32"
+      machineType: "n1-highcpu-16"
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
+      - "echo nproc = $(nproc)"
       - ".buildkite/scripts/steps/build_and_test.sh"
+    plugins:
+      - test-collector#v1.2.0:
+        files:
+          - "lib/ver/unittest/boost_test_results.xml"
+          - "lib/seccomp/unittest/boost_test_results.xml"
+          - "lib/core/unittest/boost_test_results.xml"
+            #- "lib/model/unittest/boost_test_results.xml"
+            #- "lib/maths/common/unittest/boost_test_results.xml"
+            #- "lib/maths/time_series/unittest/boost_test_results.xml"
+            #- "lib/maths/analytics/unittest/boost_test_results.xml"
+            #- "lib/api/unittest/boost_test_results.xml"
+        format: "junit"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
@@ -23,5 +45,6 @@ steps:
       BUILD_ARCH: "x86_64"
       BUILD_TYPE: "RelWithDebInfo"
       BUILD_SNAPSHOT: "yes"
-      RUN_TESTS: false
+      RUN_TESTS: "false"
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
