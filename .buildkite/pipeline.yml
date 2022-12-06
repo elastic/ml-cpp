@@ -5,14 +5,16 @@ steps:
     key: "check_style"
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
+      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+    env:
+      BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     agents:
       machineType: "n1-highcpu-32"
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
-      - ".buildkite/scripts/steps/build_linux.sh"
+      - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
@@ -23,4 +25,3 @@ steps:
       BUILD_SNAPSHOT: "yes"
       RUN_TESTS: false
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      CPP_SRC_HOME: "."
