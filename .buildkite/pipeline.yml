@@ -28,14 +28,7 @@ steps:
     plugins:
       - test-collector#v1.2.0:
         files:
-          - "lib/ver/unittest/boost_test_results.xml"
-          - "lib/seccomp/unittest/boost_test_results.xml"
-          - "lib/core/unittest/boost_test_results.xml"
-            #- "lib/model/unittest/boost_test_results.xml"
-            #- "lib/maths/common/unittest/boost_test_results.xml"
-            #- "lib/maths/time_series/unittest/boost_test_results.xml"
-            #- "lib/maths/analytics/unittest/boost_test_results.xml"
-            #- "lib/api/unittest/boost_test_results.xml"
+          - "lib/*/unittest/boost_test_results.xml"
         format: "junit"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
