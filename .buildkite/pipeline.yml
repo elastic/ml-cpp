@@ -27,8 +27,8 @@ steps:
       - ".buildkite/scripts/steps/build_and_test.sh"
     plugins:
       - test-collector#v1.2.0:
-        files: "lib/*/unittest/boost_test_results.xml"
-        format: "junit"
+          files: "lib/*/unittest/boost_test_results.xml"
+          format: "junit"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
     env:
