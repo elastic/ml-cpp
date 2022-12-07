@@ -7,6 +7,10 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
+agents:
+  cpu: "32"
+  memory: "64G"
+  ephemeralStorage: "20G"
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
@@ -19,17 +23,42 @@ steps:
     timeout_in_minutes: 180
     agents:
       machineType: "n2-highcpu-32"
-      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
       - ".buildkite/scripts/steps/build_and_test.sh"
+      - "buildkite-agent artifact upload 'build/**/*'"
     plugins:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
     depends_on: "check_style"
-    key: "linux-x86_64-RelWithDebInfo"
+    key: "build_linux-x86_64-RelWithDebInfo"
+    env:
+      BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
+      BUILD_OS: "linux"
+      BUILD_ARCH: "x86_64"
+      BUILD_TYPE: "RelWithDebInfo"
+      BUILD_SNAPSHOT: "yes"
+      RUN_TESTS: "false"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
+  - label: "Test :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      machineType: "n2-highcpu-32"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+    commands:
+      - "echo nproc = $(nproc)"
+      - "buildkite-agent artifact upload 'build/**/*'"
+      - ".buildkite/scripts/steps/build_and_test.sh"
+      - "buildkite-agent artifact download 'build/*'"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+    depends_on: "check_style"
+    key: "test_linux-x86_64-RelWithDebInfo"
     env:
       BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
       BUILD_OS: "linux"
@@ -39,4 +68,4 @@ steps:
       RUN_TESTS: "true"
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
-      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,test_suite,boost_test_results.junit"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
