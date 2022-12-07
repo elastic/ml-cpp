@@ -2,3 +2,11 @@
 
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
+
+export BUILDKITE_ANALYTICS_TOKEN="8uQPFPS8KQPFP3xJXVWfR5Wu"
+
+if [ "$BUILDKITE_PIPELINE_SLUG" = "ml-cpp" && "$BUILDKITE_STEP_KEY" = "linux-x86_64-RelWithDebInfo" ]; then
+  export BUILDKITE_ANALYTICS_TOKEN="8uQPFPS8KQPFP3xJXVWfR5Wu"
+  export CONDITIONAL_VARIABLE="true"
+fi
+
