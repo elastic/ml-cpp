@@ -19,8 +19,7 @@ steps:
     timeout_in_minutes: 180
     agents:
       machineType: "n2-highcpu-32"
-      cpu: "32"
-      memory: "64Gi"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
