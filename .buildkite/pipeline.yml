@@ -19,15 +19,12 @@ steps:
     timeout_in_minutes: 180
     agents:
       machineType: "c2-standard-16"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
       - ".buildkite/scripts/steps/build_and_test.sh"
       - "buildkite-agent artifact upload 'build/**/*'"
-    plugins:
-      - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
-          format: "junit"
     depends_on: "check_style"
     key: "build_linux-x86_64-RelWithDebInfo"
     env:
@@ -42,7 +39,8 @@ steps:
   - label: "Test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      machineType: "n2-highcpu-32"
+      machineType: "c2-standard-16"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
@@ -53,7 +51,7 @@ steps:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-    depends_on: "check_style"
+    depends_on: "build_linux-x86_64-RelWithDebInfo"
     key: "test_linux-x86_64-RelWithDebInfo"
     env:
       BUILDKITE_REPO: "https://github.com/elastic/ml-cpp.git"
