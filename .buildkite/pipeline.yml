@@ -26,7 +26,7 @@ steps:
       - ".buildkite/scripts/steps/build_and_test.sh"
     plugins:
       - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.xml"
+          files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
     depends_on: "check_style"
     key: "linux-x86_64-RelWithDebInfo"
@@ -39,4 +39,4 @@ steps:
       RUN_TESTS: "true"
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
-      BUILDKITE_ANALYTICS_TOKEN: "8uQPFPS8KQPFP3xJXVWfR5Wu"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,test_suite,boost_test_results.junit"
