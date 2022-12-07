@@ -7,10 +7,6 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
-agents:
-  cpu: "32"
-  memory: "64G"
-  ephemeralStorage: "20G"
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
@@ -22,7 +18,7 @@ steps:
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      machineType: "n2-highcpu-32"
+      machineType: "c2-standard-16"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
