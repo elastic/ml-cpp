@@ -27,10 +27,12 @@ steps:
       cpu: "2"
       ephemeralStorage: "20G"
       #machineType: "c2-highcpu-32"
-      memory: "4G"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
+      - "cat /proc/cpuinfo"
+      - "cat /proc/meminfo"
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_linux-x86_64-RelWithDebInfo"
@@ -42,7 +44,7 @@ steps:
       cpu: "2"
       ephemeralStorage: "20G"
       #machineType: "c2-highcpu-32"
-      memory: "4G"
+      memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
