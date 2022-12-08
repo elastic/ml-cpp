@@ -10,15 +10,15 @@
 #
 
 ml_add_test(lib/core/unittest core)
-#ml_add_test(lib/maths/common/unittest maths_common)
-#ml_add_test(lib/maths/time_series/unittest maths_time_series)
-#ml_add_test(lib/maths/analytics/unittest maths_analytics)
-#ml_add_test(lib/model/unittest model)
-#ml_add_test(lib/api/unittest api)
+ml_add_test(lib/maths/common/unittest maths_common)
+ml_add_test(lib/maths/time_series/unittest maths_time_series)
+ml_add_test(lib/maths/analytics/unittest maths_analytics)
+ml_add_test(lib/model/unittest model)
+ml_add_test(lib/api/unittest api)
 ml_add_test(lib/ver/unittest ver)
 ml_add_test(lib/seccomp/unittest seccomp)
-#ml_add_test(bin/controller/unittest controller)
-#ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
+ml_add_test(bin/controller/unittest controller)
+ml_add_test(bin/pytorch_inference/unittest pytorch_inference)
 
 add_custom_target(build_tests
     DEPENDS ${ML_BUILD_TEST_DEPENDS}

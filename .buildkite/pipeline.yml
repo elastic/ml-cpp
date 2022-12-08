@@ -21,10 +21,10 @@ steps:
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      cpu: "2"
+      cpu: "4"
       ephemeralStorage: "20G"
       #machineType: "c2-highcpu-32"
       memory: "64G"
@@ -35,26 +35,11 @@ steps:
       - "cat /proc/meminfo"
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
-    key: "build_linux-x86_64-RelWithDebInfo"
-    env:
-      RUN_TESTS: "false"
-  - label: "Test :cpp: for linux-x86_64-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "2"
-      ephemeralStorage: "20G"
-      #machineType: "c2-highcpu-32"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
-    commands:
-      - "echo nproc = $(nproc)"
-      - ".buildkite/scripts/steps/build_and_test.sh"
+    key: "build_test_linux-x86_64-RelWithDebInfo"
     plugins:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-    depends_on: "build_linux-x86_64-RelWithDebInfo"
-    key: "test_linux-x86_64-RelWithDebInfo"
     env:
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
