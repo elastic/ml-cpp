@@ -24,7 +24,9 @@ steps:
   - label: "Build :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      machineType: "c2-highcpu-32"
+      cpu: "32"
+      ephemeralStorage: "20G"
+      #machineType: "c2-highcpu-32"
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
@@ -37,7 +39,9 @@ steps:
   - label: "Test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      machineType: "c2-highcpu-32"
+      cpu: "32"
+      ephemeralStorage: "20G"
+      #machineType: "c2-highcpu-32"
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
