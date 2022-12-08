@@ -15,7 +15,6 @@ env:
   BUILD_SNAPSHOT: "yes"
   CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
   PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
-  BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
@@ -31,7 +30,6 @@ steps:
     commands:
       - "echo nproc = $(nproc)"
       - ".buildkite/scripts/steps/build_and_test.sh"
-      - "buildkite-agent artifact upload 'build/**/*'"
     depends_on: "check_style"
     key: "build_linux-x86_64-RelWithDebInfo"
     env:
@@ -39,12 +37,11 @@ steps:
   - label: "Test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      machineType: "c2-standard-32"
+      machineType: "c2-highcpu-32"
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - "echo nproc = $(nproc)"
-      - "buildkite-agent artifact download 'build/*'"
       - ".buildkite/scripts/steps/build_and_test.sh"
     plugins:
       - test-collector#v1.2.0:

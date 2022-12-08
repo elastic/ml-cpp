@@ -8,9 +8,13 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+echo "environment variables:"
+env
 # For now, re-use our existing CI scripts based on Docker
 if [ "$RUN_TESTS" = "true" ]; then
+    buildkite-agent artifact download "build/*" .
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
 else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+    buildkite-agent artifact upload "build/**/*"
 fi
