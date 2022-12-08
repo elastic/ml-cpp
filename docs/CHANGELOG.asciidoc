@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.17.9
+
+=== Bug Fixes
+
+* Improve performance of closing files before spawning. (See {ml-pull}2424[#2424].)
+
 == {es} version 7.17.7
 
 === Bug Fixes
