@@ -24,7 +24,7 @@ steps:
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      cpu: "8"
+      cpu: "6"
       ephemeralStorage: "20G"
       #machineType: "c2-highcpu-32"
       memory: "64G"
