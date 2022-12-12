@@ -16,32 +16,42 @@ env:
   CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
   PR_AUTHOR: "${BUILDKITE_PULL_REQUEST}"
 steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
+  #  - label: "Validate formatting with clang-format"
+  #    key: "check_style"
+  #    command: ".buildkite/scripts/steps/check-style.sh --all"
+  #    agents:
+  #      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+  #  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+  #    timeout_in_minutes: 180
+  #    agents:
+  #      cpu: "6"
+  #      ephemeralStorage: "20G"
+  #      #machineType: "c2-highcpu-32"
+  #      memory: "64G"
+  #      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+  #    commands:
+  #      - "echo nproc = $(nproc)"
+  #      - "cat /proc/cpuinfo"
+  #      - "cat /proc/meminfo"
+  #      - ".buildkite/scripts/steps/build_and_test.sh"
+  #    depends_on: "check_style"
+  #    # If changing the key here you will also need to
+  #    # update the reference in hooks/post-checkout
+  #    key: "build_test_linux-x86_64-RelWithDebInfo"
+  #    plugins:
+  #      - test-collector#v1.2.0:
+  #          files: "lib/*/unittest/boost_test_results.junit"
+  #          format: "junit"
+  #    env:
+  #      RUN_TESTS: "true"
+  #      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+  - label: "Java Integration Tests"
+    key: "java_integration_tests"
+    command: 
+      - "env"
+      - "type javac"
+      - "type git"
+      - "type ssh"
+      - 'buildkite-agent artifact download "build/distributions/*" . --build 68'
     agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "6"
-      ephemeralStorage: "20G"
-      #machineType: "c2-highcpu-32"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
-    commands:
-      - "echo nproc = $(nproc)"
-      - "cat /proc/cpuinfo"
-      - "cat /proc/meminfo"
-      - ".buildkite/scripts/steps/build_and_test.sh"
-    depends_on: "check_style"
-    # If changing the key here you will also need to
-    # update the reference in hooks/post-checkout
-    key: "build_test_linux-x86_64-RelWithDebInfo"
-    plugins:
-      - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
-          format: "junit"
-    env:
-      RUN_TESTS: "true"
-      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+      image: "gradle:7.2.0-jdk17"
