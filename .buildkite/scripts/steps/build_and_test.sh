@@ -8,6 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+set -euo pipefail
+
 export CMAKE_QUIET="yes"
 
 if [ "$BUILD_SNAPSHOT" = false ] ; then
