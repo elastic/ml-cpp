@@ -47,10 +47,6 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
-      - "env"
-      - "type javac"
-      - "type git"
-      - "type ssh"
       - 'buildkite-agent artifact download "build/*" . --build 01850b10-7004-48ec-b445-7d72d47614b6'
       - ".buildkite/scripts/steps/run_es_tests.sh"
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"

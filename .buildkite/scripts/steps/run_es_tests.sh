@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "pwd = $(pwd)"
-ls -lR
 
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
