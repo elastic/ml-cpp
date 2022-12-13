@@ -89,8 +89,10 @@ if [ `uname -m` = aarch64 ] ; then
     export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/.*jdk/jdk/')
 fi
 
-echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
-export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
+if [ -z "${BUILDKITE}" ]; then
+  echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
+  export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
+fi
 
 # For the ES build we need to:
 # 1. Convince it that this is not part of a PR build, becuase it will get

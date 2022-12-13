@@ -9,6 +9,13 @@
 # limitation.
 
 CMAKE_QUIET="yes"
+
+if [ "$BUILD_SNAPSHOT" = false ] ; then
+    export SNAPSHOT=no
+else
+    export SNAPSHOT=yes
+fi
+
 echo "environment variables:"
 env
 # For now, re-use our existing CI scripts based on Docker
