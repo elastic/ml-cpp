@@ -48,7 +48,7 @@ steps:
     key: "java_integration_tests"
     command: 
       - 'adduser -h'
-      - 'adduser elasticsearch:elasticsearch'
+      - 'adduser elasticsearch'
       - 'buildkite-agent artifact download "build/*" . --build 01850b10-7004-48ec-b445-7d72d47614b6'
       - "mkdir -p ${HOME}/.ssh"
       - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
