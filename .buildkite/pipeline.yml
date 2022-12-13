@@ -47,10 +47,12 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
+      - 'adduser -h'
+      - 'adduser elasticsearch:elasticsearch'
       - 'buildkite-agent artifact download "build/*" . --build 01850b10-7004-48ec-b445-7d72d47614b6'
       - "mkdir -p ${HOME}/.ssh"
       - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-      - ".buildkite/scripts/steps/run_es_tests.sh"
+      - 'su elasticsearch .buildkite/scripts/steps/run_es_tests.sh || buildkite-agent artifact upload "x-pack/**/logs/*"'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "6"
