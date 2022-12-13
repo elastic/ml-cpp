@@ -8,6 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+CMAKE_QUIET="yes"
 echo "environment variables:"
 env
 # For now, re-use our existing CI scripts based on Docker
