@@ -47,17 +47,15 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
-      - 'adduser -h'
-      - 'adduser elasticsearch'
       - 'buildkite-agent artifact download "build/*" . --build 01850b10-7004-48ec-b445-7d72d47614b6'
-      - "mkdir -p ${HOME}/.ssh"
-      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-      - 'su elasticsearch .buildkite/scripts/steps/run_es_tests.sh || buildkite-agent artifact upload "x-pack/**/logs/*"'
+      - 'elasticsearch .buildkite/scripts/steps/run_es_tests.sh || buildkite-agent artifact upload "x-pack/**/logs/*"'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
       image: "gradle:7.2.0-jdk17"
+      # Run as the gradle user
+      imageUID: 1000
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
