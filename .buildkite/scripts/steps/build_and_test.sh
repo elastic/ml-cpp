@@ -8,7 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-CMAKE_QUIET="yes"
+export CMAKE_QUIET="yes"
 
 if [ "$BUILD_SNAPSHOT" = false ] ; then
     export SNAPSHOT=no
