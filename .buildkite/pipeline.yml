@@ -53,11 +53,12 @@ steps:
       - '.buildkite/scripts/steps/run_es_tests.sh || buildkite-agent artifact upload "x-pack/**/logs/*"'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
-      cpu: "6"
+      cpu: "10"
       ephemeralStorage: "20G"
-      memory: "64G"
+      memory: "4G"
       image: "gradle:7.2.0-jdk17"
       # Run as the gradle user
       imageUID: "1000"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
