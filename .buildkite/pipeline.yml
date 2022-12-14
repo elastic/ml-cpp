@@ -47,6 +47,9 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
+      - "nproc"
+      - "cat /proc/cpuinfo"
+      - "cat /proc/meminfo"
       - 'buildkite-agent artifact download "build/*" . --build 01850c11-0348-4893-a101-77bf467a7b13'
       - "mkdir -p ~/.ssh"
       - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
@@ -54,9 +57,9 @@ steps:
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       machineType: "n1-standard-32"
-      cpu: "32"
+      #cpu: "32"
       ephemeralStorage: "20G"
-      memory: "64G"
+      #memory: "64G"
       image: "gradle:7.2.0-jdk17"
       # Run as the gradle user
       imageUID: "1000"
