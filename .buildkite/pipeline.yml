@@ -53,9 +53,10 @@ steps:
       - '.buildkite/scripts/steps/run_es_tests.sh || buildkite-agent artifact upload "x-pack/**/logs/*"'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
+      machineType: "n1-highcpu-16"
       cpu: "10"
       ephemeralStorage: "20G"
-      memory: "4G"
+      memory: "16G"
       image: "gradle:7.2.0-jdk17"
       # Run as the gradle user
       imageUID: "1000"
