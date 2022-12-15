@@ -65,4 +65,4 @@ steps:
       imageUID: "1000"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
-      EXTRA_TEST_OPTS: '-Dorg.gradle.jvmargs="-Xms16g -Xmx16g"'
+      ES_JVM_OPTS: '-Dorg.gradle.jvmargs="-Xms16g -Xmx16g"'
