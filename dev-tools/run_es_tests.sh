@@ -106,6 +106,7 @@ export GIT_BRANCH="$SELECTED_BRANCH"
 export GIT_COMMIT="$(git rev-parse HEAD)"
 export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
+sed -i 's/private static final int ES_DESTROY_TIMEOUT = 20/private static final int ES_DESTROY_TIMEOUT = 60/' ./build-tools/src/main/java/org/elasticsearch/gradle/testclusters/ElasticsearchNode.java"
 IVY_REPO_URL="file://$2"
 #./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
 ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS

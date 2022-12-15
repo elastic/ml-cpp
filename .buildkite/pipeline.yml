@@ -50,7 +50,6 @@ steps:
       - 'buildkite-agent artifact download "build/*" . --build 01850c11-0348-4893-a101-77bf467a7b13'
       - "mkdir -p ~/.ssh"
       - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-      - "sed -i 's/private static final int ES_DESTROY_TIMEOUT = 20/private static final int ES_DESTROY_TIMEOUT = 60/' ../elasticsearch/build-tools/src/main/java/org/elasticsearch/gradle/testclusters/ElasticsearchNode.java"
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz) || false'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
@@ -62,4 +61,4 @@ steps:
       imageUID: "1000"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
-      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx1g"
