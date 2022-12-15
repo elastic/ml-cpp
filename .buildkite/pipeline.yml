@@ -53,12 +53,12 @@ steps:
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false) || false'
         #depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
-      cpu: "8"
+      cpu: "16"
       ephemeralStorage: "20G"
-      memory: "16G"
+      memory: "32G"
       image: "gradle:7.2.0-jdk17"
       # Run as the gradle user
       imageUID: "1000"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
-      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g"
+      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
