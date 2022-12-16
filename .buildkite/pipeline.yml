@@ -61,7 +61,8 @@ steps:
       #image: "gradle:7.2.0-jdk17"
       image: "docker.elastic.co/ml-dev/ml_cpp_jdk17:1"
       # Run as a non-root user
-      imageUID: "1000"
+      #imageUID: "1000"
+      imageUID: "501"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g"
