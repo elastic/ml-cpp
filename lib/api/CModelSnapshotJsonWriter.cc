@@ -40,38 +40,38 @@ CModelSnapshotJsonWriter::CModelSnapshotJsonWriter(const std::string& jobId,
 
 void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
     m_Writer.StartObject();
-    m_Writer.String(MODEL_SNAPSHOT);
+    m_Writer.Key(MODEL_SNAPSHOT);
     m_Writer.StartObject();
 
-    m_Writer.String(JOB_ID);
+    m_Writer.Key(JOB_ID);
     m_Writer.String(m_JobId);
-    m_Writer.String(MIN_VERSION);
+    m_Writer.Key(MIN_VERSION);
     m_Writer.String(report.s_MinVersion);
-    m_Writer.String(SNAPSHOT_ID);
+    m_Writer.Key(SNAPSHOT_ID);
     m_Writer.String(report.s_SnapshotId);
 
-    m_Writer.String(SNAPSHOT_DOC_COUNT);
+    m_Writer.Key(SNAPSHOT_DOC_COUNT);
     m_Writer.Uint64(report.s_NumDocs);
 
-    m_Writer.String(TIMESTAMP);
+    m_Writer.Key(TIMESTAMP);
     m_Writer.Time(report.s_SnapshotTimestamp);
 
-    m_Writer.String(DESCRIPTION);
+    m_Writer.Key(DESCRIPTION);
     m_Writer.String(report.s_Description);
 
     CModelSizeStatsJsonWriter::write(m_JobId, report.s_ModelSizeStats, m_Writer);
 
     if (report.s_LatestRecordTime > 0) {
-        m_Writer.String(LATEST_RECORD_TIME);
+        m_Writer.Key(LATEST_RECORD_TIME);
         m_Writer.Time(report.s_LatestRecordTime);
     }
     if (report.s_LatestFinalResultTime > 0) {
-        m_Writer.String(LATEST_RESULT_TIME);
+        m_Writer.Key(LATEST_RESULT_TIME);
         m_Writer.Time(report.s_LatestFinalResultTime);
     }
 
     // write normalizerState here
-    m_Writer.String(QUANTILES);
+    m_Writer.Key(QUANTILES);
 
     writeQuantileState(m_JobId, report.s_NormalizerState,
                        report.s_LatestFinalResultTime, m_Writer);
@@ -91,11 +91,11 @@ void CModelSnapshotJsonWriter::writeQuantileState(const std::string& jobId,
                                                   core_t::TTime time,
                                                   core::CRapidJsonConcurrentLineWriter& writer) {
     writer.StartObject();
-    writer.String(JOB_ID);
+    writer.Key(JOB_ID);
     writer.String(jobId);
-    writer.String(QUANTILE_STATE);
+    writer.Key(QUANTILE_STATE);
     writer.String(state);
-    writer.String(TIMESTAMP);
+    writer.Key(TIMESTAMP);
     writer.Time(time);
     writer.EndObject();
 }

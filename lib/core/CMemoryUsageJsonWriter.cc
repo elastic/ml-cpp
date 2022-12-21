@@ -36,7 +36,7 @@ void CMemoryUsageJsonWriter::endObject() {
 }
 
 void CMemoryUsageJsonWriter::startArray(const std::string& description) {
-    m_Writer.String(description);
+    m_Writer.Key(description);
     m_Writer.StartArray();
 }
 
@@ -45,13 +45,13 @@ void CMemoryUsageJsonWriter::endArray() {
 }
 
 void CMemoryUsageJsonWriter::addItem(const CMemoryUsage::SMemoryUsage& item) {
-    m_Writer.String(item.s_Name);
+    m_Writer.Key(item.s_Name);
     m_Writer.StartObject();
 
-    m_Writer.String(MEMORY);
+    m_Writer.Key(MEMORY);
     m_Writer.Int64(item.s_Memory);
     if (item.s_Unused) {
-        m_Writer.String(UNUSED);
+        m_Writer.Key(UNUSED);
         m_Writer.Uint64(item.s_Unused);
     }
     m_Writer.EndObject();

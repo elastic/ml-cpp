@@ -70,25 +70,25 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
 
     writer.StartObject();
 
-    writer.String(LOGGER_NAME);
+    writer.Key(LOGGER_NAME);
     writer.String(LOGGER);
 
-    writer.String(TIMESTAMP_NAME);
+    writer.Key(TIMESTAMP_NAME);
     const auto& timeStamp = boost::log::extract<boost::posix_time::ptime>(
                                 boost::log::aux::default_attribute_names::timestamp(), rec)
                                 .get();
     writer.Int64((timeStamp - EPOCH).total_milliseconds());
 
-    writer.String(LEVEL_NAME);
+    writer.Key(LEVEL_NAME);
     auto level = boost::log::extract<CLogger::ELevel>(
                      boost::log::aux::default_attribute_names::severity(), rec)
                      .get();
     writer.String(CLogger::levelToString(level));
 
-    writer.String(PID_NAME);
+    writer.Key(PID_NAME);
     writer.Int64(PID);
 
-    writer.String(THREAD_NAME);
+    writer.Key(THREAD_NAME);
     auto threadId = boost::log::extract<boost::log::attributes::current_thread_id::value_type>(
                         boost::log::aux::default_attribute_names::thread_id(), rec)
                         .get();
@@ -96,7 +96,7 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
     oss << threadId;
     writer.String(oss.str());
 
-    writer.String(MESSAGE_NAME);
+    writer.Key(MESSAGE_NAME);
     writer.String(rec[boost::log::expressions::smessage].get());
 
     if (m_LocationInfo) {
@@ -107,20 +107,20 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
                 .get());
 
         if (className.empty() == false) {
-            writer.String(CLASS_NAME);
+            writer.Key(CLASS_NAME);
             writer.String(className);
         }
 
-        writer.String(METHOD_NAME);
+        writer.Key(METHOD_NAME);
         writer.String(methodName);
 
-        writer.String(FILE_NAME);
+        writer.Key(FILE_NAME);
         const auto& fullFileName = boost::log::extract<std::string>(
                                        CLogger::instance().fileAttributeName(), rec)
                                        .get();
         writer.String(CJsonLogLayout::cropPath(fullFileName));
 
-        writer.String(LINE_NAME);
+        writer.Key(LINE_NAME);
         writer.Int(boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
                        .get());
     }
