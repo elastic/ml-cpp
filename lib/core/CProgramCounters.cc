@@ -45,13 +45,13 @@ void addStringInt(TGenericLineWriter& writer,
                   std::uint64_t counter) {
     writer.StartObject();
 
-    writer.String(NAME_TYPE);
+    writer.Key(NAME_TYPE);
     writer.String(name);
 
-    writer.String(DESCRIPTION_TYPE);
+    writer.Key(DESCRIPTION_TYPE);
     writer.String(description);
 
-    writer.String(COUNTER_TYPE);
+    writer.Key(COUNTER_TYPE);
     writer.Uint64(counter);
 
     writer.EndObject();
