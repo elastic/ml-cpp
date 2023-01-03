@@ -51,7 +51,7 @@ steps:
       - "mkdir -p ~/.ssh"
       - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-        depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "16"
       ephemeralStorage: "20G"
