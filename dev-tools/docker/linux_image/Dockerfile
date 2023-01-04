@@ -95,21 +95,21 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.13.20210805.a949ff2
 
-# Build Python 3.7
+# Build Python 3.10
 # --enable-optimizations for a stable/release build
 # Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
-  cd Python-3.7.9 && \
+  wget --quiet -O - https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz | tar xzf - && \
+  cd Python-3.10.9 && \
   ./configure --enable-optimizations && \
   make altinstall && \
   cd .. && \
-  rm -rf Python-3.7.9
+  rm -rf Python-3.10.9
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.7 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.10 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.19.2 minimum is required
@@ -130,7 +130,7 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.11.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.13.1 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -144,10 +144,9 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export USE_BREAKPAD=OFF && \
-  export PYTORCH_BUILD_VERSION=1.11.0 && \
+  export PYTORCH_BUILD_VERSION=1.13.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  /usr/local/bin/python3.7 setup.py install && \
+  /usr/local/bin/python3.10 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \

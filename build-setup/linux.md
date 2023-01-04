@@ -251,11 +251,11 @@ Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
 
 ### Python
 
-PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that. If your system does not have a requisite version of Python install it with a package manager or build the last 3.7 release from source by downloading `Python-3.7.9.tgz` from <https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz> then extract and build:
+PyTorch currently requires Python 3.7 or higher; we use version 3.10. If your system does not have a requisite version of Python install it with a package manager or build the last 3.10 release from source by downloading `Python-3.10.9.tgz` from <https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz> then extract and build:
 
 ```
-tar -xzf Python-3.7.9.tgz
-cd Python-3.7.9
+tar -xzf Python-3.10.9.tgz
+cd Python-3.10.9
 ./configure --prefix=/usr/local/gcc103 --enable-optimizations
 make
 sudo make altinstall
@@ -280,24 +280,24 @@ Then copy the shared libraries to the system directory:
 sudo cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
 ```
 
-### PyTorch 1.11.0
+### PyTorch 1.13.1
 
-PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
+PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.10`:
 
 ```
-sudo /usr/local/gcc103/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc103/bin/python3.10 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 For aarch64 the `ninja` module is not available, so use:
 
 ```
-sudo /usr/local/gcc103/bin/python3.7 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc103/bin/python3.10 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.11.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.13.1 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -325,11 +325,9 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-# Breakpad is undesirable as it causes libtorch_cpu to have an executable stack
-export USE_BREAKPAD=OFF
-export PYTORCH_BUILD_VERSION=1.11.0
+export PYTORCH_BUILD_VERSION=1.13.1
 export PYTORCH_BUILD_NUMBER=1
-/usr/local/gcc103/bin/python3.7 setup.py install
+/usr/local/gcc103/bin/python3.10 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:
