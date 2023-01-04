@@ -113,5 +113,6 @@ time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:pl
 echo "Completed ML native multi node tests"
 echo "Running ML x-pack yaml rest tests"
 #time ./gradlew --debug "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/jobs_crud/Test get all jobs and stats given no job exists}" $EXTRA_TEST_OPTS
-time ./gradlew $GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
+time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
 echo "Completed ML x-pack yaml rest tests"
+
