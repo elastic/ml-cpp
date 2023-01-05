@@ -16,9 +16,12 @@ FROM centos:7 AS builder
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
+# libffi and openssl11 are required for building Python
+# openssl11 comes from the EPEL repo
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which xz zip zlib-devel
+  yum install -y epel-release && \
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl11-devel texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -101,7 +104,9 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz | tar xzf - && \
   cd Python-3.10.9 && \
-  ./configure --enable-optimizations && \
+  sed -i -e 's/PKG_CONFIG openssl/PKG_CONFIG openssl11/' configure && \
+  ./configure --enable-optimizations --with-openssl-rpath=/lib64 && \
+  make -j`nproc` && \
   make altinstall && \
   cd .. && \
   rm -rf Python-3.10.9
