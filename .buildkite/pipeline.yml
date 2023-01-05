@@ -26,7 +26,8 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24.bk"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+        #image: "docker.elastic.co/ml-dev/ml-linux-build:24.bk"
         ## Run as a non-root user
         #imageUID: "1000"
     commands:
@@ -40,6 +41,7 @@ steps:
       #      files: "lib/*/unittest/boost_test_results.junit"
       #      format: "junit"
     env:
+      GIT_SSH_COMMAND: "ssh -vvv"
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
   #- label: "Java Integration Tests"
