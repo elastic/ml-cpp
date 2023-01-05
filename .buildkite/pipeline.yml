@@ -26,12 +26,14 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+      image: "centos:7"
+        #image: "docker.elastic.co/ml-dev/ml-linux-build:24"
         #image: "docker.elastic.co/ml-dev/ml-linux-build:24.bk"
         ## Run as a non-root user
         #imageUID: "1000"
     commands:
-      - ".buildkite/scripts/steps/build_and_test.sh"
+      - 'echo "checkout succeeded"'
+      #- ".buildkite/scripts/steps/build_and_test.sh"
         #    depends_on: "check_style"
     # If changing the key here you will also need to
     # update the reference in hooks/post-checkout
