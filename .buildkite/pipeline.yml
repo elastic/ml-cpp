@@ -26,7 +26,7 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "centos:7"
+      image: "docker.elastic.co/ml-dev/ml-linux-build_basic:1"
         #image: "docker.elastic.co/ml-dev/ml-linux-build:24"
         #image: "docker.elastic.co/ml-dev/ml-linux-build:24.bk"
         ## Run as a non-root user
