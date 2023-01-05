@@ -16,12 +16,10 @@ FROM centos:7 AS builder
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
-# libffi and openssl11 are required for building Python
-# openssl11 comes from the EPEL repo
+# libffi is required for building Python
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y epel-release && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl11-devel texinfo unzip wget which xz zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -97,6 +95,19 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.13.20210805.a949ff2
 
+# Build OpenSSL 1.1.1
+# This is only needed as a dependency for Python 3.10 during the PyTorch build
+# Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
+RUN \
+  cd ${build_dir} && \
+  wget --quiet --no-check-certificate -O - https://www.openssl.org/source/old/1.1.1/openssl-1.1.1q.tar.gz | tar xzf - && \
+  cd openssl-1.1.1q && \
+  ./Configure --prefix=/usr/local shared linux-aarch64 && \
+  make -j`nproc` && \
+  make install && \
+  cd .. && \
+  rm -rf openssl-1.1.1q
+
 # Build Python 3.10
 # --enable-optimizations for a stable/release build
 # Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
@@ -104,8 +115,8 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz | tar xzf - && \
   cd Python-3.10.9 && \
-  sed -i -e 's/PKG_CONFIG openssl/PKG_CONFIG openssl11/' configure && \
-  ./configure --enable-optimizations --with-openssl-rpath=/lib64 && \
+  sed -i -e 's~ssldir/lib~ssldir/lib64~' configure && \
+  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib64 && \
   make -j`nproc` && \
   make altinstall && \
   cd .. && \
