@@ -17,7 +17,7 @@ For example, you might create a `.bashrc` file in your home directory containing
 ```
 umask 0002
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
-export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7
+export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.10
 export PATH=$JAVA_HOME/bin:$PYTHONHOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
@@ -50,12 +50,13 @@ The above environment variables only need to be set when building tools on macOS
 
 The first major piece of development software to install is Apple's development environment, Xcode, which can be downloaded from <https://developer.apple.com/download/> . You will need to register as a developer with Apple. Alternatively, you can get the latest version of Xcode from the App Store.
 
-For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Therefore you must be running macOS High Sierra (10.13) or above to build the Machine Learning C++ code.
+For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Therefore you must be running macOS High Sierra (10.13) or above to build the Machine Learning C++ code. The binary download of Python 3.10 requires macOS Big Sur or above, so to follow the instructions in this page to the letter you'll need macOS Big Sur (11) or above.
 
 - If you are using High Sierra, you must install Xcode 10.1.x
 - If you are using Mojave, you must install Xcode 11.3.x
 - If you are using Catalina, you must install Xcode 12.4.x
-- If you are using Big Sur or Monterey, you must install Xcode 13.1.x or above
+- If you are using Big Sur, you must install Xcode 13.2.x
+- If you are using Monterey or Ventura, you must install Xcode 14.2.x or above
 
 Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
@@ -120,26 +121,26 @@ sudo mkdir -p /usr/local/bin
 sudo ln -s /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
 ```
 
-### Python 3.7
+### Python 3.10
 
-PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that.
+PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
-Download the graphical installer for Python 3.7.9 from <https://www.python.org/ftp/python/3.7.9/python-3.7.9-macosx10.9.pkg>.
+Download the graphical installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-macosx11.pkg>.
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 1.11.0
+### PyTorch 1.13.1
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
 ```
-sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.11.0 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v1.13.1 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -153,9 +154,8 @@ a heuristic virus scanner looking for potentially dangerous function
 calls in our shipped product will not encounter these functions that run
 external processes.
 
-Edit `tools/setup_helpers/cmake.py b/tools/setup_helpers/cmake.py` and
-add `'DNNL_TARGET_ARCH'` to the list of environment variables that get
-passed through to CMake (around line 267).
+Edit `tools/setup_helpers/cmake.py` and add `"DNNL_TARGET_ARCH"` to the list
+of environment variables that get passed through to CMake (around line 215).
 
 Build as follows:
 
@@ -170,16 +170,9 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-# TODO: avoid this by upgrading to Python 3.9 next time we rebuild
-# dependencies. The build scripts misdetect the architecture on Apple
-# M1 because we are using Python 3.7, which is x86_64 only on macOS,
-# and the PyTorch build uses CMake and Ninja via Python. Python 3.9
-# has a native arm64 build for macOS, so we should switch to that next
-# time.
-[ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
-export PYTORCH_BUILD_VERSION=1.11.0
+export PYTORCH_BUILD_VERSION=1.13.1
 export PYTORCH_BUILD_NUMBER=1
-/Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
+/Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:
