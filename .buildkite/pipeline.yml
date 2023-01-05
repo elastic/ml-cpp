@@ -14,6 +14,7 @@ env:
   BUILD_TYPE: "RelWithDebInfo"
   BUILD_SNAPSHOT: "yes"
   CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+  GIT_SSH_COMMAND: "ssh -vvv"
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
