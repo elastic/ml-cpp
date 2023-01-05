@@ -179,6 +179,8 @@ copy strptime.lib C:\usr\local\lib
 
 ### Python 3.10
 
+(This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
+
 PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
 Download the executable installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-amd64.exe>.
