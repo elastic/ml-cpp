@@ -115,8 +115,7 @@ RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz | tar xzf - && \
   cd Python-3.10.9 && \
-  sed -i -e 's~ssldir/lib~ssldir/lib64~' configure && \
-  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib64 && \
+  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib && \
   make -j`nproc` && \
   make altinstall && \
   cd .. && \
