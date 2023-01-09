@@ -108,8 +108,8 @@ export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
 echo "Running ML native multi node tests"
-time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
-#time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS --tests "org.elasticsearch.xpack.ml.integration.AutoscalingIT”
+#time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+time ./gradlew "$GRADLE_JVM_OPTS" -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS --tests "org.elasticsearch.xpack.ml.integration.AutoscalingIT"
 echo "Completed ML native multi node tests"
 echo
 echo "Running ML x-pack yaml rest tests"
