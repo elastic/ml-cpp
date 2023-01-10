@@ -20,31 +20,32 @@ steps:
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
   
-        #
-        # Disable this step until https checkout is available
-        #
-        #
-        #- label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
-        #  timeout_in_minutes: 180
-        #  agents:
-        #    cpu: "6"
-        #    ephemeralStorage: "20G"
-        #    memory: "64G"
+  #
+  # Disable this step until https checkout is available
+  #
+  #
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
         #    image: "docker.elastic.co/ml-dev/ml-linux-build:24:bk2"
-        #  commands:
+    commands:
+      - 'echo Build & Test step disabled awaiting https checkout support'
         #    - 'echo "checkout succeeded"'
         #    - ".buildkite/scripts/steps/build_and_test.sh"
-        #  depends_on: "check_style"
+    depends_on: "check_style"
         #  # If changing the key here you will also need to
         #  # update the reference in hooks/post-checkout
-        #  key: "build_test_linux-x86_64-RelWithDebInfo"
-        #  plugins:
-        #    - test-collector#v1.2.0:
-        #        files: "lib/*/unittest/boost_test_results.junit"
-        #        format: "junit"
-        #  env:
-        #    RUN_TESTS: "true"
-        #    BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    key: "build_test_linux-x86_64-RelWithDebInfo"
+      #plugins:
+      #  - test-collector#v1.2.0:
+      #      files: "lib/*/unittest/boost_test_results.junit"
+      #      format: "junit"
+    env:
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
   
   - label: "Java Integration Tests"
     key: "java_integration_tests"
