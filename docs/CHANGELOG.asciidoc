@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.7.0
+
+=== Enhancements
+
+* Upgrade PyTorch to version 1.13.1. (See {ml-pull}2430[#2430].)
+
 == {es} version 8.6.0
 
 === Bug Fixes

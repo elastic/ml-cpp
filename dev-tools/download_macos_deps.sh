@@ -25,7 +25,7 @@ DEST=/usr
 case `uname -m` in
 
     arm64)
-        ARCHIVE=local-arm64-apple-macosx11.1-6.tar.bz2
+        ARCHIVE=local-arm64-apple-macosx11.1-7.tar.bz2
         ;;
 
     *)
