@@ -249,14 +249,53 @@ sudo ./cmake-3.23.2-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 
 Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
 
-### Python
+### OpenSSL
 
-PyTorch currently requires Python 3.7 or higher; we use version 3.10. If your system does not have a requisite version of Python install it with a package manager or build the last 3.10 release from source by downloading `Python-3.10.9.tgz` from <https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz> then extract and build:
+Python 3.10 requires OpenSSL 1.1. No other version is acceptable.
+
+If the `openssl-devel` package for your distribution happens to be version 1.1 then you can skip this step. Otherwise, you need to build OpenSSL 1.1 from source.
+
+Download `openssl-1.1.1q.tar.gz` from <https://www.openssl.org/source/old/1.1.1/openssl-1.1.1q.tar.gz>, then build as follows:
 
 ```
-tar -xzf Python-3.10.9.tgz
+tar zxvf openssl-1.1.1q.tar.gz
+cd openssl-1.1.1q
+./Configure --prefix=/usr/local/gcc103 shared linux-`uname -m`
+make
+make install
+```
+
+### Python
+
+PyTorch currently requires Python 3.7 or higher; we use version 3.10. If your system does not have a requisite version of Python install it with a package manager or build the last 3.10 release from source by downloading `Python-3.10.9.tgz` from <https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz> then extract as follows:
+
+```
+tar xzf Python-3.10.9.tgz
 cd Python-3.10.9
+```
+
+If the distribution you are building on uses OpenSSL 1.1 as its built in OpenSSL version then configure as follows:
+
+```
 ./configure --prefix=/usr/local/gcc103 --enable-optimizations
+```
+
+If you had to build OpenSSL 1.1 yourself then on x86_64 configure like this:
+
+```
+sed -i -e 's~ssldir/lib~ssldir/lib64~' configure
+./configure --prefix=/usr/local/gcc103 --enable-optimizations --with-openssl=/usr/local/gcc103 --with-openssl-rpath=/usr/local/gcc103/lib64
+```
+
+or on aarch64 configure like this:
+
+```
+./configure --prefix=/usr/local/gcc103 --enable-optimizations --with-openssl=/usr/local/gcc103 --with-openssl-rpath=/usr/local/gcc103/lib
+```
+
+Finally, build as follows:
+
+```
 make
 sudo make altinstall
 ```
@@ -281,6 +320,8 @@ sudo cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
 ```
 
 ### PyTorch 1.13.1
+
+(This step requires a reasonable amount of memory. It failed on a machine with 8GB of RAM. It succeeded on a 16GB machine.)
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.10`:
 
