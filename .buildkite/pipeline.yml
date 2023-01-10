@@ -65,8 +65,9 @@ steps:
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+
   - label: "Upload artefacts to S3"
     key: "upload_artefacts"
+    depends_on: "java_integration_tests"
     command:
-      - "echo 'Uploading artefacts to S3'"
       - "./.buildkite/scripts/steps/upload_to_s3.sh"
