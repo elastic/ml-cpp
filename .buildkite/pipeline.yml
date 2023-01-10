@@ -33,10 +33,10 @@ steps:
     # If changing the key here you will also need to
     # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-RelWithDebInfo"
-      plugins:
-        - test-collector#v1.2.0:
-            files: "lib/*/unittest/boost_test_results.junit"
-            format: "junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
     env:
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
