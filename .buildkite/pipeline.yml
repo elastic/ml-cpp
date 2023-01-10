@@ -14,48 +14,53 @@ env:
   BUILD_SNAPSHOT: "yes"
   CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
 steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
-    agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "6"
-      ephemeralStorage: "20G"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24:bk2"
-    commands:
-      - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh"
-    depends_on: "check_style"
-    # If changing the key here you will also need to
-    # update the reference in hooks/post-checkout
-    key: "build_test_linux-x86_64-RelWithDebInfo"
-    plugins:
-      - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
-          format: "junit"
-    env:
-      RUN_TESTS: "true"
-      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
-  - label: "Java Integration Tests"
-    key: "java_integration_tests"
-    command: 
-      #- 'buildkite-agent artifact download "build/*" . --build 0185775e-5b71-4dc8-bb49-849040b7c009'
-      - 'buildkite-agent artifact download "build/*" .'
-      - "mkdir -p ~/.ssh"
-      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
-    agents:
-      cpu: "16"
-      ephemeralStorage: "20G"
-      memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_jdk17:1"
-      # Run as a non-root user
-      imageUID: "501"
-    env:
-      IVY_REPO: "${REPO_ROOT}/../ivy"
-      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+  - label: "Vault Test"
+    command: ".buildkite/read-vault-secret.sh"
+
+      #  - label: "Validate formatting with clang-format"
+      #    key: "check_style"
+      #    command: ".buildkite/scripts/steps/check-style.sh --all"
+      #    agents:
+      #      image: "docker.elastic.co/ml-dev/ml-check-style:2.bk"
+      #
+      #  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+      #    timeout_in_minutes: 180
+      #    agents:
+      #      cpu: "6"
+      #      ephemeralStorage: "20G"
+      #      memory: "64G"
+      #      image: "docker.elastic.co/ml-dev/ml-linux-build:24:bk2"
+      #    commands:
+      #      - 'echo "checkout succeeded"'
+      #      - ".buildkite/scripts/steps/build_and_test.sh"
+      #    depends_on: "check_style"
+      #    # If changing the key here you will also need to
+      #    # update the reference in hooks/post-checkout
+      #    key: "build_test_linux-x86_64-RelWithDebInfo"
+      #    plugins:
+      #      - test-collector#v1.2.0:
+      #          files: "lib/*/unittest/boost_test_results.junit"
+      #          format: "junit"
+      #    env:
+      #      RUN_TESTS: "true"
+      #      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+      #
+      #  - label: "Java Integration Tests"
+      #    key: "java_integration_tests"
+      #    command: 
+      #      #- 'buildkite-agent artifact download "build/*" . --build 0185775e-5b71-4dc8-bb49-849040b7c009'
+      #      - 'buildkite-agent artifact download "build/*" .'
+      #      - "mkdir -p ~/.ssh"
+      #      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+      #      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+      #    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+      #    agents:
+      #      cpu: "16"
+      #      ephemeralStorage: "20G"
+      #      memory: "32G"
+      #      image: "docker.elastic.co/ml-dev/ml_cpp_jdk17:1"
+      #      # Run as a non-root user
+      #      imageUID: "501"
+      #    env:
+      #      IVY_REPO: "${REPO_ROOT}/../ivy"
+      #      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
