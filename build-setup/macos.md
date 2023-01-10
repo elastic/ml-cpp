@@ -125,7 +125,7 @@ sudo ln -s /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
 
 PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
-Download the graphical installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-macosx11.pkg>.
+Download the graphical installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-macos11.pkg>.
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
