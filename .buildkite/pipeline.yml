@@ -32,7 +32,7 @@ steps:
       memory: "64G"
         #    image: "docker.elastic.co/ml-dev/ml-linux-build:24:bk2"
     commands:
-      - 'echo Build & Test step disabled awaiting https checkout support'
+      - echo 'Build & Test step disabled awaiting https checkout support'
         #    - 'echo "checkout succeeded"'
         #    - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
