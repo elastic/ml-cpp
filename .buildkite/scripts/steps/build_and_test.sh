@@ -12,10 +12,32 @@ set -euo pipefail
 
 export CMAKE_QUIET="yes"
 
+# Default to a snapshot build
+if [ -z "$BUILD_SNAPSHOT" ] ; then
+    BUILD_SNAPSHOT=true
+fi
+
+# Default to running tests
+if [ -z "$RUN_TESTS" ] ; then
+    RUN_TESTS=true
+fi
+
 if [ "$BUILD_SNAPSHOT" = false ] ; then
     export SNAPSHOT=no
 else
     export SNAPSHOT=yes
+fi
+
+# Version qualifier shouldn't be used in PR builds
+if [[ -n "$BUILDKITE_PULL_REQUEST" && -n "$VERSION_QUALIFIER" ]] ; then
+    echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
+    exit 2
+fi
+
+# Tests must be run in PR builds
+if [[ -n "$BUILDKITE_PULL_REQUEST" && "$RUN_TESTS" = false ]] ; then
+    echo "RUN_TESTS should not be false PR builds"
+    exit 3
 fi
 
 echo "environment variables:"
