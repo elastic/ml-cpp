@@ -48,15 +48,15 @@ steps:
     command: 
       #- 'buildkite-agent artifact download "build/*" . --build 0185775e-5b71-4dc8-bb49-849040b7c009'
       - 'buildkite-agent artifact download "build/*" .'
-      - "mkdir -p ~/.ssh"
-      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+        #- "mkdir -p ~/.ssh"
+        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "16"
       ephemeralStorage: "20G"
       memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_jdk17:1"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:1"
       # Run as a non-root user
       imageUID: "1000"
     env:
@@ -67,4 +67,5 @@ steps:
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
+      - 'buildkite-agent artifact download "build/*" .'
       - "./.buildkite/scripts/steps/upload_to_s3.sh"
