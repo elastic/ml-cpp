@@ -37,7 +37,7 @@ steps:
     key: "build_test_linux-x86_64-RelWithDebInfo"
     plugins:
       - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "lib/*/**/unittest/boost_test_results.junit"
           format: "junit"
     env:
       RUN_TESTS: "true"
@@ -48,8 +48,8 @@ steps:
     command: 
       #- 'buildkite-agent artifact download "build/*" . --build 0185775e-5b71-4dc8-bb49-849040b7c009'
       - 'buildkite-agent artifact download "build/*" .'
-        #- "mkdir -p ~/.ssh"
-        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+      - "mkdir -p ~/.ssh"
+      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
