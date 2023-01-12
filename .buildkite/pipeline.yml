@@ -35,7 +35,7 @@ steps:
     # If changing the key here you will also need to
     # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-RelWithDebInfo"
-    artifacts_paths: "lib/*/unittest/boost_test_results.junit"
+    artifact_paths: "lib/*/unittest/boost_test_results.junit"
 
   - wait
 
