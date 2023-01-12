@@ -22,7 +22,6 @@ steps:
   
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
-      agents:
     agents:
       imagePrefix: ci-amazonlinux-2-aarch64
       provider: aws
