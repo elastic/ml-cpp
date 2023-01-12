@@ -35,9 +35,15 @@ steps:
     # If changing the key here you will also need to
     # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-RelWithDebInfo"
+    artifacts_paths: "lib/*/unittest/boost_test_results.junit"
+
+  - wait
+
+  - label: "🔍 Test Analytics"
+    command: "buildkite-agent artifact download lib/*/unittest/boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "lib/*/**/unittest/boost_test_results.junit"
+          files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
     env:
       RUN_TESTS: "true"
