@@ -27,7 +27,8 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+        #image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:9"
     commands:
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
@@ -35,15 +36,12 @@ steps:
     # If changing the key here you will also need to
     # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-RelWithDebInfo"
-    artifact_paths: "lib/*/unittest/boost_test_results.junit"
+    artifact_paths:
+      - "lib/*/unittest/boost_test_results.junit"
+      - "bin/*/unittest/boost_test_results.junit"
     env:
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
-
-  - wait
-
-  - label: "🔍 Test Analytics"
-    command: "buildkite-agent artifact download lib/*/unittest/boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
