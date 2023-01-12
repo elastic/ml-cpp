@@ -36,6 +36,9 @@ steps:
     # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-RelWithDebInfo"
     artifact_paths: "lib/*/unittest/boost_test_results.junit"
+    env:
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
 
   - wait
 
@@ -45,9 +48,6 @@ steps:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-    env:
-      RUN_TESTS: "true"
-      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
   
   - label: "Java Integration Tests"
     key: "java_integration_tests"
