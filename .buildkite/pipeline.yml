@@ -23,14 +23,11 @@ steps:
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-      imagePrefix: ci-amazonlinux-2-aarch64
-      provider: aws
-      instanceType: m6g.xlarge
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:9"
         #image: "docker.elastic.co/ml-dev/ml-linux-build:24"
-      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:9"
     commands:
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
