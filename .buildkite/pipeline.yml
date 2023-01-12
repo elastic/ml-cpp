@@ -8,12 +8,11 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 env:
-  BUILD_OS: "linux"
-  BUILD_ARCH: "x86_64"
-  BUILD_TYPE: "RelWithDebInfo"
+  #BUILD_OS: "linux"
+  #BUILD_ARCH: "x86_64"
+  #BUILD_TYPE: "RelWithDebInfo"
   BUILD_SNAPSHOT: "yes"
   VERSION_QUALIFIER: ""
-  CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
@@ -23,7 +22,11 @@ steps:
   
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
+      agents:
     agents:
+      imagePrefix: ci-amazonlinux-2-aarch64
+      provider: aws
+      instanceType: m6g.xlarge
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
@@ -40,6 +43,8 @@ steps:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
     env:
+      #CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
