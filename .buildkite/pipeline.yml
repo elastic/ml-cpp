@@ -8,9 +8,6 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 env:
-  #BUILD_OS: "linux"
-  #BUILD_ARCH: "x86_64"
-  #BUILD_TYPE: "RelWithDebInfo"
   BUILD_SNAPSHOT: "yes"
   VERSION_QUALIFIER: ""
 steps:
@@ -26,8 +23,7 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:9"
-        #image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
     commands:
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
@@ -39,9 +35,7 @@ steps:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
     env:
-      #CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      CPP_CROSS_COMPILE: "aarch64"
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
@@ -52,11 +46,11 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
-      #- 'buildkite-agent artifact download "build/*" . --build 0185775e-5b71-4dc8-bb49-849040b7c009'
-      - 'buildkite-agent artifact download "build/*" .'
-      - "mkdir -p ~/.ssh"
-      - "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "mkdir -p ~/.ssh"
+        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "16"
