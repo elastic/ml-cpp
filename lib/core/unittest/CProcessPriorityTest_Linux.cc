@@ -60,8 +60,8 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 }
 }
 
-// temporarily disabled during testing building on Kubernetes
-// DO NOT MERGE TO PRODUCTION BRANCHES
+// This test has been disabled as the functionality it exercises does not work on Kubernetes.
+// c.f. https://github.com/elastic/ml-cpp/issues/1899
 BOOST_AUTO_TEST_CASE(testReduceMemoryPriority, *utf::disabled()) {
     BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceMemoryPriority());
 
