@@ -17,7 +17,9 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
-# Default to running tests
+# Default to running tests.
+# Not every build step will be able to run the tests
+# e.g. cross compilations.
 if [ -z "$RUN_TESTS" ] ; then
     RUN_TESTS=true
 fi
@@ -32,12 +34,6 @@ fi
 if [[ -n "$BUILDKITE_PULL_REQUEST" && -n "$VERSION_QUALIFIER" ]] ; then
     echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
     exit 2
-fi
-
-# Tests must be run in PR builds
-if [[ -n "$BUILDKITE_PULL_REQUEST" && "$RUN_TESTS" = false ]] ; then
-    echo "RUN_TESTS should not be false PR builds"
-    exit 3
 fi
 
 echo "environment variables:"
