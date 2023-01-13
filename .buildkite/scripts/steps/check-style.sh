@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -9,8 +9,11 @@
 # limitation.
 #
 
-execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
-if (NOT TEST_SUCCESS EQUAL 0)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${TEST_DIR}/${TEST_NAME}.out)
-  file(WRITE "${TEST_DIR}/${TEST_NAME}.failed" "")
-endif()
+set -euo pipefail
+
+source ${REPO_ROOT}/.buildkite/scripts/common/base.sh
+
+# override the setting in the check_style docker image
+unset CPP_SRC_HOME
+
+./dev-tools/check-style.sh ${@}
