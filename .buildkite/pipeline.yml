@@ -17,25 +17,23 @@ steps:
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
   
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:10"
     commands:
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
-    # If changing the key here you will also need to
-    # update the reference in hooks/post-checkout
-    key: "build_test_linux-x86_64-RelWithDebInfo"
+    key: "build_test_linux-aarch64-RelWithDebInfo"
     artifact_paths:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
     env:
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
@@ -51,7 +49,7 @@ steps:
         #- "mkdir -p ~/.ssh"
         #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
         #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    depends_on: "build_test_linux-aarch64-RelWithDebInfo"
     agents:
       cpu: "16"
       ephemeralStorage: "20G"
