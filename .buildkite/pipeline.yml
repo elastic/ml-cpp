@@ -1,0 +1,71 @@
+## 🏠/.buildkite/pipeline.yml
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+env:
+  BUILD_SNAPSHOT: "yes"
+  VERSION_QUALIFIER: ""
+steps:
+  - label: "Validate formatting with clang-format"
+    key: "check_style"
+    command: ".buildkite/scripts/steps/check-style.sh --all"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+  
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    # If changing the key here you will also need to
+    # update the reference in hooks/post-checkout
+    key: "build_test_linux-x86_64-RelWithDebInfo"
+    artifact_paths:
+      - "lib/*/unittest/boost_test_results.junit"
+      - "bin/*/unittest/boost_test_results.junit"
+    env:
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+  
+  - label: "Java Integration Tests"
+    key: "java_integration_tests"
+    command: 
+      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "mkdir -p ~/.ssh"
+        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    agents:
+      cpu: "16"
+      ephemeralStorage: "20G"
+      memory: "32G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:1"
+      # Run as a non-root user
+      imageUID: "1000"
+    env:
+      IVY_REPO: "${REPO_ROOT}/../ivy"
+      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+
+  - label: "Upload artefacts to S3"
+    key: "upload_artefacts"
+    depends_on: "java_integration_tests"
+    command:
+      - 'buildkite-agent artifact download "build/*" .'
+      - "./.buildkite/scripts/steps/upload_to_s3.sh"

@@ -1,0 +1,31 @@
+## 🏠/.buildkite/pipeline.yml
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+env:
+  BUILD_SNAPSHOT: "yes"
+  CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+  ML_DEBUG: 1
+steps:
+  - label: "Testing of the Machine Learning main branch with full debug and assertions."
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+        image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+    commands:
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    key: "build_test_linux-x86_64-Debug"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+    env:
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
