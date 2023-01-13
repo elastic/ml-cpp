@@ -49,7 +49,7 @@ steps:
     env:
       # Tell the build we want to cross compile
       CPP_CROSS_COMPILE: "macosx"
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/darwin-x86_64.cmake"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake"
       RUN_TESTS: "false"
 
   - wait
