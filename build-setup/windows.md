@@ -247,6 +247,11 @@ doing and never want to do for security reasons. Replacing the calls to
 potentially dangerous function calls in our shipped product will not encounter
 these functions that run external processes.
 
+In `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
+rename `libomp.lib` to `libomp.lib.bak` and rename `libompd.lib` to `libompd.lib.bak`.
+This is to prevent CMake's FindOpenMP module from linking to Microsoft's experimental
+library that we are not allowed to redistribute.
+
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
@@ -283,3 +288,6 @@ cp torch/lib/fbgemm.lib /c/usr/local/lib/
 cp torch/lib/asmjit.dll /c/usr/local/bin/
 cp torch/lib/asmjit.lib /c/usr/local/lib/
 ```
+
+Finally, in `C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\lib\x64`
+rename `libomp.lib.bak` to `libomp.lib` and rename `libompd.lib.bak` to `libompd.lib`.
