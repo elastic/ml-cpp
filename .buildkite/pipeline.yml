@@ -23,7 +23,7 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:24"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
     commands:
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
