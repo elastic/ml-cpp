@@ -70,26 +70,26 @@ rm -rf elasticsearch
 git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
 cd elasticsearch
 
-export ES_BUILD_JAVA="$(grep "^ES_BUILD_JAVA" .ci/java-versions.properties | awk -F= '{ print $2 }' | xargs echo)"
-if [ -z "$ES_BUILD_JAVA" ]; then
-    echo "Unable to set JAVA_HOME, ES_BUILD_JAVA not present in .ci/java-versions.properties"
-    exit 1
-fi
-
-# On aarch64:
-# - openjdk is built with a 64KB page size
-# - adoptopenjdk is built with a 4KB page size
-# It's necessary to use use the one that matches the page size of the
-# distribution that it's running on, which is:
-# - 4KB for Ubuntu, Debian and SLES
-# - 64KB for RHEL and CentOS
-# There's a link "jdk<version>" pointing to the appropriate JDK on each CI worker,
-# so strip any specifics from what was specified in .ci/java-versions.properties.
-if [ `uname -m` = aarch64 ] ; then
-    export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/.*jdk/jdk/')
-fi
-
 if [ -z "${BUILDKITE}" ]; then
+  export ES_BUILD_JAVA="$(grep "^ES_BUILD_JAVA" .ci/java-versions.properties | awk -F= '{ print $2 }' | xargs echo)"
+  if [ -z "$ES_BUILD_JAVA" ]; then
+      echo "Unable to set JAVA_HOME, ES_BUILD_JAVA not present in .ci/java-versions.properties"
+      exit 1
+  fi
+  
+  # On aarch64:
+  # - openjdk is built with a 64KB page size
+  # - adoptopenjdk is built with a 4KB page size
+  # It's necessary to use use the one that matches the page size of the
+  # distribution that it's running on, which is:
+  # - 4KB for Ubuntu, Debian and SLES
+  # - 64KB for RHEL and CentOS
+  # There's a link "jdk<version>" pointing to the appropriate JDK on each CI worker,
+  # so strip any specifics from what was specified in .ci/java-versions.properties.
+  if [ `uname -m` = aarch64 ] ; then
+      export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/.*jdk/jdk/')
+  fi
+
   echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
   export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
 fi
