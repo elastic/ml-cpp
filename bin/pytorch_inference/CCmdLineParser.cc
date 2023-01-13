@@ -12,6 +12,8 @@
 
 #include <ver/CBuildInfo.h>
 
+#include <torch/csrc/api/include/torch/version.h>
+
 #include <boost/program_options.hpp>
 
 #include <iostream>
@@ -85,7 +87,8 @@ bool CCmdLineParser::parse(int argc,
             return false;
         }
         if (vm.count("version") > 0) {
-            std::cerr << ver::CBuildInfo::fullInfo() << std::endl;
+            std::cerr << "PyTorch Version " << TORCH_VERSION << std::endl
+                      << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
         if (vm.count("modelid") > 0) {

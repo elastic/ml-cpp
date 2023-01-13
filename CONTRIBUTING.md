@@ -92,6 +92,14 @@ are cloned in adjacent directories then you could run this in the `elasticsearch
 ./gradlew :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest --tests "org.elasticsearch.xpack.ml.integration.MlJobIT" --include-build ../ml-cpp
 ```
 
+Before using `--include-build` for the first time when building the C++ together with Elasticsearch
+it's necessary to run this command in the `elasticsearch` directory to verify the extra components
+used in the C++ build:
+
+```
+./gradlew --write-verification-metadata sha256 help --include-build ~/ml-cpp
+```
+
 ## Pull Requests
 
 Every change made to ml-cpp must be held to a high standard, Pull Requests are equally important as they document changes and decissions that have been made. `You Know, for Search` - a descriptive and relevant summary of the change helps people to find your PR later on.

@@ -28,12 +28,19 @@
 
 //=== Regressions
 
+== {es} version 8.7.0
+
+=== Enhancements
+
+* Upgrade PyTorch to version 1.13.1. (See {ml-pull}2430[#2430].)
+
 == {es} version 8.6.0
 
 === Bug Fixes
 
 * Fix for 'No statistics' error message. (See {ml-pull}2410[#2410].)
 * Fix for 'No counts available' error message. (See {ml-pull}2414[#2414].)
+* Improve performance of closing files before spawning. (See {ml-pull}2424[#2424].)
 
 == {es} version 8.5.0
 

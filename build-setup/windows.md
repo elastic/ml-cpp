@@ -177,13 +177,13 @@ lib -NOLOGO strptime.obj
 copy strptime.lib C:\usr\local\lib
 ```
 
-### Python 3.7
+### Python 3.10
 
-PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that.
+PyTorch currently requires Python 3.7 or higher; we use version 3.10.
 
-Download the executable installer for Python 3.7.9 from <https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe>.
+Download the executable installer for Python 3.10.9 from <https://www.python.org/ftp/python/3.10.9/python-3.10.9-amd64.exe>.
 
-Right click on the installer and "Run as administrator".  (Note that evelating privileges during the install is not sufficient for the Python 3.7.9 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.7.9.)
+Right click on the installer and "Run as administrator".  (Note that evelating privileges during the install is not sufficient for the Python 3.10.9 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.10.9.)
 
 On the first installer screen click "Customize installation".  (Although "Install Now" seems like it would do the job, the "Install launcher for all users" option literally only installs the _launcher_ for all users, not Python itself.)
 
@@ -193,7 +193,9 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.11.0
+### PyTorch 1.13.1
+
+(This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
@@ -207,7 +209,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.11.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.13.1 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -258,7 +260,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.11.0
+set PYTORCH_BUILD_VERSION=1.13.1
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```

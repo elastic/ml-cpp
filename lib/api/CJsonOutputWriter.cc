@@ -380,7 +380,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
                   bucketData.s_DocumentsToWrite.end(), DETECTOR_PROBABILITY_LESS);
 
         m_Writer.StartObject();
-        m_Writer.String(RECORDS);
+        m_Writer.Key(RECORDS);
         m_Writer.StartArray();
 
         // Iterate over the different detectors that we have results for
@@ -413,7 +413,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
     // Write influencers
     if (!bucketData.s_InfluencerDocuments.empty()) {
         m_Writer.StartObject();
-        m_Writer.String(INFLUENCERS);
+        m_Writer.Key(INFLUENCERS);
         m_Writer.StartArray();
         for (TDocumentWeakPtrVecItr influencerIter =
                  bucketData.s_InfluencerDocuments.begin();
@@ -439,30 +439,30 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
 
     // Write bucket at the end, as some of its values need to iterate over records, etc.
     m_Writer.StartObject();
-    m_Writer.String(BUCKET);
+    m_Writer.Key(BUCKET);
 
     m_Writer.StartObject();
-    m_Writer.String(JOB_ID);
+    m_Writer.Key(JOB_ID);
     m_Writer.String(m_JobId);
-    m_Writer.String(TIMESTAMP);
+    m_Writer.Key(TIMESTAMP);
     m_Writer.Time(bucketTime);
 
-    m_Writer.String(ANOMALY_SCORE);
+    m_Writer.Key(ANOMALY_SCORE);
     m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
-    m_Writer.String(INITIAL_SCORE);
+    m_Writer.Key(INITIAL_SCORE);
     m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
-    m_Writer.String(EVENT_COUNT);
+    m_Writer.Key(EVENT_COUNT);
     m_Writer.Uint64(bucketData.s_InputEventCount);
     if (isInterim) {
-        m_Writer.String(IS_INTERIM);
+        m_Writer.Key(IS_INTERIM);
         m_Writer.Bool(isInterim);
     }
-    m_Writer.String(BUCKET_SPAN);
+    m_Writer.Key(BUCKET_SPAN);
     m_Writer.Int64(bucketData.s_BucketSpan);
 
     if (!bucketData.s_BucketInfluencerDocuments.empty()) {
         // Write the array of influencers
-        m_Writer.String(BUCKET_INFLUENCERS);
+        m_Writer.Key(BUCKET_INFLUENCERS);
         m_Writer.StartArray();
         for (TDocumentWeakPtrVecItr influencerIter =
                  bucketData.s_BucketInfluencerDocuments.begin();
@@ -486,11 +486,11 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         m_Writer.EndArray();
     }
 
-    m_Writer.String(PROCESSING_TIME);
+    m_Writer.Key(PROCESSING_TIME);
     m_Writer.Uint64(bucketProcessingTime);
 
     if (bucketData.s_ScheduledEventDescriptions.empty() == false) {
-        m_Writer.String(SCHEDULED_EVENTS);
+        m_Writer.Key(SCHEDULED_EVENTS);
         m_Writer.StartArray();
         for (const auto& it : bucketData.s_ScheduledEventDescriptions) {
             m_Writer.String(it);
@@ -833,7 +833,7 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
     m_Writer.StartObject();
-    m_Writer.String(QUANTILES);
+    m_Writer.Key(QUANTILES);
     // No need to copy the strings as the doc is written straight away
     CModelSnapshotJsonWriter::writeQuantileState(
         m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
@@ -873,12 +873,12 @@ void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldN
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
                                          core_t::TTime lastFinalizedBucketEnd) {
     m_Writer.StartObject();
-    m_Writer.String(FLUSH);
+    m_Writer.Key(FLUSH);
     m_Writer.StartObject();
 
-    m_Writer.String(ID);
+    m_Writer.Key(ID);
     m_Writer.String(flushId);
-    m_Writer.String(LAST_FINALIZED_BUCKET_END);
+    m_Writer.Key(LAST_FINALIZED_BUCKET_END);
     m_Writer.Time(lastFinalizedBucketEnd);
 
     m_Writer.EndObject();
