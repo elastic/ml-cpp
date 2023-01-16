@@ -43,7 +43,7 @@ function prefetch_docker_image {
 #
 # The argument is the path to the Dockerfile to be built.
 function prefetch_docker_base_image {
-    DOCKERFILE="$2"
+    DOCKERFILE="$1"
     IMAGE=$(grep '^FROM' "$DOCKERFILE" | awk '{ print $2 }' | head -1)
     prefetch_docker_image "$IMAGE"
 }

@@ -25,6 +25,8 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:25"
     commands:
+      - 'du -sh'
+      - 'df -h'
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
@@ -50,6 +52,7 @@ steps:
       imagePrefix: ci-amazonlinux-2-aarch64
       ephemeralStorage: "20G"
     commands:
+      - 'du -sh'
       - 'df -h'
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
