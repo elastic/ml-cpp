@@ -34,6 +34,7 @@ steps:
       - "bin/*/unittest/boost_test_results.junit"
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
@@ -57,6 +58,7 @@ steps:
       - "bin/*/unittest/boost_test_results.junit"
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
+      CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
