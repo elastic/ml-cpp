@@ -8,9 +8,6 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 env:
-  BUILD_OS: "linux"
-  BUILD_ARCH: "x86_64"
-  BUILD_TYPE: "Debug"
   BUILD_SNAPSHOT: "yes"
   CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
   ML_DEBUG: 1
@@ -21,11 +18,9 @@ steps:
       cpu: "6"
       ephemeralStorage: "20G"
       memory: "64G"
-        image: "docker.elastic.co/ml-dev/ml-linux-build:24.bk"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
     commands:
       - ".buildkite/scripts/steps/build_and_test.sh"
-    # If changing the key here you will also need to
-    # update the reference in hooks/post-checkout
     key: "build_test_linux-x86_64-Debug"
     plugins:
       - test-collector#v1.2.0:
