@@ -67,6 +67,9 @@ cd "$TOOLS_DIR/.."
 # necessary network access
 3rd_party/pull-eigen.sh
 
+du -sh .
+df -h .
+
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 
 for PLATFORM in `echo $PLATFORMS | tr ' ' '\n' | sort -u`
