@@ -50,7 +50,7 @@ steps:
       imagePrefix: ci-amazonlinux-2-aarch64
       ephemeralStorage: "20G"
     commands:
-      - 'df -h"'
+      - 'df -h'
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
