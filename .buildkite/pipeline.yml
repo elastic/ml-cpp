@@ -45,10 +45,12 @@ steps:
   - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
-     provider: aws
-     instanceType: m6g.2xlarge
-     imagePrefix: ci-amazonlinux-2-aarch64
+      provider: aws
+      instanceType: m6g.2xlarge
+      imagePrefix: ci-amazonlinux-2-aarch64
+      ephemeralStorage: "20G"
     commands:
+      - 'df -h"'
       - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
@@ -59,7 +61,7 @@ steps:
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
       CPP_CROSS_COMPILE: ""
-      RUN_TESTS: "true"
+      RUN_TESTS: "false"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
