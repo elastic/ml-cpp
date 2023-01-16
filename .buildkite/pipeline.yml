@@ -48,7 +48,7 @@ steps:
     timeout_in_minutes: 180
     agents:
       provider: aws
-      instanceType: m6g.2xlarge
+      instanceType: m6gd.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
       ephemeralStorage: "20G"
     commands:
