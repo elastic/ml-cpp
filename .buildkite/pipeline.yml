@@ -51,6 +51,7 @@ steps:
       instanceType: m6gd.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
       diskSizeGb: 200
+      diskName: '/dev/nvme0n1p1`
     commands:
       - 'du -sh'
       - 'df -h'
