@@ -38,7 +38,7 @@ HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 echo "environment variables:"
 env
 
-if [ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ] ; then 
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
