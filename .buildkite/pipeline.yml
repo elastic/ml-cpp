@@ -68,4 +68,12 @@ steps:
     depends_on: "java_integration_tests"
     command:
       - 'buildkite-agent artifact download "build/*" .'
+      - "env"
       - "./.buildkite/scripts/steps/upload_to_s3.sh"
+    agents:
+      cpu: "16"
+      ephemeralStorage: "20G"
+      memory: "32G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:1"
+      # Run as a non-root user
+      imageUID: "1000"
