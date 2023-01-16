@@ -10,8 +10,6 @@
 
 set -euo pipefail
 
-export CMAKE_QUIET="yes"
-
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true

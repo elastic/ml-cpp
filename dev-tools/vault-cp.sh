@@ -23,9 +23,9 @@ set -eo pipefail
 
 # ensure we were given two command line arguments
 if [[ $# -ne 2 ]]; then
-	echo 'usage: vault-cp SOURCE DEST' >&2
-	echo 'e.g.: vault-cp aws-dev/creds/prelertartifacts secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts' >&2
-	exit 1
+  echo 'usage: vault-cp SOURCE DEST' >&2
+  echo 'e.g.: vault-cp aws-dev/creds/prelertartifacts secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts' >&2
+  exit 1
 fi
 
 source=$1
@@ -33,8 +33,8 @@ dest=$2
 
 # check for dependencies
 if ! command -v jq > /dev/null; then
-	echo 'vault-cp: required command "jq" was not found' >&2
-	exit 1
+  echo 'vault-cp: required command "jq" was not found' >&2
+  exit 1
 fi
 
 printf "Please enter your GitHub token for vault: "
@@ -51,15 +51,15 @@ source_data=$(echo "$source_json" | jq '.data')
 [[ -n $DEBUG ]] && printf '%s\n' "$source_data"
 
 if  VAULT_TOKEN=$CI_VAULT_TOKEN VAULT_ADDR=https://vault-ci-prod.elastic.dev vault read "$dest" > /dev/null 2>&1; then
-	overwrite='n'
-	printf 'Destination "%s" already exists...overwrite? [y/N] ' "$dest"
-	read -r overwrite
+  overwrite='n'
+  printf 'Destination "%s" already exists...overwrite? [y/N] ' "$dest"
+  read -r overwrite
 
-	# only overwrite if user explicitly confirms
-	if [[ ! $overwrite =~ ^[Yy]$ ]]; then
-		echo 'vault-cp: copying has been aborted' >&2
-		exit 1
-	fi
+  # only overwrite if user explicitly confirms
+  if [[ ! $overwrite =~ ^[Yy]$ ]]; then
+    echo 'vault-cp: copying has been aborted' >&2
+    exit 1
+  fi
 fi
 
 echo "$source_data" | VAULT_TOKEN=$CI_VAULT_TOKEN VAULT_ADDR=https://vault-ci-prod.elastic.dev vault write "$dest" -

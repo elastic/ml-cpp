@@ -17,6 +17,30 @@ steps:
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
   
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_test_linux-x86_64-RelWithDebInfo"
+    artifact_paths:
+      - "lib/*/unittest/boost_test_results.junit"
+      - "bin/*/unittest/boost_test_results.junit"
+    env:
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+  
   - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -30,8 +54,8 @@ steps:
     depends_on: "check_style"
     key: "build_linux_aarch64_cross-RelWithDebInfo"
     env:
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       CPP_CROSS_COMPILE: "aarch64"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       RUN_TESTS: "false"
 
   - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
@@ -47,13 +71,12 @@ steps:
     depends_on: "check_style"
     key: "build_macos_aarch64_cross-RelWithDebInfo"
     env:
-      # Tell the build we want to cross compile
       CPP_CROSS_COMPILE: "macosx"
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
       RUN_TESTS: "false"
 
   - wait
-  
+
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
