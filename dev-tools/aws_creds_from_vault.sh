@@ -52,7 +52,7 @@ fi
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
-    AWS_CREDS=$(vault read -format=json -field=data ${PRFEIX}aws-dev/creds/prelertartifacts)
+    AWS_CREDS=$(vault read -format=json -field=data ${PREFIX}aws-dev/creds/prelertartifacts)
     if [ $? -eq 0 ] ; then
         export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
         export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
