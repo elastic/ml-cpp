@@ -769,6 +769,19 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
     LOG_TRACE(<< "samples = " << samples);
 }
 
+bool COneOfNPrior::isMultimodal() const {
+    double sumOfWeights{0.0};
+    for (const auto& weight : this->weights()) {
+        sumOfWeights += weight;
+    }
+    for (const auto& model : m_Models) {
+        if (model.second->type() == EPrior::E_Multimodal && model.first / sumOfWeights > 0.1) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
                                         const TDouble1Vec& samples,
                                         const TDoubleWeightsAry1Vec& weights,

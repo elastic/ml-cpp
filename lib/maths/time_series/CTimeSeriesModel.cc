@@ -23,6 +23,7 @@
 #include <maths/common/CModelDetail.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COneOfNPrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPrior.h>
@@ -1075,11 +1076,23 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
     }
 
+    result.s_AnomalyScoreExplanation.s_MultimodalDistribution = this->multimodalPrior();
+    LOG_DEBUG(<< "Multimodel distribution: "
+              << result.s_AnomalyScoreExplanation.s_MultimodalDistribution);
+
     result.s_Probability = pOverall;
     result.s_FeatureProbabilities = std::move(featureProbabilities);
     result.s_Tail = {tail};
 
     return true;
+}
+
+bool CUnivariateTimeSeriesModel::multimodalPrior() const {
+    LOG_DEBUG(<< "Residual model type " << m_ResidualModel->type());
+    if (m_ResidualModel->type() == common::CPrior::E_OneOfN) {
+        return static_cast<common::COneOfNPrior*>(m_ResidualModel.get())->isMultimodal();
+    }
+    return false;
 }
 
 bool CUnivariateTimeSeriesModel::correlatedProbability(

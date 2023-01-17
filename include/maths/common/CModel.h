@@ -260,6 +260,7 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
     double s_UpperConfidenceBound{std::numeric_limits<double>::quiet_NaN()};
     bool s_HighVariancePenalty{false};
     bool s_IncompleteBucketPenalty{false};
+    bool s_MultimodalDistribution{false};
 
     std::string print() const {
         return "Anomaly Score Explanation:\ntype: " + std::to_string(s_AnomalyType) +
@@ -273,7 +274,9 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
                "\n high variance penalty: " +
                std::to_string(static_cast<int>(s_HighVariancePenalty)) +
                ", incomplete bucket_penalty: " +
-               std::to_string(static_cast<int>(s_IncompleteBucketPenalty));
+               std::to_string(static_cast<int>(s_IncompleteBucketPenalty)) +
+               ", is multimodal distribution" +
+               std::to_string(static_cast<int>(s_MultimodalDistribution));
     }
 };
 

@@ -216,6 +216,9 @@ public:
     //! \note \p numberSamples is truncated to the number of samples received.
     void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const override;
 
+    //! Determines whether the prior distribution is multimodal.
+    bool isMultimodal() const;
+
 private:
     //! The common c.d.f. implementation.
     bool minusLogJointCdfImpl(bool complement,
