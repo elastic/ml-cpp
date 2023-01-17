@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.7.0
+
+=== Enhancements
+
+* Add identification of multimodal distribution to anomaly explanations. (See {ml-pull}2440[#2440].)
+
 == {es} version 8.6.0
 
 === Bug Fixes
