@@ -25,7 +25,7 @@ usage() {
 }
 
 PLATFORMS=
-EXTRACT_FIND="-name boost_test_results.xml"
+EXTRACT_FIND="-name boost_test_results.xml -o -name boost_test_results.junit"
 EXTRACT_EXPLICIT="build/distributions build/test_status.txt"
 
 while [ -n "$1" ]
