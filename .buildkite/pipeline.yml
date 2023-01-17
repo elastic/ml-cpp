@@ -48,10 +48,10 @@ steps:
     timeout_in_minutes: 180
     agents:
       provider: aws
-      instanceType: m6gd.2xlarge
+      instanceType: m6g.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
       diskSizeGb: 200
-      diskName: '/dev/nvme0n1p1'
+      diskName: '/dev/xvda'
     commands:
       - 'du -sh'
       - 'df -h'
