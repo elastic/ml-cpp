@@ -50,7 +50,7 @@ steps:
       provider: aws
       instanceType: m6g.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
-      diskSizeGb: 200
+      diskSizeGb: 20
       diskName: '/dev/xvda'
     commands:
       - 'du -sh'
@@ -65,7 +65,7 @@ steps:
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
       CPP_CROSS_COMPILE: ""
-      RUN_TESTS: "false"
+      RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
