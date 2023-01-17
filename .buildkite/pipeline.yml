@@ -50,7 +50,7 @@ steps:
       provider: aws
       instanceType: m6g.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
-      diskSizeGb: 20
+      diskSizeGb: 40
       diskName: '/dev/xvda'
     commands:
       - 'du -sh'
