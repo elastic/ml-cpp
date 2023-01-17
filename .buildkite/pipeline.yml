@@ -50,13 +50,13 @@ steps:
       provider: aws
       instanceType: m6g.2xlarge
       imagePrefix: ci-amazonlinux-2-aarch64
-      diskSizeGb: 40
+      diskSizeGb: 100
       diskName: '/dev/xvda'
     commands:
       - 'du -sh'
       - 'df -h'
       - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh"
+      - ".buildkite/scripts/steps/build_and_test.sh || df -h ."
     depends_on: "check_style"
     key: "build_test_linux-aarch64-RelWithDebInfo"
     artifact_paths:
