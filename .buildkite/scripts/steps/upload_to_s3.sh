@@ -1,4 +1,4 @@
-#
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -8,9 +8,12 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
+# If this isn't a PR build and isn't a debug build then upload the artifacts.
+# Experience indicates that BuildKite always sets BUILDKITE_PULL_REQUEST to
+# be the PR number or "false". Hence we explicitly check for "false" here.
+if [[ x"$BUILDKITE_PULL_REQUEST" = xfalse && -z "$ML_DEBUG" ]] ; then
+    . dev-tools/aws_creds_from_vault.sh
+    echo 'Uploading artefacts to S3'
+    ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload
+fi
 
-execute_process(COMMAND ${TEST_DIR}/${TEST_NAME} $ENV{BOOST_TEST_OUTPUT_FORMAT_FLAGS} --no_color_output  OUTPUT_FILE ${TEST_DIR}/${TEST_NAME}.out ERROR_FILE ${TEST_DIR}/${TEST_NAME}.out RESULT_VARIABLE TEST_SUCCESS)
-if (NOT TEST_SUCCESS EQUAL 0)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${TEST_DIR}/${TEST_NAME}.out)
-  file(WRITE "${TEST_DIR}/${TEST_NAME}.failed" "")
-endif()

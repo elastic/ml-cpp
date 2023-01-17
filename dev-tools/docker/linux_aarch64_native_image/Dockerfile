@@ -16,9 +16,10 @@ FROM centos:7 AS builder
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Make sure OS packages are up to date and required packages are installed
+# libffi is required for building Python
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which xz zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -94,21 +95,35 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.13.20210805.a949ff2
 
-# Build Python 3.7
+# Build OpenSSL 1.1.1
+# This is only needed as a dependency for Python 3.10 during the PyTorch build
+# Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
+RUN \
+  cd ${build_dir} && \
+  wget --quiet --no-check-certificate -O - https://www.openssl.org/source/old/1.1.1/openssl-1.1.1q.tar.gz | tar xzf - && \
+  cd openssl-1.1.1q && \
+  ./Configure --prefix=/usr/local shared linux-aarch64 && \
+  make -j`nproc` && \
+  make install && \
+  cd .. && \
+  rm -rf openssl-1.1.1q
+
+# Build Python 3.10
 # --enable-optimizations for a stable/release build
 # Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
-  cd Python-3.7.9 && \
-  ./configure --enable-optimizations && \
+  wget --quiet -O - https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz | tar xzf - && \
+  cd Python-3.10.9 && \
+  ./configure --enable-optimizations --with-openssl=/usr/local --with-openssl-rpath=/usr/local/lib && \
+  make -j`nproc` && \
   make altinstall && \
   cd .. && \
-  rm -rf Python-3.7.9
+  rm -rf Python-3.10.9
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.10 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.19.2 minimum is required
@@ -123,7 +138,7 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.11.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.13.1 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -136,10 +151,9 @@ RUN \
   export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export USE_BREAKPAD=OFF && \
-  export PYTORCH_BUILD_VERSION=1.11.0 && \
+  export PYTORCH_BUILD_VERSION=1.13.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  /usr/local/bin/python3.7 setup.py install && \
+  /usr/local/bin/python3.10 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
