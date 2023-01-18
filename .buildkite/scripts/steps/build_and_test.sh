@@ -15,7 +15,9 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
-# Default to running tests
+# Default to running tests.
+# Not every build step will be able to run the tests
+# e.g. cross compilations.
 if [ -z "$RUN_TESTS" ] ; then
     RUN_TESTS=true
 fi
@@ -27,16 +29,13 @@ else
 fi
 
 # Version qualifier shouldn't be used in PR builds
-if [[ -n "$BUILDKITE_PULL_REQUEST" && -n "$VERSION_QUALIFIER" ]] ; then
+if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && -n "$VERSION_QUALIFIER" ]] ; then
     echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
     exit 2
 fi
 
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
-
-echo "environment variables:"
-env
 
 if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   # On Linux native aarch64 build using Docker
@@ -55,6 +54,14 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
     (cd ${REPO_ROOT}/cmake-build-docker/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp)
   fi
   exit $?
+fi
+
+# If this is a PR build then it's redundant to cross compile aarch64 (as
+# we build and test aarch64 natively for PR builds) but there's a benefit
+# to building one platform with debug enabled to detect code that only
+# compiles with optimisation
+if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]] ; then
+    export ML_DEBUG=1
 fi
 
 # For now, re-use our existing CI scripts based on Docker

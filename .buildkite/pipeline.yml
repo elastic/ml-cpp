@@ -35,6 +35,7 @@ steps:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
     env:
+      CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
@@ -71,9 +72,41 @@ steps:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-
-  - wait
   
+  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_linux_aarch64_cross-RelWithDebInfo"
+    env:
+      CPP_CROSS_COMPILE: "aarch64"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
+      RUN_TESTS: "false"
+
+  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_macos_aarch64_cross-RelWithDebInfo"
+    env:
+      CPP_CROSS_COMPILE: "macosx"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
+      RUN_TESTS: "false"
+
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
@@ -86,16 +119,26 @@ steps:
       cpu: "16"
       ephemeralStorage: "20G"
       memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:1"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
       # Run as a non-root user
       imageUID: "1000"
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
 
+  - wait
+
   - label: "Upload artefacts to S3"
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
       - 'buildkite-agent artifact download "build/*" .'
+      - "env"
       - "./.buildkite/scripts/steps/upload_to_s3.sh"
+    agents:
+      cpu: "2"
+      ephemeralStorage: "20G"
+      memory: "4G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      # Run as a non-root user
+      imageUID: "1000"
