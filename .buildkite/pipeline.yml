@@ -76,6 +76,22 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
       RUN_TESTS: "false"
 
+
+  - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      provider: gcp
+      image: family/ci-windows-2016
+    commands:
+      - 'echo "checkout succeeded"'
+      - Get-ChildItem
+    depends_on: "check_style"
+    key: "build_Windows_x86_64_RelWithDebInfo"
+    env:
+      CPP_CROSS_COMPILE: ""
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
+      RUN_TESTS: "true"
+
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
