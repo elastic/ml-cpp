@@ -15,7 +15,9 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
-# Default to running tests
+# Default to running tests.
+# Not every build step will be able to run the tests
+# e.g. cross compilations.
 if [ -z "$RUN_TESTS" ] ; then
     RUN_TESTS=true
 fi
@@ -27,19 +29,19 @@ else
 fi
 
 # Version qualifier shouldn't be used in PR builds
-if [[ -n "$BUILDKITE_PULL_REQUEST" && -n "$VERSION_QUALIFIER" ]] ; then
+if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && -n "$VERSION_QUALIFIER" ]] ; then
     echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
     exit 2
 fi
 
-# Tests must be run in PR builds
-if [[ -n "$BUILDKITE_PULL_REQUEST" && "$RUN_TESTS" = false ]] ; then
-    echo "RUN_TESTS should not be false PR builds"
-    exit 3
+# If this is a PR build then it's redundant to cross compile aarch64 (as
+# we build and test aarch64 natively for PR builds) but there's a benefit
+# to building one platform with debug enabled to detect code that only
+# compiles with optimisation
+if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]] ; then
+    export ML_DEBUG=1
 fi
 
-echo "environment variables:"
-env
 # For now, re-use our existing CI scripts based on Docker
 if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
