@@ -33,6 +33,7 @@ steps:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
     env:
+      CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
@@ -75,8 +76,6 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
       RUN_TESTS: "false"
 
-  - wait
-
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
@@ -85,6 +84,7 @@ steps:
         #- "mkdir -p ~/.ssh"
         #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
         #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
     agents:
       cpu: "16"
       ephemeralStorage: "20G"
@@ -95,6 +95,8 @@ steps:
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+
+  - wait
 
   - label: "Upload artefacts to S3"
     key: "upload_artefacts"
