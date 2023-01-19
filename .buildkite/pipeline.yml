@@ -105,7 +105,7 @@ steps:
       - "sudo yum install java-17-openjdk"
       - 'buildkite-agent artifact download "build/*" .'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_linux_aarch64_cross-RelWithDebInfo"
+    depends_on: "build_test_linux-aarch64-RelWithDebInfo"
     agents:
       provider: aws
       instanceType: m6g.2xlarge
