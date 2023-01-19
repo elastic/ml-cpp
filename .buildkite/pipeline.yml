@@ -122,8 +122,9 @@ steps:
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
-      - 'buildkite-agent artifact download "build/*" .'
-      - "./.buildkite/scripts/steps/upload_to_s3.sh"
+      - 'echo "Upload to S3 is not implemented yet. Awaiting CI BuildKite support."'
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"
