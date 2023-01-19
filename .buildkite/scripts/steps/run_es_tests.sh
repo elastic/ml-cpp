@@ -30,7 +30,7 @@ ls -l ..
 mkdir -p "../ivy/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
 ls -l ..
 ls -ld ${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION
-echo "REPO_ROOT = ${REPO_ROOT}""
+echo "REPO_ROOT = ${REPO_ROOT}"
 cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
 # Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
 cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-nodeps.zip"
