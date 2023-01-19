@@ -30,10 +30,11 @@ ls -l ..
 mkdir -p "../ivy/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
 ls -l ..
 ls -ld ${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION
-cp "${REPO_ROOT}/build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
+echo "REPO_ROOT = ${REPO_ROOT}""
+cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
 # Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
-cp "${REPO_ROOT}/build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-nodeps.zip"
+cp "build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-nodeps.zip"
 # We're cheating here - the dependencies are really in the "no dependencies" zip for this flow
-cp ${REPO_ROOT}/dev-tools/minimal.zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-deps.zip"
-${REPO_ROOT}/dev-tools/run_es_tests.sh "${REPO_ROOT}/.." "$(cd "${IVY_REPO}" && pwd)"
+cp dev-tools/minimal.zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION-deps.zip"
+./dev-tools/run_es_tests.sh ".." "$(cd "${IVY_REPO}" && pwd)"
 
