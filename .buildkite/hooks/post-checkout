@@ -13,7 +13,7 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
-if [[ "$BUILDKITE_PIPELINE_SLUG" == "ml-cpp" ]]; then
+if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands here - such as setting environment variables etc
   export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics | awk '/^token/ {print $2;}')
 fi
