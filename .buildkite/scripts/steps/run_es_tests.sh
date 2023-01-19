@@ -27,7 +27,7 @@ export PR_TARGET_BRANCH=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 env
 echo "id = $(id)"
 ls -ld ..
-mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
+mkdir -p "../ivy/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
 ls -ld ..
 ls -ld ${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION
 cp "${REPO_ROOT}/build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
