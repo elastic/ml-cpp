@@ -25,9 +25,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:25"
     commands:
-      - 'du -sh'
-      - 'df -h'
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_test_linux-x86_64-RelWithDebInfo"
@@ -54,10 +51,7 @@ steps:
       diskSizeGb: 100
       diskName: '/dev/xvda'
     commands:
-      - 'du -sh'
-      - 'df -h'
-      - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh || df -h ."
+      - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_test_linux-aarch64-RelWithDebInfo"
     artifact_paths:
@@ -81,7 +75,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
     commands:
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_linux_aarch64_cross-RelWithDebInfo"
@@ -98,7 +91,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
     commands:
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_macos_aarch64_cross-RelWithDebInfo"
@@ -110,18 +102,16 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
-      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
-        #- 'buildkite-agent artifact download "build/*" .'
-        #- "mkdir -p ~/.ssh"
-        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+      - "sudo yum install java-17-openjdk"
+      - 'buildkite-agent artifact download "build/*" .'
+      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_linux_aarch64_cross-RelWithDebInfo"
     agents:
-      cpu: "16"
-      ephemeralStorage: "20G"
-      memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
-      # Run as a non-root user
-      imageUID: "1000"
+      provider: aws
+      instanceType: m6g.2xlarge
+      imagePrefix: ci-amazonlinux-2-aarch64
+      diskSizeGb: 100
+      diskName: '/dev/xvda'
     env:
       IVY_REPO: "${REPO_ROOT}/../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
@@ -133,7 +123,6 @@ steps:
     depends_on: "java_integration_tests"
     command:
       - 'buildkite-agent artifact download "build/*" .'
-      - "env"
       - "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:
       cpu: "2"

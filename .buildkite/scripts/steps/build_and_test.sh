@@ -53,7 +53,6 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
     echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
     (cd ${REPO_ROOT}/cmake-build-docker/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp)
   fi
-  exit $?
 fi
 
 # If this is a PR build then it's redundant to cross compile aarch64 (as
@@ -65,10 +64,14 @@ if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]
 fi
 
 # For now, re-use our existing CI scripts based on Docker
-if [ "$RUN_TESTS" = "true" ]; then
+# Don't perform these steps for native linux aarch64 builds as
+# they are built using docker, see above.
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
+  if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
-else
+  else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+  fi
 fi
 
 buildkite-agent artifact upload "build/distributions/*"
