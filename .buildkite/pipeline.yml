@@ -103,7 +103,7 @@ steps:
     key: "java_integration_tests"
     command: 
       - "sudo yum install java-17-amazon-corretto-devel"
-      - "java --version"
+      - "java -version"
       - 'buildkite-agent artifact download "build/*" .'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-aarch64-RelWithDebInfo"
