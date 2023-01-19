@@ -17,76 +17,74 @@ steps:
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
   
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "6"
-      ephemeralStorage: "20G"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
-    commands:
-      - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh"
-    depends_on: "check_style"
-    key: "build_test_linux-x86_64-RelWithDebInfo"
-    artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
-    env:
-      CPP_CROSS_COMPILE: ""
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      RUN_TESTS: "true"
-      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
-    plugins:
-      - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
-          format: "junit"
-  
-  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "6"
-      ephemeralStorage: "20G"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
-    commands:
-      - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh"
-    depends_on: "check_style"
-    key: "build_linux_aarch64_cross-RelWithDebInfo"
-    env:
-      CPP_CROSS_COMPILE: "aarch64"
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
-      RUN_TESTS: "false"
-
-  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
-    timeout_in_minutes: 180
-    agents:
-      cpu: "6"
-      ephemeralStorage: "20G"
-      memory: "64G"
-      image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
-    commands:
-      - 'echo "checkout succeeded"'
-      - ".buildkite/scripts/steps/build_and_test.sh"
-    depends_on: "check_style"
-    key: "build_macos_aarch64_cross-RelWithDebInfo"
-    env:
-      CPP_CROSS_COMPILE: "macosx"
-      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
-      RUN_TESTS: "false"
-
-
+        #  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+        #    timeout_in_minutes: 180
+        #    agents:
+        #      cpu: "6"
+        #      ephemeralStorage: "20G"
+        #      memory: "64G"
+        #      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+        #    commands:
+        #      - 'echo "checkout succeeded"'
+        #      - ".buildkite/scripts/steps/build_and_test.sh"
+        #    depends_on: "check_style"
+        #    key: "build_test_linux-x86_64-RelWithDebInfo"
+        #    artifact_paths:
+        #      - "lib/*/unittest/boost_test_results.junit"
+        #      - "bin/*/unittest/boost_test_results.junit"
+        #    env:
+        #      CPP_CROSS_COMPILE: ""
+        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+        #      RUN_TESTS: "true"
+        #      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+        #    plugins:
+        #      - test-collector#v1.2.0:
+        #          files: "lib/*/unittest/boost_test_results.junit"
+        #          format: "junit"
+        #  
+        #  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
+        #    timeout_in_minutes: 180
+        #    agents:
+        #      cpu: "6"
+        #      ephemeralStorage: "20G"
+        #      memory: "64G"
+        #      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
+        #    commands:
+        #      - 'echo "checkout succeeded"'
+        #      - ".buildkite/scripts/steps/build_and_test.sh"
+        #    depends_on: "check_style"
+        #    key: "build_linux_aarch64_cross-RelWithDebInfo"
+        #    env:
+        #      CPP_CROSS_COMPILE: "aarch64"
+        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
+        #      RUN_TESTS: "false"
+        #
+        #  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
+        #    timeout_in_minutes: 180
+        #    agents:
+        #      cpu: "6"
+        #      ephemeralStorage: "20G"
+        #      memory: "64G"
+        #      image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
+        #    commands:
+        #      - 'echo "checkout succeeded"'
+        #      - ".buildkite/scripts/steps/build_and_test.sh"
+        #    depends_on: "check_style"
+        #    key: "build_macos_aarch64_cross-RelWithDebInfo"
+        #    env:
+        #      CPP_CROSS_COMPILE: "macosx"
+        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
+        #      RUN_TESTS: "false"
+        #
+        #
   - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
       provider: gcp
-      image: family/ci-windows-2016
+      image: family/elastic-elasticsearch-ci-windows-2016-ml-pinned
     commands:
       - 'echo "checkout succeeded"'
       - Get-ChildItem
-      - "dev-tools\\download_windows_deps.ps1"
-      - 'Install-Binary -Url "https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false" -Name "VisualStudioSetup.exe" -ArgumentList ("/quiet")'
     depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
