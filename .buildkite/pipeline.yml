@@ -85,6 +85,8 @@ steps:
     commands:
       - 'echo "checkout succeeded"'
       - Get-ChildItem
+      - "dev-tools\\download_windows_deps.ps1"
+      - 'Install-Binary -Url "https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false" -Name "VisualStudioSetup.exe" -ArgumentList ("/quiet")'
     depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
