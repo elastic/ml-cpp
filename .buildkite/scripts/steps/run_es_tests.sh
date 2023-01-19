@@ -25,7 +25,7 @@ export PR_SOURCE_BRANCH=$(expr "$BUILDKITE_BRANCH" : '.*:\(.*\)')
 export PR_TARGET_BRANCH=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 
 echo "id = $(id)"
-ls -ld ${IVY_REPO}
+ls -ld ..
 sudo chown $id -R ..
 mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
 ls -ld ${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION
