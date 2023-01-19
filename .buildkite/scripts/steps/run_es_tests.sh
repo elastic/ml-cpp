@@ -24,10 +24,11 @@ export PR_AUTHOR=$(expr "$BUILDKITE_BRANCH" : '\(.*\):.*')
 export PR_SOURCE_BRANCH=$(expr "$BUILDKITE_BRANCH" : '.*:\(.*\)')
 export PR_TARGET_BRANCH=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 
+env
 echo "id = $(id)"
 ls -ld ..
-sudo chown $id -R ..
 mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
+ls -ld ..
 ls -ld ${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION
 cp "${REPO_ROOT}/build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
 # Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
