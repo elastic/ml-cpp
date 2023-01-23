@@ -82,7 +82,7 @@ steps:
     timeout_in_minutes: 180
     agents:
       provider: gcp
-      image: family/windows-2016
+      image: family/ci-windows-2016
     commands:
       - 'echo "checkout succeeded"'
       - Get-ChildItem
