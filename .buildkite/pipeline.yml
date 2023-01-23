@@ -16,7 +16,7 @@ steps:
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  
+
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -41,7 +41,7 @@ steps:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-  
+
   - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -66,7 +66,7 @@ steps:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-  
+
   - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -82,7 +82,7 @@ steps:
       CPP_CROSS_COMPILE: "aarch64"
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       RUN_TESTS: "false"
-  
+
   - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
