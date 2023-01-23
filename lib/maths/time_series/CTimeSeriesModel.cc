@@ -1076,7 +1076,8 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
     }
 
-    result.s_AnomalyScoreExplanation.s_MultimodalDistribution = this->multimodalPrior();
+    result.s_AnomalyScoreExplanation.s_MultimodalDistribution =
+        m_ResidualModel->isSelectedModelMultimodal();
     LOG_DEBUG(<< "Multimodel distribution: "
               << result.s_AnomalyScoreExplanation.s_MultimodalDistribution);
 
@@ -1085,14 +1086,6 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
     result.s_Tail = {tail};
 
     return true;
-}
-
-bool CUnivariateTimeSeriesModel::multimodalPrior() const {
-    LOG_DEBUG(<< "Residual model type " << m_ResidualModel->type());
-    if (m_ResidualModel->type() == common::CPrior::E_OneOfN) {
-        return static_cast<common::COneOfNPrior*>(m_ResidualModel.get())->isMultimodal();
-    }
-    return false;
 }
 
 bool CUnivariateTimeSeriesModel::correlatedProbability(

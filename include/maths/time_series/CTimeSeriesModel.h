@@ -272,9 +272,6 @@ private:
     //! Abort on failure.
     void checkRestoredInvariants() const;
 
-    //! Determines whether the residual model has a multimodal prior distribution.
-    bool multimodalPrior() const;
-
 private:
     //! A unique identifier for this model.
     std::size_t m_Id;
