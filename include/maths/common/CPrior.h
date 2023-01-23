@@ -438,6 +438,9 @@ public:
                                TDouble1Vec& resamples,
                                TDoubleWeightsAry1Vec& resamplesWeights) const;
 
+    //! Determines whether the selected distribution is multimodal.
+    virtual bool isSelectedModelMultimodal() const;
+
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
     //! of those priors with non-negative support.
