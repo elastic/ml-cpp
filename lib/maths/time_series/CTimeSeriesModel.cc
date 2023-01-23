@@ -23,7 +23,6 @@
 #include <maths/common/CModelDetail.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariatePrior.h>
-#include <maths/common/COneOfNPrior.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CPrior.h>
