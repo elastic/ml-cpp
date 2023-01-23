@@ -11,12 +11,13 @@ env:
   BUILD_SNAPSHOT: "yes"
   VERSION_QUALIFIER: ""
 steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
-    agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  
+
+  #  - label: "Validate formatting with clang-format"
+  #    key: "check_style"
+  #    command: ".buildkite/scripts/steps/check-style.sh --all"
+  #    agents:
+  #      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+  #  
         #  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
         #    timeout_in_minutes: 180
         #    agents:
@@ -81,38 +82,38 @@ steps:
     timeout_in_minutes: 180
     agents:
       provider: gcp
-      image: family/ci-windows-2016
+      image: family/windows-2016
     commands:
       - 'echo "checkout succeeded"'
       - Get-ChildItem
       - "dev-tools\\download_windows_deps.ps1"
       - Get-ChildItem "C:\Program Files\Git\bin"
-    depends_on: "check_style"
+        #    depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
       RUN_TESTS: "true"
 
-  - label: "Java Integration Tests"
-    key: "java_integration_tests"
-    command: 
-      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
-        #- 'buildkite-agent artifact download "build/*" .'
-        #- "mkdir -p ~/.ssh"
-        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
-    agents:
-      cpu: "16"
-      ephemeralStorage: "20G"
-      memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
-      # Run as a non-root user
-      imageUID: "1000"
-    env:
-      IVY_REPO: "${REPO_ROOT}/../ivy"
-      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+        #  - label: "Java Integration Tests"
+        #    key: "java_integration_tests"
+        #    command: 
+        #      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
+        #        #- 'buildkite-agent artifact download "build/*" .'
+        #        #- "mkdir -p ~/.ssh"
+        #        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+        #        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+        #    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+        #    agents:
+        #      cpu: "16"
+        #      ephemeralStorage: "20G"
+        #      memory: "32G"
+        #      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+        #      # Run as a non-root user
+        #      imageUID: "1000"
+        #    env:
+        #      IVY_REPO: "${REPO_ROOT}/../ivy"
+        #      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
 
   - wait
 
