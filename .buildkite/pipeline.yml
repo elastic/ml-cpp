@@ -85,9 +85,9 @@ steps:
       image: family/ci-windows-2016
     commands:
       - 'echo "checkout succeeded"'
-      - Get-ChildItem
       - "dev-tools\\download_windows_deps.ps1"
-      - Get-ChildItem "C:\Program Files\Git\bin"
+      - Get-ChildItem -Path "C:\Program Files\Git\bin" -Force
+      - Get-ChildItem -Path "C:\usr" -Recurse -Force
         #    depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
