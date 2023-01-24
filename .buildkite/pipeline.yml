@@ -12,72 +12,72 @@ env:
   VERSION_QUALIFIER: ""
 steps:
 
-  #  - label: "Validate formatting with clang-format"
-  #    key: "check_style"
-  #    command: ".buildkite/scripts/steps/check-style.sh --all"
-  #    agents:
-  #      image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  #  
-        #  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
-        #    timeout_in_minutes: 180
-        #    agents:
-        #      cpu: "6"
-        #      ephemeralStorage: "20G"
-        #      memory: "64G"
-        #      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
-        #    commands:
-        #      - 'echo "checkout succeeded"'
-        #      - ".buildkite/scripts/steps/build_and_test.sh"
-        #    depends_on: "check_style"
-        #    key: "build_test_linux-x86_64-RelWithDebInfo"
-        #    artifact_paths:
-        #      - "lib/*/unittest/boost_test_results.junit"
-        #      - "bin/*/unittest/boost_test_results.junit"
-        #    env:
-        #      CPP_CROSS_COMPILE: ""
-        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-        #      RUN_TESTS: "true"
-        #      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
-        #    plugins:
-        #      - test-collector#v1.2.0:
-        #          files: "lib/*/unittest/boost_test_results.junit"
-        #          format: "junit"
-        #  
-        #  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
-        #    timeout_in_minutes: 180
-        #    agents:
-        #      cpu: "6"
-        #      ephemeralStorage: "20G"
-        #      memory: "64G"
-        #      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
-        #    commands:
-        #      - 'echo "checkout succeeded"'
-        #      - ".buildkite/scripts/steps/build_and_test.sh"
-        #    depends_on: "check_style"
-        #    key: "build_linux_aarch64_cross-RelWithDebInfo"
-        #    env:
-        #      CPP_CROSS_COMPILE: "aarch64"
-        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
-        #      RUN_TESTS: "false"
-        #
-        #  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
-        #    timeout_in_minutes: 180
-        #    agents:
-        #      cpu: "6"
-        #      ephemeralStorage: "20G"
-        #      memory: "64G"
-        #      image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
-        #    commands:
-        #      - 'echo "checkout succeeded"'
-        #      - ".buildkite/scripts/steps/build_and_test.sh"
-        #    depends_on: "check_style"
-        #    key: "build_macos_aarch64_cross-RelWithDebInfo"
-        #    env:
-        #      CPP_CROSS_COMPILE: "macosx"
-        #      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
-        #      RUN_TESTS: "false"
-        #
-        #
+  - label: "Validate formatting with clang-format"
+    key: "check_style"
+    command: ".buildkite/scripts/steps/check-style.sh --all"
+    agents:
+      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+  
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-build:25"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_test_linux-x86_64-RelWithDebInfo"
+    artifact_paths:
+      - "lib/*/unittest/boost_test_results.junit"
+      - "bin/*/unittest/boost_test_results.junit"
+    env:
+      CPP_CROSS_COMPILE: ""
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+  
+  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_linux_aarch64_cross-RelWithDebInfo"
+    env:
+      CPP_CROSS_COMPILE: "aarch64"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
+      RUN_TESTS: "false"
+
+  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      cpu: "6"
+      ephemeralStorage: "20G"
+      memory: "64G"
+      image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
+    commands:
+      - 'echo "checkout succeeded"'
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_macos_aarch64_cross-RelWithDebInfo"
+    env:
+      CPP_CROSS_COMPILE: "macosx"
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
+      RUN_TESTS: "false"
+
+
   - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -86,34 +86,33 @@ steps:
     commands:
       - 'echo "checkout succeeded"'
       - "dev-tools\\download_windows_deps.ps1"
-      - Get-ChildItem -Path "C:\Program Files\Git\bin" -Force
-      - Get-ChildItem -Path "C:\usr" -Recurse -Force
-        #    depends_on: "check_style"
+      - 'echo "dependencies installed"'
+    depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
       RUN_TESTS: "true"
 
-        #  - label: "Java Integration Tests"
-        #    key: "java_integration_tests"
-        #    command: 
-        #      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
-        #        #- 'buildkite-agent artifact download "build/*" .'
-        #        #- "mkdir -p ~/.ssh"
-        #        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-        #        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-        #    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
-        #    agents:
-        #      cpu: "16"
-        #      ephemeralStorage: "20G"
-        #      memory: "32G"
-        #      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
-        #      # Run as a non-root user
-        #      imageUID: "1000"
-        #    env:
-        #      IVY_REPO: "${REPO_ROOT}/../ivy"
-        #      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+  - label: "Java Integration Tests"
+    key: "java_integration_tests"
+    command: 
+      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "mkdir -p ~/.ssh"
+        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+    agents:
+      cpu: "16"
+      ephemeralStorage: "20G"
+      memory: "32G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      # Run as a non-root user
+      imageUID: "1000"
+    env:
+      IVY_REPO: "${REPO_ROOT}/../ivy"
+      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
 
   - wait
 
@@ -121,8 +120,9 @@ steps:
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
-      - 'buildkite-agent artifact download "build/*" .'
-      - "./.buildkite/scripts/steps/upload_to_s3.sh"
+      - 'echo "Uploading to S3 not supported. Awaiting fix or workaround for CI vault"'
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"
