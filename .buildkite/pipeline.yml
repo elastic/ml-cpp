@@ -17,7 +17,7 @@ steps:
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
-  
+
   - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -26,7 +26,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-build:25"
     commands:
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_test_linux-x86_64-RelWithDebInfo"
@@ -36,13 +35,39 @@ steps:
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
+      CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
-  
+
+  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
+    timeout_in_minutes: 180
+    agents:
+      provider: aws
+      instanceType: m6g.2xlarge
+      imagePrefix: ci-amazonlinux-2-aarch64
+      diskSizeGb: 100
+      diskName: '/dev/xvda'
+    commands:
+      - ".buildkite/scripts/steps/build_and_test.sh"
+    depends_on: "check_style"
+    key: "build_test_linux-aarch64-RelWithDebInfo"
+    artifact_paths:
+      - "lib/*/unittest/boost_test_results.junit"
+      - "bin/*/unittest/boost_test_results.junit"
+    env:
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
+      CPP_CROSS_COMPILE: ""
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib/*/unittest/boost_test_results.junit"
+          format: "junit"
+
   - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
     timeout_in_minutes: 180
     agents:
@@ -51,7 +76,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
     commands:
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_linux_aarch64_cross-RelWithDebInfo"
@@ -68,7 +92,6 @@ steps:
       memory: "64G"
       image: "docker.elastic.co/ml-dev/ml-macosx-build:16"
     commands:
-      - 'echo "checkout succeeded"'
       - ".buildkite/scripts/steps/build_and_test.sh"
     depends_on: "check_style"
     key: "build_macos_aarch64_cross-RelWithDebInfo"
@@ -96,21 +119,19 @@ steps:
   - label: "Java Integration Tests"
     key: "java_integration_tests"
     command: 
-      - "echo 'Java Integration Tests step is disabled, awaiting fix for cluster tear down.'"
-        #- 'buildkite-agent artifact download "build/*" .'
-        #- "mkdir -p ~/.ssh"
-        #- "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-        #- '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
-    depends_on: "build_test_linux-x86_64-RelWithDebInfo"
+      - "sudo yum -y install java-17-amazon-corretto-devel"
+      - "java -version"
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
+      - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    depends_on: "build_test_linux-aarch64-RelWithDebInfo"
     agents:
-      cpu: "16"
-      ephemeralStorage: "20G"
-      memory: "32G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
-      # Run as a non-root user
-      imageUID: "1000"
+      provider: aws
+      instanceType: m6g.2xlarge
+      imagePrefix: ci-amazonlinux-2-aarch64
+      diskSizeGb: 100
+      diskName: '/dev/xvda'
     env:
-      IVY_REPO: "${REPO_ROOT}/../ivy"
+      IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
 
   - wait
@@ -119,7 +140,7 @@ steps:
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
-      - 'echo "Uploading to S3 not supported. Awaiting fix or workaround for CI vault"'
+      - 'echo "Upload to S3 is not implemented yet. Awaiting CI BuildKite support."'
         #- 'buildkite-agent artifact download "build/*" .'
         #- "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:

@@ -95,6 +95,7 @@ const std::string TYPICAL_VALUE("typical_value");
 const std::string UPPER_CONFIDENCE_BOUND("upper_confidence_bound");
 const std::string HIGH_VARIANCE_PENALTY("high_variance_penalty");
 const std::string INCOMPLETE_BUCKET_PENALTY("incomplete_bucket_penalty");
+const std::string MULTIMODAL_DISTRIBUTION("multimodal_distribution");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -999,6 +1000,11 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
     if (results.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty) {
         m_Writer.addBoolFieldToObj(INCOMPLETE_BUCKET_PENALTY,
                                    results.s_AnomalyScoreExplanation.s_IncompleteBucketPenalty,
+                                   anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_MultimodalDistribution) {
+        m_Writer.addBoolFieldToObj(MULTIMODAL_DISTRIBUTION,
+                                   results.s_AnomalyScoreExplanation.s_MultimodalDistribution,
                                    anomalyScoreExplanation);
     }
 }

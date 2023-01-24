@@ -435,6 +435,7 @@ BOOST_AUTO_TEST_CASE(testModelSelection) {
 
         BOOST_TEST_REQUIRE(logWeightRatio > expectedLogWeightRatio);
         BOOST_TEST_REQUIRE(logWeightRatio < 0.95 * expectedLogWeightRatio);
+        BOOST_REQUIRE_EQUAL(filter.isSelectedModelMultimodal(), false);
     }
 
     {
@@ -485,6 +486,7 @@ BOOST_AUTO_TEST_CASE(testModelSelection) {
 
         BOOST_TEST_REQUIRE(logWeightRatio > expectedLogWeightRatio);
         BOOST_TEST_REQUIRE(logWeightRatio < 0.75 * expectedLogWeightRatio);
+        BOOST_REQUIRE_EQUAL(filter.isSelectedModelMultimodal(), false);
     }
     {
         // Check we correctly select the multimodal model when the data have
@@ -522,6 +524,7 @@ BOOST_AUTO_TEST_CASE(testModelSelection) {
 
         LOG_DEBUG(<< "logWeightRatio = " << logWeightRatio);
         BOOST_TEST_REQUIRE(std::exp(logWeightRatio) < 1e-6);
+        BOOST_REQUIRE_EQUAL(filter.isSelectedModelMultimodal(), true);
     }
 }
 

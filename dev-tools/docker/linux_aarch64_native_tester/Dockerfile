@@ -28,6 +28,9 @@ ARG SNAPSHOT=yes
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
 
+# Pass through the format of the unit test output files
+ARG BOOST_TEST_OUTPUT_FORMAT_FLAGS=
+
 # Run the build and unit tests
 RUN \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh --test

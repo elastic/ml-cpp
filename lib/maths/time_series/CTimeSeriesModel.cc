@@ -1075,6 +1075,11 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
         result.s_AnomalyScoreExplanation.s_UpperConfidenceBound = interval[2][0];
     }
 
+    result.s_AnomalyScoreExplanation.s_MultimodalDistribution =
+        m_ResidualModel->isSelectedModelMultimodal();
+    LOG_DEBUG(<< "Multimodel distribution: "
+              << result.s_AnomalyScoreExplanation.s_MultimodalDistribution);
+
     result.s_Probability = pOverall;
     result.s_FeatureProbabilities = std::move(featureProbabilities);
     result.s_Tail = {tail};
