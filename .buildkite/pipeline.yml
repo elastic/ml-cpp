@@ -12,13 +12,13 @@ env:
   VERSION_QUALIFIER: ""
 steps:
 
-  - label: "Validate formatting with clang-format"
+  - label: "Validate formatting with clang-format :white_check_mark:"
     key: "check_style"
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
 
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo :linux:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -35,7 +35,6 @@ steps:
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
@@ -43,7 +42,7 @@ steps:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
 
-  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo :linux: :aws:"
     timeout_in_minutes: 180
     agents:
       provider: aws
@@ -68,7 +67,7 @@ steps:
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
 
-  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
+  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -84,7 +83,7 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       RUN_TESTS: "false"
 
-  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
+  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo :macos:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -101,7 +100,7 @@ steps:
       RUN_TESTS: "false"
 
 
-  - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo"
+  - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo :windows:"
     timeout_in_minutes: 180
     agents:
       provider: gcp
@@ -115,8 +114,13 @@ steps:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
       RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "lib\\*\\unittest\\boost_test_results.junit"
+          format: "junit"
 
-  - label: "Java Integration Tests"
+  - label: "Javai :java: Integration Tests :hammer:"
     key: "java_integration_tests"
     command: 
       - "sudo yum -y install java-17-amazon-corretto-devel"
@@ -136,7 +140,7 @@ steps:
 
   - wait
 
-  - label: "Upload artefacts to S3"
+  - label: "Upload artefacts to S3 :s3:"
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
