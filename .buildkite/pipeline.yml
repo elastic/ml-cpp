@@ -85,8 +85,7 @@ steps:
       image: family/ml-cpp-1-windows-2016
     commands:
       - 'echo "checkout succeeded"'
-      - "dev-tools\\download_windows_deps.ps1"
-      - 'echo "dependencies installed"'
+      - "& .buildkite\\scripts\\steps\\build_and_test.ps1"
     depends_on: "check_style"
     key: "build_Windows_x86_64_RelWithDebInfo"
     env:
