@@ -16,7 +16,7 @@
 $ErrorActionPreference="Stop"
 
 # Change directory to the top level of the repo
-Set-Location -Path "$PSScriptRoot\.."
+Set-Location -Path "$PSScriptRoot\..\..\.."
 
 # Ensure 3rd party dependencies are installed
 & "dev-tools\download_windows_deps.ps1"
