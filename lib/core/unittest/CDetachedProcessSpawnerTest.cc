@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
 
     BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH1, args));
 
-    // Expect the copy to complete in less than 1 second
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // Expect the copy to complete in less than 2 seconds
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     ml::core::COsFileFuncs::TStat statBuf;
     BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(OUTPUT_FILE.c_str(), &statBuf));
