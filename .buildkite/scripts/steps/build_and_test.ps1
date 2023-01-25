@@ -62,4 +62,4 @@ if ($LastExitCode -ne 0) {
     Exit $LastExitCode
 }
 
-buildkite-agent artifact upload "build/distributions/*"
+buildkite-agent artifact upload "build/distributions/*;lib/*/unittest/boost_test_results.junit;bin/*/unittest/boost_test_results.junit;cmake-build-relwithdebinfo/test/*/ml_test_*.out"

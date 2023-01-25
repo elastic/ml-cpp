@@ -117,6 +117,7 @@ steps:
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
+          files: "bin/*/unittest/boost_test_results.junit"
           files: "lib/*/unittest/boost_test_results.junit"
           format: "junit"
 
