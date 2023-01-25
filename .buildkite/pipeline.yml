@@ -39,8 +39,7 @@ steps:
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "bin/*/unittest/boost_test_results.junit"
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "*/*/unittest/boost_test_results.junit"
           format: "junit"
 
   - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo :linux: :aws:"
@@ -65,8 +64,7 @@ steps:
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "bin/*/unittest/boost_test_results.junit"
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "*/*/unittest/boost_test_results.junit"
           format: "junit"
 
   - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:"
@@ -101,16 +99,18 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
       RUN_TESTS: "false"
 
-  - label: "Build :cpp: for Windows_x86_64-RelWithDebInfo :windows:"
+  - label: "Build & test :cpp: for Windows_x86_64-RelWithDebInfo :windows:"
     timeout_in_minutes: 180
     agents:
       provider: gcp
+      machineType: "c2-standard-16"
+      minCpuPlatform: "Intel Cascade Lake"
       image: family/ml-cpp-1-windows-2016
     commands:
       - 'echo "checkout succeeded"'
       - "& .buildkite\\scripts\\steps\\build_and_test.ps1"
     depends_on: "check_style"
-    key: "build_Windows_x86_64_RelWithDebInfo"
+    key: "build_test_Windows-x86_64-RelWithDebInfo"
     artifact_paths:
       - "lib/*/unittest/boost_test_results.junit"
       - "bin/*/unittest/boost_test_results.junit"
@@ -121,8 +121,7 @@ steps:
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "bin/*/unittest/boost_test_results.junit"
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "*/*/unittest/boost_test_results.junit"
           format: "junit"
 
   - label: "Java :java: Integration Tests :hammer:"
