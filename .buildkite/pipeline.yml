@@ -11,13 +11,14 @@ env:
   BUILD_SNAPSHOT: "yes"
   VERSION_QUALIFIER: ""
 steps:
-  - label: "Validate formatting with clang-format"
+
+  - label: "Validate formatting with clang-format :white_check_mark:"
     key: "check_style"
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
 
-  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-x86_64-RelWithDebInfo :linux:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -29,20 +30,18 @@ steps:
     depends_on: "check_style"
     key: "build_test_linux-x86_64-RelWithDebInfo"
     artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
+      - "*/*/unittest/boost_test_results.junit"
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
-      CPP_CROSS_COMPILE: ""
       RUN_TESTS: "true"
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "*/*/unittest/boost_test_results.junit"
           format: "junit"
 
-  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo"
+  - label: "Build & test :cpp: for linux-aarch64-RelWithDebInfo :linux: :aws:"
     timeout_in_minutes: 180
     agents:
       provider: aws
@@ -55,8 +54,7 @@ steps:
     depends_on: "check_style"
     key: "build_test_linux-aarch64-RelWithDebInfo"
     artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
+      - "*/*/unittest/boost_test_results.junit"
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
       CPP_CROSS_COMPILE: ""
@@ -64,10 +62,10 @@ steps:
       BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
     plugins:
       - test-collector#v1.2.0:
-          files: "lib/*/unittest/boost_test_results.junit"
+          files: "*/*/unittest/boost_test_results.junit"
           format: "junit"
 
-  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo"
+  - label: "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -83,7 +81,7 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake"
       RUN_TESTS: "false"
 
-  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo"
+  - label: "Build :cpp: for macos_aarch64_cross-RelWithDebInfo :macos:"
     timeout_in_minutes: 180
     agents:
       cpu: "6"
@@ -99,7 +97,31 @@ steps:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake"
       RUN_TESTS: "false"
 
-  - label: "Java Integration Tests"
+  - label: "Build & test :cpp: for Windows_x86_64-RelWithDebInfo :windows:"
+    timeout_in_minutes: 180
+    agents:
+      provider: gcp
+      machineType: "c2-standard-16"
+      minCpuPlatform: "Intel Cascade Lake"
+      image: family/ml-cpp-1-windows-2016
+    commands:
+      - 'echo "checkout succeeded"'
+      - "& .buildkite\\scripts\\steps\\build_and_test.ps1"
+    depends_on: "check_style"
+    key: "build_test_Windows-x86_64-RelWithDebInfo"
+    artifact_paths:
+      - "*/*/unittest/boost_test_results.junit"
+    env:
+      CPP_CROSS_COMPILE: ""
+      CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
+      RUN_TESTS: "true"
+      BOOST_TEST_OUTPUT_FORMAT_FLAGS: "--logger=JUNIT,error,boost_test_results.junit"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "*/*/unittest/boost_test_results.junit"
+          format: "junit"
+
+  - label: "Java :java: Integration Tests :hammer:"
     key: "java_integration_tests"
     command: 
       - "sudo yum -y install java-17-amazon-corretto-devel"
@@ -119,7 +141,7 @@ steps:
 
   - wait
 
-  - label: "Upload artefacts to S3"
+  - label: "Upload artefacts to S3 :s3:"
     key: "upload_artefacts"
     depends_on: "java_integration_tests"
     command:
