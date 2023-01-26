@@ -14,7 +14,15 @@ export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == "ml-cpp" ]]; then
-  # Put any step dependent commands here - such as setting environment variables etc
-  export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics | awk '/^token/ {print $2;}')
+  echo "boo"
+  if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
+    # Put any step dependent commands here - such as setting environment variables etc
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
+  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-aarch64-RelWithDebInfo" ]]; then
+    # Put any step dependent commands here - such as setting environment variables etc
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
+  else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
+    # Put any step dependent commands here - such as setting environment variables etc
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
+  fi
 fi
-
