@@ -108,7 +108,6 @@ steps:
       image: family/ml-cpp-1-windows-2016
     commands:
       - 'echo "checkout succeeded"'
-      - "& Get-ComputerInfo"
       - "& .buildkite\\scripts\\steps\\build_and_test.ps1"
     depends_on: "check_style"
     key: "build_test_Windows-x86_64-RelWithDebInfo"
