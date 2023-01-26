@@ -30,8 +30,7 @@ steps:
     depends_on: "check_style"
     key: "build_test_linux-x86_64-RelWithDebInfo"
     artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
+      - "*/*/unittest/boost_test_results.junit"
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-x86_64.cmake"
@@ -55,8 +54,7 @@ steps:
     depends_on: "check_style"
     key: "build_test_linux-aarch64-RelWithDebInfo"
     artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
+      - "*/*/unittest/boost_test_results.junit"
     env:
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake"
       CPP_CROSS_COMPILE: ""
@@ -112,8 +110,7 @@ steps:
     depends_on: "check_style"
     key: "build_test_Windows-x86_64-RelWithDebInfo"
     artifact_paths:
-      - "lib/*/unittest/boost_test_results.junit"
-      - "bin/*/unittest/boost_test_results.junit"
+      - "*/*/unittest/boost_test_results.junit"
     env:
       CPP_CROSS_COMPILE: ""
       CMAKE_FLAGS: "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake"
