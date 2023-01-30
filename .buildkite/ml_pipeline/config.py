@@ -38,7 +38,15 @@ class Config:
     def parse(self):
         """Parse Github label or Github comment passed through buildkite-pr-bot."""
 
+        for k, v in os.environ.items():
+            print(f'{k}={v}')
+
         if "GITHUB_PR_TRIGGER_COMMENT" in os.environ:
             self.parse_comment()
-        else:
+        else if "GITHUB_PR_LABELS" in os.environ:
             self.parse_label()
+        else:
+            self.build_windows = True
+            self.build_macos = True
+            self.build_linux = True
+
