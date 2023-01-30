@@ -50,7 +50,7 @@ def main(args):
             },
             "commands": [
               'if ("\$Env:GITHUB_PR_COMMENT_VAR_ACTION" -eq "debug" ) {\$Env:ML_DEBUG=1}',
-              ".\\.buildkite\\scripts\\steps\\build_and_test.ps1"
+              "./.buildkite/scripts/steps/build_and_test.ps1"
             ],
             "depends_on": "check_style",
             "key": f"build_test_Windows-{arch}-{build_type}",
