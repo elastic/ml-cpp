@@ -45,6 +45,7 @@ def main(args):
             "agents": {
             },
             "commands": [
+              "env",
               'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi;',
               f'echo "MacOS {arch} build not yet supported";'
             ],

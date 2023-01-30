@@ -49,7 +49,9 @@ def main(args):
               "image": "family/ml-cpp-1-windows-2016",
             },
             "commands": [
-              "bash .buildkite/scripts/steps/build_and_test_windows.sh"
+              env,
+              if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi,
+              "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
             "depends_on": "check_style",
             "key": f"build_test_Windows-{arch}-{build_type}",
