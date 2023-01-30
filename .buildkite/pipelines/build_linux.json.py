@@ -51,9 +51,9 @@ def main(args):
             "timeout_in_minutes": "120",
             "agents": agents[arch],
             "commands": [
-              "env"
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi',
-              ".buildkite/scripts/steps/build_and_test.sh",
+              "env",
+              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi;',
+              ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": f"build_test_linux-{arch}-{build_type}",

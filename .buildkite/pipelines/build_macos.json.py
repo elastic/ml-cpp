@@ -37,8 +37,8 @@ def main(args):
             "agents": {
             },
             "commands": [
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi',
-              f"echo 'MacOS {arch} build not yet supported'",
+              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi;',
+              f'echo "MacOS {arch} build not yet supported";'
             ],
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",

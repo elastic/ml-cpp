@@ -14,6 +14,9 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
+env = {
+  "BUILD_SNAPSHOT": "yes"
+}
 
 def main():
     pipeline = {}
@@ -31,6 +34,7 @@ def main():
     if config.build_linux:
         pipeline_steps.append(step.build_linux)
 
+    pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
 
