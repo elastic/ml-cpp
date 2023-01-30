@@ -47,12 +47,12 @@ def main(args):
 
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
-            "label": f"Build :cpp: for linux-{arch}-{build_type}",
+            "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
             "timeout_in_minutes": "120",
             "agents": agents[arch],
             "commands": [
               "env",
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi;',
+              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",

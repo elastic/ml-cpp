@@ -32,12 +32,12 @@ def main(args):
 
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
-            "label": f"Build :cpp: for MacOS-{arch}-{build_type}",
+            "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
             "timeout_in_minutes": "120",
             "agents": {
             },
             "commands": [
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1 fi;',
+              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi;',
               f'echo "MacOS {arch} build not yet supported";'
             ],
             "depends_on": "check_style",

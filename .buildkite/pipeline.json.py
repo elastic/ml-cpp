@@ -15,7 +15,8 @@ from ml_pipeline import (
 )
 
 env = {
-  "BUILD_SNAPSHOT": "yes"
+  "BUILD_SNAPSHOT": "yes",
+  "VERSION_QUALIFIER": ""
 }
 
 def main():
