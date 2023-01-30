@@ -19,6 +19,10 @@ env = {
   "VERSION_QUALIFIER": ""
 }
 
+wait = {
+  "wait": None
+}
+
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([
@@ -34,6 +38,9 @@ def main():
         pipeline_steps.append(step.build_macos)
     if config.build_linux:
         pipeline_steps.append(step.build_linux)
+    pipeline_steps.append(step.run_es_tests)
+    pipeline_steps.append(wait)
+    pipeline_steps.append(step.upload_to_s3)
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps

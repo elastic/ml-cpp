@@ -10,9 +10,18 @@
 
 cat <<EOL
 steps:
-  - label: "Validate formatting with clang-format"
-    key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all"
+  - label: "Upload artefacts to S3 :s3:"
+    key: "upload_artefacts"
+    depends_on: "java_integration_tests"
+    command:
+      - 'echo "Upload to S3 is not implemented yet. Awaiting CI BuildKite support."'
+        #- 'buildkite-agent artifact download "build/*" .'
+        #- "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:
-      image: "docker.elastic.co/ml-dev/ml-check-style:2"
+      cpu: "2"
+      ephemeralStorage: "20G"
+      memory: "4G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      # Run as a non-root user
+      imageUID: "1000"
 EOL

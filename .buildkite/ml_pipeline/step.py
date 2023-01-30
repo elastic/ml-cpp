@@ -12,6 +12,18 @@ format_and_validation = {
   "command": ".buildkite/pipelines/format_and_validation.yml.sh | buildkite-agent pipeline upload",
 }
 
+upload_to_s3 = {
+  "label": "Upload artifact uploader pipeline",
+  "depends_on": None,
+  "command": ".buildkite/pipelines/upload_to_s3.yml.sh | buildkite-agent pipeline upload",
+}
+
+run_es_tests = {
+  "label": "Upload ES tests runner pipeline",
+  "depends_on": None,
+  "command": ".buildkite/pipelines/run_es_tests.yml.sh | buildkite-agent pipeline upload",
+}
+
 build_windows = {
   "label": "Upload build pipeline for Windows",
   "depends_on": None,
