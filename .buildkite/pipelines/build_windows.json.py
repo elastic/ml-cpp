@@ -50,7 +50,7 @@ def main(args):
             },
             "commands": [
               "Get-ChildItem env:",
-              "if ( $Env:GITHUB_PR_COMMENT_VAR_ACTION -eq \"debug\" ) {$Env:ML_DEBUG=\"1\"}",
+              "if ( \$Env:GITHUB_PR_COMMENT_VAR_ACTION -eq \"debug\" ) {\$Env:ML_DEBUG=\"1\"}",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
             "depends_on": "check_style",
