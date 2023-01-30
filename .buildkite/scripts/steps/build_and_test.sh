@@ -74,4 +74,4 @@ if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
   fi
 fi
 
-buildkite-agent artifact upload "build/distributions/*"
+buildkite-agent artifact upload "build/distributions/*;*/**/ml_test_*.out"
