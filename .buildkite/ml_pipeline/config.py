@@ -43,7 +43,7 @@ class Config:
 
         if "GITHUB_PR_TRIGGER_COMMENT" in os.environ:
             self.parse_comment()
-        else if "GITHUB_PR_LABELS" in os.environ:
+        elif "GITHUB_PR_LABELS" in os.environ:
             self.parse_label()
         else:
             self.build_windows = True
