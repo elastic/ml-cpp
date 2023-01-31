@@ -9,6 +9,7 @@
 # limitation.
 #
 # This script generates a pipeline JSON for the ml-cpp pipeline.
+# Builds for this pipeline may be triggered by commit or comment.
 #
 # The basic logic of this script is very simple.
 # It either parses the github label or the triggering PR comment.
@@ -34,6 +35,7 @@ wait = {
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([
+        # TBD
         #step.slack_notification,
         step.format_and_validation,
     ])  

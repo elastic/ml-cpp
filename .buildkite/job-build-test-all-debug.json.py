@@ -8,7 +8,9 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp-dev pipeline.
+# This script generates a pipeline JSON for the ml-cpp-debug-build pipeline
+# which is triggered nightly on a schedule. The build itself runs with
+# full debug and assertions enabled.
 #
 # The basic logic of this script is very simple.
 # It either parses the github label or the triggering PR comment.
@@ -30,6 +32,7 @@ env = {
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([
+        # TBD
         #step.slack_notification,
         step.format_and_validation,
     ])  
