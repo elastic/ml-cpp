@@ -11,7 +11,7 @@
 email_notification = {
   "label": "Queue an :email: notification for the pipeline",
   "depends_on": None,
-  "command": ".buildkite/scripts/steps/send_slack_notification.sh",
+  "command": ".buildkite/scripts/steps/send_email_notification.sh",
 }
 
 slack_notification = {
