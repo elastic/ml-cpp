@@ -21,7 +21,7 @@ import os
 from itertools import product
 
 archs = [
-    "x64",
+    "x86_64",
 ]
 build_types = [
     "RelWithDebInfo",
@@ -71,7 +71,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build on Windows {arch} {build_type}",
+                  "context": f"Build and test on Windows {arch} {build_type}",
                 },
               },
             ],

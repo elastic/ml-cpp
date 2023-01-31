@@ -81,7 +81,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build on Linux {arch} {build_type}",
+                  "context": f"Build and test on Linux {arch} {build_type}",
                 },
               },
             ],
@@ -110,7 +110,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": "Build on Linux aarch64 RelWithDebInfo",
+                  "context": "Cross compile for Linux aarch64 RelWithDebInfo",
                 },
               },
             ],

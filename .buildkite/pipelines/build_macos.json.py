@@ -67,7 +67,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": f"Build on MacOS {arch} {build_type}",
+                  "context": f"Build and test on MacOS {arch} {build_type}",
                 },
               },
             ],
@@ -96,7 +96,7 @@ def main(args):
             "notify": [
               {
                 "github_commit_status": {
-                  "context": "Cross compilation build on MacOS x86_64 RelWithDebInfo",
+                  "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
                 },
               },
             ],
