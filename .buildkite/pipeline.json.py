@@ -35,7 +35,7 @@ wait = {
 def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([
-        # TBD
+        step.email_notification,
         #step.slack_notification,
         step.format_and_validation,
     ])  

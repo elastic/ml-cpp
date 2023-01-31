@@ -8,6 +8,12 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+email_notification = {
+  "label": "Queue an :email: notification for the pipeline",
+  "depends_on": None,
+  "command": ".buildkite/scripts/steps/send_slack_notification.sh",
+}
+
 slack_notification = {
   "label": "Queue a :slack: notification for the pipeline",
   "depends_on": None,
