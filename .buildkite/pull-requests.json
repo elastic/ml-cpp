@@ -13,7 +13,7 @@
       "always_trigger_comment_regex": "^(?:(?:buildkite\\W+)?(?:build|test)\\W+(?:this|it))",
       "skip_ci_labels": ["skip-ci", "jenkins-ci", ">test-mute", ">docs"],
       "skip_target_branches": ["6.8", "7.11", "7.12"],
-      "skip_ci_on_only_changed": ["^docs/", "^3rd_party/licenses/", "^jupyter/", "README.*", "\\.md$", "\\.mdx$", "^\\.buildkite/pull_requests\\.json$"]
+      "skip_ci_on_only_changed": ["^docs/", "^3rd_party/licenses/", "^jupyter/", "README.*", "\\.md$", "\\.mdx$", "^\\.buildkite/pull-requests\\.json$"]
     }
   ]
 }
