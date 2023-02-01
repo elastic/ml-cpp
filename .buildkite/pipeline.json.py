@@ -43,11 +43,14 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        pipeline_steps.append(step.build_windows)
+        build_windows = pipeline_steps.generate_step(":windows:", config.action, "windows", config.snapshot, config.candidate)
+        pipeline_steps.append(build_windows)
     if config.build_macos:
-        pipeline_steps.append(step.build_macos)
+        build_macos = pipeline_steps.generate_step(":macos:", config.action, "macos", config.snapshot, config.candidate)
+        pipeline_steps.append(build_macos)
     if config.build_linux:
-        pipeline_steps.append(step.build_linux)
+        build_linux = pipeline_steps.generate_step(":linux", config.action, "linux", config.snapshot, config.candidate)
+        pipeline_steps.append(build_linux)
     pipeline_steps.append(step.run_es_tests)
     pipeline_steps.append(wait)
     pipeline_steps.append(step.upload_to_s3)

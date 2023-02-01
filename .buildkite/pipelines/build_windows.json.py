@@ -96,6 +96,14 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
+    parser.add_argument("--snapshot",
+                        required=False,
+                        default=True,
+                        help="Specify if a snapshot build is wanted.")
+    parser.add_argument("--candidate",
+                        required=False,
+                        default=None,
+                        help="Specify a build candidate string.")
 
     args = parser.parse_args()
 

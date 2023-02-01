@@ -40,11 +40,14 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        pipeline_steps.append(step.debug_windows)
+        debug_windows = pipeline_steps.generate_step(":windows:", "debug", "windows", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_windows)
     if config.build_macos:
-        pipeline_steps.append(step.debug_macos)
+        debug_macos = pipeline_steps.generate_step(":macos:", "debug", "macos", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_macos)
     if config.build_linux:
-        pipeline_steps.append(step.debug_linux)
+        debug_linux = pipeline_steps.generate_step(":linux:", "debug", "linux", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_linux)
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps

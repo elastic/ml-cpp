@@ -32,60 +32,22 @@ run_es_tests = {
   "command": ".buildkite/pipelines/run_es_tests.yml.sh | buildkite-agent pipeline upload",
 }
 
-build_windows = {
-  "label": "Upload build pipeline for Windows",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_windows.json.py | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
-debug_windows = {
-  "label": "Upload build pipeline for Windows",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_windows.json.py --action=debug | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
-build_linux = {
-  "label": "Upload build pipeline for Linux",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_linux.json.py | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
-debug_linux = {
-  "label": "Upload build pipeline for Linux",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_linux.json.py --action=debug | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
-build_macos = {
-  "label": "Upload build pipeline for MacOS",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_macos.json.py | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
-debug_macos = {
-  "label": "Upload build pipeline for MacOS",
-  "depends_on": None,
-  "command": "python3 .buildkite/pipelines/build_macos.json.py --action=debug | buildkite-agent pipeline upload",
-  "agents": {
-    "image": "python",
-  }
-}
-
 class PipelineStep(list):
-  def append_with_extended_os(self, step: dict, extended_os=False):
-    self.append(step)
+    #def append_step(self, step: dict):
+    #  self.append(step)
+
+  def generate_step(self, label, action, platform, snapshot, candidate):
+    label = f"Upload {action} pipeline for {label}"
+    command = f"python3 .buildkite/pipelines/build_{platform}.json.py --action={action} --snapshot={snapshot} --candidate={candidate}| buildkite-agent pipeline upload"
+    print(label)
+    print(command)
+    template = {
+      "label": label,
+      "depends_on": None,
+      "command": command,
+      "agents": {
+        "image": "python",
+      }
+    }
+    return template
+
