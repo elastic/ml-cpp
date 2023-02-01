@@ -65,6 +65,7 @@ public:
     using TStoredStringPtrStoredStringPtrPr =
         std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TSampleVec = std::vector<CSample>;
+    using TOptionalDouble = std::optional<double>;
 
     //! \brief De-duplicates nearly equal values.
     class MODEL_EXPORT CFuzzyDeduplicate {
@@ -186,6 +187,8 @@ public:
         //! \p attribute.
         bool lookup(std::size_t category, double& result) const;
 
+        TOptionalDouble medianConcentration() const;
+
         //! Get the memory usage of the component
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
@@ -199,6 +202,8 @@ public:
         mutable TDoubleVec m_Cache;
         //! The smallest possible category probability.
         mutable double m_SmallestProbability;
+
+        mutable TOptionalDouble m_MedianConcentration;
     };
 
     //! \brief A cache of the probability calculation to use in cases that many
