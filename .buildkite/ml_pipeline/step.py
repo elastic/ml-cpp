@@ -39,8 +39,6 @@ class PipelineStep(list):
   def generate_step(self, label, action, platform, snapshot, candidate):
     label = f"Upload {action} pipeline for {label}"
     command = f"python3 .buildkite/pipelines/build_{platform}.json.py --action={action} --snapshot={snapshot} --candidate={candidate}| buildkite-agent pipeline upload"
-    print(label)
-    print(command)
     template = {
       "label": label,
       "depends_on": None,
