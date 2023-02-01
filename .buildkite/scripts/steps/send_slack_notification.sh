@@ -17,11 +17,10 @@ notify:
   - slack:
       channels:
         - “#machine-learn-build"
-        - “@Ed"
       message: |
         Branch: ${BUILDKITE_BRANCH}
         User: ${BUILDKITE_BUILD_CREATOR}
         Pipeline: ${BUILDKITE_BUILD_URL}
         Build: ${BUILDKITE_BUILD_NUMBER}
-    #if: build.pull_request.id == null
+    if: build.pull_request.id == null
 EOL

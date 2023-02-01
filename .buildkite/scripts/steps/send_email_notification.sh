@@ -14,7 +14,6 @@ steps:
   - label: "Schedule :email: notification"
     command: "echo schedule :email: notification"
 notify:
-  - email: "ed.savage@elastic.co"
-#  - email: "build-machine-learning@elastic.co"
-#    if: build.state == “failed” && build.pull_request.id == null
+  - email: "build-machine-learning@elastic.co"
+    if: build.state == “failed” && build.pull_request.id == null
 EOL

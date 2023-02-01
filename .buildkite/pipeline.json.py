@@ -36,7 +36,7 @@ def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([
         step.email_notification,
-        #step.slack_notification,
+        step.slack_notification,
         step.format_and_validation,
     ])  
 
