@@ -15,7 +15,7 @@ class Config:
     build_macos: bool = False
     build_linux: bool = False
     action: str = "build"
-    snapshot: bool = True
+    snapshot: str = "true"
     candidate: str = None
 
     def parse_comment(self):

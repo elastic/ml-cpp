@@ -45,8 +45,10 @@ def main(args):
             "agents": {
             },
             "commands": [
+              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+              f'if [[ "{args.snapshot}" == "true" ]]; then export BUILD_SNAPSHOT=true; fi',
+              f'if [[ "{args.candidate}" != "" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
               "env",
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi;',
               f'echo "MacOS {arch} build not yet supported";'
             ],
             "depends_on": "check_style",
@@ -123,11 +125,11 @@ if __name__ == '__main__':
                         help="Specify a build action")
     parser.add_argument("--snapshot",
                         required=False,
-                        default=True,
+                        default="true",
                         help="Specify if a snapshot build is wanted.")
     parser.add_argument("--candidate",
                         required=False,
-                        default=None,
+                        default="",
                         help="Specify a build candidate string.")
 
     args = parser.parse_args()
