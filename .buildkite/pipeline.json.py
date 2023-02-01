@@ -49,7 +49,7 @@ def main():
         build_macos = pipeline_steps.generate_step(":macos:", config.action, "macos", config.snapshot, config.candidate)
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step(":linux", config.action, "linux", config.snapshot, config.candidate)
+        build_linux = pipeline_steps.generate_step(":linux:", config.action, "linux", config.snapshot, config.candidate)
         pipeline_steps.append(build_linux)
     pipeline_steps.append(step.run_es_tests)
     pipeline_steps.append(wait)
