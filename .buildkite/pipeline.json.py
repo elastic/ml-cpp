@@ -28,32 +28,30 @@ env = {
   "VERSION_QUALIFIER": ""
 }
 
-wait = {
-  "wait": None
-}
-
 def main():
     pipeline = {}
-    pipeline_steps = step.PipelineStep([
-        # TBD
-        #step.slack_notification,
-        step.format_and_validation,
-    ])  
+    pipeline_steps = step.PipelineStep([])
+    # TBD
+    #pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline", ".buildkite/scripts/steps/send_slack_notification.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
+                                                       ".buildkite/pipelines/format_and_validation.yml.sh"))
 
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step(":windows:", config.action, "windows", config.snapshot, config.candidate)
+        build_windows = pipeline_steps.generate_step_template("Windows", config.action, config.snapshot, config.candidate)
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step(":macos:", config.action, "macos", config.snapshot, config.candidate)
+        build_macos = pipeline_steps.generate_step_template("MacOS", config.action, config.snapshot, config.candidate)
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step(":linux:", config.action, "linux", config.snapshot, config.candidate)
+        build_linux = pipeline_steps.generate_step_template("Linux", config.action, config.snapshot, config.candidate)
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(step.run_es_tests)
-    pipeline_steps.append(wait)
-    pipeline_steps.append(step.upload_to_s3)
+    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
+                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
+    pipeline_steps.append({"wait": None})
+    pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
+                                                       ".buildkite/pipelines/upload_to_s3.yml.sh"))
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
