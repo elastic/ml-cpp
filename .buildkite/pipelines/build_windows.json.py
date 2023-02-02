@@ -30,6 +30,10 @@ actions = [
     "build",
     "debug"
 ]
+build_snapshot = [
+    "true",
+    "false"
+]
 
 
 def main(args):
@@ -49,9 +53,9 @@ def main(args):
               "image": "family/ml-cpp-1-windows-2016",
             },
             "commands": [
-              f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
-              f'if ( "{args.snapshot}" -eq "true" ) {{$Env:BUILD_SNAPSHOT="true"}}',
-              f'if ( "{args.candidate}" -ne "None" ) {{$Env:VERSION_QUALIFIER="{args.candidate}"}}',
+              f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
+              f'if ( "{args.snapshot}" -ne "None" ) {{\\$Env:BUILD_SNAPSHOT="{args.snapshot}"}}',
+              f'if ( "{args.candidate}" -ne "None" ) {{\\$Env:VERSION_QUALIFIER="{args.candidate}"}}',
               "Get-ChildItem env:",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
@@ -100,7 +104,8 @@ if __name__ == "__main__":
                         help="Specify a build action.")
     parser.add_argument("--snapshot",
                         required=False,
-                        default="true",
+                        choices=build_snapshot,
+                        default=None,
                         help="Specify if a snapshot build is wanted.")
     parser.add_argument("--candidate",
                         required=False,

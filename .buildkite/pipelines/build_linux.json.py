@@ -31,6 +31,10 @@ actions = [
     "build",
     "debug"
 ]
+build_snapshot = [
+    "true",
+    "false"
+]
 agents = {
    "x86_64": {
       "cpu": "6",
@@ -60,7 +64,7 @@ def main(args):
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              f'if [[ "{args.snapshot}" == "true" ]]; then export BUILD_SNAPSHOT=true; fi',
+              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.candidate}" != "None" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
               "env",
               ".buildkite/scripts/steps/build_and_test.sh"
@@ -138,7 +142,8 @@ if __name__ == "__main__":
                         help="Specify a build action.")
     parser.add_argument("--snapshot",
                         required=False,
-                        default="true",
+                        choices=build_snapshot,
+                        default=None,
                         help="Specify if a snapshot build is wanted.")
     parser.add_argument("--candidate",
                         required=False,

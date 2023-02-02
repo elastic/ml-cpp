@@ -30,6 +30,10 @@ actions = [
   "build",
   "debug"
 ]
+build_snapshot = [
+    "true",
+    "false"
+]
 
 
 def main(args):
@@ -46,7 +50,7 @@ def main(args):
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              f'if [[ "{args.snapshot}" == "true" ]]; then export BUILD_SNAPSHOT=true; fi',
+              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.candidate}" != "None" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
               "env",
               f'echo "MacOS {arch} build not yet supported";'
