@@ -15,5 +15,5 @@ steps:
     command: "echo schedule :email: notification"
 notify:
   - email: "build-machine-learning@elastic.co"
-    if: build.state == “failed” && build.pull_request.id == null
+    if: build.state == "failed" && build.pull_request.id == null
 EOL
