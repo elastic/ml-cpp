@@ -51,7 +51,7 @@ def main(args):
             "commands": [
               f'if ( "{args.action}" -eq "debug" ) {{$Env:ML_DEBUG="1"}}',
               f'if ( "{args.snapshot}" -eq "true" ) {{$Env:BUILD_SNAPSHOT="true"}}',
-              f'if ( "{args.candidate}" -ne "" ) {{$Env:VERSION_QUALIFIER="{args.candidate}"}}',
+              f'if ( "{args.candidate}" -ne "None" ) {{$Env:VERSION_QUALIFIER="{args.candidate}"}}',
               "Get-ChildItem env:",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
@@ -104,7 +104,7 @@ if __name__ == "__main__":
                         help="Specify if a snapshot build is wanted.")
     parser.add_argument("--candidate",
                         required=False,
-                        default="",
+                        default=None,
                         help="Specify a build candidate string.")
 
     args = parser.parse_args()

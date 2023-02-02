@@ -47,7 +47,7 @@ def main(args):
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" == "true" ]]; then export BUILD_SNAPSHOT=true; fi',
-              f'if [[ "{args.candidate}" != "" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
+              f'if [[ "{args.candidate}" != "None" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
               "env",
               f'echo "MacOS {arch} build not yet supported";'
             ],
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                         help="Specify if a snapshot build is wanted.")
     parser.add_argument("--candidate",
                         required=False,
-                        default="",
+                        default=None,
                         help="Specify a build candidate string.")
 
     args = parser.parse_args()
