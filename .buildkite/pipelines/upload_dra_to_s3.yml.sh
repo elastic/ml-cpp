@@ -10,13 +10,13 @@
 
 cat <<EOL
 steps:
-  - label: "Upload artifacts to S3 :s3:"
-    key: "upload_artifacts"
-    depends_on: "java_integration_tests"
+  - label: "Upload DRA artifacts to S3 :s3:"
+    key: "upload_dra_artifacts"
+    depends_on: create_dra_artifacts
     command:
+      - 'buildkite-agent artifact download "build/idistributions/*" . --step create_dra_artifacts'
       - 'echo "Upload to S3 is not implemented yet. Awaiting CI BuildKite vault support."'
-        #- 'buildkite-agent artifact download "build/*" .'
-        #- "./.buildkite/scripts/steps/upload_to_s3.sh"
+        #- "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"

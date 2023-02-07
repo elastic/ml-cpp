@@ -7,13 +7,19 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
-#
-# If this isn't a PR build and isn't a debug build then upload the artifacts.
-# Experience indicates that BuildKite always sets BUILDKITE_PULL_REQUEST to
-# be the PR number or "false". Hence we explicitly check for "false" here.
-if [[ x"$BUILDKITE_PULL_REQUEST" = xfalse && -z "$ML_DEBUG" ]] ; then
-    . dev-tools/aws_creds_from_vault.sh
-    echo 'Uploading artifacts to S3'
-    ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload
-fi
 
+cat <<EOL
+steps:
+  - label: "Create DRA artifacts"
+    key: "create_dra_artifacts"
+    depends_on:
+    command:
+        - "./.buildkite/scripts/steps/create_dra.sh"
+    agents:
+      cpu: "2"
+      ephemeralStorage: "20G"
+      memory: "4G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      # Run as a non-root user
+      imageUID: "1000"
+EOL
