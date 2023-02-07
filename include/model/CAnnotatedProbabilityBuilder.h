@@ -55,6 +55,7 @@ public:
     void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanations);
+    SAnnotatedProbability::TAnomalyScoreExplanation& anomalyScoreExplanation();
     void multiBucketImpact(double multiBucketImpact);
     void addAttributeProbability(std::size_t cid,
                                  const core::CStoredStringPtr& attribute,

@@ -96,6 +96,9 @@ const std::string UPPER_CONFIDENCE_BOUND("upper_confidence_bound");
 const std::string HIGH_VARIANCE_PENALTY("high_variance_penalty");
 const std::string INCOMPLETE_BUCKET_PENALTY("incomplete_bucket_penalty");
 const std::string MULTIMODAL_DISTRIBUTION("multimodal_distribution");
+const std::string RARE_CATEGORY_SEEN_FIRST_TIME("rare_category_seen_first_time");
+const std::string RARE_CATEGORY_TYPICAL_CONCENTRATION("rare_category_typical_concentration");
+const std::string RARE_CATEGORY_ACTUAL_CONCENTRATION("rare_category_actual_concentration");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -1006,6 +1009,23 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
         m_Writer.addBoolFieldToObj(MULTIMODAL_DISTRIBUTION,
                                    results.s_AnomalyScoreExplanation.s_MultimodalDistribution,
                                    anomalyScoreExplanation);
+    }
+
+    if (results.s_AnomalyScoreExplanation.s_FirstTimeRareCategory) {
+        m_Writer.addBoolFieldToObj(RARE_CATEGORY_SEEN_FIRST_TIME,
+                                   results.s_AnomalyScoreExplanation.s_FirstTimeRareCategory,
+                                   anomalyScoreExplanation);
+    }
+
+    if (results.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration > 0.0) {
+        m_Writer.addDoubleFieldToObj(RARE_CATEGORY_ACTUAL_CONCENTRATION,
+                                     results.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration,
+                                     anomalyScoreExplanation);
+    }
+    if (results.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration > 0.0) {
+        m_Writer.addDoubleFieldToObj(RARE_CATEGORY_TYPICAL_CONCENTRATION,
+                                     results.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration,
+                                     anomalyScoreExplanation);
     }
 }
 }

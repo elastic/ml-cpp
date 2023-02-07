@@ -79,6 +79,10 @@ void CAnnotatedProbabilityBuilder::anomalyScoreExplanation(SAnnotatedProbability
     m_Result.s_AnomalyScoreExplanation = explanation;
 }
 
+SAnnotatedProbability::TAnomalyScoreExplanation& CAnnotatedProbabilityBuilder::anomalyScoreExplanation() {
+    return m_Result.s_AnomalyScoreExplanation;
+}
+
 void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
     m_Result.s_MultiBucketImpact = multiBucketImpact;
 }

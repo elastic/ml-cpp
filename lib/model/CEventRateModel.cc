@@ -484,8 +484,15 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         resultBuilder.multiBucketImpact(multiBucketImpact);
     }
 
+    resultBuilder.anomalyScoreExplanation(pJoint.anomalyScoreExplanation());
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
-    resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
+    auto typicalConcentration = m_Probabilities.medianConcentration();
+    double actualConcentration;
+    if(m_ProbabilityPrior.concentration(pid, actualConcentration) && typicalConcentration.has_value()) {
+        resultBuilder.anomalyScoreExplanation().s_RareCategoryActualConcentration = actualConcentration;
+        resultBuilder.anomalyScoreExplanation().s_RareCategoryTypicalConcentration = typicalConcentration.value();
+    }
+    resultBuilder.anomalyScoreExplanation().s_FirstTimeRareCategory = !everSeenBefore;
     resultBuilder.build();
 
     return true;
