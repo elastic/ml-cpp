@@ -76,7 +76,7 @@ struct MODEL_EXPORT SAttributeProbability {
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Add the descriptive data \p value for \p key.
-    void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
+    // void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
 
     //! The attribute identifier.
     std::size_t s_Cid;
@@ -93,7 +93,7 @@ struct MODEL_EXPORT SAttributeProbability {
     //! The correlated attribute identifiers (if any).
     TSizeDoublePr1Vec s_Correlated;
     //! A list of key-value pairs with extra descriptive data (if any).
-    TDescriptiveDataDoublePr2Vec s_DescriptiveData;
+    // TDescriptiveDataDoublePr2Vec s_DescriptiveData;
     //! The current bucket value of the attribute (cached from the model).
     mutable TDouble1Vec s_CurrentBucketValue;
     //! The population mean (cached from the model).
@@ -125,7 +125,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     SAnnotatedProbability(double p);
 
     //! Add the descriptive data \p value for \p key.
-    void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
+    // void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
 
     //! Efficiently swap the contents of this and \p other.
     void swap(SAnnotatedProbability& other) noexcept;
@@ -153,7 +153,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     TStoredStringPtrStoredStringPtrPrDoublePrVec s_Influences;
 
     //! A list of (key, value) pairs with extra descriptive data (if any).
-    TDescriptiveDataDoublePr2Vec s_DescriptiveData;
+    // TDescriptiveDataDoublePr2Vec s_DescriptiveData;
 
     //! The result type (interim or final)
     //!

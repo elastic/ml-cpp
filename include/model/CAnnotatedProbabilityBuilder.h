@@ -52,7 +52,7 @@ public:
 
     void attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
-    void personFrequency(double frequency, bool everSeenBefore);
+    // void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanations);
     SAnnotatedProbability::TAnomalyScoreExplanation& anomalyScoreExplanation();
@@ -68,11 +68,11 @@ public:
     void build();
 
 private:
-    void addAttributeDescriptiveData(std::size_t cid,
-                                     double pAttribute,
-                                     SAttributeProbability& attributeProbability);
+    // void addAttributeDescriptiveData(std::size_t cid,
+    //                                  double pAttribute,
+    //                                  SAttributeProbability& attributeProbability);
 
-    void addDescriptiveData();
+    // void addDescriptiveData();
 
 private:
     using TMinAccumulator =
