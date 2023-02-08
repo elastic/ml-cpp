@@ -43,6 +43,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -405,6 +406,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
         BOOST_TEST_REQUIRE(model->computeProbability(
             pid, time, time + bucketLength, partitioningFields, 0, annotatedProbability));
         LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "anomaly score explanation = " << annotatedProbability.s_AnomalyScoreExplanation);
         probabilities.push_back(annotatedProbability.s_Probability);
     }
 
@@ -2867,6 +2869,65 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_TEST_REQUIRE(trendModel);
 
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
+}
+
+BOOST_FIXTURE_TEST_CASE(testRareScoreExplanations, CTestFixture) {
+    // Ensure that first occurrence of the category and actual and typical concentrations os
+    // the anomaly score explanation are correct. 
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
+    SModelParams params(bucketLength);
+    this->makeModel(params,
+                    {model_t::E_IndividualTotalBucketCountByPerson,
+                     model_t::E_IndividualIndicatorOfBucketPerson},
+                    startTime, 5);
+    auto* model = dynamic_cast<CEventRateModel*>(m_Model.get());
+
+    core_t::TTime time{startTime};
+    for (/**/; time < startTime + 10 * bucketLength; time += bucketLength) {
+        this->addArrival(SMessage(time + bucketLength / 2, "p1", TOptionalDouble()), m_Gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p2", TOptionalDouble()), m_Gatherer);
+        model->sample(time, time + bucketLength, m_ResourceMonitor);
+    }
+    for (/**/; time < startTime + 50 * bucketLength; time += bucketLength) {
+        this->addArrival(SMessage(time + bucketLength / 2, "p1", TOptionalDouble()), m_Gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p2", TOptionalDouble()), m_Gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p3", TOptionalDouble()), m_Gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p4", TOptionalDouble()), m_Gatherer);
+        model->sample(time, time + bucketLength, m_ResourceMonitor);
+    }
+
+    this->addArrival(SMessage(time + bucketLength / 2, "p1", TOptionalDouble()), m_Gatherer);
+    this->addArrival(SMessage(time + bucketLength / 2, "p2", TOptionalDouble()), m_Gatherer);
+    this->addArrival(SMessage(time + bucketLength / 2, "p3", TOptionalDouble()), m_Gatherer);
+    this->addArrival(SMessage(time + bucketLength / 2, "p4", TOptionalDouble()), m_Gatherer);
+    this->addArrival(SMessage(time + bucketLength / 2, "p5", TOptionalDouble()), m_Gatherer);
+    model->sample(time, time + bucketLength, m_ResourceMonitor);
+
+    TDoubleVec actualConcentrations;
+    TDoubleVec typicalConcentrations;
+    for (std::size_t pid = 0; pid < 5; ++pid) {
+        SAnnotatedProbability annotatedProbability;
+        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        BOOST_TEST_REQUIRE(model->computeProbability(
+            pid, time, time + bucketLength, partitioningFields, 0, annotatedProbability));
+       
+        LOG_DEBUG(<< "anomaly score explanation = " << annotatedProbability.s_AnomalyScoreExplanation);
+        if (pid == 4) {
+            BOOST_REQUIRE_EQUAL(true, annotatedProbability.s_AnomalyScoreExplanation.s_FirstTimeRareCategory);
+        } else {
+            BOOST_REQUIRE_EQUAL(false, annotatedProbability.s_AnomalyScoreExplanation.s_FirstTimeRareCategory);
+        }
+        actualConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration);
+        typicalConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration);
+    }
+
+    auto medianConcentration = actualConcentrations.begin() + actualConcentrations.size()/2;
+    std::nth_element(actualConcentrations.begin(), medianConcentration, actualConcentrations.end());
+    for (const auto & typicalConcentration : typicalConcentrations) {
+        BOOST_REQUIRE_EQUAL(*medianConcentration, typicalConcentration);
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

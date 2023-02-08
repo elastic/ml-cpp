@@ -282,9 +282,9 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
                std::to_string(static_cast<int>(s_MultimodalDistribution)) +
                ", first time seen rare category " +
                std::to_string(static_cast<int>(s_FirstTimeRareCategory)) +
-               ", rare category typical concentration" +
+               ", rare category typical concentration " +
                std::to_string(s_RareCategoryTypicalConcentration) +
-               ", rare category actual concentration" +
+               ", rare category actual concentration " +
                std::to_string(s_RareCategoryActualConcentration);
     }
 };
