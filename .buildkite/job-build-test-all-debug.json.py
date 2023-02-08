@@ -31,25 +31,27 @@ env = {
 
 def main():
     pipeline = {}
-    pipeline_steps = step.PipelineStep([
-        # TBD
-        #step.slack_notification,
-        step.format_and_validation,
-    ])  
+    pipeline_steps = step.PipelineStep([])
+    # TBD
+    #pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline", ".buildkite/scripts/steps/send_slack_notification.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
+                                                       ".buildkite/pipelines/format_and_validation.yml.sh"))
 
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        pipeline_steps.append(step.debug_windows)
+        debug_windows = pipeline_steps.generate_step_template("Windows", "debug", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_windows)
     if config.build_macos:
-        pipeline_steps.append(step.debug_macos)
+        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_macos)
     if config.build_linux:
-        pipeline_steps.append(step.debug_linux)
+        debug_linux = pipeline_steps.generate_step_template("Linux", "debug", config.snapshot, config.candidate)
+        pipeline_steps.append(debug_linux)
 
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
-
 
 if __name__ == "__main__":
     try:
