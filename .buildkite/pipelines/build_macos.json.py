@@ -38,6 +38,9 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    if args.action == "debug":
+        os.environ["ML_DEBUG"] = "1"
+
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
@@ -80,6 +83,7 @@ def main(args):
           "cpu": "6",
           "ephemeralStorage": "20G",
           "memory": "64G",
+          'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi;',
           "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
         },
         "commands": [

@@ -53,6 +53,9 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    if args.action == "debug":
+        os.environ["ML_DEBUG"] = "1"
+
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
