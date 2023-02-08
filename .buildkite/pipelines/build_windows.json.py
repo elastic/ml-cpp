@@ -49,6 +49,7 @@ def main(args):
               "image": "family/ml-cpp-1-windows-2016",
             },
             "commands": [
+              "Get-ChildItem env:",
               "if ( \$Env:GITHUB_PR_COMMENT_VAR_ACTION -eq \"debug\" ) {\$Env:ML_DEBUG=\"1\"}",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
