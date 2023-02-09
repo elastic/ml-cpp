@@ -12,7 +12,7 @@
 # Experience indicates that BuildKite always sets BUILDKITE_PULL_REQUEST to
 # be the PR number or "false". Hence we explicitly check for "false" here.
 if [[ x"$BUILDKITE_PULL_REQUEST" = xfalse && -z "$ML_DEBUG" ]] ; then
-    . dev-tools/aws_creds_from_vault.sh
+    . .buildkite/scripts/common/aws_creds_from_vault.sh
     echo 'Uploading artifacts to S3'
     ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload
 fi

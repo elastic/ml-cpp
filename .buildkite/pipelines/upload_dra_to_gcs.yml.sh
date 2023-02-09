@@ -12,6 +12,8 @@
 # GCS, where release manager builds will download them from.
 #
 
+. .buildkite/scripts/common/base.sh
+
 cat <<EOL
 steps:
   - label: "Upload DRA artifacts to GCS :gcloud:"
@@ -19,7 +21,7 @@ steps:
     depends_on: create_dra_artifacts
     command:
       - 'buildkite-agent artifact download "build/distributions/*" .'
-      - 'echo "Upload to GCS is not fully implemented yet. Awaiting CI BuildKite vault support."'
+      - 'echo "${RED}DISABLE this step after first successful run until BuildKite migration is complete${NOCOLOR}"'
       - '.buildkite/scripts/steps/upload_dra_to_gcs.sh'
     agents:
       provider: gcp

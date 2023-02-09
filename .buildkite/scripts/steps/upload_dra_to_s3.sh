@@ -8,6 +8,6 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-. dev-tools/aws_creds_from_vault.sh
+. .buildkite/scripts/common/aws_creds_from_vault.sh
 echo 'Uploading daily releasable artifacts to S3'
 ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT uberUpload

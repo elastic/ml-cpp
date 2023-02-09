@@ -8,6 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+. .buildkite/scripts/common/base.sh
+
 cat <<EOL
 steps:
   - label: "Upload DRA artifacts to S3 :s3:"
@@ -15,8 +17,8 @@ steps:
     depends_on: create_dra_artifacts
     command:
       - 'buildkite-agent artifact download "build/idistributions/*" . --step create_dra_artifacts'
-      - 'echo "Upload to S3 is not implemented yet. Awaiting CI BuildKite vault support."'
-        #- "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
+      - 'echo "${RED}DISABLE this step after first successful run until BuildKite migration is complete${NOCOLOR}"'
+      - "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"

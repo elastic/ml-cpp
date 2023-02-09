@@ -44,21 +44,20 @@ chmod a+r build/distributions/*
 # Allow other users write access to create checksum files
 chmod a+w build/distributions
 
-# TODO: Where to obtain GCS vault creds?
-export VAULT_ROLE_ID="$GCS_VAULT_ROLE_ID"
-export VAULT_SECRET_ID="$GCS_VAULT_SECRET_ID"
-unset GCS_VAULT_ROLE_ID GCS_VAULT_SECRET_ID
+# Variables named *_ACCESS_KEY & *_SECRET_KEY are redacted in BuildKite’s environment
+# so we store the vault role and secret id values in them for security
+VAULT_ACCESS_KEY=`vault read -field=role_id secret/ci/elastic-ml-cpp/gcs/creds/prelertartifacts`
+VAULT_SECRET_KEY=`vault read -field=secret_id secret/ci/elastic-ml-cpp/gcs/creds/prelertartifacts`
 
 IMAGE=docker.elastic.co/infra/release-manager:latest
 prefetch_docker_image "$IMAGE"
 
 # Generate checksum files and upload to GCS
-# TODO: Remove the "echo" command when GCS upload enabled
-echo docker run --rm \
+docker run --rm \
   --name release-manager \
   -e VAULT_ADDR='https://secrets.elastic.co:8200' \
-  -e VAULT_ROLE_ID \
-  -e VAULT_SECRET_ID \
+  -e VAULT_ROLE_ID=$VAULT_ACCESS_KEY \
+  -e VAULT_SECRET_ID=$VAULT_SECRET_KEY \
   --mount type=bind,readonly=false,src="$PWD",target=/artifacts \
   "$IMAGE" \
     cli collect \
