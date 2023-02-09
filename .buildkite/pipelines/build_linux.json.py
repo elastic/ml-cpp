@@ -53,6 +53,9 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    if args.action == "debug":
+        os.environ["ML_DEBUG"] = "1"
+
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
@@ -87,7 +90,10 @@ def main(args):
             ],
         })
 
-    if args.action != "debug":
+    if os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+        # We also always cross compile for aarch64 with full debug and assertions
+        # enabled for PR builds only. This is to detect any compilation errors
+        # as early as possible.
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
             "timeout_in_minutes": "120",
@@ -105,7 +111,8 @@ def main(args):
             "env": {
               "CPP_CROSS_COMPILE": "aarch64",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
-              "RUN_TESTS": "false"
+              "RUN_TESTS": "false",
+              "ML_DEBUG": "1"
             },
             "notify": [
               {
