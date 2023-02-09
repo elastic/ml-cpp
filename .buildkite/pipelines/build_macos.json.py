@@ -35,7 +35,6 @@ build_snapshot = [
     "false"
 ]
 
-
 def main(args):
     pipeline_steps = []
     cur_build_types = build_types
@@ -79,34 +78,34 @@ def main(args):
             ],
         })
 
-    if args.action != "debug":
-        pipeline_steps.append({
-            "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
-            "timeout_in_minutes": "120",
-            "agents": {
-              "cpu": "6",
-              "ephemeralStorage": "20G",
-              "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
+    pipeline_steps.append({
+        "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
+        "timeout_in_minutes": "120",
+        "agents": {
+          "cpu": "6",
+          "ephemeralStorage": "20G",
+          "memory": "64G",
+          "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
+        },
+        "commands": [
+          'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi',
+          ".buildkite/scripts/steps/build_and_test.sh"
+        ],
+        "depends_on": "check_style",
+        "key": "build_macos_x86_64_cross-RelWithDebInfo",
+        "env": {
+          "CPP_CROSS_COMPILE": "macosx",
+          "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
+          "RUN_TESTS": "false"
+        },
+        "notify": [
+          {
+            "github_commit_status": {
+              "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
             },
-            "commands": [
-              ".buildkite/scripts/steps/build_and_test.sh"
-            ],
-            "depends_on": "check_style",
-            "key": "build_macos_x86_64_cross-RelWithDebInfo",
-            "env": {
-              "CPP_CROSS_COMPILE": "macosx",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
-              "RUN_TESTS": "false"
-            },
-            "notify": [
-              {
-                "github_commit_status": {
-                  "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
-                },
-              },
-            ],
-        })
+          },
+        ],
+    })
 
     pipeline = {
         "steps": pipeline_steps,

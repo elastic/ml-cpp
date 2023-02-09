@@ -33,9 +33,9 @@ def main():
     pipeline_steps = step.PipelineStep([])
     # TBD
     #pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline", ".buildkite/scripts/steps/send_slack_notification.sh"))
+    #pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline", ".buildkite/scripts/steps/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
-
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
@@ -52,7 +52,6 @@ def main():
     pipeline_steps.append({"wait": None})
     pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
                                                        ".buildkite/pipelines/upload_to_s3.yml.sh"))
-
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
