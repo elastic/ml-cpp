@@ -8,7 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Create a unique job that sends slack notification only.
+# Create a unique job that sends email notification only.
 cat <<EOL | buildkite-agent pipeline upload
 steps:
   - label: "Schedule :email: notification"
