@@ -35,7 +35,6 @@ build_snapshot = [
     "false"
 ]
 
-
 def main(args):
     pipeline_steps = []
     cur_build_types = build_types

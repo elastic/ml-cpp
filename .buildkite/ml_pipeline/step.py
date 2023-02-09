@@ -8,8 +8,6 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-
-
 class PipelineStep(list):
   def generate_step(self, label, command):
     command = command + " | buildkite-agent pipeline upload"
@@ -29,4 +27,3 @@ class PipelineStep(list):
     label = f"Upload {action} pipeline for {platform} {platform_emoji}"
     command = f"python3 .buildkite/pipelines/build_{platform_lower}.json.py --action={action} --snapshot={snapshot} --candidate={candidate}"
     return self.generate_step(label, command)
-
