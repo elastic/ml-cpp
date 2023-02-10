@@ -9,7 +9,7 @@
 # limitation.
 #
 # Create a unique job that sends slack notification only.
-cat <<EOL | buildkite-agent pipeline upload
+cat <<EOL
 steps:
   - label: "Schedule :slack: notification"
     command: "echo schedule :slack: notification"

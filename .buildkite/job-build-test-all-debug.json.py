@@ -33,9 +33,9 @@ def main():
     pipeline = {}
     pipeline_steps = step.PipelineStep([])
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
-                                                       ".buildkite/scripts/steps/send_slack_notification.sh"))
+                                                       ".buildkite/pipelines/send_slack_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
-                                                       ".buildkite/scripts/steps/send_email_notification.sh"))
+                                                       ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
     config = buildConfig.Config()
