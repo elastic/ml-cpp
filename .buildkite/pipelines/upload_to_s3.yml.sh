@@ -17,8 +17,8 @@ steps:
     depends_on: "java_integration_tests"
     command:
       - 'buildkite-agent artifact download "build/*" .'
-      - 'echo "${RED}DISABLE this step after first successful run until BuildKite migration is complete${NOCOLOR}"'
-      - "./.buildkite/scripts/steps/upload_to_s3.sh"
+      - 'echo "${RED}This step is disabled until BuildKite migration is complete${NOCOLOR}"'
+      #- "./.buildkite/scripts/steps/upload_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"
