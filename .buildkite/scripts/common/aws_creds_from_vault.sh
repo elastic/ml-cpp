@@ -37,18 +37,27 @@ case $- in
         ;;
 esac
 
-# We obtain the AWS credentials in two stages:
+#
+# We obtain the AWS credentials in three stages:
 #
 # 1. Obtain the role and secret id necessary to access https://secrets.elastic.co:8200
 #    from where they've been stored in CI vault
 
 # Variables named *_PASSWORD, *_SECRET, *_TOKEN, *_ACCESS_KEY & *_SECRET_KEY are redacted in BuildKite’s environment
 # so store the role and secret id in them for security
-VAULT_ACCESS_KEY=`vault read -field=role_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts`
-VAULT_SECRET_KEY=`vault read -field=secret_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts`
+#
+VAULT_ACCESS_KEY=$(vault read -field=role_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
+VAULT_SECRET_KEY=$(vault read -field=secret_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
+VAULT_PRD_GH_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
 
 #
-# 2. Use the role and secret id obtained above to access the AWS secrets engine in https://secrets.elastic.co:8200
+# 2. Login to https://secrets.elastic.co:8200.
+#    TODO This is done using a _personal_ github access token. As such this is not a long term solution.
+#
+export VAULT_TOKEN=$(VAULT_ADDR=https://secrets.elastic.co:8200 vault login -token-only -method github token=$VAULT_PRD_GH_TOKEN)
+
+#
+# 3. Use the role and secret id obtained above to access the AWS secrets engine in https://secrets.elastic.co:8200
 #    and query it for the AWS access and secret keys.
 #
 export VAULT_TOKEN=$(VAULT_ADDR=https://secrets.elastic.co:8200 vault write -field=token auth/approle/login role_id="$VAULT_ACCESS_KEY" secret_id="$VAULT_SECRET_KEY")
