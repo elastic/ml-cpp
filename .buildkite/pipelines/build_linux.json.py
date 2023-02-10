@@ -31,6 +31,10 @@ actions = [
     "build",
     "debug"
 ]
+build_snapshot = [
+    "true",
+    "false"
+]
 agents = {
    "x86_64": {
       "cpu": "6",
@@ -53,17 +57,16 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
-    if args.action == "debug":
-        os.environ["ML_DEBUG"] = "1"
-
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
             "timeout_in_minutes": "120",
             "agents": agents[arch],
             "commands": [
+              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
+              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               "env",
-              'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
@@ -141,6 +144,15 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
+    parser.add_argument("--snapshot",
+                        required=False,
+                        choices=build_snapshot,
+                        default=None,
+                        help="Specify if a snapshot build is wanted.")
+    parser.add_argument("--version_qualifier",
+                        required=False,
+                        default=None,
+                        help="Specify a version qualifier.")
 
     args = parser.parse_args()
 

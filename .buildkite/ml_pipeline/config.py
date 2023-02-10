@@ -14,14 +14,26 @@ class Config:
     build_windows: bool = False
     build_macos: bool = False
     build_linux: bool = False
+    action: str = "build"
+    snapshot: str = "true"
+    version_qualifier: str = None
 
     def parse_comment(self):
+        if "GITHUB_PR_COMMENT_VAR_ACTION" in os.environ:
+            self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
+
+        if "GITHUB_PR_COMMENT_VAR_SNAPSHOT" in os.environ:
+            self.snapshot = os.environ["GITHUB_PR_COMMENT_VAR_SNAPSHOT"]
+
+        if "GITHUB_PR_COMMENT_VAR_VERSION_QUALIFIER" in os.environ:
+            self.version_qualifier = os.environ["GITHUB_PR_COMMENT_VAR_VERSION_QUALIFIER"]
+
         if "GITHUB_PR_COMMENT_VAR_PLATFORM" in os.environ:
             csv_platform = os.environ["GITHUB_PR_COMMENT_VAR_PLATFORM"]
             for each in [ x.strip().lower() for x in csv_platform.split(",")]:
                 if each == "windows":
                     self.build_windows = True
-                elif each == "macos":
+                elif each == "macos" or each == "mac":
                     self.build_macos = True
                 elif each == "linux":
                     self.build_linux = True
