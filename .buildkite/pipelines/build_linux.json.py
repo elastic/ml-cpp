@@ -65,7 +65,7 @@ def main(args):
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-              f'if [[ "{args.candidate}" != "None" ]]; then export VERSION_QUALIFIER={args.candidate}; fi',
+              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               "env",
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
@@ -149,10 +149,10 @@ if __name__ == "__main__":
                         choices=build_snapshot,
                         default=None,
                         help="Specify if a snapshot build is wanted.")
-    parser.add_argument("--candidate",
+    parser.add_argument("--version_qualifier",
                         required=False,
                         default=None,
-                        help="Specify a build candidate string.")
+                        help="Specify a version qualifier.")
 
     args = parser.parse_args()
 
