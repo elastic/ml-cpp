@@ -261,9 +261,9 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
     bool s_HighVariancePenalty{false};
     bool s_IncompleteBucketPenalty{false};
     bool s_MultimodalDistribution{false};
-    bool s_FirstTimeRareCategory{false};
-    double s_RareCategoryTypicalConcentration{0.0};
-    double s_RareCategoryActualConcentration{0.0};
+    bool s_ByFieldFirstOccurrence{false};
+    double s_ByFieldTypicalConcentration{0.0};
+    double s_ByFieldActualConcentration{0.0};
 
     std::string print() const {
         return "Anomaly Score Explanation:\ntype: " + std::to_string(s_AnomalyType) +
@@ -280,12 +280,12 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
                std::to_string(static_cast<int>(s_IncompleteBucketPenalty)) +
                ", is multimodal distribution " +
                std::to_string(static_cast<int>(s_MultimodalDistribution)) +
-               ", first time seen rare category " +
-               std::to_string(static_cast<int>(s_FirstTimeRareCategory)) +
-               ", rare category typical concentration " +
-               std::to_string(s_RareCategoryTypicalConcentration) +
-               ", rare category actual concentration " +
-               std::to_string(s_RareCategoryActualConcentration);
+               ", by field first occurrence " +
+               std::to_string(static_cast<int>(s_ByFieldFirstOccurrence)) +
+               ", by field typical concentration " +
+               std::to_string(s_ByFieldTypicalConcentration) +
+               ", by field actual concentration " +
+               std::to_string(s_ByFieldActualConcentration);
     }
 };
 

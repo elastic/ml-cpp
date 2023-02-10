@@ -2914,12 +2914,12 @@ BOOST_FIXTURE_TEST_CASE(testRareScoreExplanations, CTestFixture) {
        
         LOG_DEBUG(<< "anomaly score explanation = " << annotatedProbability.s_AnomalyScoreExplanation);
         if (pid == 4) {
-            BOOST_REQUIRE_EQUAL(true, annotatedProbability.s_AnomalyScoreExplanation.s_FirstTimeRareCategory);
+            BOOST_REQUIRE_EQUAL(true, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
         } else {
-            BOOST_REQUIRE_EQUAL(false, annotatedProbability.s_AnomalyScoreExplanation.s_FirstTimeRareCategory);
+            BOOST_REQUIRE_EQUAL(false, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
         }
-        actualConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration);
-        typicalConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration);
+        actualConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldActualConcentration);
+        typicalConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration);
     }
 
     auto medianConcentration = actualConcentrations.begin() + actualConcentrations.size()/2;

@@ -1921,9 +1921,9 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
         ml::api::CHierarchicalResultsWriter::TAnomalyScoreExplanation anomalyScoreExplanation;
 
         {
-            anomalyScoreExplanation.s_FirstTimeRareCategory = true;
-            anomalyScoreExplanation.s_RareCategoryActualConcentration = 0.1;
-            anomalyScoreExplanation.s_RareCategoryTypicalConcentration = 0.5;
+            anomalyScoreExplanation.s_ByFieldFirstOccurrence = true;
+            anomalyScoreExplanation.s_ByFieldActualConcentration = 0.1;
+            anomalyScoreExplanation.s_ByFieldTypicalConcentration = 0.5;
             ml::api::CHierarchicalResultsWriter::SResults result(
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
@@ -1948,14 +1948,15 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
     LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
 
     BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc[0].HasMember("records"));
     BOOST_TEST_REQUIRE(arrayDoc[0]["records"].IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc[0]["records"].Size());
     const auto& record = arrayDoc[0]["records"][0];
     BOOST_TEST_REQUIRE(record.HasMember("anomaly_score_explanation"));
-    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("rare_category_seen_first_time"));
-    BOOST_REQUIRE_EQUAL(true, record["anomaly_score_explanation"]["rare_category_seen_first_time"].GetBool());
-    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("rare_category_actual_concentration"));
-    BOOST_REQUIRE_EQUAL(0.1, record["anomaly_score_explanation"]["rare_category_actual_concentration"].GetDouble());
-    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("rare_category_typical_concentration"));
-    BOOST_REQUIRE_EQUAL(0.5, record["anomaly_score_explanation"]["rare_category_typical_concentration"].GetDouble());
+    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_first_occurrence"));
+    BOOST_REQUIRE_EQUAL(true, record["anomaly_score_explanation"]["by_field_first_occurrence"].GetBool());
+    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_relative_rarity"));
+    BOOST_REQUIRE_EQUAL(5.0, record["anomaly_score_explanation"]["by_field_relative_rarity"].GetDouble());
 }
 BOOST_AUTO_TEST_SUITE_END()

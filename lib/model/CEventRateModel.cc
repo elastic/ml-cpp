@@ -489,13 +489,13 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     double actualConcentration;
     if (m_ProbabilityPrior.concentration(pid, actualConcentration) &&
         typicalConcentration.has_value()) {
-        resultBuilder.anomalyScoreExplanation().s_RareCategoryActualConcentration = actualConcentration;
-        resultBuilder.anomalyScoreExplanation().s_RareCategoryTypicalConcentration =
+        resultBuilder.anomalyScoreExplanation().s_ByFieldActualConcentration = actualConcentration;
+        resultBuilder.anomalyScoreExplanation().s_ByFieldTypicalConcentration =
             typicalConcentration.value();
     }
     // resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
 
-    resultBuilder.anomalyScoreExplanation().s_FirstTimeRareCategory = !everSeenBefore;
+    resultBuilder.anomalyScoreExplanation().s_ByFieldFirstOccurrence = !everSeenBefore;
     resultBuilder.build();
 
     return true;

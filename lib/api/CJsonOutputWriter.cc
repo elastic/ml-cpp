@@ -96,9 +96,8 @@ const std::string UPPER_CONFIDENCE_BOUND("upper_confidence_bound");
 const std::string HIGH_VARIANCE_PENALTY("high_variance_penalty");
 const std::string INCOMPLETE_BUCKET_PENALTY("incomplete_bucket_penalty");
 const std::string MULTIMODAL_DISTRIBUTION("multimodal_distribution");
-const std::string RARE_CATEGORY_SEEN_FIRST_TIME("rare_category_seen_first_time");
-const std::string RARE_CATEGORY_TYPICAL_CONCENTRATION("rare_category_typical_concentration");
-const std::string RARE_CATEGORY_ACTUAL_CONCENTRATION("rare_category_actual_concentration");
+const std::string BY_FIELD_FIRST_OCCURRENCE("by_field_first_occurrence");
+const std::string BY_FIELD_RELATIVE_RARITY("by_field_relative_rarity");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -1011,20 +1010,17 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
                                    anomalyScoreExplanation);
     }
 
-    if (results.s_AnomalyScoreExplanation.s_FirstTimeRareCategory) {
-        m_Writer.addBoolFieldToObj(RARE_CATEGORY_SEEN_FIRST_TIME,
-                                   results.s_AnomalyScoreExplanation.s_FirstTimeRareCategory,
+    if (results.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence) {
+        m_Writer.addBoolFieldToObj(BY_FIELD_FIRST_OCCURRENCE,
+                                   results.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence,
                                    anomalyScoreExplanation);
     }
 
-    if (results.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration > 0.0) {
-        m_Writer.addDoubleFieldToObj(RARE_CATEGORY_ACTUAL_CONCENTRATION,
-                                     results.s_AnomalyScoreExplanation.s_RareCategoryActualConcentration,
-                                     anomalyScoreExplanation);
-    }
-    if (results.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration > 0.0) {
-        m_Writer.addDoubleFieldToObj(RARE_CATEGORY_TYPICAL_CONCENTRATION,
-                                     results.s_AnomalyScoreExplanation.s_RareCategoryTypicalConcentration,
+    if (results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration > 0.0 && 
+    results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration > 0.0) {
+        double byFieldRelativeRarity{results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration/results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration};
+        m_Writer.addDoubleFieldToObj(BY_FIELD_RELATIVE_RARITY,
+                                     byFieldRelativeRarity,
                                      anomalyScoreExplanation);
     }
 }
