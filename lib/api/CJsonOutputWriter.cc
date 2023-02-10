@@ -1016,11 +1016,12 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
                                    anomalyScoreExplanation);
     }
 
-    if (results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration > 0.0 && 
-    results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration > 0.0) {
-        double byFieldRelativeRarity{results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration/results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration};
-        m_Writer.addDoubleFieldToObj(BY_FIELD_RELATIVE_RARITY,
-                                     byFieldRelativeRarity,
+    if (results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration > 0.0 &&
+        results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration > 0.0) {
+        double byFieldRelativeRarity{
+            results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration /
+            results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration};
+        m_Writer.addDoubleFieldToObj(BY_FIELD_RELATIVE_RARITY, byFieldRelativeRarity,
                                      anomalyScoreExplanation);
     }
 }

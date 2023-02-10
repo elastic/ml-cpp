@@ -1928,8 +1928,8 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
                 ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
                 partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
                 1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName,
-                influences, false, false, 2, 100, EMPTY_STRING_LIST, anomalyScoreExplanation);
+                TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+                false, false, 2, 100, EMPTY_STRING_LIST, anomalyScoreExplanation);
 
             // 1st bucket
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
@@ -1955,8 +1955,10 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
     const auto& record = arrayDoc[0]["records"][0];
     BOOST_TEST_REQUIRE(record.HasMember("anomaly_score_explanation"));
     BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_first_occurrence"));
-    BOOST_REQUIRE_EQUAL(true, record["anomaly_score_explanation"]["by_field_first_occurrence"].GetBool());
+    BOOST_REQUIRE_EQUAL(
+        true, record["anomaly_score_explanation"]["by_field_first_occurrence"].GetBool());
     BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_relative_rarity"));
-    BOOST_REQUIRE_EQUAL(5.0, record["anomaly_score_explanation"]["by_field_relative_rarity"].GetDouble());
+    BOOST_REQUIRE_EQUAL(
+        5.0, record["anomaly_score_explanation"]["by_field_relative_rarity"].GetDouble());
 }
 BOOST_AUTO_TEST_SUITE_END()

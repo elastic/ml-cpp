@@ -406,7 +406,8 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
         BOOST_TEST_REQUIRE(model->computeProbability(
             pid, time, time + bucketLength, partitioningFields, 0, annotatedProbability));
         LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
-        LOG_DEBUG(<< "anomaly score explanation = " << annotatedProbability.s_AnomalyScoreExplanation);
+        LOG_DEBUG(<< "anomaly score explanation = "
+                  << annotatedProbability.s_AnomalyScoreExplanation);
         probabilities.push_back(annotatedProbability.s_Probability);
     }
 
@@ -2873,7 +2874,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testRareScoreExplanations, CTestFixture) {
     // Ensure that first occurrence of the category and actual and typical concentrations os
-    // the anomaly score explanation are correct. 
+    // the anomaly score explanation are correct.
     const core_t::TTime startTime{1346968800};
     const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
@@ -2911,23 +2912,29 @@ BOOST_FIXTURE_TEST_CASE(testRareScoreExplanations, CTestFixture) {
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         BOOST_TEST_REQUIRE(model->computeProbability(
             pid, time, time + bucketLength, partitioningFields, 0, annotatedProbability));
-       
-        LOG_DEBUG(<< "anomaly score explanation = " << annotatedProbability.s_AnomalyScoreExplanation);
+
+        LOG_DEBUG(<< "anomaly score explanation = "
+                  << annotatedProbability.s_AnomalyScoreExplanation);
         if (pid == 4) {
-            BOOST_REQUIRE_EQUAL(true, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
+            BOOST_REQUIRE_EQUAL(
+                true, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
         } else {
-            BOOST_REQUIRE_EQUAL(false, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
+            BOOST_REQUIRE_EQUAL(
+                false, annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence);
         }
-        actualConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldActualConcentration);
-        typicalConcentrations.push_back(annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration);
+        actualConcentrations.push_back(
+            annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldActualConcentration);
+        typicalConcentrations.push_back(
+            annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration);
     }
 
-    auto medianConcentration = actualConcentrations.begin() + actualConcentrations.size()/2;
-    std::nth_element(actualConcentrations.begin(), medianConcentration, actualConcentrations.end());
-    for (const auto & typicalConcentration : typicalConcentrations) {
+    auto medianConcentration = actualConcentrations.begin() +
+                               actualConcentrations.size() / 2;
+    std::nth_element(actualConcentrations.begin(), medianConcentration,
+                     actualConcentrations.end());
+    for (const auto& typicalConcentration : typicalConcentrations) {
         BOOST_REQUIRE_EQUAL(*medianConcentration, typicalConcentration);
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()
