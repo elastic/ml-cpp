@@ -9,7 +9,7 @@
 # limitation.
 #
 # Create a unique job that sends email notification only.
-cat <<EOL | buildkite-agent pipeline upload
+cat <<EOL
 steps:
   - label: "Schedule :email: notification"
     command: "echo schedule :email: notification"
