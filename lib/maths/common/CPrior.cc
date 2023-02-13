@@ -319,6 +319,11 @@ CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
 
     return this->doPrintMarginalLikelihoodStatistics();
 }
+
+bool CPrior::isSelectedModelMultimodal() const {
+    return false;
+}
+
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
 const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50;
 const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";

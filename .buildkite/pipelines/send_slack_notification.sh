@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -7,12 +8,19 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Note: Don't use top-level "agents:" entries as they get inherited
-# by any pipelines called from here.  Always use "agents:" inside of
-# a "steps:" entry
-
+# Create a unique job that sends slack notification only.
+cat <<EOL
 steps:
-  - label: "Upload Dynamic configuration"
-    command: "python .buildkite/job-build-test-all-debug.json.py | buildkite-agent pipeline upload"
-    agents:
-      image: "python"
+  - label: "Schedule :slack: notification"
+    command: "echo schedule :slack: notification"
+notify:
+  - slack:
+      channels:
+        - “#machine-learn-build"
+      message: |
+        Branch: ${BUILDKITE_BRANCH}
+        User: ${BUILDKITE_BUILD_CREATOR}
+        Pipeline: ${BUILDKITE_BUILD_URL}
+        Build: ${BUILDKITE_BUILD_NUMBER}
+    if: build.pull_request.id == null
+EOL

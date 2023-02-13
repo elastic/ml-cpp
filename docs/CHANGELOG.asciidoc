@@ -32,6 +32,7 @@
 
 === Enhancements
 
+* Add identification of multimodal distribution to anomaly explanations. (See {ml-pull}2440[#2440].)
 * Upgrade PyTorch to version 1.13.1. (See {ml-pull}2430[#2430].)
 
 == {es} version 8.6.0
