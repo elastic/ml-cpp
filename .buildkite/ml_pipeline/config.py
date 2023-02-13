@@ -16,21 +16,17 @@ class Config:
     build_linux: bool = False
     action: str = "build"
     snapshot: str = "true"
-    candidate: str = None
+    version_qualifier: str = None
 
     def parse_comment(self):
         if "GITHUB_PR_COMMENT_VAR_ACTION" in os.environ:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
-            if os.environ["GITHUB_PR_COMMENT_VAR_ACTION"] == "debug":
-              os.environ["ML_DEBUG"] = 1
 
         if "GITHUB_PR_COMMENT_VAR_SNAPSHOT" in os.environ:
             self.snapshot = os.environ["GITHUB_PR_COMMENT_VAR_SNAPSHOT"]
-            os.environ["BUILD_SNAPSHOT"] = os.environ["GITHUB_PR_COMMENT_VAR_SNAPSHOT"]
 
-        if "GITHUB_PR_COMMENT_VAR_CANDIDATE" in os.environ:
-            self.candidate = os.environ["GITHUB_PR_COMMENT_VAR_CANDIDATE"]
-            os.environ["VERSION_QUALIFIER"] = os.environ["GITHUB_PR_COMMENT_VAR_CANDIDATE"]
+        if "GITHUB_PR_COMMENT_VAR_VERSION_QUALIFIER" in os.environ:
+            self.version_qualifier = os.environ["GITHUB_PR_COMMENT_VAR_VERSION_QUALIFIER"]
 
         if "GITHUB_PR_COMMENT_VAR_PLATFORM" in os.environ:
             csv_platform = os.environ["GITHUB_PR_COMMENT_VAR_PLATFORM"]
