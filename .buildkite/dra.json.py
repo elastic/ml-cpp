@@ -8,10 +8,16 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp-dra pipeline
-# which is triggered nightly on a schedule.
-# For now the pipeline has just the one step, that combines individual,
-# platform specific, zip files into one "uber" zip file.
+# This script generates a pipeline JSON for the ml-cpp-dra pipeline.
+# The pipeline has several steps:
+# 1. Download the platform-specific artifacts built by the first phase
+#    of the ML CI job.
+# 2. Combine the platform-specific artifacts into an all-platforms bundle,
+#    as used by the Elasticsearch build.
+# 3. Upload the all-platforms bundle to S3, where day-to-day Elasticsearch
+#    builds will download it from.
+# 4. Upload all artifacts, both platform-specific and all-platforms, to
+#    GCS, where release manager builds will download them from.
 #
 
 import json

@@ -14,8 +14,6 @@
 #    of the ML CI job.
 # 2. Combine the platform-specific artifacts into an all-platforms bundle,
 #    as used by the Elasticsearch build.
-# 3. Upload the all-platforms bundle to S3, where day-to-day Elasticsearch
-#    builds will download it from.
 
 rm -rf build/distributions
 
