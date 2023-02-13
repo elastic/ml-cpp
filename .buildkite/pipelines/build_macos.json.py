@@ -44,7 +44,7 @@ def main(args):
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
-            "timeout_in_minutes": "120",
+            "timeout_in_minutes": "150",
             "agents": {
             },
             "commands": [
@@ -80,7 +80,7 @@ def main(args):
 
     pipeline_steps.append({
         "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
-        "timeout_in_minutes": "120",
+        "timeout_in_minutes": "150",
         "agents": {
           "cpu": "6",
           "ephemeralStorage": "20G",
@@ -88,7 +88,10 @@ def main(args):
           "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
         },
         "commands": [
-          'if [[ "$GITHUB_PR_COMMENT_VAR_ACTION" == "debug" ]]; then export ML_DEBUG=1; fi',
+          f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+          f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
+          f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
+          "env",
           ".buildkite/scripts/steps/build_and_test.sh"
         ],
         "depends_on": "check_style",
