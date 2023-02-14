@@ -9,6 +9,7 @@
 # limitation.
 
 import os
+import re
 
 class Config:
     build_windows: bool = False
@@ -43,17 +44,21 @@ class Config:
             self.build_linux = True
 
     def parse_label(self):
-        for label in [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]:
-            if "ci:build-windows" == label:
-                self.build_windows = True
-            elif "ci:build-macos" == label:
-                self.build_macos = True
-            elif "ci:build-linux" == label:
-                self.build_linux = True
-            else:
-                self.build_windows = True
-                self.build_macos = True
-                self.build_linux = True
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows']
+        all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
+        ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
+        if not ci_labels:
+            self.build_windows = True
+            self.build_macos = True
+            self.build_linux = True
+        else:
+            for label in ci_labels:
+                if "ci:build-windows" == label:
+                    self.build_windows = True
+                elif "ci:build-macos" == label:
+                    self.build_macos = True
+                elif "ci:build-linux" == label:
+                    self.build_linux = True
 
     def parse(self):
         """Parse Github label or Github comment passed through buildkite-pr-bot."""
