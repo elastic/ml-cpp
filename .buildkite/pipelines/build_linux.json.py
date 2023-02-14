@@ -94,7 +94,11 @@ def main(args):
         })
 
     # Never cross-compile for linux-aarch64 in the nightly debug build.
-    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp") != "ml-cpp-debug-build":
+    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp") != "ml-cpp-debug-build" and \
+            os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+        # Always cross compile for aarch64 with full debug and assertions
+        # enabled for PR builds only. This is to detect any compilation errors
+        # as early as possible.
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
             "timeout_in_minutes": "150",
@@ -105,10 +109,6 @@ def main(args):
               "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
             },
             "commands": [
-              # Always cross compile for aarch64 with full debug and assertions
-              # enabled for PR builds only. This is to detect any compilation errors
-              # as early as possible.
-              f'if [[ "$BUILDKITE_PULL_REQUEST" != "false" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               "env",
@@ -119,7 +119,8 @@ def main(args):
             "env": {
               "CPP_CROSS_COMPILE": "aarch64",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
-              "RUN_TESTS": "false"
+              "RUN_TESTS": "false",
+              "ML_DEBUG": "1"
             },
             "notify": [
               {
