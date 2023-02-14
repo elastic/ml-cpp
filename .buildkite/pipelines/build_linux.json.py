@@ -94,7 +94,7 @@ def main(args):
         })
 
     # Never cross-compile for linux-aarch64 in the nightly debug build.
-    if os.environ.get("BUILDKITE_PIPELINE_SLUG") != "ml-cpp-debug-build":
+    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp") != "ml-cpp-debug-build":
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
             "timeout_in_minutes": "150",
@@ -108,7 +108,7 @@ def main(args):
               # Always cross compile for aarch64 with full debug and assertions
               # enabled for PR builds only. This is to detect any compilation errors
               # as early as possible.
-              f'if [[ $BUILDKITE_PULL_REQUEST != false ]]; then export ML_DEBUG=1; fi',
+              f'if [[ "$BUILDKITE_PULL_REQUEST" != "false" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               "env",
