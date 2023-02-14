@@ -55,7 +55,6 @@ def main(args):
               f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
               f'if ( "{args.snapshot}" -ne "None" ) {{\\$Env:BUILD_SNAPSHOT="{args.snapshot}"}}',
               f'if ( "{args.version_qualifier}" -ne "None" ) {{\\$Env:VERSION_QUALIFIER="{args.version_qualifier}"}}',
-              "Get-ChildItem env:",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
             "depends_on": "check_style",
