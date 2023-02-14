@@ -93,40 +93,42 @@ def main(args):
             ],
         })
 
-    pipeline_steps.append({
-        "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
-        "timeout_in_minutes": "150",
-        "agents": {
-          "cpu": "6",
-          "ephemeralStorage": "20G",
-          "memory": "64G",
-          "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
-        },
-        "commands": [
-          # We perform a build with full debug and assertions if we have been explicitly
-          # asked to do so, e.g. nightly debug build, and also on every PR build. The latter
-          # reason is to pick up any compilation errors as early as possible.
-          f'if [[ "{args.action}" == "debug" || $BUILDKITE_PULL_REQUEST != false ]]; then export ML_DEBUG=1; fi',
-          f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-          f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
-          "env",
-          ".buildkite/scripts/steps/build_and_test.sh"
-        ],
-        "depends_on": "check_style",
-        "key": "build_linux_aarch64_cross-RelWithDebInfo",
-        "env": {
-          "CPP_CROSS_COMPILE": "aarch64",
-          "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
-          "RUN_TESTS": "false"
-        },
-        "notify": [
-          {
-            "github_commit_status": {
-              "context": "Cross compile for Linux aarch64 RelWithDebInfo",
+    # Never cros-compile for linux-aarch64 in the nightly debug build.
+    if os.environ.get("BUILDKITE_PIPELINE_SLUG") != "ml-cpp-debug-build":
+        pipeline_steps.append({
+            "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
+            "timeout_in_minutes": "150",
+            "agents": {
+              "cpu": "6",
+              "ephemeralStorage": "20G",
+              "memory": "64G",
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
             },
-          },
-        ],
-    })
+            "commands": [
+              # Always cross compile for aarch64 with full debug and assertions
+              # enabled for PR builds only. This is to detect any compilation errors
+              # as early as possible.
+              f'if [[ $BUILDKITE_PULL_REQUEST != false ]]; then export ML_DEBUG=1; fi',
+              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
+              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
+              "env",
+              ".buildkite/scripts/steps/build_and_test.sh"
+            ],
+            "depends_on": "check_style",
+            "key": "build_linux_aarch64_cross-RelWithDebInfo",
+            "env": {
+              "CPP_CROSS_COMPILE": "aarch64",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
+              "RUN_TESTS": "false"
+            },
+            "notify": [
+              {
+                "github_commit_status": {
+                  "context": "Cross compile for Linux aarch64 RelWithDebInfo",
+                },
+              },
+            ],
+        })
 
     pipeline = {
         "steps": pipeline_steps,
