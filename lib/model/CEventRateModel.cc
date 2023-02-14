@@ -398,7 +398,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     CAnnotatedProbabilityBuilder resultBuilder(
         result,
         1, // # attribute probabilities
-        function_t::function(gatherer.features()), gatherer.numberActivePeople());
+        function_t::function(gatherer.features()));
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
     pJoint.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
@@ -493,8 +493,6 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         resultBuilder.anomalyScoreExplanation().s_ByFieldTypicalConcentration =
             typicalConcentration.value();
     }
-    // resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
-
     resultBuilder.anomalyScoreExplanation().s_ByFieldFirstOccurrence = !everSeenBefore;
     resultBuilder.build();
 

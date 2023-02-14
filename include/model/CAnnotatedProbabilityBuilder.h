@@ -47,19 +47,16 @@ public:
 
     CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability,
                                  std::size_t numberAttributeProbabilities,
-                                 function_t::EFunction function,
-                                 std::size_t numberOfPeople);
+                                 function_t::EFunction function);
 
     void attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
-    // void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanations);
     SAnnotatedProbability::TAnomalyScoreExplanation& anomalyScoreExplanation();
     void multiBucketImpact(double multiBucketImpact);
     void addAttributeProbability(std::size_t cid,
                                  const core::CStoredStringPtr& attribute,
-                                 double pAttribute,
                                  double pGivenAttribute,
                                  model_t::CResultType type,
                                  model_t::EFeature feature,
@@ -68,26 +65,16 @@ public:
     void build();
 
 private:
-    // void addAttributeDescriptiveData(std::size_t cid,
-    //                                  double pAttribute,
-    //                                  SAttributeProbability& attributeProbability);
-
-    // void addDescriptiveData();
-
-private:
     using TMinAccumulator =
         maths::common::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
 
 private:
     SAnnotatedProbability& m_Result;
     std::size_t m_NumberAttributeProbabilities;
-    std::size_t m_NumberOfPeople;
     const maths::common::CMultinomialConjugate* m_AttributeProbabilityPrior;
     const maths::common::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
     TMinAccumulator m_MinAttributeProbabilities;
     std::size_t m_DistinctTotalAttributes;
-    std::size_t m_DistinctRareAttributes;
-    double m_RareAttributes;
     bool m_IsPopulation;
     bool m_IsRare;
     bool m_IsFreqRare;

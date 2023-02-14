@@ -187,6 +187,7 @@ public:
         //! \p attribute.
         bool lookup(std::size_t category, double& result) const;
 
+        //! Calculate or return existing median concentration value.
         TOptionalDouble medianConcentration() const;
 
         //! Get the memory usage of the component
@@ -202,7 +203,7 @@ public:
         mutable TDoubleVec m_Cache;
         //! The smallest possible category probability.
         mutable double m_SmallestProbability;
-
+        //! The median value of the concentration vector.
         mutable TOptionalDouble m_MedianConcentration;
     };
 

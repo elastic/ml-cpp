@@ -586,7 +586,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
 
     CAnnotatedProbabilityBuilder resultBuilder(
         result, std::max(numberAttributeProbabilities, std::size_t(1)),
-        function_t::function(gatherer.features()), gatherer.numberActivePeople());
+        function_t::function(gatherer.features()));
 
     LOG_TRACE(<< "computeProbability(" << gatherer.personName(pid) << ")");
 
@@ -661,7 +661,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                         }
                     }
                     resultBuilder.addAttributeProbability(
-                        cid, gatherer.attributeNamePtr(cid), 1.0,
+                        cid, gatherer.attributeNamePtr(cid), 
                         params.s_Probability, model_t::CResultType::E_Unconditional,
                         feature, NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
                 } else {

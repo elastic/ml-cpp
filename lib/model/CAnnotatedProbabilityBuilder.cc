@@ -21,9 +21,9 @@ namespace model {
 
 CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability)
     : m_Result(annotatedProbability), m_NumberAttributeProbabilities(1),
-      m_NumberOfPeople(0), m_AttributeProbabilityPrior(nullptr),
+      m_AttributeProbabilityPrior(nullptr),
       m_PersonAttributeProbabilityPrior(nullptr), m_MinAttributeProbabilities(1),
-      m_DistinctTotalAttributes(0), m_DistinctRareAttributes(0), m_RareAttributes(0),
+      m_DistinctTotalAttributes(0), 
       m_IsPopulation(false), m_IsRare(false), m_IsFreqRare(false) {
     m_Result.s_AttributeProbabilities.clear();
     m_Result.s_Influences.clear();
@@ -31,15 +31,13 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability
 
 CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability,
                                                            std::size_t numberAttributeProbabilities,
-                                                           function_t::EFunction function,
-                                                           std::size_t numberOfPeople)
+                                                           function_t::EFunction function)
     : m_Result(annotatedProbability),
       m_NumberAttributeProbabilities(numberAttributeProbabilities),
-      m_NumberOfPeople(numberOfPeople), m_AttributeProbabilityPrior(nullptr),
+      m_AttributeProbabilityPrior(nullptr),
       m_PersonAttributeProbabilityPrior(nullptr),
       m_MinAttributeProbabilities(numberAttributeProbabilities),
-      m_DistinctTotalAttributes(0), m_DistinctRareAttributes(0),
-      m_RareAttributes(0), m_IsPopulation(function_t::isPopulation(function)),
+      m_DistinctTotalAttributes(0), m_IsPopulation(function_t::isPopulation(function)),
       m_IsRare(false), m_IsFreqRare(false) {
     m_Result.s_AttributeProbabilities.clear();
     m_Result.s_Influences.clear();
@@ -50,17 +48,6 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability
         m_IsFreqRare = true;
     }
 }
-
-// void CAnnotatedProbabilityBuilder::personFrequency(double frequency, bool everSeenBefore) {
-//     if (m_IsRare && m_IsPopulation == false) {
-//         if (everSeenBefore) {
-//             double period = (frequency == 0.0) ? 0.0 : 1 / frequency;
-//             m_Result.addDescriptiveData(annotated_probability::E_PERSON_PERIOD, period);
-//         } else {
-//             m_Result.addDescriptiveData(annotated_probability::E_PERSON_NEVER_SEEN_BEFORE, 1.0);
-//         }
-//     }
-// }
 
 void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior) {
     m_AttributeProbabilityPrior = prior;
@@ -91,7 +78,6 @@ void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
 void CAnnotatedProbabilityBuilder::addAttributeProbability(
     std::size_t cid,
     const core::CStoredStringPtr& attribute,
-    double pAttribute,
     double pGivenAttribute_,
     model_t::CResultType type,
     model_t::EFeature feature,
@@ -100,35 +86,11 @@ void CAnnotatedProbabilityBuilder::addAttributeProbability(
     type.set(m_Result.s_ResultType.asInterimOrFinal());
     SAttributeProbability pGivenAttribute(cid, attribute, pGivenAttribute_, type,
                                           feature, correlatedAttributes, correlated);
-    // this->addAttributeDescriptiveData(cid, pAttribute, pGivenAttribute);
     m_MinAttributeProbabilities.add(pGivenAttribute);
     ++m_DistinctTotalAttributes;
 }
 
-// void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(std::size_t cid,
-//                                                                double pAttribute,
-//                                                                SAttributeProbability& attributeProbability) {
-//     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
-//         double concentration;
-//         m_AttributeProbabilityPrior->concentration(static_cast<double>(cid), concentration);
-//         // attributeProbability.addDescriptiveData(
-//         //     annotated_probability::E_ATTRIBUTE_CONCENTRATION, concentration);
-
-//         double activityConcentration;
-//         m_PersonAttributeProbabilityPrior->concentration(static_cast<double>(cid),
-//                                                          activityConcentration);
-//         // attributeProbability.addDescriptiveData(
-//         //     annotated_probability::E_ACTIVITY_CONCENTRATION, activityConcentration);
-
-//         if (pAttribute < maths::common::LARGEST_SIGNIFICANT_PROBABILITY) {
-//             m_DistinctRareAttributes++;
-//             m_RareAttributes += activityConcentration;
-//         }
-//     }
-// }
-
 void CAnnotatedProbabilityBuilder::build() {
-    // this->addDescriptiveData();
 
     if (m_NumberAttributeProbabilities > 0 && m_MinAttributeProbabilities.count() > 0) {
         m_MinAttributeProbabilities.sort();
@@ -143,25 +105,5 @@ void CAnnotatedProbabilityBuilder::build() {
         }
     }
 }
-
-// void CAnnotatedProbabilityBuilder::addDescriptiveData() {
-//     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
-//         m_Result.addDescriptiveData(annotated_probability::E_PERSON_COUNT,
-//                                     static_cast<double>(m_NumberOfPeople));
-//         if (m_IsRare) {
-//             m_Result.addDescriptiveData(annotated_probability::E_DISTINCT_RARE_ATTRIBUTES_COUNT,
-//                                         static_cast<double>(m_DistinctRareAttributes));
-//             m_Result.addDescriptiveData(annotated_probability::E_DISTINCT_TOTAL_ATTRIBUTES_COUNT,
-//                                         static_cast<double>(m_DistinctTotalAttributes));
-//         } else if (m_IsFreqRare) {
-//             double totalConcentration =
-//                 m_PersonAttributeProbabilityPrior->totalConcentration();
-//             m_Result.addDescriptiveData(annotated_probability::E_RARE_ATTRIBUTES_COUNT,
-//                                         m_RareAttributes);
-//             m_Result.addDescriptiveData(annotated_probability::E_TOTAL_ATTRIBUTES_COUNT,
-//                                         totalConcentration);
-//         }
-//     }
-// }
 }
 }

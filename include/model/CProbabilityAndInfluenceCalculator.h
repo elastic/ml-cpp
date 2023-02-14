@@ -213,7 +213,6 @@ public:
     //!
     //! \param[in] attribute The attribute.
     //! \param[in] cid The attribute identifier.
-    //! \param[in] pAttribute The probability of attribute.
     //! \param[in,out] params The parameters used in the probability calculation.
     //! \param[out] builder An attribute probability for \p attribute and
     //! \p value is added to this builder if it can be computed.
@@ -221,7 +220,6 @@ public:
     //! probabilities.
     bool addAttributeProbability(const core::CStoredStringPtr& attribute,
                                  std::size_t cid,
-                                 double pAttribute,
                                  SParams& params,
                                  CAnnotatedProbabilityBuilder& builder,
                                  double weight = 1.0);
@@ -230,7 +228,6 @@ public:
     //! of the univariate feature \p feature.
     bool addAttributeProbability(const core::CStoredStringPtr& attribute,
                                  std::size_t cid,
-                                 double pAttribute,
                                  SCorrelateParams& params,
                                  CAnnotatedProbabilityBuilder& builder,
                                  double weight = 1.0);

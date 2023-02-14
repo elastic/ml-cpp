@@ -73,7 +73,6 @@ void SAttributeProbability::acceptPersistInserter(core::CStatePersistInserter& i
     // We don't persist s_Correlated because it isn't used in restored results.
     core::CPersistUtils::persist(PROBABILITY_TAG, s_Probability, inserter);
     core::CPersistUtils::persist(FEATURE_TAG, s_Feature, inserter);
-    // core::CPersistUtils::persist(DESCRIPTIVE_DATA_TAG, s_DescriptiveData, inserter);
     core::CPersistUtils::persist(CURRENT_BUCKET_VALUE_TAG, s_CurrentBucketValue, inserter);
     core::CPersistUtils::persist(BASELINE_BUCKET_MEAN_TAG, s_BaselineBucketMean, inserter);
 }
@@ -107,20 +106,7 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
             s_Feature = model_t::EFeature(feature);
-        } /*else if (name == DESCRIPTIVE_DATA_TAG) {
-            using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
-            TSizeDoublePrVec data;
-            if (!core::CPersistUtils::restore(DESCRIPTIVE_DATA_TAG, data, traverser)) {
-                LOG_ERROR(<< "Failed to restore " << traverser.name() << " / "
-                          << traverser.value());
-                return false;
-            }
-            s_DescriptiveData.reserve(data.size());
-            for (const auto& data_ : data) {
-                s_DescriptiveData.emplace_back(
-                    annotated_probability::EDescriptiveData(data_.first), data_.second);
-            }
-        }*/ else if (name == CURRENT_BUCKET_VALUE_TAG) {
+        } else if (name == CURRENT_BUCKET_VALUE_TAG) {
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_VALUE_TAG,
                                               s_CurrentBucketValue, traverser)) {
                 LOG_ERROR(<< "Failed to restore " << traverser.name() << " / "
@@ -139,11 +125,6 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-// void SAttributeProbability::addDescriptiveData(annotated_probability::EDescriptiveData key,
-//                                                double value) {
-//     s_DescriptiveData.emplace_back(key, value);
-// }
-
 SAnnotatedProbability::SAnnotatedProbability()
     : s_Probability(1.0), s_MultiBucketImpact(0.0),
       s_ResultType(model_t::CResultType::E_Final) {
@@ -154,17 +135,11 @@ SAnnotatedProbability::SAnnotatedProbability(double p)
       s_ResultType(model_t::CResultType::E_Final) {
 }
 
-// void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescriptiveData key,
-//                                                double value) {
-//     // s_DescriptiveData.emplace_back(key, value);
-// }
-
 void SAnnotatedProbability::swap(SAnnotatedProbability& other) noexcept {
     std::swap(s_Probability, other.s_Probability);
     std::swap(s_MultiBucketImpact, other.s_MultiBucketImpact);
     s_AttributeProbabilities.swap(other.s_AttributeProbabilities);
     s_Influences.swap(other.s_Influences);
-    // s_DescriptiveData.swap(other.s_DescriptiveData);
     std::swap(s_CurrentBucketCount, other.s_CurrentBucketCount);
     std::swap(s_BaselineBucketCount, other.s_BaselineBucketCount);
     std::swap(s_ShouldUpdateQuantiles, other.s_ShouldUpdateQuantiles);

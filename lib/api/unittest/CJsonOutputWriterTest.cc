@@ -1901,6 +1901,8 @@ BOOST_AUTO_TEST_CASE(testThroughputWithoutScopedAllocator) {
 }
 
 BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
+    // Ensure that anomaly score explanation fields for rare events
+    // are outputted.
     std::ostringstream sstream;
     {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
