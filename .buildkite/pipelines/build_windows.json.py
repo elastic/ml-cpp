@@ -44,7 +44,7 @@ def main(args):
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for Windows-{arch}-{build_type} :windows:",
-            "timeout_in_minutes": "120",
+            "timeout_in_minutes": "150",
             "agents": {
               "provider": "gcp",
               "machineType": "c2-standard-16",
@@ -55,7 +55,6 @@ def main(args):
               f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
               f'if ( "{args.snapshot}" -ne "None" ) {{\\$Env:BUILD_SNAPSHOT="{args.snapshot}"}}',
               f'if ( "{args.version_qualifier}" -ne "None" ) {{\\$Env:VERSION_QUALIFIER="{args.version_qualifier}"}}',
-              "Get-ChildItem env:",
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
             "depends_on": "check_style",
