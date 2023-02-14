@@ -756,9 +756,8 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
             double p;
             pPersonAndAttribute.calculate(p);
             resultBuilder.addAttributeProbability(
-                cid, gatherer.attributeNamePtr(cid),  p,
-                model_t::CResultType::E_Unconditional, (feature->second)[0].second,
-                NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
+                cid, gatherer.attributeNamePtr(cid), p, model_t::CResultType::E_Unconditional,
+                (feature->second)[0].second, NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
         }
     }
 

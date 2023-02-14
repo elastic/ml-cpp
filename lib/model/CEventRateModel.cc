@@ -395,10 +395,9 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         return false;
     }
 
-    CAnnotatedProbabilityBuilder resultBuilder(
-        result,
-        1, // # attribute probabilities
-        function_t::function(gatherer.features()));
+    CAnnotatedProbabilityBuilder resultBuilder(result,
+                                               1, // # attribute probabilities
+                                               function_t::function(gatherer.features()));
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
     pJoint.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());

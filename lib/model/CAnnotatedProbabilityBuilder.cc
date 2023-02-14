@@ -21,9 +21,8 @@ namespace model {
 
 CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability)
     : m_Result(annotatedProbability), m_NumberAttributeProbabilities(1),
-      m_AttributeProbabilityPrior(nullptr),
-      m_PersonAttributeProbabilityPrior(nullptr), m_MinAttributeProbabilities(1),
-      m_DistinctTotalAttributes(0), 
+      m_AttributeProbabilityPrior(nullptr), m_PersonAttributeProbabilityPrior(nullptr),
+      m_MinAttributeProbabilities(1), m_DistinctTotalAttributes(0),
       m_IsPopulation(false), m_IsRare(false), m_IsFreqRare(false) {
     m_Result.s_AttributeProbabilities.clear();
     m_Result.s_Influences.clear();
@@ -34,11 +33,11 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability
                                                            function_t::EFunction function)
     : m_Result(annotatedProbability),
       m_NumberAttributeProbabilities(numberAttributeProbabilities),
-      m_AttributeProbabilityPrior(nullptr),
-      m_PersonAttributeProbabilityPrior(nullptr),
+      m_AttributeProbabilityPrior(nullptr), m_PersonAttributeProbabilityPrior(nullptr),
       m_MinAttributeProbabilities(numberAttributeProbabilities),
-      m_DistinctTotalAttributes(0), m_IsPopulation(function_t::isPopulation(function)),
-      m_IsRare(false), m_IsFreqRare(false) {
+      m_DistinctTotalAttributes(0),
+      m_IsPopulation(function_t::isPopulation(function)), m_IsRare(false),
+      m_IsFreqRare(false) {
     m_Result.s_AttributeProbabilities.clear();
     m_Result.s_Influences.clear();
 

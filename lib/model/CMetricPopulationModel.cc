@@ -661,9 +661,9 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                         }
                     }
                     resultBuilder.addAttributeProbability(
-                        cid, gatherer.attributeNamePtr(cid), 
-                        params.s_Probability, model_t::CResultType::E_Unconditional,
-                        feature, NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
+                        cid, gatherer.attributeNamePtr(cid), params.s_Probability,
+                        model_t::CResultType::E_Unconditional, feature,
+                        NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
                 } else {
                     LOG_ERROR(<< "Failed to compute P(" << params.describe()
                               << ", attribute = " << gatherer.attributeName(cid)

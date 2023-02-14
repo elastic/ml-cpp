@@ -636,12 +636,11 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
     }
 }
 
-bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
-    const core::CStoredStringPtr& attribute,
-    std::size_t cid,
-    SParams& params,
-    CAnnotatedProbabilityBuilder& builder,
-    double weight) {
+bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CStoredStringPtr& attribute,
+                                                                 std::size_t cid,
+                                                                 SParams& params,
+                                                                 CAnnotatedProbabilityBuilder& builder,
+                                                                 double weight) {
     model_t::CResultType type;
     TSize1Vec mostAnomalousCorrelate;
     if (this->addProbability(params.s_Feature, cid, *params.s_Model,
@@ -679,9 +678,8 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
             correlated_.emplace_back(params.s_Correlated[i],
                                      params.s_Values[i][params.s_Variables[i][1]]);
         }
-        builder.addAttributeProbability(cid, attribute, 
-                                        params.s_Probability, type, params.s_Feature,
-                                        correlatedLabels_, correlated_);
+        builder.addAttributeProbability(cid, attribute, params.s_Probability, type,
+                                        params.s_Feature, correlatedLabels_, correlated_);
         return true;
     }
     return false;

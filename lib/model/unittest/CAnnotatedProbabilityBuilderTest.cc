@@ -54,9 +54,8 @@ public:
     CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability,
                                         std::size_t numberAttributeProbabilities,
                                         function_t::EFunction function)
-        : CAnnotatedProbabilityBuilder(annotatedProbability,
-                                       numberAttributeProbabilities,
-                                       function) {}
+        : CAnnotatedProbabilityBuilder(annotatedProbability, numberAttributeProbabilities, function) {
+    }
 };
 }
 
@@ -75,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualCount) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualCount);
 
-    builder.addAttributeProbability(0, EMPTY_STRING_PTR,0.68,
+    builder.addAttributeProbability(0, EMPTY_STRING_PTR, 0.68,
                                     model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualCountByBucketAndPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
@@ -208,8 +207,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
     }
 
     SAnnotatedProbability result;
-    CAnnotatedProbabilityBuilderForTest builder(
-        result, 2, function_t::E_PopulationFreqRare);
+    CAnnotatedProbabilityBuilderForTest builder(result, 2, function_t::E_PopulationFreqRare);
     builder.attributeProbabilityPrior(&attributePrior);
     builder.personAttributeProbabilityPrior(&personAttributePrior);
 
