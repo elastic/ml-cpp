@@ -93,7 +93,7 @@ def main(args):
             ],
         })
 
-    # Never cros-compile for linux-aarch64 in the nightly debug build.
+    # Never cross-compile for linux-aarch64 in the nightly debug build.
     if os.environ.get("BUILDKITE_PIPELINE_SLUG") != "ml-cpp-debug-build":
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
