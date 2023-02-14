@@ -60,13 +60,12 @@ def main(args):
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
-            "timeout_in_minutes": "120",
+            "timeout_in_minutes": "150",
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
-              "env",
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
@@ -93,13 +92,15 @@ def main(args):
             ],
         })
 
-    if os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
-        # We also always cross compile for aarch64 with full debug and assertions
+    # Never cross-compile for linux-aarch64 in the nightly debug build.
+    if os.environ.get("BUILDKITE_PIPELINE_SLUG", "ml-cpp") != "ml-cpp-debug-build" and \
+            os.environ.get("BUILDKITE_PULL_REQUEST", "false") != "false":
+        # Always cross compile for aarch64 with full debug and assertions
         # enabled for PR builds only. This is to detect any compilation errors
         # as early as possible.
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
-            "timeout_in_minutes": "120",
+            "timeout_in_minutes": "150",
             "agents": {
               "cpu": "6",
               "ephemeralStorage": "20G",
@@ -107,6 +108,9 @@ def main(args):
               "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
             },
             "commands": [
+              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
+              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
+              "env",
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",

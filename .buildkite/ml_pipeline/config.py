@@ -50,7 +50,7 @@ class Config:
                 self.build_macos = True
             elif "ci:build-linux" == label:
                 self.build_linux = True
-            elif "ci:test-all" == label:
+            else:
                 self.build_windows = True
                 self.build_macos = True
                 self.build_linux = True
