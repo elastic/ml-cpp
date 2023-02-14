@@ -12,7 +12,7 @@ cat <<EOL
 steps:
   - label: "Validate formatting with clang-format"
     key: "check_style"
-    command: ".buildkite/scripts/steps/check-style.sh --all; echo 'simulated failure'; false"
+    command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
 EOL
