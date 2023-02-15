@@ -32,6 +32,7 @@ actions = [
     "debug"
 ]
 build_snapshot = [
+    "None",
     "true",
     "false"
 ]
@@ -110,7 +111,6 @@ def main(args):
             "commands": [
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
-              "env",
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",

@@ -31,6 +31,7 @@ actions = [
   "debug"
 ]
 build_snapshot = [
+    "None",
     "true",
     "false"
 ]
