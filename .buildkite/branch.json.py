@@ -9,7 +9,7 @@
 # limitation.
 #
 # This script generates a pipeline JSON for the ml-cpp-branch pipeline.
-# Builds for this pipeline may be triggered by commit or comment.
+# Builds for this pipeline may be triggered by code, API or UI.
 #
 import json
 
