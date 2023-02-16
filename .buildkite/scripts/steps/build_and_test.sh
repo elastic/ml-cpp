@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Default to a snapshot build
-if [ -z "${BUILD_SNAPSHOT:=true}" ] ; then
+if [ "${BUILD_SNAPSHOT:=true}" != false] ; then
     BUILD_SNAPSHOT=true
 fi
 
