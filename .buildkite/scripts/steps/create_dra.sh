@@ -30,7 +30,7 @@ export VERSION
 
 # Download artifacts from a previous build (TODO remove build specifier once integrated with branch pipeline),
 # extract each, combine to 'uber' zip file, and upload to BuildKite's artifact store.
-buildkite-agent artifact download "build/distributions/*" --build 01865abd-bfbd-4f5e-b87c-6f2b07fef27e
+buildkite-agent artifact download "build/distributions/*" . --build 01865abd-bfbd-4f5e-b87c-6f2b07fef27e
 rm -rf build/temp
 mkdir -p build/temp
 for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64; do unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d  build/temp;  done
