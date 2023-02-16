@@ -17,6 +17,7 @@
 #
 
 import json
+import os
 
 from ml_pipeline import (
     step,
@@ -24,8 +25,6 @@ from ml_pipeline import (
 )
 
 env = {
-  "BUILD_SNAPSHOT": "true",
-  "VERSION_QUALIFIER": ""
 }
 
 def main():
@@ -48,8 +47,10 @@ def main():
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", config.action, config.snapshot, config.version_qualifier)
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
+    # Never run the ES integration tests if VERSION_QUALIFIER has been set.
+    if os.environ.get("VERSION_QUALIFIER", "") == "":
+        pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
+                                                           ".buildkite/pipelines/run_es_tests.yml.sh"))
     pipeline_steps.append({"wait": None})
     pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
                                                        ".buildkite/pipelines/upload_to_s3.yml.sh"))

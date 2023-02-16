@@ -38,8 +38,6 @@ def main():
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", "build", None, None)
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
     pipeline_steps.append({"wait": None})
     pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
                                                        ".buildkite/pipelines/upload_to_s3.yml.sh"))
