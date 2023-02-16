@@ -9,6 +9,7 @@
 # limitation.
 
 import os
+import re
 
 class Config:
     build_windows: bool = False
