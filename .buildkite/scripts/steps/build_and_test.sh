@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Default to a snapshot build
-if [ -z "$BUILD_SNAPSHOT" ] ; then
+if [ -z "${BUILD_SNAPSHOT:=true}" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
@@ -29,7 +29,7 @@ else
 fi
 
 # Version qualifier shouldn't be used in PR builds
-if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && -n "$VERSION_QUALIFIER" ]] ; then
+if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && -n "${VERSION_QUALIFIER:=""}" ]] ; then
     echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
     exit 2
 fi
