@@ -30,11 +30,6 @@ actions = [
   "build",
   "debug"
 ]
-build_snapshot = [
-    "None",
-    "true",
-    "false"
-]
 
 def main(args):
     pipeline_steps = []
@@ -50,8 +45,6 @@ def main(args):
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               f'echo "MacOS {arch} build not yet supported";'
             ],
             "depends_on": "check_style",
@@ -89,8 +82,6 @@ def main(args):
         },
         "commands": [
           f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-          f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-          f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
           ".buildkite/scripts/steps/build_and_test.sh"
         ],
         "depends_on": "check_style",
@@ -128,14 +119,6 @@ if __name__ == '__main__':
                         choices=actions,
                         default="build",
                         help="Specify a build action")
-    parser.add_argument("--snapshot",
-                        required=False,
-                        default="true",
-                        help="Specify if a snapshot build is wanted.")
-    parser.add_argument("--version_qualifier",
-                        required=False,
-                        default=None,
-                        help="Specify a version qualifier.")
 
     args = parser.parse_args()
 

@@ -8,7 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp pipeline.
+# This script generates a pipeline JSON for the ml-cpp pipeline for PR builds.
 # Builds for this pipeline may be triggered by commit or comment.
 #
 # The basic logic of this script is very simple.
@@ -24,7 +24,9 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
+# Ensure VERSION_QUALIFIER is always empty for PR builds
 env = {
+    "VERSION_QUALIFIER": ""
 }
 
 def main():
@@ -39,18 +41,16 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", config.action, config.snapshot, config.version_qualifier)
+        build_windows = pipeline_steps.generate_step_template("Windows", config.action)
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", config.action, config.snapshot, config.version_qualifier)
+        build_macos = pipeline_steps.generate_step_template("MacOS", config.action)
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", config.action, config.snapshot, config.version_qualifier)
+        build_linux = pipeline_steps.generate_step_template("Linux", config.action)
         pipeline_steps.append(build_linux)
-    # Never run the ES integration tests if VERSION_QUALIFIER has been set.
-    if os.environ.get("VERSION_QUALIFIER", "") == "":
-        pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-                                                           ".buildkite/pipelines/run_es_tests.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
+                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
     pipeline_steps.append({"wait": None})
     pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
                                                        ".buildkite/pipelines/upload_to_s3.yml.sh"))

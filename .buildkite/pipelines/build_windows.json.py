@@ -30,11 +30,6 @@ actions = [
     "build",
     "debug"
 ]
-build_snapshot = [
-    "None",
-    "true",
-    "false"
-]
 
 def main(args):
     pipeline_steps = []
@@ -54,8 +49,6 @@ def main(args):
             },
             "commands": [
               f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
-              f'if ( "{args.snapshot}" -ne "None" ) {{\\$Env:BUILD_SNAPSHOT="{args.snapshot}"}}',
-              f'if ( "{args.version_qualifier}" -ne "None" ) {{\\$Env:VERSION_QUALIFIER="{args.version_qualifier}"}}',
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
             "depends_on": "check_style",
@@ -101,15 +94,6 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
-    parser.add_argument("--snapshot",
-                        required=False,
-                        choices=build_snapshot,
-                        default=None,
-                        help="Specify if a snapshot build is wanted.")
-    parser.add_argument("--version_qualifier",
-                        required=False,
-                        default=None,
-                        help="Specify a version qualifier.")
 
     args = parser.parse_args()
 

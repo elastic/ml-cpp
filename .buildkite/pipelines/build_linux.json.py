@@ -31,11 +31,6 @@ actions = [
     "build",
     "debug"
 ]
-build_snapshot = [
-    "None",
-    "true",
-    "false"
-]
 agents = {
    "x86_64": {
       "cpu": "6",
@@ -65,8 +60,6 @@ def main(args):
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
@@ -109,8 +102,6 @@ def main(args):
               "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
             },
             "commands": [
-              f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
-              f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
@@ -148,15 +139,6 @@ if __name__ == "__main__":
                         choices=actions,
                         default="build",
                         help="Specify a build action.")
-    parser.add_argument("--snapshot",
-                        required=False,
-                        choices=build_snapshot,
-                        default=None,
-                        help="Specify if a snapshot build is wanted.")
-    parser.add_argument("--version_qualifier",
-                        required=False,
-                        default=None,
-                        help="Specify a version qualifier.")
 
     args = parser.parse_args()
 

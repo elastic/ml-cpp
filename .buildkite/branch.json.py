@@ -8,7 +8,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp-branch pipeline.
+# This script generates a pipeline JSON for the ml-cpp-branch pipeline for branch builds.
 # Builds for this pipeline may be triggered by code, API or UI.
 #
 import json
@@ -30,13 +30,13 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", "build", None, None)
+        build_windows = pipeline_steps.generate_step_template("Windows", "build")
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", "build", None, None)
+        build_macos = pipeline_steps.generate_step_template("MacOS", "build")
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", "build", None, None)
+        build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
     pipeline_steps.append({"wait": None})
     pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
