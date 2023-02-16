@@ -61,10 +61,6 @@ void CAnnotatedProbabilityBuilder::probability(double p) {
     m_Result.s_Probability = p;
 }
 
-void CAnnotatedProbabilityBuilder::anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanation) {
-    m_Result.s_AnomalyScoreExplanation = explanation;
-}
-
 SAnnotatedProbability::TAnomalyScoreExplanation&
 CAnnotatedProbabilityBuilder::anomalyScoreExplanation() {
     return m_Result.s_AnomalyScoreExplanation;

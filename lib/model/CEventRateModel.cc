@@ -482,17 +482,18 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         resultBuilder.multiBucketImpact(multiBucketImpact);
     }
 
-    resultBuilder.anomalyScoreExplanation(pJoint.anomalyScoreExplanation());
+    resultBuilder.anomalyScoreExplanation() = pJoint.anomalyScoreExplanation();
+    auto& anomalyScoreExplanation{resultBuilder.anomalyScoreExplanation()};
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
     auto typicalConcentration = m_Probabilities.medianConcentration();
     double actualConcentration;
     if (m_ProbabilityPrior.concentration(pid, actualConcentration) &&
         typicalConcentration.has_value()) {
-        resultBuilder.anomalyScoreExplanation().s_ByFieldActualConcentration = actualConcentration;
-        resultBuilder.anomalyScoreExplanation().s_ByFieldTypicalConcentration =
+        anomalyScoreExplanation.s_ByFieldActualConcentration = actualConcentration;
+        anomalyScoreExplanation.s_ByFieldTypicalConcentration =
             typicalConcentration.value();
     }
-    resultBuilder.anomalyScoreExplanation().s_ByFieldFirstOccurrence = !everSeenBefore;
+    anomalyScoreExplanation.s_ByFieldFirstOccurrence = !everSeenBefore;
     resultBuilder.build();
 
     return true;

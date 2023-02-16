@@ -52,7 +52,6 @@ public:
     void attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void probability(double p);
-    void anomalyScoreExplanation(SAnnotatedProbability::TAnomalyScoreExplanation explanations);
     SAnnotatedProbability::TAnomalyScoreExplanation& anomalyScoreExplanation();
     void multiBucketImpact(double multiBucketImpact);
     void addAttributeProbability(std::size_t cid,

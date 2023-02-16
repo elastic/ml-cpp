@@ -32,28 +32,11 @@ class CStateRestoreTraverser;
 
 namespace model {
 
-namespace annotated_probability {
-enum EDescriptiveData {
-    E_PERSON_PERIOD = 0,
-    E_PERSON_NEVER_SEEN_BEFORE = 1,
-    E_PERSON_COUNT = 2,
-    E_DISTINCT_RARE_ATTRIBUTES_COUNT = 3,
-    E_DISTINCT_TOTAL_ATTRIBUTES_COUNT = 4,
-    E_RARE_ATTRIBUTES_COUNT = 5,
-    E_TOTAL_ATTRIBUTES_COUNT = 6,
-    E_ATTRIBUTE_CONCENTRATION = 7,
-    E_ACTIVITY_CONCENTRATION = 8
-};
-}
-
 //! \brief A collection of data describing an attribute's probability.
 struct MODEL_EXPORT SAttributeProbability {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-    using TDescriptiveDataDoublePr =
-        std::pair<annotated_probability::EDescriptiveData, double>;
-    using TDescriptiveDataDoublePr2Vec = core::CSmallVector<TDescriptiveDataDoublePr, 2>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
     SAttributeProbability();
@@ -110,8 +93,6 @@ struct MODEL_EXPORT SAnnotatedProbability {
         std::pair<TStoredStringPtrStoredStringPtrPr, double>;
     using TStoredStringPtrStoredStringPtrPrDoublePrVec =
         std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
-    using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
-    using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = std::optional<double>;
     using TOptionalUInt64 = std::optional<std::uint64_t>;
     using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;

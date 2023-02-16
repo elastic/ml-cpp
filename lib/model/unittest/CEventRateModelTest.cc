@@ -16,6 +16,7 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CModelWeight.h>
 #include <maths/common/CPrior.h>
@@ -43,7 +44,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -2928,12 +2928,9 @@ BOOST_FIXTURE_TEST_CASE(testRareScoreExplanations, CTestFixture) {
             annotatedProbability.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration);
     }
 
-    auto medianConcentration = actualConcentrations.begin() +
-                               actualConcentrations.size() / 2;
-    std::nth_element(actualConcentrations.begin(), medianConcentration,
-                     actualConcentrations.end());
+    double medianConcentration{maths::common::CBasicStatistics::median(actualConcentrations)};
     for (const auto& typicalConcentration : typicalConcentrations) {
-        BOOST_REQUIRE_EQUAL(*medianConcentration, typicalConcentration);
+        BOOST_REQUIRE_EQUAL(medianConcentration, typicalConcentration);
     }
 }
 

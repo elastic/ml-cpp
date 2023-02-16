@@ -310,17 +310,8 @@ CModelTools::TOptionalDouble CModelTools::CCategoryProbabilityCache::medianConce
         return {};
     }
 
-    auto concentrations = m_Prior->concentrations();
-    // compute element concentrations[size/2]
-    auto middle_element1 = concentrations.begin() + concentrations.size() / 2;
-    std::nth_element(concentrations.begin(), middle_element1, concentrations.end());
-    m_MedianConcentration = *middle_element1;
-    if (concentrations.size() % 2 == 0) {
-        auto middle_element2 = concentrations.begin() + concentrations.size() / 2 - 1;
-        std::nth_element(concentrations.begin(), middle_element2, concentrations.end());
-        m_MedianConcentration = (m_MedianConcentration.value() + *middle_element2) / 2;
-    }
-
+    m_MedianConcentration =
+        maths::common::CBasicStatistics::median(m_Prior->concentrations());
     return m_MedianConcentration;
 }
 

@@ -173,16 +173,6 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
     BOOST_REQUIRE_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
-    // BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities[0].s_DescriptiveData.size());
-    // BOOST_REQUIRE_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-    //                     result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
-    // BOOST_REQUIRE_EQUAL(
-    //     3.0, result.s_AttributeProbabilities[0].s_DescriptiveData[0].second);
-    // BOOST_REQUIRE_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-    //                     result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
-    // BOOST_REQUIRE_EQUAL(
-    //     6.0, result.s_AttributeProbabilities[0].s_DescriptiveData[1].second);
-
     BOOST_REQUIRE_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
