@@ -15,7 +15,7 @@ echo "pwd = $(pwd)"
 export HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
-if [ "$BUILD_SNAPSHOT" = "true" ] ; then
+if [ "${BUILD_SNAPSHOT:=true}" = "true" ] ; then
     VERSION=${VERSION}-SNAPSHOT
 fi
 export VERSION
