@@ -19,7 +19,7 @@ steps:
       cpu: "2"
       ephemeralStorage: "20G"
       memory: "4G"
-      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:3"
       # Run as a non-root user
       imageUID: "1000"
 EOL
