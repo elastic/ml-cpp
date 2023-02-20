@@ -62,4 +62,6 @@ if ($LastExitCode -ne 0) {
     Exit $LastExitCode
 }
 
-buildkite-agent artifact upload "build/distributions/*;*/**/ml_test_*.out"
+Get-ChildItem -Path . -Include *.out -File -Recurse -ErrorAction SilentlyContinue | Compress-Archive -Path {$_} -DestinationPath unit_test_results.zip
+
+buildkite-agent artifact upload "build/distributions/*;unit_test_results.zip"

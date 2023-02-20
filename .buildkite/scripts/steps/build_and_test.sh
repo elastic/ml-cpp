@@ -69,12 +69,13 @@ fi
 if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
+    find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf unit_test_results.tgz
+    buildkite-agent artifact upload "unit_test_results.tgz"
   else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
   fi
 fi
 
 if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] ; then 
-  find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf unit_test_results.tgz
-  buildkite-agent artifact upload "build/distributions/*;unit_test_results.tgz"
+  buildkite-agent artifact upload "build/distributions/*.zip"
 fi
