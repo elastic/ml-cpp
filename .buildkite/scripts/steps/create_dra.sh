@@ -33,6 +33,35 @@ export VERSION
 buildkite-agent artifact download "build/distributions/*" . --build 0186510b-59c7-4b8c-b4f0-1da29c436ba3
 rm -rf build/temp
 mkdir -p build/temp
-for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64; do unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d  build/temp;  done
-(cd build/temp && zip ../distributions/ml-cpp-${VERSION}.zip -r platform)
-buildkite-agent artifact upload "build/distributions/*"
+for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64; do
+  unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d build/temp;
+done
+cd build/temp
+zip ../distributions/ml-cpp-${VERSION}.zip -r platform
+
+# Create a zip excluding dependencies from combined platform-specific C++ distributions
+find . -path "**/libMl*" -o \
+       -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
+       -path "**/platform/linux*/bin/*" -o \
+       -path "**/platform/windows*/bin/*.exe" -o \
+       -path "**/ml-en.dict" -o \
+       -path "**/Info.plist" -o \
+       -path "**/date_time_zonespec.csv" -o \
+       -path "**/licenses/**" | xargs zip ../distributions/ml-cpp-${VERSION}-nodeps.zip
+
+# Create a zip of dependencies only from combined platform-specific C++ distributions
+find . \( -path "**/libMl*" -o \
+          -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
+          -path "**/platform/linux*/bin/*" -o \
+          -path "**/platform/windows*/bin/*.exe" -o \
+          -path "**/ml-en.dict" -o \
+          -path "**/Info.plist" -o \
+          -path "**/date_time_zonespec.csv" -o \
+          -path "**/licenses/**" \) -prune -o -print | xargs zip ../distributions/ml-cpp-${VERSION}-deps.zip
+
+cd -
+
+# Create a CSV report on 3rd party dependencies we redistribute
+./3rd_party/dependency_report.sh --csv build/distributions/dependencies-${VERSION}.csv 
+
+buildkite-agent artifact upload "ml-cpp-${VERSION}.zip ml-cpp-${VERSION}-nodeps.zip ml-cpp-${VERSION}-deps.zip dependencies-${VERSION}.csv"
