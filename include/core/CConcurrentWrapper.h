@@ -30,23 +30,24 @@ namespace core {
 //! See https://channel9.msdn.com/Shows/Going+Deep/C-and-Beyond-2012-Herb-Sutter-Concurrency-and-Parallelism
 //!
 //! @tparam T the wrapped object
-//! @tparam QUEUE_CAPACITY internal queue capacity
-//! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template<typename T, size_t QUEUE_CAPACITY = 100, size_t NOTIFY_CAPACITY = 50>
+template<typename T>
 class CConcurrentWrapper final : private CNonCopyable {
 public:
     //! Wrap and return the wrapped object
     //!
     //! The object has to wrapped once and only once, pass the reference around in your code.
     //! This starts a background thread.
-    explicit CConcurrentWrapper(T& resource)
-        : m_Resource(resource), m_Done(false) {
+    explicit CConcurrentWrapper(T& resource, std::size_t queueCapacity, std::size_t notifyCapacity)
+        : m_Queue(queueCapacity, notifyCapacity), m_Resource(resource), m_Done(false) {
         m_Worker = std::thread([this] {
             while (!m_Done) {
                 m_Queue.pop()();
             }
         });
     }
+
+    explicit CConcurrentWrapper(T& resource)
+        : CConcurrentWrapper(resource, 100, 50) {}
 
     ~CConcurrentWrapper() {
         m_Queue.push([this] { m_Done = true; });
@@ -72,7 +73,7 @@ public:
 
 private:
     //! Queue for the tasks
-    mutable CConcurrentQueue<std::function<void()>, QUEUE_CAPACITY, NOTIFY_CAPACITY> m_Queue;
+    mutable CConcurrentQueue<std::function<void()>> m_Queue;
 
     //! The wrapped resource
     T& m_Resource;

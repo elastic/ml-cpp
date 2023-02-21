@@ -99,7 +99,7 @@ private:
     rapidjson::StringBuffer m_StringBuffers[BUFFER_POOL_SIZE];
 
     //! the pool of available buffers
-    CConcurrentQueue<rapidjson::StringBuffer*, BUFFER_POOL_SIZE> m_StringBufferQueue;
+    CConcurrentQueue<rapidjson::StringBuffer*> m_StringBufferQueue;
 
     //! the stream object wrapped by CConcurrentWrapper
     TOStreamConcurrentWrapper m_ConcurrentOutputStream;
