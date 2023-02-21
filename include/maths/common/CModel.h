@@ -261,6 +261,9 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
     bool s_HighVariancePenalty{false};
     bool s_IncompleteBucketPenalty{false};
     bool s_MultimodalDistribution{false};
+    bool s_ByFieldFirstOccurrence{false};
+    double s_ByFieldTypicalConcentration{0.0};
+    double s_ByFieldActualConcentration{0.0};
 
     std::string print() const {
         return "Anomaly Score Explanation:\ntype: " + std::to_string(s_AnomalyType) +
@@ -275,8 +278,14 @@ struct MATHS_COMMON_EXPORT SAnomalyScoreExplanation {
                std::to_string(static_cast<int>(s_HighVariancePenalty)) +
                ", incomplete bucket_penalty: " +
                std::to_string(static_cast<int>(s_IncompleteBucketPenalty)) +
-               ", is multimodal distribution" +
-               std::to_string(static_cast<int>(s_MultimodalDistribution));
+               ", is multimodal distribution " +
+               std::to_string(static_cast<int>(s_MultimodalDistribution)) +
+               ", by field first occurrence " +
+               std::to_string(static_cast<int>(s_ByFieldFirstOccurrence)) +
+               ", by field typical concentration " +
+               std::to_string(s_ByFieldTypicalConcentration) +
+               ", by field actual concentration " +
+               std::to_string(s_ByFieldActualConcentration);
     }
 };
 

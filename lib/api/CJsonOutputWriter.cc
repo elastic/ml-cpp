@@ -96,6 +96,8 @@ const std::string UPPER_CONFIDENCE_BOUND("upper_confidence_bound");
 const std::string HIGH_VARIANCE_PENALTY("high_variance_penalty");
 const std::string INCOMPLETE_BUCKET_PENALTY("incomplete_bucket_penalty");
 const std::string MULTIMODAL_DISTRIBUTION("multimodal_distribution");
+const std::string BY_FIELD_FIRST_OCCURRENCE("by_field_first_occurrence");
+const std::string BY_FIELD_RELATIVE_RARITY("by_field_relative_rarity");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -1006,6 +1008,21 @@ void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
         m_Writer.addBoolFieldToObj(MULTIMODAL_DISTRIBUTION,
                                    results.s_AnomalyScoreExplanation.s_MultimodalDistribution,
                                    anomalyScoreExplanation);
+    }
+
+    if (results.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence) {
+        m_Writer.addBoolFieldToObj(BY_FIELD_FIRST_OCCURRENCE,
+                                   results.s_AnomalyScoreExplanation.s_ByFieldFirstOccurrence,
+                                   anomalyScoreExplanation);
+    }
+
+    if (results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration > 0.0 &&
+        results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration > 0.0) {
+        double byFieldRelativeRarity{
+            results.s_AnomalyScoreExplanation.s_ByFieldTypicalConcentration /
+            results.s_AnomalyScoreExplanation.s_ByFieldActualConcentration};
+        m_Writer.addDoubleFieldToObj(BY_FIELD_RELATIVE_RARITY, byFieldRelativeRarity,
+                                     anomalyScoreExplanation);
     }
 }
 }

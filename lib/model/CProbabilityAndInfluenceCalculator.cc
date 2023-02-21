@@ -636,13 +636,11 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
     }
 }
 
-bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
-    const core::CStoredStringPtr& attribute,
-    std::size_t cid,
-    double pAttribute,
-    SParams& params,
-    CAnnotatedProbabilityBuilder& builder,
-    double weight) {
+bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CStoredStringPtr& attribute,
+                                                                 std::size_t cid,
+                                                                 SParams& params,
+                                                                 CAnnotatedProbabilityBuilder& builder,
+                                                                 double weight) {
     model_t::CResultType type;
     TSize1Vec mostAnomalousCorrelate;
     if (this->addProbability(params.s_Feature, cid, *params.s_Model,
@@ -651,7 +649,7 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
                              params.s_Tail, type, mostAnomalousCorrelate, weight)) {
         static const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
         static const TSizeDoublePr1Vec NO_CORRELATES;
-        builder.addAttributeProbability(cid, attribute, pAttribute, params.s_Probability,
+        builder.addAttributeProbability(cid, attribute, params.s_Probability,
                                         model_t::CResultType::E_Unconditional,
                                         params.s_Feature,
                                         NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
@@ -663,7 +661,6 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
 bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
     const core::CStoredStringPtr& attribute,
     std::size_t cid,
-    double pAttribute,
     SCorrelateParams& params,
     CAnnotatedProbabilityBuilder& builder,
     double weight) {
@@ -681,9 +678,8 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
             correlated_.emplace_back(params.s_Correlated[i],
                                      params.s_Values[i][params.s_Variables[i][1]]);
         }
-        builder.addAttributeProbability(cid, attribute, pAttribute,
-                                        params.s_Probability, type, params.s_Feature,
-                                        correlatedLabels_, correlated_);
+        builder.addAttributeProbability(cid, attribute, params.s_Probability, type,
+                                        params.s_Feature, correlatedLabels_, correlated_);
         return true;
     }
     return false;
