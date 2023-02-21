@@ -77,4 +77,4 @@ cd -
 ./3rd_party/dependency_report.sh --csv build/distributions/dependencies-${VERSION}.csv 
 
 # Upload the newly created artifacts
-buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}.zip;build/distributions/ml-cpp-${VERSION}-deps.zip";build/distributions/ml-cpp-${VERSION}-nodeps.zip";build/distributions/dependencies-${VERSION}.csv"
+buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}.zip;build/distributions/ml-cpp-${VERSION}-deps.zip;build/distributions/ml-cpp-${VERSION}-nodeps.zip;build/distributions/dependencies-${VERSION}.csv"
