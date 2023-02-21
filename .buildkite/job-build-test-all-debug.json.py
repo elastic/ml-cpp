@@ -41,15 +41,17 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        debug_windows = pipeline_steps.generate_step_template("Windows", "debug", config.snapshot, config.version_qualifier)
+        debug_windows = pipeline_steps.generate_step_template("Windows", "build", config.snapshot, config.version_qualifier)
         pipeline_steps.append(debug_windows)
     if config.build_macos:
-        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug", config.snapshot, config.version_qualifier)
+        debug_macos = pipeline_steps.generate_step_template("MacOS", "build", config.snapshot, config.version_qualifier)
         pipeline_steps.append(debug_macos)
     if config.build_linux:
-        debug_linux = pipeline_steps.generate_step_template("Linux", "debug", config.snapshot, config.version_qualifier)
+        debug_linux = pipeline_steps.generate_step_template("Linux", "build", config.snapshot, config.version_qualifier)
         pipeline_steps.append(debug_linux)
 
+    pipeline_steps.append({"wait": None})
+    pipeline_steps.append({"trigger": "ml-cpp-dra", "label": ":rocket: DRA", "async": "true"})
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
