@@ -30,7 +30,7 @@ export VERSION
 
 # Download artifacts from a previous build (TODO remove build specifier once integrated with branch pipeline),
 # extract each, combine to 'uber' zip file, and upload to BuildKite's artifact store.
-buildkite-agent artifact download "build/distributions/*.zip" . --build 0186510b-59c7-4b8c-b4f0-1da29c436ba3
+buildkite-agent artifact download "build/distributions/*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
 
 rm -rf build/temp
 mkdir -p build/temp
