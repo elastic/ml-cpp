@@ -30,8 +30,9 @@ export VERSION
 
 # Download artifacts from a previous build (TODO remove build specifier once integrated with branch pipeline),
 # extract each, combine to 'uber' zip file, and upload to BuildKite's artifact store.
-buildkite-agent artifact download "*.zip" build/distributions --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
-ls -lR
+buildkite-agent artifact download "build/distributions/*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
+buildkite-agent artifact download "build\\distributions\\*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
+ls -lR build
 
 rm -rf build/temp
 mkdir -p build/temp
@@ -42,7 +43,7 @@ done
 cd build/temp
 echo "Zipping ml-cpp-${VERSION}.zip"
 zip ../distributions/ml-cpp-${VERSION}.zip -r platform
-ls -lR ..
+ls -lR ../build
 
 # Create a zip excluding dependencies from combined platform-specific C++ distributions
 echo "Creating nodeps archive"
@@ -70,7 +71,7 @@ echo "rc = $?"
 
 cd -
 pwd
-ls -lR
+ls -lR build
 
 # Create a CSV report on 3rd party dependencies we redistribute
 echo "Creating dependency report"
