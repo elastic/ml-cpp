@@ -12,7 +12,8 @@ and
 [Visual Studio Code](https://code.visualstudio.com/) with
 [cmake plugin](https://marketplace.visualstudio.com/items?itemName=twxs.cmake),
 [cmake tools plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools),
-[C/C++ plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+[C/C++ plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) and
+[clangd plugin](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd)
 as a minimum.
 
 In **Settings**, make sure *C_Cpp:Autocomplete* and *C_Cpp:Intelli Sense Engine* from the native C++ plugin of VS Code
@@ -25,6 +26,21 @@ depending on the build variant that you can select in the side panel at the bott
 You may also wish to set certain environment variables for the build.
 To do so, under `Cmake: Build Environment` click the `Add item`
 button and add the variable definition. The other settings can be left as-is.
+
+The `clangd` plugin enables code completion and navigation among other features. 
+In the clangd settings make sure *Clangd: Path* is the path to the clangd server 
+and add the following to the *Clangd: Arguments*.
+```text
+-log=verbose
+-pretty
+--header-insertion=iwyu
+--suggest-missing-includes
+-j=4
+--all-scopes-completion
+--background-index=0
+--clang-tidy
+--compile-commands-dir=${workspaceFolder}/cmake-build-relwithdebinfo/
+```
 
 ![CMake Config](./cmake_config.png)
 
