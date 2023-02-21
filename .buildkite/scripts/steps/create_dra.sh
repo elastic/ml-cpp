@@ -43,7 +43,7 @@ done
 cd build/temp
 echo "Zipping ml-cpp-${VERSION}.zip"
 zip ../distributions/ml-cpp-${VERSION}.zip -r platform
-ls -lR ../build
+ls -l ../build/distributions
 
 # Create a zip excluding dependencies from combined platform-specific C++ distributions
 echo "Creating nodeps archive"
@@ -71,10 +71,13 @@ echo "rc = $?"
 
 cd -
 pwd
-ls -lR build
+ls -l build/distributions
 
 # Create a CSV report on 3rd party dependencies we redistribute
 echo "Creating dependency report"
 ./3rd_party/dependency_report.sh --csv build/distributions/dependencies-${VERSION}.csv 
 
-buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}.zip build/distributions/ml-cpp-${VERSION}-nodeps.zip build/distributions/ml-cpp-${VERSION}-deps.zip dependencies-${VERSION}.csv"
+buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}.zip"
+buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}-deps.zip"
+buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}-nodeps.zip"
+buildkite-agent artifact upload "build/distributions/dependencies-${VERSION}.csv"
