@@ -51,7 +51,12 @@ def main():
         pipeline_steps.append(debug_linux)
 
     pipeline_steps.append({"wait": None})
-    pipeline_steps.append({"trigger": "ml-cpp-dra", "label": ":rocket: DRA", "async": "true"})
+    pipeline_steps.append({"trigger": "ml-cpp-dra",
+                           "label": ":rocket: DRA",
+                           "async": "true",
+                           "commit": "703c11d43ad895ae26042c6119c585bf7a179240",
+                           "branch": "buildkite_dra_upload",
+                           "message": "Triggered DRA build"})
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
