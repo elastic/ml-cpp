@@ -16,7 +16,7 @@ steps:
     command:
         # Download artifacts from a previous build (TODO remove build specifier once integrated with branch pipeline),
         # extract each, combine to 'uber' zip file, and upload to BuildKite's artifact store.
-        - buildkite-agent artifact download "build/distributions/*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6 --step build_test_Windows-x86_64-RelWithDebInfo
+        - buildkite-agent artifact download "build\\distributions\\*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6 --step build_test_Windows-x86_64-RelWithDebInfo
         - "./.buildkite/scripts/steps/create_dra.sh"
     agents:
       cpu: "2"
