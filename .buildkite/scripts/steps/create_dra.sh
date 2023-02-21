@@ -35,9 +35,11 @@ export VERSION
 # TODO For now test with a manually set build id...
 BUILDKITE_TRIGGERED_FROM_BUILD_ID=01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
 if [[ -n "${BUILDKITE_TRIGGERED_FROM_BUILD_ID}" ]]; then
-  buildkite-agent artifact download "build/distributions/*.zip;build\\distributions\\*.zip" . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  buildkite-agent artifact download "build/distributions/*.zip" . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  buildkite-agent artifact download "build\\distributions\\*.zip" . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
 else
-  buildkite-agent artifact download "build/distributions/*.zip;build\\distributions\\*.zip" .
+  buildkite-agent artifact download "build/distributions/*.zip" .
+  buildkite-agent artifact download "build\\distributions\\*.zip" .
 fi
 
 # Extract each platform specific zip file & combine to an 'uber' zip file.
