@@ -30,17 +30,22 @@ export VERSION
 
 # Download artifacts from a previous build (TODO remove build specifier once integrated with branch pipeline),
 # extract each, combine to 'uber' zip file, and upload to BuildKite's artifact store.
-buildkite-agent artifact download "build/distributions/*.zip" . --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
+buildkite-agent artifact download "*.zip" build/distributions --build 01866fcf-3d1a-471d-b3b9-8a9a3d0c1ef6
+ls -lR
 
 rm -rf build/temp
 mkdir -p build/temp
 for it in darwin-aarch64 darwin-x86_64 linux-aarch64 linux-x86_64 windows-x86_64; do
+  echo "Unzipping ml-cpp-${VERSION}-${it}.zip"
   unzip -o build/distributions/ml-cpp-${VERSION}-${it}.zip -d build/temp;
 done
 cd build/temp
+echo "Zipping ml-cpp-${VERSION}.zip"
 zip ../distributions/ml-cpp-${VERSION}.zip -r platform
+ls -lR ..
 
 # Create a zip excluding dependencies from combined platform-specific C++ distributions
+echo "Creating nodeps archive"
 find . -path "**/libMl*" -o \
        -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
        -path "**/platform/linux*/bin/*" -o \
@@ -49,8 +54,10 @@ find . -path "**/libMl*" -o \
        -path "**/Info.plist" -o \
        -path "**/date_time_zonespec.csv" -o \
        -path "**/licenses/**" | xargs zip ../distributions/ml-cpp-${VERSION}-nodeps.zip
+echo "rc = $?"
 
 # Create a zip of dependencies only from combined platform-specific C++ distributions
+echo "Creating nodeps archive"
 find . \( -path "**/libMl*" -o \
           -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
           -path "**/platform/linux*/bin/*" -o \
@@ -59,10 +66,14 @@ find . \( -path "**/libMl*" -o \
           -path "**/Info.plist" -o \
           -path "**/date_time_zonespec.csv" -o \
           -path "**/licenses/**" \) -prune -o -print | xargs zip ../distributions/ml-cpp-${VERSION}-deps.zip
+echo "rc = $?"
 
 cd -
+pwd
+ls -lR
 
 # Create a CSV report on 3rd party dependencies we redistribute
+echo "Creating dependency report"
 ./3rd_party/dependency_report.sh --csv build/distributions/dependencies-${VERSION}.csv 
 
-buildkite-agent artifact upload "ml-cpp-${VERSION}.zip ml-cpp-${VERSION}-nodeps.zip ml-cpp-${VERSION}-deps.zip dependencies-${VERSION}.csv"
+buildkite-agent artifact upload "build/distributions/ml-cpp-${VERSION}.zip build/distributions/ml-cpp-${VERSION}-nodeps.zip build/distributions/ml-cpp-${VERSION}-deps.zip dependencies-${VERSION}.csv"
