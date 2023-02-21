@@ -54,7 +54,7 @@ def main():
     pipeline_steps.append({"trigger": "ml-cpp-dra",
                            "label": ":rocket: DRA",
                            "async": "true",
-                           "branch": {
+                           "build": {
                                "commit": "703c11d43ad895ae26042c6119c585bf7a179240",
                                "branch": "buildkite_dra_upload",
                                "message": "Triggered DRA build"}})
