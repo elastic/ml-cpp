@@ -46,7 +46,9 @@ def main():
                            "label": ":rocket: DRA",
                            "async": "true",
                            "build": {
-                               "message": "Triggered DRA build"}})
+                               "message": "${BUILDKITE_MESSAGE}",
+                               "commit": "${BUILDKITE_COMMIT}",
+                               "branch": "${BUILDKITE_BRANCH}"}})
 
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
