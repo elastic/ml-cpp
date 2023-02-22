@@ -17,7 +17,7 @@
 # prevent sensitive information getting into the console output.
 #
 # On success the following environment variables will be set that contain the
-# temporary # access key and secret key for accessing AWS:
+# temporary access key and secret key for accessing AWS:
 # - ML_AWS_ACCESS_KEY
 # - ML_AWS_SECRET_KEY
 #
