@@ -38,9 +38,16 @@ def main():
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
+
     pipeline_steps.append({"wait": None})
-    pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
-                                                       ".buildkite/pipelines/upload_to_s3.yml.sh"))
+
+	# Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
+    pipeline_steps.append({"trigger": "ml-cpp-dra",
+                           "label": ":rocket: DRA",
+                           "async": "true",
+                           "build": {
+                               "message": "Triggered DRA build"}})
+
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
 
