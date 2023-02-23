@@ -17,8 +17,7 @@ steps:
     depends_on: create_dra_artifacts
     command:
       - 'buildkite-agent artifact download "build/distributions/*" .'
-      - 'echo "${RED}This step is disabled until BuildKite migration is complete${NOCOLOR}"'
-      #- "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
+      - "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
       cpu: "2"
       ephemeralStorage: "20G"
