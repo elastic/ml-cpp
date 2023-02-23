@@ -8,10 +8,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+env:
+  "BUILD_SNAPSHOT": "true"
 steps:
   - label: "Upload Dynamic configuration for snapshot builds"
-    env:
-      "BUILD_SNAPSHOT": "true"
     command: "python .buildkite/branch.json.py | buildkite-agent pipeline upload"
     agents:
       image: "python"
