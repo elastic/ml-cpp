@@ -9,7 +9,8 @@
 # limitation.
 
 steps:
-  - label: "Upload Dynamic configuration for branch builds"
+  - label: "Upload Dynamic configuration for staging builds"
+    env: "BUILD_SNAPSHOT": "false"
     command: "python .buildkite/branch.json.py | buildkite-agent pipeline upload"
     agents:
       image: "python"
