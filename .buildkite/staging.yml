@@ -10,7 +10,8 @@
 
 steps:
   - label: "Upload Dynamic configuration for staging builds"
-    env: "BUILD_SNAPSHOT": "false"
+    env:
+      "BUILD_SNAPSHOT": "false"
     command: "python .buildkite/branch.json.py | buildkite-agent pipeline upload"
     agents:
       image: "python"
