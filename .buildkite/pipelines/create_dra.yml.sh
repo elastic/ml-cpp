@@ -12,7 +12,6 @@ cat <<EOL
 steps:
   - label: "Create DRA artifacts"
     key: "create_dra_artifacts"
-    depends_on:
     command:
         - "./.buildkite/scripts/steps/create_dra.sh"
     agents:

@@ -79,6 +79,8 @@ if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] ; then
 fi
 
 if [[ -z "$CPP_CROSS_COMPILE" ]] ; then 
-  find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf unit_test_results.tgz
-  buildkite-agent artifact upload "unit_test_results.tgz"
+  OS=$(uname -o | tr "A-Z" "a-z")
+  TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
+  find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
+  buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
 fi
