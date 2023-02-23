@@ -8,8 +8,8 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Upload the all-platforms bundle to S3, where day-to-day Elasticsearch
-# builds will download it from.
+# Upload the artifacts to S3, where day-to-day Elasticsearch
+# builds will download them from.
 #
 . .buildkite/scripts/common/aws_creds_from_vault.sh
 echo 'Uploading daily releasable artifacts to S3'
