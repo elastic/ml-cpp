@@ -395,10 +395,9 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         return false;
     }
 
-    CAnnotatedProbabilityBuilder resultBuilder(
-        result,
-        1, // # attribute probabilities
-        function_t::function(gatherer.features()), gatherer.numberActivePeople());
+    CAnnotatedProbabilityBuilder resultBuilder(result,
+                                               1, // # attribute probabilities
+                                               function_t::function(gatherer.features()));
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
     pJoint.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
@@ -477,15 +476,24 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
-    resultBuilder.anomalyScoreExplanation(pJoint.anomalyScoreExplanation());
 
     double multiBucketImpact{-1.0 * CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE};
     if (pJoint.calculateMultiBucketImpact(multiBucketImpact)) {
         resultBuilder.multiBucketImpact(multiBucketImpact);
     }
 
+    resultBuilder.anomalyScoreExplanation() = pJoint.anomalyScoreExplanation();
+    auto& anomalyScoreExplanation{resultBuilder.anomalyScoreExplanation()};
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
-    resultBuilder.personFrequency(this->personFrequency(pid), everSeenBefore);
+    auto typicalConcentration = m_Probabilities.medianConcentration();
+    double actualConcentration;
+    if (m_ProbabilityPrior.concentration(pid, actualConcentration) &&
+        typicalConcentration.has_value()) {
+        anomalyScoreExplanation.s_ByFieldActualConcentration = actualConcentration;
+        anomalyScoreExplanation.s_ByFieldTypicalConcentration =
+            typicalConcentration.value();
+    }
+    anomalyScoreExplanation.s_ByFieldFirstOccurrence = !everSeenBefore;
     resultBuilder.build();
 
     return true;

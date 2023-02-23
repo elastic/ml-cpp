@@ -1900,4 +1900,67 @@ BOOST_AUTO_TEST_CASE(testThroughputWithoutScopedAllocator) {
     testThroughputHelper(false);
 }
 
+BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
+    // Ensure that anomaly score explanation fields for rare events
+    // are outputted.
+    std::ostringstream sstream;
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        std::string partitionFieldName("Carrier");
+        std::string partitionFieldValue("JetBeats");
+        std::string overFieldName("pfn");
+        std::string overFieldValue("pfv");
+        std::string byFieldName("Dest");
+        std::string byFieldValue("Adelaide International Airport");
+        std::string correlatedByFieldValue("BAW");
+        std::string fieldName("clientip");
+        std::string function("rare");
+        std::string functionDescription("rare");
+        std::string emptyString;
+        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TAnomalyScoreExplanation anomalyScoreExplanation;
+
+        {
+            anomalyScoreExplanation.s_ByFieldFirstOccurrence = true;
+            anomalyScoreExplanation.s_ByFieldActualConcentration = 0.1;
+            anomalyScoreExplanation.s_ByFieldTypicalConcentration = 0.5;
+            ml::api::CHierarchicalResultsWriter::SResults result(
+                ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+                partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+                1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+                TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+                false, false, 2, 100, EMPTY_STRING_LIST, anomalyScoreExplanation);
+
+            // 1st bucket
+            BOOST_TEST_REQUIRE(writer.acceptResult(result));
+        }
+        // Finished adding results
+        BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
+    }
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
+    BOOST_TEST_REQUIRE(!arrayDoc.HasParseError());
+
+    rapidjson::StringBuffer strbuf;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+    TStringBufferPrettyWriter writer(strbuf);
+    arrayDoc.Accept(writer);
+    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc[0].HasMember("records"));
+    BOOST_TEST_REQUIRE(arrayDoc[0]["records"].IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc[0]["records"].Size());
+    const auto& record = arrayDoc[0]["records"][0];
+    BOOST_TEST_REQUIRE(record.HasMember("anomaly_score_explanation"));
+    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_first_occurrence"));
+    BOOST_REQUIRE_EQUAL(
+        true, record["anomaly_score_explanation"]["by_field_first_occurrence"].GetBool());
+    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_relative_rarity"));
+    BOOST_REQUIRE_EQUAL(
+        5.0, record["anomaly_score_explanation"]["by_field_relative_rarity"].GetDouble());
+}
 BOOST_AUTO_TEST_SUITE_END()

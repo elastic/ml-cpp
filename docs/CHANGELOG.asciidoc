@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.8.0
+
+=== Enhancements
+
+* Anomaly score explanation for rare detector. (See {ml-pull}2449[#2449].)
+
 == {es} version 8.7.0
 
 === Enhancements

@@ -103,7 +103,6 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
                                                    CAnnotatedProbabilityBuilder& builder) const {
     if (!pJoint.addAttributeProbability(CStringStore::names().get(EMPTY_STRING),
                                         model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                                        1.0, // attribute probability
                                         params, builder)) {
         LOG_ERROR(<< "Failed to compute P(" << params.describe()
                   << ", person = " << this->personName(pid) << ")");

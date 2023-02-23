@@ -301,6 +301,20 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     return true;
 }
 
+CModelTools::TOptionalDouble CModelTools::CCategoryProbabilityCache::medianConcentration() const {
+    if (m_MedianConcentration) {
+        return m_MedianConcentration;
+    }
+
+    if (!m_Prior || m_Prior->isNonInformative() || m_Cache.empty()) {
+        return {};
+    }
+
+    m_MedianConcentration =
+        maths::common::CBasicStatistics::median(m_Prior->concentrations());
+    return m_MedianConcentration;
+}
+
 void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTools::CLessLikelyProbability");

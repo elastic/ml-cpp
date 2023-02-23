@@ -51,9 +51,6 @@ def main():
         pipeline_steps.append(build_linux)
     pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
                                                        ".buildkite/pipelines/run_es_tests.yml.sh"))
-    pipeline_steps.append({"wait": None})
-    pipeline_steps.append(pipeline_steps.generate_step("Upload artifact uploader pipeline",
-                                                       ".buildkite/pipelines/upload_to_s3.yml.sh"))
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))

@@ -1077,7 +1077,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(
 
     result.s_AnomalyScoreExplanation.s_MultimodalDistribution =
         m_ResidualModel->isSelectedModelMultimodal();
-    LOG_DEBUG(<< "Multimodel distribution: "
+    LOG_TRACE(<< "Multimodel distribution: "
               << result.s_AnomalyScoreExplanation.s_MultimodalDistribution);
 
     result.s_Probability = pOverall;

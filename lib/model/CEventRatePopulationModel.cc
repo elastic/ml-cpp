@@ -634,7 +634,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
 
     CAnnotatedProbabilityBuilder resultBuilder(
         result, std::max(numberAttributeProbabilities, std::size_t(1)),
-        function_t::function(gatherer.features()), gatherer.numberActivePeople());
+        function_t::function(gatherer.features()));
     resultBuilder.attributeProbabilityPrior(&m_AttributeProbabilityPrior);
     resultBuilder.personAttributeProbabilityPrior(&personAttributeProbabilityPrior);
 
@@ -756,9 +756,8 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
             double p;
             pPersonAndAttribute.calculate(p);
             resultBuilder.addAttributeProbability(
-                cid, gatherer.attributeNamePtr(cid), pAttribute, p,
-                model_t::CResultType::E_Unconditional, (feature->second)[0].second,
-                NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
+                cid, gatherer.attributeNamePtr(cid), p, model_t::CResultType::E_Unconditional,
+                (feature->second)[0].second, NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
         }
     }
 
@@ -774,7 +773,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     }
     LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
     resultBuilder.probability(p);
-    resultBuilder.anomalyScoreExplanation(result.s_AnomalyScoreExplanation);
+    resultBuilder.anomalyScoreExplanation() = result.s_AnomalyScoreExplanation;
     resultBuilder.build();
 
     return true;
