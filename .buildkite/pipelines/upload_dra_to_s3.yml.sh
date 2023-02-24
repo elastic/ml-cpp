@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -6,13 +7,22 @@
 # use of machine learning features. You may not use this file except in
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
-#
-# Note: Don't use top-level "agents:" entries as they get inherited
-# by any pipelines called from here.  Always use "agents:" inside of
-# a "steps:" entry
 
+. .buildkite/scripts/common/base.sh
+
+cat <<EOL
 steps:
-  - label: "Upload Dynamic configuration"
-    command: "python .buildkite/job-build-test-all-debug.json.py | buildkite-agent pipeline upload"
+  - label: "Upload DRA artifacts to S3 :s3:"
+    key: "upload_dra_artifacts"
+    depends_on: create_dra_artifacts
+    command:
+      - 'buildkite-agent artifact download "build/distributions/*" .'
+      - "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
-      image: "python"
+      cpu: "2"
+      ephemeralStorage: "20G"
+      memory: "4G"
+      image: "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:2"
+      # Run as a non-root user
+      imageUID: "1000"
+EOL

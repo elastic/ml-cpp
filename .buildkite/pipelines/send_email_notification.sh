@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -7,12 +8,12 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# Note: Don't use top-level "agents:" entries as they get inherited
-# by any pipelines called from here.  Always use "agents:" inside of
-# a "steps:" entry
-
+# Create a unique job that sends email notification only.
+cat <<EOL
 steps:
-  - label: "Upload Dynamic configuration"
-    command: "python .buildkite/job-build-test-all-debug.json.py | buildkite-agent pipeline upload"
-    agents:
-      image: "python"
+  - label: "Schedule :email: notification"
+    command: "echo schedule :email: notification"
+notify:
+  - email: "build-machine-learning@elastic.co"
+    if: build.state == "failed" && build.pull_request.id == null
+EOL
