@@ -51,6 +51,21 @@ def main():
         pipeline_steps.append(build_linux)
     pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
                                                        ".buildkite/pipelines/run_es_tests.yml.sh"))
+
+    # Upon merge of a pull request to a branch the BUILDKITE_PULL_REQUEST environment variable
+    # is set to false. In this case we want to additionally create and upload artifacts.
+    if os.environ.get('BUILDKITE_PULL_REQUEST', 'false') == 'false':
+        pipeline_steps.append({"wait": None})
+
+        # Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
+        pipeline_steps.append({"trigger": "ml-cpp-dra",
+                               "label": ":rocket: DRA",
+                               "async": "true",
+                               "build": {
+                                   "message": "${BUILDKITE_MESSAGE}",
+                                   "commit": "${BUILDKITE_COMMIT}",
+                                   "branch": "${BUILDKITE_BRANCH}"}})
+
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
