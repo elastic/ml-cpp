@@ -75,7 +75,7 @@ def main(args):
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
-              'buildkite-agent artifact download eigen.tgz',
+              'buildkite-agent artifact download eigen.tgz .',
               'tar xvzf eigen.tgz',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
