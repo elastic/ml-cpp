@@ -59,8 +59,9 @@ def main(args):
 
     pipeline_steps.append({
         "label": "Clone Eigen",
+        "key": "clone_eigen",
         "commands": [
-            './3rd_party/pull-eigen.sh'
+            './3rd_party/pull-eigen.sh',
             'buildkite-agent artifact upload 3rd_party/eigen'
             ]
         })
@@ -76,7 +77,10 @@ def main(args):
               'buildkite-agent artifact download 3rd_party/eigen 3rd_party',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
-            "depends_on": "check_style",
+            "depends_on": [
+              "check_style",
+              "clone_eigen"
+              ],
             "key": f"build_test_linux-{arch}-{build_type}",
             "env": {
               "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
