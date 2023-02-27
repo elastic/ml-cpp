@@ -62,7 +62,8 @@ def main(args):
         "key": "clone_eigen",
         "commands": [
             './3rd_party/pull-eigen.sh',
-            'buildkite-agent artifact upload 3rd_party/eigen'
+            'tar cvzf eigen.tgz 3rd_party/eigen',
+            'buildkite-agent artifact upload eigen.tgz'
             ]
         })
     for arch, build_type in product(archs, cur_build_types):
@@ -74,7 +75,8 @@ def main(args):
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
-              'buildkite-agent artifact download 3rd_party/eigen 3rd_party',
+              'buildkite-agent artifact download eigen.tgz',
+              'tar xvzf eigen.tgz',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": [
