@@ -40,7 +40,7 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:25"
+      "image": "docker.elastic.co/ml-dev/ml-linux-build:14"
    },
    "aarch64": {
       "provider": "aws",
@@ -105,7 +105,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:10"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:1"
             },
             "commands": [
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
