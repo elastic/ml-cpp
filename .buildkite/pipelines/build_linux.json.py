@@ -57,6 +57,13 @@ def main(args):
     if args.build_type is not None:
         cur_build_types = [args.build_type]
 
+    pipeline_steps.append({
+        "label": "Clone Eigen"
+        "commands": [
+            './3rd_party/pull-eigen.sh'
+            'buildkite-agent artifact upload 3rd_party/eigen'
+            ]
+        })
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
@@ -66,6 +73,7 @@ def main(args):
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               f'if [[ "{args.snapshot}" != "None" ]]; then export BUILD_SNAPSHOT={args.snapshot}; fi',
               f'if [[ "{args.version_qualifier}" != "None" ]]; then export VERSION_QUALIFIER={args.version_qualifier}; fi',
+              'buildkite-agent artifact download 3rd_party/eigen 3rd_party'
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
