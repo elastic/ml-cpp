@@ -50,8 +50,6 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
     ${REPO_ROOT}/dev-tools/docker_build.sh linux_aarch64_native
   else
     ${REPO_ROOT}/dev-tools/docker_test.sh linux_aarch64_native
-    echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
-    (cd ${REPO_ROOT}/cmake-build-docker/test/lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test_seccomp)
   fi
 fi
 
