@@ -363,8 +363,6 @@ task uploadAll(type: UploadS3Task) {
 }
 
 task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads,
-                                                buildDependenciesZipFromDownloads,
-                                                buildNoDependenciesZipFromDownloads,
                                                 buildDependencyReport]) {
   bucket 'prelert-artifacts'
   upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
