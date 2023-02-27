@@ -49,7 +49,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
   if [ "$RUN_TESTS" = false ] ; then
     ${REPO_ROOT}/dev-tools/docker_build.sh linux_aarch64_native
   else
-    ${REPO_ROOT}/dev-tools/docker_test.sh linux_aarch64_native
+    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests linux_aarch64_native
   fi
 fi
 
