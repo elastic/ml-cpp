@@ -14,7 +14,7 @@ steps:
     key: "java_integration_tests"
     command: 
       - "sudo yum -y install java-17-amazon-corretto-devel"
-      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
+      - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo --build 018693ad-5093-4f84-a9ba-c7fbdce3728d'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-aarch64-RelWithDebInfo"
     agents:
