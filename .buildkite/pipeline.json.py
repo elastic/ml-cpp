@@ -17,7 +17,6 @@
 #
 
 import json
-import os
 
 from ml_pipeline import (
     step,
