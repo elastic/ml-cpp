@@ -12,7 +12,6 @@
 #define INCLUDED_ml_core_CConcurrentQueue_h
 
 #include <core/CMemoryDec.h>
-#include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -36,7 +35,7 @@ namespace core {
 //!
 //! @tparam T the objects of the queue
 template<typename T>
-class CConcurrentQueue final : private CNonCopyable {
+class CConcurrentQueue final {
 public:
     using TOptional = std::optional<T>;
 
@@ -47,6 +46,12 @@ public:
 
     explicit CConcurrentQueue(std::size_t queueCapacity)
         : CConcurrentQueue(queueCapacity, queueCapacity) {}
+
+    CConcurrentQueue(const CConcurrentQueue&) = delete;
+    CConcurrentQueue& operator=(const CConcurrentQueue&) = delete;
+    // The use of std::mutex prevents this class from being moveable
+    CConcurrentQueue(CConcurrentQueue&&) = delete;
+    CConcurrentQueue& operator=(CConcurrentQueue&&) = delete;
 
     //! Pop an item out of the queue, this blocks until an item is available
     T pop() {
