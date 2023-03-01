@@ -159,7 +159,10 @@ private:
     static bool always(const T&) { return true; }
 
 private:
+    //! Fixed queue capacity
     std::size_t m_QueueCapacity;
+
+    //! For signaling the producer in blocking case
     std::size_t m_NotifyCapacity;
 
     //! The internal queue

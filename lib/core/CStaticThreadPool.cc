@@ -25,7 +25,7 @@ std::size_t computeSize(std::size_t hint) {
 CStaticThreadPool::CStaticThreadPool(std::size_t size, std::size_t queueCapacity)
     : m_Busy{false}, m_Cursor{0} {
 
-    std::size_t poolSize = computeSize(size);
+    std::size_t poolSize{computeSize(size)};
     m_Pool.reserve(poolSize);
 
     for (std::size_t id = 0; id < poolSize; ++id) {

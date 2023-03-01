@@ -37,7 +37,9 @@ public:
     //!
     //! The object has to wrapped once and only once, pass the reference around in your code.
     //! This starts a background thread.
-    explicit CConcurrentWrapper(T& resource, std::size_t queueCapacity, std::size_t notifyCapacity)
+    explicit CConcurrentWrapper(T& resource,
+                                std::size_t queueCapacity = 100,
+                                std::size_t notifyCapacity = 50)
         : m_Queue(queueCapacity, notifyCapacity), m_Resource(resource), m_Done(false) {
         m_Worker = std::thread([this] {
             while (!m_Done) {
@@ -45,9 +47,6 @@ public:
             }
         });
     }
-
-    explicit CConcurrentWrapper(T& resource)
-        : CConcurrentWrapper(resource, 100, 50) {}
 
     ~CConcurrentWrapper() {
         m_Queue.push([this] { m_Done = true; });
