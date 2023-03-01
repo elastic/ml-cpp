@@ -41,7 +41,7 @@ def main():
 
     pipeline_steps.append({"wait": None})
 
-	# Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
+    # Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
     pipeline_steps.append({"trigger": "ml-cpp-dra",
                            "label": ":rocket: DRA",
                            "async": "true",
