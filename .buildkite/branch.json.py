@@ -8,25 +8,15 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-# This script generates a pipeline JSON for the ml-cpp pipeline for PR builds.
-# Builds for this pipeline may be triggered by commit or comment.
+# This script generates a pipeline JSON for the ml-cpp-branch pipeline for branch builds.
+# Builds for this pipeline may be triggered by code, API or UI.
 #
-# The basic logic of this script is very simple.
-# It either parses the github label or the triggering PR comment.
-# If a PR comment is present the script ignores the github label.
-#
-
 import json
 
 from ml_pipeline import (
     step,
     config as buildConfig,
 )
-
-# Ensure VERSION_QUALIFIER is always empty for PR builds
-env = {
-    "VERSION_QUALIFIER": ""
-}
 
 def main():
     pipeline = {}
@@ -40,17 +30,26 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        build_windows = pipeline_steps.generate_step_template("Windows", config.action)
+        build_windows = pipeline_steps.generate_step_template("Windows", "build")
         pipeline_steps.append(build_windows)
     if config.build_macos:
-        build_macos = pipeline_steps.generate_step_template("MacOS", config.action)
+        build_macos = pipeline_steps.generate_step_template("MacOS", "build")
         pipeline_steps.append(build_macos)
     if config.build_linux:
-        build_linux = pipeline_steps.generate_step_template("Linux", config.action)
+        build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
-    pipeline["env"] = env
+
+    pipeline_steps.append({"wait": None})
+
+    # Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
+    pipeline_steps.append({"trigger": "ml-cpp-dra",
+                           "label": ":rocket: DRA",
+                           "async": "true",
+                           "build": {
+                               "message": "${BUILDKITE_MESSAGE}",
+                               "commit": "${BUILDKITE_COMMIT}",
+                               "branch": "${BUILDKITE_BRANCH}"}})
+
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
 
