@@ -41,13 +41,13 @@ def main():
     config = buildConfig.Config()
     config.parse()
     if config.build_windows:
-        debug_windows = pipeline_steps.generate_step_template("Windows", "debug", config.snapshot, config.version_qualifier)
+        debug_windows = pipeline_steps.generate_step_template("Windows", "debug")
         pipeline_steps.append(debug_windows)
     if config.build_macos:
-        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug", config.snapshot, config.version_qualifier)
+        debug_macos = pipeline_steps.generate_step_template("MacOS", "debug")
         pipeline_steps.append(debug_macos)
     if config.build_linux:
-        debug_linux = pipeline_steps.generate_step_template("Linux", "debug", config.snapshot, config.version_qualifier)
+        debug_linux = pipeline_steps.generate_step_template("Linux", "debug")
         pipeline_steps.append(debug_linux)
 
     pipeline["env"] = env
