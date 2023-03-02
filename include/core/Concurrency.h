@@ -89,11 +89,13 @@ public:
 //! the size specified here. If called with \p threadPoolSize equal to zero
 //! it defaults to calling std::thread::hardware_concurrency to size the
 //! thread pool.
+//! \p queueCapacity is the size of the work queue
 //!
 //! \note This is not thread safe as the intention is that it is invoked once,
 //! usually at the beginning of main or in single threaded test code.
 CORE_EXPORT
-void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0);
+void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0,
+                               std::size_t queueCapacity = 50);
 
 //! Shutdown the thread pool and reset the executor to sequential in the same thread.
 //!

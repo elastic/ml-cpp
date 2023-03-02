@@ -255,8 +255,9 @@ int main(int argc, char** argv) {
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
     // Size the threadpool to the number of hardware threads
-    // so we can grow and shrink the threadpool dynamically
-    ml::core::startDefaultAsyncExecutor();
+    // so we can grow and shrink the threadpool dynamically.
+    // The task queue size is set to 1.
+    ml::core::startDefaultAsyncExecutor(0, 1);
     // Set the number of threads to use
     ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
 

@@ -10,6 +10,7 @@
  */
 
 #include <core/CStaticThreadPool.h>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -21,11 +22,18 @@ std::size_t computeSize(std::size_t hint) {
 }
 }
 
-CStaticThreadPool::CStaticThreadPool(std::size_t size)
-    : m_Busy{false}, m_Cursor{0}, m_TaskQueues{computeSize(size)} {
-    m_NumberThreadsInUse.store(m_TaskQueues.size());
-    m_Pool.reserve(m_TaskQueues.size());
-    for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
+CStaticThreadPool::CStaticThreadPool(std::size_t size, std::size_t queueCapacity)
+    : m_Busy{false}, m_Cursor{0} {
+
+    std::size_t poolSize{computeSize(size)};
+    m_Pool.reserve(poolSize);
+
+    for (std::size_t id = 0; id < poolSize; ++id) {
+        m_TaskQueues.push_back(std::make_unique<TWrappedTaskQueue>(queueCapacity));
+    }
+    m_NumberThreadsInUse.store(poolSize);
+
+    for (std::size_t id = 0; id < poolSize; ++id) {
         try {
             m_Pool.emplace_back([this, id] { this->worker(id); });
         } catch (...) {
@@ -55,12 +63,12 @@ void CStaticThreadPool::schedule(TTask&& task_) {
     std::size_t end{i + size};
     CWrappedTask task{std::forward<TTask>(task_)};
     for (/**/; i < end; ++i) {
-        if (m_TaskQueues[i % size].tryPush(std::move(task))) {
+        if (m_TaskQueues[i % size]->tryPush(std::move(task))) {
             break;
         }
     }
     if (i == end) {
-        m_TaskQueues[i % size].push(std::move(task));
+        m_TaskQueues[i % size]->push(std::move(task));
     }
 
     // For many small tasks the best strategy for minimising contention between the
@@ -93,7 +101,7 @@ void CStaticThreadPool::shutdown() {
     // so each thread executes exactly one shutdown task.
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
         TTask done{[this] { m_Done = true; }};
-        m_TaskQueues[id].push(CWrappedTask{std::move(done), id});
+        m_TaskQueues[id]->push(CWrappedTask{std::move(done), id});
     }
 
     for (auto& thread : m_Pool) {
@@ -132,7 +140,7 @@ void CStaticThreadPool::worker(std::size_t id) {
         // of active worker threads soon adapts to the new limit.
         if (id < size) {
             for (std::size_t i = 0; i < size; ++i) {
-                task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
+                task = m_TaskQueues[(id + i) % size]->tryPop(ifAllowed);
                 if (task != std::nullopt) {
                     break;
                 }
@@ -141,7 +149,7 @@ void CStaticThreadPool::worker(std::size_t id) {
             task = std::nullopt;
         }
         if (task == std::nullopt) {
-            task = m_TaskQueues[id].pop();
+            task = m_TaskQueues[id]->pop();
         }
 
         (*task)();
@@ -160,7 +168,7 @@ void CStaticThreadPool::drainQueuesWithoutBlocking() {
     TOptionalTask task;
     auto popTask = [&] {
         for (auto& queue : m_TaskQueues) {
-            task = queue.tryPop();
+            task = queue->tryPop();
             if (task != std::nullopt) {
                 (*task)();
                 return true;
