@@ -18,6 +18,7 @@
 #include <atomic>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <thread>
 #include <vector>
@@ -36,7 +37,7 @@ public:
     using TTask = std::function<void()>;
 
 public:
-    explicit CStaticThreadPool(std::size_t size);
+    explicit CStaticThreadPool(std::size_t size, std::size_t queueCapacity = 50);
 
     ~CStaticThreadPool();
 
@@ -82,8 +83,9 @@ private:
         TOptionalSize m_ThreadId;
     };
     using TOptionalTask = std::optional<CWrappedTask>;
-    using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask, 50>;
-    using TWrappedTaskQueueVec = std::vector<TWrappedTaskQueue>;
+    using TWrappedTaskQueue = CConcurrentQueue<CWrappedTask>;
+    using TWrappedTaskQueueUPtr = std::unique_ptr<TWrappedTaskQueue>;
+    using TWrappedTaskQueueUPtrVec = std::vector<TWrappedTaskQueueUPtr>;
     using TThreadVec = std::vector<std::thread>;
 
 private:
@@ -99,7 +101,7 @@ private:
     std::atomic_bool m_Busy;
     std::atomic<std::uint64_t> m_Cursor;
     std::atomic<std::size_t> m_NumberThreadsInUse;
-    TWrappedTaskQueueVec m_TaskQueues;
+    TWrappedTaskQueueUPtrVec m_TaskQueues;
     TThreadVec m_Pool;
 };
 }

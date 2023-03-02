@@ -33,7 +33,8 @@ public:
 //! \brief Executes a function in a thread pool.
 class CThreadPoolExecutor final : public CExecutor {
 public:
-    explicit CThreadPoolExecutor(std::size_t size) : m_ThreadPool{size} {}
+    explicit CThreadPoolExecutor(std::size_t size, std::size_t queueCapacity)
+        : m_ThreadPool{size, queueCapacity} {}
 
     void schedule(std::function<void()>&& f) override {
         m_ThreadPool.schedule(std::forward<std::function<void()>>(f));
@@ -57,14 +58,14 @@ public:
     CExecutorHolder()
         : m_ThreadPoolSize{0}, m_Executor(std::make_unique<CImmediateExecutor>()) {}
 
-    static CExecutorHolder makeThreadPool(std::size_t threadPoolSize) {
+    static CExecutorHolder makeThreadPool(std::size_t threadPoolSize, std::size_t queueCapacity) {
         if (threadPoolSize == 0) {
             threadPoolSize = std::thread::hardware_concurrency();
         }
 
         if (threadPoolSize > 0) {
             try {
-                return CExecutorHolder{threadPoolSize};
+                return CExecutorHolder{threadPoolSize, queueCapacity};
             } catch (const std::exception& e) {
                 LOG_ERROR(<< "Failed to create thread pool with '" << e.what()
                           << "'. Falling back to running single threaded");
@@ -83,9 +84,9 @@ public:
     std::size_t threadPoolSize() const { return m_ThreadPoolSize; }
 
 private:
-    CExecutorHolder(std::size_t threadPoolSize)
+    CExecutorHolder(std::size_t threadPoolSize, std::size_t queueCapacity)
         : m_ThreadPoolSize{threadPoolSize},
-          m_Executor(std::make_unique<CThreadPoolExecutor>(threadPoolSize)) {}
+          m_Executor(std::make_unique<CThreadPoolExecutor>(threadPoolSize, queueCapacity)) {}
 
 private:
     std::size_t m_ThreadPoolSize;
@@ -95,11 +96,11 @@ private:
 CExecutorHolder singletonExecutor;
 }
 
-void startDefaultAsyncExecutor(std::size_t threadPoolSize) {
+void startDefaultAsyncExecutor(std::size_t threadPoolSize, std::size_t queueCapacity) {
     // This is purposely not thread safe. This is only meant to be called once from
     // the main thread, typically from main of an executable or in single threaded
     // test code.
-    singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize);
+    singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize, queueCapacity);
 }
 
 void stopDefaultAsyncExecutor() {

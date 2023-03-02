@@ -12,7 +12,6 @@
 #define INCLUDED_ml_core_CConcurrentQueue_h
 
 #include <core/CMemoryDec.h>
-#include <core/CNonCopyable.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -35,19 +34,24 @@ namespace core {
 //! for the price of blocking.
 //!
 //! @tparam T the objects of the queue
-//! @tparam QUEUE_CAPACITY fixed queue capacity
-//! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
-class CConcurrentQueue final : private CNonCopyable {
+template<typename T>
+class CConcurrentQueue final {
 public:
     using TOptional = std::optional<T>;
 
 public:
-    CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
-        static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
-        static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY,
-                      "QUEUE_CAPACITY cannot be less than NOTIFY_CAPACITY");
-    }
+    explicit CConcurrentQueue(std::size_t queueCapacity, std::size_t notifyCapacity)
+        : m_QueueCapacity(queueCapacity), m_NotifyCapacity(notifyCapacity),
+          m_Queue(queueCapacity) {}
+
+    explicit CConcurrentQueue(std::size_t queueCapacity)
+        : CConcurrentQueue(queueCapacity, queueCapacity) {}
+
+    CConcurrentQueue(const CConcurrentQueue&) = delete;
+    CConcurrentQueue& operator=(const CConcurrentQueue&) = delete;
+    // The use of std::mutex prevents this class from being moveable
+    CConcurrentQueue(CConcurrentQueue&&) = delete;
+    CConcurrentQueue& operator=(CConcurrentQueue&&) = delete;
 
     //! Pop an item out of the queue, this blocks until an item is available
     T pop() {
@@ -109,7 +113,7 @@ public:
     //! Forward \p item to the queue, if the queue is full this fails and returns false
     bool tryPush(T&& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        if (m_Queue.size() >= QUEUE_CAPACITY) {
+        if (m_Queue.size() >= m_QueueCapacity) {
             return false;
         }
 
@@ -141,12 +145,12 @@ private:
     }
     void waitWhileFull(std::unique_lock<std::mutex>& lock) {
         m_ProducerCondition.wait(
-            lock, [this] { return m_Queue.size() < QUEUE_CAPACITY; });
+            lock, [this] { return m_Queue.size() < m_QueueCapacity; });
     }
 
     void notifyIfNoLongerFull(std::unique_lock<std::mutex>& lock, std::size_t oldSize) {
         lock.unlock();
-        if (oldSize >= NOTIFY_CAPACITY) {
+        if (oldSize >= m_NotifyCapacity) {
             m_ProducerCondition.notify_all();
         }
     }
@@ -160,6 +164,12 @@ private:
     static bool always(const T&) { return true; }
 
 private:
+    //! Fixed queue capacity
+    std::size_t m_QueueCapacity;
+
+    //! For signaling the producer in blocking case
+    std::size_t m_NotifyCapacity;
+
     //! The internal queue
     boost::circular_buffer<T> m_Queue;
 

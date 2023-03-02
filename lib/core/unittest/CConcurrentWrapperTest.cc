@@ -30,10 +30,6 @@ using namespace core;
 
 using TOStringStreamConcurrentWrapper = CConcurrentWrapper<std::ostringstream>;
 
-// a low capacity wrapper with only 5 buckets for the queue, the 3 controls the wakeup of threads
-using TOStringStreamLowCapacityConcurrentWrapper =
-    CConcurrentWrapper<std::ostringstream, 5, 3>;
-
 BOOST_AUTO_TEST_CASE(testBasic) {
 
     std::ostringstream stringStream;
@@ -54,21 +50,7 @@ BOOST_AUTO_TEST_CASE(testBasic) {
 }
 
 namespace {
-
-void task(CConcurrentWrapper<std::ostringstream>& sink, size_t i, std::chrono::microseconds pause) {
-    sink([i, pause](std::ostream& o) {
-        o << "ta";
-        std::this_thread::sleep_for(pause);
-        o << "sk ";
-        o << std::setw(5);
-        o << i;
-        o << "\n";
-    });
-}
-
-void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink,
-                          size_t i,
-                          std::chrono::microseconds pause) {
+void task(TOStringStreamConcurrentWrapper& sink, size_t i, std::chrono::microseconds pause) {
     sink([i, pause](std::ostream& o) {
         o << "ta";
         std::this_thread::sleep_for(pause);
@@ -139,13 +121,12 @@ BOOST_AUTO_TEST_CASE(testThreadsSlowLowCapacity) {
     static const size_t MESSAGES(50);
 
     {
-        TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
+        TOStringStreamConcurrentWrapper wrappedStringStream(stringStream, 5, 3);
         {
             core::CStaticThreadPool tp(2);
             for (size_t i = 0; i < MESSAGES; ++i) {
                 tp.schedule([&wrappedStringStream, i] {
-                    taskLowCapacityQueue(wrappedStringStream, i,
-                                         std::chrono::microseconds(50));
+                    task(wrappedStringStream, i, std::chrono::microseconds(50));
                 });
             }
         }
@@ -167,13 +148,12 @@ BOOST_AUTO_TEST_CASE(testThreadsLowCapacity) {
     static const size_t MESSAGES(2500);
 
     {
-        TOStringStreamLowCapacityConcurrentWrapper wrappedStringStream(stringStream);
+        TOStringStreamConcurrentWrapper wrappedStringStream(stringStream, 5, 3);
         {
             core::CStaticThreadPool tp(8);
             for (size_t i = 0; i < MESSAGES; ++i) {
                 tp.schedule([&wrappedStringStream, i] {
-                    taskLowCapacityQueue(wrappedStringStream, i,
-                                         std::chrono::microseconds(0));
+                    task(wrappedStringStream, i, std::chrono::microseconds(0));
                 });
             }
         }
