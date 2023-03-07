@@ -1,0 +1,25 @@
+#!/bin/bash
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
+# This gets sourced right after checkout
+
+export REPO_ROOT="$(pwd -P)"
+export PATH=$PATH:~/google-cloud-sdk/bin
+
+if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
+  # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
+  if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
+  elif [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-aarch64-RelWithDebInfo" ]]; then
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
+  else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
+    export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
+  fi
+fi

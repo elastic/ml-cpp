@@ -348,7 +348,22 @@ task upload(type: UploadS3Task) {
   description = 'Upload C++ zips to S3 Bucket'
 }
 
-task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads, buildDependencyReport]) {
+task uploadAll(type: UploadS3Task) {
+  bucket 'prelert-artifacts'
+  // Upload ALL artifacts (including the dependency report) in this task
+  def fileDir = fileTree("${buildDir}/distributions").matching {
+    include "ml-cpp-${project.version}*.zip", "dependencies-${version}.csv"
+  }
+  for (file in fileDir) {
+    // TODO: swap back when Jenkins is switched off
+    upload file, "maven/${artifactGroupPath}/${artifactName}/BuildKite/${file.name}"
+    // upload file, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${file.name}"
+  }
+  description = 'Upload all C++ artifacts to S3 Bucket'
+}
+
+task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads,
+                                                buildDependencyReport]) {
   bucket 'prelert-artifacts'
   upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
   upload buildDependencyReport.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependencyReport.outputs.files.singleFile.name}"
