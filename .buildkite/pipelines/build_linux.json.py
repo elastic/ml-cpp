@@ -79,7 +79,6 @@ def main(args):
               ],
             "key": f"build_test_linux-{arch}-{build_type}",
             "env": {
-              "CMAKE_FLAGS": f"-DCMAKE_TOOLCHAIN_FILE=cmake/linux-{arch}.cmake",
               "CPP_CROSS_COMPILE": "",
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
@@ -122,7 +121,6 @@ def main(args):
             "key": "build_linux_aarch64_cross-RelWithDebInfo",
             "env": {
               "CPP_CROSS_COMPILE": "aarch64",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/linux-aarch64.cmake",
               "RUN_TESTS": "false",
               "ML_DEBUG": "1"
             },
