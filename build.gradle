@@ -352,7 +352,7 @@ task uploadAll(type: UploadS3Task) {
   bucket 'prelert-artifacts'
   // Upload ALL artifacts (including the dependency report) in this task
   def fileDir = fileTree("${buildDir}/distributions").matching {
-    include "ml-cpp-*${project.version}*.zip", "dependencies-${version}.csv"
+    include "ml-cpp*${project.version}*.zip", "dependencies-${version}.csv"
   }
   for (file in fileDir) {
     // TODO: swap back when Jenkins is switched off
