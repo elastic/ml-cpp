@@ -20,7 +20,7 @@ namespace ver {
 // Variables are supplied by command line macro definitions
 #ifdef DEV_BUILD
 const std::string CBuildInfo::VERSION_NUMBER("based on " STRINGIFY_MACRO(PRODUCT_VERSION));
-const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by " STRINGIFY_MACRO(ML_USER));
+const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by me - " STRINGIFY_MACRO(ML_USER));
 #else
 const std::string CBuildInfo::VERSION_NUMBER(STRINGIFY_MACRO(PRODUCT_VERSION));
 const std::string CBuildInfo::BUILD_NUMBER(STRINGIFY_MACRO(ML_BUILD_STR));
