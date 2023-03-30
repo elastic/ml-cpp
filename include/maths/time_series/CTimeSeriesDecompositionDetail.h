@@ -20,6 +20,7 @@
 #include <maths/time_series/CExpandingWindow.h>
 #include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 #include <maths/time_series/CTimeSeriesTestForChange.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
@@ -68,12 +69,16 @@ public:
 
     //! \brief The base message passed.
     struct MATHS_TIME_SERIES_EXPORT SMessage {
-        SMessage(core_t::TTime time, core_t::TTime lastTime);
+        SMessage(core_t::TTime time,
+                 core_t::TTime lastTime,
+                 const CTimeSeriesDecompositionAllocator& allocator);
 
         //! The message time.
         core_t::TTime s_Time;
         //! The last update time.
         core_t::TTime s_LastTime;
+
+        const CTimeSeriesDecompositionAllocator& s_Allocator;
     };
 
     //! \brief The message passed to add a point.
@@ -91,7 +96,8 @@ public:
                   CTimeSeriesDecomposition& decomposition,
                   const TMakePredictor& makePredictor,
                   const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
-                  const TMakeTestForSeasonality& makeTestForSeasonality);
+                  const TMakeTestForSeasonality& makeTestForSeasonality,
+                  const CTimeSeriesDecompositionAllocator& allocator = CTimeSeriesDecompositionAllocatorStub());
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -125,7 +131,11 @@ public:
     //! \brief The message passed to indicate periodic components have been
     //! detected.
     struct MATHS_TIME_SERIES_EXPORT SDetectedSeasonal : public SMessage {
-        SDetectedSeasonal(core_t::TTime time, core_t::TTime lastTime, CSeasonalDecomposition components);
+        SDetectedSeasonal(core_t::TTime time,
+                          core_t::TTime lastTime,
+                          CSeasonalDecomposition components,
+                          const CTimeSeriesDecompositionAllocator& allocator /*=
+                              CTimeSeriesDecompositionAllocatorStub()*/);
 
         //! The components found.
         CSeasonalDecomposition s_Components;
@@ -137,7 +147,9 @@ public:
         SDetectedCalendar(core_t::TTime time,
                           core_t::TTime lastTime,
                           CCalendarFeature feature,
-                          core_t::TTime timeZoneOffset);
+                          core_t::TTime timeZoneOffset,
+                          const CTimeSeriesDecompositionAllocator& allocator /*=
+                              CTimeSeriesDecompositionAllocatorStub()*/);
 
         //! The calendar feature found.
         CCalendarFeature s_Feature;
@@ -148,7 +160,9 @@ public:
     //! \brief The message passed to indicate the trend is being used for prediction.
     struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
-                       const TComponentChangeCallback& componentChangeCallback);
+                       const TComponentChangeCallback& componentChangeCallback,
+                       const CTimeSeriesDecompositionAllocator& allocator =
+                           CTimeSeriesDecompositionAllocatorStub());
 
         TPredictor s_Predictor;
         TComponentChangeCallback s_ComponentChangeCallback;
@@ -156,7 +170,11 @@ public:
 
     //! \brief The message passed to indicate a sudden change has occurred.
     struct MATHS_TIME_SERIES_EXPORT SDetectedChangePoint : public SMessage {
-        SDetectedChangePoint(core_t::TTime time, core_t::TTime lastTime, TChangePointUPtr change);
+        SDetectedChangePoint(core_t::TTime time,
+                             core_t::TTime lastTime,
+                             TChangePointUPtr change,
+                             const CTimeSeriesDecompositionAllocator& allocator /*=
+                                 CTimeSeriesDecompositionAllocatorStub()*/);
 
         //! The change description.
         TChangePointUPtr s_Change;
@@ -770,6 +788,8 @@ public:
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
 
+            std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components) const;
+
             //! Get the components.
             const maths_t::TSeasonalComponentVec& components() const;
             //! Get the components.
@@ -934,10 +954,11 @@ public:
         std::size_t maxSize() const;
 
         //! Add new seasonal components.
-        void addSeasonalComponents(const CSeasonalDecomposition& components);
+        void addSeasonalComponents(const CSeasonalDecomposition& components,
+                                   const CTimeSeriesDecompositionAllocator& allocator);
 
         //! Add a new calendar component.
-        void addCalendarComponent(const CCalendarFeature& feature, core_t::TTime timeZoneOffset);
+        void addCalendarComponent(const CCalendarFeature& feature, const CTimeSeriesDecompositionAllocator& allocator, core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.
         void fitTrend(core_t::TTime startTime,
@@ -1021,6 +1042,8 @@ public:
 
         //! Befriend a helper class used by the unit tests
         friend class CTimeSeriesDecompositionTest::CNanInjector;
+
+        // const CTimeSeriesDecompositionAllocator& m_Allocator;
     };
 };
 

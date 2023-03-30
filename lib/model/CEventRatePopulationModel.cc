@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CModelFactory.h"
 #include <model/CEventRatePopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -525,7 +526,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     LOG_TRACE(<< "Model unexpectedly null");
                     continue;
                 }
-                if (model->addSamples(params, attribute.second.s_Values) ==
+                if (model->addSamples(params, CModelAllocator(resourceMonitor),
+                                      attribute.second.s_Values) ==
                     maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
                 }

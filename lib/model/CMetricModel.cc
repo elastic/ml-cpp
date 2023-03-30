@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CModelFactory.h"
 #include <model/CMetricModel.h>
 
 #include <core/CLogger.h>
@@ -341,7 +342,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                         annotationCallback(annotation);
                     });
 
-                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
+                if (model->addSamples(params, CModelAllocator(resourceMonitor),
+                                      values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
                 }
             }

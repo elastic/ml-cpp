@@ -19,6 +19,7 @@
 
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -414,6 +415,7 @@ public:
 
     //! Update the model with new samples.
     virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     const time_series::CTimeSeriesDecompositionAllocator& allocator,
                                      TTimeDouble2VecSizeTrVec samples) = 0;
 
     //! Advance time by \p gap.
@@ -586,6 +588,7 @@ public:
 
     //! No-op.
     EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                             const time_series::CTimeSeriesDecompositionAllocator& allocator,
                              TTimeDouble2VecSizeTrVec samples) override;
 
     //! No-op.

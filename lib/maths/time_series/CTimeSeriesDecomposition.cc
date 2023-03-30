@@ -22,6 +22,7 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CRestoreParams.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <maths/time_series/CSeasonalTime.h>
 
@@ -202,6 +203,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
+                                        const CTimeSeriesDecompositionAllocator& allocator,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
                                         const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
@@ -255,7 +257,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                           };
                       },
                       [this] { return this->predictor(E_Seasonal | E_Calendar); },
-                      testForSeasonality};
+                      testForSeasonality,
+                      allocator};
 
     m_ChangePointTest.handle(message);
     m_Components.handle(message);

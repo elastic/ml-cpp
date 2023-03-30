@@ -48,6 +48,7 @@ public:
     //! No-op returning false.
     void addPoint(core_t::TTime time,
                   double value,
+                  const CTimeSeriesDecompositionAllocator& allocator,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,

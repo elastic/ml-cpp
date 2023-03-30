@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CModelFactory.h"
 #include <model/CMetricPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -508,7 +509,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     LOG_TRACE(<< "Model unexpectedly null");
                     return;
                 }
-                if (model->addSamples(params, attribute.second.s_Values) ==
+                CModelAllocator allocator{resourceMonitor};
+                if (model->addSamples(params, allocator, attribute.second.s_Values) ==
                     maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
                 }

@@ -29,6 +29,7 @@
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
@@ -78,6 +79,7 @@ using TDecompositionPtr = std::shared_ptr<maths::time_series::CTimeSeriesDecompo
 using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
 using TDecayRateController2Ary = maths::time_series::CUnivariateTimeSeriesModel::TDecayRateController2Ary;
 using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
+using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
 
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
@@ -108,6 +110,12 @@ public:
                                          maths_t::E_ContinuousData, DECAY_RATE)
                                          .clone());
     }
+};
+
+class CTimeSeriesDecompositionAllocatorHardLimit : public maths::time_series::CTimeSeriesDecompositionAllocator {
+    public:
+    //! In hard_limit mode we don't allow any new allocations.
+    bool areAllocationsAllowed() const override { return false; }
 };
 
 maths::common::CModelParams modelParams(core_t::TTime bucketLength) {
@@ -363,6 +371,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     {
         maths::time_series::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
@@ -378,7 +387,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -406,7 +415,7 @@ BOOST_AUTO_TEST_CASE(testClone) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
         for (const auto& sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -431,6 +440,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     LOG_DEBUG(<< "Univariate no trend");
     {
@@ -444,7 +454,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         core_t::TTime time{0};
         for (auto sample : samples) {
-            trend.addPoint(time, sample);
+            trend.addPoint(time, sample, allocator);
             TDouble1Vec sample_{trend.detrend(time, sample, 0.0, false)};
             prior.addSamples(sample_, maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
@@ -454,7 +464,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         time = 0;
         for (auto sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -489,9 +499,9 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         time = 0;
         for (auto sample : samples) {
-            model.addSamples(addSampleParams(unit),
+            model.addSamples(addSampleParams(unit), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, allocator, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
             prior.addSamples({trend.detrend(time, sample, 0.0, false)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -531,7 +541,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         for (const auto& sample : samples) {
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i]);
+                trends[i]->addPoint(time, sample[i], allocator);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0, false);
             }
             prior.addSamples(detrended,
@@ -542,7 +552,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         time = 0;
         for (const auto& sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -594,14 +604,14 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         time = 0;
         for (const auto& sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
             bool reinitialize{false};
 
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], allocator, maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -661,7 +671,7 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     prior.propagateForwardsByTime(1.0);
     prior.adjustOffset({-1.0}, maths_t::CUnitWeights::SINGLE_UNIT);
 
-    model.addSamples(addSampleParams(modelWeights), samples);
+    model.addSamples(addSampleParams(modelWeights), TAllocator(), samples);
     model.addBucketValue({core::make_triple(core_t::TTime{20}, TDouble2Vec{-1.0}, TAG)});
 
     BOOST_REQUIRE_EQUAL(prior.checksum(), model.residualModel().checksum());
@@ -672,6 +682,7 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
     // Test adding multiple samples at once.
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
     core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Multiple samples univariate");
@@ -691,13 +702,13 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
             maths_t::countWeight(TDouble2Vec{weights[1]}),
             maths_t::countWeight(TDouble2Vec{weights[2]})};
 
-        model.addSamples(addSampleParams(modelWeights), samples);
+        model.addSamples(addSampleParams(modelWeights), allocator, samples);
 
-        trend.addPoint(samples[1].first, samples[1].second[0],
+        trend.addPoint(samples[1].first, samples[1].second[0], allocator,
                        maths_t::countWeight(weights[1]));
-        trend.addPoint(samples[2].first, samples[2].second[0],
+        trend.addPoint(samples[2].first, samples[2].second[0], allocator,
                        maths_t::countWeight(weights[2]));
-        trend.addPoint(samples[0].first, samples[0].second[0],
+        trend.addPoint(samples[0].first, samples[0].second[0],allocator, 
                        maths_t::countWeight(weights[0]));
         prior.addSamples(
             {samples[2].second[0], samples[0].second[0], samples[1].second[0]},
@@ -735,14 +746,14 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
             maths_t::countWeight(TDouble2Vec(weights[1], weights[1] + 3)),
             maths_t::countWeight(TDouble2Vec(weights[2], weights[2] + 3))};
 
-        model.addSamples(addSampleParams(modelWeights), samples);
+        model.addSamples(addSampleParams(modelWeights), allocator, samples);
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            trends[i]->addPoint(samples[1].first, samples[1].second[i],
+            trends[i]->addPoint(samples[1].first, samples[1].second[i], allocator, 
                                 maths_t::countWeight(weights[0][i]));
-            trends[i]->addPoint(samples[2].first, samples[2].second[i],
+            trends[i]->addPoint(samples[2].first, samples[2].second[i], allocator,
                                 maths_t::countWeight(weights[1][i]));
-            trends[i]->addPoint(samples[0].first, samples[0].second[i],
+            trends[i]->addPoint(samples[0].first, samples[0].second[i], allocator,
                                 maths_t::countWeight(weights[2][i]));
         }
         TDouble10Vec1Vec samples_{samples[2].second, samples[0].second,
@@ -772,6 +783,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
     // Test a non-unit propagation interval.
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
     core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Propagation interval univariate");
@@ -791,7 +803,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
         core_t::TTime time{0};
         for (std::size_t i = 0; i < 3; ++i) {
             TTimeDouble2VecSizeTrVec sample{core::make_triple(time, samples[i], TAG)};
-            model.addSamples(addSampleParams(interval[i], weights), sample);
+            model.addSamples(addSampleParams(interval[i], weights), allocator, sample);
 
             TDoubleWeightsAry1Vec weight{maths_t::CUnitWeights::UNIT};
             for (std::size_t j = 0; j < weights[0].size(); ++j) {
@@ -829,7 +841,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
         core_t::TTime time{0};
         for (std::size_t i = 0; i < 3; ++i) {
             TTimeDouble2VecSizeTrVec sample{core::make_triple(time, samples[i], TAG)};
-            model.addSamples(addSampleParams(interval[i], weights), sample);
+            model.addSamples(addSampleParams(interval[i], weights), allocator, sample);
 
             TDouble10VecWeightsAry1Vec weight{maths_t::CUnitWeights::unit<TDouble10Vec>(3)};
             for (std::size_t j = 0; j < weights[0].size(); ++j) {
@@ -853,6 +865,7 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
     // Test decay rate control.
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
     core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Decay rate control univariate");
@@ -878,9 +891,9 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
             TTimeDouble2VecSizeTrVec sample_{
                 core::make_triple(time, TDouble2Vec{sample}, TAG)};
 
-            model.addSamples(addSampleParams(weights), sample_);
+            model.addSamples(addSampleParams(weights), allocator, sample_);
 
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, allocator,  maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(),
                                                          prior, &controllers));
 
@@ -951,14 +964,14 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
                 amplitude += 4.0;
             }
 
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
             bool hasTrend{false};
             bool reinitialize{false};
 
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], allocator, maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -1014,6 +1027,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     LOG_DEBUG(<< "Univariate seasonal");
     {
@@ -1030,10 +1044,10 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
                                              static_cast<double>(time) / 86400.0);
 
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, allocator, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0, false)},
@@ -1080,7 +1094,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -1128,14 +1142,14 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                                                      static_cast<double>(time) / 86400.0);
             }
 
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
             bool reinitialize{false};
 
             TDouble10Vec detrended;
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], allocator, maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -1213,7 +1227,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
         for (const auto& sample : samples) {
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -1246,6 +1260,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
     using TDoubleSizePr = std::pair<double, std::size_t>;
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     core_t::TTime bucketLength{600};
 
@@ -1278,10 +1293,10 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             for (auto sample : samples) {
                 double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                   static_cast<double>(time) / 86400.0)};
-                model0.addSamples(addSampleParams(weight),
+                model0.addSamples(addSampleParams(weight), allocator,
                                   {core::make_triple(time, TDouble2Vec{sample}, TAG)});
                 model1.addSamples(
-                    addSampleParams(weight),
+                    addSampleParams(weight), allocator,
                     {core::make_triple(time, TDouble2Vec{trend + sample}, TAG)});
                 time += bucketLength;
             }
@@ -1370,14 +1385,14 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
             for (auto& sample : samples) {
                 TDouble2Vec sample_(sample);
-                model0.addSamples(addSampleParams(weight),
+                model0.addSamples(addSampleParams(weight), allocator,
                                   {core::make_triple(time, sample_, TAG)});
                 double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                   static_cast<double>(time) / 86400.0)};
                 for (auto& component : sample_) {
                     component += trend;
                 }
-                model1.addSamples(addSampleParams(weight),
+                model1.addSamples(addSampleParams(weight),allocator,
                                   {core::make_triple(time, sample_, TAG)});
                 time += bucketLength;
             }
@@ -1468,7 +1483,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++)) {
                 sample += 18.0;
             }
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             maths::common::SModelProbabilityResult result;
             model.probability(computeProbabilityParams(weights[0]), {{time}},
@@ -1500,6 +1515,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
     core_t::TTime bucketLength{1800};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     LOG_DEBUG(<< "Univariate");
     {
@@ -1516,7 +1532,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
             double scale{10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                static_cast<double>(time) / 86400.0)};
             sample = scale * (1.0 + 0.1 * sample);
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -1584,7 +1600,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
             for (auto& component : sample) {
                 component = scale * (1.0 + 0.1 * component);
             }
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -1640,6 +1656,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     LOG_DEBUG(<< "Univariate");
     {
@@ -1655,8 +1672,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         for (auto sample : samples) {
             sample += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                             static_cast<double>(time) / 86400.0);
-            trend.addPoint(time, sample);
-            model->addSamples(addSampleParams(weights),
+            trend.addPoint(time, sample, allocator);
+            model->addSamples(addSampleParams(weights), allocator,
                               {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -1693,9 +1710,9 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             for (std::size_t i = 0; i < sample.size(); ++i) {
                 sample[i] += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                    static_cast<double>(time) / 86400.0);
-                trend[i].addPoint(time, sample[i]);
+                trend[i].addPoint(time, sample[i], allocator);
             }
-            model->addSamples(addSampleParams(weights),
+            model->addSamples(addSampleParams(weights), allocator,
                               {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -1721,6 +1738,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::common::CModelParams params{modelParams(bucketLength)};
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     LOG_DEBUG(<< "Univariate");
     {
@@ -1734,7 +1752,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            origModel.addSamples(addSampleParams(weights),
+            origModel.addSamples(addSampleParams(weights), allocator,
                                  {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
@@ -1781,7 +1799,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
         for (const auto& sample : samples) {
-            origModel.addSamples(addSampleParams(weights),
+            origModel.addSamples(addSampleParams(weights), allocator,
                                  {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
@@ -1821,6 +1839,7 @@ BOOST_AUTO_TEST_CASE(testAddSamplesWithCorrelations) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
+    TAllocator decompositionAllocator;
 
     {
         TDoubleVecVec samples;
@@ -1843,9 +1862,9 @@ BOOST_AUTO_TEST_CASE(testAddSamplesWithCorrelations) {
         core_t::TTime time{0};
         for (auto sample : samples) {
             correlations.refresh(allocator);
-            model0.addSamples(addSampleParams(weights),
+            model0.addSamples(addSampleParams(weights), decompositionAllocator,
                               {core::make_triple(time, TDouble2Vec{sample[0]}, TAG)});
-            model1.addSamples(addSampleParams(weights),
+            model1.addSamples(addSampleParams(weights), decompositionAllocator,
                               {core::make_triple(time, TDouble2Vec{sample[1]}, TAG)});
             correlations.processSamples();
             time += bucketLength;
@@ -1864,6 +1883,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     using TDoubleSizePr = std::pair<double, std::size_t>;
 
     test::CRandomNumbers rng;
+    TAllocator allocator; 
 
     std::size_t length = 2000;
 
@@ -1896,7 +1916,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
             if (bucket >= length - 100 && bucket < length - 92) {
                 sample += 8.0;
             }
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             maths::common::SModelProbabilityResult result;
             model.probability(computeProbabilityParams(weights[0]), {{time}},
@@ -1966,7 +1986,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
                 }
             }
             ++bucket;
-            model.addSamples(addSampleParams(weights),
+            model.addSamples(addSampleParams(weights), allocator,
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
             maths::common::SModelProbabilityResult result;
             model.probability(computeProbabilityParams(weights[0]), {{time}},
@@ -2025,11 +2045,13 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TAllocator allocator;
+
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
                            residualWeights[0]);
-        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights), allocator,
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
@@ -2211,11 +2233,13 @@ BOOST_AUTO_TEST_CASE(testLargeAnomalyAfterChange) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TAllocator allocator;
+
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
                            residualWeights[0]);
-        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights), allocator,
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
     auto seasonality = [](core_t::TTime time) {
@@ -2286,11 +2310,13 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TAllocator allocator;
+
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
                            residualWeights[0]);
-        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights), allocator,
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
@@ -2363,11 +2389,12 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TAllocator allocator;
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
                            residualWeights[0]);
-        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights), allocator,
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
@@ -2444,13 +2471,15 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TAllocator allocator; 
+
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
                            residualWeights[0]);
         auto params = addSampleParams(1.0, trendWeights, residualWeights);
         params.isNonNegative(true);
-        model.addSamples(params, {core::make_triple(time, TDouble2Vec{value}, TAG)});
+        model.addSamples(params, allocator, {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
     test::CRandomNumbers rng;
@@ -2509,6 +2538,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
     // probabilities become smaller despite seeing many anomalies.
 
     test::CRandomNumbers rng;
+    TAllocator allocator;
 
     std::size_t length = 2000;
     core_t::TTime bucketLength{600};
@@ -2538,7 +2568,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
                                   {{sample}}, result);
                 probabilities.push_back(result.s_Probability);
             } else {
-                model.addSamples(addSampleParams(weights),
+                model.addSamples(addSampleParams(weights), allocator,
                                  {core::make_triple(time, TDouble2Vec{sample}, TAG)});
                 model.probability(currentComputeProbabilityParams, {{time}},
                                   {{sample}}, result);
@@ -2583,7 +2613,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
                                   {(sample)}, result);
                 probabilities.push_back(result.s_Probability);
             } else {
-                model.addSamples(addSampleParams(weights),
+                model.addSamples(addSampleParams(weights), allocator,
                                  {core::make_triple(time, TDouble2Vec(sample), TAG)});
                 model.probability(currentComputeProbabilityParams, {{time}},
                                   {(sample)}, result);
@@ -2598,6 +2628,35 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
         BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);
         BOOST_TEST_REQUIRE(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
+}
+
+/*
+Test that when CTimeSeriesDecompositionAllocator::areAllocationsAllowed returns false, the CComponents::addSeasonalComponent method does not add a seasonal component to the model.
+*/
+BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations){
+    core_t::TTime bucketLength{3600};
+
+    test::CRandomNumbers rng;
+    CTimeSeriesDecompositionAllocatorHardLimit allocator;
+
+    // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns false for areAllocationsAllowed
+    auto controllers = decayRateControllers(1);
+    maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
+    maths::time_series::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trendModel, univariateNormal(), &controllers};
+
+    //define samples
+    TDoubleVec samples;
+    rng.generateNormalSamples(10.0, 2.0, 100, samples);
+    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    core_t::TTime time{0};
+    for (auto sample : samples) {
+        // add a sample
+        model.addSamples(addSampleParams(weights), allocator, {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+        time += bucketLength;
+    }
+
+    // check that the model has no seasonal components
+    BOOST_TEST_REQUIRE(model.components().seasonal().empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
