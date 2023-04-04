@@ -788,7 +788,9 @@ public:
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
 
-            std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components, double decayRate, double bucketLength) const;
+            std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components,
+                                              double decayRate,
+                                              double bucketLength) const;
 
             //! Get the components.
             const maths_t::TSeasonalComponentVec& components() const;

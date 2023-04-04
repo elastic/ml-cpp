@@ -203,16 +203,16 @@ std::string CNewSeasonalComponentSummary::print() const {
     return result.str();
 }
 
-CSeasonalComponent CNewSeasonalComponentSummary::createSeasonalComponent(double decayRate, 
-double bucketLength) const{
+CSeasonalComponent
+CNewSeasonalComponentSummary::createSeasonalComponent(double decayRate,
+                                                      double bucketLength) const {
     auto time = this->seasonalTime();
     core_t::TTime period{time->period()};
     core_t::TTime startTime{this->initialValuesStartTime()};
     core_t::TTime endTime{this->initialValuesEndTime()};
     core_t::TTime maxTimeShiftPerPeriod{
-        this->isOneOf(CNewSeasonalComponentSummary::E_Day |
-                            CNewSeasonalComponentSummary::E_Week |
-                            CNewSeasonalComponentSummary::E_Year)
+        this->isOneOf(CNewSeasonalComponentSummary::E_Day | CNewSeasonalComponentSummary::E_Week |
+                      CNewSeasonalComponentSummary::E_Year)
             ? 0
             : this->bucketLength() / 2};
     const auto& initialValues = this->initialValues();
@@ -221,14 +221,14 @@ double bucketLength) const{
     // a periodic boundary condition, which ensures that the prediction
     // at the repeat is continuous.
     auto boundaryCondition = period > time->windowLength()
-                                    ? common::CSplineTypes::E_Natural
-                                    : common::CSplineTypes::E_Periodic;
-    CSeasonalComponent component{*time, this->size(), decayRate, bucketLength,
-                              maxTimeShiftPerPeriod, boundaryCondition};
+                                 ? common::CSplineTypes::E_Natural
+                                 : common::CSplineTypes::E_Periodic;
+    CSeasonalComponent component{
+        *time,        this->size(),          decayRate,
+        bucketLength, maxTimeShiftPerPeriod, boundaryCondition};
     component.initialize(startTime, endTime, initialValues);
     return component;
 }
-
 
 void CSeasonalDecomposition::add(CNewTrendSummary trend) {
     m_Trend = std::move(trend);

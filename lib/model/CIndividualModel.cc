@@ -24,9 +24,9 @@
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
+#include <model/CModelFactory.h>
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
-#include <model/CModelFactory.h>
 
 #include <algorithm>
 #include <map>

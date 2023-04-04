@@ -2133,7 +2133,8 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         // // Add the new seasonal component.
         // m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength, maxTimeShiftPerPeriod,
         //                 boundaryCondition, startTime, endTime, initialValues);
-        m_Seasonal->add(component.createSeasonalComponent(m_DecayRate, static_cast<double>(m_BucketLength)));
+        m_Seasonal->add(component.createSeasonalComponent(
+            m_DecayRate, static_cast<double>(m_BucketLength)));
         m_ModelAnnotationCallback(component.annotationText());
     }
 
@@ -2662,7 +2663,9 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::size() const
 }
 
 std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateSizeChange(
-    const CSeasonalDecomposition& components, double decayRate, double bucketLength) const {
+    const CSeasonalDecomposition& components,
+    double decayRate,
+    double bucketLength) const {
     // loop over components that will be removed and compute total size
     const CSeasonalDecomposition::TBoolVec& removeComponentsMask =
         components.seasonalToRemoveMask();
@@ -2681,7 +2684,8 @@ std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateS
     // loop over components that will be added and compute total size
     std::size_t addComponentsSize{0};
     for (const auto& component : components.seasonal()) {
-        addComponentsSize += core::memory::dynamicSize(component.createSeasonalComponent(decayRate, bucketLength));
+        addComponentsSize += core::memory::dynamicSize(
+            component.createSeasonalComponent(decayRate, bucketLength));
     }
 
     // compute difference between components to be added and removed

@@ -115,7 +115,6 @@ public:
 class CTimeSeriesDecompositionAllocatorHardLimit
     : public maths::time_series::CTimeSeriesDecompositionAllocator {
 public:
-
     //! Constructor
     CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
         : m_AllowAllocations(allowAllocations) {}
@@ -2665,7 +2664,7 @@ BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations) {
                                              static_cast<double>(time) / 86400.0);
             // add a sample
             model.addSamples(addSampleParams(weights), allocator,
-                            {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                             {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
 
@@ -2691,7 +2690,7 @@ BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations) {
                                              static_cast<double>(time) / 86400.0);
             // add a sample
             model.addSamples(addSampleParams(weights), allocator,
-                            {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+                             {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
 
