@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesTestForSeasonality_h
 
+#include "maths/time_series/CSeasonalComponent.h"
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -131,6 +132,8 @@ public:
 
     //! Get a description of the component.
     std::string print() const;
+
+    CSeasonalComponent createSeasonalComponent(double decayRate, double bucketLength) const;
 
 private:
     std::string m_AnnotationText;

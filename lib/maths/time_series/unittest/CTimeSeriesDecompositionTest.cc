@@ -160,6 +160,7 @@ public:
     CTestFixture() { core::CTimezone::instance().setTimezone("GMT"); }
     ~CTestFixture() { core::CTimezone::instance().setTimezone(""); }
     const TAllocator& allocator() const { return m_Allocator; }
+
 private:
     TAllocator m_Allocator;
 };
@@ -564,7 +565,8 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through half of the periodic data.
     std::size_t i = 0;
     for (; i < times.size() / 2; ++i) {
-        decomposition.addPoint(times[i], trend[i] + noise[i], this->allocator(), maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(times[i], trend[i] + noise[i], this->allocator(),
+                               maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedBefore](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedBefore;
                                });
@@ -581,7 +583,8 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through the 2nd half of the periodic data set.
     for (++i; i < times.size(); ++i) {
         core_t::TTime time{times[i]};
-        decomposition.addPoint(time, trend[i] + noise[i], this->allocator(), maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(time, trend[i] + noise[i], this->allocator(),
+                               maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedAfter](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedAfter;
                                });
@@ -1033,15 +1036,17 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        decomposition.addPoint(time, value, this->allocator(), maths_t::CUnitWeights::UNIT, [&model](TFloatMeanAccumulatorVec residuals) {
-            model.setToNonInformative(0.0, 0.01);
-            for (const auto& residual : residuals) {
-                if (maths::common::CBasicStatistics::count(residual) > 0.0) {
-                    model.addSamples({maths::common::CBasicStatistics::mean(residual)},
-                                     maths_t::CUnitWeights::SINGLE_UNIT);
+        decomposition.addPoint(
+            time, value, this->allocator(), maths_t::CUnitWeights::UNIT,
+            [&model](TFloatMeanAccumulatorVec residuals) {
+                model.setToNonInformative(0.0, 0.01);
+                for (const auto& residual : residuals) {
+                    if (maths::common::CBasicStatistics::count(residual) > 0.0) {
+                        model.addSamples({maths::common::CBasicStatistics::mean(residual)},
+                                         maths_t::CUnitWeights::SINGLE_UNIT);
+                    }
                 }
-            }
-        });
+            });
         model.addSamples({decomposition.detrend(time, value, 70.0, false)},
                          maths_t::CUnitWeights::SINGLE_UNIT);
         debug.addValue(time, value);

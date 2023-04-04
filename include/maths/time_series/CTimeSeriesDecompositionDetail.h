@@ -788,7 +788,7 @@ public:
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
 
-            std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components) const;
+            std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components, double decayRate, double bucketLength) const;
 
             //! Get the components.
             const maths_t::TSeasonalComponentVec& components() const;
@@ -814,15 +814,7 @@ public:
             bool initialized() const;
 
             //! Add and initialize a new component.
-            void add(const CSeasonalTime& seasonalTime,
-                     std::size_t size,
-                     double decayRate,
-                     double bucketLength,
-                     core_t::TTime maxTimeShiftPerPeriod,
-                     common::CSplineTypes::EBoundaryCondition boundaryCondition,
-                     core_t::TTime startTime,
-                     core_t::TTime endTime,
-                     const TFloatMeanAccumulatorVec& values);
+            void add(CSeasonalComponent&& component);
 
             //! Apply \p change to the components.
             void apply(const CChangePoint& change);
@@ -958,7 +950,9 @@ public:
                                    const CTimeSeriesDecompositionAllocator& allocator);
 
         //! Add a new calendar component.
-        void addCalendarComponent(const CCalendarFeature& feature, const CTimeSeriesDecompositionAllocator& allocator, core_t::TTime timeZoneOffset);
+        void addCalendarComponent(const CCalendarFeature& feature,
+                                  const CTimeSeriesDecompositionAllocator& allocator,
+                                  core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.
         void fitTrend(core_t::TTime startTime,

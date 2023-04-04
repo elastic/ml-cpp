@@ -1513,8 +1513,8 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
         case CC_TEST: {
             if (auto result = m_Test->test()) {
                 auto[feature, timeZoneOffset] = *result;
-                this->mediator()->forward(
-                    SDetectedCalendar(time, lastTime, feature, timeZoneOffset, message.s_Allocator));
+                this->mediator()->forward(SDetectedCalendar(
+                    time, lastTime, feature, timeZoneOffset, message.s_Allocator));
             }
             break;
         }
@@ -2091,7 +2091,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
     if (allocator.areAllocationsAllowed() == false &&
-        m_Seasonal->estimateSizeChange(components) > 0) {
+        m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength) > 0) {
         // In the hard_limit state, we do not change the state of components if
         // adding new components will consume more memory than removing old ones.
         return;
@@ -2110,29 +2110,30 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     for (const auto& component : components.seasonal()) {
         LOG_DEBUG(<< component.annotationText());
 
-        auto time = component.seasonalTime();
-        core_t::TTime period{time->period()};
-        core_t::TTime startTime{component.initialValuesStartTime()};
-        core_t::TTime endTime{component.initialValuesEndTime()};
-        core_t::TTime maxTimeShiftPerPeriod{
-            component.isOneOf(CNewSeasonalComponentSummary::E_Day |
-                              CNewSeasonalComponentSummary::E_Week |
-                              CNewSeasonalComponentSummary::E_Year)
-                ? 0
-                : component.bucketLength() / 2};
-        const auto& initialValues = component.initialValues();
+        // auto time = component.seasonalTime();
+        // core_t::TTime period{time->period()};
+        // core_t::TTime startTime{component.initialValuesStartTime()};
+        // core_t::TTime endTime{component.initialValuesEndTime()};
+        // core_t::TTime maxTimeShiftPerPeriod{
+        //     component.isOneOf(CNewSeasonalComponentSummary::E_Day |
+        //                       CNewSeasonalComponentSummary::E_Week |
+        //                       CNewSeasonalComponentSummary::E_Year)
+        //         ? 0
+        //         : component.bucketLength() / 2};
+        // const auto& initialValues = component.initialValues();
 
-        // If we see multiple repeats of the component in the window we use
-        // a periodic boundary condition, which ensures that the prediction
-        // at the repeat is continuous.
-        auto boundaryCondition = period > time->windowLength()
-                                     ? common::CSplineTypes::E_Natural
-                                     : common::CSplineTypes::E_Periodic;
-        double bucketLength{static_cast<double>(m_BucketLength)};
+        // // If we see multiple repeats of the component in the window we use
+        // // a periodic boundary condition, which ensures that the prediction
+        // // at the repeat is continuous.
+        // auto boundaryCondition = period > time->windowLength()
+        //                              ? common::CSplineTypes::E_Natural
+        //                              : common::CSplineTypes::E_Periodic;
+        // double bucketLength{static_cast<double>(m_BucketLength)};
 
-        // Add the new seasonal component.
-        m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength, maxTimeShiftPerPeriod,
-                        boundaryCondition, startTime, endTime, initialValues);
+        // // Add the new seasonal component.
+        // m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength, maxTimeShiftPerPeriod,
+        //                 boundaryCondition, startTime, endTime, initialValues);
+        m_Seasonal->add(component.createSeasonalComponent(m_DecayRate, static_cast<double>(m_BucketLength)));
         m_ModelAnnotationCallback(component.annotationText());
     }
 
@@ -2182,9 +2183,10 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     m_ComponentChangeCallback(std::move(initialValues));
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature,
-                                                                        const CTimeSeriesDecompositionAllocator& allocator,
-                                                                       core_t::TTime timeZoneOffset) {
+void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(
+    const CCalendarFeature& feature,
+    const CTimeSeriesDecompositionAllocator& allocator,
+    core_t::TTime timeZoneOffset) {
     if (allocator.areAllocationsAllowed() == false) {
         // In the hard_limit state we are not adding any new components to the model.
         return;
@@ -2660,7 +2662,7 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::size() const
 }
 
 std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateSizeChange(
-    const CSeasonalDecomposition& components) const {
+    const CSeasonalDecomposition& components, double decayRate, double bucketLength) const {
     // loop over components that will be removed and compute total size
     const CSeasonalDecomposition::TBoolVec& removeComponentsMask =
         components.seasonalToRemoveMask();
@@ -2679,7 +2681,7 @@ std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateS
     // loop over components that will be added and compute total size
     std::size_t addComponentsSize{0};
     for (const auto& component : components.seasonal()) {
-        addComponentsSize += core::memory::dynamicSize(component);
+        addComponentsSize += core::memory::dynamicSize(component.createSeasonalComponent(decayRate, bucketLength));
     }
 
     // compute difference between components to be added and removed
@@ -2768,19 +2770,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::initialized() const
     return false;
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
-    const CSeasonalTime& seasonalTime,
-    std::size_t size,
-    double decayRate,
-    double bucketLength,
-    core_t::TTime maxTimeShiftPerPeriod,
-    common::CSplineTypes::EBoundaryCondition boundaryCondition,
-    core_t::TTime startTime,
-    core_t::TTime endTime,
-    const TFloatMeanAccumulatorVec& values) {
-    m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength,
-                              maxTimeShiftPerPeriod, boundaryCondition);
-    m_Components.back().initialize(startTime, endTime, values);
+void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(CSeasonalComponent&& component) {
+    m_Components.push_back(std::move(component));
     m_PredictionErrors.emplace_back();
 }
 

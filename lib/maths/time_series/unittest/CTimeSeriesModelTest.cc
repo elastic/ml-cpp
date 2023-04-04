@@ -28,8 +28,8 @@
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionStub.h>
 #include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+#include <maths/time_series/CTimeSeriesDecompositionStub.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
@@ -112,10 +112,19 @@ public:
     }
 };
 
-class CTimeSeriesDecompositionAllocatorHardLimit : public maths::time_series::CTimeSeriesDecompositionAllocator {
-    public:
+class CTimeSeriesDecompositionAllocatorHardLimit
+    : public maths::time_series::CTimeSeriesDecompositionAllocator {
+public:
+
+    //! Constructor
+    CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
+        : m_AllowAllocations(allowAllocations) {}
+
     //! In hard_limit mode we don't allow any new allocations.
-    bool areAllocationsAllowed() const override { return false; }
+    bool areAllocationsAllowed() const override { return m_AllowAllocations; }
+
+private:
+    bool m_AllowAllocations;
 };
 
 maths::common::CModelParams modelParams(core_t::TTime bucketLength) {
@@ -708,7 +717,7 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
                        maths_t::countWeight(weights[1]));
         trend.addPoint(samples[2].first, samples[2].second[0], allocator,
                        maths_t::countWeight(weights[2]));
-        trend.addPoint(samples[0].first, samples[0].second[0],allocator, 
+        trend.addPoint(samples[0].first, samples[0].second[0], allocator,
                        maths_t::countWeight(weights[0]));
         prior.addSamples(
             {samples[2].second[0], samples[0].second[0], samples[1].second[0]},
@@ -749,12 +758,12 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
         model.addSamples(addSampleParams(modelWeights), allocator, samples);
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            trends[i]->addPoint(samples[1].first, samples[1].second[i], allocator, 
-                                maths_t::countWeight(weights[0][i]));
-            trends[i]->addPoint(samples[2].first, samples[2].second[i], allocator,
-                                maths_t::countWeight(weights[1][i]));
-            trends[i]->addPoint(samples[0].first, samples[0].second[i], allocator,
-                                maths_t::countWeight(weights[2][i]));
+            trends[i]->addPoint(samples[1].first, samples[1].second[i],
+                                allocator, maths_t::countWeight(weights[0][i]));
+            trends[i]->addPoint(samples[2].first, samples[2].second[i],
+                                allocator, maths_t::countWeight(weights[1][i]));
+            trends[i]->addPoint(samples[0].first, samples[0].second[i],
+                                allocator, maths_t::countWeight(weights[2][i]));
         }
         TDouble10Vec1Vec samples_{samples[2].second, samples[0].second,
                                   samples[1].second};
@@ -893,7 +902,7 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
 
             model.addSamples(addSampleParams(weights), allocator, sample_);
 
-            trend.addPoint(time, sample, allocator,  maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, allocator, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(),
                                                          prior, &controllers));
 
@@ -1392,7 +1401,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                 for (auto& component : sample_) {
                     component += trend;
                 }
-                model1.addSamples(addSampleParams(weight),allocator,
+                model1.addSamples(addSampleParams(weight), allocator,
                                   {core::make_triple(time, sample_, TAG)});
                 time += bucketLength;
             }
@@ -1883,7 +1892,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     using TDoubleSizePr = std::pair<double, std::size_t>;
 
     test::CRandomNumbers rng;
-    TAllocator allocator; 
+    TAllocator allocator;
 
     std::size_t length = 2000;
 
@@ -2471,7 +2480,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    TAllocator allocator; 
+    TAllocator allocator;
 
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
@@ -2479,7 +2488,8 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
                            residualWeights[0]);
         auto params = addSampleParams(1.0, trendWeights, residualWeights);
         params.isNonNegative(true);
-        model.addSamples(params, allocator, {core::make_triple(time, TDouble2Vec{value}, TAG)});
+        model.addSamples(params, allocator,
+                         {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
     test::CRandomNumbers rng;
@@ -2633,30 +2643,61 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
 /*
 Test that when CTimeSeriesDecompositionAllocator::areAllocationsAllowed returns false, the CComponents::addSeasonalComponent method does not add a seasonal component to the model.
 */
-BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations){
+BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations) {
     core_t::TTime bucketLength{3600};
 
     test::CRandomNumbers rng;
-    CTimeSeriesDecompositionAllocatorHardLimit allocator;
+    {
+        CTimeSeriesDecompositionAllocatorHardLimit allocator{false};
 
-    // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns false for areAllocationsAllowed
-    auto controllers = decayRateControllers(1);
-    maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
-    maths::time_series::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trendModel, univariateNormal(), &controllers};
+        // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns false for areAllocationsAllowed
+        maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
+        maths::time_series::CUnivariateTimeSeriesModel model{
+            modelParams(bucketLength), 0, trendModel, univariateNormal()};
 
-    //define samples
-    TDoubleVec samples;
-    rng.generateNormalSamples(10.0, 2.0, 100, samples);
-    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    core_t::TTime time{0};
-    for (auto sample : samples) {
-        // add a sample
-        model.addSamples(addSampleParams(weights), allocator, {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-        time += bucketLength;
+        //define samples
+        TDoubleVec samples;
+        rng.generateNormalSamples(0.0, 4.0, 1008, samples);
+        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+        core_t::TTime time{0};
+        for (auto sample : samples) {
+            sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                             static_cast<double>(time) / 86400.0);
+            // add a sample
+            model.addSamples(addSampleParams(weights), allocator,
+                            {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+            time += bucketLength;
+        }
+
+        // check that the model has no seasonal components
+        BOOST_REQUIRE_EQUAL(true, model.trendModel().seasonalComponents().empty());
     }
+    {
+        // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns true for areAllocationsAllowed
+        CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
 
-    // check that the model has no seasonal components
-    BOOST_TEST_REQUIRE(model.components().seasonal().empty());
+        // auto controllers = decayRateControllers(1);
+        maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
+        maths::time_series::CUnivariateTimeSeriesModel model{
+            modelParams(bucketLength), 0, trendModel, univariateNormal()};
+
+        //define samples
+        TDoubleVec samples;
+        rng.generateNormalSamples(0.0, 4.0, 1008, samples);
+        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+        core_t::TTime time{0};
+        for (auto sample : samples) {
+            sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                             static_cast<double>(time) / 86400.0);
+            // add a sample
+            model.addSamples(addSampleParams(weights), allocator,
+                            {core::make_triple(time, TDouble2Vec{sample}, TAG)});
+            time += bucketLength;
+        }
+
+        // check that the model has no seasonal components
+        BOOST_REQUIRE_EQUAL(false, model.trendModel().seasonalComponents().empty());
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

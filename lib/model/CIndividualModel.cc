@@ -26,6 +26,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
+#include <model/CModelFactory.h>
 
 #include <algorithm>
 #include <map>

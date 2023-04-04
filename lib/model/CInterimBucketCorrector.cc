@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CModelFactory.h"
 #include <model/CInterimBucketCorrector.h>
 
 #include <core/CLogger.h>
@@ -23,6 +22,7 @@
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
+#include <model/CModelFactory.h>
 
 #include <cmath>
 
