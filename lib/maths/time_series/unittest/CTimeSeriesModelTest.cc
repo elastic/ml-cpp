@@ -112,20 +112,6 @@ public:
     }
 };
 
-class CTimeSeriesDecompositionAllocatorHardLimit
-    : public maths::time_series::CTimeSeriesDecompositionAllocator {
-public:
-    //! Constructor
-    CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
-        : m_AllowAllocations(allowAllocations) {}
-
-    //! In hard_limit mode we don't allow any new allocations.
-    bool areAllocationsAllowed() const override { return m_AllowAllocations; }
-
-private:
-    bool m_AllowAllocations;
-};
-
 maths::common::CModelParams modelParams(core_t::TTime bucketLength) {
     using TTimeDoubleMap = std::map<core_t::TTime, double>;
     static TTimeDoubleMap learnRates;
@@ -2636,66 +2622,6 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
         // Assert probs are decreasing
         BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);
         BOOST_TEST_REQUIRE(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
-    }
-}
-
-/*
-Test that when CTimeSeriesDecompositionAllocator::areAllocationsAllowed returns false, the CComponents::addSeasonalComponent method does not add a seasonal component to the model.
-*/
-BOOST_AUTO_TEST_CASE(testAddSeasonalComponentNoAllocations) {
-    core_t::TTime bucketLength{3600};
-
-    test::CRandomNumbers rng;
-    {
-        CTimeSeriesDecompositionAllocatorHardLimit allocator{false};
-
-        // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns false for areAllocationsAllowed
-        maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
-        maths::time_series::CUnivariateTimeSeriesModel model{
-            modelParams(bucketLength), 0, trendModel, univariateNormal()};
-
-        //define samples
-        TDoubleVec samples;
-        rng.generateNormalSamples(0.0, 4.0, 1008, samples);
-        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-        core_t::TTime time{0};
-        for (auto sample : samples) {
-            sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
-                                             static_cast<double>(time) / 86400.0);
-            // add a sample
-            model.addSamples(addSampleParams(weights), allocator,
-                             {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            time += bucketLength;
-        }
-
-        // check that the model has no seasonal components
-        BOOST_REQUIRE_EQUAL(true, model.trendModel().seasonalComponents().empty());
-    }
-    {
-        // initialise CUnivariateTimeSeriesModel with a CTimeSeriesDecompositionAllocator that returns true for areAllocationsAllowed
-        CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
-
-        // auto controllers = decayRateControllers(1);
-        maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
-        maths::time_series::CUnivariateTimeSeriesModel model{
-            modelParams(bucketLength), 0, trendModel, univariateNormal()};
-
-        //define samples
-        TDoubleVec samples;
-        rng.generateNormalSamples(0.0, 4.0, 1008, samples);
-        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-        core_t::TTime time{0};
-        for (auto sample : samples) {
-            sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
-                                             static_cast<double>(time) / 86400.0);
-            // add a sample
-            model.addSamples(addSampleParams(weights), allocator,
-                             {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            time += bucketLength;
-        }
-
-        // check that the model has no seasonal components
-        BOOST_REQUIRE_EQUAL(false, model.trendModel().seasonalComponents().empty());
     }
 }
 

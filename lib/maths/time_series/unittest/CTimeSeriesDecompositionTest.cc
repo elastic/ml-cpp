@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -163,6 +164,20 @@ public:
 
 private:
     TAllocator m_Allocator;
+};
+
+class CTimeSeriesDecompositionAllocatorHardLimit
+    : public maths::time_series::CTimeSeriesDecompositionAllocator {
+public:
+    //! Constructor
+    explicit CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
+        : m_AllowAllocations(allowAllocations) {}
+
+    //! In hard_limit mode we don't allow any new allocations.
+    bool areAllocationsAllowed() const override { return m_AllowAllocations; }
+
+private:
+    bool m_AllowAllocations;
 };
 
 BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
@@ -2048,6 +2063,9 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
             }
         }
     }
+
+    // Check that we can detect the calendar component.
+    BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
@@ -2430,6 +2448,78 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         inserter.toXml(newXml);
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
+}
+
+BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
+    // Test that when CTimeSeriesDecompositionAllocator::areAllocationsAllowed returns false, 
+    // the call of addPoint() does not lead to creation of new seasonal or calendar components 
+    // in the decomposition.
+
+    TTimeVec months{2505600,  // Fri 30th Jan
+                    4924800,  // Fri 27th Feb
+                    7344000,  // Fri 27th Mar
+                    9763200,  // Fri 24th Apr
+                    12787200, // Fri 29th May
+                    15206400, // Fri 26th Jun
+                    18230400, // Fri 31st Jul
+                    18316800};
+    core_t::TTime end = months.back();
+    TDoubleVec errors{5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0};
+
+    auto trend = [&months, &errors](core_t::TTime t) {
+        double result = 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                               static_cast<double>(t) /
+                                               static_cast<double>(DAY));
+        auto i = std::lower_bound(months.begin(), months.end(), t - DAY);
+        if (t >= *i + 7200 &&
+            t < *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR) {
+            result += errors[(t - (*i + 7200)) / HALF_HOUR];
+        }
+        return result;
+    };
+
+    test::CRandomNumbers rng;
+    {
+        // hard_limit state, not components should be detected
+        CTimeSeriesDecompositionAllocatorHardLimit allocator{false};
+
+        maths::time_series::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
+
+        TDoubleVec noise;
+        for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
+            rng.generateNormalSamples(0.0, 4.0, 1, noise);
+
+            decomposition.addPoint(time, trend(time) + noise[0], allocator);
+        }
+
+        // Check that we don't have any seasonal components.
+        BOOST_REQUIRE_EQUAL(true, decomposition.seasonalComponents().empty());
+
+        // Check that we don't have any calendar components.
+        BOOST_REQUIRE_EQUAL(true, decomposition.calendarComponents().empty());
+    }
+    {
+        // no hard_limit state, components should be detected
+        CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
+
+        maths::time_series::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
+
+        TDoubleVec noise;
+        for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
+            rng.generateNormalSamples(0.0, 4.0, 1, noise);
+
+            decomposition.addPoint(time, trend(time) + noise[0], allocator);
+        }
+
+        // Check that we don't have any seasonal components.
+        BOOST_REQUIRE_EQUAL(false, decomposition.seasonalComponents().empty());
+
+        // Check that we don't have any calendar components.
+        BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
+    }
+
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

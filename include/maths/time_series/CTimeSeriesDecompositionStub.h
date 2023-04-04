@@ -121,6 +121,9 @@ public:
 
     //! Returns an empty vector.
     const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
+
+    //! Returns an empty vector.
+    const maths_t::TCalendarComponentVec& calendarComponents() const override;
 };
 }
 }

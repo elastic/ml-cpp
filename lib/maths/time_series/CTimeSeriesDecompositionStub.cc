@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "maths/common/MathsTypes.h"
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
 #include <maths/time_series/CSeasonalComponent.h>
@@ -18,7 +19,8 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-const maths_t::TSeasonalComponentVec NO_COMPONENTS;
+const maths_t::TSeasonalComponentVec NO_SEASONAL_COMPONENTS;
+const maths_t::TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 }
 
 CTimeSeriesDecompositionStub* CTimeSeriesDecompositionStub::clone(bool /*isForForecast*/) const {
@@ -137,7 +139,11 @@ core_t::TTime CTimeSeriesDecompositionStub::timeShift() const {
 }
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {
-    return NO_COMPONENTS;
+    return NO_SEASONAL_COMPONENTS;
+}
+
+const maths_t::TCalendarComponentVec& CTimeSeriesDecompositionStub::calendarComponents() const {
+    return NO_CALENDAR_COMPONENTS;
 }
 }
 }

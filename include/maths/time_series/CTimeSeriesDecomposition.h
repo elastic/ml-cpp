@@ -230,6 +230,9 @@ public:
     //! Get the seasonal components.
     const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
 
+    //! Get the calendar components.
+    const maths_t::TCalendarComponentVec& calendarComponents() const override;
+
     //! Get the time of the last value.
     core_t::TTime lastValueTime() const;
 

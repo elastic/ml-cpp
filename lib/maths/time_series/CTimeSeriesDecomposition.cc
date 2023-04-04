@@ -606,6 +606,10 @@ const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponen
     return m_Components.seasonal();
 }
 
+const maths_t::TCalendarComponentVec& CTimeSeriesDecomposition::calendarComponents() const {
+    return m_Components.calendar();
+}
+
 core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
     return m_LastValueTime;
 }

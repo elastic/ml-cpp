@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
+#include "maths/time_series/CCalendarComponent.h"
 #include "maths/time_series/CTimeSeriesDecompositionAllocator.h"
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVectorFwd.h>
@@ -37,6 +38,7 @@ class CPrior;
 }
 namespace time_series {
 class CSeasonalComponent;
+class CCalendarComponent;
 struct SChangeDescription;
 
 //! \brief Type definitions shared by the CTimeSeriesDecompositionInterface
@@ -217,6 +219,9 @@ public:
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const = 0;
+
+    //! Get the calendar components.
+    virtual const maths_t::TCalendarComponentVec& calendarComponents() const = 0;
 
 protected:
     static void noopComponentChange(TFloatMeanAccumulatorVec) {}
