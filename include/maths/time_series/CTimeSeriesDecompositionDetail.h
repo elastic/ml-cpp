@@ -38,6 +38,7 @@
 
 namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+class CComponentsTest;
 }
 
 namespace ml {
@@ -1031,15 +1032,16 @@ public:
         TComponentChangeCallback m_ComponentChangeCallback;
 
         //! Supplied with an annotation if a component is added.
-        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback;
+        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{[](const std::string&) {}};
 
         //! Set to true if the trend model should be used for prediction.
-        bool m_UsingTrendForPrediction = false;
+        bool m_UsingTrendForPrediction{false};
 
         //! Befriend a helper class used by the unit tests
         friend class CTimeSeriesDecompositionTest::CNanInjector;
 
-        // const CTimeSeriesDecompositionAllocator& m_Allocator;
+        // Befriend a helper class used by the unit tests
+        friend class CTimeSeriesDecompositionTest::CComponentsTest;
     };
 };
 

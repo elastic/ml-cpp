@@ -2090,6 +2090,9 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
     LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
+    LOG_DEBUG(<< "Estimate size change = "
+              << m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength));
+
     if (allocator.areAllocationsAllowed() == false &&
         m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength) > 0) {
         // In the hard_limit state, we do not change the state of components if
@@ -2139,6 +2142,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     }
 
     m_Seasonal->refreshForNewComponents();
+    LOG_DEBUG(<< "New number of seasonal components: " << m_Seasonal->size());
 
     this->clearComponentErrors();
 
@@ -2687,6 +2691,9 @@ std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateS
         addComponentsSize += core::memory::dynamicSize(
             component.createSeasonalComponent(decayRate, bucketLength));
     }
+    LOG_DEBUG(<<"Add components size: " << addComponentsSize
+              << ", remove components size: " << removeComponentsSize
+              << ", difference: " << addComponentsSize - removeComponentsSize << ".");
 
     // compute difference between components to be added and removed
     return addComponentsSize - removeComponentsSize;
@@ -2776,6 +2783,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::initialized() const
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(CSeasonalComponent&& component) {
     m_Components.push_back(std::move(component));
+    LOG_DEBUG(<< "New m_Components size = " << m_Components.size());
     m_PredictionErrors.emplace_back();
 }
 
@@ -2802,6 +2810,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolV
         return false;
     }
     std::size_t end{0};
+    LOG_DEBUG(<< "Removing seasonal components " << removeComponentsMask.size() );
     for (std::size_t i = 0; i < removeComponentsMask.size();
          end += removeComponentsMask[i++] ? 0 : 1) {
         if (i != end) {
@@ -2809,7 +2818,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolV
             std::swap(m_PredictionErrors[end], m_PredictionErrors[i]);
         }
     }
+    LOG_DEBUG(<< "Inside remove: m_Components size " << m_Components.size()); 
     m_Components.erase(m_Components.begin() + end, m_Components.end());
+    LOG_DEBUG(<< "Inside remove: m_PredictionErrors size " << m_PredictionErrors.size()); 
     m_PredictionErrors.erase(m_PredictionErrors.begin() + end,
                              m_PredictionErrors.end());
     return true;
