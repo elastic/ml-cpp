@@ -52,7 +52,7 @@ def main(args):
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
               "CPP_CROSS_COMPILE": "",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-arch64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
