@@ -66,12 +66,35 @@ fi
 # For now, re-use our existing CI scripts based on Docker
 # Don't perform these steps for native linux aarch64 builds as
 # they are built using docker, see above.
-echo $CPP_CROSS_COMPILE
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] || [[ `uname` = "Darwin" ]] ; then 
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
   else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
+  fi
+else
+  if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
+     # For macOS, build directly on the machine
+     ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+     if [ -z "$BUILDKITE_PULL_REQUEST" ] ; then
+         if [ "$RUN_TESTS" = false ] ; then
+             TASKS="clean buildZip buildZipSymbols"
+         else
+             TASKS="clean buildZip buildZipSymbols check"
+         fi
+     else
+         TASKS="clean buildZip check"
+     fi
+     # For macOS we usually only use a particular version as our build platform
+     # once Xcode has stopped receiving updates for it. However, with Big Sur
+     # on ARM we couldn't do this, as Big Sur was the first macOS version for
+     # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+     # need to hardcode the version that was used to build Boost for that
+     # version of Elasticsearch.
+     if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+         export BOOSTCLANGVER=13
+     fi
+     (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
   fi
 fi
 
