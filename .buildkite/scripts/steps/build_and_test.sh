@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Default to a snapshot build
-if [ "${BUILD_SNAPSHOT:=true}" != false] ; then
+if [ "${BUILD_SNAPSHOT:=true}" != false ] ; then
     BUILD_SNAPSHOT=true
 fi
 
@@ -37,7 +37,7 @@ fi
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then 
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
@@ -66,7 +66,8 @@ fi
 # For now, re-use our existing CI scripts based on Docker
 # Don't perform these steps for native linux aarch64 builds as
 # they are built using docker, see above.
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
+echo $CPP_CROSS_COMPILE
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] || [[ `uname` = "Darwin" ]] ; then 
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
   else
