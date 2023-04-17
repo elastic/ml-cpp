@@ -95,6 +95,10 @@ else
      if [ "$HARDWARE_ARCH" = aarch64 ] ; then
          export BOOSTCLANGVER=13
      fi
+     JAVA=`which java`
+     echo "Java version: "
+     $JAVA --version
+     env
      (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
   fi
 fi
