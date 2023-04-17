@@ -51,6 +51,8 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
+              "JAVA_HOME": "/var/lib/jenkins/.java/zulu8"
+              "PATH": "$JAVA_HOME/bin:$PATH"
               "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
