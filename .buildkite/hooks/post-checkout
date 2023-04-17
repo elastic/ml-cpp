@@ -13,6 +13,8 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
+vault debug
+
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
   if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
