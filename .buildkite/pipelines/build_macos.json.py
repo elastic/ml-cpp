@@ -51,6 +51,7 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
+              "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
               "RUN_TESTS": "true",
@@ -88,6 +89,7 @@ def main(args):
         "depends_on": "check_style",
         "key": "build_macos_x86_64_cross-RelWithDebInfo",
         "env": {
+          "ML_DEBUG": "0",
           "CPP_CROSS_COMPILE": "macosx",
           "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
           "RUN_TESTS": "false"
