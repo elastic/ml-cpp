@@ -75,8 +75,7 @@ if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
 else
   if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
      # For macOS, build directly on the machine
-     echo "Attempting to build using pre-installed dependencies"
-     #${REPO_ROOT}/dev-tools/download_macos_deps.sh
+     ${REPO_ROOT}/dev-tools/download_macos_deps.sh
      if [ -z "$BUILDKITE_PULL_REQUEST" ] ; then
          if [ "$RUN_TESTS" = false ] ; then
              TASKS="clean buildZip buildZipSymbols"
