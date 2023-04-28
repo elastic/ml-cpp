@@ -13,12 +13,16 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
+echo "vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts"
 AWS_CREDS=$(vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts)
+echo "Successfully read creds from vault"
 
+echo "Parsing credentials"
 AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.data.access_key')
 AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.data.secret_key')
 AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.data.security_token')
 
+echo "listing aws s3 bucket"
 aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
 
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
