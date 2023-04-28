@@ -15,9 +15,9 @@ export PATH=$PATH:~/google-cloud-sdk/bin
 
 AWS_CREDS=$(vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts)
 
-AWS_ACCESS_KEY_ID=$(jq -r '.data.access_key' $AWS_CREDS)
-AWS_SECRET_ACCESS_KEY=$(jq -r '.data.secret_key' $AWS_CREDS)
-AWS_SESSION_TOKEN=$(jq -r '.data.security_token' $AWS_CREDS)
+AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.data.access_key')
+AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.data.secret_key')
+AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.data.security_token')
 
 aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
 
