@@ -45,16 +45,10 @@ def main(args):
               "queue": "ml-aarch64-macstadium"
             },
             "commands": [
-              "echo vault kv get secret/ci/elastic-ml-cpp/test",
-              "vault kv get secret/ci/elastic-ml-cpp/test",
-              "echo vault kv get secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_aarch64",
-              "vault kv get secret/ci/elastic-ml-cpp/buildkite/test_analytics/macos_aarch64",
-              "echo vault kv get secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64",
-              "vault kv get secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64",
-              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi'#,
-              #".buildkite/scripts/steps/build_and_test.sh"
+              f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+              ".buildkite/scripts/steps/build_and_test.sh"
             ],
-            #"depends_on": "check_style",
+            "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
               "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
@@ -66,16 +60,12 @@ def main(args):
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "artifact_paths": "*/*/unittest/boost_test_results.junit",
-            #
-            # Disable test analytics for now until an issue with accessing the required token
-            # from vault is resolved
-            #
-            #"plugins": {
-            #  "test-collector#v1.2.0": {                                                              
-            #    "files": "*/*/unittest/boost_test_results.junit",
-            #    "format": "junit"
-            #  }
-            #},
+            "plugins": {
+              "test-collector#v1.2.0": {                                                              
+                "files": "*/*/unittest/boost_test_results.junit",
+                "format": "junit"
+              }
+            },
             "notify": [
               {
                 "github_commit_status": {
@@ -85,35 +75,35 @@ def main(args):
             ],
         })
 
-    #pipeline_steps.append({
-    #    "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
-    #    "timeout_in_minutes": "150",
-    #    "agents": {
-    #      "cpu": "6",
-    #      "ephemeralStorage": "20G",
-    #      "memory": "64G",
-    #      "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
-    #    },
-    #    "commands": [
-    #      f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-    #      ".buildkite/scripts/steps/build_and_test.sh"
-    #    ],
-    #    "depends_on": "check_style",
-    #    "key": "build_macos_x86_64_cross-RelWithDebInfo",
-    #    "env": {
-    #      "ML_DEBUG": "0",
-    #      "CPP_CROSS_COMPILE": "macosx",
-    #      "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
-    #      "RUN_TESTS": "false"
-    #    },
-    #    "notify": [
-    #      {
-    #        "github_commit_status": {
-    #          "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
-    #        },
-    #      },
-    #    ],
-    #})
+    pipeline_steps.append({
+        "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
+        "timeout_in_minutes": "150",
+        "agents": {
+          "cpu": "6",
+          "ephemeralStorage": "20G",
+          "memory": "64G",
+          "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
+        },
+        "commands": [
+          f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
+          ".buildkite/scripts/steps/build_and_test.sh"
+        ],
+        "depends_on": "check_style",
+        "key": "build_macos_x86_64_cross-RelWithDebInfo",
+        "env": {
+          "ML_DEBUG": "0",
+          "CPP_CROSS_COMPILE": "macosx",
+          "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
+          "RUN_TESTS": "false"
+        },
+        "notify": [
+          {
+            "github_commit_status": {
+              "context": "Cross compile for MacOS x86_64 RelWithDebInfo",
+            },
+          },
+        ],
+    })
 
     pipeline = {
         "steps": pipeline_steps,
