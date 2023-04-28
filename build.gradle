@@ -355,7 +355,7 @@ def dependenciesSpec(source) {
 task buildDependenciesZip(type: Zip) {
   description = 'Create a zip of dependencies only from combined platform-specific C++ distributions'
 
-  classifier = 'deps'
+  archiveClassifier = 'deps'
   reproducibleFileOrder = true
   // Drop the file timestamps for the dependencies to avoid
   // timestamp diffs between otherwise identical archives
@@ -367,7 +367,7 @@ task buildDependenciesZip(type: Zip) {
 task buildDependenciesZipFromDownloads(type: Zip) {
   description = 'Create a zip of dependencies only from combined platform-specific C++ distributions from published snapshot'
 
-  classifier = 'deps'
+  archiveClassifier = 'deps'
   reproducibleFileOrder = true
   // Drop the file timestamps for the dependencies to avoid
   // timestamp diffs between otherwise identical archives
@@ -400,7 +400,7 @@ def noDependenciesSpec(source) {
 task buildNoDependenciesZip(type: Zip) {
   description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions'
 
-  classifier = 'nodeps'
+  archiveClassifier = 'nodeps'
   reproducibleFileOrder = true
   // Drop the file timestamps for the dependencies to avoid
   // timestamp diffs between otherwise identical archives
@@ -412,7 +412,7 @@ task buildNoDependenciesZip(type: Zip) {
 task buildNoDependenciesZipFromDownloads(type: Zip) {
   description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions from published snapshot'
 
-  classifier = 'nodeps'
+  archiveClassifier = 'nodeps'
   reproducibleFileOrder = true
   // Drop the file timestamps for the dependencies to avoid
   // timestamp diffs between otherwise identical archives
