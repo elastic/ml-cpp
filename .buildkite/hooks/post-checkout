@@ -13,6 +13,14 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
+AWS_CREDS=$(vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts)
+
+AWS_ACCESS_KEY_ID=$(jq -r '.data.access_key' $AWS_CREDS)
+AWS_SECRET_ACCESS_KEY=$(jq -r '.data.secret_key' $AWS_CREDS)
+AWS_SESSION_TOKEN=$(jq -r '.data.security_token' $AWS_CREDS)
+
+aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
+
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
   if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then

@@ -37,38 +37,14 @@ case $- in
         ;;
 esac
 
-#
-# We obtain the AWS credentials in three stages:
-#
-# 1. Obtain the role and secret id necessary to access https://secrets.elastic.co:8200
-#    from where they've been stored in CI vault
-
-# Variables named *_PASSWORD, *_SECRET, *_TOKEN, *_ACCESS_KEY & *_SECRET_KEY are redacted in BuildKite’s environment
-# so store the role and secret id in them for security
-#
-VAULT_ACCESS_KEY=$(vault read -field=role_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
-VAULT_SECRET_KEY=$(vault read -field=secret_id secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
-VAULT_PRD_GH_TOKEN=$(vault read -field=token secret/ci/elastic-ml-cpp/aws-dev/creds/prelertartifacts)
-
-#
-# 2. Login to https://secrets.elastic.co:8200.
-#    TODO This is done using a _personal_ github access token. As such this is not a long term solution.
-#
-export VAULT_TOKEN=$(VAULT_ADDR=https://secrets.elastic.co:8200 vault login -token-only -method github token=$VAULT_PRD_GH_TOKEN)
-
-#
-# 3. Use the role and secret id obtained above to access the AWS secrets engine in https://secrets.elastic.co:8200
-#    and query it for the AWS access and secret keys.
-#
-export VAULT_TOKEN=$(VAULT_ADDR=https://secrets.elastic.co:8200 vault write -field=token auth/approle/login role_id="$VAULT_ACCESS_KEY" secret_id="$VAULT_SECRET_KEY")
-
-unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY
+unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
-    AWS_CREDS=$(VAULT_ADDR=https://secrets.elastic.co:8200 vault read -format=json -field=data aws-dev/creds/prelertartifacts)
+    AWS_CREDS=$(vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts)
     if [ $? -eq 0 ] ; then
-        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
-        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.data.access_key')
+        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.data.secret_key')
+        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.data.security_token') # Needed?
     fi
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
         let FAILURES++
