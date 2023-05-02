@@ -15,7 +15,14 @@ export PATH=$PATH:~/google-cloud-sdk/bin
 
 echo "vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts"
 AWS_CREDS=$(vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts)
+if [[ $? -ne 0 ]]; then
+  echo "Failed to access aws credentials from vault"
+  exit 1
+fi
 echo "Successfully read creds from vault"
+echo "================================="
+echo $AWS_CREDS
+echo "================================="
 
 echo "Parsing credentials"
 AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.data.access_key')
