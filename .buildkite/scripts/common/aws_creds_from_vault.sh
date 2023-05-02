@@ -37,6 +37,15 @@ case $- in
         ;;
 esac
 
+# Temporary installation of aws cli to test the credentials obtained from vault
+cd ~/
+mkdir bin
+mkdir aws-cli
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+./aws/install -i ~/aws-cli -b ~/bin
+export PATH=~/bin:$PATH
+
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
@@ -49,14 +58,17 @@ while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
         echo "================================="
 
         echo "Parsing credentials"
-        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
-        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
-        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token') # Needed?
+        export AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
+        export AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token')
 
         env
 
         echo "listing aws s3 bucket"
         aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
+
+        ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+        ML_AWS_SECRET_KEY=$AWS_SECRET_KEY
     fi
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
         let FAILURES++
