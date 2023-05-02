@@ -63,10 +63,11 @@ while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
         export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
         export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token')
 
+        export ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+        export ML_AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
+
         env
 
-        ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
-        ML_AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
     fi
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
         let FAILURES++
