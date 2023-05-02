@@ -40,11 +40,23 @@ esac
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
+    echo "vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts"
     AWS_CREDS=$(vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts)
     if [ $? -eq 0 ] ; then
-        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.data.access_key')
-        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.data.secret_key')
-        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.data.security_token') # Needed?
+        echo "Successfully read creds from vault"
+        echo "================================="
+        echo $AWS_CREDS
+        echo "================================="
+
+        echo "Parsing credentials"
+        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
+        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token') # Needed?
+
+        env
+
+        echo "listing aws s3 bucket"
+        aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
     fi
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
         let FAILURES++

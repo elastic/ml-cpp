@@ -13,38 +13,13 @@
 export REPO_ROOT="$(pwd -P)"
 export PATH=$PATH:~/google-cloud-sdk/bin
 
-echo "vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts"
-AWS_CREDS=$(vault read -format=json aws-elastic-ci-prod/creds/prelert-artifacts)
-if [[ $? -ne 0 ]]; then
-  echo "Failed to access aws credentials from vault"
-  exit 1
-fi
-echo "Successfully read creds from vault"
-echo "================================="
-echo $AWS_CREDS
-echo "================================="
-
-echo "Parsing credentials"
-CREDSTR=$(echo $AWS_CREDS | tr ",{}" "\n")
-export AWS_ACCESS_KEY_ID=$(echo $CREDSTR | awk '/access_key/ {print $2;}')
-export AWS_SECRET_ACCESS_KEY=$(echo $CREDSTR | awk '/secret_key/ {print $2;}')
-export AWS_SESSION_TOKEN=$(echo $CREDSTR | awk '/security_token/ {print $2;}')
-
-env
-
 if [[ "$BUILDKITE_PIPELINE_SLUG" == ml-cpp* ]]; then
   # Put any step dependent commands in the appropriate section - such as setting environment variables etc.
   if [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-x86_64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_x86_64 | awk '/^token/ {print $2;}')
-		echo "listing aws s3 bucket"
-		aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
   elif [[ "$BUILDKITE_STEP_KEY" == "build_test_linux-aarch64-RelWithDebInfo" ]]; then
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/linux_aarch64 | awk '/^token/ {print $2;}')
-		echo "listing aws s3 bucket"
-		aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
   else [[ "$BUILDKITE_STEP_KEY" == "build_test_Windows-x86_64-RelWithDebInfo" ]]
     export BUILDKITE_ANALYTICS_TOKEN=$(vault read secret/ci/elastic-ml-cpp/buildkite/test_analytics/windows_x86_64 | awk '/^token/ {print $2;}')
-		echo "listing aws s3 bucket"
-		aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
   fi
 fi
