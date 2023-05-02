@@ -47,6 +47,7 @@ chmod u+x aws/install
 chmod u+x aws/dist/aws
 ./aws/install -i ~/aws-cli -b ~/bin
 export PATH=~/bin:$PATH
+mkdir .aws
 
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
@@ -60,17 +61,14 @@ while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
         echo "================================="
 
         echo "Parsing credentials"
-        export AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
-        export AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.access_key')
+        export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
         export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token')
 
         env
 
-        echo "listing aws s3 bucket"
-        aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/
-
-        ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY
-        ML_AWS_SECRET_KEY=$AWS_SECRET_KEY
+        ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+        ML_AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
     fi
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
         let FAILURES++
@@ -82,6 +80,22 @@ if [ -z "$ML_AWS_ACCESS_KEY" -o -z "$ML_AWS_SECRET_KEY" ] ; then
     echo "Exiting after failing to get AWS credentials $FAILURES times"
     exit 1
 fi
+
+cat <<EOL > .aws/credentials
+[default]
+aws_access_key_id = $AWS_ACCESS_KEY_ID
+aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+aws_session_token = $AWS_SESSION_TOKEN
+EOL
+
+cat <<EOL > .aws/config
+[default]
+region = us-east-1
+EOL
+
+echo "listing aws s3 bucket"
+aws s3 ls prelert-artifacts/maven/org/elasticsearch/ml/ml-cpp/ || echo "aws ls command failed.. continuing anyway"
+
 
 if [ "$REENABLE_X_OPTION" = true ] ; then
     set -x
