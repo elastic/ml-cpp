@@ -40,7 +40,6 @@ esac
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
-    echo "vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts"
     AWS_CREDS=$(vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts)
     if [ $? -eq 0 ] ; then
         export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.access_key')

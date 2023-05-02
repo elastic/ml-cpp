@@ -11,8 +11,6 @@
 # Upload the artifacts to S3, where day-to-day Elasticsearch
 # builds will download them from.
 #
-echo "pwd: `pwd`"
 . .buildkite/scripts/common/aws_creds_from_vault.sh
-echo "pwd: `pwd`"
 echo 'Uploading daily releasable artifacts to S3'
 ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT uploadAll
