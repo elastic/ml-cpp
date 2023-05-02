@@ -41,8 +41,10 @@ esac
 cd ~/
 mkdir bin
 mkdir aws-cli
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
+wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip"
+jar -xvf awscliv2.zip
+chmod u+x aws/install
+chmod u+x aws/dist/aws
 ./aws/install -i ~/aws-cli -b ~/bin
 export PATH=~/bin:$PATH
 
