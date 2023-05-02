@@ -60,7 +60,7 @@ class UploadS3Task extends DefaultTask {
     public void uploadToS3() {
 
         Region region = Region.EU_WEST_1
-        String sessionToken = StringUtils.trim(System.getenv(AWS_SESSION_TOKEN));
+        String sessionToken = System.env.AWS_SESSION_TOKEN
         AwsCredentials creds = sessionToken == null ? 
           AwsBasicCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey) : 
           AwsSessionCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey, sessionToken);
