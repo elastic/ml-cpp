@@ -38,16 +38,14 @@ case $- in
 esac
 
 # Temporary installation of aws cli to test the credentials obtained from vault
-cd ~/
-mkdir bin
-mkdir aws-cli
+mkdir ~/bin
+mkdir ~/aws-cli
 wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip"
 jar -xvf awscliv2.zip
 chmod u+x aws/install
 chmod u+x aws/dist/aws
 ./aws/install -i ~/aws-cli -b ~/bin
 export PATH=~/bin:$PATH
-mkdir .aws
 
 unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
 FAILURES=0
@@ -81,14 +79,15 @@ if [ -z "$ML_AWS_ACCESS_KEY" -o -z "$ML_AWS_SECRET_KEY" ] ; then
     exit 1
 fi
 
-cat <<EOL > .aws/credentials
+mkdir ~/.aws
+cat <<EOL > ~/.aws/credentials
 [default]
 aws_access_key_id = $AWS_ACCESS_KEY_ID
 aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
 aws_session_token = $AWS_SESSION_TOKEN
 EOL
 
-cat <<EOL > .aws/config
+cat <<EOL > ~/.aws/config
 [default]
 region = us-east-1
 EOL
