@@ -37,19 +37,19 @@ def main():
                                                        ".buildkite/pipelines/send_email_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Upload clang-format validation",
                                                        ".buildkite/pipelines/format_and_validation.yml.sh"))
-    #config = buildConfig.Config()
-    #config.parse()
-    #if config.build_windows:
-    #    build_windows = pipeline_steps.generate_step_template("Windows", config.action)
-    #    pipeline_steps.append(build_windows)
-    #if config.build_macos:
-    #    build_macos = pipeline_steps.generate_step_template("MacOS", config.action)
-    #    pipeline_steps.append(build_macos)
-    #if config.build_linux:
-    #    build_linux = pipeline_steps.generate_step_template("Linux", config.action)
-    #    pipeline_steps.append(build_linux)
-    #pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-    #                                                   ".buildkite/pipelines/run_es_tests.yml.sh"))
+    config = buildConfig.Config()
+    config.parse()
+    if config.build_windows:
+        build_windows = pipeline_steps.generate_step_template("Windows", config.action)
+        pipeline_steps.append(build_windows)
+    if config.build_macos:
+        build_macos = pipeline_steps.generate_step_template("MacOS", config.action)
+        pipeline_steps.append(build_macos)
+    if config.build_linux:
+        build_linux = pipeline_steps.generate_step_template("Linux", config.action)
+        pipeline_steps.append(build_linux)
+    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
+                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))
