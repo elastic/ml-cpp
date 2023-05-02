@@ -36,10 +36,8 @@ allprojects {
 String envMlAwsAccessKey = System.env.ML_AWS_ACCESS_KEY
 if (envMlAwsAccessKey != null) {
   project.ext.mlAwsAccessKey = envMlAwsAccessKey
-  println "Using aws access key from environment: " + envMlAwsAccessKey
 } else if (project.hasProperty('ML_AWS_ACCESS_KEY')) {
   project.ext.mlAwsAccessKey = ML_AWS_ACCESS_KEY
-  println "Using aws access key from properties: " + ML_AWS_ACCESS_KEY
 }
 
 String envMlAwsSecretKey = System.env.ML_AWS_SECRET_KEY
