@@ -17,9 +17,10 @@
 # prevent sensitive information getting into the console output.
 #
 # On success the following environment variables will be set that contain the
-# temporary access key and secret key for accessing AWS:
+# temporary access key, secret key and session token for accessing AWS:
 # - ML_AWS_ACCESS_KEY
 # - ML_AWS_SECRET_KEY
+# - ML_AWS_SESSION_TOKEN
 #
 # On failure this script will exit, so will terminate the script that sourced
 # it.
@@ -37,17 +38,14 @@ case $- in
         ;;
 esac
 
-unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SECURITY_TOKEN
+unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY ML_AWS_SESSION_TOKEN
 FAILURES=0
 while [[ $FAILURES -lt 3 && -z "$ML_AWS_ACCESS_KEY" ]] ; do
     AWS_CREDS=$(vault read -format=json -field=data aws-elastic-ci-prod/creds/prelert-artifacts)
     if [ $? -eq 0 ] ; then
-        export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | jq -r '.access_key')
-        export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
-        export AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token')
-
-        export ML_AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
-        export ML_AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
+        export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
+        export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        export ML_AWS_SESSION_TOKEN=$(echo $AWS_CREDS | jq -r '.security_token')
     fi
 
     if [ -z "$ML_AWS_ACCESS_KEY" ] ; then
