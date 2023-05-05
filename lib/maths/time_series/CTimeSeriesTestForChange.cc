@@ -325,7 +325,9 @@ std::string CTimeShift::print() const {
 
 std::uint64_t CTimeShift::checksum(std::uint64_t seed) const {
     seed = this->CChangePoint::checksum(seed);
-    return common::CChecksum::calculate(seed, m_Shift);
+    seed = common::CChecksum::calculate(seed, m_Shift);
+    seed = common::CChecksum::calculate(seed, m_PredictionVariance);
+    return common::CChecksum::calculate(seed, m_ValueMoments);
 }
 
 double CTimeShift::predictionVariance() const {

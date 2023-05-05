@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::time_series::CUndoableChangePointStateSerializer serializer;
 
     TChangePointUPtr origChangePoint{
-        std::make_unique<maths::time_series::CTimeShift>(500, -1800, 0.01)};
+        std::make_unique<maths::time_series::CTimeShift>(500, -1800, 0.01, 10.0)};
 
     std::string origXml;
     {
