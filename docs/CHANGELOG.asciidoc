@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.9.0
+
+=== Enhancements
+
+* Improve detection of time shifts, for example for day light saving. (See {ml-pull}2479[#2479].)
+
 == {es} version 8.8.0
 
 === Enhancements
