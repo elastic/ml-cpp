@@ -54,7 +54,6 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_Windows-{arch}-{build_type}",
             "env": {
-              "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/windows-x86_64.cmake",
               "RUN_TESTS": "true",
