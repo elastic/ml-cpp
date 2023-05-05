@@ -90,7 +90,7 @@ else
      # need to hardcode the version that was used to build Boost for that
      # version of Elasticsearch.
      if [ "$HARDWARE_ARCH" = aarch64 ] ; then
-         export BOOSTCLANGVER=13
+         export BOOSTCLANGVER=120
      fi
 
      (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
