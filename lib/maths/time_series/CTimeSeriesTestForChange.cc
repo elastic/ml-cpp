@@ -52,11 +52,11 @@ constexpr double EPS{0.1};
 constexpr core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 constexpr core_t::TTime HOUR{core::constants::HOUR};
 constexpr core_t::TTime WEEK{core::constants::WEEK};
-// The time shift test is a lot less powerful if we don't see much of the total
-// variation in the signal shifting a flat signal leaves it unchanged. However,
-// the test can still yield high significance. We take a simple approach of
-// requiring we see a significant fraction of the predictions total variance
-// before we trust the test.
+// The time shift test is a lot less powerful if we don't see much variation
+// in values since shifting a flat segment of a time series leaves it largely
+// unchanged. However, the test can still have high significance. We use a
+// simple criterion, requiring we see a significant fraction of the predictions
+// total variance before we trust the result.
 constexpr double MIN_VARIANCE_FOR_SIGNIFICANCE{0.25};
 const double CHANGE_POINT_DECAY_CONSTANT{3.0 * std::log(0.95) / static_cast<double>(HOUR)};
 
