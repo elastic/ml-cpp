@@ -207,8 +207,8 @@ void CMetricModel::sample(core_t::TTime startTime,
         gatherer.sampleNow(time);
         gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
 
-        const CIndividualModel::TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
-        CIndividualModel::TSizeTimeUMap lastBucketTimesMap;
+        const TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
+        TSizeTimeUMap lastBucketTimesMap;
         for (const auto& featureData : m_CurrentBucketStats.s_FeatureData) {
             for (const auto& data : featureData.second) {
                 std::size_t pid = data.first;
