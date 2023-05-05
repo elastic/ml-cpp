@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
     LOG_DEBUG(<< "");
     LOG_DEBUG(<< "Test Uniform");
 
-    for (std::size_t t = 0u, n = 100; n < 1500; ++t, n += 100) {
+    for (std::size_t n = 100; n < 1500; n += 100) {
         LOG_DEBUG(<< "*** number categories = " << n << " ***");
 
         TDoubleVec counts;

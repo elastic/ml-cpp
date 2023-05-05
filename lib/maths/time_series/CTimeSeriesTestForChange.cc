@@ -750,7 +750,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
             return bucketPredictor(shift + m_BucketLength * static_cast<core_t::TTime>(i));
         };
         residuals = removePredictions(shiftedPredictor, m_Values);
-        std::tie(varianceH1, truncatedVarianceH1) = this->variances(candidateResiduals);
+        std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
     }
 
     double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
