@@ -42,26 +42,29 @@ def main(args):
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
             "timeout_in_minutes": "150",
             "agents": {
+              "queue": "ml-aarch64-macstadium"
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              f'echo "MacOS {arch} build not yet supported";'
+              ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
+              "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
+              "PATH": "$JAVA_HOME/bin:$PATH",
               "CPP_CROSS_COMPILE": "",
-              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-arch64.cmake",
+              "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
               "RUN_TESTS": "true",
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "artifact_paths": "*/*/unittest/boost_test_results.junit",
-            #"plugins": {
-            #  "test-collector#v1.2.0": {                                                              
-            #    "files": "*/*/unittest/boost_test_results.junit",
-            #    "format": "junit"
-            #  }
-            #},
+            "plugins": {
+              "test-collector#v1.2.0": {                                                              
+                "files": "*/*/unittest/boost_test_results.junit",
+                "format": "junit"
+              }
+            },
             "notify": [
               {
                 "github_commit_status": {
@@ -87,6 +90,7 @@ def main(args):
         "depends_on": "check_style",
         "key": "build_macos_x86_64_cross-RelWithDebInfo",
         "env": {
+          "ML_DEBUG": "0",
           "CPP_CROSS_COMPILE": "macosx",
           "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-x86_64.cmake",
           "RUN_TESTS": "false"
