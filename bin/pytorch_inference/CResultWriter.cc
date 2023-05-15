@@ -12,6 +12,7 @@
 #include "CResultWriter.h"
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <thread>
 
 #include "CCommandParser.h"
 #include "CThreadSettings.h"
@@ -99,6 +100,7 @@ void CResultWriter::writeSimpleAck(const std::string& requestId) {
 
 std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
     rapidjson::StringBuffer stringBuffer;
+    //auto& buffer = this->buffer(std::this_thread::get_id());
     {
         TRapidJsonLineWriter jsonWriter{stringBuffer};
         // Even though we don't really want the outer braces on the
@@ -133,6 +135,19 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
     // the trailing newline. The resulting partial document will
     // later be wrapped, so does not need these.
     return std::string{stringBuffer.GetString() + 1, stringBuffer.GetLength() - 3};
+}
+
+rapidjson::StringBuffer& CResultWriter::buffer(std::thread::id id) {
+    std::shared_lock<std::shared_mutex> readLock{m_Mutex};
+    if (m_PerThreadStringBuffer.find(id) == m_PerThreadStringBuffer.end()) {
+        readLock.unlock();
+        std::unique_lock<std::shared_mutex> writeLock{m_Mutex};
+        m_PerThreadStringBuffer.emplace(id, rapidjson::StringBuffer{});
+    }
+    readLock.lock();
+    auto& result = m_PerThreadStringBuffer[id];
+    result.Clear();
+    return result;
 }
 }
 }

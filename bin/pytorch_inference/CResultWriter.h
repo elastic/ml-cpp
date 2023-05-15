@@ -12,10 +12,13 @@
 #ifndef INCLUDED_ml_torch_CResultWriter_h
 #define INCLUDED_ml_torch_CResultWriter_h
 
+#include <boost/unordered/unordered_map_fwd.hpp>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonLineWriter.h>
 
 #include <rapidjson/stringbuffer.h>
+#include <shared_mutex>
+#include <thread>
 #include <torch/csrc/api/include/torch/types.h>
 
 #include <cstdint>
@@ -101,6 +104,9 @@ public:
     std::string createInnerResult(const ::torch::Tensor& results);
 
 private:
+    using TThreadIdStringBufferUMap = boost::unordered_map<std::thread::id, rapidjson::StringBuffer, std::hash<std::thread::id>>;
+
+private:
     //! Field names.
     static const std::string RESULT;
     static const std::string INFERENCE;
@@ -168,8 +174,12 @@ private:
         jsonWriter.EndObject();
     }
 
+    rapidjson::StringBuffer& buffer(std::thread::id id);
+
 private:
     core::CJsonOutputStreamWrapper m_WrappedOutputStream;
+    TThreadIdStringBufferUMap m_PerThreadStringBuffer;
+    std::shared_mutex m_Mutex;
 };
 }
 }

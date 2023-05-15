@@ -68,6 +68,7 @@ public:
                             const TComputeResponse& computeResponse,
                             const TReadResponse& readResponse) = 0;
         virtual void clear() = 0;
+        virtual std::size_t memoryUsage() const = 0;
     };
 
     //! \brief Memory limited inference request LFU cache.
@@ -86,6 +87,8 @@ public:
         }
 
         void clear() override { m_Impl.clear(); }
+
+        std::size_t memoryUsage() const override { return m_Impl.memoryUsage(); }
 
     private:
         using TConcurrentLfuCache = core::CConcurrentCompressedLfuCache<SRequest, std::string>;
@@ -107,6 +110,8 @@ public:
         }
 
         void clear() override {}
+
+        std::size_t memoryUsage() const override { return 0; }
     };
 
     using TRequestCachePtr = std::unique_ptr<CRequestCacheInterface>;

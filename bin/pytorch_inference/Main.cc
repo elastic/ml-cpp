@@ -43,14 +43,14 @@ torch::Tensor infer(torch::jit::script::Module& module_,
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
-    std::array<std::int64_t, 2> dimensions = {request.s_NumberInferences,
-                                              request.s_NumberInputTokens};
+    std::array<std::int64_t, 2> dimensions{request.s_NumberInferences,
+                                           request.s_NumberInputTokens};
     at::IntArrayRef inputSize{dimensions};
 
     // Sequence tokens.
     inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
                                          inputSize, at::dtype(torch::kInt64)));
-    // Attention mask.
+    // Attention mask, etc.
     for (auto& args : request.s_SecondaryArguments) {
         inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
                                              inputSize, at::dtype(torch::kInt64)));
@@ -231,6 +231,7 @@ int main(int argc, char** argv) {
 
     LOG_DEBUG(<< at::get_parallel_info());
     LOG_DEBUG(<< "Number of allocations: " << threadSettings.numAllocations());
+    LOG_DEBUG(<< "Number of threads per allocations: " << threadSettings.numThreadsPerAllocation());
 
     ml::torch::CResultWriter resultWriter{ioMgr.outputStream()};
     resultWriter.writeThreadSettings(ml::torch::CCommandParser::RESERVED_REQUEST_ID,
