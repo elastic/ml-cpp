@@ -241,7 +241,7 @@ void reinitializeResidualModel(double learnRate,
 
     using TFloatMeanAccumulatorVecVec = std::vector<TFloatMeanAccumulatorVec>;
 
-    if (controllers) {
+    if (controllers != nullptr) {
         for (auto& trend : trends) {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
         }
@@ -294,10 +294,11 @@ void reinitializeResidualModel(double learnRate,
 
 class CChangeDebug {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
-    CChangeDebug(std::string file = "results.py") : m_File(file) {
+    explicit CChangeDebug(std::string file = "results.py")
+        : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);

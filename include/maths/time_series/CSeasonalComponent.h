@@ -22,6 +22,7 @@
 #include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -51,18 +52,22 @@ namespace time_series {
 //! mean value for each bucket as usual.
 class MATHS_TIME_SERIES_EXPORT CSeasonalComponent : private CDecompositionComponent {
 public:
+    using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TMatrix = common::CSymmetricMatrixNxN<double, 2>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TLossFunc = std::function<double(double)>;
 
 public:
     //! \param[in] time The time provider.
     //! \param[in] maxSize The maximum number of component buckets.
     //! \param[in] decayRate Controls the rate at which information is lost from
     //! its adaptive bucketing.
-    //! \param[in] minimumBucketLength The minimum bucket length permitted in the
+    //! \param[in] minBucketLength The minimum bucket length permitted in the
     //! adaptive bucketing.
+    //! \param[in] maxTimeShiftPerPeriod If this is greater than zero we allow the
+    //! seasonal pattern to precess by this amount per period.
     //! \param[in] boundaryCondition The boundary condition to use for the splines.
     //! \param[in] valueInterpolationType The style of interpolation to use for
     //! computing values.
@@ -72,14 +77,15 @@ public:
         const CSeasonalTime& time,
         std::size_t maxSize,
         double decayRate = 0.0,
-        double minimumBucketLength = 0.0,
+        double minBucketLength = 0.0,
+        core_t::TTime maxTimeShiftPerPeriod = 0,
         common::CSplineTypes::EBoundaryCondition boundaryCondition = common::CSplineTypes::E_Periodic,
         common::CSplineTypes::EType valueInterpolationType = common::CSplineTypes::E_Cubic,
         common::CSplineTypes::EType varianceInterpolationType = common::CSplineTypes::E_Linear);
 
     //! Construct by traversing part of an state document.
     CSeasonalComponent(double decayRate,
-                       double minimumBucketLength,
+                       double minBucketLength,
                        core::CStateRestoreTraverser& traverser,
                        common::CSplineTypes::EType valueInterpolationType = common::CSplineTypes::E_Cubic,
                        common::CSplineTypes::EType varianceInterpolationType = common::CSplineTypes::E_Linear);
@@ -215,11 +221,24 @@ public:
     //! Check that the state is valid.
     bool isBad() const { return m_Bucketing.isBad(); }
 
+    //! Compute the most likely time shift in [-maximumTimeShift, maximumTimeShift].
+    //!
+    //! \param[in] maxTimeShift The maximum amount by which we'll shift \p time.
+    //! \param[in] time The time at which to compute the shift.
+    //! \param[in] loss The function to minimised to compute the most likely shift.
+    static TTimeDoublePr
+    likelyShift(core_t::TTime maxTimeShift, core_t::TTime time, const TLossFunc& loss);
+
 private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(double decayRate,
-                                double minimumBucketLength,
+                                double minBucketLength,
                                 core::CStateRestoreTraverser& traverser);
+
+    //! We allow for not quite periodic signals. We model these as small random
+    //! shifts of the seasonal pattern from period to period. This solves for
+    //! the most likely shift of \p time based on \p value.
+    TTimeDoublePr likelyShift(core_t::TTime time, double value) const;
 
     //! Get a jitter to apply to the prediction time.
     core_t::TTime jitter(core_t::TTime time);
@@ -233,7 +252,17 @@ private:
     CSeasonalComponentAdaptiveBucketing m_Bucketing;
 
     //! The last interpolation time.
-    core_t::TTime m_LastInterpolationTime;
+    core_t::TTime m_LastInterpolationTime{
+        2 * (std::numeric_limits<core_t::TTime>::min() / 3)};
+
+    //! The maximum time shift we'll apply per period.
+    core_t::TTime m_MaxTimeShiftPerPeriod{0};
+
+    //! The accumulated shift to apply to time.
+    core_t::TTime m_TotalShift{0};
+
+    //! The mean shift applied to the times of values in the current period.
+    TFloatMeanAccumulator m_CurrentMeanShift;
 
     //! Befriend a helper class used by the unit tests
     friend class CTimeSeriesDecompositionTest::CNanInjector;

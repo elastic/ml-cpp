@@ -167,10 +167,21 @@ public:
                   double minimumScale,
                   const TWriteForecastResult& writer) override;
 
-    //! Detrend \p value by the prediction of the modelled features at \p time.
+    //! Remove the prediction of the component models at \p time from \p value.
     //!
+    //! \param[in] time The time of \p value.
+    //! \param[in] confidence The prediction confidence interval as a percentage.
+    //! The closest point to \p value in the confidence interval is removed.
+    //! \param[in] maximumTimeShift The maximum amount by which we will shift
+    //! \p time in order to minimize the difference between the prediction and
+    //! \p value.
+    //! \param[in] components A bit mask of the type of components to remove.
     //! \note That detrending preserves the time series mean.
-    double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const override;
+    double detrend(core_t::TTime time,
+                   double value,
+                   double confidence,
+                   core_t::TTime maximumTimeShift = 0,
+                   int components = E_All) const override;
 
     //! Get the mean variance of the baseline.
     double meanVariance() const override;
