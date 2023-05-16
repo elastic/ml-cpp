@@ -55,8 +55,8 @@ constexpr core_t::TTime WEEK{core::constants::WEEK};
 // The time shift test is a lot less powerful if we don't see much variation
 // in values since shifting a flat segment of a time series leaves it largely
 // unchanged. However, the test can still have high significance. We use a
-// simple criterion, requiring we see a significant fraction of the predictions
-// total variance before we trust the result.
+// simple criterion to mitigate: we require that we see a significant fraction
+// of the predictions' total variance before we trust the result.
 constexpr double MIN_VARIANCE_FOR_SIGNIFICANCE{0.25};
 const double CHANGE_POINT_DECAY_CONSTANT{3.0 * std::log(0.95) / static_cast<double>(HOUR)};
 
@@ -335,8 +335,7 @@ double CTimeShift::predictionVariance() const {
 }
 
 bool CTimeShift::shouldUndo() const {
-    LOG_INFO(<< "moments = " << m_ValueMoments);
-    LOG_INFO(<< "prediction variance = " << m_PredictionVariance);
+    // See MIN_VARIANCE_FOR_SIGNIFICANCE for more info on this condition.
     return common::CBasicStatistics::variance(m_ValueMoments) >=
                MIN_VARIANCE_FOR_SIGNIFICANCE * m_PredictionVariance &&
            this->CChangePoint::shouldUndo();
@@ -710,6 +709,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
             valueMoments.add(common::CBasicStatistics::mean(m_Values[i]));
         }
     }
+    // See MIN_VARIANCE_FOR_SIGNIFICANCE for more info on this condition.
     if (common::CBasicStatistics::variance(valueMoments) <
         MIN_VARIANCE_FOR_SIGNIFICANCE * m_PredictionVariance) {
         return {};
