@@ -22,9 +22,9 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CRestoreParams.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <maths/time_series/CSeasonalTime.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <algorithm>
 #include <cmath>

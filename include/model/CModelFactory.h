@@ -16,9 +16,9 @@
 
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
+
 #include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
-#include <model/CResourceMonitor.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -52,6 +52,7 @@ class CAnomalyDetectorModel;
 class CDataGatherer;
 class CInfluenceCalculator;
 class CInterimBucketCorrector;
+class CResourceMonitor;
 class CSearchKey;
 
 //! \brief A factory class interface for the CAnomalyDetectorModel hierarchy.
@@ -464,17 +465,10 @@ public:
     explicit CModelAllocator(CResourceMonitor& resourceMonitor)
         : m_ResourceMonitor{&resourceMonitor} {}
 
-    bool areAllocationsAllowed() const override {
-        return m_ResourceMonitor->areAllocationsAllowed();
-    }
+    bool areAllocationsAllowed() const override;
 
 private:
     CResourceMonitor* m_ResourceMonitor;
-};
-
-class CModelAllocatorStub : public maths::time_series::CTimeSeriesDecompositionAllocator {
-public:
-    bool areAllocationsAllowed() const override { return true; }
 };
 }
 }

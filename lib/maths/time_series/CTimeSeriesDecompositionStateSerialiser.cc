@@ -18,6 +18,7 @@
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
 #include <memory>

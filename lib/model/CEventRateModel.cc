@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CModelFactory.h"
 #include <model/CEventRateModel.h>
 
 #include <core/CLogger.h>
@@ -31,6 +30,7 @@
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CModelFactory.h>
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>

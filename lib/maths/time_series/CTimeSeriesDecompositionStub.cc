@@ -9,11 +9,12 @@
  * limitation.
  */
 
-#include "maths/common/MathsTypes.h"
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
+#include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 namespace ml {
 namespace maths {

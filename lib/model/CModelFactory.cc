@@ -30,6 +30,7 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CResourceMonitor.h>
 
 #include <array>
 #include <memory>
@@ -381,6 +382,10 @@ CModelFactory::SGathererInitializationData::SGathererInitializationData(
 CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime)
     : s_StartTime(startTime), s_PartitionFieldValue(EMPTY_STRING),
       s_SampleOverrideCount(0u) {
+}
+
+bool CModelAllocator::areAllocationsAllowed() const {
+    return m_ResourceMonitor->areAllocationsAllowed();
 }
 }
 }

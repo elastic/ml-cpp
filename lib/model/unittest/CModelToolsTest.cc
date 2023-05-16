@@ -208,8 +208,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCache, CModelTestFixtureBase) {
                 .propagationInterval(1.0)
                 .trendWeights(weights)
                 .priorWeights(weights);
-            model.addSamples(
-                params, this->allocator(), {core::make_triple(time_, TDouble2Vec(1, sample), TAG)});
+            model.addSamples(params, this->allocator(),
+                             {core::make_triple(time_, TDouble2Vec(1, sample), TAG)});
         }
     }
 

@@ -12,8 +12,6 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
-#include "maths/time_series/CCalendarComponent.h"
-#include "maths/time_series/CTimeSeriesDecompositionAllocator.h"
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
@@ -38,7 +36,7 @@ class CPrior;
 }
 namespace time_series {
 class CSeasonalComponent;
-class CCalendarComponent;
+class CTimeSeriesDecompositionAllocator;
 struct SChangeDescription;
 
 //! \brief Type definitions shared by the CTimeSeriesDecompositionInterface

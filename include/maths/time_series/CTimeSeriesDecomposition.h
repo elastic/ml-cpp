@@ -105,6 +105,7 @@ public:
     //!
     //! \param[in] time The time of the data point.
     //! \param[in] value The value of the data point.
+    //! \param[in] allocator The allocator to use for the decomposition.
     //! \param[in] weights The weights of \p value. The smaller the count weight the
     //! less influence \p value has on the decomposition.
     //! \param[in] componentChangeCallback Supplied with samples of the prediction

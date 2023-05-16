@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CModelFactory.h"
 #include <model/CMetricPopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -31,6 +30,7 @@
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CModelFactory.h>
 #include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>

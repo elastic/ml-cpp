@@ -18,6 +18,12 @@ namespace ml {
 namespace maths {
 namespace time_series {
 
+//! \brief The allocator interface.
+//!
+//! DESCRIPTION:\n
+//! The allocator interface is used to control the ability
+//! of a model to allocate new components. This is used to
+//! comply with the memory constraints of the system.
 class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionAllocator {
 public:
     virtual ~CTimeSeriesDecompositionAllocator() = default;
@@ -26,6 +32,10 @@ public:
     virtual bool areAllocationsAllowed() const = 0;
 };
 
+//! \brief The allocator stub.
+//!
+//! DESCRIPTION:\n
+//! The allocator stub is used to allow all allocations.
 class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionAllocatorStub
     : public CTimeSeriesDecompositionAllocator {
 public:

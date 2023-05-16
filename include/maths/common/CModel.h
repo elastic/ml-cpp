@@ -19,7 +19,6 @@
 
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -35,6 +34,7 @@ class CStateRestoreTraverser;
 namespace maths {
 namespace time_series {
 class CTimeSeriesCorrelations;
+class CTimeSeriesDecompositionAllocator;
 }
 namespace common {
 class CMultivariatePrior;

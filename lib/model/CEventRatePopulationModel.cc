@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "model/CModelFactory.h"
 #include <model/CEventRatePopulationModel.h>
 
 #include <core/CAllocationStrategy.h>
@@ -32,6 +31,7 @@
 #include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CModelFactory.h>
 #include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>

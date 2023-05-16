@@ -135,8 +135,7 @@ public:
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
                           CSeasonalDecomposition components,
-                          const CTimeSeriesDecompositionAllocator& allocator /*=
-                              CTimeSeriesDecompositionAllocatorStub()*/);
+                          const CTimeSeriesDecompositionAllocator& allocator);
 
         //! The components found.
         CSeasonalDecomposition s_Components;
@@ -149,8 +148,7 @@ public:
                           core_t::TTime lastTime,
                           CCalendarFeature feature,
                           core_t::TTime timeZoneOffset,
-                          const CTimeSeriesDecompositionAllocator& allocator /*=
-                              CTimeSeriesDecompositionAllocatorStub()*/);
+                          const CTimeSeriesDecompositionAllocator& allocator);
 
         //! The calendar feature found.
         CCalendarFeature s_Feature;
@@ -162,8 +160,7 @@ public:
     struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
                        const TComponentChangeCallback& componentChangeCallback,
-                       const CTimeSeriesDecompositionAllocator& allocator =
-                           CTimeSeriesDecompositionAllocatorStub());
+                       const CTimeSeriesDecompositionAllocator& allocator);
 
         TPredictor s_Predictor;
         TComponentChangeCallback s_ComponentChangeCallback;
@@ -174,8 +171,7 @@ public:
         SDetectedChangePoint(core_t::TTime time,
                              core_t::TTime lastTime,
                              TChangePointUPtr change,
-                             const CTimeSeriesDecompositionAllocator& allocator /*=
-                                 CTimeSeriesDecompositionAllocatorStub()*/);
+                             const CTimeSeriesDecompositionAllocator& allocator);
 
         //! The change description.
         TChangePointUPtr s_Change;
@@ -789,6 +785,8 @@ public:
             //! Get the combined size of the seasonal components.
             std::size_t size() const;
 
+            //! Estimate the size change in the seasonal components if we
+            //! were to apply all changes from \p components.
             std::ptrdiff_t estimateSizeChange(const CSeasonalDecomposition& components,
                                               double decayRate,
                                               double bucketLength) const;

@@ -9,12 +9,10 @@
  * limitation.
  */
 
-#include "maths/time_series/CTimeSeriesDecompositionAllocator.h"
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
-#include <core/CMemoryDec.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
@@ -44,6 +42,7 @@
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/time_series/CSeasonalTime.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 #include <maths/time_series/CTimeSeriesTestForChange.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
@@ -1824,7 +1823,8 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
 
         if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
-            this->mediator()->forward(SDetectedTrend{makePredictor(), m_ComponentChangeCallback});
+            this->mediator()->forward(SDetectedTrend{
+                makePredictor(), m_ComponentChangeCallback, message.s_Allocator});
             m_ModelAnnotationCallback("Detected trend");
         }
     } break;
@@ -2178,7 +2178,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(
     core_t::TTime timeZoneOffset) {
     if (allocator.areAllocationsAllowed() == false) {
         // In the hard_limit state we are not adding any new components to the model.
-        LOG_INFO(<<"Not adding new calendar component because we are in the hard limit state");
+        LOG_TRACE(<< "Not adding new calendar component because we are in the hard limit state");
         return;
     }
 

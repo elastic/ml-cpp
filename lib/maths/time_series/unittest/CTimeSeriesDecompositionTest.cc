@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -30,14 +29,13 @@
 #include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
+#include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
-#include "core/CoreTypes.h"
-#include "maths/time_series/CTimeSeriesTestForSeasonality.h"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
@@ -2563,10 +2561,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
 
     double decayRate{0.01};
 
-    auto trend = [&months, &errors](core_t::TTime t) {
-        // double result = 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
-        //                                        static_cast<double>(t) /
-        //                                        static_cast<double>(DAY));
+    auto trend = [](core_t::TTime t) {
         double weekly = 1200.0 + 1000.0 * std::sin(boost::math::double_constants::two_pi *
                                                    static_cast<double>(t) /
                                                    static_cast<double>(WEEK));
@@ -2574,55 +2569,11 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
                                             static_cast<double>(t) /
                                             static_cast<double>(DAY));
         double result = weekly + daily;
-        // auto i = std::lower_bound(months.begin(), months.end(), t - DAY);
-        // if (t >= *i + 7200 &&
-        //     t < *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR) {
-        //     result += errors[(t - (*i + 7200)) / HALF_HOUR];
-        // }
+
         return result;
     };
 
     test::CRandomNumbers rng;
-    // {
-    //     LOG_DEBUG(<< "Test with hard_limit state");
-    //     // hard_limit state, not components should be detected
-    //     CTimeSeriesDecompositionAllocatorHardLimit allocator{false};
-
-    //     maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
-
-    //     TDoubleVec noise;
-    //     for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
-    //         rng.generateNormalSamples(0.0, 4.0, 1, noise);
-
-    //         decomposition.addPoint(time, trend(time) + noise[0], allocator);
-    //     }
-
-    //     // Check that we don't have any seasonal components.
-    //     BOOST_REQUIRE_EQUAL(true, decomposition.seasonalComponents().empty());
-
-    //     // Check that we don't have any calendar components.
-    //     BOOST_REQUIRE_EQUAL(true, decomposition.calendarComponents().empty());
-    // }
-    // {
-    //     LOG_DEBUG(<< "Test with no hard_limit state");
-    //     // no hard_limit state, components should be detected
-    //     CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
-
-    //     maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
-
-    //     TDoubleVec noise;
-    //     for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
-    //         rng.generateNormalSamples(0.0, 4.0, 1, noise);
-
-    //         decomposition.addPoint(time, trend(time) + noise[0], allocator);
-    //     }
-
-    //     // Check that we don't have any seasonal components.
-    //     BOOST_REQUIRE_EQUAL(false, decomposition.seasonalComponents().empty());
-
-    //     // Check that we don't have any calendar components.
-    //     BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
-    // }
     {
         LOG_DEBUG(<< "Test with hard_limit state after 4 months");
         decayRate = 0.01; // no hard_limit state, components should be detected
@@ -2675,9 +2626,6 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) 
     double decayRate{0.01};
 
     auto trend = [](core_t::TTime t) {
-        // double result = 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
-        //                                        static_cast<double>(t) /
-        //                                        static_cast<double>(DAY));
         double weekly = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
                                                  static_cast<double>(t) /
                                                  static_cast<double>(WEEK));

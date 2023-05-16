@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "maths/time_series/CSeasonalComponent.h"
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 
 #include <core/CLogger.h>
@@ -29,6 +28,7 @@
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
 
+#include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>

@@ -17,8 +17,8 @@
 #include <maths/common/CNormalMeanPrecConjugate.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesModel.h>
 #include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
