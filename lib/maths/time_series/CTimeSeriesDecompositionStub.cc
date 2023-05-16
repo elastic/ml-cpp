@@ -43,15 +43,14 @@ bool CTimeSeriesDecompositionStub::initialized() const {
     return false;
 }
 
-void CTimeSeriesDecompositionStub::addPoint(
-    core_t::TTime /*time*/,
-    double /*value*/,
-    const common::CModelAllocator& /*allocator*/,
-    const maths_t::TDoubleWeightsAry& /*weights*/,
-    const TComponentChangeCallback& /*componentChangeCallback*/,
-    const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
-    double /*occupancy*/,
-    core_t::TTime /*firstValueTime*/) {
+void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
+                                            double /*value*/,
+                                            const common::CModelAllocator& /*allocator*/,
+                                            const maths_t::TDoubleWeightsAry& /*weights*/,
+                                            const TComponentChangeCallback& /*componentChangeCallback*/,
+                                            const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
+                                            double /*occupancy*/,
+                                            core_t::TTime /*firstValueTime*/) {
 }
 
 void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {

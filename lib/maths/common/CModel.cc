@@ -348,10 +348,9 @@ CModelStub::residualModes(const TDouble2VecWeightsAry& /*weights*/) const {
 void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
 }
 
-CModelStub::EUpdateResult
-CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
-                       const CModelAllocator& /*allocator*/,
-                       TTimeDouble2VecSizeTrVec /*samples*/) {
+CModelStub::EUpdateResult CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
+                                                 const CModelAllocator& /*allocator*/,
+                                                 TTimeDouble2VecSizeTrVec /*samples*/) {
     return E_Success;
 }
 

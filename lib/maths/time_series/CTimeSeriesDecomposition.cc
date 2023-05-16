@@ -21,8 +21,8 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CRestoreParams.h>
 #include <maths/common/CModel.h>
+#include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
 

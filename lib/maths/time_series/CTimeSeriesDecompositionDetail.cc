@@ -29,6 +29,7 @@
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
+#include <maths/common/CModel.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
@@ -36,7 +37,6 @@
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
-#include <maths/common/CModel.h>
 
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CExpandingWindow.h>

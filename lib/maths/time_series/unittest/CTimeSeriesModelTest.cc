@@ -16,6 +16,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CMultimodalPrior.h>
 #include <maths/common/CMultivariateMultimodalPrior.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
@@ -25,7 +26,6 @@
 #include <maths/common/CXMeansOnline1d.h>
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
-#include <maths/common/CModel.h>
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>

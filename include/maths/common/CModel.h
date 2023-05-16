@@ -347,8 +347,7 @@ public:
 //!
 //! DESCRIPTION:\n
 //! The allocator stub is used to allow all allocations.
-class MATHS_COMMON_EXPORT CModelAllocatorStub
-    : public CModelAllocator {
+class MATHS_COMMON_EXPORT CModelAllocatorStub : public CModelAllocator {
 public:
     bool areAllocationsAllowed() const override { return true; }
 };

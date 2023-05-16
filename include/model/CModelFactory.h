@@ -14,9 +14,9 @@
 
 #include <core/CoreTypes.h>
 
+#include <maths/common/CModel.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
-#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>

@@ -15,8 +15,8 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/common/CRestoreParams.h>
 #include <maths/common/CModel.h>
+#include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>

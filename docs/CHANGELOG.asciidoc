@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.9.0
+
+=== Enhancements
+
+* Improved compliance with memory limitations. (See {ml-pull}2469[#2469].)
+
 == {es} version 8.8.0
 
 === Enhancements

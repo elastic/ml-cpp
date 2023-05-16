@@ -19,9 +19,9 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/CModel.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>

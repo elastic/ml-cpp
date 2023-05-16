@@ -18,9 +18,9 @@
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegerTools.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
-#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CModelFactory.h>

@@ -20,10 +20,10 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CModel.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/MathsTypes.h>
-#include <maths/common/CModel.h>
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
@@ -168,8 +168,7 @@ private:
     TAllocator m_Allocator;
 };
 
-class CTimeSeriesDecompositionAllocatorHardLimit
-    : public maths::common::CModelAllocator {
+class CTimeSeriesDecompositionAllocatorHardLimit : public maths::common::CModelAllocator {
 public:
     //! Constructor
     explicit CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
