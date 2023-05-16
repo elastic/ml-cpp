@@ -97,7 +97,7 @@ public:
 
     //! Update the model with new samples.
     EUpdateResult addSamples(const common::CModelAddSamplesParams& params,
-                             const time_series::CTimeSeriesDecompositionAllocator& allocator,
+                             const TModelAllocator& allocator,
                              TTimeDouble2VecSizeTrVec samples) override;
 
     //! Advance time by \p gap.
@@ -230,7 +230,7 @@ private:
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const common::CModelAddSamplesParams& params,
                               const TTimeDouble2VecSizeTrVec& samples,
-                              const CTimeSeriesDecompositionAllocator& allocator);
+                              const TModelAllocator& allocator);
 
     //! Update the residual models.
     TTimeDouble2VecSizeTrVecDoublePr
@@ -585,7 +585,7 @@ public:
 
     //! Update the model with new samples.
     EUpdateResult addSamples(const common::CModelAddSamplesParams& params,
-                             const time_series::CTimeSeriesDecompositionAllocator& allocator,
+                             const TModelAllocator& allocator,
                              TTimeDouble2VecSizeTrVec samples) override;
 
     //! Advance time by \p gap.
@@ -705,7 +705,7 @@ private:
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const common::CModelAddSamplesParams& params,
                               const TTimeDouble2VecSizeTrVec& samples,
-                              const CTimeSeriesDecompositionAllocator& allocator);
+                              const TModelAllocator& allocator);
 
     //! Update the residual models.
     void updateResidualModels(const common::CModelAddSamplesParams& params,

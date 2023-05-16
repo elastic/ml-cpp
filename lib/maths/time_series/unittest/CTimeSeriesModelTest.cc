@@ -25,10 +25,10 @@
 #include <maths/common/CXMeansOnline1d.h>
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
+#include <maths/common/CModel.h>
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
@@ -79,7 +79,7 @@ using TDecompositionPtr = std::shared_ptr<maths::time_series::CTimeSeriesDecompo
 using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
 using TDecayRateController2Ary = maths::time_series::CUnivariateTimeSeriesModel::TDecayRateController2Ary;
 using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
-using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+using TAllocator = maths::common::CModelAllocatorStub;
 
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};

@@ -16,8 +16,7 @@
 
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
-
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -460,7 +459,7 @@ private:
     mutable TStrFeatureVecPrInfluenceCalculatorCPtrMap m_InfluenceCalculatorCache;
 };
 
-class CModelAllocator : public maths::time_series::CTimeSeriesDecompositionAllocator {
+class CModelAllocator : public maths::common::CModelAllocator {
 public:
     explicit CModelAllocator(CResourceMonitor& resourceMonitor)
         : m_ResourceMonitor{&resourceMonitor} {}

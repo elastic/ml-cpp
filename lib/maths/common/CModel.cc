@@ -350,7 +350,7 @@ void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
 
 CModelStub::EUpdateResult
 CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
-                       const time_series::CTimeSeriesDecompositionAllocator& /*allocator*/,
+                       const CModelAllocator& /*allocator*/,
                        TTimeDouble2VecSizeTrVec /*samples*/) {
     return E_Success;
 }

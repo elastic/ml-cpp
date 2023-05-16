@@ -11,10 +11,11 @@
 
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
+#include <maths/common/CModel.h>
+
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 namespace ml {
 namespace maths {
@@ -45,7 +46,7 @@ bool CTimeSeriesDecompositionStub::initialized() const {
 void CTimeSeriesDecompositionStub::addPoint(
     core_t::TTime /*time*/,
     double /*value*/,
-    const CTimeSeriesDecompositionAllocator& /*allocator*/,
+    const common::CModelAllocator& /*allocator*/,
     const maths_t::TDoubleWeightsAry& /*weights*/,
     const TComponentChangeCallback& /*componentChangeCallback*/,
     const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,

@@ -36,13 +36,13 @@
 #include <maths/common/CStatisticalTests.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
+#include <maths/common/CModel.h>
 
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CExpandingWindow.h>
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/time_series/CSeasonalTime.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 #include <maths/time_series/CTimeSeriesTestForChange.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
@@ -382,7 +382,7 @@ const TSizeSizeMap SC_STATES_UPGRADING_TO_VERSION_6_3{{0, 0}, {1, 1}, {2, 1}, {3
 
 CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time,
                                                    core_t::TTime lastTime,
-                                                   const CTimeSeriesDecompositionAllocator& allocator)
+                                                   const TModelAllocator& allocator)
     : s_Time{time}, s_LastTime{lastTime}, s_Allocator{allocator} {
 }
 
@@ -403,7 +403,7 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     const TMakePredictor& makePredictor,
     const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
     const TMakeTestForSeasonality& makeTestForSeasonality,
-    const CTimeSeriesDecompositionAllocator& allocator)
+    const TModelAllocator& allocator)
     : SMessage{time, lastTime, allocator}, s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights},
       s_Occupancy{occupancy}, s_FirstValueTime{firstValueTime}, s_Trend{trend},
       s_Seasonal{seasonal}, s_Calendar{calendar}, s_Decomposition{&decomposition},
@@ -417,7 +417,7 @@ CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     core_t::TTime time,
     core_t::TTime lastTime,
     CSeasonalDecomposition components,
-    const CTimeSeriesDecompositionAllocator& allocator)
+    const TModelAllocator& allocator)
     : SMessage{time, lastTime, allocator}, s_Components{std::move(components)} {
 }
 
@@ -428,7 +428,7 @@ CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(
     core_t::TTime lastTime,
     CCalendarFeature feature,
     core_t::TTime timeZoneOffset,
-    const CTimeSeriesDecompositionAllocator& allocator)
+    const TModelAllocator& allocator)
     : SMessage{time, lastTime, allocator}, s_Feature{feature}, s_TimeZoneOffset{timeZoneOffset} {
 }
 
@@ -437,7 +437,7 @@ CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(
 CTimeSeriesDecompositionDetail::SDetectedTrend::SDetectedTrend(
     const TPredictor& predictor,
     const TComponentChangeCallback& componentChangeCallback,
-    const CTimeSeriesDecompositionAllocator& allocator)
+    const TModelAllocator& allocator)
     : SMessage{0, 0, allocator}, s_Predictor{predictor}, s_ComponentChangeCallback{componentChangeCallback} {
 }
 
@@ -447,7 +447,7 @@ CTimeSeriesDecompositionDetail::SDetectedChangePoint::SDetectedChangePoint(
     core_t::TTime time,
     core_t::TTime lastTime,
     TChangePointUPtr change,
-    const CTimeSeriesDecompositionAllocator& allocator)
+    const TModelAllocator& allocator)
     : SMessage{time, lastTime, allocator}, s_Change{std::move(change)} {
 }
 
@@ -2094,7 +2094,7 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 
 void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     const CSeasonalDecomposition& components,
-    const CTimeSeriesDecompositionAllocator& allocator) {
+    const TModelAllocator& allocator) {
 
     LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
@@ -2174,7 +2174,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
 void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(
     const CCalendarFeature& feature,
-    const CTimeSeriesDecompositionAllocator& allocator,
+    const TModelAllocator& allocator,
     core_t::TTime timeZoneOffset) {
     if (allocator.areAllocationsAllowed() == false) {
         // In the hard_limit state we are not adding any new components to the model.

@@ -17,7 +17,6 @@
 #include <maths/common/CNormalMeanPrecConjugate.h>
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CPartitioningFields.h>
@@ -74,7 +73,7 @@ using TStoredStringPtrStoredStringPtrPrDoublePrVec =
     model::CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 
-using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+using TAllocator = maths::common::CModelAllocatorStub;
 
 TDouble1VecDoublePr make_pair(double first, double second) {
     return TDouble1VecDoublePr{{first}, second};

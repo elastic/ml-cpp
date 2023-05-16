@@ -116,7 +116,7 @@ public:
     //! \param[in] firstValueTime The time of the first value added to the decomposition.
     void addPoint(core_t::TTime time,
                   double value,
-                  const CTimeSeriesDecompositionAllocator& allocator,
+                  const common::CModelAllocator& allocator,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,

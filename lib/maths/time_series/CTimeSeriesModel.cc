@@ -708,7 +708,7 @@ void CUnivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec& 
 
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& params,
-                                       const time_series::CTimeSeriesDecompositionAllocator& allocator,
+                                       const TModelAllocator& allocator,
                                        TTimeDouble2VecSizeTrVec samples) {
     if (samples.empty()) {
         return E_Success;
@@ -1494,7 +1494,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples,
-                                        const CTimeSeriesDecompositionAllocator& allocator) {
+                                        const TModelAllocator& allocator) {
 
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
@@ -2295,7 +2295,7 @@ void CMultivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec
 
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& params,
-                                         const CTimeSeriesDecompositionAllocator& allocator,
+                                         const TModelAllocator& allocator,
                                          TTimeDouble2VecSizeTrVec samples) {
     if (samples.empty()) {
         return E_Success;
@@ -2880,7 +2880,7 @@ CMultivariateTimeSeriesModel::decayRateControllers() const {
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples,
-                                          const CTimeSeriesDecompositionAllocator& allocator) {
+                                          const TModelAllocator& allocator) {
 
     std::size_t dimension{this->dimension()};
 

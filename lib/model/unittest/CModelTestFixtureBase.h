@@ -18,8 +18,6 @@
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
 
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
-
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
@@ -97,7 +95,7 @@ public:
     using TUInt64Vec = std::vector<std::uint64_t>;
     using TUIntVec = std::vector<unsigned int>;
 
-    using TAllocator = ml::maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+    using TAllocator = ml::maths::common::CModelAllocatorStub;
 
 public:
     const TAllocator& allocator() const { return m_Allocator; }

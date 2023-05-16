@@ -20,8 +20,7 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
-
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CModelFactory.h>
@@ -59,7 +58,7 @@ void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, std::uint64_t
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
     m_Completeness = 1.0;
     m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count),
-                               maths::time_series::CTimeSeriesDecompositionAllocatorStub());
+                               maths::common::CModelAllocatorStub());
     m_FinalCountMean.age(std::exp(-decayRate(m_BucketLength)));
     m_FinalCountMean.add(static_cast<double>(count));
 }

@@ -21,8 +21,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMultivariatePrior.h>
 #include <maths/common/COrderings.h>
-
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CDataGatherer.h>
@@ -418,7 +417,7 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                     this->lastBucketTimes()[pid], TDouble2Vec(dimension, 0.0),
                     model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)};
                 feature.s_Models[pid]->addSamples(
-                    params, maths::time_series::CTimeSeriesDecompositionAllocatorStub(), value);
+                    params, maths::common::CModelAllocatorStub(), value);
             }
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {

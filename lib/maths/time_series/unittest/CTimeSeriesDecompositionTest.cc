@@ -23,10 +23,10 @@
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/MathsTypes.h>
+#include <maths/common/CModel.h>
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
@@ -61,7 +61,7 @@ using TSeasonalComponentVec = maths_t::TSeasonalComponentVec;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TFloatMeanAccumulatorVec =
     std::vector<maths::common::CBasicStatistics::SSampleMean<maths::common::CFloatStorage>::TAccumulator>;
-using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+using TAllocator = maths::common::CModelAllocatorStub;
 
 class CDebugGenerator {
 public:
@@ -169,7 +169,7 @@ private:
 };
 
 class CTimeSeriesDecompositionAllocatorHardLimit
-    : public maths::time_series::CTimeSeriesDecompositionAllocator {
+    : public maths::common::CModelAllocator {
 public:
     //! Constructor
     explicit CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)

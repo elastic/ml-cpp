@@ -34,7 +34,6 @@ class CStateRestoreTraverser;
 namespace maths {
 namespace time_series {
 class CTimeSeriesCorrelations;
-class CTimeSeriesDecompositionAllocator;
 }
 namespace common {
 class CMultivariatePrior;
@@ -330,6 +329,30 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     SAnomalyScoreExplanation s_AnomalyScoreExplanation;
 };
 
+//! \brief The allocator interface.
+//!
+//! DESCRIPTION:\n
+//! The allocator interface is used to control the ability
+//! of a model to allocate new components. This is used to
+//! comply with the memory constraints of the system.
+class MATHS_COMMON_EXPORT CModelAllocator {
+public:
+    virtual ~CModelAllocator() = default;
+
+    //! Check if we can still allocate any components.
+    virtual bool areAllocationsAllowed() const = 0;
+};
+
+//! \brief The allocator stub.
+//!
+//! DESCRIPTION:\n
+//! The allocator stub is used to allow all allocations.
+class MATHS_COMMON_EXPORT CModelAllocatorStub
+    : public CModelAllocator {
+public:
+    bool areAllocationsAllowed() const override { return true; }
+};
+
 //! \brief The model interface.
 //!
 //! DESCRIPTION:\n
@@ -363,6 +386,7 @@ public:
     using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
     using TDouble2VecWeightsAry1Vec = maths_t::TDouble2VecWeightsAry1Vec;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
+    using TModelAllocator = CModelAllocator;
 
     //! Possible statuses for updating a model.
     enum EUpdateResult {
@@ -415,7 +439,7 @@ public:
 
     //! Update the model with new samples.
     virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
-                                     const time_series::CTimeSeriesDecompositionAllocator& allocator,
+                                     const CModelAllocator& allocator,
                                      TTimeDouble2VecSizeTrVec samples) = 0;
 
     //! Advance time by \p gap.
@@ -588,7 +612,7 @@ public:
 
     //! No-op.
     EUpdateResult addSamples(const CModelAddSamplesParams& params,
-                             const time_series::CTimeSeriesDecompositionAllocator& allocator,
+                             const CModelAllocator& allocator,
                              TTimeDouble2VecSizeTrVec samples) override;
 
     //! No-op.

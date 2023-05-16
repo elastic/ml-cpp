@@ -31,12 +31,12 @@
 namespace ml {
 namespace maths {
 namespace common {
+class CModelAllocator;
 class CMultivariatePrior;
 class CPrior;
 }
 namespace time_series {
 class CSeasonalComponent;
-class CTimeSeriesDecompositionAllocator;
 struct SChangeDescription;
 
 //! \brief Type definitions shared by the CTimeSeriesDecompositionInterface
@@ -109,7 +109,7 @@ public:
     virtual void
     addPoint(core_t::TTime time,
              double value,
-             const CTimeSeriesDecompositionAllocator& allocator,
+             const common::CModelAllocator& allocator,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,

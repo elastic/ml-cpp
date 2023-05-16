@@ -22,9 +22,9 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CRestoreParams.h>
+#include <maths/common/CModel.h>
 
 #include <maths/time_series/CSeasonalTime.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <algorithm>
 #include <cmath>
@@ -203,7 +203,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const CTimeSeriesDecompositionAllocator& allocator,
+                                        const common::CModelAllocator& allocator,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
                                         const maths_t::TModelAnnotationCallback& modelAnnotationCallback,

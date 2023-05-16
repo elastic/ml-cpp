@@ -20,7 +20,6 @@
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesModel.h>
 
 #include <test/CRandomNumbers.h>
@@ -52,7 +51,7 @@ using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
 using TErrorBarVec = std::vector<maths::common::SErrorBar>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TModelPtr = std::shared_ptr<maths::common::CModel>;
-using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+using TAllocator = maths::common::CModelAllocatorStub;
 
 class CDebugGenerator {
 public:

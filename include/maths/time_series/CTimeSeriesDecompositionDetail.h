@@ -15,12 +15,13 @@
 #include <core/CStateMachine.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CModel.h>
+
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CCalendarCyclicTest.h>
 #include <maths/time_series/CExpandingWindow.h>
 #include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
-#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 #include <maths/time_series/CTimeSeriesTestForChange.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
@@ -56,6 +57,7 @@ public:
     using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
+    using TModelAllocator = common::CModelAllocator;
 
     // clang-format off
     using TMakeTestForSeasonality =
@@ -72,14 +74,14 @@ public:
     struct MATHS_TIME_SERIES_EXPORT SMessage {
         SMessage(core_t::TTime time,
                  core_t::TTime lastTime,
-                 const CTimeSeriesDecompositionAllocator& allocator);
+                 const TModelAllocator& allocator);
 
         //! The message time.
         core_t::TTime s_Time;
         //! The last update time.
         core_t::TTime s_LastTime;
 
-        const CTimeSeriesDecompositionAllocator& s_Allocator;
+        const TModelAllocator& s_Allocator;
     };
 
     //! \brief The message passed to add a point.
@@ -98,7 +100,7 @@ public:
                   const TMakePredictor& makePredictor,
                   const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
                   const TMakeTestForSeasonality& makeTestForSeasonality,
-                  const CTimeSeriesDecompositionAllocator& allocator = CTimeSeriesDecompositionAllocatorStub());
+                  const TModelAllocator& allocator = common::CModelAllocatorStub());
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -135,7 +137,7 @@ public:
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
                           CSeasonalDecomposition components,
-                          const CTimeSeriesDecompositionAllocator& allocator);
+                          const TModelAllocator& allocator);
 
         //! The components found.
         CSeasonalDecomposition s_Components;
@@ -148,7 +150,7 @@ public:
                           core_t::TTime lastTime,
                           CCalendarFeature feature,
                           core_t::TTime timeZoneOffset,
-                          const CTimeSeriesDecompositionAllocator& allocator);
+                          const TModelAllocator& allocator);
 
         //! The calendar feature found.
         CCalendarFeature s_Feature;
@@ -160,7 +162,7 @@ public:
     struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
                        const TComponentChangeCallback& componentChangeCallback,
-                       const CTimeSeriesDecompositionAllocator& allocator);
+                       const TModelAllocator& allocator);
 
         TPredictor s_Predictor;
         TComponentChangeCallback s_ComponentChangeCallback;
@@ -171,7 +173,7 @@ public:
         SDetectedChangePoint(core_t::TTime time,
                              core_t::TTime lastTime,
                              TChangePointUPtr change,
-                             const CTimeSeriesDecompositionAllocator& allocator);
+                             const TModelAllocator& allocator);
 
         //! The change description.
         TChangePointUPtr s_Change;
@@ -948,11 +950,11 @@ public:
 
         //! Add new seasonal components.
         void addSeasonalComponents(const CSeasonalDecomposition& components,
-                                   const CTimeSeriesDecompositionAllocator& allocator);
+                                   const TModelAllocator& allocator);
 
         //! Add a new calendar component.
         void addCalendarComponent(const CCalendarFeature& feature,
-                                  const CTimeSeriesDecompositionAllocator& allocator,
+                                  const TModelAllocator& allocator,
                                   core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.
