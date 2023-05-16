@@ -44,6 +44,17 @@ BOOST_AUTO_TEST_CASE(testWriteAck) {
                         output.str());
 }
 
+BOOST_AUTO_TEST_CASE(testWriteMemoryUsage) {
+    std::ostringstream output;
+    {
+        ml::torch::CResultWriter resultWriter{output};
+        resultWriter.writeMemoryUsage("req3", 42, 54);
+    }
+    BOOST_REQUIRE_EQUAL("[{\"request_id\":\"req3\",\"memory_usage\":"
+                        "{\"rss\":42,\"max_rss\":54}}\n]",
+                        output.str());
+}
+
 BOOST_AUTO_TEST_CASE(testWriteError) {
     std::ostringstream output;
     {

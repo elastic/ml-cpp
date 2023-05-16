@@ -56,6 +56,7 @@ ml_add_library(MlCore SHARED
   CPatternSet.cc
   CPersistUtils.cc
   CProcess.cc
+  CProcessMemory.cc
   CProcessPriority.cc
   CProgName.cc
   CProgramCounters.cc
