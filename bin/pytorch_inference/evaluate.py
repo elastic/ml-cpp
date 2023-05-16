@@ -85,9 +85,9 @@ def parse_arguments():
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
-    parser.add_argument('--numThreadsPerAllocation', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
-    parser.add_argument('--numAllocations', type=int, help='The number of allocations for parallel forwarding. Defaults to 1')
-    parser.add_argument('--lowPriority', action='store_true', help='Run model in low priority')
+    parser.add_argument('--num_threads_per_allocation', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
+    parser.add_argument('--num_allocations', type=int, help='The number of allocations for parallel forwarding. Defaults to 1')
+    parser.add_argument('--low_priority', action='store_true', help='Run model in low priority')
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
@@ -98,7 +98,10 @@ def path_to_app():
 
     os_platform = platform.system()
     if os_platform == 'Darwin':
-        sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
+        if platform.machine() == 'arm64':
+            sub_path = 'darwin-aarch64/controller.app/Contents/MacOS/'
+        else:
+            sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
     elif os_platform == 'Linux':
         if platform.machine() == 'aarch64':
             sub_path = 'linux-aarch64/bin/'
@@ -120,13 +123,13 @@ def launch_pytorch_app(args):
         '--validElasticLicenseKeyConfirmed=true'
         ]
 
-    if args.numThreadsPerAllocation:
-        command.append('--numThreadsPerAllocation=' + str(args.numThreadsPerAllocation))
+    if args.num_threads_per_allocation:
+        command.append('--numThreadsPerAllocation=' + str(args.num_threads_per_allocation))
 
-    if args.numAllocations:
-        command.append('--numAllocations=' + str(args.numAllocations))
+    if args.num_allocations:
+        command.append('--numAllocations=' + str(args.num_allocations))
 
-    if args.lowPriority:
+    if args.low_priority:
         command.append('--lowPriority')
 
     subprocess.Popen(command).communicate()
@@ -325,13 +328,19 @@ def test_evaluation(args):
 def threading_benchmark(args):
     threading_options = [1, 2, 3, 4, 8, 12, 16]
     results = []
-    for inference_threads in threading_options:
+    for num_threads_per_allocation in threading_options:
         for num_allocations in threading_options:
-            args.inferenceThreads = inference_threads
+            args.num_threads_per_allocation = num_threads_per_allocation
             args.numAllocations = num_allocations
-            print(f'Running benchmark with inference_threads = [{inference_threads}]; model_threads = [{model_threads}]')
+            print(f'Running benchmark with inference_threads = [{num_threads_per_allocation}]; '
+                  f'num_allocations = [{num_allocations}]')
             (run_time_ms, avg_time_ms) = run_benchmark(args)
-            result = {'inference_threads': inference_threads, 'num_allocations': num_allocations, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
+            result = {
+                'inference_threads': num_threads_per_allocation,
+                'num_allocations': num_allocations,
+                'run_time_ms': run_time_ms,
+                'avg_time_ms': avg_time_ms
+            }
             results.append(result)
     print(f'inference_threads,num_allocations,run_time_ms,avg_time_ms')
     for result in results:
