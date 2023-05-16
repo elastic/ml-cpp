@@ -18,6 +18,7 @@
 
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesModel.h>
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
 
 #include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -73,6 +74,8 @@ using TStoredStringPtrStoredStringPtrPrDoublePrVec =
     model::CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 
+using TAllocator = maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+
 TDouble1VecDoublePr make_pair(double first, double second) {
     return TDouble1VecDoublePr{{first}, second};
 }
@@ -113,13 +116,14 @@ TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec& sample) {
 template<typename SAMPLES>
 core_t::TTime
 addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::common::CModel& model) {
+    TAllocator allocator;
     TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(dimension(samples[0]))};
     maths::common::CModelAddSamplesParams params;
     params.isInteger(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
     core_t::TTime time{0};
     for (const auto& sample_ : samples) {
-        model.addSamples(params, {sample(time, sample_)});
+        model.addSamples(params, allocator, {sample(time, sample_)});
         time += bucketLength;
     }
     return time;

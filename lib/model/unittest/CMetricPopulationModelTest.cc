@@ -415,7 +415,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                         .priorWeights(attribute.second.s_ResidualWeights)
                         .firstValueTime(attributeFirstValueTimes[attribute.first]);
                     expectedPopulationModels[feature.first][attribute.first]->addSamples(
-                        params_, attribute.second.s_Values);
+                        params_, this->allocator(), attribute.second.s_Values);
                 }
             }
 

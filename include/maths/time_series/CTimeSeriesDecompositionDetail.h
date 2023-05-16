@@ -1032,7 +1032,8 @@ public:
         TComponentChangeCallback m_ComponentChangeCallback;
 
         //! Supplied with an annotation if a component is added.
-        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{[](const std::string&) {}};
+        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{
+            [](const std::string&) {}};
 
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction{false};

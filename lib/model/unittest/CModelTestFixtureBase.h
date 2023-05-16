@@ -18,6 +18,8 @@
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
 
+#include <maths/time_series/CTimeSeriesDecompositionAllocator.h>
+
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
@@ -94,6 +96,11 @@ public:
 
     using TUInt64Vec = std::vector<std::uint64_t>;
     using TUIntVec = std::vector<unsigned int>;
+
+    using TAllocator = ml::maths::time_series::CTimeSeriesDecompositionAllocatorStub;
+
+public:
+    const TAllocator& allocator() const { return m_Allocator; }
 
 protected:
     struct SAnomaly {
@@ -261,6 +268,9 @@ protected:
     TModelFactoryPtr m_Factory;
     ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
     ml::model::CModelFactory::TModelPtr m_Model;
+
+private:
+    TAllocator m_Allocator;
 };
 
 #endif //INCLUDED_CModelTestFixtureBase_h

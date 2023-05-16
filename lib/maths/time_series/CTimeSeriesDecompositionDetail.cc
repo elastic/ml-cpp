@@ -1191,6 +1191,10 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
 
     switch (m_Machine.state()) {
     case PT_TEST:
+        // break immediately if in hard_limit state
+        if (message.s_Allocator.areAllocationsAllowed() == false) {
+            break;
+        }
         for (auto& window : m_Windows) {
             if (window != nullptr) {
                 window->add(time, value, prediction, weight);
@@ -1474,6 +1478,10 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
 
     switch (m_Machine.state()) {
     case CC_TEST:
+        // break immediately if in hard_limit state
+        if (message.s_Allocator.areAllocationsAllowed() == false) {
+            break;
+        }
         m_Test->add(time, error, maths_t::countForUpdate(weights));
         break;
     case CC_NOT_TESTING:
@@ -2097,6 +2105,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength) > 0) {
         // In the hard_limit state, we do not change the state of components if
         // adding new components will consume more memory than removing old ones.
+        LOG_TRACE(<< "Not adding new seasonal components because we are in the hard limit state");
         return;
     }
 
@@ -2111,38 +2120,13 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     }
 
     for (const auto& component : components.seasonal()) {
-        LOG_DEBUG(<< component.annotationText());
 
-        // auto time = component.seasonalTime();
-        // core_t::TTime period{time->period()};
-        // core_t::TTime startTime{component.initialValuesStartTime()};
-        // core_t::TTime endTime{component.initialValuesEndTime()};
-        // core_t::TTime maxTimeShiftPerPeriod{
-        //     component.isOneOf(CNewSeasonalComponentSummary::E_Day |
-        //                       CNewSeasonalComponentSummary::E_Week |
-        //                       CNewSeasonalComponentSummary::E_Year)
-        //         ? 0
-        //         : component.bucketLength() / 2};
-        // const auto& initialValues = component.initialValues();
-
-        // // If we see multiple repeats of the component in the window we use
-        // // a periodic boundary condition, which ensures that the prediction
-        // // at the repeat is continuous.
-        // auto boundaryCondition = period > time->windowLength()
-        //                              ? common::CSplineTypes::E_Natural
-        //                              : common::CSplineTypes::E_Periodic;
-        // double bucketLength{static_cast<double>(m_BucketLength)};
-
-        // // Add the new seasonal component.
-        // m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength, maxTimeShiftPerPeriod,
-        //                 boundaryCondition, startTime, endTime, initialValues);
         m_Seasonal->add(component.createSeasonalComponent(
             m_DecayRate, static_cast<double>(m_BucketLength)));
         m_ModelAnnotationCallback(component.annotationText());
     }
 
     m_Seasonal->refreshForNewComponents();
-    LOG_DEBUG(<< "New number of seasonal components: " << m_Seasonal->size());
 
     this->clearComponentErrors();
 
@@ -2194,6 +2178,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(
     core_t::TTime timeZoneOffset) {
     if (allocator.areAllocationsAllowed() == false) {
         // In the hard_limit state we are not adding any new components to the model.
+        LOG_INFO(<<"Not adding new calendar component because we are in the hard limit state");
         return;
     }
 
@@ -2691,7 +2676,7 @@ std::ptrdiff_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::estimateS
         addComponentsSize += core::memory::dynamicSize(
             component.createSeasonalComponent(decayRate, bucketLength));
     }
-    LOG_DEBUG(<<"Add components size: " << addComponentsSize
+    LOG_DEBUG(<< "Add components size: " << addComponentsSize
               << ", remove components size: " << removeComponentsSize
               << ", difference: " << addComponentsSize - removeComponentsSize << ".");
 
@@ -2810,7 +2795,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolV
         return false;
     }
     std::size_t end{0};
-    LOG_DEBUG(<< "Removing seasonal components " << removeComponentsMask.size() );
     for (std::size_t i = 0; i < removeComponentsMask.size();
          end += removeComponentsMask[i++] ? 0 : 1) {
         if (i != end) {
@@ -2818,9 +2802,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolV
             std::swap(m_PredictionErrors[end], m_PredictionErrors[i]);
         }
     }
-    LOG_DEBUG(<< "Inside remove: m_Components size " << m_Components.size()); 
     m_Components.erase(m_Components.begin() + end, m_Components.end());
-    LOG_DEBUG(<< "Inside remove: m_PredictionErrors size " << m_PredictionErrors.size()); 
     m_PredictionErrors.erase(m_PredictionErrors.begin() + end,
                              m_PredictionErrors.end());
     return true;

@@ -256,7 +256,7 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
         maths::common::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
             (bucketStartTime + bucketEndTime) / 2,
             maths::common::CModel::TDouble2Vec{sample}, std::size_t{0})};
-        timeseriesModel->addSamples(params_, expectedSamples);
+        timeseriesModel->addSamples(params_, this->allocator(), expectedSamples);
 
         // Test we sample the data correctly.
         BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
@@ -351,7 +351,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
             maths::common::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
                 (bucketStartTime + bucketEndTime) / 2,
                 maths::common::CModel::TDouble2Vec{sample}, std::size_t{0})};
-            timeseriesModel->addSamples(params_, expectedSamples);
+            timeseriesModel->addSamples(params_, this->allocator(), expectedSamples);
 
             // Test we sample the data correctly.
             BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
