@@ -9,6 +9,7 @@
  * limitation.
  */
 #include <core/CProcessStats.h>
+#include <core/CLogger.h>
 
 #include <errno.h>
 #include <fcntl.h>
