@@ -66,7 +66,11 @@ std::size_t CProcessStats::residentSetSize() {
             LOG_DEBUG(<< "unexpected output from /proc/self/statm, missing rss: " << statm);
             return 0;
         }
-        core::CStringUtils::stringToTypeSilent(tokens[1], rss);
+
+        if (core::CStringUtils::stringToTypeSilent(tokens[1], rss) == false) {
+            LOG_DEBUG(<< "failed to convert rss value: " << tokens[1]
+                      << " from /proc/self/statm: " << statm);
+        }
     }
 
     return rss;
