@@ -69,7 +69,7 @@ std::size_t CProcessStats::residentSetSize() {
         core::CStringUtils::stringToTypeSilent(tokens[1], rss);
     }
 
-    return 0;
+    return rss;
 }
 
 std::size_t CProcessStats::maxResidentSetSize() {
