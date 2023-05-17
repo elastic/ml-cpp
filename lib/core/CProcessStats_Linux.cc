@@ -8,7 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CProcessMemory.h>
+#include <core/CProcessStats.h>
 
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
@@ -23,13 +23,13 @@ namespace core {
 
 namespace {
 bool readFromSystemFile(const std::string& fileName, std::string& content) {
-    char buffer[16] = {'\0'};
+    char buffer[128] = {'\0'};
 
     // Use low level functions to read rather than C++ wrappers, as these are
     // system files.
     int fd = ::open(fileName.c_str(), O_RDONLY);
     if (fd == -1) {
-        LOG_INFO(<< "Could not open " << fileName << ": " << ::strerror(errno));
+        LOG_DEBUG(<< "Could not open " << fileName << ": " << ::strerror(errno));
         return false;
     }
 
@@ -37,10 +37,12 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
     ::close(fd);
 
     if (bytesRead < 0) {
+        LOG_DEBUG(<< "Error reading from " << fileName << ": " << ::strerror(errno));
         return false;
     }
 
     if (bytesRead == 0) {
+        LOG_DEBUG(<< "Read nothing from " << fileName);
         return false;
     }
 
@@ -51,7 +53,7 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 }
 }
 
-std::size_t CProcessMemory::residentSetSize() {
+std::size_t CProcessStats::residentSetSize() {
     std::string statm;
     if (readFromSystemFile("/proc/self/statm", statm) == true) {
         std::vector<std::string> tokens;
@@ -64,7 +66,7 @@ std::size_t CProcessMemory::residentSetSize() {
     return 0;
 }
 
-std::size_t CProcessMemory::maxResidentSetSize() {
+std::size_t CProcessStats::maxResidentSetSize() {
     struct rusage rusage;
     getrusage(RUSAGE_SELF, &rusage);
 

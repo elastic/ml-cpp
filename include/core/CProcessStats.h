@@ -8,8 +8,8 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#ifndef INCLUDED_ml_core_CProcessMemory_h
-#define INCLUDED_ml_core_CProcessMemory_h
+#ifndef INCLUDED_ml_core_CProcessStats_h
+#define INCLUDED_ml_core_CProcessStats_h
 
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
@@ -33,7 +33,7 @@ namespace core {
 //! The implementation is OS specific, not all methods might be available
 //! for every OS.
 //!
-class CORE_EXPORT CProcessMemory : private CNonInstantiatable {
+class CORE_EXPORT CProcessStats : private CNonInstantiatable {
 public:
     //! return the RSS of this process
     static std::size_t residentSetSize();
@@ -44,4 +44,4 @@ public:
 }
 }
 
-#endif // INCLUDED_ml_core_CProcessPriority_h
+#endif // INCLUDED_ml_core_CProcessStats_h

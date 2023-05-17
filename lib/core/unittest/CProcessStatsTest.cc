@@ -9,18 +9,18 @@
  * limitation.
  */
 
-#include <core/CProcessMemory.h>
+#include <core/CProcessStats.h>
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(CProcessMemoryTest)
+BOOST_AUTO_TEST_SUITE(CProcessStatsTest)
 
 BOOST_AUTO_TEST_CASE(testResidentSetSize) {
-    BOOST_REQUIRE_GT(ml::core::CProcessMemory::residentSetSize(), 0);
+    BOOST_REQUIRE_GT(ml::core::CProcessStats::residentSetSize(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(testMaxResidentSetSize) {
-    BOOST_REQUIRE_GT(ml::core::CProcessMemory::maxResidentSetSize(), 0);
+    BOOST_REQUIRE_GT(ml::core::CProcessStats::maxResidentSetSize(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

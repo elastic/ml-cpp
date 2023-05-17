@@ -29,9 +29,9 @@ const std::string CResultWriter::ACK{"ack"};
 const std::string CResultWriter::ACKNOWLEDGED{"acknowledged"};
 const std::string CResultWriter::NUM_ALLOCATIONS{"num_allocations"};
 const std::string CResultWriter::NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
-const std::string CResultWriter::MEMORY_USAGE{"memory_usage"};
-const std::string CResultWriter::RESIDENT_SET_SIZE{"rss"};
-const std::string CResultWriter::MAX_RESIDENT_SET_SIZE{"max_rss"};
+const std::string CResultWriter::PROCESS_STATS{"process_stats"};
+const std::string CResultWriter::MEMORY_RESIDENT_SET_SIZE{"memory_rss"};
+const std::string CResultWriter::MEMORY_MAX_RESIDENT_SET_SIZE{"memory_max_rss"};
 
 CResultWriter::CResultWriter(std::ostream& strmOut)
     : m_WrappedOutputStream{strmOut} {
@@ -100,18 +100,18 @@ void CResultWriter::writeSimpleAck(const std::string& requestId) {
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeMemoryUsage(const std::string& requestId,
-                                     const std::size_t residentSetSize,
-                                     const std::size_t maxResidentSetSize) {
+void CResultWriter::writeProcessStats(const std::string& requestId,
+                                      const std::size_t residentSetSize,
+                                      const std::size_t maxResidentSetSize) {
     core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
-    jsonWriter.Key(MEMORY_USAGE);
+    jsonWriter.Key(PROCESS_STATS);
     jsonWriter.StartObject();
-    jsonWriter.Key(RESIDENT_SET_SIZE);
+    jsonWriter.Key(MEMORY_RESIDENT_SET_SIZE);
     jsonWriter.Uint64(residentSetSize);
-    jsonWriter.Key(MAX_RESIDENT_SET_SIZE);
+    jsonWriter.Key(MEMORY_MAX_RESIDENT_SET_SIZE);
     jsonWriter.Uint64(maxResidentSetSize);
     jsonWriter.EndObject();
     jsonWriter.EndObject();

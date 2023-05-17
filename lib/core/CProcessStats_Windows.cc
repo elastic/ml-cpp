@@ -21,13 +21,13 @@ namespace core {
 std::size_t CProcessMemory::residentSetSize() {
     PROCESS_MEMORY_COUNTERS stats;
     GetProcessMemoryInfo(GetCurrentProcess(), &stats, sizeof(info));
-    return static_cast<std::sizet>(stats.WorkingSetSize);
+    return static_cast<std::size_t>(stats.WorkingSetSize);
 }
 
 std::size_t CProcessMemory::maxResidentSetSize() {
     PROCESS_MEMORY_COUNTERS stats;
     GetProcessMemoryInfo(GetCurrentProcess(), &stats, sizeof(info));
-    return static_cast<std::sizet>(stats.PeakWorkingSetSize);
+    return static_cast<std::size_t>(stats.PeakWorkingSetSize);
 }
 }
 }

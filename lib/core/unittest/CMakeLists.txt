@@ -48,8 +48,8 @@ set (SRCS
   CPatternSetTest.cc
   CPersistUtilsTest.cc
   CPersistenceTagTest.cc
-  CProcessMemoryTest.cc
   CProcessPriorityTest.cc
+  CProcessStatsTest.cc
   CProcessTest.cc
   CProgNameTest.cc
   CProgramCountersTest.cc

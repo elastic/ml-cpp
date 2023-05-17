@@ -11,8 +11,8 @@
 
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
-#include <core/CProcessMemory.h>
 #include <core/CProcessPriority.h>
+#include <core/CProcessStats.h>
 #include <core/CSetEnv.h>
 #include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
@@ -110,9 +110,9 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
         resultWriter.writeSimpleAck(controlMessage.s_RequestId);
         break;
     case ml::torch::CCommandParser::E_MemoryUsage:
-        resultWriter.writeMemoryUsage(controlMessage.s_RequestId,
-                                      ml::core::CProcessMemory::residentSetSize(),
-                                      ml::core::CProcessMemory::maxResidentSetSize());
+        resultWriter.writeProcessStats(controlMessage.s_RequestId,
+                                       ml::core::CProcessStats::residentSetSize(),
+                                       ml::core::CProcessStats::maxResidentSetSize());
         break;
     case ml::torch::CCommandParser::E_Unknown:
         LOG_ERROR(<< "Attempt to handle unknown control message");
