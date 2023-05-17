@@ -537,7 +537,7 @@ public:
     //! \brief Holds and updates the components of the decomposition.
     class MATHS_TIME_SERIES_EXPORT CComponents : public CHandler {
     public:
-        class CScopeAttachComponentChangeCallback {
+        class MATHS_TIME_SERIES_EXPORT CScopeAttachComponentChangeCallback {
         public:
             CScopeAttachComponentChangeCallback(CComponents& components,
                                                 TComponentChangeCallback componentChangeCallback,
