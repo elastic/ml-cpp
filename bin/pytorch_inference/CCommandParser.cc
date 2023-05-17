@@ -245,12 +245,6 @@ bool CCommandParser::checkArrayContainsUInts(const rapidjson::Value::ConstArray&
            }) == arr.End();
 }
 
-bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr) {
-    return std::find_if(arr.Begin(), arr.End(), [](const auto& i) {
-               return i.IsDouble() == false;
-           }) == arr.End();
-}
-
 CCommandParser::SRequest
 CCommandParser::jsonToInferenceRequest(const rapidjson::Document& doc) {
     SRequest request;
