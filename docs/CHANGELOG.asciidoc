@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.9.0
+
+=== Enhancements
+
+* Retrieve real memory usage of PyTorch inference (See {ml-pull}2487[#2487].)
+
 == {es} version 8.8.0
 
 === Enhancements
