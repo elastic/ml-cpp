@@ -8,7 +8,9 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+#include <core/CLogger.h>
 #include <core/CProcessStats.h>
+#include <core/CWindowsError.h>
 
 #include <core/WindowsSafe.h>
 #include <psapi.h>
