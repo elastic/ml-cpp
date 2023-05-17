@@ -55,12 +55,18 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 
 std::size_t CProcessStats::residentSetSize() {
     std::string statm;
+    std::size_t rss;
+
     if (readFromSystemFile("/proc/self/statm", statm) == true) {
         std::vector<std::string> tokens;
         std::string remainder;
         core::CStringUtils::tokenise(" ", statm, tokens, remainder);
 
-        return static_cast<std::size_t>(std::stol(tokens[1]));
+        if (tokens.size() < 2) {
+            LOG_DEBUG(<< "unexpected output from /proc/self/statm, missing rss: " << statm);
+            return 0;
+        }
+        core::CStringUtils::stringToTypeSilent(tokens[1], rss);
     }
 
     return 0;

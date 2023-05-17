@@ -10,11 +10,7 @@
  */
 #include <core/CProcessStats.h>
 
-#include <core/CLogger.h>
-#include <core/CStringUtils.h>
-
 #include <fcntl.h>
-#include <string.h>
 #include <sys/resource.h>
 #include <sys/time.h>
 

@@ -34,10 +34,10 @@ namespace core {
 //!
 class CORE_EXPORT CProcessStats : private CNonInstantiatable {
 public:
-    //! return the RSS of this process
+    //! return the RSS of this process in bytes
     static std::size_t residentSetSize();
 
-    //! return the maximum RSS of this process
+    //! return the maximum RSS of this process in bytes
     static std::size_t maxResidentSetSize();
 };
 }
