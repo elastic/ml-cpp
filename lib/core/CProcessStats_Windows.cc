@@ -8,7 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CProcessMemory.h>
+#include <core/CProcessStats.h>
 
 #include <core/WindowsSafe.h>
 #include <psapi.h>
@@ -18,13 +18,13 @@
 namespace ml {
 namespace core {
 
-std::size_t CProcessMemory::residentSetSize() {
+std::size_t CProcessStats::residentSetSize() {
     PROCESS_MEMORY_COUNTERS stats;
     GetProcessMemoryInfo(GetCurrentProcess(), &stats, sizeof(info));
     return static_cast<std::size_t>(stats.WorkingSetSize);
 }
 
-std::size_t CProcessMemory::maxResidentSetSize() {
+std::size_t CProcessStats::maxResidentSetSize() {
     PROCESS_MEMORY_COUNTERS stats;
     GetProcessMemoryInfo(GetCurrentProcess(), &stats, sizeof(info));
     return static_cast<std::size_t>(stats.PeakWorkingSetSize);
