@@ -10,6 +10,7 @@
  */
 #include <core/CProcessStats.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/resource.h>
 #include <sys/time.h>
@@ -24,7 +25,11 @@ std::size_t CProcessStats::residentSetSize() {
 
 std::size_t CProcessStats::maxResidentSetSize() {
     struct rusage rusage;
-    getrusage(RUSAGE_SELF, &rusage);
+
+    if (getrusage(RUSAGE_SELF, &rusage) != 0) {
+        LOG_DEBUG(<< "faild to get resource usage(getrusage): " << ::strerror(errno));
+        return 0;
+    }
 
     // ru_maxrss is in kilobytes
     return static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
