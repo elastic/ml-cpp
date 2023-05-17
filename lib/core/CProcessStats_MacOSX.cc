@@ -8,8 +8,8 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include <core/CProcessStats.h>
 #include <core/CLogger.h>
+#include <core/CProcessStats.h>
 
 #include <errno.h>
 #include <fcntl.h>
