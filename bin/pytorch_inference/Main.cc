@@ -109,7 +109,7 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
         cache.clear();
         resultWriter.writeSimpleAck(controlMessage.s_RequestId);
         break;
-    case ml::torch::CCommandParser::E_MemoryUsage:
+    case ml::torch::CCommandParser::E_ProcessStats:
         resultWriter.writeProcessStats(controlMessage.s_RequestId,
                                        ml::core::CProcessStats::residentSetSize(),
                                        ml::core::CProcessStats::maxResidentSetSize());

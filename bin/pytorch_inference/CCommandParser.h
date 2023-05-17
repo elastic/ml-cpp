@@ -119,7 +119,7 @@ public:
     enum EControlMessageType {
         E_NumberOfAllocations,
         E_ClearCache,
-        E_MemoryUsage,
+        E_ProcessStats,
         E_Unknown
     };
 

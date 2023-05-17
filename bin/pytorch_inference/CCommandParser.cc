@@ -158,7 +158,7 @@ CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
         break;
     }
     case E_ClearCache:
-    case E_MemoryUsage:
+    case E_ProcessStats:
         // No extra arguments needed
         break;
     case E_Unknown:
@@ -298,7 +298,7 @@ CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
         return {controlMessageType, doc[NUM_ALLOCATIONS].GetInt(),
                 doc[REQUEST_ID].GetString()};
     case E_ClearCache:
-    case E_MemoryUsage:
+    case E_ProcessStats:
         return {controlMessageType, 0, doc[REQUEST_ID].GetString()};
     case E_Unknown:
         break;

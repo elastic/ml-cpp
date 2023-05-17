@@ -8,30 +8,19 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #include <core/CProcessStats.h>
 
-#include <core/CLogger.h>
-#include <core/CStringUtils.h>
+#include <boost/test/unit_test.hpp>
 
-#include <fcntl.h>
-#include <string.h>
-#include <sys/resource.h>
-#include <sys/time.h>
+BOOST_AUTO_TEST_SUITE(CProcessStatsTest)
 
-namespace ml {
-namespace core {
-
-std::size_t CProcessStats::residentSetSize() {
-    // not supported on osx
-    return 0;
+BOOST_AUTO_TEST_CASE(testResidentSetSize) {
+    BOOST_REQUIRE_GT(ml::core::CProcessStats::residentSetSize(), 0);
 }
 
-std::size_t CProcessStats::maxResidentSetSize() {
-    struct rusage rusage;
-    getrusage(RUSAGE_SELF, &rusage);
+BOOST_AUTO_TEST_CASE(testMaxResidentSetSize) {
+    BOOST_REQUIRE_GT(ml::core::CProcessStats::maxResidentSetSize(), 0);
+}
 
-    // ru_maxrss is in kilobytes
-    return static_cast<std::size_t>(rusage.ru_maxrss * 1024L);
-}
-}
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -20,12 +20,11 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! Functions related to getting the real process memory size(RSS).
+//! Functions related to getting process statistics, e.g. memory usage.
 //!
 //! DESCRIPTION:\n
-//! Methods of this class are useful to get the real memory size of the
-//! running process. For broken down memory usage estimations take a look
-//! at CMemoryUsage.
+//! Methods of this class are useful to get process statistics of the
+//! running process, e.g. memory usage(RSS).
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! This is a static class - it's not possible to construct an instance of it.
@@ -38,7 +37,7 @@ public:
     //! return the RSS of this process
     static std::size_t residentSetSize();
 
-    //! return the maximum RSS of thsi process
+    //! return the maximum RSS of this process
     static std::size_t maxResidentSetSize();
 };
 }
