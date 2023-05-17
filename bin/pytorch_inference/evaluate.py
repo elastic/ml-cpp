@@ -303,6 +303,8 @@ def test_evaluation(args):
 
             total_time_ms += result['time_ms']
 
+                    
+
             # compare to expected
             if compare_results(expected, result, tolerance) == False:
                 print()
@@ -364,10 +366,10 @@ def main():
     finally:
         if os.path.isfile(args.restore_file):
             os.remove(args.restore_file)
-        if os.path.isfile(args.input_file):
-            os.remove(args.input_file)
-        if os.path.isfile(args.output_file):
-            os.remove(args.output_file)
+        # if os.path.isfile(args.input_file):
+        #     os.remove(args.input_file)
+        # if os.path.isfile(args.output_file):
+        #     os.remove(args.output_file)
 
 if __name__ == "__main__":
     main()
