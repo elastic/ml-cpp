@@ -43,6 +43,8 @@ if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
     . ./aws_creds_from_vault.sh
 fi
 
+set -e
+
 if [[ `uname` != Linux || `uname -m` != x86_64 ]] ; then
     echo "This script must be run on linux-x86_64"
     exit 2
@@ -82,16 +84,9 @@ if [ -n "$PR_AUTHOR" ] ; then
     ./docker_check_style.sh
 fi
 
-echo Disk Space before
-df -h
-
 # Cross compile macOS
 ./docker_build.sh macosx
 
-echo Disk Space after
-df -h
-
-exit 1
 # If this is a PR build then it's redundant to cross compile aarch64 (as
 # we build and test aarch64 natively for PR builds) but there's a benefit
 # to building one platform with debug enabled to detect code that only
