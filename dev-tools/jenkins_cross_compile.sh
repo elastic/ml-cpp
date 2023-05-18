@@ -84,8 +84,14 @@ if [ -n "$PR_AUTHOR" ] ; then
     ./docker_check_style.sh
 fi
 
+echo Disk Space before
+df -h
+
 # Cross compile macOS
 ./docker_build.sh macosx
+
+echo Disk Space after
+df -h
 
 # If this is a PR build then it's redundant to cross compile aarch64 (as
 # we build and test aarch64 natively for PR builds) but there's a benefit
