@@ -10,8 +10,7 @@ repositories {
 dependencies {
   compileOnly gradleApi()
   compileOnly localGroovy()
-  implementation platform('software.amazon.awssdk:bom:2.15.80')
+  implementation platform('software.amazon.awssdk:bom:2.20.67')
   implementation 'software.amazon.awssdk:s3'
-  implementation 'org.apache.velocity:velocity:1.7'
 }
 

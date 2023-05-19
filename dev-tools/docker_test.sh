@@ -91,7 +91,7 @@ do
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . $EXTRACT_FIND | xargs tar cf - $EXTRACT_EXPLICIT" | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . $EXTRACT_FIND | xargs tar cf - $EXTRACT_EXPLICIT && sleep 30" | tar xvf -
     docker rmi --force $TEMP_TAG
     # The image build is set to return zero (i.e. succeed as far as Docker is
     # concerned) when the only problem is that the unit tests fail, as this
