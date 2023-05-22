@@ -78,9 +78,13 @@ public:
     virtual double value() const = 0;
     virtual std::string print() const = 0;
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
-
-    void add(core_t::TTime time, core_t::TTime lastTime, double value, double weight, const TPredictor& predictor);
-    bool shouldUndo() const;
+    virtual double predictionVariance() const;
+    virtual bool shouldUndo() const;
+    virtual void add(core_t::TTime time,
+                     core_t::TTime lastTime,
+                     double value,
+                     double weight,
+                     const TPredictor& predictor);
 
     core_t::TTime time() const { return m_Time; }
     double significantPValue() const { return m_SignificantPValue; }
@@ -89,6 +93,9 @@ public:
 
 protected:
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+protected:
+    double decayFactor(core_t::TTime time, core_t::TTime lastTime) const;
 
 private:
     virtual double undonePredict(const TPredictor& predictor, core_t::TTime time) const {
@@ -188,9 +195,10 @@ public:
     CTimeShift(core_t::TTime time,
                core_t::TTime shift,
                TFloatMeanAccumulatorVec residuals,
-               double significantPValue);
+               double significantPValue,
+               double predictionVariance);
     //! For undo only.
-    CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue);
+    CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue, double predictionVariance);
 
     TChangePointUPtr undoable() const override;
     COutlierWeightDerate outlierWeightDerate(core_t::TTime startTime,
@@ -203,12 +211,24 @@ public:
     std::string print() const override;
     double value() const override { return static_cast<double>(m_Shift); }
     std::uint64_t checksum(std::uint64_t seed = 0) const override;
+    double predictionVariance() const override;
+    bool shouldUndo() const override;
+    void add(core_t::TTime time,
+             core_t::TTime lastTime,
+             double value,
+             double weight,
+             const TPredictor& predictor) override;
+
+private:
+    using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 private:
     double undonePredict(const TPredictor& predictor, core_t::TTime time) const override;
 
 private:
     core_t::TTime m_Shift{0};
+    double m_PredictionVariance{0.0};
+    TMeanVarAccumulator m_ValueMoments;
 };
 
 //! \brief Manages persist and restore of an undoable change point.
@@ -360,17 +380,18 @@ private:
     }
 
 private:
-    int m_TestFor = E_All;
-    double m_SignificantPValue = 1e-3;
-    double m_AcceptedFalsePostiveRate = 1e-4;
-    core_t::TTime m_ValuesStartTime = 0;
-    core_t::TTime m_BucketsStartTime = 0;
-    core_t::TTime m_BucketLength = 0;
-    core_t::TTime m_SampleInterval = 0;
-    double m_SampleVariance = 0.0;
-    double m_OutlierFraction = OUTLIER_FRACTION;
-    double m_EpsVariance = 0.0;
-    TPredictor m_Predictor = [](core_t::TTime) { return 0.0; };
+    int m_TestFor{E_All};
+    double m_SignificantPValue{1e-3};
+    double m_AcceptedFalsePostiveRate{1e-4};
+    core_t::TTime m_ValuesStartTime{0};
+    core_t::TTime m_BucketsStartTime{0};
+    core_t::TTime m_BucketLength{0};
+    core_t::TTime m_SampleInterval{0};
+    double m_SampleVariance{0.0};
+    double m_OutlierFraction{OUTLIER_FRACTION};
+    double m_EpsVariance{0.0};
+    double m_PredictionVariance{0.0};
+    TPredictor m_Predictor{[](core_t::TTime) { return 0.0; }};
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.
     mutable TFloatMeanAccumulatorVec m_ValuesMinusPredictions;

@@ -49,7 +49,8 @@ core_t::TTime BUCKET_LENGTH{core::constants::HOUR / 2};
 void testChange(const TGeneratorVec& trends,
                 TChange applyChange,
                 const std::string& expectedChangeType,
-                double expectedChange) {
+                double expectedChange,
+                std::size_t changeTime = 50) {
 
     test::CRandomNumbers rng;
 
@@ -72,10 +73,10 @@ void testChange(const TGeneratorVec& trends,
 
         TFloatMeanAccumulatorVec values(samples.size());
         core_t::TTime time{startTime};
-        for (std::size_t i = 0; i < 50; ++i, time += BUCKET_LENGTH) {
+        for (std::size_t i = 0; i < changeTime; ++i, time += BUCKET_LENGTH) {
             values[i].add(10.0 * trend(time) + samples[i]);
         }
-        for (std::size_t i = 50; i < samples.size(); ++i, time += BUCKET_LENGTH) {
+        for (std::size_t i = changeTime; i < samples.size(); ++i, time += BUCKET_LENGTH) {
             values[i].add(10.0 * applyChange(trend, time) + samples[i]);
         }
         auto predictor = [&](core_t::TTime time_) { return 10.0 * trend(time_); };
@@ -95,9 +96,11 @@ void testChange(const TGeneratorVec& trends,
 
         LOG_TRACE(<< change->print() << " at " << change->time());
         if (actualChangeType == expectedChangeType) {
+            auto expectedChangeTime =
+                startTime + static_cast<core_t::TTime>(changeTime) * BUCKET_LENGTH;
             meanError.add(std::fabs(expectedChange - change->value()) / expectedChange);
-            meanTimeError(static_cast<double>(
-                std::abs(startTime + 50 * BUCKET_LENGTH - change->time())));
+            meanTimeError(
+                static_cast<double>(std::abs(expectedChangeTime - change->time())));
         }
     }
 
@@ -206,6 +209,28 @@ BOOST_AUTO_TEST_CASE(testTimeShift) {
                +static_cast<double>(core::constants::HOUR));
 }
 
+BOOST_AUTO_TEST_CASE(testTimeShiftFullWindow) {
+
+    // Test the case we only get to observe a shifted window, i.e. we have no
+    // visible change in the window. This can happen for example if the time
+    // series is flat in parts.
+
+    TGeneratorVec trends{
+        [](core_t::TTime time) { return 2.0 * smoothDaily(time); }};
+    testChange(trends,
+               [](TGenerator trend, core_t::TTime time) {
+                   return trend(time - core::constants::HOUR);
+               },
+               maths::time_series::CTimeShift::TYPE,
+               -static_cast<double>(core::constants::HOUR), 0 /*change time*/);
+    testChange(trends,
+               [](TGenerator trend, core_t::TTime time) {
+                   return trend(time + core::constants::HOUR);
+               },
+               maths::time_series::CTimeShift::TYPE,
+               +static_cast<double>(core::constants::HOUR), 0 /*change time*/);
+}
+
 BOOST_AUTO_TEST_CASE(testWithReversion) {
 
     // Test we handle temporary changes correctly.
@@ -265,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::time_series::CUndoableChangePointStateSerializer serializer;
 
     TChangePointUPtr origChangePoint{
-        std::make_unique<maths::time_series::CTimeShift>(500, -1800, 0.01)};
+        std::make_unique<maths::time_series::CTimeShift>(500, -1800, 0.01, 10.0)};
 
     std::string origXml;
     {
