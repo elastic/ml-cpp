@@ -263,9 +263,9 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
             double nl{static_cast<double>(errors[i].s_LargeErrorCount % (1 << 17))};
             double nv{static_cast<double>(errors[i].s_LargeErrorCount / (1 << 17))};
             double pValue{this->errorsPValue(n, nl, nv)};
-            // It is that the maximum value is at least as large as the mean
-            // We use this to compute a lower bound for the chance of seeing
-            // a larger error on the interval.
+            // It is clear that the maximum value of a set is at least as
+            // large as its mean. We use this to compute a lower bound for
+            // the right tail probability for the largest error.
             double cdf;
             m_ErrorQuantiles.cdf(errors[i].s_LargeErrorSum / n, cdf);
 
