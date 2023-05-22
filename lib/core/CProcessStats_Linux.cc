@@ -71,6 +71,7 @@ std::size_t CProcessStats::residentSetSize() {
         if (core::CStringUtils::stringToTypeSilent(tokens[1], rss) == false) {
             LOG_DEBUG(<< "failed to convert rss value: " << tokens[1]
                       << " from /proc/self/statm: " << statm);
+            return 0;
         }
     }
 
@@ -81,7 +82,7 @@ std::size_t CProcessStats::maxResidentSetSize() {
     struct rusage rusage;
 
     if (getrusage(RUSAGE_SELF, &rusage) != 0) {
-        LOG_DEBUG(<< "faild to get resource usage(getrusage): " << ::strerror(errno));
+        LOG_DEBUG(<< "failed to get resource usage(getrusage): " << ::strerror(errno));
         return 0;
     }
 
