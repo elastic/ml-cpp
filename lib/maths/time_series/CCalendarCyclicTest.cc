@@ -318,6 +318,7 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
         }
     }
 
+    // Extract features and offsets in descending error sum order.
     TFeatureTimePrVec result;
     largestErrorFeatures.sort();
     std::transform(largestErrorFeatures.begin(), largestErrorFeatures.end(),
@@ -325,6 +326,8 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
                        return std::make_pair(featureAndError.s_Feature,
                                              featureAndError.s_Offset);
                    });
+
+    // Enforce a single time zone.
     if (result.size() > 1) {
         auto offset = result[0].second;
         result.erase(std::remove_if(result.begin(), result.end(),
@@ -333,6 +336,7 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
                                     }),
                      result.end());
     }
+
     return result;
 }
 
