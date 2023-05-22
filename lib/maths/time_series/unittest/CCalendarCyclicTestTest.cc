@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/test/unit_test_suite.hpp>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
