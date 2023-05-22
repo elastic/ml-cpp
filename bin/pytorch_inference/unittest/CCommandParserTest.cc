@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
     {
         std::vector<std::string> errors;
 
-        std::string command{R"({"request_id":"ctrl1",  "control": 2})"};
+        std::string command{R"({"request_id":"ctrl1",  "control": 3})"};
         std::istringstream commandStream{command};
 
         ml::torch::CCommandParser processor{commandStream, 0};

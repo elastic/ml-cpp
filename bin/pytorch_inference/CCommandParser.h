@@ -116,7 +116,12 @@ public:
         E_ControlMessage,
         E_MalformedMessage
     };
-    enum EControlMessageType { E_NumberOfAllocations, E_ClearCache, E_Unknown };
+    enum EControlMessageType {
+        E_NumberOfAllocations,
+        E_ClearCache,
+        E_ProcessStats,
+        E_Unknown
+    };
 
     //! The incoming JSON requests contain a 2D array of tokens representing
     //! a batch of inference calls. To avoid copying, the input tensor
