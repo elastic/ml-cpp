@@ -1400,16 +1400,16 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
                                             CC_STATES,
                                             CC_TRANSITION_FUNCTION,
                                             bucketLength > DAY ? CC_NOT_TESTING : CC_INITIAL)},
-      m_DecayRate{decayRate}, m_LastMonth{} {
+      m_DecayRate{decayRate}, m_BucketLength{bucketLength}, m_LastMonth{} {
 }
 
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest& other,
                                                              bool isForForecast)
     : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
-      m_LastMonth{other.m_LastMonth}, m_Test{isForForecast == false && other.m_Test
-                                                 ? std::make_unique<CCalendarCyclicTest>(
-                                                       *other.m_Test)
-                                                 : nullptr} {
+      m_BucketLength{other.m_BucketLength}, m_LastMonth{other.m_LastMonth},
+      m_Test{isForForecast == false && other.m_Test
+                 ? std::make_unique<CCalendarCyclicTest>(*other.m_Test)
+                 : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1420,12 +1420,13 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth)
-        RESTORE_SETUP_TEARDOWN(CALENDAR_TEST_6_3_TAG,
-                               m_Test = std::make_unique<CCalendarCyclicTest>(m_DecayRate),
-                               traverser.traverseSubLevel([this](auto& traverser_) {
-                                   return m_Test->acceptRestoreTraverser(traverser_);
-                               }),
-                               /**/)
+        RESTORE_SETUP_TEARDOWN(
+            CALENDAR_TEST_6_3_TAG,
+            m_Test = std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate),
+            traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_Test->acceptRestoreTraverser(traverser_);
+            }),
+            /**/)
     } while (traverser.next());
     return true;
 }
@@ -1446,6 +1447,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::acceptPersistInserter(
 void CTimeSeriesDecompositionDetail::CCalendarTest::swap(CCalendarTest& other) {
     std::swap(m_Machine, other.m_Machine);
     std::swap(m_DecayRate, other.m_DecayRate);
+    std::swap(m_BucketLength, other.m_BucketLength);
     std::swap(m_LastMonth, other.m_LastMonth);
     m_Test.swap(other.m_Test);
 }
@@ -1497,8 +1499,9 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
     if (this->shouldTest(time)) {
         switch (m_Machine.state()) {
         case CC_TEST: {
-            if (auto result = m_Test->test()) {
-                auto[feature, timeZoneOffset] = *result;
+            auto result = m_Test->test();
+            for (auto component : result) {
+                auto[feature, timeZoneOffset] = component;
                 this->mediator()->forward(
                     SDetectedCalendar(time, lastTime, feature, timeZoneOffset));
             }
@@ -1527,6 +1530,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::propagateForwards(core_t::TT
 std::uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Machine);
     seed = common::CChecksum::calculate(seed, m_DecayRate);
+    seed = common::CChecksum::calculate(seed, m_BucketLength);
     seed = common::CChecksum::calculate(seed, m_LastMonth);
     return common::CChecksum::calculate(seed, m_Test);
 }
@@ -1548,7 +1552,8 @@ std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage() const {
 std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
-        TCalendarCyclicTestPtr test = std::make_unique<CCalendarCyclicTest>(m_DecayRate);
+        TCalendarCyclicTestPtr test =
+            std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate);
         result = core::memory::dynamicSize(test);
     }
     return result;
@@ -1569,7 +1574,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
         switch (state) {
         case CC_TEST:
             if (m_Test == nullptr) {
-                m_Test = std::make_unique<CCalendarCyclicTest>(m_DecayRate);
+                m_Test = std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate);
                 m_LastMonth = this->month(time) + 2;
             }
             break;
