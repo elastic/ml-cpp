@@ -15,6 +15,7 @@
 #include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/MathsTypes.h>
 
@@ -67,7 +68,7 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Add \p error at \p time.
-    void add(core_t::TTime time, double error, double weight = 1.0);
+    void add(core_t::TTime time, double value, double error, double weight = 1.0);
 
     //! Check if there are calendar components.
     TFeatureTimePrVec test() const;
@@ -85,6 +86,7 @@ private:
     using TTimeVec = std::vector<core_t::TTime>;
     using TByte = unsigned char;
     using TByteVec = std::vector<TByte>;
+    using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     //! \brief Records the daily error statistics.
     struct MATHS_TIME_SERIES_EXPORT SErrorStats {
@@ -124,6 +126,9 @@ private:
     //! Get the percentile for errors classified as very large.
     double veryLargeErrorPercentile() const;
 
+    //! Adjust \p error to zero small relative errors.
+    double errorAdj(double error) const;
+
     //! Convert to a compressed representation.
     void deflate(const TErrorStatsVec& stats);
 
@@ -140,6 +145,9 @@ private:
 
     //! The raw data bucketing interval.
     core_t::TTime m_BucketLength;
+
+    //! The average absolute value.
+    TMeanAccumulator m_MeanAbsValue;
 
     //! Used to estimate large error thresholds.
     common::CQuantileSketch m_ErrorQuantiles;

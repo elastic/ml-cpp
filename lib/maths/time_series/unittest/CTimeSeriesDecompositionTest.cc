@@ -55,6 +55,7 @@ using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TSeasonalComponentVec = maths_t::TSeasonalComponentVec;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TFloatMeanAccumulatorVec =
     std::vector<maths::common::CBasicStatistics::SSampleMean<maths::common::CFloatStorage>::TAccumulator>;
 
@@ -1280,7 +1281,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
         maths::time_series::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
         CDebugGenerator debug("daily.py");
 
-        TMeanAccumulator error;
+        TMeanAccumulator mape;
         core_t::TTime time = 0;
         for (std::size_t t = 0; t < 50; ++t) {
             for (auto value :
@@ -1297,7 +1298,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
                     debug.addValue(time, value);
                     double prediction = decomposition.value(time, 0.0, false).mean();
                     if (decomposition.initialized()) {
-                        error.add(std::fabs(value - prediction) / std::fabs(value));
+                        mape.add(std::fabs((value - prediction) / value));
                     }
                     debug.addPrediction(time, prediction, value - prediction);
                 }
@@ -1305,8 +1306,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
             }
         }
 
-        LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.11);
+        LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.11);
     }
 
     LOG_DEBUG(<< "Weekly Periodic");
@@ -1314,7 +1315,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
         maths::time_series::CTimeSeriesDecomposition decomposition(0.01, HOUR);
         CDebugGenerator debug("weekly.py");
 
-        TMeanAccumulator error;
+        TMeanAccumulator mape;
         core_t::TTime time = 0;
         for (std::size_t t = 0; t < 10; ++t) {
             for (auto value :
@@ -1343,7 +1344,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
                     debug.addValue(time, value);
                     double prediction = decomposition.value(time, 0.0, false).mean();
                     if (decomposition.initialized()) {
-                        error.add(std::fabs(value - prediction) / std::fabs(value));
+                        mape.add(std::fabs((value - prediction) / value));
                     }
                     debug.addPrediction(time, prediction, value - prediction);
                 }
@@ -1351,8 +1352,8 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
             }
         }
 
-        LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.12);
+        LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.12);
     }
 }
 
@@ -1887,8 +1888,8 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     }
 
     // Predict over one year and check we get reasonable accuracy.
-    double maxError{0.0};
-    TMeanAccumulator meanError;
+    double maxRelativeError{0.0};
+    TMeanAccumulator mape;
     for (/**/; time < 5 * YEAR; time += 2 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
@@ -1896,19 +1897,19 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
             7.5 * std::sin(boost::math::double_constants::two_pi *
                            static_cast<double>(time) / static_cast<double>(DAY));
         double prediction = decomposition.value(time, 0.0, false).mean();
-        double error = std::fabs((prediction - trend) / trend);
-        LOG_TRACE(<< "error = " << error);
-        maxError = std::max(maxError, error);
-        meanError.add(error);
+        double relativeError = std::fabs((prediction - trend) / trend);
+        LOG_TRACE(<< "relative error = " << relativeError);
+        maxRelativeError = std::max(maxRelativeError, relativeError);
+        mape.add(relativeError);
         debug.addValue(time, trend);
         debug.addPrediction(time, prediction, trend - prediction);
     }
 
-    LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(meanError));
-    LOG_DEBUG(<< "max error = " << maxError);
+    LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+    LOG_DEBUG(<< "max relative error = " << maxRelativeError);
 
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.022);
-    BOOST_TEST_REQUIRE(maxError < 0.08);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.022);
+    BOOST_TEST_REQUIRE(maxRelativeError < 0.08);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
@@ -1953,16 +1954,16 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
             [&newComponents](TFloatMeanAccumulatorVec) { newComponents = true; });
 
         if (newComponents) {
-            TMeanAccumulator error;
+            TMeanAccumulator mape;
             for (core_t::TTime endTime = time + DAY; time < endTime; time += TEN_MINS) {
                 double prediction = decomposition.value(time, 0.0, false).mean();
-                error.add(std::fabs(prediction - trend(time)) / trend(time));
+                mape.add(std::fabs(prediction - trend(time)) / trend(time));
                 debug.addValue(time, value);
                 debug.addPrediction(time, prediction, trend(time) - prediction);
             }
 
-            LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.03);
+            LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.03);
             break;
         }
         debug.addValue(time, value);
@@ -2048,20 +2049,31 @@ BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
         return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
     };
 
-    const core_t::TTime bucketLength = 6 * HOUR;
+    const core_t::TTime bucketLength{6 * HOUR};
 
     test::CRandomNumbers rng;
 
     maths::time_series::CTimeSeriesDecomposition decomposition(0.0005, bucketLength);
+    CDebugGenerator debug;
+
     TDoubleVec noise;
+    TMeanAccumulator mape;
+
     for (core_t::TTime time = 0; time < 9 * YEAR; time += 6 * HOUR) {
         rng.generateNormalSamples(0.0, 4.0, 1, noise);
         decomposition.addPoint(time, trend(time) + noise[0]);
+        debug.addValue(time, trend(time) + noise[0]);
         if (time > 10 * WEEK) {
-            BOOST_TEST_REQUIRE(
-                std::fabs(decomposition.detrend(time, trend(time), 0.0, false)) < 3.0);
+            double prediction{decomposition.value(time, 0.0, false).mean()};
+            double error{decomposition.detrend(time, trend(time), 0.0, false)};
+            debug.addPrediction(time, prediction, error);
+            mape.add(std::fabs(error) / trend(time));
+            BOOST_TEST_REQUIRE(std::fabs(error) / trend(time) < 0.01);
         }
     }
+
+    LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 1e-4);
 }
 
 BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
@@ -2100,7 +2112,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         1);
     CDebugGenerator debug;
 
-    TMeanAccumulator errors[4];
+    TMeanAccumulatorVec mapes(4);
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 35 * WEEK; time += FIVE_MINS) {
         rng.generateNormalSamples(0.0, 1.0, 1, noise);
@@ -2118,13 +2130,13 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
 
         double prediction = decomposition.value(time, 0.0, false).mean();
         if (time > 24 * WEEK) {
-            errors[3].add(std::fabs(prediction - trend(time)) / trend(time));
+            mapes[3].add(std::fabs(prediction - trend(time)) / trend(time));
         } else if (time > 18 * WEEK && time < 21 * WEEK) {
-            errors[2].add(std::fabs(prediction - trend(time)) / trend(time));
+            mapes[2].add(std::fabs(prediction - trend(time)) / trend(time));
         } else if (time > 11 * WEEK && time < 14 * WEEK) {
-            errors[1].add(std::fabs(prediction - trend(time)) / trend(time));
+            mapes[1].add(std::fabs(prediction - trend(time)) / trend(time));
         } else if (time > 6 * WEEK && time < 9 * WEEK) {
-            errors[0].add(std::fabs(prediction - trend(time)) / trend(time));
+            mapes[0].add(std::fabs(prediction - trend(time)) / trend(time));
         }
 
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
@@ -2132,9 +2144,9 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
 
     TDoubleVec bounds{0.013, 0.013, 0.15, 0.02};
     for (std::size_t i = 0; i < 4; ++i) {
-        double error{maths::common::CBasicStatistics::mean(errors[i])};
-        LOG_DEBUG(<< "error = " << error);
-        BOOST_TEST_REQUIRE(error < bounds[i]);
+        double mape{maths::common::CBasicStatistics::mean(mapes[i])};
+        LOG_DEBUG(<< "MAPE = " << mape);
+        BOOST_TEST_REQUIRE(mape < bounds[i]);
     }
 }
 
@@ -2248,7 +2260,7 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
         1};
     CDebugGenerator debug;
 
-    TMeanAccumulator meanError;
+    TMeanAccumulator mape;
 
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < WEEK; time += ONE_MIN) {
@@ -2269,14 +2281,15 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
         double prediction{decomposition.value(time, 0.0, false).mean()};
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
         if (time > 4 * DAY) {
-            double error{(std::fabs(decomposition.detrend(time, trend(time), 0.0, false, FIVE_MINS))) /
-                         std::fabs(trend(time))};
-            BOOST_TEST_REQUIRE(error < 0.25);
-            meanError.add(error);
+            double error{decomposition.detrend(time, trend(time), 0.0, false, FIVE_MINS)};
+            double relativeError{std::fabs(error / trend(time))};
+            BOOST_TEST_REQUIRE(relativeError < 0.25);
+            mape.add(relativeError);
         }
     }
 
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.01);
+    LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.01);
 
     // We should be modelling both seasonalities.
     BOOST_TEST_REQUIRE(2, decomposition.seasonalComponents().size());
@@ -2298,7 +2311,7 @@ BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
     maths::time_series::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
     CDebugGenerator debug;
 
-    TMeanAccumulator meanError;
+    TMeanAccumulator mape;
 
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 6 * WEEK; time += FIVE_MINS) {
@@ -2314,14 +2327,15 @@ BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
                             trend(time) + noise[0] - prediction.mean());
 
         if (time > 4 * DAY && trend(time) > 1.0) {
-            double error{(std::fabs(decomposition.detrend(time, trend(time), 0.0, true, FIVE_MINS))) /
-                         std::fabs(trend(time))};
-            BOOST_TEST_REQUIRE(error < 0.8);
-            meanError.add(error);
+            double error{decomposition.detrend(time, trend(time), 0.0, true, FIVE_MINS)};
+            double relativeError{std::fabs(error / trend(time))};
+            BOOST_TEST_REQUIRE(relativeError < 0.8);
+            mape.add(relativeError);
         }
     }
 
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.1);
+    LOG_DEBUG(<< "MAPE = " << maths::common::CBasicStatistics::mean(mape));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mape) < 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {

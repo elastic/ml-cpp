@@ -23,6 +23,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
@@ -74,14 +75,16 @@ double binomialPValueAdj(double n, double p, double np) {
 }
 
 const std::string VERSION_6_4_TAG("6.4");
+// Version < 6.4
+const std::string ERROR_QUANTILES_OLD_TAG("a");
 // Version 6.4
 const core::TPersistenceTag ERROR_QUANTILES_6_4_TAG("a", "error_quantiles");
 const core::TPersistenceTag CURRENT_BUCKET_TIME_6_4_TAG("b", "current_bucket_time");
 const core::TPersistenceTag CURRENT_BUCKET_INDEX_6_4_TAG("c", "current_bucket_index");
 const core::TPersistenceTag CURRENT_BUCKET_ERROR_STATS_6_4_TAG("d", "current_bucket_error_stats");
 const core::TPersistenceTag ERRORS_6_4_TAG("e", "errors");
-// Version < 6.4
-const std::string ERROR_QUANTILES_OLD_TAG("a");
+// Version 8.9
+const core::TPersistenceTag MEAN_ABS_VALUE_8_9_TAG("f", "mean_absolute_value");
 // Everything else gets default initialised.
 
 const std::string DELIMITER{","};
@@ -128,6 +131,7 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                     m_CurrentBucketErrorStats.fromDelimited(traverser.value()))
             RESTORE(ERRORS_6_4_TAG,
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, errors, traverser))
+            RESTORE(MEAN_ABS_VALUE_8_9_TAG, m_MeanAbsValue.fromDelimited(traverser.value())
         }
     } else {
         do {
@@ -160,6 +164,7 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
                          m_CurrentBucketErrorStats.toDelimited());
     TErrorStatsVec errors{this->inflate()};
     core::CPersistUtils::persist(ERRORS_6_4_TAG, errors, inserter);
+    inserter.insertValue(MEAN_ABS_VALUE_8_9_TAG, m_MeanAbsValue.toDelimited());
 }
 
 void CCalendarCyclicTest::forgetErrorDistribution() {
@@ -171,12 +176,15 @@ void CCalendarCyclicTest::propagateForwardsByTime(double time) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
-    m_ErrorQuantiles.age(std::exp(-m_DecayRate * time));
+    double factor{std::exp(-m_DecayRate * time)};
+    m_MeanAbsValue.age(factor);
+    m_ErrorQuantiles.age(factor);
 }
 
-void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
+void CCalendarCyclicTest::add(core_t::TTime time, double value, double error, double weight) {
     error = std::fabs(error);
 
+    m_MeanAbsValue.add(std::fabs(value), weight);
     m_ErrorQuantiles.add(error, weight);
 
     if (m_ErrorQuantiles.count() > this->sufficientCountToMeasureLargeErrors()) {
@@ -196,7 +204,7 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
         double largeError;
         m_ErrorQuantiles.quantile(this->largeErrorPercentile(), largeError);
-        if (error >= largeError) {
+        if (this->errorAdj(error) >= largeError) {
             bool isVeryLarge{100.0 * (1.0 - this->survivalFunction(error)) >=
                              this->veryLargeErrorPercentile()};
             m_CurrentBucketErrorStats.s_LargeErrorCount += std::min(
@@ -267,7 +275,7 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
             // large as its mean. We use this to compute a lower bound for
             // the right tail probability for the largest error.
             double cdf;
-            m_ErrorQuantiles.cdf(errors[i].s_LargeErrorSum / n, cdf);
+            m_ErrorQuantiles.cdf(this->errorAdj(errors[i].s_LargeErrorSum / n), cdf);
 
             for (auto offset : TIME_ZONE_OFFSETS) {
                 core_t::TTime midpoint{time + BUCKET / 2 + offset};
@@ -342,6 +350,8 @@ CCalendarCyclicTest::TFeatureTimePrVec CCalendarCyclicTest::test() const {
 
 std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_DecayRate);
+    seed = common::CChecksum::calculate(seed, m_BucketLength);
+    seed = common::CChecksum::calculate(seed, m_MeanAbsValue);
     seed = common::CChecksum::calculate(seed, m_ErrorQuantiles);
     seed = common::CChecksum::calculate(seed, m_CurrentBucketTime);
     seed = common::CChecksum::calculate(seed, m_CurrentBucketIndex);
@@ -390,7 +400,7 @@ double CCalendarCyclicTest::survivalFunction(double error) const {
         boost::math::normal normal{common::CBasicStatistics::mean(tailMoments),
                                    std::sqrt(common::CBasicStatistics::variance(tailMoments))};
         return (100.0 - this->largeErrorPercentile()) / 100.0 *
-               common::CTools::safeCdfComplement(normal, error);
+               common::CTools::safeCdfComplement(normal, this->errorAdj(error));
 
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute tail distribution '" << e.what() << "'");
@@ -428,6 +438,10 @@ double CCalendarCyclicTest::veryLargeErrorPercentile() const {
     return 100.0 - (100.0 - VERY_LARGE_ERROR_PERCENTILE) *
                        static_cast<double>(std::max(LONG_BUCKET, m_BucketLength)) /
                        static_cast<double>(LONG_BUCKET);
+}
+
+double CCalendarCyclicTest::errorAdj(double error) const {
+    return std::max(error - 1e-4 * common::CBasicStatistics::mean(m_MeanAbsValue), 0.0);
 }
 
 void CCalendarCyclicTest::deflate(const TErrorStatsVec& stats) {

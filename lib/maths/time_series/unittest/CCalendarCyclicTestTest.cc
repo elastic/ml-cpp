@@ -76,7 +76,8 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time) - months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 30000 && time < months[i - 1] + 50000) {
@@ -84,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                 rng.generateUniformSamples(4.0, 6.0, 1, multiplier);
                 error[0] *= multiplier[0];
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -123,13 +124,14 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time) - months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 10000 && time < months[i - 1] + 20000) {
                 error[0] -= 15.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -166,13 +168,14 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time) - months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
                 error[0] += 12.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -209,13 +212,14 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time) - months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
                 error[0] -= 12.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -267,14 +271,15 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time + timeZoneOffset) -
                     months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 25000 &&
                 time + timeZoneOffset < months[i - 1] + 40000) {
                 error[0] += 15.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -313,14 +318,15 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time + timeZoneOffset) -
                     months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 45000 &&
                 time + timeZoneOffset < months[i - 1] + 60000) {
                 error[0] -= 12.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -375,13 +381,14 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
         for (core_t::TTime time = 0; time <= end; time += HOUR) {
             std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(months.begin(), months.end(), time) - months.begin(),
-                std::ptrdiff_t(1), std::ptrdiff_t(months.size()));
+                static_cast<std::ptrdiff_t>(1),
+                static_cast<std::ptrdiff_t>(months.size()));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 36000 && time < months[i - 1] + 39600) {
                 error[0] += 30.0;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -420,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= YEAR; time += HALF_HOUR) {
             rng.generateNormalSamples(0.0, 9.0, 1, error);
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time % MONTH == 0) {
                 auto features = cyclic.test();
@@ -444,7 +451,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= YEAR; time += HALF_HOUR) {
             rng.generateLogNormalSamples(1.0, 2.0, 1, error);
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time % MONTH == 0) {
                 auto features = cyclic.test();
@@ -470,7 +477,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
         for (core_t::TTime time = 0; time <= YEAR; time += HALF_HOUR) {
             rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
             rng.generateNormalSamples(uniform01[0] < 0.3 ? 0.0 : 15.0, 9.0, 1, error);
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time % MONTH == 0) {
                 auto features = cyclic.test();
@@ -525,7 +532,7 @@ BOOST_AUTO_TEST_CASE(testLongBuckets) {
                 error[0] += 20.0;
                 ++i;
             }
-            cyclic.add(time, error[0]);
+            cyclic.add(time, 0.0, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
                 auto features = cyclic.test();
@@ -558,7 +565,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec error;
     for (core_t::TTime time = 0; time <= 12787200; time += HALF_HOUR) {
         rng.generateNormalSamples(0.0, 10.0, 1, error);
-        orig.add(time, error[0]);
+        orig.add(time, 0.0, error[0]);
     }
 
     std::string origXml;
