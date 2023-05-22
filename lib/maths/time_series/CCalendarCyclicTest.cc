@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "maths/common/COrderings.h"
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <core/CHashing.h>
@@ -27,6 +26,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 
