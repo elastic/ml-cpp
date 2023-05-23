@@ -131,7 +131,7 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                     m_CurrentBucketErrorStats.fromDelimited(traverser.value()))
             RESTORE(ERRORS_6_4_TAG,
                     core::CPersistUtils::restore(ERRORS_6_4_TAG, errors, traverser))
-            RESTORE(MEAN_ABS_VALUE_8_9_TAG, m_MeanAbsValue.fromDelimited(traverser.value())
+            RESTORE(MEAN_ABS_VALUE_8_9_TAG, m_MeanAbsValue.fromDelimited(traverser.value()))
         }
     } else {
         do {
