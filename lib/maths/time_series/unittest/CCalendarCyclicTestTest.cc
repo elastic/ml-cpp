@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 790);
+            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 800);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 790);
+            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 810);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 790);
+            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 800);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 790);
+            BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 800);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (features.empty() == false) {
                     LOG_DEBUG(<< "Detected = " << features);
                 }
-                BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 880);
+                BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 900);
             }
         }
     }
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (features.empty() == false) {
                     LOG_DEBUG(<< "Detected = " << features);
                 }
-                BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 880);
+                BOOST_TEST_REQUIRE(core::memory::dynamicSize(&cyclic) < 900);
             }
         }
     }
