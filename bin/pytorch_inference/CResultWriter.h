@@ -65,6 +65,11 @@ public:
     //! Write a simple acknowledgement to the output stream.
     void writeSimpleAck(const std::string& requestId);
 
+    //! Write memory usage information to the output stream.
+    void writeProcessStats(const std::string& requestId,
+                           const std::size_t residentSetSize,
+                           const std::size_t maxResidentSetSize);
+
     //! Wrap the invariant portion of a cached result with request ID,
     //! cache hit indicator and time taken. Then write the full document
     //! to the output stream.
@@ -112,6 +117,9 @@ private:
     static const std::string ACKNOWLEDGED;
     static const std::string NUM_ALLOCATIONS;
     static const std::string NUM_THREADS_PER_ALLOCATION;
+    static const std::string PROCESS_STATS;
+    static const std::string MEMORY_RESIDENT_SET_SIZE;
+    static const std::string MEMORY_MAX_RESIDENT_SET_SIZE;
 
 private:
     //! Create the invariant portion of an error result, suitable for

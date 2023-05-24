@@ -49,6 +49,7 @@ set (SRCS
   CPersistUtilsTest.cc
   CPersistenceTagTest.cc
   CProcessPriorityTest.cc
+  CProcessStatsTest.cc
   CProcessTest.cc
   CProgNameTest.cc
   CProgramCountersTest.cc

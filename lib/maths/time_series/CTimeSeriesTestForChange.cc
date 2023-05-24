@@ -51,7 +51,14 @@ using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumul
 constexpr double EPS{0.1};
 constexpr core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 constexpr core_t::TTime HOUR{core::constants::HOUR};
-const double LOG0p95{std::log(0.95)};
+constexpr core_t::TTime WEEK{core::constants::WEEK};
+// The time shift test is a lot less powerful if we don't see much variation
+// in values since shifting a flat segment of a time series leaves it largely
+// unchanged. However, the test can still have high significance. We use a
+// simple criterion to mitigate: we require that we see a significant fraction
+// of the predictions' total variance before we trust the result.
+constexpr double MIN_VARIANCE_FOR_SIGNIFICANCE{0.25};
+const double CHANGE_POINT_DECAY_CONSTANT{3.0 * std::log(0.95) / static_cast<double>(HOUR)};
 
 std::size_t largestShift(const TDoubleVec& shifts) {
     std::size_t result{0};
@@ -86,6 +93,7 @@ const core::TPersistenceTag TIME_TAG{"b", "change_time"};
 const core::TPersistenceTag VALUE_TAG{"c", "change_value"};
 const core::TPersistenceTag SIGNIFICANT_P_VALUE_TAG{"d", "significant_p_value"};
 const core::TPersistenceTag MAGNITUDE_TAG{"e", "magnitude"};
+const core::TPersistenceTag PREDICTION_VARIANCE_TAG{"f", "prediction_variance"};
 }
 
 COutlierWeightDerate::COutlierWeightDerate(double magnitude)
@@ -139,12 +147,15 @@ void CChangePoint::add(core_t::TTime time,
                        double value,
                        double weight,
                        const TPredictor& predictor) {
-    double factor{std::exp(3.0 * LOG0p95 * static_cast<double>(time - lastTime) /
-                           static_cast<double>(HOUR))};
+    double factor{this->decayFactor(time, lastTime)};
     m_Mse.add(common::CTools::pow2(value - predictor(time)), weight);
     m_Mse.age(factor);
     m_UndoneMse.add(common::CTools::pow2(value - this->undonePredict(predictor, time)), weight);
     m_UndoneMse.age(factor);
+}
+
+double CChangePoint::predictionVariance() const {
+    return 0.0;
 }
 
 bool CChangePoint::shouldUndo() const {
@@ -153,6 +164,10 @@ bool CChangePoint::shouldUndo() const {
                common::CBasicStatistics::mean(m_UndoneMse),
                common::CBasicStatistics::count(m_Mse),
                common::CBasicStatistics::count(m_UndoneMse)) < m_SignificantPValue;
+}
+
+double CChangePoint::decayFactor(core_t::TTime time, core_t::TTime lastTime) const {
+    return std::exp(CHANGE_POINT_DECAY_CONSTANT * static_cast<double>(time - lastTime));
 }
 
 CLevelShift::CLevelShift(core_t::TTime time,
@@ -265,16 +280,19 @@ const std::string CScale::TYPE{"scale"};
 CTimeShift::CTimeShift(core_t::TTime time,
                        core_t::TTime shift,
                        TFloatMeanAccumulatorVec residuals,
-                       double significantPValue)
-    : CChangePoint{time, std::move(residuals), significantPValue}, m_Shift{shift} {
+                       double significantPValue,
+                       double predictionVariance)
+    : CChangePoint{time, std::move(residuals), significantPValue}, m_Shift{shift},
+      m_PredictionVariance{predictionVariance} {
 }
 
-CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue)
-    : CChangePoint{time, {}, significantPValue}, m_Shift{shift} {
+CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue, double predictionVariance)
+    : CChangePoint{time, {}, significantPValue}, m_Shift{shift}, m_PredictionVariance{predictionVariance} {
 }
 
 CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
-    return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
+    return std::make_unique<CTimeShift>(
+        this->time(), -m_Shift, this->significantPValue(), m_PredictionVariance);
 }
 
 COutlierWeightDerate CTimeShift::outlierWeightDerate(core_t::TTime startTime,
@@ -307,7 +325,31 @@ std::string CTimeShift::print() const {
 
 std::uint64_t CTimeShift::checksum(std::uint64_t seed) const {
     seed = this->CChangePoint::checksum(seed);
-    return common::CChecksum::calculate(seed, m_Shift);
+    seed = common::CChecksum::calculate(seed, m_Shift);
+    seed = common::CChecksum::calculate(seed, m_PredictionVariance);
+    return common::CChecksum::calculate(seed, m_ValueMoments);
+}
+
+double CTimeShift::predictionVariance() const {
+    return m_PredictionVariance;
+}
+
+bool CTimeShift::shouldUndo() const {
+    // See MIN_VARIANCE_FOR_SIGNIFICANCE for more info on this condition.
+    return common::CBasicStatistics::variance(m_ValueMoments) >=
+               MIN_VARIANCE_FOR_SIGNIFICANCE * m_PredictionVariance &&
+           this->CChangePoint::shouldUndo();
+}
+
+void CTimeShift::add(core_t::TTime time,
+                     core_t::TTime lastTime,
+                     double value,
+                     double weight,
+                     const TPredictor& predictor) {
+    double factor{this->decayFactor(time, lastTime)};
+    m_ValueMoments.add(value, weight);
+    m_ValueMoments.age(factor);
+    this->CChangePoint::add(time, lastTime, value, weight, predictor);
 }
 
 double CTimeShift::undonePredict(const TPredictor& predictor, core_t::TTime time) const {
@@ -322,6 +364,7 @@ operator()(TChangePointUPtr& result, core::CStateRestoreTraverser& traverser) co
     core_t::TTime time{std::numeric_limits<core_t::TTime>::min()};
     double value{std::numeric_limits<double>::quiet_NaN()};
     double significantPValue{std::numeric_limits<double>::quiet_NaN()};
+    double predictionVariance{0.0};
 
     do {
         const std::string& name{traverser.name()};
@@ -329,6 +372,7 @@ operator()(TChangePointUPtr& result, core::CStateRestoreTraverser& traverser) co
         RESTORE_BUILT_IN(TIME_TAG, time)
         RESTORE_BUILT_IN(VALUE_TAG, value)
         RESTORE_BUILT_IN(SIGNIFICANT_P_VALUE_TAG, significantPValue)
+        RESTORE_BUILT_IN(PREDICTION_VARIANCE_TAG, predictionVariance)
     } while (traverser.next());
 
     if (time == std::numeric_limits<core_t::TTime>::min()) {
@@ -349,8 +393,8 @@ operator()(TChangePointUPtr& result, core::CStateRestoreTraverser& traverser) co
         return false;
     }
     if (type == CTimeShift::TYPE) {
-        result = std::make_unique<CTimeShift>(
-            time, static_cast<core_t::TTime>(value), significantPValue);
+        result = std::make_unique<CTimeShift>(time, static_cast<core_t::TTime>(value),
+                                              significantPValue, predictionVariance);
         return true;
     }
     LOG_ERROR(<< "Missing '" << TYPE_TAG << "'");
@@ -363,6 +407,8 @@ operator()(const CChangePoint& changePoint, core::CStatePersistInserter& inserte
     inserter.insertValue(TIME_TAG, changePoint.time());
     inserter.insertValue(VALUE_TAG, changePoint.value(), core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(SIGNIFICANT_P_VALUE_TAG, changePoint.significantPValue(),
+                         core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(PREDICTION_VARIANCE_TAG, changePoint.predictionVariance(),
                          core::CIEEE754::E_DoublePrecision);
 }
 
@@ -398,6 +444,14 @@ CTimeSeriesTestForChange::CTimeSeriesTestForChange(int testFor,
         common::CTools::pow2(common::MINIMUM_COEFFICIENT_OF_VARIATION *
                              common::CBasicStatistics::mean(meanAbs)));
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
+
+    TMeanVarAccumulator predictionMoments;
+    auto bucketPredictor = this->bucketPredictor();
+    for (auto time = 0; time < WEEK; time += m_BucketLength) {
+        predictionMoments.add(bucketPredictor(time));
+    }
+    m_PredictionVariance = maths::common::CBasicStatistics::variance(predictionMoments);
+    LOG_TRACE(<< "prediction variance = " << m_PredictionVariance);
 }
 
 CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() const {
@@ -649,17 +703,15 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
 
     auto predictor = this->bucketPredictor();
 
-    // If the variance of the values is small compared to the predictor on the
-    // test interval we can't trust the shifted residual variance estimates.
-    TMeanVarAccumulator moments[2];
+    TMeanVarAccumulator valueMoments;
     for (std::size_t i = 0; i < m_Values.size(); ++i) {
         if (common::CBasicStatistics::count(m_Values[i]) > 0.0) {
-            moments[0].add(common::CBasicStatistics::mean(m_Values[i]));
-            moments[1].add(predictor(m_BucketLength * static_cast<core_t::TTime>(i)));
+            valueMoments.add(common::CBasicStatistics::mean(m_Values[i]));
         }
     }
-    if (common::CBasicStatistics::variance(moments[0]) <
-        0.1 * common::CBasicStatistics::variance(moments[1])) {
+    // See MIN_VARIANCE_FOR_SIGNIFICANCE for more info on this condition.
+    if (common::CBasicStatistics::variance(valueMoments) <
+        MIN_VARIANCE_FOR_SIGNIFICANCE * m_PredictionVariance) {
         return {};
     }
 
@@ -676,36 +728,48 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         m_Values, m_BucketLength, candidateShifts, predictor,
         m_SignificantPValue, 3, &shifts)};
 
+    core_t::TTime shift{shifts.back()};
+    TFloatMeanAccumulatorVec residuals;
+    std::size_t changeIndex{0};
+    double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
+    double parametersH1{static_cast<double>(segments.size() - 1)};
+    double varianceH1{std::numeric_limits<double>::max()};
+    double truncatedVarianceH1{std::numeric_limits<double>::max()};
+
     if (segments.size() > 2) {
         auto shiftedPredictor = [&](std::size_t i) {
             return predictor(m_BucketLength * static_cast<core_t::TTime>(i) +
                              TSegmentation::shiftAt(i, segments, shifts));
         };
-        auto residuals = removePredictions(shiftedPredictor, m_Values);
-        double varianceH1;
-        double truncatedVarianceH1;
+        changeIndex = segments[segments.size() - 2];
+        residuals = removePredictions(shiftedPredictor, m_Values);
         std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
-        std::size_t changeIndex{segments[segments.size() - 2]};
-        LOG_TRACE(<< "shift segments = " << segments);
-        LOG_TRACE(<< "shifts = " << shifts);
-        LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
-                  << ", sample variance = " << m_SampleVariance);
-        LOG_TRACE(<< "change index = " << changeIndex);
-
-        double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
-        double parametersH1{static_cast<double>(segments.size() - 1)};
-        double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
-                                   varianceH1, truncatedVarianceH1, parametersH1, n)};
-        LOG_INFO(<< "time shift p-value = " << pValue);
-
-        if (pValue < m_AcceptedFalsePostiveRate) {
-            auto changePoint = std::make_unique<CTimeShift>(
-                this->changeTime(changeIndex), shifts.back(),
-                std::move(residuals), m_SignificantPValue);
-            return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
-        }
+    } else if (shift != 0) {
+        // The entire window is shifted. This can happen if the time series
+        // is flat in parts.
+        auto shiftedPredictor =
+            [&, bucketPredictor = this->bucketPredictor() ](std::size_t i) {
+            return bucketPredictor(shift + m_BucketLength * static_cast<core_t::TTime>(i));
+        };
+        residuals = removePredictions(shiftedPredictor, m_Values);
+        std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
     }
 
+    double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
+                               varianceH1, truncatedVarianceH1, parametersH1, n)};
+    LOG_TRACE(<< "shift segments = " << segments);
+    LOG_TRACE(<< "shifts = " << shifts);
+    LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
+              << ", sample variance = " << m_SampleVariance);
+    LOG_TRACE(<< "change index = " << changeIndex);
+    LOG_TRACE(<< "time shift p-value = " << pValue);
+
+    if (pValue < m_AcceptedFalsePostiveRate) {
+        auto changePoint = std::make_unique<CTimeShift>(
+            this->changeTime(changeIndex), shift, std::move(residuals),
+            m_SignificantPValue, m_PredictionVariance);
+        return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
+    }
     return {};
 }
 
