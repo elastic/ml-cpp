@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 
+#include "core/CMemoryCircuitBreaker.h"
 #include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
@@ -48,7 +49,7 @@ public:
     //! No-op returning false.
     void addPoint(core_t::TTime time,
                   double value,
-                  const common::CModelAllocator& allocator,
+                  const core::CMemoryCircuitBreaker& circuitBreaker,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,

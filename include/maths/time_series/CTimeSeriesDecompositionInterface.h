@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
+#include "core/CMemoryCircuitBreaker.h"
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
@@ -29,9 +30,13 @@
 #include <vector>
 
 namespace ml {
+
+namespace core {
+class CMemoryCircuitBreaker;
+}
+
 namespace maths {
 namespace common {
-class CModelAllocator;
 class CMultivariatePrior;
 class CPrior;
 }
@@ -109,7 +114,7 @@ public:
     virtual void
     addPoint(core_t::TTime time,
              double value,
-             const common::CModelAllocator& allocator,
+             const core::CMemoryCircuitBreaker& circuitBreaker = core::CMemoryCircuitBreakerStub::instance(),
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,

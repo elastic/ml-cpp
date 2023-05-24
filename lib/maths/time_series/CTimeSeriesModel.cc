@@ -708,7 +708,6 @@ void CUnivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec& 
 
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& params,
-                                       const TModelAllocator& allocator,
                                        TTimeDouble2VecSizeTrVec samples) {
     if (samples.empty()) {
         return E_Success;
@@ -723,7 +722,7 @@ CUnivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& par
     }
     m_TrendModel->dataType(type);
 
-    EUpdateResult result{this->updateTrend(params, samples, allocator)};
+    EUpdateResult result{this->updateTrend(params, samples)};
 
     auto[residuals, decayRateMultiplier] =
         this->updateResidualModels(params, std::move(samples));
@@ -1493,8 +1492,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
 
 CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
-                                        const TTimeDouble2VecSizeTrVec& samples,
-                                        const TModelAllocator& allocator) {
+                                        const TTimeDouble2VecSizeTrVec& samples) {
 
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
@@ -1534,8 +1532,9 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        m_TrendModel->addPoint(time, value, allocator, weight, componentChangeCallback,
-                               modelAnnotationCallback, occupancy, firstValueTime);
+        m_TrendModel->addPoint(time, value, params.memoryCircuitBreaker(), weight,
+                               componentChangeCallback, modelAnnotationCallback,
+                               occupancy, firstValueTime);
     }
 
     if (result == E_Reset) {
@@ -2295,7 +2294,6 @@ void CMultivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec
 
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& params,
-                                         const TModelAllocator& allocator,
                                          TTimeDouble2VecSizeTrVec samples) {
     if (samples.empty()) {
         return E_Success;
@@ -2319,7 +2317,7 @@ CMultivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& p
         trendModel->dataType(type);
     }
 
-    EUpdateResult result{this->updateTrend(params, samples, allocator)};
+    EUpdateResult result{this->updateTrend(params, samples)};
 
     this->updateResidualModels(params, std::move(samples));
 
@@ -2879,8 +2877,7 @@ CMultivariateTimeSeriesModel::decayRateControllers() const {
 
 CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
-                                          const TTimeDouble2VecSizeTrVec& samples,
-                                          const TModelAllocator& allocator) {
+                                          const TTimeDouble2VecSizeTrVec& samples) {
 
     std::size_t dimension{this->dimension()};
 
@@ -2923,9 +2920,9 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            m_TrendModel[d]->addPoint(time, value[d], allocator, weight,
-                                      componentChangeCallback, modelAnnotationCallback,
-                                      occupancy, firstValueTime);
+            m_TrendModel[d]->addPoint(time, value[d], params.memoryCircuitBreaker(),
+                                      weight, componentChangeCallback,
+                                      modelAnnotationCallback, occupancy, firstValueTime);
         }
     }
 

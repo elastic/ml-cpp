@@ -380,7 +380,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                     .priorWeights(residualWeights)
                     .bucketOccupancy(1.0)
                     .firstValueTime(attributeFirstValueTimes[cid]);
-                expectedPopulationModels[cid]->addSamples(params_, this->allocator(), samples);
+                expectedPopulationModels[cid]->addSamples(params_, samples);
             }
 
             TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;

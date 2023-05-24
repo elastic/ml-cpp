@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "core/CMemoryCircuitBreaker.h"
 #include <core/CMemoryDef.h>
 
 #include <maths/common/CBjkstUniqueValues.h>
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
 
     for (unsigned i = 0; i < 600000; i += 600) {
         decomp.addPoint(time + i, (0.55 * (0.2 + (i % 86400))),
-                        common::CModelAllocatorStub());
+                        core::CMemoryCircuitBreakerStub::instance());
     }
 
     core::CMemoryUsage mem;
@@ -58,8 +59,6 @@ BOOST_AUTO_TEST_CASE(testPriors) {
     samples.push_back(0.996);
     maths_t::TDoubleWeightsAry weight(maths_t::countWeight(0.2));
     maths_t::TDoubleWeightsAry1Vec weights{weight};
-
-    common::CModelAllocatorStub allocator;
 
     CGammaRateConjugate gammaRateConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7);
     BOOST_REQUIRE_EQUAL(0, gammaRateConjugate.memoryUsage());

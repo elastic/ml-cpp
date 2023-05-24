@@ -223,9 +223,8 @@ CNewSeasonalComponentSummary::createSeasonalComponent(double decayRate,
     auto boundaryCondition = period > time->windowLength()
                                  ? common::CSplineTypes::E_Natural
                                  : common::CSplineTypes::E_Periodic;
-    CSeasonalComponent component{
-        *time,        this->size(),          decayRate,
-        bucketLength, maxTimeShiftPerPeriod, boundaryCondition};
+    CSeasonalComponent component(*time,        this->size(),          decayRate,
+        bucketLength, maxTimeShiftPerPeriod, boundaryCondition);
     component.initialize(startTime, endTime, initialValues);
     return component;
 }

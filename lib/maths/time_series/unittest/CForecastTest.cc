@@ -51,7 +51,6 @@ using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
 using TErrorBarVec = std::vector<maths::common::SErrorBar>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TModelPtr = std::shared_ptr<maths::common::CModel>;
-using TAllocator = maths::common::CModelAllocatorStub;
 
 class CDebugGenerator {
 public:
@@ -186,7 +185,6 @@ public:
                 maths_t::E_ContinuousData, DECAY_RATE),
             &controllers);
         CDebugGenerator debug;
-        TAllocator allocator;
 
         core_t::TTime time{0};
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
@@ -202,8 +200,7 @@ public:
                     .trendWeights(weights)
                     .priorWeights(weights);
                 double yi{trend(time, noise[i])};
-                model.addSamples(params, allocator,
-                                 {core::make_triple(time, TDouble2Vec{yi}, TAG)});
+                model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
                 debug.addValue(time, yi);
                 debug.addPrediction(
                     time, maths::common::CBasicStatistics::mean(model.predict(time)));
@@ -432,7 +429,6 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     maths::time_series::CUnivariateTimeSeriesModel model(
         params(bucketLength), TAG, trend, prior, &controllers);
     CDebugGenerator debug;
-    TAllocator allocator;
     LOG_DEBUG(<< "*** learn ***");
 
     core_t::TTime time{0};
@@ -449,8 +445,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
                 .trendWeights(weights)
                 .priorWeights(weights);
             double y{std::max(*value, 0.0)};
-            model.addSamples(params, allocator,
-                             {core::make_triple(time, TDouble2Vec{y}, TAG)});
+            model.addSamples(params, {core::make_triple(time, TDouble2Vec{y}, TAG)});
             debug.addValue(time, y);
             debug.addPrediction(
                 time, maths::common::CBasicStatistics::mean(model.predict(time)));
@@ -520,7 +515,6 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     maths::time_series::CUnivariateTimeSeriesModel model(
         params(bucketLength), TAG, trend, prior, &controllers);
     CDebugGenerator debug;
-    TAllocator allocator;
 
     LOG_DEBUG(<< "*** learn ***");
 
@@ -530,9 +524,9 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     for (std::size_t i = 0; i < n; ++i) {
         maths::common::CModelAddSamplesParams params;
         params.isInteger(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
-        model.addSamples(params, allocator,
-                         {core::make_triple(timeseries[i].first,
-                                            TDouble2Vec{timeseries[i].second}, TAG)});
+        model.addSamples(
+            params, {core::make_triple(timeseries[i].first,
+                                       TDouble2Vec{timeseries[i].second}, TAG)});
         debug.addValue(timeseries[i].first, timeseries[i].second);
         debug.addPrediction(timeseries[i].first, maths::common::CBasicStatistics::mean(
                                                      model.predict(timeseries[i].first)));
@@ -577,7 +571,6 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
 
     core_t::TTime bucketLength{1800};
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    TAllocator allocator;
 
     for (auto dataEndTime : {core::constants::DAY, 20 * core::constants::DAY}) {
 
@@ -597,8 +590,7 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
                 .trendWeights(weights)
                 .priorWeights(weights);
             double yi{static_cast<double>(time)};
-            model.addSamples(params, allocator,
-                             {core::make_triple(time, TDouble2Vec{yi}, TAG)});
+            model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
         }
 
         // Check truncation

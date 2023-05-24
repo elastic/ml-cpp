@@ -502,15 +502,15 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(CMemoryCircuitBreaker(resourceMonitor));
 
                 maths::common::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
                     LOG_TRACE(<< "Model unexpectedly null");
                     return;
                 }
-                CModelAllocator allocator{resourceMonitor};
-                if (model->addSamples(params, allocator, attribute.second.s_Values) ==
+                if (model->addSamples(params, attribute.second.s_Values) ==
                     maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
                 }

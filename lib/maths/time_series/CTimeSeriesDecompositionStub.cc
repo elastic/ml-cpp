@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "core/CMemoryCircuitBreaker.h"
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
 #include <maths/common/CModel.h>
@@ -43,14 +44,15 @@ bool CTimeSeriesDecompositionStub::initialized() const {
     return false;
 }
 
-void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
-                                            double /*value*/,
-                                            const common::CModelAllocator& /*allocator*/,
-                                            const maths_t::TDoubleWeightsAry& /*weights*/,
-                                            const TComponentChangeCallback& /*componentChangeCallback*/,
-                                            const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
-                                            double /*occupancy*/,
-                                            core_t::TTime /*firstValueTime*/) {
+void CTimeSeriesDecompositionStub::addPoint(
+    core_t::TTime /*time*/,
+    double /*value*/,
+    const core::CMemoryCircuitBreaker& /*allocator*/,
+    const maths_t::TDoubleWeightsAry& /*weights*/,
+    const TComponentChangeCallback& /*componentChangeCallback*/,
+    const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
+    double /*occupancy*/,
+    core_t::TTime /*firstValueTime*/) {
 }
 
 void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {

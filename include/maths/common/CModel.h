@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CModel_h
 #define INCLUDED_ml_maths_common_CModel_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CTriple.h>
@@ -147,6 +148,11 @@ public:
     //! Get the model annotation callback.
     const maths_t::TModelAnnotationCallback& annotationCallback() const;
 
+    //! Set the memory circuit breaker. Default is a CMemoryCircuitBreakerStub.
+    CModelAddSamplesParams& memoryCircuitBreaker(const core::CMemoryCircuitBreaker& breaker);
+    //! Get the memory circuit breaker.
+    const core::CMemoryCircuitBreaker& memoryCircuitBreaker() const;
+
 private:
     //! The data type.
     maths_t::EDataType m_Type{maths_t::E_MixedData};
@@ -164,6 +170,9 @@ private:
     const TDouble2VecWeightsAryVec* m_PriorWeights{nullptr};
     //! The add annotation callback.
     maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{[](const std::string&) {}};
+    //! The memory circuit breaker.
+    const core::CMemoryCircuitBreaker* m_MemoryCircuitBreaker{
+        &core::CMemoryCircuitBreakerStub::instance()};
 };
 
 //! \brief The extra parameters needed by CModel::probability.
@@ -329,29 +338,6 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     SAnomalyScoreExplanation s_AnomalyScoreExplanation;
 };
 
-//! \brief The allocator interface.
-//!
-//! DESCRIPTION:\n
-//! The allocator interface is used to control the ability
-//! of a model to allocate new components. This is used to
-//! comply with the memory constraints of the system.
-class MATHS_COMMON_EXPORT CModelAllocator {
-public:
-    virtual ~CModelAllocator() = default;
-
-    //! Check if we can still allocate any components.
-    virtual bool areAllocationsAllowed() const = 0;
-};
-
-//! \brief The allocator stub.
-//!
-//! DESCRIPTION:\n
-//! The allocator stub is used to allow all allocations.
-class MATHS_COMMON_EXPORT CModelAllocatorStub : public CModelAllocator {
-public:
-    bool areAllocationsAllowed() const override { return true; }
-};
-
 //! \brief The model interface.
 //!
 //! DESCRIPTION:\n
@@ -385,7 +371,7 @@ public:
     using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
     using TDouble2VecWeightsAry1Vec = maths_t::TDouble2VecWeightsAry1Vec;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
-    using TModelAllocator = CModelAllocator;
+    using TModelAllocator = core::CMemoryCircuitBreaker;
 
     //! Possible statuses for updating a model.
     enum EUpdateResult {
@@ -438,7 +424,6 @@ public:
 
     //! Update the model with new samples.
     virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
-                                     const CModelAllocator& allocator,
                                      TTimeDouble2VecSizeTrVec samples) = 0;
 
     //! Advance time by \p gap.
@@ -611,7 +596,6 @@ public:
 
     //! No-op.
     EUpdateResult addSamples(const CModelAddSamplesParams& params,
-                             const CModelAllocator& allocator,
                              TTimeDouble2VecSizeTrVec samples) override;
 
     //! No-op.

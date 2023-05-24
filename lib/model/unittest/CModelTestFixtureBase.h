@@ -95,11 +95,6 @@ public:
     using TUInt64Vec = std::vector<std::uint64_t>;
     using TUIntVec = std::vector<unsigned int>;
 
-    using TAllocator = ml::maths::common::CModelAllocatorStub;
-
-public:
-    const TAllocator& allocator() const { return m_Allocator; }
-
 protected:
     struct SAnomaly {
         SAnomaly() : s_Bucket(0u), s_Person(), s_Attributes() {}
@@ -266,9 +261,6 @@ protected:
     TModelFactoryPtr m_Factory;
     ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
     ml::model::CModelFactory::TModelPtr m_Model;
-
-private:
-    TAllocator m_Allocator;
 };
 
 #endif //INCLUDED_CModelTestFixtureBase_h

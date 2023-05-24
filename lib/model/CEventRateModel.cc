@@ -366,8 +366,9 @@ void CEventRateModel::sample(core_t::TTime startTime,
                         annotationCallback(annotation);
                     });
 
-                if (model->addSamples(params, CModelAllocator(resourceMonitor),
-                                      values) == maths::common::CModel::E_Reset) {
+                params.memoryCircuitBreaker(CMemoryCircuitBreaker(resourceMonitor));
+
+                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
                 }
             }

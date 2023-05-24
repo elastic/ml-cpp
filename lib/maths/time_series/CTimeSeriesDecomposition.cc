@@ -12,6 +12,7 @@
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -32,6 +33,11 @@
 #include <utility>
 
 namespace ml {
+
+namespace core {
+class CMemoryCircuitBreaker;
+}
+
 namespace maths {
 namespace time_series {
 namespace {
@@ -203,7 +209,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const common::CModelAllocator& allocator,
+                                        const core::CMemoryCircuitBreaker& allocator,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
                                         const maths_t::TModelAnnotationCallback& modelAnnotationCallback,

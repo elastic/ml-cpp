@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_model_CModelFactory_h
 #define INCLUDED_ml_model_CModelFactory_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CModel.h>
@@ -457,17 +458,6 @@ private:
 
     //! A cache of influence calculators for collections of features.
     mutable TStrFeatureVecPrInfluenceCalculatorCPtrMap m_InfluenceCalculatorCache;
-};
-
-class CModelAllocator : public maths::common::CModelAllocator {
-public:
-    explicit CModelAllocator(CResourceMonitor& resourceMonitor)
-        : m_ResourceMonitor{&resourceMonitor} {}
-
-    bool areAllocationsAllowed() const override;
-
-private:
-    CResourceMonitor* m_ResourceMonitor;
 };
 }
 }

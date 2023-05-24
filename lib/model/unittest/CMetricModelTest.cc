@@ -210,12 +210,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                             expectedMaxSamples_.emplace_back(
                                 sampleTime, TDouble2Vec{expectedMaxSamples[k]}, 0);
                         }
-                        expectedMeanModel->addSamples(params_, this->allocator(),
-                                                      expectedMeanSamples_);
-                        expectedMinModel->addSamples(params_, this->allocator(),
-                                                     expectedMinSamples_);
-                        expectedMaxModel->addSamples(params_, this->allocator(),
-                                                     expectedMaxSamples_);
+                        expectedMeanModel->addSamples(params_, expectedMeanSamples_);
+                        expectedMinModel->addSamples(params_, expectedMinSamples_);
+                        expectedMaxModel->addSamples(params_, expectedMaxSamples_);
                         numberSamples = 0;
                         expectedSampleTimes.clear();
                         expectedMeanSamples.clear();

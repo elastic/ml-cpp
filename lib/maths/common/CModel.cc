@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "core/CMemoryCircuitBreaker.h"
 #include <maths/common/CModel.h>
 #include <maths/common/CModelDetail.h>
 
@@ -160,6 +161,16 @@ CModelAddSamplesParams::annotationCallback(const maths_t::TModelAnnotationCallba
 
 const maths_t::TModelAnnotationCallback& CModelAddSamplesParams::annotationCallback() const {
     return m_ModelAnnotationCallback;
+}
+
+CModelAddSamplesParams&
+CModelAddSamplesParams::memoryCircuitBreaker(const core::CMemoryCircuitBreaker& breaker) {
+    m_MemoryCircuitBreaker = &breaker;
+    return *this;
+}
+
+const core::CMemoryCircuitBreaker& CModelAddSamplesParams::memoryCircuitBreaker() const {
+    return *m_MemoryCircuitBreaker;
 }
 
 //////// CModelProbabilityParams ////////
@@ -349,7 +360,6 @@ void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
 }
 
 CModelStub::EUpdateResult CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
-                                                 const CModelAllocator& /*allocator*/,
                                                  TTimeDouble2VecSizeTrVec /*samples*/) {
     return E_Success;
 }

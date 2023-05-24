@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "model/CAnomalyDetectorModel.h"
 #include <model/CMetricModel.h>
 
 #include <core/CLogger.h>
@@ -340,10 +341,10 @@ void CMetricModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(CMemoryCircuitBreaker(resourceMonitor));
 
-                if (model->addSamples(params, CModelAllocator(resourceMonitor),
-                                      values) == maths::common::CModel::E_Reset) {
+                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
                 }
             }

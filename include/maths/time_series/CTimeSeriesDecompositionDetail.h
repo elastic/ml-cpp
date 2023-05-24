@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionDetail_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionDetail_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CStateMachine.h>
 #include <core/CoreTypes.h>
 
@@ -57,7 +58,7 @@ public:
     using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
-    using TModelAllocator = common::CModelAllocator;
+    using TMemoryCircuitBreaker = core::CMemoryCircuitBreaker;
 
     // clang-format off
     using TMakeTestForSeasonality =
@@ -72,14 +73,14 @@ public:
 
     //! \brief The base message passed.
     struct MATHS_TIME_SERIES_EXPORT SMessage {
-        SMessage(core_t::TTime time, core_t::TTime lastTime, const TModelAllocator& allocator);
+        SMessage(core_t::TTime time, core_t::TTime lastTime, const TMemoryCircuitBreaker& allocator);
 
         //! The message time.
         core_t::TTime s_Time;
         //! The last update time.
         core_t::TTime s_LastTime;
 
-        const TModelAllocator& s_Allocator;
+        const TMemoryCircuitBreaker& s_MemoryCircuitBreaker;
     };
 
     //! \brief The message passed to add a point.
@@ -98,7 +99,8 @@ public:
                   const TMakePredictor& makePredictor,
                   const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
                   const TMakeTestForSeasonality& makeTestForSeasonality,
-                  const TModelAllocator& allocator = common::CModelAllocatorStub());
+                  const TMemoryCircuitBreaker& circuitBreaker =
+                      core::CMemoryCircuitBreakerStub::instance());
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -135,7 +137,7 @@ public:
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
                           CSeasonalDecomposition components,
-                          const TModelAllocator& allocator);
+                          const TMemoryCircuitBreaker& allocator);
 
         //! The components found.
         CSeasonalDecomposition s_Components;
@@ -148,7 +150,7 @@ public:
                           core_t::TTime lastTime,
                           CCalendarFeature feature,
                           core_t::TTime timeZoneOffset,
-                          const TModelAllocator& allocator);
+                          const TMemoryCircuitBreaker& allocator);
 
         //! The calendar feature found.
         CCalendarFeature s_Feature;
@@ -160,7 +162,7 @@ public:
     struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
                        const TComponentChangeCallback& componentChangeCallback,
-                       const TModelAllocator& allocator);
+                       const TMemoryCircuitBreaker& allocator);
 
         TPredictor s_Predictor;
         TComponentChangeCallback s_ComponentChangeCallback;
@@ -171,7 +173,7 @@ public:
         SDetectedChangePoint(core_t::TTime time,
                              core_t::TTime lastTime,
                              TChangePointUPtr change,
-                             const TModelAllocator& allocator);
+                             const TMemoryCircuitBreaker& allocator);
 
         //! The change description.
         TChangePointUPtr s_Change;
@@ -948,11 +950,11 @@ public:
 
         //! Add new seasonal components.
         void addSeasonalComponents(const CSeasonalDecomposition& components,
-                                   const TModelAllocator& allocator);
+                                   const TMemoryCircuitBreaker& allocator);
 
         //! Add a new calendar component.
         void addCalendarComponent(const CCalendarFeature& feature,
-                                  const TModelAllocator& allocator,
+                                  const TMemoryCircuitBreaker& allocator,
                                   core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.
