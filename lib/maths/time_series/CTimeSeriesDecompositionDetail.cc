@@ -403,10 +403,11 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
     const TMakeTestForSeasonality& makeTestForSeasonality,
     const TMemoryCircuitBreaker& memoryCircuitBreaker)
-    : SMessage{time, lastTime, memoryCircuitBreaker}, s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights},
-      s_Occupancy{occupancy}, s_FirstValueTime{firstValueTime}, s_Trend{trend},
-      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Decomposition{&decomposition},
-      s_MakePredictor{makePredictor}, s_MakeSeasonalityTestPreconditioner{makeSeasonalityTestPreconditioner},
+    : SMessage{time, lastTime, memoryCircuitBreaker},
+      s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights}, s_Occupancy{occupancy},
+      s_FirstValueTime{firstValueTime}, s_Trend{trend}, s_Seasonal{seasonal},
+      s_Calendar{calendar}, s_Decomposition{&decomposition}, s_MakePredictor{makePredictor},
+      s_MakeSeasonalityTestPreconditioner{makeSeasonalityTestPreconditioner},
       s_MakeTestForSeasonality{makeTestForSeasonality} {
 }
 
@@ -437,7 +438,8 @@ CTimeSeriesDecompositionDetail::SDetectedTrend::SDetectedTrend(
     const TPredictor& predictor,
     const TComponentChangeCallback& componentChangeCallback,
     const TMemoryCircuitBreaker& memoryCircuitBreaker)
-    : SMessage{0, 0, memoryCircuitBreaker}, s_Predictor{predictor}, s_ComponentChangeCallback{componentChangeCallback} {
+    : SMessage{0, 0, memoryCircuitBreaker}, s_Predictor{predictor},
+      s_ComponentChangeCallback{componentChangeCallback} {
 }
 
 //////// SDetectedChangePoint ////////

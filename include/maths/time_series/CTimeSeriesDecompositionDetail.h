@@ -71,7 +71,9 @@ public:
 
     //! \brief The base message passed.
     struct MATHS_TIME_SERIES_EXPORT SMessage {
-        SMessage(core_t::TTime time, core_t::TTime lastTime, const TMemoryCircuitBreaker& memoryCircuitBreaker);
+        SMessage(core_t::TTime time,
+                 core_t::TTime lastTime,
+                 const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         //! The message time.
         core_t::TTime s_Time;

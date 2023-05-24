@@ -26,9 +26,9 @@
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 
-#include <model/CAnomalyDetectorModel.h>
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>

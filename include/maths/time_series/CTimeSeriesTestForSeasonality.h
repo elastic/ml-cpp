@@ -134,8 +134,7 @@ public:
     std::string print() const;
 
     //! Create a seasonal component from the initial values.
-    CSeasonalComponent createSeasonalComponent(double decayRate, 
-                                               double bucketLength) const;
+    CSeasonalComponent createSeasonalComponent(double decayRate, double bucketLength) const;
 
 private:
     std::string m_AnnotationText;
