@@ -22,7 +22,6 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
-#include <maths/common/CModel.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
@@ -33,11 +32,6 @@
 #include <utility>
 
 namespace ml {
-
-namespace core {
-class CMemoryCircuitBreaker;
-}
-
 namespace maths {
 namespace time_series {
 namespace {
@@ -209,7 +203,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const core::CMemoryCircuitBreaker& allocator,
+                                        const core::CMemoryCircuitBreaker& circuitBreaker,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
                                         const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
@@ -264,7 +258,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       },
                       [this] { return this->predictor(E_Seasonal | E_Calendar); },
                       testForSeasonality,
-                      allocator};
+                      circuitBreaker};
 
     m_ChangePointTest.handle(message);
     m_Components.handle(message);

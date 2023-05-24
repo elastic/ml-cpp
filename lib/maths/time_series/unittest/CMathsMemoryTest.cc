@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include "core/CMemoryCircuitBreaker.h"
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 
 #include <maths/common/CBjkstUniqueValues.h>

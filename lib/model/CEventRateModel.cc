@@ -25,12 +25,12 @@
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
-#include <model/CModelFactory.h>
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CSearchKey.h>

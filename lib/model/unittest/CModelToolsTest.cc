@@ -26,8 +26,6 @@
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
 
-#include "CModelTestFixtureBase.h"
-
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/test/unit_test.hpp>
@@ -172,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testProbabilityCache, CModelTestFixtureBase) {
+BOOST_AUTO_TEST_CASE(testProbabilityCache) {
     // Test the error introduced by caching the probability and that we
     // don't get any errors in the tailness we calculate for the value.
 

@@ -21,7 +21,6 @@
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/CModel.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/MathsTypes.h>
@@ -29,7 +28,6 @@
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
-#include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -37,7 +35,6 @@
 #include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
-#include "core/CMemoryCircuitBreaker.h"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
@@ -165,10 +162,10 @@ public:
     ~CTestFixture() { core::CTimezone::instance().setTimezone(""); }
 };
 
-class CTimeSeriesDecompositionAllocatorHardLimit : public core::CMemoryCircuitBreaker {
+class CConfigurableMemoryCircuitBreaker : public core::CMemoryCircuitBreaker {
 public:
     //! Constructor
-    explicit CTimeSeriesDecompositionAllocatorHardLimit(bool allowAllocations)
+    explicit CConfigurableMemoryCircuitBreaker(bool allowAllocations)
         : m_AllowAllocations(allowAllocations) {}
 
     //! In hard_limit mode we don't allow any new allocations.
@@ -187,7 +184,6 @@ class CComponentsTest : public CTestFixture {
 public:
     using TComponents = ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents;
     using TSeasonal = TComponents::CSeasonal;
-    // using TTimeSeriesDecompositionInterface = ml::maths::time_series::CTimeSeriesDecompositionInterface;
     using TFloatMeanAccumulatorVec =
         ml::maths::time_series::CTimeSeriesDecompositionTypes::TFloatMeanAccumulatorVec;
     using TSeasonalDecomposition = ml::maths::time_series::CSeasonalDecomposition;
@@ -226,7 +222,7 @@ public:
                                                 periodDescriptor, 10.0, 10.0, 10.0,
                                                 startOfWeekTime, seasonalValues);
 
-            CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
+            CConfigurableMemoryCircuitBreaker allocator{true};
 
             // add seasonal components
             components.addSeasonalComponents(seasonalDecompositionComponents, allocator);
@@ -254,7 +250,7 @@ public:
                                                 periodDescriptor, 0.0, 0.0, 1.0,
                                                 startOfWeekTime, seasonalValues);
 
-            CTimeSeriesDecompositionAllocatorHardLimit allocator{false};
+            CConfigurableMemoryCircuitBreaker allocator{false};
 
             // add seasonal components
             auto oldLastSeasonalComponent = components.seasonal().back().checksum();
@@ -2577,7 +2573,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
     {
         LOG_DEBUG(<< "Test with hard_limit state after 4 months");
         decayRate = 0.01; // no hard_limit state, components should be detected
-        CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
+        CConfigurableMemoryCircuitBreaker allocator{true};
 
         maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
 
@@ -2606,7 +2602,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
         BOOST_REQUIRE_EQUAL(false, decomposition.seasonalComponents().empty());
 
         // Check that we don't have any calendar components.
-        // BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
+        BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
     }
 }
 
@@ -2644,7 +2640,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) 
     {
         LOG_DEBUG(<< "Test with hard_limit state after 4 months");
         decayRate = 0.01; // no hard_limit state, components should be detected
-        CTimeSeriesDecompositionAllocatorHardLimit allocator{true};
+        CConfigurableMemoryCircuitBreaker circuitBreaker{true};
 
         maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
 
@@ -2652,7 +2648,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) 
         for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
             rng.generateNormalSamples(0.0, 4.0, 1, noise);
             if (time == (22 * WEEK + DAY)) {
-                allocator.areAllocationsAllowed(false);
+                circuitBreaker.areAllocationsAllowed(false);
                 LOG_DEBUG(<< "Setting allocations to false");
             }
             if (time % (WEEK) == 0) {
@@ -2660,7 +2656,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) 
                           << decomposition.seasonalComponents().size());
             }
 
-            decomposition.addPoint(time, trend(time) + noise[0], allocator);
+            decomposition.addPoint(time, trend(time) + noise[0], circuitBreaker);
         }
 
         // Check that we don't have any seasonal components.
@@ -2670,8 +2666,6 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) 
 
 BOOST_FIXTURE_TEST_CASE(testAddSeasonalComponentsNoAllocations, CComponentsTest) {
     this->testAddSeasonalComponents();
-
-    // ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents::TSeasonalComponentVec seasonalComponents;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

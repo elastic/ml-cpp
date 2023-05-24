@@ -30,7 +30,6 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CResourceMonitor.h>
 
 #include <array>
 #include <memory>

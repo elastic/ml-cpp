@@ -12,12 +12,16 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 
-#include "core/CMemoryCircuitBreaker.h"
 #include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 
 namespace ml {
+
+namespace core {
+class CMemoryCircuitBreaker;
+}
+
 namespace maths {
 namespace time_series {
 

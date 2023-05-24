@@ -16,8 +16,6 @@
 #include <core/CStateMachine.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CModel.h>
-
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CCalendarCyclicTest.h>
 #include <maths/time_series/CExpandingWindow.h>
@@ -73,7 +71,7 @@ public:
 
     //! \brief The base message passed.
     struct MATHS_TIME_SERIES_EXPORT SMessage {
-        SMessage(core_t::TTime time, core_t::TTime lastTime, const TMemoryCircuitBreaker& allocator);
+        SMessage(core_t::TTime time, core_t::TTime lastTime, const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         //! The message time.
         core_t::TTime s_Time;
@@ -137,7 +135,7 @@ public:
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
                           CSeasonalDecomposition components,
-                          const TMemoryCircuitBreaker& allocator);
+                          const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         //! The components found.
         CSeasonalDecomposition s_Components;
@@ -162,7 +160,7 @@ public:
     struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
                        const TComponentChangeCallback& componentChangeCallback,
-                       const TMemoryCircuitBreaker& allocator);
+                       const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         TPredictor s_Predictor;
         TComponentChangeCallback s_ComponentChangeCallback;
@@ -173,7 +171,7 @@ public:
         SDetectedChangePoint(core_t::TTime time,
                              core_t::TTime lastTime,
                              TChangePointUPtr change,
-                             const TMemoryCircuitBreaker& allocator);
+                             const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         //! The change description.
         TChangePointUPtr s_Change;
@@ -950,11 +948,11 @@ public:
 
         //! Add new seasonal components.
         void addSeasonalComponents(const CSeasonalDecomposition& components,
-                                   const TMemoryCircuitBreaker& allocator);
+                                   const TMemoryCircuitBreaker& memoryCircuitBreaker);
 
         //! Add a new calendar component.
         void addCalendarComponent(const CCalendarFeature& feature,
-                                  const TMemoryCircuitBreaker& allocator,
+                                  const TMemoryCircuitBreaker& memoryCircuitBreaker,
                                   core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.

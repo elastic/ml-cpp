@@ -371,7 +371,6 @@ public:
     using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
     using TDouble2VecWeightsAry1Vec = maths_t::TDouble2VecWeightsAry1Vec;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
-    using TModelAllocator = core::CMemoryCircuitBreaker;
 
     //! Possible statuses for updating a model.
     enum EUpdateResult {

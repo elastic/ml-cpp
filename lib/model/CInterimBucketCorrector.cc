@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "core/CMemoryCircuitBreaker.h"
 #include <model/CInterimBucketCorrector.h>
 
 #include <core/CLogger.h>
@@ -19,12 +18,10 @@
 
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CIntegerTools.h>
-#include <maths/common/CModel.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CModelFactory.h>
 
 #include <cmath>
 
@@ -58,8 +55,7 @@ void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, std::uint64
 void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, std::uint64_t count) {
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
     m_Completeness = 1.0;
-    m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count),
-                               core::CMemoryCircuitBreakerStub::instance());
+    m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count));
     m_FinalCountMean.age(std::exp(-decayRate(m_BucketLength)));
     m_FinalCountMean.add(static_cast<double>(count));
 }

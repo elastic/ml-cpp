@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
-#include "core/CMemoryCircuitBreaker.h"
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
@@ -30,11 +30,6 @@
 #include <vector>
 
 namespace ml {
-
-namespace core {
-class CMemoryCircuitBreaker;
-}
-
 namespace maths {
 namespace common {
 class CMultivariatePrior;

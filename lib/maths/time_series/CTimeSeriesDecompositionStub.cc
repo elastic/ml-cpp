@@ -9,10 +9,9 @@
  * limitation.
  */
 
-#include "core/CMemoryCircuitBreaker.h"
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
-#include <maths/common/CModel.h>
+#include <core/CMemoryCircuitBreaker.h>
 
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CSeasonalComponent.h>

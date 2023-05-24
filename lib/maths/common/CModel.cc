@@ -9,10 +9,10 @@
  * limitation.
  */
 
-#include "core/CMemoryCircuitBreaker.h"
 #include <maths/common/CModel.h>
 #include <maths/common/CModelDetail.h>
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CLogger.h>
 #include <core/Constants.h>
 

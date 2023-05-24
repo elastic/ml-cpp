@@ -12,10 +12,8 @@
 #ifndef INCLUDED_ml_model_CModelFactory_h
 #define INCLUDED_ml_model_CModelFactory_h
 
-#include <core/CMemoryCircuitBreaker.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/CModel.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/MathsTypes.h>
 
@@ -52,7 +50,6 @@ class CAnomalyDetectorModel;
 class CDataGatherer;
 class CInfluenceCalculator;
 class CInterimBucketCorrector;
-class CResourceMonitor;
 class CSearchKey;
 
 //! \brief A factory class interface for the CAnomalyDetectorModel hierarchy.

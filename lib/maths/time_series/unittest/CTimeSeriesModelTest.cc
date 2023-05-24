@@ -10,13 +10,13 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/common/CLogNormalMeanPrecConjugate.h>
-#include <maths/common/CModel.h>
 #include <maths/common/CMultimodalPrior.h>
 #include <maths/common/CMultivariateMultimodalPrior.h>
 #include <maths/common/CMultivariateNormalConjugate.h>
@@ -38,7 +38,6 @@
 #include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
-#include "core/CMemoryCircuitBreaker.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -433,7 +432,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
     core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
-    const auto& circuitBreaker = core::CMemoryCircuitBreakerStub::instance();
+
     LOG_DEBUG(<< "Univariate no trend");
     {
         TDoubleVec samples;
@@ -493,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         for (auto sample : samples) {
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            trend.addPoint(time, sample, circuitBreaker, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, core::CMemoryCircuitBreakerStub::instance(), maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
             prior.addSamples({trend.detrend(time, sample, 0.0, false)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -603,7 +602,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], circuitBreaker,
+                trends[i]->addPoint(time, sample[i], core::CMemoryCircuitBreakerStub::instance(),
                                     maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
@@ -675,7 +674,6 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
     // Test adding multiple samples at once.
 
     test::CRandomNumbers rng;
-    const auto& circuitBreaker = core::CMemoryCircuitBreakerStub::instance();
     core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Multiple samples univariate");
@@ -697,11 +695,11 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
 
         model.addSamples(addSampleParams(modelWeights), samples);
 
-        trend.addPoint(samples[1].first, samples[1].second[0], circuitBreaker,
+        trend.addPoint(samples[1].first, samples[1].second[0], core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[1]));
-        trend.addPoint(samples[2].first, samples[2].second[0], circuitBreaker,
+        trend.addPoint(samples[2].first, samples[2].second[0], core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[2]));
-        trend.addPoint(samples[0].first, samples[0].second[0], circuitBreaker,
+        trend.addPoint(samples[0].first, samples[0].second[0], core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[0]));
         prior.addSamples(
             {samples[2].second[0], samples[0].second[0], samples[1].second[0]},
@@ -742,11 +740,11 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
         model.addSamples(addSampleParams(modelWeights), samples);
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            trends[i]->addPoint(samples[1].first, samples[1].second[i], circuitBreaker,
+            trends[i]->addPoint(samples[1].first, samples[1].second[i], core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[0][i]));
-            trends[i]->addPoint(samples[2].first, samples[2].second[i], circuitBreaker,
+            trends[i]->addPoint(samples[2].first, samples[2].second[i], core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[1][i]));
-            trends[i]->addPoint(samples[0].first, samples[0].second[i], circuitBreaker,
+            trends[i]->addPoint(samples[0].first, samples[0].second[i], core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[2][i]));
         }
         TDouble10Vec1Vec samples_{samples[2].second, samples[0].second,
@@ -2035,7 +2033,6 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
@@ -2222,7 +2219,6 @@ BOOST_AUTO_TEST_CASE(testLargeAnomalyAfterChange) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
@@ -2298,7 +2294,6 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
@@ -2457,7 +2452,6 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::time_series::CUnivariateTimeSeriesModel& model) {
         model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],

@@ -429,6 +429,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     maths::time_series::CUnivariateTimeSeriesModel model(
         params(bucketLength), TAG, trend, prior, &controllers);
     CDebugGenerator debug;
+
     LOG_DEBUG(<< "*** learn ***");
 
     core_t::TTime time{0};

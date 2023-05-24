@@ -29,7 +29,6 @@
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraPersist.h>
-#include <maths/common/CModel.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
 #include <maths/common/CSampling.h>
@@ -382,8 +381,8 @@ const TSizeSizeMap SC_STATES_UPGRADING_TO_VERSION_6_3{{0, 0}, {1, 1}, {2, 1}, {3
 
 CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time,
                                                    core_t::TTime lastTime,
-                                                   const TMemoryCircuitBreaker& allocator)
-    : s_Time{time}, s_LastTime{lastTime}, s_MemoryCircuitBreaker{allocator} {
+                                                   const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : s_Time{time}, s_LastTime{lastTime}, s_MemoryCircuitBreaker{memoryCircuitBreaker} {
 }
 
 //////// SAddValue ////////
@@ -403,8 +402,8 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     const TMakePredictor& makePredictor,
     const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
     const TMakeTestForSeasonality& makeTestForSeasonality,
-    const TMemoryCircuitBreaker& allocator)
-    : SMessage{time, lastTime, allocator}, s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights},
+    const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : SMessage{time, lastTime, memoryCircuitBreaker}, s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights},
       s_Occupancy{occupancy}, s_FirstValueTime{firstValueTime}, s_Trend{trend},
       s_Seasonal{seasonal}, s_Calendar{calendar}, s_Decomposition{&decomposition},
       s_MakePredictor{makePredictor}, s_MakeSeasonalityTestPreconditioner{makeSeasonalityTestPreconditioner},
@@ -417,8 +416,8 @@ CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     core_t::TTime time,
     core_t::TTime lastTime,
     CSeasonalDecomposition components,
-    const TMemoryCircuitBreaker& allocator)
-    : SMessage{time, lastTime, allocator}, s_Components{std::move(components)} {
+    const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : SMessage{time, lastTime, memoryCircuitBreaker}, s_Components{std::move(components)} {
 }
 
 //////// SDetectedCalendar ////////
@@ -428,8 +427,8 @@ CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(
     core_t::TTime lastTime,
     CCalendarFeature feature,
     core_t::TTime timeZoneOffset,
-    const TMemoryCircuitBreaker& allocator)
-    : SMessage{time, lastTime, allocator}, s_Feature{feature}, s_TimeZoneOffset{timeZoneOffset} {
+    const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : SMessage{time, lastTime, memoryCircuitBreaker}, s_Feature{feature}, s_TimeZoneOffset{timeZoneOffset} {
 }
 
 //////// SDetectedTrend ////////
@@ -437,8 +436,8 @@ CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(
 CTimeSeriesDecompositionDetail::SDetectedTrend::SDetectedTrend(
     const TPredictor& predictor,
     const TComponentChangeCallback& componentChangeCallback,
-    const TMemoryCircuitBreaker& allocator)
-    : SMessage{0, 0, allocator}, s_Predictor{predictor}, s_ComponentChangeCallback{componentChangeCallback} {
+    const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : SMessage{0, 0, memoryCircuitBreaker}, s_Predictor{predictor}, s_ComponentChangeCallback{componentChangeCallback} {
 }
 
 //////// SDetectedChangePoint ////////
@@ -447,8 +446,8 @@ CTimeSeriesDecompositionDetail::SDetectedChangePoint::SDetectedChangePoint(
     core_t::TTime time,
     core_t::TTime lastTime,
     TChangePointUPtr change,
-    const TMemoryCircuitBreaker& allocator)
-    : SMessage{time, lastTime, allocator}, s_Change{std::move(change)} {
+    const TMemoryCircuitBreaker& memoryCircuitBreaker)
+    : SMessage{time, lastTime, memoryCircuitBreaker}, s_Change{std::move(change)} {
 }
 
 //////// CHandler ////////
@@ -1190,7 +1189,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
 
     switch (m_Machine.state()) {
     case PT_TEST:
-        // The seasonality test memory can increase as we add new values 
+        // The seasonality test memory can increase as we add new values
         // so we stop updating it in hard limit.
         if (message.s_MemoryCircuitBreaker.areAllocationsAllowed() == false) {
             break;
@@ -1479,7 +1478,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
 
     switch (m_Machine.state()) {
     case CC_TEST:
-        // The calendar test memory can increase as we add new values 
+        // The calendar test memory can increase as we add new values
         // so we stop updating it in hard limit.
         if (message.s_MemoryCircuitBreaker.areAllocationsAllowed() == false) {
             break;
@@ -2097,14 +2096,14 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 
 void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     const CSeasonalDecomposition& components,
-    const TMemoryCircuitBreaker& allocator) {
+    const TMemoryCircuitBreaker& memoryCircuitBreaker) {
 
     LOG_TRACE(<< "remove mask = " << components.seasonalToRemoveMask());
 
     LOG_TRACE(<< "Estimate size change = "
               << m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength));
 
-    if (allocator.areAllocationsAllowed() == false &&
+    if (memoryCircuitBreaker.areAllocationsAllowed() == false &&
         m_Seasonal->estimateSizeChange(components, m_DecayRate, m_BucketLength) > 0) {
         // In the hard_limit state, we do not change the state of components if
         // adding new components will consume more memory than removing old ones.

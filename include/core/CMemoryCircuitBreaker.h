@@ -16,10 +16,10 @@
 
 namespace ml {
 namespace core {
-//! \brief The allocator interface.
+//! \brief The memory circuit breaker interface.
 //!
 //! DESCRIPTION:\n
-//! The allocator interface is used to control the ability
+//! The memory circuit breaker interface is used to control the ability
 //! of a model to allocate new components. This is used to
 //! comply with the memory constraints of the system.
 class CORE_EXPORT CMemoryCircuitBreaker {
@@ -30,10 +30,10 @@ public:
     virtual bool areAllocationsAllowed() const = 0;
 };
 
-//! \brief The allocator stub.
+//! \brief The memory circuit breaker stub.
 //!
 //! DESCRIPTION:\n
-//! The allocator stub is used to allow all allocations.
+//! The memory circuit breaker stub is used to allow all allocations.
 class CORE_EXPORT CMemoryCircuitBreakerStub : public core::CMemoryCircuitBreaker {
 public:
     static const CMemoryCircuitBreakerStub& instance() {
