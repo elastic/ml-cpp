@@ -191,6 +191,9 @@ public:
 
 public:
     static void testAddSeasonalComponents() {
+        // Test that in the hard_limit state we still can add new seasonal components if 
+        // at the same time we remove old seasonal components of the same total size or larger.
+
         // Initialise CTimeSeriesDecompositionDetails::CComponents
         double decayRate{0.01};
         core_t::TTime bucketLength{HALF_HOUR};
@@ -203,22 +206,22 @@ public:
         {
             // initialise CSeasonalDecomposition
             maths::time_series::CSeasonalDecomposition seasonalDecompositionComponents;
-            // initialise CNewTrendSummary
             core_t::TTime startTime = 0;
             maths::time_series::CNewTrendSummary::TFloatMeanAccumulatorVec initialValues;
             maths::time_series::CNewTrendSummary trendComponent{
                 startTime, bucketLength, initialValues};
+            // No component to remove so far
             maths::time_series::CSeasonalDecomposition::TBoolVec componentsToRemove{};
             seasonalDecompositionComponents.add(trendComponent);
             seasonalDecompositionComponents.add(componentsToRemove);
 
-            // initialise TSeasonalComponent
-            TSeasonalDecomposition::TSeasonalComponent period;
+            // Create the first seasonal component and add it to the decomposition
+            TSeasonalDecomposition::TSeasonalComponent firstSeasonalComponent;
             TSeasonalDecomposition::TPeriodDescriptor periodDescriptor{
                 TSeasonalDecomposition::TPeriodDescriptor::E_Day};
             TSeasonalDecomposition::TOptionalTime startOfWeekTime;
             TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
-            seasonalDecompositionComponents.add("Test component 1", period, 10.0,
+            seasonalDecompositionComponents.add("Test component 1", firstSeasonalComponent, 10.0,
                                                 periodDescriptor, 10.0, 10.0, 10.0,
                                                 startOfWeekTime, seasonalValues);
 
@@ -232,27 +235,29 @@ public:
         {
             // initialise CSeasonalDecomposition
             maths::time_series::CSeasonalDecomposition seasonalDecompositionComponents;
-            // initialise CNewTrendSummary
             core_t::TTime startTime = 0;
             maths::time_series::CNewTrendSummary::TFloatMeanAccumulatorVec initialValues;
             maths::time_series::CNewTrendSummary trendComponent{
                 startTime, bucketLength, initialValues};
-            maths::time_series::CSeasonalDecomposition::TBoolVec componentsToRemove{true};
             seasonalDecompositionComponents.add(trendComponent);
+
+            // Mark the first seasonal component for removal
+            maths::time_series::CSeasonalDecomposition::TBoolVec componentsToRemove{true};
             seasonalDecompositionComponents.add(componentsToRemove);
-            // initialise TSeasonalComponent
-            TSeasonalDecomposition::TSeasonalComponent period;
+
+            // Create the second seasonal component and add it to the decomposition
+            TSeasonalDecomposition::TSeasonalComponent secondSeasonalComponent;
             TSeasonalDecomposition::TPeriodDescriptor periodDescriptor{
                 TSeasonalDecomposition::TPeriodDescriptor::E_Week};
             TSeasonalDecomposition::TOptionalTime startOfWeekTime;
             TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
-            seasonalDecompositionComponents.add("Test component 2", period, 0.0,
+            seasonalDecompositionComponents.add("Test component 2", secondSeasonalComponent, 0.0,
                                                 periodDescriptor, 0.0, 0.0, 1.0,
                                                 startOfWeekTime, seasonalValues);
 
             CConfigurableMemoryCircuitBreaker allocator{false};
 
-            // add seasonal components
+            // make sure that when addind the second seasonal component we remove the first one
             auto oldLastSeasonalComponent = components.seasonal().back().checksum();
             components.addSeasonalComponents(seasonalDecompositionComponents, allocator);
             auto newLastSeasonalComponent = components.seasonal().back().checksum();
@@ -260,8 +265,7 @@ public:
             BOOST_TEST_REQUIRE(oldLastSeasonalComponent != newLastSeasonalComponent);
         }
 
-        // BOOST_REQUIRE_EQUAL(components.seasonal().size(),
-        //                     seasonalComponentSize);
+
     }
 };
 
@@ -2551,10 +2555,9 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
                     12787200, // Fri 29th May
                     15206400, // Fri 26th Jun
                     18230400, // Fri 31st Jul
-                    18316800};
+                    18316800};// Sat 1st Aug
     core_t::TTime end = months.back();
     TDoubleVec errors{5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0};
-
     double decayRate{0.01};
 
     auto trend = [](core_t::TTime t) {
@@ -2565,106 +2568,32 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
                                             static_cast<double>(t) /
                                             static_cast<double>(DAY));
         double result = weekly + daily;
-
         return result;
     };
 
     test::CRandomNumbers rng;
     {
-        LOG_DEBUG(<< "Test with hard_limit state after 4 months");
-        decayRate = 0.01; // no hard_limit state, components should be detected
-        CConfigurableMemoryCircuitBreaker allocator{true};
+        CConfigurableMemoryCircuitBreaker allocator{false};
 
         maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
 
         TDoubleVec noise;
         for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
             rng.generateNormalSamples(0.0, 4.0, 1, noise);
-            if (time > (4 * WEEK)) {
-                allocator.areAllocationsAllowed(true);
-                decomposition.decayRate(10000);
-            }
-            if (time == 4 * WEEK) {
-                LOG_DEBUG(<< "Increasing decay rate to 10 and disabling allocations");
-            }
-            // if (time >= 4*DAY){
-            //     allocator.areAllocationsAllowed(true);
-            // }
-            if (time % (2 * WEEK) == 0) {
-                LOG_DEBUG(<< "Number of seasonal components: "
-                          << decomposition.seasonalComponents().size());
-            }
-
             decomposition.addPoint(time, trend(time) + noise[0], allocator);
         }
 
         // Check that we don't have any seasonal components.
-        BOOST_REQUIRE_EQUAL(false, decomposition.seasonalComponents().empty());
+        BOOST_REQUIRE_EQUAL(true, decomposition.seasonalComponents().empty());
 
         // Check that we don't have any calendar components.
-        BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
-    }
-}
-
-BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowedRemoveComponents, CTestFixture) {
-
-    TTimeVec months{2505600,  // Fri 30th Jan
-                    4924800,  // Fri 27th Feb
-                    7344000,  // Fri 27th Mar
-                    9763200,  // Fri 24th Apr
-                    12787200, // Fri 29th May
-                    15206400, // Fri 26th Jun
-                    18230400, // Fri 31st Jul
-                    18316800};
-    core_t::TTime end = months.back();
-    TDoubleVec errors{5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0};
-
-    double decayRate{0.01};
-
-    auto trend = [](core_t::TTime t) {
-        double weekly = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
-                                                 static_cast<double>(t) /
-                                                 static_cast<double>(WEEK));
-        double daily = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
-                                                static_cast<double>(t) /
-                                                static_cast<double>(DAY));
-        double biweekly = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
-                                                   static_cast<double>(t) /
-                                                   static_cast<double>(2 * WEEK));
-        double result = weekly + daily + biweekly;
-        return result;
-    };
-
-    test::CRandomNumbers rng;
-
-    {
-        LOG_DEBUG(<< "Test with hard_limit state after 4 months");
-        decayRate = 0.01; // no hard_limit state, components should be detected
-        CConfigurableMemoryCircuitBreaker circuitBreaker{true};
-
-        maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
-
-        TDoubleVec noise;
-        for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
-            rng.generateNormalSamples(0.0, 4.0, 1, noise);
-            if (time == (22 * WEEK + DAY)) {
-                circuitBreaker.areAllocationsAllowed(false);
-                LOG_DEBUG(<< "Setting allocations to false");
-            }
-            if (time % (WEEK) == 0) {
-                LOG_DEBUG(<< "After " << (time / WEEK) << " weeks number of seasonal components: "
-                          << decomposition.seasonalComponents().size());
-            }
-
-            decomposition.addPoint(time, trend(time) + noise[0], circuitBreaker);
-        }
-
-        // Check that we don't have any seasonal components.
-        BOOST_REQUIRE_EQUAL(false, decomposition.seasonalComponents().empty());
+        BOOST_REQUIRE_EQUAL(true, decomposition.calendarComponents().empty());
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testAddSeasonalComponentsNoAllocations, CComponentsTest) {
+    // Test that in the hard_limit state we still can add new seasonal components if 
+    // at the same time we remove old seasonal components of the same total size or larger.
     this->testAddSeasonalComponents();
 }
 
