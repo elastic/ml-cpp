@@ -36,10 +36,7 @@ public:
 //! The memory circuit breaker stub is used to allow all allocations.
 class CORE_EXPORT CMemoryCircuitBreakerStub : public core::CMemoryCircuitBreaker {
 public:
-    static CMemoryCircuitBreakerStub& instance() {
-        static CMemoryCircuitBreakerStub instance;
-        return instance;
-    }
+    static CMemoryCircuitBreakerStub& instance();
     bool areAllocationsAllowed() const override { return true; }
     CMemoryCircuitBreakerStub(const CMemoryCircuitBreakerStub&) = delete;
     CMemoryCircuitBreakerStub& operator=(const CMemoryCircuitBreakerStub&) = delete;
