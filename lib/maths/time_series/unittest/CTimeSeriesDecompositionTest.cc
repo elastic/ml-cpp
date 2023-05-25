@@ -191,7 +191,7 @@ public:
 
 public:
     static void testAddSeasonalComponents() {
-        // Test that in the hard_limit state we still can add new seasonal components if 
+        // Test that in the hard_limit state we still can add new seasonal components if
         // at the same time we remove old seasonal components of the same total size or larger.
 
         // Initialise CTimeSeriesDecompositionDetails::CComponents
@@ -221,9 +221,9 @@ public:
                 TSeasonalDecomposition::TPeriodDescriptor::E_Day};
             TSeasonalDecomposition::TOptionalTime startOfWeekTime;
             TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
-            seasonalDecompositionComponents.add("Test component 1", firstSeasonalComponent, 10.0,
-                                                periodDescriptor, 10.0, 10.0, 10.0,
-                                                startOfWeekTime, seasonalValues);
+            seasonalDecompositionComponents.add(
+                "Test component 1", firstSeasonalComponent, 10.0, periodDescriptor,
+                10.0, 10.0, 10.0, startOfWeekTime, seasonalValues);
 
             CConfigurableMemoryCircuitBreaker allocator{true};
 
@@ -251,9 +251,9 @@ public:
                 TSeasonalDecomposition::TPeriodDescriptor::E_Week};
             TSeasonalDecomposition::TOptionalTime startOfWeekTime;
             TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
-            seasonalDecompositionComponents.add("Test component 2", secondSeasonalComponent, 0.0,
-                                                periodDescriptor, 0.0, 0.0, 1.0,
-                                                startOfWeekTime, seasonalValues);
+            seasonalDecompositionComponents.add(
+                "Test component 2", secondSeasonalComponent, 0.0,
+                periodDescriptor, 0.0, 0.0, 1.0, startOfWeekTime, seasonalValues);
 
             CConfigurableMemoryCircuitBreaker allocator{false};
 
@@ -264,8 +264,6 @@ public:
             BOOST_REQUIRE_EQUAL(1, components.seasonal().size());
             BOOST_TEST_REQUIRE(oldLastSeasonalComponent != newLastSeasonalComponent);
         }
-
-
     }
 };
 
@@ -2548,14 +2546,14 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
     // the call of addPoint() does not lead to creation of new seasonal or calendar components
     // in the decomposition.
 
-    TTimeVec months{2505600,  // Fri 30th Jan
-                    4924800,  // Fri 27th Feb
-                    7344000,  // Fri 27th Mar
-                    9763200,  // Fri 24th Apr
-                    12787200, // Fri 29th May
-                    15206400, // Fri 26th Jun
-                    18230400, // Fri 31st Jul
-                    18316800};// Sat 1st Aug
+    TTimeVec months{2505600,   // Fri 30th Jan
+                    4924800,   // Fri 27th Feb
+                    7344000,   // Fri 27th Mar
+                    9763200,   // Fri 24th Apr
+                    12787200,  // Fri 29th May
+                    15206400,  // Fri 26th Jun
+                    18230400,  // Fri 31st Jul
+                    18316800}; // Sat 1st Aug
     core_t::TTime end = months.back();
     TDoubleVec errors{5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0};
     double decayRate{0.01};
@@ -2592,7 +2590,7 @@ BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testAddSeasonalComponentsNoAllocations, CComponentsTest) {
-    // Test that in the hard_limit state we still can add new seasonal components if 
+    // Test that in the hard_limit state we still can add new seasonal components if
     // at the same time we remove old seasonal components of the same total size or larger.
     this->testAddSeasonalComponents();
 }

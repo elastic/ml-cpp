@@ -18,8 +18,8 @@ namespace core {
 // call instance() during the static initialisation phase of the program.  Of
 // course, the instance may already be constructed before this if another static
 // object has used it.
-const ml::core::CMemoryCircuitBreakerStub& DO_NOT_USE_THIS_VARIABLE =
-    ml::core::CMemoryCircuitBreakerStub::instance();
+// const ml::core::CMemoryCircuitBreakerStub& DO_NOT_USE_THIS_VARIABLE =
+//     ml::core::CMemoryCircuitBreakerStub::instance();
 
 CMemoryCircuitBreakerStub& CMemoryCircuitBreakerStub::instance() {
     static CMemoryCircuitBreakerStub instance;
