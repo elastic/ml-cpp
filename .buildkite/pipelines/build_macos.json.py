@@ -48,7 +48,7 @@ def main(args):
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
-            #"depends_on": "check_style",
+            "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
               "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
@@ -88,7 +88,7 @@ def main(args):
           f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
           ".buildkite/scripts/steps/build_and_test.sh"
         ],
-        #"depends_on": "check_style",
+        "depends_on": "check_style",
         "key": "build_macos_x86_64_cross-RelWithDebInfo",
         "env": {
           "ML_DEBUG": "0",

@@ -51,7 +51,7 @@ def main(args):
               f'if ( "{args.action}" -eq "debug" ) {{\$Env:ML_DEBUG="1"}}',
               "& .buildkite\\scripts\\steps\\build_and_test.ps1"
             ],
-            #"depends_on": "check_style",
+            "depends_on": "check_style",
             "key": f"build_test_Windows-{arch}-{build_type}",
             "env": {
               "ML_DEBUG": "0",
