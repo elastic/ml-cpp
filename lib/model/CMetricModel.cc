@@ -327,6 +327,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(data_.second.s_IsInteger)
                     .isNonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
@@ -341,7 +342,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     })
-                    .memoryCircuitBreaker(CMemoryCircuitBreaker(resourceMonitor));
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
