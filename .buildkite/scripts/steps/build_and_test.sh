@@ -63,12 +63,14 @@ if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]
     export ML_DEBUG=1
 fi
 
+TEST_FAILURE=0
 # For now, re-use our existing CI scripts based on Docker
 # Don't perform these steps for native linux aarch64 builds as
 # they are built using docker, see above.
 if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
+    TEST_FAILURE=$(grep passed build/test_status.txt)
   else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
   fi
@@ -109,3 +111,5 @@ if [[ -z "$CPP_CROSS_COMPILE" ]] ; then
   find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
   buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
 fi
+
+exit $TEST_FAILURE
