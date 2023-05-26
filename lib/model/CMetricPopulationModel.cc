@@ -492,6 +492,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(attribute.second.s_IsInteger)
                     .isNonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
@@ -503,7 +504,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     })
-                    .memoryCircuitBreaker(CMemoryCircuitBreaker(resourceMonitor));
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 maths::common::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
