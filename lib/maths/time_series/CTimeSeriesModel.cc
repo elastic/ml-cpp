@@ -1532,8 +1532,9 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        m_TrendModel->addPoint(time, value, weight, componentChangeCallback,
-                               modelAnnotationCallback, occupancy, firstValueTime);
+        m_TrendModel->addPoint(time, value, params.memoryCircuitBreaker(), weight,
+                               componentChangeCallback, modelAnnotationCallback,
+                               occupancy, firstValueTime);
     }
 
     if (result == E_Reset) {
@@ -2919,7 +2920,8 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback,
+            m_TrendModel[d]->addPoint(time, value[d], params.memoryCircuitBreaker(),
+                                      weight, componentChangeCallback,
                                       modelAnnotationCallback, occupancy, firstValueTime);
         }
     }

@@ -162,6 +162,16 @@ const maths_t::TModelAnnotationCallback& CModelAddSamplesParams::annotationCallb
     return m_ModelAnnotationCallback;
 }
 
+CModelAddSamplesParams&
+CModelAddSamplesParams::memoryCircuitBreaker(const core::CMemoryCircuitBreaker& breaker) {
+    m_MemoryCircuitBreaker = &breaker;
+    return *this;
+}
+
+const core::CMemoryCircuitBreaker& CModelAddSamplesParams::memoryCircuitBreaker() const {
+    return *m_MemoryCircuitBreaker;
+}
+
 //////// CModelProbabilityParams ////////
 
 CModelProbabilityParams::CModelProbabilityParams()

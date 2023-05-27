@@ -45,6 +45,7 @@ ml_add_library(MlCore SHARED
   CLogger.cc
   CLoggerThrottler.cc
   CLoopProgress.cc
+  CMemoryCircuitBreaker.cc
   CMemoryDef.cc
   CMemoryUsage.cc
   CMemoryUsageJsonWriter.cc

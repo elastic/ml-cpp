@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -26,6 +27,8 @@
 
 #include <maths/time_series/CDecayRateController.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionDetail.h>
+#include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -157,6 +160,111 @@ class CTestFixture {
 public:
     CTestFixture() { core::CTimezone::instance().setTimezone("GMT"); }
     ~CTestFixture() { core::CTimezone::instance().setTimezone(""); }
+};
+
+class CConfigurableMemoryCircuitBreaker : public core::CMemoryCircuitBreaker {
+public:
+    //! Constructor
+    explicit CConfigurableMemoryCircuitBreaker(bool allowAllocations)
+        : m_AllowAllocations(allowAllocations) {}
+
+    //! In hard_limit mode we don't allow any new allocations.
+    bool areAllocationsAllowed() const override { return m_AllowAllocations; }
+
+    //! Set hard_limit mode.
+    void areAllocationsAllowed(bool allowAllocations) {
+        m_AllowAllocations = allowAllocations;
+    }
+
+private:
+    bool m_AllowAllocations;
+};
+
+class CComponentsTest : public CTestFixture {
+public:
+    using TComponents = ml::maths::time_series::CTimeSeriesDecompositionDetail::CComponents;
+    using TSeasonal = TComponents::CSeasonal;
+    using TFloatMeanAccumulatorVec =
+        ml::maths::time_series::CTimeSeriesDecompositionTypes::TFloatMeanAccumulatorVec;
+    using TSeasonalDecomposition = ml::maths::time_series::CSeasonalDecomposition;
+    using TSeasonalComponent = ml::maths::time_series::CSeasonalDecomposition::TSeasonalComponent;
+
+public:
+    static void testAddSeasonalComponents() {
+        // Test that in the hard_limit state we still can add new seasonal components if
+        // at the same time we remove old seasonal components of the same total size or larger.
+
+        // Initialise CTimeSeriesDecompositionDetails::CComponents
+        double decayRate{0.01};
+        core_t::TTime bucketLength{HALF_HOUR};
+        std::size_t seasonalComponentSize{4};
+        TComponents components{decayRate, bucketLength, seasonalComponentSize};
+        components.m_Seasonal = std::make_unique<TSeasonal>();
+        TComponents::CScopeAttachComponentChangeCallback attach{
+            components, [](TFloatMeanAccumulatorVec) {}, [](const std::string&) {}};
+
+        {
+            // initialise CSeasonalDecomposition
+            maths::time_series::CSeasonalDecomposition seasonalDecompositionComponents;
+            core_t::TTime startTime = 0;
+            maths::time_series::CNewTrendSummary::TFloatMeanAccumulatorVec initialValues;
+            maths::time_series::CNewTrendSummary trendComponent{
+                startTime, bucketLength, initialValues};
+            // No component to remove so far
+            maths::time_series::CSeasonalDecomposition::TBoolVec componentsToRemove{};
+            seasonalDecompositionComponents.add(trendComponent);
+            seasonalDecompositionComponents.add(componentsToRemove);
+
+            // Create the first seasonal component and add it to the decomposition
+            TSeasonalDecomposition::TSeasonalComponent firstSeasonalComponent;
+            TSeasonalDecomposition::TPeriodDescriptor periodDescriptor{
+                TSeasonalDecomposition::TPeriodDescriptor::E_Day};
+            TSeasonalDecomposition::TOptionalTime startOfWeekTime;
+            TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
+            seasonalDecompositionComponents.add(
+                "Test component 1", firstSeasonalComponent, 10.0, periodDescriptor,
+                10.0, 10.0, 10.0, startOfWeekTime, seasonalValues);
+
+            CConfigurableMemoryCircuitBreaker allocator{true};
+
+            // add seasonal components
+            components.addSeasonalComponents(seasonalDecompositionComponents, allocator);
+            BOOST_REQUIRE_EQUAL(1, components.seasonal().size());
+            LOG_DEBUG(<< "First add seasonal components finished");
+        }
+        {
+            // initialise CSeasonalDecomposition
+            maths::time_series::CSeasonalDecomposition seasonalDecompositionComponents;
+            core_t::TTime startTime = 0;
+            maths::time_series::CNewTrendSummary::TFloatMeanAccumulatorVec initialValues;
+            maths::time_series::CNewTrendSummary trendComponent{
+                startTime, bucketLength, initialValues};
+            seasonalDecompositionComponents.add(trendComponent);
+
+            // Mark the first seasonal component for removal
+            maths::time_series::CSeasonalDecomposition::TBoolVec componentsToRemove{true};
+            seasonalDecompositionComponents.add(componentsToRemove);
+
+            // Create the second seasonal component and add it to the decomposition
+            TSeasonalDecomposition::TSeasonalComponent secondSeasonalComponent;
+            TSeasonalDecomposition::TPeriodDescriptor periodDescriptor{
+                TSeasonalDecomposition::TPeriodDescriptor::E_Week};
+            TSeasonalDecomposition::TOptionalTime startOfWeekTime;
+            TSeasonalDecomposition::TFloatMeanAccumulatorVec seasonalValues;
+            seasonalDecompositionComponents.add(
+                "Test component 2", secondSeasonalComponent, 0.0,
+                periodDescriptor, 0.0, 0.0, 1.0, startOfWeekTime, seasonalValues);
+
+            CConfigurableMemoryCircuitBreaker allocator{false};
+
+            // make sure that when addind the second seasonal component we remove the first one
+            auto oldLastSeasonalComponent = components.seasonal().back().checksum();
+            components.addSeasonalComponents(seasonalDecompositionComponents, allocator);
+            auto newLastSeasonalComponent = components.seasonal().back().checksum();
+            BOOST_REQUIRE_EQUAL(1, components.seasonal().size());
+            BOOST_TEST_REQUIRE(oldLastSeasonalComponent != newLastSeasonalComponent);
+        }
+    }
 };
 
 BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
@@ -559,7 +667,9 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through half of the periodic data.
     std::size_t i = 0;
     for (; i < times.size() / 2; ++i) {
-        decomposition.addPoint(times[i], trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(times[i], trend[i] + noise[i],
+                               core::CMemoryCircuitBreakerStub::instance(),
+                               maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedBefore](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedBefore;
                                });
@@ -576,7 +686,9 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through the 2nd half of the periodic data set.
     for (++i; i < times.size(); ++i) {
         core_t::TTime time{times[i]};
-        decomposition.addPoint(time, trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(time, trend[i] + noise[i],
+                               core::CMemoryCircuitBreakerStub::instance(),
+                               maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedAfter](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedAfter;
                                });
@@ -1028,15 +1140,17 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        decomposition.addPoint(time, value, maths_t::CUnitWeights::UNIT, [&model](TFloatMeanAccumulatorVec residuals) {
-            model.setToNonInformative(0.0, 0.01);
-            for (const auto& residual : residuals) {
-                if (maths::common::CBasicStatistics::count(residual) > 0.0) {
-                    model.addSamples({maths::common::CBasicStatistics::mean(residual)},
-                                     maths_t::CUnitWeights::SINGLE_UNIT);
+        decomposition.addPoint(
+            time, value, core::CMemoryCircuitBreakerStub::instance(),
+            maths_t::CUnitWeights::UNIT, [&model](TFloatMeanAccumulatorVec residuals) {
+                model.setToNonInformative(0.0, 0.01);
+                for (const auto& residual : residuals) {
+                    if (maths::common::CBasicStatistics::count(residual) > 0.0) {
+                        model.addSamples({maths::common::CBasicStatistics::mean(residual)},
+                                         maths_t::CUnitWeights::SINGLE_UNIT);
+                    }
                 }
-            }
-        });
+            });
         model.addSamples({decomposition.detrend(time, value, 70.0, false)},
                          maths_t::CUnitWeights::SINGLE_UNIT);
         debug.addValue(time, value);
@@ -1462,6 +1576,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(
                 times[i], trend[i] + 0.3 * noise[i],
+                core::CMemoryCircuitBreakerStub::instance(),
                 maths_t::countWeight(decomposition.countWeight(times[i])));
             debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
@@ -1949,7 +2064,8 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
 
         bool newComponents{false};
         decomposition.addPoint(
-            time, value, maths_t::CUnitWeights::UNIT,
+            time, value, core::CMemoryCircuitBreakerStub::instance(),
+            maths_t::CUnitWeights::UNIT,
             [&newComponents](TFloatMeanAccumulatorVec) { newComponents = true; });
 
         if (newComponents) {
@@ -2038,6 +2154,9 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
             }
         }
     }
+
+    // Check that we can detect the calendar component.
+    BOOST_REQUIRE_EQUAL(false, decomposition.calendarComponents().empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
@@ -2420,6 +2539,60 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         inserter.toXml(newXml);
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
+}
+
+BOOST_FIXTURE_TEST_CASE(testNoAllocationsAllowed, CTestFixture) {
+    // Test that when CTimeSeriesDecompositionAllocator::areAllocationsAllowed returns false,
+    // the call of addPoint() does not lead to creation of new seasonal or calendar components
+    // in the decomposition.
+
+    TTimeVec months{2505600,   // Fri 30th Jan
+                    4924800,   // Fri 27th Feb
+                    7344000,   // Fri 27th Mar
+                    9763200,   // Fri 24th Apr
+                    12787200,  // Fri 29th May
+                    15206400,  // Fri 26th Jun
+                    18230400,  // Fri 31st Jul
+                    18316800}; // Sat 1st Aug
+    core_t::TTime end = months.back();
+    TDoubleVec errors{5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0};
+    double decayRate{0.01};
+
+    auto trend = [](core_t::TTime t) {
+        double weekly = 1200.0 + 1000.0 * std::sin(boost::math::double_constants::two_pi *
+                                                   static_cast<double>(t) /
+                                                   static_cast<double>(WEEK));
+        double daily = 5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
+                                            static_cast<double>(t) /
+                                            static_cast<double>(DAY));
+        double result = weekly + daily;
+        return result;
+    };
+
+    test::CRandomNumbers rng;
+    {
+        CConfigurableMemoryCircuitBreaker allocator{false};
+
+        maths::time_series::CTimeSeriesDecomposition decomposition(decayRate, HALF_HOUR);
+
+        TDoubleVec noise;
+        for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
+            rng.generateNormalSamples(0.0, 4.0, 1, noise);
+            decomposition.addPoint(time, trend(time) + noise[0], allocator);
+        }
+
+        // Check that we don't have any seasonal components.
+        BOOST_REQUIRE_EQUAL(true, decomposition.seasonalComponents().empty());
+
+        // Check that we don't have any calendar components.
+        BOOST_REQUIRE_EQUAL(true, decomposition.calendarComponents().empty());
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testAddSeasonalComponentsNoAllocations, CComponentsTest) {
+    // Test that in the hard_limit state we still can add new seasonal components if
+    // at the same time we remove old seasonal components of the same total size or larger.
+    this->testAddSeasonalComponents();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_common_CModel_h
 #define INCLUDED_ml_maths_common_CModel_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
 #include <core/CTriple.h>
@@ -147,6 +148,11 @@ public:
     //! Get the model annotation callback.
     const maths_t::TModelAnnotationCallback& annotationCallback() const;
 
+    //! Set the memory circuit breaker. Default is a CMemoryCircuitBreakerStub.
+    CModelAddSamplesParams& memoryCircuitBreaker(const core::CMemoryCircuitBreaker& breaker);
+    //! Get the memory circuit breaker.
+    const core::CMemoryCircuitBreaker& memoryCircuitBreaker() const;
+
 private:
     //! The data type.
     maths_t::EDataType m_Type{maths_t::E_MixedData};
@@ -164,6 +170,9 @@ private:
     const TDouble2VecWeightsAryVec* m_PriorWeights{nullptr};
     //! The add annotation callback.
     maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{[](const std::string&) {}};
+    //! The memory circuit breaker.
+    const core::CMemoryCircuitBreaker* m_MemoryCircuitBreaker{
+        &core::CMemoryCircuitBreakerStub::instance()};
 };
 
 //! \brief The extra parameters needed by CModel::probability.

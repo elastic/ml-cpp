@@ -30,6 +30,7 @@
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
+#include <model/CModelFactory.h>
 #include <model/CPartitioningFields.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -491,6 +492,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(attribute.second.s_IsInteger)
                     .isNonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
@@ -501,7 +503,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 maths::common::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

@@ -731,6 +731,17 @@ private:
     //! modeled.
     TFeatureInfluenceCalculatorCPtrPrVecVec m_InfluenceCalculators;
 };
+
+class CMemoryCircuitBreaker : public core::CMemoryCircuitBreaker {
+public:
+    explicit CMemoryCircuitBreaker(CResourceMonitor& resourceMonitor)
+        : m_ResourceMonitor{&resourceMonitor} {}
+
+    bool areAllocationsAllowed() const override;
+
+private:
+    CResourceMonitor* m_ResourceMonitor;
+};
 }
 }
 
