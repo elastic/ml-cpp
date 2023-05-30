@@ -170,13 +170,15 @@ def compare_results(expected, actual, tolerance):
 
         request_id = actual['request_id']
 
-        if len(expected['inference']) != len(actual['inference']):
+        actual_result = actual['result']
+
+        if len(expected['inference']) != len(actual_result['inference']):
             print("[{}] len(inference) does not match [{}], [{}]".format(request_id, len(expected['inference']), len(actual['inference'])), flush=True)
             return False
 
         for i in range(len(expected['inference'])):
             expected_array = expected['inference'][i]
-            actual_array = actual['inference'][i]
+            actual_array = actual_result['inference'][i]
 
             if len(expected_array) != len(actual_array):
                 print("[{}] array [{}] lengths are not equal [{}], [{}]".format(request_id, i, len(expected_array), len(actual_array)), flush=True)
@@ -280,16 +282,17 @@ def test_evaluation(args):
             result_docs = json.load(output_file)
         except:
             print("Error parsing json: ", sys.exc_info()[0])
-            return
+            return            
+
 
         for result in result_docs:
+        
             if 'error' in result: 
                 print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")
                 results_match = False
                 continue
 
-            if 'thread_settings' in result:
-                print(f"Thread settings read: {result}")
+            if 'thread_settings' in result:                
                 continue
 
             expected = test_evaluation[doc_count]['expected_output']
@@ -301,7 +304,7 @@ def test_evaluation(args):
             total_time_ms += result['time_ms']
 
             # compare to expected
-            if compare_results(expected, result['result'], tolerance) == False:
+            if compare_results(expected, result, tolerance) == False:
                 print()
                 print(f'ERROR: inference result [{doc_count}] does not match expected results')
                 print()
