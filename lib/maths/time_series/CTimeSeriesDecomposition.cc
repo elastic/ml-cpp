@@ -12,6 +12,7 @@
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <core/CLogger.h>
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -202,6 +203,7 @@ bool CTimeSeriesDecomposition::initialized() const {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
+                                        const core::CMemoryCircuitBreaker& circuitBreaker,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
                                         const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
@@ -255,7 +257,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                           };
                       },
                       [this] { return this->predictor(E_Seasonal | E_Calendar); },
-                      testForSeasonality};
+                      testForSeasonality,
+                      circuitBreaker};
 
     m_ChangePointTest.handle(message);
     m_Components.handle(message);
@@ -601,6 +604,10 @@ core_t::TTime CTimeSeriesDecomposition::timeShift() const {
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponents() const {
     return m_Components.seasonal();
+}
+
+const maths_t::TCalendarComponentVec& CTimeSeriesDecomposition::calendarComponents() const {
+    return m_Components.calendar();
 }
 
 core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {

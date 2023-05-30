@@ -11,6 +11,9 @@
 
 #include <maths/time_series/CTimeSeriesDecompositionStub.h>
 
+#include <core/CMemoryCircuitBreaker.h>
+
+#include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSeasonalTime.h>
 
@@ -18,7 +21,8 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-const maths_t::TSeasonalComponentVec NO_COMPONENTS;
+const maths_t::TSeasonalComponentVec NO_SEASONAL_COMPONENTS;
+const maths_t::TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 }
 
 CTimeSeriesDecompositionStub* CTimeSeriesDecompositionStub::clone(bool /*isForForecast*/) const {
@@ -39,13 +43,15 @@ bool CTimeSeriesDecompositionStub::initialized() const {
     return false;
 }
 
-void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
-                                            double /*value*/,
-                                            const maths_t::TDoubleWeightsAry& /*weights*/,
-                                            const TComponentChangeCallback& /*componentChangeCallback*/,
-                                            const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
-                                            double /*occupancy*/,
-                                            core_t::TTime /*firstValueTime*/) {
+void CTimeSeriesDecompositionStub::addPoint(
+    core_t::TTime /*time*/,
+    double /*value*/,
+    const core::CMemoryCircuitBreaker& /*allocator*/,
+    const maths_t::TDoubleWeightsAry& /*weights*/,
+    const TComponentChangeCallback& /*componentChangeCallback*/,
+    const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
+    double /*occupancy*/,
+    core_t::TTime /*firstValueTime*/) {
 }
 
 void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
@@ -135,7 +141,11 @@ core_t::TTime CTimeSeriesDecompositionStub::timeShift() const {
 }
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {
-    return NO_COMPONENTS;
+    return NO_SEASONAL_COMPONENTS;
+}
+
+const maths_t::TCalendarComponentVec& CTimeSeriesDecompositionStub::calendarComponents() const {
+    return NO_CALENDAR_COMPONENTS;
 }
 }
 }

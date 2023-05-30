@@ -28,6 +28,7 @@
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
@@ -508,6 +509,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(true)
                     .isNonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
@@ -518,7 +520,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 maths::common::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

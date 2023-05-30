@@ -24,6 +24,7 @@
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
@@ -326,6 +327,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(data_.second.s_IsInteger)
                     .isNonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
@@ -339,7 +341,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);

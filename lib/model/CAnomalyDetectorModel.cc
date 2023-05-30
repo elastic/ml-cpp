@@ -632,5 +632,9 @@ void CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::prototypePrior(
     const TMultivariatePriorSPtr& prior) {
     m_PrototypePrior = prior;
 }
+
+bool CMemoryCircuitBreaker::areAllocationsAllowed() const {
+    return m_ResourceMonitor->areAllocationsAllowed();
+}
 }
 }

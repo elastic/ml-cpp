@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionInterface_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVectorFwd.h>
 #include <core/CoreTypes.h>
@@ -108,6 +109,7 @@ public:
     virtual void
     addPoint(core_t::TTime time,
              double value,
+             const core::CMemoryCircuitBreaker& circuitBreaker = core::CMemoryCircuitBreakerStub::instance(),
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
@@ -215,6 +217,9 @@ public:
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const = 0;
+
+    //! Get the calendar components.
+    virtual const maths_t::TCalendarComponentVec& calendarComponents() const = 0;
 
 protected:
     static void noopComponentChange(TFloatMeanAccumulatorVec) {}
