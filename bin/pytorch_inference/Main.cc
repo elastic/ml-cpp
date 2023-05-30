@@ -45,6 +45,8 @@
 torch::Tensor infer(torch::jit::script::Module& module_,
                     ml::torch::CCommandParser::SRequest& request) {
 
+    LOG_INFO(<< "request " << request.s_RequestId << ", " << request.s_NumberInferences);
+
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
@@ -57,7 +59,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
 
     for (int i=0; i<request.s_NumberInferences; i++) {
 
-        std::size_t offset = i * sizeof(std::uint64_t);
+        std::size_t offset = i * request.s_NumberInputTokens * sizeof(std::uint64_t);
 
         // Sequence tokens.
         inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data() + offset),
@@ -79,6 +81,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         inputs.clear();
     }
 
+    LOG_INFO(<< "request processed " << request.s_RequestId);
     return at::cat(all, 0);
 }
 
