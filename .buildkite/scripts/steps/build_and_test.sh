@@ -99,10 +99,11 @@ else
      fi
 
      (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
+     TEST_OUTCOME=$?
   fi
 fi
 
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] ; then 
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME = 0 ]] ; then 
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 
