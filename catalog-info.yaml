@@ -1,0 +1,232 @@
+# Declare the main developer pipeline (PR builds)
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/e57ee3bed7a6f73077a3f55a38e76e40ec87a7cf/rre.schema.json
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-buildkite-pipeline"
+  description: "ml-cpp CI :pipeline:"
+  links:
+    - title: "Main Machine Learning CI Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp"
+
+spec:
+  type: "buildkite-pipeline"
+  owner: "group:ml-core"
+  system: "buildkite"
+  implementation:
+    apiVersion: "buildkite.elastic.dev/v1"
+    kind: "Pipeline"
+    metadata:
+      name: "Main ml-cpp pipeline"
+      description: "ml-cpp CI :pipeline:"
+    spec:
+      allow_rebuilds: true
+      branch_configuration: main !main
+      cancel_intermediate_builds: true
+      clone_method: https
+      pipeline_file: .buildkite/pipeline.json.py
+      provider_settings:
+        build_branches: false
+        build_pull_request_forks: true
+        build_pull_request_labels_changed: true
+        cancel_deleted_branch_builds: true
+        filter_condition: build.creator.name == 'elasticmachine'
+        filter_enabled: true
+        publish_blocked_as_pending: true
+        publish_commit_status: false
+        publish_commit_status_per_step: true
+        trigger_mode: code
+      repository: elastic/ml-cpp
+      skip_intermediate_builds: true
+      teams:
+        everyone:
+          access_level: READ
+        ml-core:
+          access_level: MANAGE_BUILD_AND_READ
+
+# Declare the nightly debug build pipeline
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/e57ee3bed7a6f73077a3f55a38e76e40ec87a7cf/rre.schema.json
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-debug-build"
+  description: "ml-cpp CI nightly debug build :pipeline:"
+  links:
+    - title: "Machine Learning Nightly Debug Build Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp-debug-build"
+
+spec:
+  type: "buildkite-pipeline"
+  owner: "group:ml-core"
+  system: "buildkite"
+  implementation:
+    apiVersion: "buildkite.elastic.dev/v1"
+    kind: "Pipeline"
+    metadata:
+      description: "ml-cpp CI nightly debug build :pipeline:"
+      name: "ml-cpp debug build"
+    spec:
+      clone_method: https
+      pipeline_file: .buildkite/job-build-test-all-debug.json.py
+      provider_settings:
+        trigger_mode: none
+      repository: elastic/ml-cpp
+      schedules:
+        Nightly main:
+          branch: main
+          cronline: 0 3 * * *
+          message: Nightly debug build of `main`
+      teams:
+        everyone:
+          access_level: READ
+        ml-core:
+          access_level: MANAGE_BUILD_AND_READ
+
+# Declare the DRA build pipeline
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/e57ee3bed7a6f73077a3f55a38e76e40ec87a7cf/rre.schema.json
+
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-dra-builds"
+  description: "ML :cpp: DRA :pipeline:"
+  links:
+    - title: "Machine Learning DRA Builds Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp-dra"
+
+spec:
+  type: "buildkite-pipeline"
+  owner: "group:ml-core"
+  system: "buildkite"
+  implementation:
+    apiVersion: "buildkite.elastic.dev/v1"
+    kind: "Pipeline"
+    metadata:
+      description: "ML :cpp: DRA :pipeline:"
+      name: "ml-cpp - DRA"
+    spec:
+      clone_method: https
+      pipeline_file: .buildkite/dra.json.py
+      provider_settings:
+        trigger_mode: none
+      repository: elastic/ml-cpp
+      teams:
+        everyone:
+          access_level: READ
+        ml-core:
+          access_level: MANAGE_BUILD_AND_READ
+
+
+# Declare the snapshot build pipeline
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/e57ee3bed7a6f73077a3f55a38e76e40ec87a7cf/rre.schema.json
+
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-snapshot-builds"
+  description: "ml-cpp Snapshot builds :drum_with_drumsticks:"
+  links:
+    - title: "Machine Learning Snapshot Builds Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp-snapshot-builds"
+
+spec:
+  type: "buildkite-pipeline"
+  owner: "group:ml-core"
+  system: "buildkite"
+  implementation:
+    apiVersion: "buildkite.elastic.dev/v1"
+    kind: "Pipeline"
+    metadata:
+      description: "ml-cpp Snapshot builds :drum_with_drumsticks:"
+      name: "ml-cpp - Snapshot Builds"
+    spec:
+      allow_rebuilds: true
+      cancel_intermediate_builds: true
+      clone_method: https
+      env:
+        BUILD_SNAPSHOT: true
+      pipeline_file: .buildkite/branch.json.py
+      provider_settings:
+        build_branches: true
+        build_pull_request_forks: true
+        cancel_deleted_branch_builds: true
+        filter_condition: build.branch == "main" || build.branch == "8.8" || build.branch == "8.7" || build.branch == "7.17"
+        filter_enabled: true
+        publish_blocked_as_pending: true
+        publish_commit_status: false
+        publish_commit_status_per_step: true
+        trigger_mode: code
+      repository: elastic/ml-cpp
+      schedules:
+        Daily 7_17:
+          branch: '7.17'
+          cronline: 30 03 * * *
+          message: Daily SNAPSHOT build for 7.17 
+        Daily 8_7:
+          branch: '8.7'
+          cronline: 30 02 * * *
+          message: Daily SNAPSHOT build for 8.7 
+        Daily 8_8:
+          branch: '8.8'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 8.8 
+        Daily main:
+          branch: main
+          cronline: 30 00 * * *
+          message: Daily SNAPSHOT build for main
+      skip_intermediate_builds: true
+      teams:
+        everyone:
+          access_level: READ
+        ml-core:
+          access_level: MANAGE_BUILD_AND_READ
+
+# Declare the staging build pipeline
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/e57ee3bed7a6f73077a3f55a38e76e40ec87a7cf/rre.schema.json
+
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "ml-cpp-staging-builds"
+  description: "ml-cpp :cpp: staging builds :shipit:"
+  links:
+    - title: "Machine Learning Staging Builds Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp-staging-builds"
+
+spec:
+  type: "buildkite-pipeline"
+  owner: "group:ml-core"
+  system: "buildkite"
+  implementation:
+    apiVersion: "buildkite.elastic.dev/v1"
+    kind: "Pipeline"
+    metadata:
+      description: "ml-cpp :cpp: staging builds :shipit:"
+      name: "ml-cpp - Staging Builds"
+    spec:
+      allow_rebuilds: true
+      cancel_intermediate_builds: true
+      clone_method: https
+      env:
+        BUILD_SNAPSHOT: false
+      pipeline_file: .buildkite/branch.json.py
+      provider_settings:
+        filter_condition: 'build.branch =~ /^[0-9]+\.[0-9]+\$/ ||
+
+          build.branch =~ /^([0-9]+\.){2}[0-9]+\$/
+
+          '
+        filter_enabled: true
+        trigger_mode: none
+      repository: elastic/ml-cpp
+      skip_intermediate_builds: true
+      teams:
+        everyone:
+          access_level: READ
+        ml-core:
+          access_level: MANAGE_BUILD_AND_READ
