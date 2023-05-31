@@ -58,14 +58,12 @@ $ErrorActionPreference="Continue"
 # Run the build and unit tests
 # The | % { "$_" } at the end converts any error objects on stderr to strings
 & ".\gradlew.bat" --info "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" $DebugOption $Tasks 2>&1 | % { "$_" }
-if ($LastExitCode -ne 0) {
-    $ExitCode=$LastExitCode
-}
+$ExitCode=$?
 
 Get-ChildItem -Path . -Include *.out -File -Recurse -ErrorAction SilentlyContinue | Compress-Archive -DestinationPath windows-x86_64-unit_test_results.zip
 buildkite-agent artifact upload "windows-x86_64-unit_test_results.zip"
-if ($ExitCode -ne 0) {
-    Exit $ExitCode
+if ($ExitCode -ne "True") {
+    Exit 1
 }
 
 buildkite-agent artifact upload "build/distributions/*"
