@@ -81,14 +81,10 @@ else
   if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
      # For macOS, build directly on the machine
      ${REPO_ROOT}/dev-tools/download_macos_deps.sh
-     if [ -z "$BUILDKITE_PULL_REQUEST" ] ; then
-         if [ "$RUN_TESTS" = false ] ; then
-             TASKS="clean buildZip buildZipSymbols"
-         else
-             TASKS="clean buildZip buildZipSymbols check"
-         fi
+     if [ "$RUN_TESTS" = false ] ; then
+         TASKS="clean buildZip buildZipSymbols"
      else
-         TASKS="clean buildZip check"
+         TASKS="clean buildZip buildZipSymbols check"
      fi
      # For macOS we usually only use a particular version as our build platform
      # once Xcode has stopped receiving updates for it. However, with Big Sur
