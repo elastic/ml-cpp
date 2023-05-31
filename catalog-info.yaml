@@ -154,7 +154,7 @@ spec:
         build_branches: true
         build_pull_request_forks: true
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "8.8" || build.branch == "8.7" || build.branch == "7.17"
+        filter_condition: build.branch == "main" || build.branch == "8.8" || build.branch == "7.17"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -164,12 +164,8 @@ spec:
       schedules:
         Daily 7_17:
           branch: '7.17'
-          cronline: 30 03 * * *
-          message: Daily SNAPSHOT build for 7.17 
-        Daily 8_7:
-          branch: '8.7'
           cronline: 30 02 * * *
-          message: Daily SNAPSHOT build for 8.7 
+          message: Daily SNAPSHOT build for 7.17 
         Daily 8_8:
           branch: '8.8'
           cronline: 30 01 * * *
