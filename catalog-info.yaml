@@ -41,7 +41,7 @@ spec:
       skip_intermediate_builds: true
       teams:
         everyone:
-          access_level: READ
+          access_level: READ_ONLY
         ml-core:
           access_level: MANAGE_BUILD_AND_READ
 
@@ -80,7 +80,7 @@ spec:
           message: Nightly debug build of `main`
       teams:
         everyone:
-          access_level: READ
+          access_level: READ_ONLY
         ml-core:
           access_level: MANAGE_BUILD_AND_READ
 
@@ -115,7 +115,7 @@ spec:
       repository: elastic/ml-cpp
       teams:
         everyone:
-          access_level: READ
+          access_level: READ_ONLY
         ml-core:
           access_level: MANAGE_BUILD_AND_READ
 
@@ -177,7 +177,7 @@ spec:
       skip_intermediate_builds: true
       teams:
         everyone:
-          access_level: READ
+          access_level: READ_ONLY
         ml-core:
           access_level: MANAGE_BUILD_AND_READ
 
@@ -223,6 +223,6 @@ spec:
       skip_intermediate_builds: true
       teams:
         everyone:
-          access_level: READ
+          access_level: READ_ONLY
         ml-core:
           access_level: MANAGE_BUILD_AND_READ
