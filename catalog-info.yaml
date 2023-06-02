@@ -18,8 +18,8 @@ spec:
     apiVersion: "buildkite.elastic.dev/v1"
     kind: "Pipeline"
     metadata:
-      name: "Main ml-cpp pipeline"
       description: "ml-cpp CI :pipeline:"
+      name: "ml-cpp"
     spec:
       allow_rebuilds: true
       branch_configuration: main !main
@@ -42,8 +42,7 @@ spec:
       teams:
         everyone:
           access_level: READ_ONLY
-        ml-core:
-          access_level: MANAGE_BUILD_AND_READ
+        ml-core: {}
 
 # Declare the nightly debug build pipeline
 ---
@@ -81,8 +80,7 @@ spec:
       teams:
         everyone:
           access_level: READ_ONLY
-        ml-core:
-          access_level: MANAGE_BUILD_AND_READ
+        ml-core: {}
 
 # Declare the DRA build pipeline
 ---
@@ -116,8 +114,7 @@ spec:
       teams:
         everyone:
           access_level: READ_ONLY
-        ml-core:
-          access_level: MANAGE_BUILD_AND_READ
+        ml-core: {}
 
 
 # Declare the snapshot build pipeline
@@ -178,8 +175,7 @@ spec:
       teams:
         everyone:
           access_level: READ_ONLY
-        ml-core:
-          access_level: MANAGE_BUILD_AND_READ
+        ml-core: {}
 
 # Declare the staging build pipeline
 ---
@@ -224,5 +220,4 @@ spec:
       teams:
         everyone:
           access_level: READ_ONLY
-        ml-core:
-          access_level: MANAGE_BUILD_AND_READ
+        ml-core: {}
