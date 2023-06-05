@@ -4,11 +4,11 @@
 apiVersion: "backstage.io/v1alpha1"
 kind: "Resource"
 metadata:
-  name: "ml-cpp-buildkite-pipeline"
-  description: "ml-cpp CI :pipeline:"
+  description: "ml-cpp CI PR build :pipeline:"
+  name: "ml-cpp - PR builds"
   links:
-    - title: "Main Machine Learning CI Pipeline"
-      url: "https://buildkite.com/elastic/ml-cpp"
+    - title: "Main Machine Learning CI PR Build Pipeline"
+      url: "https://buildkite.com/elastic/ml-cpp-pr-builds"
 
 spec:
   type: "buildkite-pipeline"
@@ -18,8 +18,8 @@ spec:
     apiVersion: "buildkite.elastic.dev/v1"
     kind: "Pipeline"
     metadata:
-      description: "ml-cpp CI :pipeline:"
-      name: "ml-cpp"
+      description: "ml-cpp CI PR build :pipeline:"
+      name: "ml-cpp - PR builds"
     spec:
       allow_rebuilds: true
       branch_configuration: main !main
