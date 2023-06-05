@@ -5,7 +5,7 @@ apiVersion: "backstage.io/v1alpha1"
 kind: "Resource"
 metadata:
   description: "ml-cpp CI PR build :pipeline:"
-  name: "ml-cpp - PR builds"
+  name: "ml-cpp-pr-build"
   links:
     - title: "Main Machine Learning CI PR Build Pipeline"
       url: "https://buildkite.com/elastic/ml-cpp-pr-builds"
