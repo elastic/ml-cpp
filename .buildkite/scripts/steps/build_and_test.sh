@@ -100,15 +100,17 @@ else
   fi
 fi
 
+# We don't upload artifacts from the cross compiled aarch64 build as it has been built with full debug
+# and assertions enabled
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then
+  buildkite-agent artifact upload "build/distributions/*.zip"
+fi
+
 if [[ -z "$CPP_CROSS_COMPILE" ]] ; then 
-  if [[ $TEST_OUTCOME -eq 0 ]] ; then 
-    buildkite-agent artifact upload "build/distributions/*.zip"
-  else
-    OS=$(uname -s | tr "A-Z" "a-z")
-    TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
-    find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
-    buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
-  fi
+  OS=$(uname -s | tr "A-Z" "a-z")
+  TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
+  find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
+  buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
 fi
 
 exit $TEST_OUTCOME
