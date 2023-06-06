@@ -100,7 +100,9 @@ else
   fi
 fi
 
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then 
+# We don't upload artifacts from the cross compiled aarch64 build as it has been built with full debug
+# and assertions enabled
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 
