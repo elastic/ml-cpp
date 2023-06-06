@@ -2,7 +2,7 @@
   "jobs": [
     {
       "enabled": true,
-      "pipeline_slug": "ml-cpp",
+      "pipeline_slug": "ml-cpp-pr-builds",
       "allow_org_users": true,
       "allowed_repo_permissions": ["admin", "write"],
       "set_commit_status": false,
