@@ -22,6 +22,9 @@
 #    GCS, where release manager builds will download them from.
 #
 
+# Do not upload artifacts from the Jenkins' build while testing uploading from BuildKite pipelines
+exit 0
+
 : "${HOME:?Need to set HOME to a non-empty value.}"
 : "${WORKSPACE:?Need to set WORKSPACE to a non-empty value.}"
 
