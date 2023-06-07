@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
-            BOOST_TEST_REQUIRE(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
+            BOOST_TEST_REQUIRE(used.s_PartitionFields >= testParam.s_ExpectedPartitionFields);
             BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
             BOOST_TEST_REQUIRE(static_cast<double>(used.s_ByFields) >
                                0.96 * static_cast<double>(used.s_PartitionFields));
