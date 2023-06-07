@@ -15,4 +15,7 @@ steps:
     command: ".buildkite/scripts/steps/check-style.sh --all"
     agents:
       image: "docker.elastic.co/ml-dev/ml-check-style:2"
+    notify:
+      - github_commit_status:
+          context: "Validate formatting with clang-format"
 EOL
