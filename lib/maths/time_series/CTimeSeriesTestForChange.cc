@@ -450,7 +450,7 @@ CTimeSeriesTestForChange::CTimeSeriesTestForChange(int testFor,
     for (auto time = 0; time < WEEK; time += m_BucketLength) {
         predictionMoments.add(bucketPredictor(time));
     }
-    m_PredictionVariance = maths::common::CBasicStatistics::variance(predictionMoments);
+    m_PredictionVariance = common::CBasicStatistics::variance(predictionMoments);
     LOG_TRACE(<< "prediction variance = " << m_PredictionVariance);
 }
 

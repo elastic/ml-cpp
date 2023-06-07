@@ -423,6 +423,14 @@ double CCalendarCyclicTest::sufficientCountToMeasureLargeErrors() const {
 }
 
 double CCalendarCyclicTest::largeErrorPercentile() const {
+    return this->adjustPercentileForLongBuckets(LARGE_ERROR_PERCENTILE);
+}
+
+double CCalendarCyclicTest::veryLargeErrorPercentile() const {
+    return this->adjustPercentileForLongBuckets(VERY_LARGE_ERROR_PERCENTILE);
+}
+
+double CCalendarCyclicTest::adjustPercentileForLongBuckets(double percentile) const {
     // To test for calendar components we check if they align with excess
     // counts in the right tail of the error distribution. For long bucket
     // lengths we expect to see few high percentile errors in the window
@@ -430,13 +438,7 @@ double CCalendarCyclicTest::largeErrorPercentile() const {
     // too large to be useful. Instead we adjust the threshold above which
     // we count errors so the expected counts are fixed for long bucket
     // lengths.
-    return 100.0 - (100.0 - LARGE_ERROR_PERCENTILE) *
-                       static_cast<double>(std::max(LONG_BUCKET, m_BucketLength)) /
-                       static_cast<double>(LONG_BUCKET);
-}
-
-double CCalendarCyclicTest::veryLargeErrorPercentile() const {
-    return 100.0 - (100.0 - VERY_LARGE_ERROR_PERCENTILE) *
+    return 100.0 - (100.0 - percentile) *
                        static_cast<double>(std::max(LONG_BUCKET, m_BucketLength)) /
                        static_cast<double>(LONG_BUCKET);
 }

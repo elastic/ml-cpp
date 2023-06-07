@@ -126,6 +126,9 @@ private:
     //! Get the percentile for errors classified as very large.
     double veryLargeErrorPercentile() const;
 
+    //! Adjust percentile thresholds for long bucket lengths.
+    double adjustPercentileForLongBuckets(double percentile) const;
+
     //! Adjust \p error to zero small relative errors.
     double errorAdj(double error) const;
 

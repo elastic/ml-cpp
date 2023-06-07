@@ -306,9 +306,8 @@ void BICGain(maths_t::EDataType dataType,
         double loggnl = 0.0;
         double loggnr = 0.0;
 
-        if (haveGamma && maths::common::CTools::lgamma(a, loggn, true) &&
-            maths::common::CTools::lgamma(al, loggnl, true) &&
-            maths::common::CTools::lgamma(ar, loggnr, true)) {
+        if (haveGamma && CTools::lgamma(a, loggn, true) &&
+            CTools::lgamma(al, loggnl, true) && CTools::lgamma(ar, loggnr, true)) {
             loggn -= a * std::log(b);
             loggnl -= al * std::log(bl) + std::log(wl);
             loggnr -= ar * std::log(br) + std::log(wr);
