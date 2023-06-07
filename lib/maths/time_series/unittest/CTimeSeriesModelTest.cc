@@ -10,6 +10,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryDef.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -491,7 +492,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
         for (auto sample : samples) {
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, core::CMemoryCircuitBreakerStub::instance(),
+                           maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
             prior.addSamples({trend.detrend(time, sample, 0.0, false)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -601,7 +603,9 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i],
+                                    core::CMemoryCircuitBreakerStub::instance(),
+                                    maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -694,10 +698,13 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
         model.addSamples(addSampleParams(modelWeights), samples);
 
         trend.addPoint(samples[1].first, samples[1].second[0],
+                       core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[1]));
         trend.addPoint(samples[2].first, samples[2].second[0],
+                       core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[2]));
         trend.addPoint(samples[0].first, samples[0].second[0],
+                       core::CMemoryCircuitBreakerStub::instance(),
                        maths_t::countWeight(weights[0]));
         prior.addSamples(
             {samples[2].second[0], samples[0].second[0], samples[1].second[0]},
@@ -739,10 +746,13 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
             trends[i]->addPoint(samples[1].first, samples[1].second[i],
+                                core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[0][i]));
             trends[i]->addPoint(samples[2].first, samples[2].second[i],
+                                core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[1][i]));
             trends[i]->addPoint(samples[0].first, samples[0].second[i],
+                                core::CMemoryCircuitBreakerStub::instance(),
                                 maths_t::countWeight(weights[2][i]));
         }
         TDouble10Vec1Vec samples_{samples[2].second, samples[0].second,
@@ -880,7 +890,8 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
 
             model.addSamples(addSampleParams(weights), sample_);
 
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, core::CMemoryCircuitBreakerStub::instance(),
+                           maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(),
                                                          prior, &controllers));
 
@@ -958,7 +969,9 @@ BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
             bool reinitialize{false};
 
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i],
+                                    core::CMemoryCircuitBreakerStub::instance(),
+                                    maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -1033,7 +1046,8 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, core::CMemoryCircuitBreakerStub::instance(),
+                           maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0, false)},
@@ -1135,7 +1149,9 @@ BOOST_AUTO_TEST_CASE(testPredict) {
 
             TDouble10Vec detrended;
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i],
+                                    core::CMemoryCircuitBreakerStub::instance(),
+                                    maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });

@@ -19,6 +19,7 @@
 #include <maths/common/CFuzzyLogic.h>
 #include <maths/common/CLinearAlgebra.h>
 
+#include <maths/time_series/CSeasonalComponent.h>
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 #include <maths/time_series/ImportExport.h>
@@ -131,6 +132,9 @@ public:
 
     //! Get a description of the component.
     std::string print() const;
+
+    //! Create a seasonal component from the initial values.
+    CSeasonalComponent createSeasonalComponent(double decayRate, double bucketLength) const;
 
 private:
     std::string m_AnnotationText;

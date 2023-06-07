@@ -17,6 +17,11 @@
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 
 namespace ml {
+
+namespace core {
+class CMemoryCircuitBreaker;
+}
+
 namespace maths {
 namespace time_series {
 
@@ -48,6 +53,7 @@ public:
     //! No-op returning false.
     void addPoint(core_t::TTime time,
                   double value,
+                  const core::CMemoryCircuitBreaker& circuitBreaker,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
@@ -120,6 +126,9 @@ public:
 
     //! Returns an empty vector.
     const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
+
+    //! Returns an empty vector.
+    const maths_t::TCalendarComponentVec& calendarComponents() const override;
 };
 }
 }

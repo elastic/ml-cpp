@@ -25,6 +25,7 @@
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
+#include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
@@ -350,6 +351,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
+                auto circuitBreaker = CMemoryCircuitBreaker(resourceMonitor);
                 params.isInteger(true)
                     .isNonNegative(true)
                     .propagationInterval(scaledInterval)
@@ -363,7 +365,8 @@ void CEventRateModel::sample(core_t::TTime startTime,
                                         : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
-                    });
+                    })
+                    .memoryCircuitBreaker(circuitBreaker);
 
                 if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);

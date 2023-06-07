@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecomposition_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecomposition_h
 
+#include <core/CMemoryCircuitBreaker.h>
 #include <core/CMemoryUsage.h>
 #include <core/WindowsSafe.h>
 
@@ -105,6 +106,7 @@ public:
     //!
     //! \param[in] time The time of the data point.
     //! \param[in] value The value of the data point.
+    //! \param[in] allocator The allocator to use for the decomposition.
     //! \param[in] weights The weights of \p value. The smaller the count weight the
     //! less influence \p value has on the decomposition.
     //! \param[in] componentChangeCallback Supplied with samples of the prediction
@@ -115,6 +117,7 @@ public:
     //! \param[in] firstValueTime The time of the first value added to the decomposition.
     void addPoint(core_t::TTime time,
                   double value,
+                  const core::CMemoryCircuitBreaker& allocator = core::CMemoryCircuitBreakerStub::instance(),
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
@@ -228,6 +231,9 @@ public:
 
     //! Get the seasonal components.
     const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
+
+    //! Get the calendar components.
+    const maths_t::TCalendarComponentVec& calendarComponents() const override;
 
     //! Get the time of the last value.
     core_t::TTime lastValueTime() const;
