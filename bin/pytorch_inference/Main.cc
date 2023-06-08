@@ -89,7 +89,8 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                    torch::jit::script::Module& module_,
                    ml::torch::CResultWriter& resultWriter) {
 
-    ml::core::async(ml::core::defaultAsyncExecutor(), [
+    auto executor = ml::core::CImmediateExecutor();
+    ml::core::async(executor, [
         &cache, capturedRequest = std::move(request), &module_, &resultWriter
     ]() mutable {
         std::string requestId{capturedRequest.s_RequestId};

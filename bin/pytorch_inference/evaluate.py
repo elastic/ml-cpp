@@ -63,6 +63,12 @@ For Benchmarking:
 
 For threading benchmark:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --threading_benchmark
+
+For memory benchmark:
+The input is auto generated random WordPiece tokens and does not require the
+`test_file` command line argument
+
+    python3 evaluate.py /path/to/bert_model.pt --memory_benchmark 
 '''
 
 import argparse
@@ -80,8 +86,8 @@ NUM_BENCHMARK_REQUEST = 100
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('model', help='A TorchScript model with .pt extension')
-    parser.add_argument('test_file', help='JSON file with an array of objects each '
-     'containing "input" and "expected_output" subobjects')
+    parser.add_argument('test_file', nargs='?', help='JSON file with an array of objects each '
+     'containing "input" and "expected_output" subobjects. Not required for memory benchmark')
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
@@ -91,6 +97,7 @@ def parse_arguments():
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
+    benchmark_group.add_argument('--memory_benchmark', action='store_true', help='Profile memory usage')
 
     return parser.parse_args()
 
@@ -127,7 +134,8 @@ def launch_pytorch_app(args):
         command.append('--numThreadsPerAllocation=' + str(args.num_threads_per_allocation))
 
     if args.num_allocations:
-        command.append('--numAllocations=' + str(args.num_allocations))
+        command.append('--numAllocations=1')
+        # command.append('--numAllocations=1' + str(args.num_allocations))
 
     if args.low_priority:
         command.append('--lowPriority')
@@ -351,6 +359,75 @@ def threading_benchmark(args):
     for result in results:
         print(f"{result['inference_threads']},{result['num_allocations']},{result['run_time_ms']},{result['avg_time_ms']}")
 
+
+def create_mem_usage_request(request_num):
+    return {"request_id": "mem_" + str(request_num), "control": 2}
+
+def create_inference_request(batch_size, num_tokens, request_num):
+    tokens = [101,  1735,  3912, 18136,  7986,   170,  1647,   109,   126,   119,  122,  3775,  1113,  9031,   102]
+    arg_1 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    while len(tokens) < num_tokens:
+        tokens.append(0) # pad token
+        arg_1.append(0)
+
+    arg_2 = [0] * num_tokens
+    arg_3 = [1] * num_tokens
+
+    return {
+        "request_id": str(request_num), 
+        "tokens": [tokens for i in range(batch_size)],
+        "arg_1": [arg_1 for i in range(batch_size)],
+        "arg_2": [arg_2 for i in range(batch_size)],
+        "arg_3": [arg_3 for i in range(batch_size)]
+    }
+    
+def memory_usage(args):
+    with open(args.input_file, 'w') as input_file:
+        
+        request_num = 0
+        # generate long requests
+        write_request(create_mem_usage_request(request_num), input_file)
+        # for i in [1, 10]: #, 20, 30, 40, 50, 60]:
+        for i in range(30, 50):
+            request_num = request_num + 1            
+            write_request(create_inference_request(batch_size=i, num_tokens=512, request_num=request_num), input_file)
+            write_request(create_mem_usage_request(request_num), input_file)
+
+    launch_pytorch_app(args)
+
+    print()
+    print("reading results...", flush=True)
+    print()
+    with open(args.output_file) as output_file:
+
+        try:
+            result_docs = json.load(output_file)
+        except:
+            print("Error parsing json: ", sys.exc_info()[0])
+            return            
+
+
+        inference_count = 1
+        last_time = 0
+        stats_count = 0
+        for result in result_docs:            
+            if 'result' in result:
+                inference_count = inference_count +1
+                last_time = result['time_ms']                           
+                continue
+
+            if 'process_stats' in result:
+                print(f"{stats_count},{result['process_stats']['memory_max_rss']},{last_time}")
+                stats_count = stats_count +1
+                continue
+
+            if 'error' in result: 
+                print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")                
+                continue            
+
+        print(f"Processed {inference_count} inferences")
+
+
 def main():
 
     args = parse_arguments()
@@ -361,6 +438,8 @@ def main():
             run_benchmark(args)
         elif args.threading_benchmark:
             threading_benchmark(args)
+        elif args.memory_benchmark:
+            memory_usage(args)
         else:
             test_evaluation(args)
     finally:
