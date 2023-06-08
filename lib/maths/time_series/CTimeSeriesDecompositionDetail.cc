@@ -322,15 +322,15 @@ const core::TPersistenceTag LAST_CHANGE_POINT_7_11_TAG{"k", "last_change_point"}
 const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "winsorization_derate"};
 
 // Seasonality Test Tags
-// Version 7.9
-const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window_7_9"};
-const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window_7_9"};
-// Version 7.2
-//const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"}; Removed in 7.11
 // Version 6.3
 const core::TPersistenceTag SEASONALITY_TEST_MACHINE_6_3_TAG{"a", "periodicity_test_machine"};
 const core::TPersistenceTag SHORT_WINDOW_6_3_TAG{"b", "short_window"};
 const core::TPersistenceTag LONG_WINDOW_6_3_TAG{"c", "long_window"};
+// Version 7.2
+// const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"}; Removed in 7.11
+// Version 7.9
+const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window_7_9"};
+const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window_7_9"};
 // Old versions can't be restored.
 
 // Calendar Cyclic Test Tags
@@ -341,14 +341,6 @@ const core::TPersistenceTag CALENDAR_TEST_6_3_TAG{"c", "calendar_test"};
 // These work for all versions.
 
 // Components Tags
-// Version 6.5
-const core::TPersistenceTag TESTING_FOR_CHANGE_6_5_TAG{"m", "testing_for_change"};
-// Version 6.4
-const core::TPersistenceTag COMPONENT_6_4_TAG{"f", "component"};
-const core::TPersistenceTag ERRORS_6_4_TAG{"g", "errors"};
-const core::TPersistenceTag REGRESSION_ORIGIN_6_4_TAG{"a", "regression_origin"};
-const core::TPersistenceTag MEAN_SUM_AMPLITUDES_6_4_TAG{"b", "mean_sum_amplitudes"};
-const core::TPersistenceTag MEAN_SUM_AMPLITUDES_TREND_6_4_TAG{"c", "mean_sum_amplitudes_trend"};
 // Version 6.3
 const core::TPersistenceTag COMPONENTS_MACHINE_6_3_TAG{"a", "components_machine"};
 const core::TPersistenceTag DECAY_RATE_6_3_TAG{"b", "decay_rate"};
@@ -361,6 +353,14 @@ const core::TPersistenceTag MOMENTS_6_3_TAG{"i", "moments"};
 const core::TPersistenceTag MOMENTS_MINUS_TREND_6_3_TAG{"j", "moments_minus_trend"};
 const core::TPersistenceTag USING_TREND_FOR_PREDICTION_6_3_TAG{"k", "using_trend_for_prediction"};
 const core::TPersistenceTag GAIN_CONTROLLER_6_3_TAG{"l", "gain_controller"};
+// Version 6.4
+const core::TPersistenceTag COMPONENT_6_4_TAG{"f", "component"};
+const core::TPersistenceTag ERRORS_6_4_TAG{"g", "errors"};
+const core::TPersistenceTag REGRESSION_ORIGIN_6_4_TAG{"a", "regression_origin"};
+const core::TPersistenceTag MEAN_SUM_AMPLITUDES_6_4_TAG{"b", "mean_sum_amplitudes"};
+const core::TPersistenceTag MEAN_SUM_AMPLITUDES_TREND_6_4_TAG{"c", "mean_sum_amplitudes_trend"};
+// Version 6.5
+// const core::TPersistenceTag TESTING_FOR_CHANGE_6_5_TAG{"m", "testing_for_change"};
 
 // This implements the mapping from restored states to their best
 // equivalents; specifically:
@@ -1420,16 +1420,16 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
                                             CC_STATES,
                                             CC_TRANSITION_FUNCTION,
                                             bucketLength > DAY ? CC_NOT_TESTING : CC_INITIAL)},
-      m_DecayRate{decayRate}, m_LastMonth{} {
+      m_DecayRate{decayRate}, m_BucketLength{bucketLength}, m_LastMonth{} {
 }
 
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest& other,
                                                              bool isForForecast)
     : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
-      m_LastMonth{other.m_LastMonth}, m_Test{isForForecast == false && other.m_Test
-                                                 ? std::make_unique<CCalendarCyclicTest>(
-                                                       *other.m_Test)
-                                                 : nullptr} {
+      m_BucketLength{other.m_BucketLength}, m_LastMonth{other.m_LastMonth},
+      m_Test{isForForecast == false && other.m_Test
+                 ? std::make_unique<CCalendarCyclicTest>(*other.m_Test)
+                 : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1440,12 +1440,13 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth)
-        RESTORE_SETUP_TEARDOWN(CALENDAR_TEST_6_3_TAG,
-                               m_Test = std::make_unique<CCalendarCyclicTest>(m_DecayRate),
-                               traverser.traverseSubLevel([this](auto& traverser_) {
-                                   return m_Test->acceptRestoreTraverser(traverser_);
-                               }),
-                               /**/)
+        RESTORE_SETUP_TEARDOWN(
+            CALENDAR_TEST_6_3_TAG,
+            m_Test = std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate),
+            traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_Test->acceptRestoreTraverser(traverser_);
+            }),
+            /**/)
     } while (traverser.next());
     return true;
 }
@@ -1466,12 +1467,14 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::acceptPersistInserter(
 void CTimeSeriesDecompositionDetail::CCalendarTest::swap(CCalendarTest& other) {
     std::swap(m_Machine, other.m_Machine);
     std::swap(m_DecayRate, other.m_DecayRate);
+    std::swap(m_BucketLength, other.m_BucketLength);
     std::swap(m_LastMonth, other.m_LastMonth);
     m_Test.swap(other.m_Test);
 }
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
+    double value{message.s_Value};
     double error{message.s_Value - message.s_Trend - message.s_Seasonal -
                  message.s_Calendar};
     const maths_t::TDoubleWeightsAry& weights{message.s_Weights};
@@ -1485,7 +1488,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
         if (message.s_MemoryCircuitBreaker.areAllocationsAllowed() == false) {
             break;
         }
-        m_Test->add(time, error, maths_t::countForUpdate(weights));
+        m_Test->add(time, value, error, maths_t::countForUpdate(weights));
         break;
     case CC_NOT_TESTING:
         break;
@@ -1522,8 +1525,9 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
     if (this->shouldTest(time)) {
         switch (m_Machine.state()) {
         case CC_TEST: {
-            if (auto result = m_Test->test()) {
-                auto[feature, timeZoneOffset] = *result;
+            auto result = m_Test->test();
+            for (auto component : result) {
+                auto[feature, timeZoneOffset] = component;
                 this->mediator()->forward(SDetectedCalendar(
                     time, lastTime, feature, timeZoneOffset, message.s_MemoryCircuitBreaker));
             }
@@ -1552,6 +1556,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::propagateForwards(core_t::TT
 std::uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Machine);
     seed = common::CChecksum::calculate(seed, m_DecayRate);
+    seed = common::CChecksum::calculate(seed, m_BucketLength);
     seed = common::CChecksum::calculate(seed, m_LastMonth);
     return common::CChecksum::calculate(seed, m_Test);
 }
@@ -1573,7 +1578,8 @@ std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage() const {
 std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
-        TCalendarCyclicTestPtr test = std::make_unique<CCalendarCyclicTest>(m_DecayRate);
+        TCalendarCyclicTestPtr test =
+            std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate);
         result = core::memory::dynamicSize(test);
     }
     return result;
@@ -1594,7 +1600,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
         switch (state) {
         case CC_TEST:
             if (m_Test == nullptr) {
-                m_Test = std::make_unique<CCalendarCyclicTest>(m_DecayRate);
+                m_Test = std::make_unique<CCalendarCyclicTest>(m_BucketLength, m_DecayRate);
                 m_LastMonth = this->month(time) + 2;
             }
             break;

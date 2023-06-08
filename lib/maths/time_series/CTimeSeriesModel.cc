@@ -1680,8 +1680,8 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     // We can't properly handle periodicity in the variance of the rate if
     // using a Poisson process so remove it from model selection if we detect
     // seasonality.
-    m_ResidualModel->removeModels(maths::common::CPrior::CModelFilter().remove(
-        maths::common::CPrior::E_Poisson));
+    m_ResidualModel->removeModels(
+        common::CPrior::CModelFilter().remove(common::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
     // Reinitialize the residual model with any values we've been given. Note
@@ -1716,7 +1716,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     }
     if (m_MultibucketFeatureModel != nullptr) {
         m_MultibucketFeatureModel->removeModels(
-            maths::common::CPrior::CModelFilter().remove(maths::common::CPrior::E_Poisson));
+            common::CPrior::CModelFilter().remove(common::CPrior::E_Poisson));
         m_MultibucketFeatureModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     }
 
