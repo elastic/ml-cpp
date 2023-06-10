@@ -21,8 +21,7 @@ steps:
     depends_on: create_dra_artifacts
     command:
       - 'buildkite-agent artifact download "build/distributions/*" .'
-      - 'echo "${RED}This step is disabled until BuildKite migration is complete${NOCOLOR}"'
-      #- '.buildkite/scripts/steps/upload_dra_to_gcs.sh'
+      - '.buildkite/scripts/steps/upload_dra_to_gcs.sh'
     agents:
       provider: gcp
 EOL
