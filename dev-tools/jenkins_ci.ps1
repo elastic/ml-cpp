@@ -104,11 +104,12 @@ if ($LastExitCode -ne 0) {
     Exit $LastExitCode
 }
 
-# If this isn't a PR build and isn't a debug build then upload the artifacts
-if (!(Test-Path Env:PR_AUTHOR) -And !(Test-Path Env:ML_DEBUG)) {
-    # The | % { "$_" } at the end converts any error objects on stderr to strings
-    & ".\gradlew.bat" --info "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload 2>&1 | % { "$_" }
-    if ($LastExitCode -ne 0) {
-        Exit $LastExitCode
-    }
-}
+# Do not upload artifacts from the Jenkins' build while testing uploading from BuildKite pipelines
+## If this isn't a PR build and isn't a debug build then upload the artifacts
+#if (!(Test-Path Env:PR_AUTHOR) -And !(Test-Path Env:ML_DEBUG)) {
+#    # The | % { "$_" } at the end converts any error objects on stderr to strings
+#    & ".\gradlew.bat" --info "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload 2>&1 | % { "$_" }
+#    if ($LastExitCode -ne 0) {
+#        Exit $LastExitCode
+#    }
+#}
