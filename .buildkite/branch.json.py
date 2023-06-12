@@ -28,10 +28,6 @@ def main():
     pipeline["env"] = env
 
     pipeline_steps = step.PipelineStep([])
-
-def main():
-    pipeline = {}
-    pipeline_steps = step.PipelineStep([])
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
                                                        ".buildkite/pipelines/send_slack_notification.sh"))
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :email: notification for the pipeline",
@@ -49,6 +45,8 @@ def main():
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
+
+    pipeline_steps.append({"wait": None})
 
     # Build the DRA artifacts and upload to S3 and GCS
     pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
