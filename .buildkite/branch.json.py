@@ -46,7 +46,15 @@ def main():
         build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
 
-    pipeline_steps.append({"wait": None})
+    pipeline_steps.append({"wait": {
+        "depends_on": [
+            "build_test_linux-aarch64-RelWithDebInfo",
+            "build_test_linux-x86_64-RelWithDebInfo",
+            "build_macos_x86_64_cross-RelWithDebInfo",
+            "build_test_macos-aarch64-RelWithDebInfo",
+            "build_test_Windows-x86_64-RelWithDebInfo"
+            ]
+        }})
 
     # Build the DRA artifacts and upload to S3 and GCS
     pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
