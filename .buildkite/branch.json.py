@@ -18,11 +18,6 @@ from ml_pipeline import (
     config as buildConfig,
 )
 
-env = {
-  "BUILD_SNAPSHOT": "true",
-  "VERSION_QUALIFIER": ""
-}
-
 def main():
     pipeline = {}
     pipeline["env"] = env
