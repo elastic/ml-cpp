@@ -20,7 +20,6 @@ from ml_pipeline import (
 
 def main():
     pipeline = {}
-    pipeline["env"] = env
 
     pipeline_steps = step.PipelineStep([])
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
