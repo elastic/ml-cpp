@@ -20,6 +20,7 @@ from ml_pipeline import (
 
 def main():
     pipeline = {}
+
     pipeline_steps = step.PipelineStep([])
     pipeline_steps.append(pipeline_steps.generate_step("Queue a :slack: notification for the pipeline",
                                                        ".buildkite/pipelines/send_slack_notification.sh"))
@@ -39,16 +40,13 @@ def main():
         build_linux = pipeline_steps.generate_step_template("Linux", "build")
         pipeline_steps.append(build_linux)
 
-    pipeline_steps.append({"wait": None})
-
-    # Trigger the DRA pipeline to create and upload artifacts to S3 and GCS
-    pipeline_steps.append({"trigger": "ml-cpp-dra",
-                           "label": ":rocket: DRA",
-                           "async": "true",
-                           "build": {
-                               "message": "${BUILDKITE_MESSAGE}",
-                               "commit": "${BUILDKITE_COMMIT}",
-                               "branch": "${BUILDKITE_BRANCH}"}})
+    # Build the DRA artifacts and upload to S3 and GCS
+    pipeline_steps.append(pipeline_steps.generate_step("Create daily releasable artifacts",
+                                                       ".buildkite/pipelines/create_dra.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to S3",
+                                                       ".buildkite/pipelines/upload_dra_to_s3.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload daily releasable artifacts to GCS",
+                                                       ".buildkite/pipelines/upload_dra_to_gcs.yml.sh"))
 
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))

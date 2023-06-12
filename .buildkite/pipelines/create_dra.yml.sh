@@ -14,6 +14,13 @@ steps:
     key: "create_dra_artifacts"
     command:
         - "./.buildkite/scripts/steps/create_dra.sh"
+    depends_on:
+        - "build_test_linux-aarch64-RelWithDebInfo"
+        - "build_test_linux-x86_64-RelWithDebInfo"
+        - "build_macos_x86_64_cross-RelWithDebInfo"
+        - "build_test_macos-aarch64-RelWithDebInfo"
+        - "build_test_Windows-x86_64-RelWithDebInfo"
+
     agents:
       cpu: "2"
       ephemeralStorage: "20G"
