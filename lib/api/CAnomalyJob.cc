@@ -323,6 +323,9 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         return false;
     }
 
+    bool shouldRefresh{false};
+    bool ret{true};
+
     switch (controlMessage[0]) {
     case ' ':
         // Spaces are just used to fill the buffers and force prior messages
@@ -335,7 +338,6 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         // rows in input.
         break;
     case 'f':
-        // Flush ID comes after the initial f
         this->acknowledgeFlush(controlMessage.substr(1));
         break;
     case 'i':
@@ -359,6 +361,19 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
     case 'w':
         this->processPersistControlMessage(controlMessage.substr(1));
         break;
+    case 'z':
+        LOG_INFO(<< "Received control message '" << controlMessage << "'");
+        // "shouldRefresh" parameter comes after the initial z.
+        if (core::CStringUtils::stringToType(controlMessage.substr(1), shouldRefresh) == false) {
+            LOG_ERROR(<< "Received request to flush with invalid control message '"
+                      << controlMessage << "'");
+            ret = false;
+            break;
+        }
+
+        m_ShouldRefresh = shouldRefresh;
+
+        break;
     default:
         LOG_WARN(<< "Ignoring unknown control message of length "
                  << controlMessage.length() << " beginning with '"
@@ -368,7 +383,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         break;
     }
 
-    return true;
+    return ret;
 }
 
 bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessageArgs,
@@ -454,7 +469,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
     } else {
         LOG_TRACE(<< "Received flush control message with ID " << flushId);
     }
-    m_JsonOutputWriter.acknowledgeFlush(flushId, m_LastFinalisedBucketEndTime);
+    m_JsonOutputWriter.acknowledgeFlush(flushId, m_LastFinalisedBucketEndTime, m_ShouldRefresh);
 }
 
 void CAnomalyJob::updateConfig(const std::string& config) {

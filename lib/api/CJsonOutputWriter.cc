@@ -67,6 +67,7 @@ const std::string INFLUENCERS("influencers");
 const std::string FLUSH("flush");
 const std::string ID("id");
 const std::string LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
+const std::string SHOULD_REFRESH("should_refresh");
 const std::string CATEGORY_ID("category_id");
 const std::string CATEGORY_DEFINITION("category_definition");
 const std::string TERMS("terms");
@@ -874,7 +875,7 @@ void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldN
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
-                                         core_t::TTime lastFinalizedBucketEnd) {
+                                         core_t::TTime lastFinalizedBucketEnd, bool shouldRefresh) {
     m_Writer.StartObject();
     m_Writer.Key(FLUSH);
     m_Writer.StartObject();
@@ -883,6 +884,8 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
     m_Writer.String(flushId);
     m_Writer.Key(LAST_FINALIZED_BUCKET_END);
     m_Writer.Time(lastFinalizedBucketEnd);
+    m_Writer.Key(SHOULD_REFRESH);
+    m_Writer.Bool(shouldRefresh);
 
     m_Writer.EndObject();
     m_Writer.EndObject();

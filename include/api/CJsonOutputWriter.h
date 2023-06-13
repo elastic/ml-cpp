@@ -244,8 +244,8 @@ public:
                                const model::SCategorizerStats& categorizerStats,
                                const TOptionalTime& timestamp);
 
-    //! Acknowledge a flush request by echoing back the flush ID
-    void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);
+    //! Acknowledge a flush request by echoing back the flush ID and the "shouldRefresh" flag
+    void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd, bool shouldRefresh=true);
 
     //! Write a category definition
     void writeCategoryDefinition(const std::string& partitionFieldName,
