@@ -355,9 +355,7 @@ task uploadAll(type: UploadS3Task) {
     include "ml-cpp*${project.version}*.zip", "dependencies-${version}.csv"
   }
   for (file in fileDir) {
-    // TODO: swap back when Jenkins is switched off
-    upload file, "maven/${artifactGroupPath}/${artifactName}/BuildKite/${file.name}"
-    // upload file, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${file.name}"
+    upload file, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${file.name}"
   }
   description = 'Upload all C++ artifacts to S3 Bucket'
 }
