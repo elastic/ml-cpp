@@ -16,7 +16,7 @@
 
 cat <<EOL
 steps:
-  - label: "Upload DRA artifacts to GCS :gcloud:"
+  - label: ":rocket: Upload DRA artifacts to GCS :gcloud:"
     key: "upload_dra_artifacts_to_gcs"
     depends_on: create_dra_artifacts
     command:
