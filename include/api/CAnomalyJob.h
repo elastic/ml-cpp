@@ -505,7 +505,7 @@ private:
     bool m_TimeAdvanced{false};
 
     //! Flag indicating whether or not a flush control message should trigger a refresh of the datafeed
-    bool m_ShouldRefresh{true};
+    bool m_RefreshRequired{true};
 
     //! Introduced in version 8.6
     //! The initial value of the end time of the last bucket

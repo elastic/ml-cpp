@@ -323,7 +323,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         return false;
     }
 
-    bool shouldRefresh{false};
+    bool refreshRequired{false};
     bool ret{true};
 
     switch (controlMessage[0]) {
@@ -363,15 +363,15 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         break;
     case 'z':
         LOG_INFO(<< "Received control message '" << controlMessage << "'");
-        // "shouldRefresh" parameter comes after the initial z.
-        if (core::CStringUtils::stringToType(controlMessage.substr(1), shouldRefresh) == false) {
+        // "refreshRequired" parameter comes after the initial z.
+        if (core::CStringUtils::stringToType(controlMessage.substr(1), refreshRequired) == false) {
             LOG_ERROR(<< "Received request to flush with invalid control message '"
                       << controlMessage << "'");
             ret = false;
             break;
         }
 
-        m_ShouldRefresh = shouldRefresh;
+        m_RefreshRequired = refreshRequired;
 
         break;
     default:
@@ -469,7 +469,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
     } else {
         LOG_TRACE(<< "Received flush control message with ID " << flushId);
     }
-    m_JsonOutputWriter.acknowledgeFlush(flushId, m_LastFinalisedBucketEndTime, m_ShouldRefresh);
+    m_JsonOutputWriter.acknowledgeFlush(flushId, m_LastFinalisedBucketEndTime, m_RefreshRequired);
 }
 
 void CAnomalyJob::updateConfig(const std::string& config) {
