@@ -323,9 +323,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         return false;
     }
 
-    bool refreshRequired{false};
-    bool ret{true};
-
+    bool refreshRequired{true};
     switch (controlMessage[0]) {
     case ' ':
         // Spaces are just used to fill the buffers and force prior messages
@@ -368,11 +366,10 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         if (core::CStringUtils::stringToType(controlMessage.substr(1), refreshRequired) == false) {
             LOG_ERROR(<< "Received request to flush with invalid control message '"
                       << controlMessage << "'");
-            ret = false;
             break;
+        } else {
+            m_RefreshRequired = refreshRequired;
         }
-
-        m_RefreshRequired = refreshRequired;
 
         break;
     default:
@@ -384,7 +381,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         break;
     }
 
-    return ret;
+    return true;
 }
 
 bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessageArgs,
