@@ -40,7 +40,7 @@ def main(args):
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
-            "timeout_in_minutes": "150",
+            "timeout_in_minutes": "240",
             "agents": {
               "queue": "ml-aarch64-macstadium"
             },
@@ -76,7 +76,7 @@ def main(args):
 
     pipeline_steps.append({
         "label": "Build :cpp: for macos_x86_64_cross-RelWithDebInfo :macos:",
-        "timeout_in_minutes": "150",
+        "timeout_in_minutes": "240",
         "agents": {
           "cpu": "6",
           "ephemeralStorage": "20G",
