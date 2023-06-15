@@ -427,8 +427,10 @@ std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
 
 void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {
     m_MemoryStatus = model_t::E_MemoryStatusHardLimit;
-    m_AllocationFailuresCount += 1;
-    m_LastAllocationFailureTime = time;
+    if (time > m_LastAllocationFailureTime) {
+        m_AllocationFailuresCount += 1;
+        m_LastAllocationFailureTime = time;
+    }
 }
 
 void CResourceMonitor::startPruning() {
