@@ -245,7 +245,9 @@ public:
                                const TOptionalTime& timestamp);
 
     //! Acknowledge a flush request by echoing back the flush ID and the "refreshRequired" flag
-    void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd, bool refreshRequired=true);
+    void acknowledgeFlush(const std::string& flushId,
+                          core_t::TTime lastFinalizedBucketEnd,
+                          bool refreshRequired = true);
 
     //! Write a category definition
     void writeCategoryDefinition(const std::string& partitionFieldName,

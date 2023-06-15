@@ -875,7 +875,8 @@ void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldN
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
-                                         core_t::TTime lastFinalizedBucketEnd, bool refreshRequired) {
+                                         core_t::TTime lastFinalizedBucketEnd,
+                                         bool refreshRequired) {
     m_Writer.StartObject();
     m_Writer.Key(FLUSH);
     m_Writer.StartObject();
