@@ -107,7 +107,7 @@ You may receive the following error message when you select the executable:
 Required kernel recording resources are in use by another document
 ```
 
-To fix the permission problems, I need to apply the **in zsh** following command to the executable (instead of `pytorch_inference`):
+To fix the permission problems, you need to apply **in zsh** the following command to the executable (instead of `pytorch_inference`):
 ```zsh
 codesign -s - -v -f --entitlements =(echo -n '<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "[https://www.apple.com/DTDs/PropertyList-1.0.dtd](https://www.apple.com/DTDs/PropertyList-1.0.dtd)"\>
