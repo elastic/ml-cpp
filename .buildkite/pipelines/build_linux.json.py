@@ -65,7 +65,7 @@ def main(args):
     for arch, build_type in product(archs, cur_build_types):
         pipeline_steps.append({
             "label": f"Build & test :cpp: for linux-{arch}-{build_type} :linux:",
-            "timeout_in_minutes": "150",
+            "timeout_in_minutes": "240",
             "agents": agents[arch],
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
@@ -108,7 +108,7 @@ def main(args):
         # as early as possible.
         pipeline_steps.append({
             "label": "Build :cpp: for linux_aarch64_cross-RelWithDebInfo :linux:",
-            "timeout_in_minutes": "150",
+            "timeout_in_minutes": "240",
             "agents": {
               "cpu": "6",
               "ephemeralStorage": "20G",
