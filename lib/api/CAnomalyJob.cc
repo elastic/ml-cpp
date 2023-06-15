@@ -338,6 +338,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         // rows in input.
         break;
     case 'f':
+        // Flush ID comes after the initial f
         this->acknowledgeFlush(controlMessage.substr(1));
         break;
     case 'i':
