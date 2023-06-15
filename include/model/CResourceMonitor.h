@@ -258,8 +258,11 @@ private:
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-    //! Keep track of times of anomaly detector allocation failures
-    TSizeTimePr m_AllocationFailures;
+    //! Keep track of the number of allocation failures
+    std::size_t m_AllocationFailuresCount{0};
+
+    //! The time at which the last allocation failure occurred
+    core_t::TTime m_LastAllocationFailureTime{0};
 
     //! The time at which the last allocation failure was reported
     core_t::TTime m_LastAllocationFailureReport{0};

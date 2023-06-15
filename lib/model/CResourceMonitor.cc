@@ -318,9 +318,8 @@ bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentA
     }
 
     // Have we had new allocation failures
-    if (m_AllocationFailures.first != 0) {
-        core_t::TTime latestAllocationError{m_AllocationFailures.second};
-        if (latestAllocationError > m_LastAllocationFailureReport) {
+    if (m_AllocationFailuresCount != 0) {
+        if (m_LastAllocationFailureTime > m_LastAllocationFailureReport) {
             return true;
         }
     }
@@ -369,8 +368,8 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime,
         total);
     if (m_MemoryUsageReporter) {
         m_MemoryUsageReporter(this->createMemoryUsageReport(bucketStartTime));
-        if (m_AllocationFailures.first != 0) {
-            m_LastAllocationFailureReport = m_AllocationFailures.second;
+        if (m_AllocationFailuresCount != 0) {
+            m_LastAllocationFailureReport = m_LastAllocationFailureTime;
         }
     }
     m_PreviousTotal = total;
@@ -395,7 +394,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     for (const auto& resource : m_Resources) {
         resource.first->updateModelSizeStats(res);
     }
-    res.s_AllocationFailures += m_AllocationFailures.first;
+    res.s_AllocationFailures += m_AllocationFailuresCount;
     res.s_OverallCategorizerStats.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
 }
@@ -428,8 +427,8 @@ std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
 
 void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {
     m_MemoryStatus = model_t::E_MemoryStatusHardLimit;
-    m_AllocationFailures.first += 1;
-    m_AllocationFailures.second = time;
+    m_AllocationFailuresCount += 1;
+    m_LastAllocationFailureTime = time;
 }
 
 void CResourceMonitor::startPruning() {
