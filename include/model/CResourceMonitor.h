@@ -179,7 +179,6 @@ public:
 private:
     using TMonitoredResourcePtrSizeUMap =
         boost::unordered_map<CMonitoredResource*, std::size_t>;
-    using TSizeTimePr = std::pair<std::size_t, core_t::TTime>;
     using TMeanVarAccumulator =
         maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
