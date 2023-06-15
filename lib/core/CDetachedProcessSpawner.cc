@@ -133,7 +133,7 @@ public:
         CScopedLock lock(m_Mutex);
         // Do an extra cycle of waiting for zombies, so we give the most
         // up-to-date answer possible
-        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
+        const_cast<CTrackerThread*>(this)->checkForDeadChildProcess();
         return m_Pids.find(pid) != m_Pids.end();
     }
 
@@ -150,7 +150,7 @@ protected:
                 m_Condition.wait(50);
             }
 
-            this->checkForDeadChildren();
+            this->checkForDeadChildProcess();
         }
     }
 
@@ -164,7 +164,7 @@ protected:
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren() {
+    void checkForDeadChildProcess() {
         int status = 0;
         for (;;) {
             CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
@@ -178,6 +178,10 @@ private:
                     break;
                 }
             } else {
+                // Do not change any of the log messages below without
+                // making the commensurate change in NativeController.java.
+                // Elasticsearch uses the words 'Child process with PID' to
+                // trigger special processing.
                 if (WIFSIGNALED(status)) {
                     int signal = WTERMSIG(status);
                     if (signal == SIGTERM) {
