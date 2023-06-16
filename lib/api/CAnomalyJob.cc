@@ -366,7 +366,6 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         if (core::CStringUtils::stringToType(controlMessage.substr(1), refreshRequired) == false) {
             LOG_ERROR(<< "Received request to flush with invalid control message '"
                       << controlMessage << "'");
-            break;
         } else {
             m_RefreshRequired = refreshRequired;
         }
