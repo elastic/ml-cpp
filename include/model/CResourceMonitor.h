@@ -179,7 +179,6 @@ public:
 private:
     using TMonitoredResourcePtrSizeUMap =
         boost::unordered_map<CMonitoredResource*, std::size_t>;
-    using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
     using TMeanVarAccumulator =
         maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
@@ -258,8 +257,11 @@ private:
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-    //! Keep track of times of anomaly detector allocation failures
-    TTimeSizeMap m_AllocationFailures;
+    //! Keep track of the number of distinct allocation failures
+    std::size_t m_AllocationFailuresCount{0};
+
+    //! The time at which the last allocation failure occurred
+    core_t::TTime m_LastAllocationFailureTime{0};
 
     //! The time at which the last allocation failure was reported
     core_t::TTime m_LastAllocationFailureReport{0};

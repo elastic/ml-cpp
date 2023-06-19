@@ -341,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.acceptAllocationFailureResult(14401000);
         mon.acceptAllocationFailureResult(14402000);
 
-        BOOST_REQUIRE_EQUAL(3, mon.m_AllocationFailures.size());
+        BOOST_REQUIRE_EQUAL(3, mon.m_AllocationFailuresCount);
         BOOST_REQUIRE_EQUAL(core_t::TTime(0), mon.m_LastAllocationFailureReport);
         mon.refresh(categorizer);
         mon.refresh(detector1);
