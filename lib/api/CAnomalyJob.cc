@@ -361,7 +361,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         this->processPersistControlMessage(controlMessage.substr(1));
         break;
     case 'z':
-        LOG_INFO(<< "Received control message '" << controlMessage << "'");
+        LOG_TRACE(<< "Received control message '" << controlMessage << "'");
         // "refreshRequired" parameter comes after the initial z.
         if (core::CStringUtils::stringToType(controlMessage.substr(1), refreshRequired) == false) {
             LOG_ERROR(<< "Received request to flush with invalid control message '"
