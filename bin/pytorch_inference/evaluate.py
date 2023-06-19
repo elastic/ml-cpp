@@ -301,7 +301,7 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['time_ms']                   
+            total_time_ms += result['time_ms']
 
             # compare to expected
             if compare_results(expected, result, tolerance) == False:
