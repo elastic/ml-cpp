@@ -257,7 +257,7 @@ private:
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-    //! Keep track of the number of allocation failures
+    //! Keep track of the number of distinct allocation failures
     std::size_t m_AllocationFailuresCount{0};
 
     //! The time at which the last allocation failure occurred
