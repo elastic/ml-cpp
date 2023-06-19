@@ -286,11 +286,7 @@ def test_evaluation(args):
 
 
         for result in result_docs:
-<<<<<<< HEAD
         
-=======
-            
->>>>>>> e4ff767d (more)
             if 'error' in result: 
                 print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")
                 results_match = False
@@ -305,9 +301,7 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['time_ms']
-
-                    
+            total_time_ms += result['time_ms']                   
 
             # compare to expected
             if compare_results(expected, result, tolerance) == False:
@@ -370,10 +364,10 @@ def main():
     finally:
         if os.path.isfile(args.restore_file):
             os.remove(args.restore_file)
-        # if os.path.isfile(args.input_file):
-        #     os.remove(args.input_file)
-        # if os.path.isfile(args.output_file):
-        #     os.remove(args.output_file)
+        if os.path.isfile(args.input_file):
+            os.remove(args.input_file)
+        if os.path.isfile(args.output_file):
+            os.remove(args.output_file)
 
 if __name__ == "__main__":
     main()

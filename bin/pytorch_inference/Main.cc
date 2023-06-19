@@ -9,9 +9,6 @@
  * limitation.
  */
 
-#include <ATen/core/ATen_fwd.h>
-#include <ATen/core/TensorBody.h>
-#include <ATen/ops/cat.h>
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
@@ -21,7 +18,6 @@
 #include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
-#include <cstddef>
 #include <seccomp/CSystemCallFilter.h>
 
 #include <ver/CBuildInfo.h>
@@ -35,6 +31,7 @@
 #include "CThreadSettings.h"
 
 #include <ATen/Parallel.h>
+#include <ATen/ops/cat.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
@@ -44,8 +41,6 @@
 
 torch::Tensor infer(torch::jit::script::Module& module_,
                     ml::torch::CCommandParser::SRequest& request) {
-
-    LOG_INFO(<< "request " << request.s_RequestId << ", " << request.s_NumberInferences);
 
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
@@ -57,21 +52,22 @@ torch::Tensor infer(torch::jit::script::Module& module_,
 
     torch::InferenceMode inferenceModeGuard;
 
-    for (int i=0; i<request.s_NumberInferences; i++) {
+    for (int i = 0; i < request.s_NumberInferences; i++) {
 
-        std::size_t offset = i * request.s_NumberInputTokens * sizeof(std::uint64_t);
+        std::size_t offset = i * request.s_NumberInputTokens;
 
         // Sequence tokens.
-        inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data() + offset),
-                                         inputSize, at::dtype(torch::kInt64)));
+        inputs.emplace_back(
+            torch::from_blob(static_cast<void*>(request.s_Tokens.data() + offset),
+                             inputSize, at::dtype(torch::kInt64)));
         // Attention mask etc
         for (auto& args : request.s_SecondaryArguments) {
             inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data() + offset),
-                                                inputSize, at::dtype(torch::kInt64)));
+                                                 inputSize, at::dtype(torch::kInt64)));
         }
 
         auto output = module_.forward(inputs);
-        if (output.isTuple()) {            
+        if (output.isTuple()) {
             // For transformers the result tensor is the first element in a tuple.
             all.push_back(output.toTuple()->elements()[0].toTensor());
         } else {
@@ -81,7 +77,6 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         inputs.clear();
     }
 
-    LOG_INFO(<< "request processed " << request.s_RequestId);
     return at::cat(all, 0);
 }
 
