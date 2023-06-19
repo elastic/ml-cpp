@@ -385,11 +385,12 @@ def memory_usage(args):
     with open(args.input_file, 'w') as input_file:
         
         request_num = 0
-        # generate long requests
+        # request_sizes = [1, 2, 3, 4, 5]
+        request_sizes = [10, 20, 30, 40, 50]
+        
         write_request(create_mem_usage_request(request_num), input_file)
-        # for i in [1, 10]: #, 20, 30, 40, 50, 60]:
-        for i in range(30, 50):
-            request_num = request_num + 1            
+        for i in request_sizes: 
+            request_num = request_num + 1                        
             write_request(create_inference_request(batch_size=i, num_tokens=512, request_num=request_num), input_file)
             write_request(create_mem_usage_request(request_num), input_file)
 
@@ -407,17 +408,23 @@ def memory_usage(args):
             return            
 
 
-        inference_count = 1
+        inference_count = 0
         last_time = 0
         stats_count = 0
+
+        # insert a zero at the beginning to account for the 
+        # first get memory request
+        request_sizes.insert(0, 0)
+
+        print(f"num items in request, memory_max_rss, inference time (ms)")
         for result in result_docs:            
             if 'result' in result:
                 inference_count = inference_count +1
-                last_time = result['time_ms']                           
+                last_time = result['time_ms']                
                 continue
 
             if 'process_stats' in result:
-                print(f"{stats_count},{result['process_stats']['memory_max_rss']},{last_time}")
+                print(f"{request_sizes[stats_count]},{result['process_stats']['memory_max_rss']},{last_time}")
                 stats_count = stats_count +1
                 continue
 
@@ -425,7 +432,10 @@ def memory_usage(args):
                 print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")                
                 continue            
 
-        print(f"Processed {inference_count} inferences")
+        if inference_count != request_num:
+            print(f"ERROR missing inferences? Inference count {inference_count} does not equal the number of requests {request_num}.")
+        else:
+            print(f"Processed {inference_count} inferences")
 
 
 def main():
@@ -445,10 +455,10 @@ def main():
     finally:
         if os.path.isfile(args.restore_file):
             os.remove(args.restore_file)
-        # if os.path.isfile(args.input_file):
-        #     os.remove(args.input_file)
-        # if os.path.isfile(args.output_file):
-        #     os.remove(args.output_file)
+        if os.path.isfile(args.input_file):
+            os.remove(args.input_file)
+        if os.path.isfile(args.output_file):
+            os.remove(args.output_file)
 
 if __name__ == "__main__":
     main()
