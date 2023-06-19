@@ -16,7 +16,7 @@ steps:
     key: "upload_dra_artifacts"
     depends_on: create_dra_artifacts
     command:
-      - 'buildkite-agent artifact download "build/distributions/*" .'
+      - 'buildkite-agent artifact download "build/distributions/*" --step create_dra_artifacts .'
       - "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
       cpu: "2"
