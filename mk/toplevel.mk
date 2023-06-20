@@ -18,11 +18,6 @@ include $(CPP_SRC_HOME)/mk/rules.mk
 #   recursing into the sub-directories
 # - TOP_DIR_MKF_LAST is used to perform actions at this level AFTER
 #   recursing into the sub-directories
-#
-# If $ML_KEEP_GOING is set then the recursion will stop at the first error;
-# otherwise it will attempt to build every directory even after an earlier
-# one fails.  This latter behaviour is useful during nightly builds as it
-# means each nightly build has a chance to uncover more than one error.
 
 all:
 ifdef TOP_DIR_MKF_FIRST
@@ -35,7 +30,7 @@ endif
 	 (cd $$i && $(MAKE)); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 done; \
 	 exit $$FAILED
@@ -80,7 +75,7 @@ endif
 	 (cd $$i && $(MAKE) analyze ); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 done; \
 	 exit $$FAILED
@@ -111,7 +106,7 @@ test:
 	 $(FIRST_TEST_CMD) ; \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 for i in $(COMPONENTS) ; \
 	 do \
@@ -119,7 +114,7 @@ test:
 	 (cd $$i && $(MAKE) test ); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 done; \
 	 exit $$FAILED
@@ -138,7 +133,7 @@ endif
 	 (cd $$i && $(MAKE) relink ); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 done; \
 	 exit $$FAILED
@@ -157,7 +152,7 @@ endif
 	 (cd $$i && $(MAKE) install ); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	   exit 1; \
 	 fi; \
 	 done; \
 	 exit $$FAILED

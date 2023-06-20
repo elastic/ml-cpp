@@ -59,6 +59,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    make -j`grep -c '^processor' /proc/cpuinfo` ML_KEEP_GOING=1 test || echo failed > build/test_status.txt
+    make -j`grep -c '^processor' /proc/cpuinfo` test || echo failed > build/test_status.txt
 fi
 

@@ -716,16 +716,6 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
         LOG_DEBUG(<< "After test with pre-tokenisation");
         LOG_DEBUG(<< "Pre-tokenisation test took " << preTokenisationTime << "ms");
     }
-
-    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
-    bool likelyInCi{keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0'};
-    if (likelyInCi) {
-        // CI is most likely running on a VM, and this test can fail quite often
-        // due to the VM stalling or being slowed down by noisy neighbours
-        LOG_INFO(<< "Skipping test pre-tokenised performance assertion");
-    } else {
-        BOOST_TEST_REQUIRE(preTokenisationTime <= inlineTokenisationTime);
-    }
 }
 
 BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {

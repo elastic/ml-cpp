@@ -39,9 +39,7 @@ do \
 	if [ $$? -ne 0 ]; then \
 		FAILED=1; \
 		echo "`pwd` make test FAILURE!!!"; \
-		if [ -z "$$ML_KEEP_GOING" ] ; then \
-			exit 1; \
-		fi; \
+		exit 1; \
 	fi; \
 done; \
 exit $$FAILED

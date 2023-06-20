@@ -764,18 +764,8 @@ BOOST_AUTO_TEST_CASE(testScale) {
     double sdRatio = std::sqrt(maths::common::CBasicStatistics::variance(slope)) /
                      maths::common::CBasicStatistics::mean(slope);
     LOG_DEBUG(<< "sdRatio = " << sdRatio);
-    // If $ML_KEEP_GOING is set then we're probably running in CI
-    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
-    bool likelyInCi = (keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0');
-    if (likelyInCi) {
-        // Allow more leeway when running in CI because CI is most likely running on
-        // a VM and in this case non-linearity is most likely due to the VM stalling
-        BOOST_TEST_REQUIRE(exponent < 2.0);
-        BOOST_TEST_REQUIRE(sdRatio < 0.75);
-    } else {
-        BOOST_TEST_REQUIRE(exponent < 1.75);
-        BOOST_TEST_REQUIRE(sdRatio < 0.5);
-    }
+    BOOST_TEST_REQUIRE(exponent < 2.0);
+    BOOST_TEST_REQUIRE(sdRatio < 0.75);
 }
 
 BOOST_AUTO_TEST_CASE(testPersistence) {

@@ -182,10 +182,3 @@ else
     unset CPLUS_INCLUDE_PATH
     unset LIBRARY_PATH
 fi
-
-# Tell the build to keep going under Jenkins so that we get as many errors as
-# possible from an automated build (Jenkins sets $JOB_NAME)
-if [ -n "$JOB_NAME" ] ; then
-    export ML_KEEP_GOING=1
-fi
-
