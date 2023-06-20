@@ -38,6 +38,7 @@
 
 === Bug Fixes
 * Prevent high memory usage by evaluating batch inference singularly. (See {ml-pull}2538[#2538].)
+* Catch exceptions thrown during inference and report as errors. (See {ml-pull}2542[#2542].)
 
 == {es} version 8.8.0
 

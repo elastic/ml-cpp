@@ -19,6 +19,7 @@
 #include <functional>
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -58,7 +59,7 @@ public:
     //! \brief Inference request cache interface.
     class CRequestCacheInterface {
     public:
-        using TComputeResponse = std::function<std::string(SRequest)>;
+        using TComputeResponse = std::function<std::optional<std::string>(SRequest)>;
         using TReadResponse = std::function<void(const std::string&, bool)>;
 
     public:
@@ -102,7 +103,10 @@ public:
         bool lookup(SRequest request,
                     const TComputeResponse& computeResponse,
                     const TReadResponse& readResponse) override {
-            readResponse(computeResponse(std::move(request)), false);
+            auto computed = computeResponse(std::move(request));
+            if (computed) {
+                readResponse(*computed, false);
+            }
             return false;
         }
 
