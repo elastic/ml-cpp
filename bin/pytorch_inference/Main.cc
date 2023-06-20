@@ -18,7 +18,6 @@
 #include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
-#include <optional>
 #include <seccomp/CSystemCallFilter.h>
 
 #include <ver/CBuildInfo.h>
@@ -38,6 +37,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 torch::Tensor infer(torch::jit::script::Module& module_,
