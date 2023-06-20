@@ -183,7 +183,6 @@ private:
     static EMessageType validateControlMessageJson(const rapidjson::Document& doc,
                                                    const TErrorHandlerFunc& errorHandler);
     static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
-    static bool checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr);
     static SRequest jsonToInferenceRequest(const rapidjson::Document& doc);
     static SControlMessage jsonToControlMessage(const rapidjson::Document& doc);
 
