@@ -288,7 +288,7 @@ def test_evaluation(args):
         for result in result_docs:
         
             if 'error' in result: 
-                print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")
+                print(f"Inference failed. Request: {result['request_id']}, Msg: {result['error']['error']}")
                 results_match = False
                 continue
 

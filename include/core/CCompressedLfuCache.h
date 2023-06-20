@@ -30,6 +30,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <shared_mutex>
 #include <string>
@@ -65,7 +66,7 @@ public:
     using TDictionary = CCompressedDictionary<COMPRESSED_KEY_BITS / 64>;
     using TCompressedKey = typename TDictionary::CWord;
     using TCompressKey = std::function<TCompressedKey(const TDictionary&, const KEY&)>;
-    using TComputeValueCallback = std::function<VALUE(KEY)>;
+    using TComputeValueCallback = std::function<std::optional<VALUE>(KEY)>;
     using TReadValueCallback = std::function<void(const VALUE&, bool)>;
 
 public:
@@ -95,6 +96,9 @@ public:
     }
 
     //! Lookup an item with \p key in the cache or else fall back to computing.
+    //!
+    //! \warning If \p computeValue fails to produce a value (returns std::nullopt)
+    //! then \p readValue will not be called.
     //!
     //! \param[in] key The item key.
     //! \param[in] computeValue Computes the value in the case of a cache miss.
@@ -137,15 +141,18 @@ public:
         }
 
         auto value = computeValue(std::move(key));
+        if (!value) {
+            return false;
+        }
 
-        std::size_t itemMemoryUsage{memory::dynamicSize(value)};
+        std::size_t itemMemoryUsage{memory::dynamicSize(*value)};
 
         if (this->guardWrite(TIME_OUT, [&] {
                 // It is possible that two values with the same key check the cache
                 // before either takes the write lock. So check if this is already
                 // in the cache before going any further.
                 if (m_ItemCache.find(compressedKey) != m_ItemCache.end()) {
-                    readValue(value, true);
+                    readValue(*value, true);
                     this->incrementCount(compressedKey);
                     return;
                 }
@@ -158,14 +165,14 @@ public:
                     // It's possible that the cache is empty yet isn't big
                     // enough to hold this new item.
                     if (itemToEvict == m_ItemStats.end()) {
-                        readValue(value, false);
+                        readValue(*value, false);
                         return;
                     }
                     m_RemovedCount += lastEvictedCount;
                     lastEvictedCount = itemToEvict->count();
                     this->removeFromCache(itemToEvict);
                 }
-                readValue(this->insert(compressedKey, value, itemMemoryUsage,
+                readValue(this->insert(compressedKey, *value, itemMemoryUsage,
                                        count + lastEvictedCount),
                           false);
             }) == false) {
