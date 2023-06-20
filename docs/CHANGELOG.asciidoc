@@ -37,7 +37,7 @@
 * Improve detection of calendar cyclic components with long bucket lengths. (See {ml-pull}2493[#2493].)
 
 === Bug Fixes
-* Prevent high memory usage by evaluating batch inference singularly. (See {ml-pull}2493[#2538].)
+* Prevent high memory usage by evaluating batch inference singularly. (See {ml-pull}2538[#2538].)
 
 == {es} version 8.8.0
 
