@@ -51,6 +51,25 @@ with the total runtime and the avg time per request.
 
 Switch to threading benchmark mode by passing the `--threading_benchmark` argument.
 
+MEMORY_BENCHMARK MODE
+-----------
+
+Evalutes the model over a number of batches of increasing size. After each batch is
+processed a get memory usage request is sent and the Max RSS returned. A summary of
+memory usage againts batch size is printed at the end of the  benchmark.
+
+No `test_file` argument is required for this mode as the wordpiece tokens are generated in 
+this script. The requests are hard-coded to 512 tokens (padded) and the number of requests
+in each batch is also hardcoded. See the `memory_usage(args)` function to change these settings.
+
+NOTE The generated tokens, and hence the benchmark are only compatible with BERT based models.
+
+Memory Benchmark model spawns the pytorch_inference process with the `--useImmediateExecutor` 
+flag to ensure that processing the get memory usage control message and model evaluation
+occurs in sequence.
+
+Switch to memeory benchmark mode by passing the `--memory_benchmark` argument.
+
 EXAMPLES
 --------
 Run this script with input from one of the example directories.
@@ -65,10 +84,7 @@ For threading benchmark:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --threading_benchmark
 
 For memory benchmark:
-The input is auto generated random WordPiece tokens and does not require the
-`test_file` command line argument
-
-    python3 evaluate.py /path/to/bert_model.pt --memory_benchmark 
+    python3 evaluate.py /path/to/bert_model.pt --memory_benchmark --num_threads_per_allocation=4
 '''
 
 import argparse
@@ -99,8 +115,16 @@ def parse_arguments():
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
     benchmark_group.add_argument('--memory_benchmark', action='store_true', help='Profile memory usage')
 
-    return parser.parse_args()
+    args = parser.parse_args()
 
+    if not args.memory_benchmark and not args.test_file:
+        raise RuntimeError('No test_file specified')
+
+    if args.memory_benchmark and args.num_allocations > 1:
+        raise RuntimeError('num_allocations must = 1 when using memory benchmark mode')
+    
+    return args
+    
 def path_to_app():
 
     os_platform = platform.system()
@@ -127,18 +151,21 @@ def launch_pytorch_app(args):
         '--restore=' + args.restore_file,
         '--input=' + args.input_file,
         '--output=' + args.output_file,
-        '--validElasticLicenseKeyConfirmed=true'
+        '--validElasticLicenseKeyConfirmed=true',        
         ]
 
     if args.num_threads_per_allocation:
         command.append('--numThreadsPerAllocation=' + str(args.num_threads_per_allocation))
 
     if args.num_allocations:
-        command.append('--numAllocations=1')
-        # command.append('--numAllocations=1' + str(args.num_allocations))
+        command.append('--numAllocations=' + str(args.num_allocations))
 
     if args.low_priority:
         command.append('--lowPriority')
+    
+    # For the memory benchmark always use the immediate executor
+    if args.memory_benchmark:
+        command.append('--useImmediateExecutor')
 
     subprocess.Popen(command).communicate()
 
@@ -309,9 +336,7 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['time_ms']                   
-
-                    
+            total_time_ms += result['time_ms']
 
             # compare to expected
             if compare_results(expected, result, tolerance) == False:
@@ -384,8 +409,7 @@ def create_inference_request(batch_size, num_tokens, request_num):
 def memory_usage(args):
     with open(args.input_file, 'w') as input_file:
         
-        request_num = 0
-        # request_sizes = [1, 2, 3, 4, 5]
+        request_num = 0        
         request_sizes = [10, 20, 30, 40, 50]
         
         write_request(create_mem_usage_request(request_num), input_file)

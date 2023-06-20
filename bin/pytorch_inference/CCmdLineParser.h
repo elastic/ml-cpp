@@ -51,7 +51,8 @@ public:
                       std::int32_t& numAllocations,
                       std::size_t& cacheMemorylimitBytes,
                       bool& validElasticLicenseKeyConfirmed,
-                      bool& lowPriority);
+                      bool& lowPriority,
+                      bool& useImmediateExecutor);
 
 private:
     static const std::string DESCRIPTION;

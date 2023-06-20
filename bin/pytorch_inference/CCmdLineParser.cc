@@ -40,7 +40,8 @@ bool CCmdLineParser::parse(int argc,
                            std::int32_t& numAllocations,
                            std::size_t& cacheMemorylimitBytes,
                            bool& validElasticLicenseKeyConfirmed,
-                           bool& lowPriority) {
+                           bool& lowPriority,
+                           bool& useImmediateExecutor) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -72,7 +73,9 @@ bool CCmdLineParser::parse(int argc,
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
                         "Confirmation that a valid Elastic license key is in use.")
             ("lowPriority", "Execute process in low priority")
-            ;
+            ("useImmediateExecutor", "Execute requests on the main thread. This mode should only used for "
+            "benchmarking purposes to ensure requests are processed in order)")
+        ;
         // clang-format on
 
         boost::program_options::variables_map vm;
@@ -136,6 +139,14 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("lowPriority") > 0) {
             lowPriority = true;
+        }
+        if (vm.count("useImmediateExecutor") > 0) {
+            useImmediateExecutor = true;
+            if (numAllocations > 1) {
+                std::cerr << "Error: immediateExecutor cannot be used when numAllocations is > 1 "
+                          << std::endl;
+                return false;
+            }
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

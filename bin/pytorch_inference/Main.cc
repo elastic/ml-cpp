@@ -43,8 +43,6 @@
 torch::Tensor infer(torch::jit::script::Module& module_,
                     ml::torch::CCommandParser::SRequest& request) {
 
-    LOG_INFO(<< "request " << request.s_RequestId << ", " << request.s_NumberInferences);
-
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
@@ -80,16 +78,15 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         inputs.clear();
     }
 
-    LOG_INFO(<< "request processed " << request.s_RequestId);
     return at::cat(all, 0);
 }
 
 bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                    ml::torch::CCommandParser::SRequest request,
                    torch::jit::script::Module& module_,
+                   ml::core::CExecutor& executor,
                    ml::torch::CResultWriter& resultWriter) {
 
-    auto executor = ml::core::CImmediateExecutor();
     ml::core::async(executor, [
         &cache, capturedRequest = std::move(request), &module_, &resultWriter
     ]() mutable {
@@ -122,12 +119,13 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
 void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& controlMessage,
                           ml::torch::CThreadSettings& threadSettings,
                           ml::torch::CCommandParser::CRequestCacheInterface& cache,
+                          ml::core::CExecutor& executor,
                           ml::torch::CResultWriter& resultWriter) {
 
     switch (controlMessage.s_MessageType) {
     case ml::torch::CCommandParser::E_NumberOfAllocations:
         threadSettings.numAllocations(controlMessage.s_NumAllocations);
-        ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+        executor.numberThreadsInUse(threadSettings.numAllocations());
         LOG_DEBUG(<< "Updated number of allocations to [" << threadSettings.numAllocations()
                   << "] ([" << controlMessage.s_NumAllocations << "] requested)");
         resultWriter.writeThreadSettings(controlMessage.s_RequestId, threadSettings);
@@ -165,13 +163,14 @@ int main(int argc, char** argv) {
     std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
     bool lowPriority{false};
+    bool useImmediateExecutor{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
             numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
-            validElasticLicenseKeyConfirmed, lowPriority) == false) {
+            validElasticLicenseKeyConfirmed, lowPriority, useImmediateExecutor) == false) {
         return EXIT_FAILURE;
     }
 
@@ -287,29 +286,41 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
-    // Size the threadpool to the number of hardware threads
-    // so we can grow and shrink the threadpool dynamically.
-    // The task queue size is set to 1.
-    ml::core::startDefaultAsyncExecutor(0, 1);
-    // Set the number of threads to use
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    if (useImmediateExecutor == false) {
+        // Size the threadpool to the number of hardware threads
+        // so we can grow and shrink the threadpool dynamically.
+        // The task queue size is set to 1.
+        ml::core::startDefaultAsyncExecutor(0, 1);
+        // Set the number of threads to use
+        ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    }
+    ml::core::CExecutor& executor{ml::core::defaultAsyncExecutor()};
+    ml::core::CImmediateExecutor immediateExecutor{ml::core::CImmediateExecutor()};
+
+    if (useImmediateExecutor) {
+        executor = immediateExecutor;
+    }
 
     commandParser.ioLoop(
-        [&module_, &resultWriter](ml::torch::CCommandParser::CRequestCacheInterface& cache,
-                                  ml::torch::CCommandParser::SRequest request) -> bool {
-            return handleRequest(cache, std::move(request), module_, resultWriter);
+        [&module_, &resultWriter,
+         &executor](ml::torch::CCommandParser::CRequestCacheInterface& cache,
+                    ml::torch::CCommandParser::SRequest request) -> bool {
+            return handleRequest(cache, std::move(request), module_, executor, resultWriter);
         },
-        [&resultWriter, &threadSettings](
+        [&resultWriter, &threadSettings, &executor](
             ml::torch::CCommandParser::CRequestCacheInterface& cache,
             const ml::torch::CCommandParser::SControlMessage& controlMessage) {
-            return handleControlMessage(controlMessage, threadSettings, cache, resultWriter);
+            return handleControlMessage(controlMessage, threadSettings, cache,
+                                        executor, resultWriter);
         },
         [&resultWriter](const std::string& requestId, const std::string& message) {
             resultWriter.writeError(requestId, message);
         });
 
     // Stopping the executor forces this to block until all work is done
-    ml::core::stopDefaultAsyncExecutor();
+    if (useImmediateExecutor == false) {
+        ml::core::stopDefaultAsyncExecutor();
+    }
 
     LOG_DEBUG(<< "ML PyTorch inference process exiting");
 

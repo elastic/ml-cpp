@@ -22,7 +22,6 @@ namespace ml {
 namespace core {
 namespace {
 
-
 //! \brief Executes a function in a thread pool.
 class CThreadPoolExecutor final : public CExecutor {
 public:
