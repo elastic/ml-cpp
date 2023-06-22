@@ -120,7 +120,7 @@ def parse_arguments():
     if not args.memory_benchmark and not args.test_file:
         raise RuntimeError('No test_file specified')
 
-    if args.memory_benchmark and args.num_allocations > 1:
+    if args.memory_benchmark and args.num_allocations and args.num_allocations > 1:
         raise RuntimeError('num_allocations must = 1 when using memory benchmark mode')
     
     return args
