@@ -68,7 +68,7 @@ Memory Benchmark model spawns the pytorch_inference process with the `--useImmed
 flag to ensure that processing the get memory usage control message and model evaluation
 occurs in sequence.
 
-Switch to memeory benchmark mode by passing the `--memory_benchmark` argument.
+Switch to memory benchmark mode by passing the `--memory_benchmark` argument.
 
 EXAMPLES
 --------
