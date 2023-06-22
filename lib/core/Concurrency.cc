@@ -21,6 +21,14 @@
 namespace ml {
 namespace core {
 namespace {
+//! \brief Executes a function immediately (on the calling thread).
+class CImmediateExecutor final : public CExecutor {
+public:
+    void schedule(std::function<void()>&& f) override { f(); }
+    bool busy() const override { return false; }
+    void busy(bool) override {}
+    void numberThreadsInUse(std::size_t) override {}
+};
 
 //! \brief Executes a function in a thread pool.
 class CThreadPoolExecutor final : public CExecutor {

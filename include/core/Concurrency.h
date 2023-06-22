@@ -82,15 +82,6 @@ public:
     virtual void numberThreadsInUse(std::size_t threads) = 0;
 };
 
-//! \brief Executes a function immediately (on the calling thread).
-class CImmediateExecutor final : public CExecutor {
-public:
-    void schedule(std::function<void()>&& f) override { f(); }
-    bool busy() const override { return false; }
-    void busy(bool) override {}
-    void numberThreadsInUse(std::size_t) override {}
-};
-
 //! Setup the global default executor for async.
 //!
 //! \p threadPoolSize is the upper bound on the number of threads in use.
