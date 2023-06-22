@@ -56,7 +56,7 @@ MEMORY_BENCHMARK MODE
 
 Evalutes the model over a number of batches of increasing size. After each batch is
 processed a get memory usage request is sent and the Max RSS returned. A summary of
-memory usage againts batch size is printed at the end of the  benchmark.
+memory usage against batch size is printed at the end of the  benchmark.
 
 No `test_file` argument is required for this mode as the wordpiece tokens are generated in 
 this script. The requests are hard-coded to 512 tokens (padded) and the number of requests
