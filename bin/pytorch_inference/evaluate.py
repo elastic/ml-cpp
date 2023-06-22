@@ -151,7 +151,7 @@ def launch_pytorch_app(args):
         '--restore=' + args.restore_file,
         '--input=' + args.input_file,
         '--output=' + args.output_file,
-        '--validElasticLicenseKeyConfirmed=true',        
+        '--validElasticLicenseKeyConfirmed=true',
         ]
 
     if args.num_threads_per_allocation:
