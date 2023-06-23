@@ -11,6 +11,8 @@
 
 project("ML PyTorch Inference")
 
+# find_package(intel_ext_pt_cpu REQUIRED)
+
 set(ML_LINK_LIBRARIES 
   ${Boost_LIBRARIES}
   MlCore
@@ -19,6 +21,7 @@ set(ML_LINK_LIBRARIES
   MlVer
   ${TORCH_LIB}
   ${C10_LIB}
+  ${IPEX_LIB}
   )
 
 ml_add_executable(pytorch_inference
@@ -28,3 +31,4 @@ ml_add_executable(pytorch_inference
   CResultWriter.cc
   CThreadSettings.cc
   )
+

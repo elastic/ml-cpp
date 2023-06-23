@@ -68,7 +68,10 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         }
 
         auto output = module_.forward(inputs);
-        if (output.isTuple()) {
+        if (output.isGenericDict()) {            
+            all.push_back(output.toGenericDict().at("logits").toTensor());
+        }
+        else if (output.isTuple()) {
             // For transformers the result tensor is the first element in a tuple.
             all.push_back(output.toTuple()->elements()[0].toTensor());
         } else {

@@ -143,7 +143,7 @@ def path_to_app():
     else:
         raise RuntimeError('Unknown platform')
 
-    return "../../build/distribution/platform/" + sub_path + "pytorch_inference"
+    return "/home/valeriy/ml-cpp/build/distribution/platform/" + sub_path + "pytorch_inference"
 
 def launch_pytorch_app(args):
 
@@ -402,21 +402,21 @@ def create_inference_request(batch_size, num_tokens, request_num):
         "request_id": str(request_num), 
         "tokens": [tokens for i in range(batch_size)],
         "arg_1": [arg_1 for i in range(batch_size)],
-        "arg_2": [arg_2 for i in range(batch_size)],
-        "arg_3": [arg_3 for i in range(batch_size)]
+        # "arg_2": [arg_2 for i in range(batch_size)],
+        # "arg_3": [arg_3 for i in range(batch_size)]
     }
     
 def memory_usage(args):
     with open(args.input_file, 'w') as input_file:
         
         request_num = 0        
-        request_sizes = [10, 20, 30, 40, 50]
+        request_sizes = [1]
         
-        write_request(create_mem_usage_request(request_num), input_file)
+        # write_request(create_mem_usage_request(request_num), input_file)
         for i in request_sizes: 
             request_num = request_num + 1                        
             write_request(create_inference_request(batch_size=i, num_tokens=512, request_num=request_num), input_file)
-            write_request(create_mem_usage_request(request_num), input_file)
+            # write_request(create_mem_usage_request(request_num), input_file)
 
     launch_pytorch_app(args)
 
@@ -441,10 +441,13 @@ def memory_usage(args):
         request_sizes.insert(0, 0)
 
         print(f"num items in request, memory_max_rss, inference time (ms)")
-        for result in result_docs:            
+        for result in result_docs:
+            # print(result)
+            # continue            
             if 'result' in result:
                 inference_count = inference_count +1
-                last_time = result['time_ms']                
+                last_time = result['time_ms']        
+                print(f"{request_sizes[stats_count]},{last_time} ms")        
                 continue
 
             if 'process_stats' in result:
