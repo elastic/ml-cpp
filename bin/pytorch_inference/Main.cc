@@ -161,13 +161,14 @@ int main(int argc, char** argv) {
     std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
     bool lowPriority{false};
+    bool useImmediateExecutor{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
             numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
-            validElasticLicenseKeyConfirmed, lowPriority) == false) {
+            validElasticLicenseKeyConfirmed, lowPriority, useImmediateExecutor) == false) {
         return EXIT_FAILURE;
     }
 
@@ -283,12 +284,17 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
-    // Size the threadpool to the number of hardware threads
-    // so we can grow and shrink the threadpool dynamically.
-    // The task queue size is set to 1.
-    ml::core::startDefaultAsyncExecutor(0, 1);
-    // Set the number of threads to use
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    if (useImmediateExecutor == false) {
+        // Size the threadpool to the number of hardware threads
+        // so we can grow and shrink the threadpool dynamically.
+        // The task queue size is set to 1.
+        ml::core::startDefaultAsyncExecutor(0, 1);
+        // Set the number of threads to use
+        ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    } else {
+        // Make sure we're using immediate execution.
+        ml::core::stopDefaultAsyncExecutor();
+    }
 
     commandParser.ioLoop(
         [&module_, &resultWriter](ml::torch::CCommandParser::CRequestCacheInterface& cache,
@@ -305,7 +311,9 @@ int main(int argc, char** argv) {
         });
 
     // Stopping the executor forces this to block until all work is done
-    ml::core::stopDefaultAsyncExecutor();
+    if (useImmediateExecutor == false) {
+        ml::core::stopDefaultAsyncExecutor();
+    }
 
     LOG_DEBUG(<< "ML PyTorch inference process exiting");
 
