@@ -25,6 +25,7 @@ spec:
       branch_configuration: main !main
       cancel_intermediate_builds: true
       clone_method: https
+      default_branch: nul
       pipeline_file: .buildkite/pipeline.json.py
       provider_settings:
         build_branches: false
