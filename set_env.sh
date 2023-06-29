@@ -130,8 +130,8 @@ case $SIMPLE_PLATFORM in
 
 esac
 
-# Do not cache in Jenkins
-if [ -z "$JOB_NAME" ] ; then
+# Do not cache in BuildKite
+if [ -z "$BUILDKITE" ] ; then
     # Check if CCACHE is available and use it if it's found
     if [ -d "/usr/lib/ccache" ] ; then
         PATH=/usr/lib/ccache:$PATH
