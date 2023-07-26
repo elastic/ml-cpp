@@ -35,6 +35,8 @@
 * Better handle small shifts of the seasonal patterns in time series data.
   (See {ml-pull}2202[#2202].)
 
+== {es} version 7.17.9
+
 === Bug Fixes
 
 * Improve performance of closing files before spawning. (See {ml-pull}2424[#2424].)
