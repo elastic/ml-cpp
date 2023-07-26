@@ -1549,7 +1549,9 @@ CUnivariateTimeSeriesModel::updateResidualModels(const common::CModelAddSamplesP
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   residuals, weights);
 
-        const auto & [ feature, featureWeight ] = m_MultibucketFeature->value();
+        TDouble1Vec feature;
+        maths_t::TDoubleWeightsAry1Vec featureWeight;
+        std::tie(feature, featureWeight) = m_MultibucketFeature->value();
 
         if (feature.empty() == false) {
             m_MultibucketFeatureModel->addSamples(feature, featureWeight);
@@ -2957,7 +2959,9 @@ void CMultivariateTimeSeriesModel::updateResidualModels(const common::CModelAddS
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   residuals, weights);
 
-        const auto & [ feature, featureWeight ] = m_MultibucketFeature->value();
+        TDouble10Vec1Vec feature;
+        maths_t::TDouble10VecWeightsAry1Vec featureWeight;
+        std::tie(feature, featureWeight) = m_MultibucketFeature->value();
 
         if (feature.empty() == false) {
             m_MultibucketFeatureModel->addSamples(feature, featureWeight);
