@@ -800,7 +800,7 @@ BOOST_AUTO_TEST_CASE(testPrecession) {
         initialValues[6 * time / core::constants::HOUR].add(trend(time));
     }
 
-    CTestSeasonalComponent seasonalWithShift{
+    CTestSeasonalComponent seasonalWithShift(
         maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
         12,           // buckets
         0.0,          // decay rate
@@ -808,8 +808,8 @@ BOOST_AUTO_TEST_CASE(testPrecession) {
         FIVE_MINUTES, // maximum time shift per period
         0,            // start time of initial values
         TWO_HOURS,    // end time of initial values
-        initialValues};
-    CTestSeasonalComponent seasonalWithoutShift{
+        initialValues);
+    CTestSeasonalComponent seasonalWithoutShift(
         maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
         12,           // buckets
         0.0,          // decay rate
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE(testPrecession) {
         0,            // maximum time shift per period
         0,            // start time of initial values
         TWO_HOURS,    // end time of initial values
-        initialValues};
+        initialValues);
 
     TMeanAccumulator meanErrorWithShift;
     TMeanAccumulator meanErrorWithoutShift;
@@ -858,7 +858,7 @@ BOOST_AUTO_TEST_CASE(testWithRandomShifts) {
         initialValues[6 * time / core::constants::HOUR].add(trend(time));
     }
 
-    CTestSeasonalComponent seasonalWithShift{
+    CTestSeasonalComponent seasonalWithShift(
         maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
         12,               // buckets
         0.0,              // decay rate
@@ -866,8 +866,8 @@ BOOST_AUTO_TEST_CASE(testWithRandomShifts) {
         FIVE_MINUTES / 2, // maximum time shift per period
         0,                // start time of initial values
         TWO_HOURS,        // end time of initial values
-        initialValues};
-    CTestSeasonalComponent seasonalWithoutShift{
+        initialValues);
+    CTestSeasonalComponent seasonalWithoutShift(
         maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
         12,           // buckets
         0.0,          // decay rate
@@ -875,7 +875,7 @@ BOOST_AUTO_TEST_CASE(testWithRandomShifts) {
         0,            // maximum time shift per period
         0,            // start time of initial values
         TWO_HOURS,    // end time of initial values
-        initialValues};
+        initialValues);
 
     TMeanAccumulator meanErrorWithShift;
     TMeanAccumulator meanErrorWithoutShift;
