@@ -712,7 +712,9 @@ CUnivariateTimeSeriesModel::addSamples(const common::CModelAddSamplesParams& par
 
     EUpdateResult result{this->updateTrend(params, samples)};
 
-    auto[residuals, decayRateMultiplier] =
+    TTimeDouble2VecSizeTrVec residuals;
+    double decayRateMultiplier;
+    std::tie(residuals, decayRateMultiplier) =
         this->updateResidualModels(params, std::move(samples));
 
     // Age the anomaly model. Note that update requires the probability

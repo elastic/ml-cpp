@@ -297,7 +297,9 @@ private:
     //! Compute the weighted mean of \p function on the sliding window.
     template<typename VALUE, typename WEIGHT>
     T evaluateOnWindow(VALUE value, WEIGHT weight) const {
-        auto[earliest, latest] = this->range();
+        double earliest;
+        double latest;
+        std::tie(earliest, latest) = this->range();
         double n{static_cast<double>(m_SlidingWindow.size())};
         double scale{(n - 1.0) * (latest == earliest ? 1.0 : 1.0 / (latest - earliest))};
         auto i = m_SlidingWindow.begin();
