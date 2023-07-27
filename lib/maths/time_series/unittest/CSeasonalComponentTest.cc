@@ -902,6 +902,8 @@ BOOST_AUTO_TEST_CASE(testWithRandomShifts) {
 BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persistence is idempotent.
 
+    auto pair = [](const auto& x) { return TDoubleDoublePr{x(0), x(1)}; };
+
     const core_t::TTime startTime = 1354492800;
     const core_t::TTime minute = 60;
     const double decayRate = 0.001;
@@ -960,16 +962,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Test that the values and variances of the original and
     // restored components are similar.
     for (core_t::TTime time = 0; time < core::constants::DAY; time += minute) {
-        TDoubleDoublePr xo = origSeasonal.value(time, 80.0);
-        TDoubleDoublePr xn = restoredSeasonal.value(time, 80.0);
+        TDoubleDoublePr xo = pair(origSeasonal.value(time, 80.0));
+        TDoubleDoublePr xn = pair(restoredSeasonal.value(time, 80.0));
         if (time % (15 * minute) == 0) {
             LOG_DEBUG(<< "xo = " << core::CContainerPrinter::print(xo)
                       << ", xn = " << core::CContainerPrinter::print(xn));
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.first, xn.first, 0.3);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.second, xn.second, 0.3);
-        TDoubleDoublePr vo = origSeasonal.variance(time, 80.0);
-        TDoubleDoublePr vn = origSeasonal.variance(time, 80.0);
+        TDoubleDoublePr vo = pair(origSeasonal.variance(time, 80.0));
+        TDoubleDoublePr vn = pair(origSeasonal.variance(time, 80.0));
         if (time % (15 * minute) == 0) {
             LOG_DEBUG(<< "vo = " << core::CContainerPrinter::print(vo)
                       << ", vn = " << core::CContainerPrinter::print(vn));
