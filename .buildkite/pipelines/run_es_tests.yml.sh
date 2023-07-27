@@ -26,4 +26,7 @@ steps:
     env:
       IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+    notify:
+      - github_commit_status:
+          context: "Java Integration Tests"
 EOL

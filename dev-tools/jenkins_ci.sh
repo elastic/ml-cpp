@@ -149,8 +149,9 @@ case `uname` in
         ;;
 esac
 
-# If this isn't a PR build and isn't a debug build then upload the artifacts
-if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
-    (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
-fi
-
+# Do not upload artifacts from the Jenkins' build while testing uploading from BuildKite pipelines
+## If this isn't a PR build and isn't a debug build then upload the artifacts
+#if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
+#    (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
+#fi
+#

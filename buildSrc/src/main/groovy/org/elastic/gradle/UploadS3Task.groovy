@@ -25,6 +25,7 @@ import org.gradle.api.tasks.TaskAction
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -59,7 +60,15 @@ class UploadS3Task extends DefaultTask {
     public void uploadToS3() {
 
         Region region = Region.EU_WEST_1
-        AwsCredentials creds = AwsBasicCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey)
+
+        String mlAwsSessionToken = System.env.ML_AWS_SESSION_TOKEN
+        if (mlAwsSessionToken == null && project.hasProperty('ML_AWS_SESSION_TOKEN')) {
+          mlAwsSessionToken = ML_AWS_SESSION_TOKEN
+        }
+
+        AwsCredentials creds = mlAwsSessionToken == null ? 
+          AwsBasicCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey) : 
+          AwsSessionCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey, mlAwsSessionToken)
         AwsCredentialsProvider credsProvider = StaticCredentialsProvider.create(creds)
         S3Client client = S3Client.builder().region(region).credentialsProvider(credsProvider).build()
 

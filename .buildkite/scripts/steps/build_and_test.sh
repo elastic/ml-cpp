@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Default to a snapshot build
-if [ "${BUILD_SNAPSHOT:=true}" != false] ; then
+if [ "${BUILD_SNAPSHOT:=true}" != false ] ; then
     BUILD_SNAPSHOT=true
 fi
 
@@ -37,7 +37,8 @@ fi
 VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
+TEST_OUTCOME=0
+if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then 
   # On Linux native aarch64 build using Docker
   
   # The Docker version is helpful to identify version-specific Docker bugs
@@ -49,7 +50,7 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
   if [ "$RUN_TESTS" = false ] ; then
     ${REPO_ROOT}/dev-tools/docker_build.sh linux_aarch64_native
   else
-    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests linux_aarch64_native
+    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests linux_aarch64_native || TEST_OUTCOME=$?
   fi
 fi
 
@@ -67,12 +68,34 @@ fi
 if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
+    grep passed build/test_status.txt || TEST_OUTCOME=$?
   else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
   fi
+else
+  if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
+     # For macOS, build directly on the machine
+     ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+     if [ "$RUN_TESTS" = false ] ; then
+         TASKS="clean buildZip buildZipSymbols"
+     else
+         TASKS="clean buildZip buildZipSymbols check"
+     fi
+     # For macOS we usually only use a particular version as our build platform
+     # once Xcode has stopped receiving updates for it. However, with Big Sur
+     # on ARM we couldn't do this, as Big Sur was the first macOS version for
+     # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+     # need to hardcode the version that was used to build Boost for that
+     # version of Elasticsearch.
+     if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+         export BOOSTCLANGVER=120
+     fi
+
+     (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=${BUILD_SNAPSHOT:-} -Dbuild.ml_debug=${ML_DEBUG:-} $TASKS) || TEST_OUTCOME=$?
+  fi
 fi
 
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] ; then 
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then 
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 
@@ -82,3 +105,5 @@ if [[ -z "$CPP_CROSS_COMPILE" ]] ; then
   find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
   buildkite-agent artifact upload "${TEST_RESULTS_ARCHIVE}"
 fi
+
+exit $TEST_OUTCOME
