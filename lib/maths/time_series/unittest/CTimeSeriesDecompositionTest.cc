@@ -2646,7 +2646,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
 
         // Check some basic operations on the upgraded model.
         decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
-                               [](core_t::TTime, const TDouble3Vec&) {});
+                               false, [](core_t::TTime, const TDouble3Vec&) {});
         for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
             decomposition.addPoint(time, 10.0);
         }
