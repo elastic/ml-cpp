@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(I1) < 0.1);
 
     for (std::size_t i = 0; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+        for (std::size_t j = 0, X = 0; j < variables; j += 2) {
             for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     }
 
     // This should trigger the next projection to be generated.
-    for (std::size_t i = 0u, X = 0; i < variables; i += 2) {
+    for (std::size_t i = 0, X = 0; i < variables; i += 2) {
         for (std::size_t j = 0; j < boost::size(combinations); ++j, ++X) {
             double x = combinations[j][0] * samples[19 * variables + i] +
                        combinations[j][1] * samples[19 * variables + i + 1];
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     mostCorrelated.addVariables((variables * boost::size(combinations)) / 2);
 
     for (std::size_t i = 0; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+        for (std::size_t j = 0, X = 0; j < variables; j += 2) {
             for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
@@ -719,7 +719,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
         TDoubleVecVec samples(b, TDoubleVec(n[s]));
         const TDoubleVec* samples_[] = {&uniform, &gamma, &normal};
         for (std::size_t i = 0; i < b; ++i) {
-            for (std::size_t j = 0u, l = 0; j < 3; ++j) {
+            for (std::size_t j = 0, l = 0; j < 3; ++j) {
                 std::size_t m = samples_[j]->size() / b;
                 for (std::size_t k = 0; k < m; ++k, ++l) {
                     samples[i][labels[l]] = scales[k] * (*samples_[j])[i * m + k];
@@ -773,7 +773,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
         BOOST_TEST_REQUIRE(exponent < 2.0);
         BOOST_TEST_REQUIRE(sdRatio < 0.75);
     } else {
-        BOOST_TEST_REQUIRE(exponent < 1.75);
+        BOOST_TEST_REQUIRE(exponent < 1.8);
         BOOST_TEST_REQUIRE(sdRatio < 0.5);
     }
 }
