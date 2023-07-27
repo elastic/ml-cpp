@@ -2445,6 +2445,9 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         core::CStringUtils::stringToType(str.substr(n + 1), second);
         return TDoubleDoublePr{first, second};
     };
+    auto pair = [](const auto& x) {
+        return TDoubleDoublePr{x(0), x(1)};
+    };
 
     maths::common::STimeSeriesDecompositionRestoreParams params{
         0.1, HALF_HOUR,
@@ -2497,8 +2500,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
              time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
-            TDoubleDoublePr value{decomposition.value(time, 10.0)};
-            TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 286374.0, 10.0)};
+            TDoubleDoublePr value{pair(decomposition.value(time, 10.0, false))};
+            TDoubleDoublePr scale{pair(decomposition.varianceScaleWeight(time, 286374.0, 10.0))};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
                                          0.2 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
@@ -2581,8 +2584,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
              time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
-            TDoubleDoublePr value{decomposition.value(time, 10.0)};
-            TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 96.1654, 10.0)};
+            TDoubleDoublePr value{pair(decomposition.value(time, 10.0, false))};
+            TDoubleDoublePr scale{pair(decomposition.varianceScaleWeight(time, 96.1654, 10.0))};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
                                          0.1 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
