@@ -57,12 +57,11 @@ double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
-                                                             double /*confidence*/,
-                                                             int /*components*/,
-                                                             const TBoolVec& /*removedSeasonalMask*/,
-                                                             bool /*smooth*/) const {
-    return {0.0, 0.0};
+CTimeSeriesDecompositionStub::TVector2x1
+CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
+                                    double /*confidence*/,
+                                    bool /*isNonNegative*/) const {
+    return TVector2x1{0.0};
 }
 
 core_t::TTime CTimeSeriesDecompositionStub::maximumForecastInterval() const {
@@ -74,14 +73,15 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
                                             core_t::TTime /*step*/,
                                             double /*confidence*/,
                                             double /*minimumScale*/,
+                                            bool /*isNonNegative*/,
                                             const TWriteForecastResult& /*writer*/) {
 }
 
 double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
                                              double value,
                                              double /*confidence*/,
-                                             core_t::TTime /*maximumTimeShift*/,
-                                             int /*components*/) const {
+                                             bool /*isNonNegative*/,
+                                             core_t::TTime /*maximumTimeShift*/) const {
     return value;
 }
 
@@ -89,12 +89,11 @@ double CTimeSeriesDecompositionStub::meanVariance() const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
+CTimeSeriesDecompositionStub::TVector2x1
 CTimeSeriesDecompositionStub::varianceScaleWeight(core_t::TTime /*time*/,
                                                   double /*variance*/,
-                                                  double /*confidence*/,
-                                                  bool /*smooth*/) const {
-    return {1.0, 1.0};
+                                                  double /*confidence*/) const {
+    return TVector2x1{1.0};
 }
 
 double CTimeSeriesDecompositionStub::countWeight(core_t::TTime /*time*/) const {
@@ -106,7 +105,7 @@ double CTimeSeriesDecompositionStub::winsorisationDerate(core_t::TTime /*time*/)
 }
 
 CTimeSeriesDecompositionStub::TFloatMeanAccumulatorVec
-CTimeSeriesDecompositionStub::residuals() const {
+CTimeSeriesDecompositionStub::residuals(bool /*isNonNegative*/) const {
     return {};
 }
 

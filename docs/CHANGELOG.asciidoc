@@ -34,6 +34,8 @@
 
 * Better handle small shifts of the seasonal patterns in time series data.
   (See {ml-pull}2202[#2202].)
+* Address root cause for actuals equals typical equals zero anomalies.
+  (See {ml-pull}2270[#2270].)
 
 == {es} version 7.17.9
 

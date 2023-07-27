@@ -87,8 +87,8 @@ core_t::TTime CModelParams::maximumTimeToTestForChange() const {
 
 //////// CModelAddSamplesParams ////////
 
-CModelAddSamplesParams& CModelAddSamplesParams::integer(bool integer) {
-    m_Type = integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData;
+CModelAddSamplesParams& CModelAddSamplesParams::isInteger(bool isInteger) {
+    m_Type = isInteger ? maths_t::E_IntegerData : maths_t::E_ContinuousData;
     return *this;
 }
 
@@ -96,8 +96,8 @@ maths_t::EDataType CModelAddSamplesParams::type() const {
     return m_Type;
 }
 
-CModelAddSamplesParams& CModelAddSamplesParams::nonNegative(bool nonNegative) {
-    m_IsNonNegative = nonNegative;
+CModelAddSamplesParams& CModelAddSamplesParams::isNonNegative(bool isNonNegative) {
+    m_IsNonNegative = isNonNegative;
     return *this;
 }
 

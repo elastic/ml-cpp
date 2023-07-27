@@ -331,8 +331,8 @@ void CMetricModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(data_.second.s_IsInteger)
-                    .nonNegative(data_.second.s_IsNonNegative)
+                params.isInteger(data_.second.s_IsInteger)
+                    .isNonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)

@@ -15,12 +15,11 @@
 #include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSpline.h>
 
 #include <maths/time_series/ImportExport.h>
-
-#include <boost/optional.hpp>
 
 #include <array>
 #include <cstddef>
@@ -38,7 +37,7 @@ namespace time_series {
 //! \brief Common functionality used by our decomposition component classes.
 class MATHS_TIME_SERIES_EXPORT CDecompositionComponent {
 public:
-    using TDoubleDoublePr = maths_t::TDoubleDoublePr;
+    using TVector2x1 = common::CVectorNx1<double, 2>;
     using TDoubleVec = std::vector<double>;
     using TFloatVec = std::vector<common::CFloatStorage>;
     using TSplineCRef = common::CSpline<std::reference_wrapper<const TFloatVec>,
@@ -104,7 +103,7 @@ protected:
                          common::CSplineTypes::EBoundaryCondition boundary);
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed) const;
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Debug the memory used by the splines.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -165,7 +164,7 @@ protected:
     //! \param[in] n The bucket count containing \p offset.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! as a percentage.
-    TDoubleDoublePr value(double offset, double n, double confidence) const;
+    TVector2x1 value(double offset, double n, double confidence) const;
 
     //! Get the mean value of the function.
     double meanValue() const;
@@ -176,7 +175,7 @@ protected:
     //! \param[in] n The bucket count containing \p offset.
     //! \param[in] confidence The symmetric confidence interval for the
     //! variance as a percentage.
-    TDoubleDoublePr variance(double offset, double n, double confidence) const;
+    TVector2x1 variance(double offset, double n, double confidence) const;
 
     //! Get the mean variance of the function residuals.
     double meanVariance() const;
@@ -197,7 +196,7 @@ protected:
     const CPackedSplines& splines() const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
 private:
     //! The minimum permitted size for the points sketch.
