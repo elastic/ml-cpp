@@ -18,6 +18,8 @@
 
 #include <maths/common/MathsTypes.h>
 
+#include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
+
 #include <model/ImportExport.h>
 
 #include <functional>
@@ -26,12 +28,6 @@
 #include <utility>
 
 namespace ml {
-namespace maths {
-namespace time_series {
-template<typename>
-class CTimeSeriesMultibucketFeature;
-}
-}
 namespace model {
 class CInfluenceCalculator;
 struct SModelParams;
@@ -46,9 +42,9 @@ using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 using TUnivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketFeature<double>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketScalarFeature>;
 using TMultivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketFeature<TDouble10Vec>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketVectorFeature>;
 
 //! The types of model available.
 //!

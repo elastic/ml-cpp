@@ -14,6 +14,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/Constants.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsCovariances.h>
@@ -23,6 +24,7 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <tuple>
@@ -35,14 +37,16 @@ using TDoubleVec = std::vector<double>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
 using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
+using TVector = maths::common::CVector<double>;
+using TVector2x1 = maths::common::CVectorNx1<double, 2>;
+using TCovariance2x2 = maths::common::CBasicStatistics::SSampleCovariances<TVector2x1>;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 BOOST_AUTO_TEST_CASE(testUnivariateMean) {
 
     // Test we get the values and weights we expect.
 
-    using TMultibucketMean = maths::time_series::CTimeSeriesMultibucketMean<double>;
-
-    TMultibucketMean feature{3};
+    maths::time_series::CTimeSeriesMultibucketScalarMean feature{3};
 
     TDouble1Vec mean;
     maths_t::TDoubleWeightsAry1Vec weight;
@@ -94,7 +98,7 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
 
     // Memory accounting through base pointer.
 
-    maths::time_series::CTimeSeriesMultibucketFeature<double>* base = &feature;
+    maths::time_series::CTimeSeriesMultibucketScalarMean* base = &feature;
     LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
 
     BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
@@ -175,18 +179,17 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     BOOST_REQUIRE_EQUAL(1.0, mean[0]);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(5.54, maths_t::countForUpdate(weight[0]), 5e-5);
 
-    // Test correlation between the feature and the last bucket
-    // value matches the expected value.
+    // Test correlation between the feature and the last bucket value matches
+    // the expected value.
 
-    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanCorrelation;
+    TMeanAccumulator meanCorrelation;
 
     test::CRandomNumbers rng;
     for (std::size_t t = 0; t < 10; ++t) {
         TDoubleVec samples;
         rng.generateNormalSamples(0.0, 1.0, 300, samples);
 
-        maths::common::CBasicStatistics::SSampleCovariances<maths::common::CVectorNx1<double, 2>> covariance(
-            2);
+        TCovariance2x2 covarianceAccumulator{2};
         for (std::size_t i = 0; i < samples.size(); i += 3) {
             for (std::size_t j = 0; j < 3; ++j) {
                 feature.add(static_cast<core_t::TTime>(10 * (i + j)), 10,
@@ -194,11 +197,12 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
             }
             TDouble1Vec value;
             std::tie(mean, std::ignore) = feature.value();
-            covariance.add(maths::common::CVectorNx1<double, 2>{{samples[i + 2], mean[0]}});
+            covarianceAccumulator.add(TVector2x1{{samples[i + 2], mean[0]}});
         }
 
-        auto c = maths::common::CBasicStatistics::covariances(covariance);
-        double correlation{c(0, 1) / std::sqrt(c(0, 0) * c(1, 1))};
+        auto covariance = maths::common::CBasicStatistics::covariances(covarianceAccumulator);
+        double correlation{covariance(0, 1) /
+                           std::sqrt(covariance(0, 0) * covariance(1, 1))};
         LOG_DEBUG(<< "correlation = " << correlation
                   << " expected = " << feature.correlationWithBucketValue());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(feature.correlationWithBucketValue(), correlation,
@@ -225,11 +229,12 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
 
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        core::CRapidXmlStateRestoreTraverser traverser{parser};
 
-        TMultibucketMean restored{3};
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-            &TMultibucketMean::acceptRestoreTraverser, &restored, std::placeholders::_1)));
+        maths::time_series::CTimeSeriesMultibucketScalarMean restored{3};
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](core::CStateRestoreTraverser& traverser_) {
+            return restored.acceptRestoreTraverser(traverser_);
+        }));
         BOOST_REQUIRE_EQUAL(feature.checksum(), restored.checksum());
         feature.clear();
     }
@@ -239,9 +244,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
 
     // Test we get the values and weights we expect.
 
-    using TMultibucketMean = maths::time_series::CTimeSeriesMultibucketMean<TDouble10Vec>;
-
-    TMultibucketMean feature{3};
+    maths::time_series::CTimeSeriesMultibucketVectorMean feature{3};
 
     TDouble10Vec1Vec mean;
     maths_t::TDouble10VecWeightsAry1Vec weight;
@@ -283,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
 
     // Memory accounting through base pointer.
 
-    maths::time_series::CTimeSeriesMultibucketFeature<TDouble10Vec>* base = &feature;
+    maths::time_series::CTimeSeriesMultibucketVectorMean* base = &feature;
     LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
 
     BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
@@ -387,13 +390,14 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
 
         // Restore the XML into a new feature and assert checksums.
 
-        TMultibucketMean restored{3};
+        maths::time_series::CTimeSeriesMultibucketVectorMean restored{3};
         core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
 
-        core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
-            &TMultibucketMean::acceptRestoreTraverser, &restored, std::placeholders::_1)));
+        core::CRapidXmlStateRestoreTraverser traverser{parser};
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel([&](core::CStateRestoreTraverser& traverser_) {
+            return restored.acceptRestoreTraverser(traverser_);
+        }));
         BOOST_REQUIRE_EQUAL(feature.checksum(), restored.checksum());
         feature.clear();
     }

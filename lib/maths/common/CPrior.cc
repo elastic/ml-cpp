@@ -294,7 +294,9 @@ double CPrior::adjustOffsetWithCost(const TDouble1Vec& samples,
             trialOffsets.push_back(offset);
         }
         double likelihood;
-        CSolvers::globalMinimize(trialOffsets, cost, offset, likelihood);
+        double likelihoodStandardDeviation;
+        CSolvers::globalMinimize(trialOffsets, cost, offset, likelihood,
+                                 likelihoodStandardDeviation);
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
                   << ", offset = " << offset << ", likelihood = " << likelihood);
     }

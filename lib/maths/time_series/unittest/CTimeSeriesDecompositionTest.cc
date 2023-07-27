@@ -70,7 +70,8 @@ public:
     static const bool ENABLED{false};
 
 public:
-    CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
+    explicit CDebugGenerator(std::string file = "results.py")
+        : m_File{std::move(file)} {}
 
     ~CDebugGenerator() {
         if (ENABLED) {
@@ -1068,7 +1069,8 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         double value = timeseries[i].second;
         double variance = model.marginalLikelihoodVariance();
 
-        double lb, ub;
+        double lb;
+        double ub;
         maths_t::ETail tail;
         model.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, {decomposition.detrend(time, value, 0.0)},
@@ -1594,21 +1596,23 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
+
     // Test the accuracy of the modeling of some non-daily or weekly
     // seasonal components.
+
     test::CRandomNumbers rng;
 
     LOG_DEBUG(<< "Hourly");
     for (auto pad : {0 * DAY, 28 * DAY}) {
 
-        double periodic[]{10.0, 1.0, 0.5, 0.5, 1.0, 5.0,
-                          2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
+        TDoubleVec periodicPattern{10.0, 1.0, 0.5, 0.5, 1.0, 5.0,
+                                   2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
 
-        TDoubleVec trend{TDoubleVec(pad / FIVE_MINS, 0.0)};
+        TDoubleVec trend(pad / FIVE_MINS, 0.0);
         TTimeVec times;
         for (core_t::TTime time = 0; time < pad + 21 * DAY; time += FIVE_MINS) {
             times.push_back(time);
-            trend.push_back(periodic[(time / FIVE_MINS) % 12]);
+            trend.push_back(periodicPattern[(time / FIVE_MINS) % 12]);
         }
 
         TDoubleVec noise;
@@ -1639,13 +1643,13 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
                     double maxValue = 0.0;
 
                     for (std::size_t j = i - 12; j < i; ++j) {
-                        TDoubleDoublePr prediction = decomposition.value(times[j], 70.0);
-                        double residual = std::fabs(trend[j] - mean(prediction));
+                        double prediction = mean(decomposition.value(times[j], 70.0));
+                        double residual = std::fabs(trend[j] - prediction);
                         sumResidual += residual;
                         maxResidual = std::max(maxResidual, residual);
                         sumValue += std::fabs(trend[j]);
                         maxValue = std::max(maxValue, std::fabs(trend[j]));
-                        debug.addPrediction(times[j], mean(prediction), residual);
+                        debug.addPrediction(times[j], prediction, residual);
                     }
 
                     LOG_TRACE(<< "'sum residual' / 'sum value' = "
@@ -1658,8 +1662,8 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
                     totalSumValue += sumValue;
                     totalMaxValue += maxValue;
 
-                    BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.58);
-                    BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.58);
+                    BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.60);
+                    BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.60);
                 }
                 lastHour += HOUR;
             }
@@ -1676,14 +1680,14 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
     {
         const core_t::TTime length = 20 * DAY;
 
-        double periodic[]{10.0, 8.0, 5.5, 2.5, 2.0, 5.0,
-                          2.0,  1.0, 1.5, 3.5, 4.0, 7.0};
+        TDoubleVec periodicPattern{10.0, 8.0, 5.5, 2.5, 2.0, 5.0,
+                                   2.0,  1.0, 1.5, 3.5, 4.0, 7.0};
 
         TTimeVec times;
         TDoubleVec trend;
         for (core_t::TTime time = 0; time < length; time += TEN_MINS) {
             times.push_back(time);
-            trend.push_back(periodic[(time / 4 / HOUR) % 12]);
+            trend.push_back(periodicPattern[(time / 4 / HOUR) % 12]);
         }
 
         TDoubleVec noise;
@@ -1713,13 +1717,13 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
                     double maxValue = 0.0;
 
                     for (std::size_t j = i - 288; j < i; ++j) {
-                        TDoubleDoublePr prediction = decomposition.value(times[j], 70.0);
-                        double residual = std::fabs(trend[j] - mean(prediction));
+                        double prediction = mean(decomposition.value(times[j], 70.0));
+                        double residual = std::fabs(trend[j] - prediction);
                         sumResidual += residual;
                         maxResidual = std::max(maxResidual, residual);
                         sumValue += std::fabs(trend[j]);
                         maxValue = std::max(maxValue, std::fabs(trend[j]));
-                        debug.addPrediction(times[j], mean(prediction), residual);
+                        debug.addPrediction(times[j], prediction, residual);
                     }
 
                     LOG_TRACE(<< "'sum residual' / 'sum value' = "
@@ -1745,6 +1749,119 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.09);
         BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.20);
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testPrecession, CTestFixture) {
+
+    // Test the case the period is not a multiple of the bucket length.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec noise{0.0};
+    TDoubleVec delta{0.0};
+    double period = 3600.0;
+
+    for (std::size_t t = 0; t < 5; ++t) {
+        rng.generateUniformSamples(0, 120, 1, delta);
+        delta[0] = std::floor(delta[0]);
+        LOG_DEBUG(<< "period = " << 3600.0 + delta[0]);
+
+        maths::time_series::CTimeSeriesDecomposition decomposition(0.048, FIVE_MINS);
+        CDebugGenerator debug{"period_" + std::to_string(period + delta[0]) + ".py"};
+
+        double sumResidual = 0.0;
+        double maxResidual = 0.0;
+        double sumValue = 0.0;
+        double maxValue = 0.0;
+
+        for (core_t::TTime time = 0; time < WEEK; time += FIVE_MINS) {
+            double trend = 2.0 + std::sin(boost::math::double_constants::two_pi *
+                                          static_cast<double>(time) /
+                                          static_cast<double>(period + delta[0]));
+            rng.generateNormalSamples(0.0, 0.1, 1, noise);
+            decomposition.addPoint(time, trend + noise[0]);
+            if (decomposition.initialized()) {
+                double prediction = mean(decomposition.value(time, 0.0));
+                double residual = decomposition.detrend(time, trend, 0.0, FIVE_MINS);
+                sumResidual += std::fabs(residual);
+                maxResidual = std::max(maxResidual, std::fabs(residual));
+                sumValue += std::fabs(trend);
+                maxValue = std::max(maxValue, std::fabs(trend));
+                debug.addValue(time, trend);
+                debug.addPrediction(time, prediction, trend - prediction);
+            }
+        }
+
+        LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+        LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+        BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.01);
+        BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.15);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testRandomShifts, CTestFixture) {
+
+    // Test small sporadic random time shifts.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec noise{0.0};
+    double period = 3600.0;
+
+    double shift = 0.0;
+    TDoubleVec u01{0.0};
+
+    auto trend = [&] {
+        auto period_ = static_cast<core_t::TTime>(period);
+        TDoubleVec periodicPattern{10.0, 1.0, 0.5, 0.5, 1.0, 1.0,
+                                   2.0,  1.0, 0.5, 0.5, 1.0, 6.0};
+        return [periodicPattern, period_, &shift](core_t::TTime time) {
+            auto offset = (time + static_cast<core_t::TTime>(shift)) % period_;
+            auto i = (12 * offset) / period_;
+            auto j = (i + 1) % 12;
+
+            return maths::common::CTools::linearlyInterpolate(
+                0.0, 1.0, periodicPattern[i], periodicPattern[j],
+                static_cast<double>(offset % (period_ / 12)));
+        };
+    }();
+
+    maths::time_series::CTimeSeriesDecomposition decomposition(0.048, FIVE_MINS);
+    CDebugGenerator debug{"shifting.py"};
+
+    double sumResidual = 0.0;
+    double maxResidual = 0.0;
+    double sumValue = 0.0;
+    double maxValue = 0.0;
+
+    for (core_t::TTime time = 0; time < 3 * WEEK; time += FIVE_MINS) {
+        rng.generateNormalSamples(0.0, 0.1, 1, noise);
+
+        decomposition.addPoint(time, trend(time) + noise[0]);
+        if (decomposition.initialized()) {
+            double prediction = mean(decomposition.value(time, 0.0));
+            double residual = decomposition.detrend(time, trend(time), 0.0, FIVE_MINS);
+            sumResidual += residual;
+            maxResidual = std::max(maxResidual, std::fabs(residual));
+            sumValue += std::fabs(trend(time));
+            maxValue = std::max(maxValue, std::fabs(trend(time)));
+            debug.addValue(time, trend(time));
+            debug.addPrediction(time, prediction, trend(time) - prediction);
+        }
+
+        rng.generateUniformSamples(0.0, 1.0, 1, u01);
+        if (u01[0] < 0.001) {
+            TDoubleVec shift_;
+            rng.generateUniformSamples(0, static_cast<double>(FIVE_MINS), 1, shift_);
+            shift += std::floor(shift_[0] + 0.5);
+        }
+    }
+
+    LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+    LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+
+    BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.025);
+    BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.4);
 }
 
 BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
@@ -2026,7 +2143,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    TDoubleVec bounds{0.01, 0.013, 0.22, 0.02};
+    TDoubleVec bounds{0.013, 0.013, 0.15, 0.02};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::common::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2163,15 +2280,15 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
 
         double prediction{mean(decomposition.value(time, 0.0))};
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
-
         if (time > 4 * DAY) {
-            double error{(std::fabs(trend(time) - prediction)) / trend(time)};
-            BOOST_TEST_REQUIRE(error < 0.75);
+            double error{(std::fabs(decomposition.detrend(time, trend(time), 0.0, FIVE_MINS))) /
+                         std::fabs(trend(time))};
+            BOOST_TEST_REQUIRE(error < 0.25);
             meanError.add(error);
         }
     }
 
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.06);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.01);
 
     // We should be modelling both seasonalities.
     BOOST_TEST_REQUIRE(2, decomposition.seasonalComponents().size());

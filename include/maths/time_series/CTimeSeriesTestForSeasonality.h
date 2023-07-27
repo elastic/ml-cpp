@@ -109,6 +109,9 @@ public:
     //! Get the desired component size.
     std::size_t size() const;
 
+    //! Check if the component is one of \p periods.
+    bool isOneOf(int periods) const;
+
     //! Get a seasonal time for the specified results.
     //!
     //! \warning The caller owns the returned object.
@@ -119,6 +122,9 @@ public:
 
     //! Get the end time of the initial values.
     core_t::TTime initialValuesEndTime() const;
+
+    //! Get the bucket length of the window used to find the component.
+    core_t::TTime bucketLength() const;
 
     //! Get the values to use to initialize the component.
     const TFloatMeanAccumulatorVec& initialValues() const;
@@ -643,7 +649,7 @@ private:
     TSizeVec m_ModelledPeriodsSizes;
     TBoolVec m_ModelledPeriodsTestable;
     TFloatMeanAccumulatorVec m_Values;
-    // The follow are member data to avoid repeatedly reinitialising.
+    // The following are member data to avoid repeatedly recreating.
     mutable TAmplitudeVec m_Amplitudes;
     mutable TSeasonalComponentVec m_Periods;
     mutable TSeasonalComponentVec m_CandidatePeriods;
