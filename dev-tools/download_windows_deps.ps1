@@ -17,6 +17,8 @@ if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\t
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
+    Write-Output "Downloading dependencies at time"
+    Get-Date -Format yyyy-MM-ddTHH:mm:ss.ffffK
     (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
     Add-Type -assembly "system.io.compression.filesystem"
     [IO.Compression.ZipFile]::ExtractToDirectory($ZipDestination, $Destination)
