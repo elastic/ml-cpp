@@ -13,8 +13,10 @@ $Archive="usr-x86_64-windows-2012_r2-9.zip"
 $Destination="C:\"
 if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc141-mt-x64-1_71.dll")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
-    $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
+    $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
+    Write-Output "Downloading dependencies at time"
+    Get-Date -Format yyyy-MM-ddTHH:mm:ss.ffffK
     (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
     Add-Type -assembly "system.io.compression.filesystem"
     [IO.Compression.ZipFile]::ExtractToDirectory($ZipDestination, $Destination)
