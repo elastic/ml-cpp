@@ -16,6 +16,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonLineWriter.h>
 
+#include <c10/util/BFloat16.h>
 #include <rapidjson/stringbuffer.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
@@ -96,18 +97,17 @@ public:
             auto accessor = prediction.accessor<double, N>();
             this->writeInferenceResults(accessor, jsonWriter);
 
-        } else { // Hack for bfloat10
+        } else if (prediction.dtype() == ::c10::kBFloat16) { 
             // cast the tensor to float32 and then write it
             auto float32Tensor = prediction.toType(::torch::kFloat32);
             auto accessor = float32Tensor.accessor<float, N>();
             this->writeInferenceResults(accessor, jsonWriter);
 
-        } 
-        // else {
-        //     std::ostringstream ss;
-        //     ss << "Cannot process result tensor of type [" << prediction.dtype() << ']';
-        //     writeInnerError(ss.str(), jsonWriter);
-        // }
+        } else {
+            std::ostringstream ss;
+            ss << "Cannot process result tensor of type [" << prediction.dtype() << ']';
+            writeInnerError(ss.str(), jsonWriter);
+        }
     }
 
     //! Create the invariant portion of an inference result, suitable for

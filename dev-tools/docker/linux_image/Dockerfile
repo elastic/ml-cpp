@@ -169,6 +169,12 @@ RUN \
   cd .. && \
   rm -rf pytorch
 
+# Install IPEX
+RUN \
+  cd ${build_dir} && \
+  wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcpu.zip \
+  bash libintel-ext-pt-cxx11-abi-1.13.100+cpu.run install /usr/local/gcc103/lib
+
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 RUN \

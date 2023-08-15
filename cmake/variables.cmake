@@ -103,6 +103,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 else()
   set(TORCH_LIB "${ML_BASE_PATH}/lib/libtorch_cpu${ML_LIBEXT}")
   set(C10_LIB   "${ML_BASE_PATH}/lib/libc10${ML_LIBEXT}")
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(IPEX_LIB "${ML_BASE_PATH}/lib/libintel-ext-pt-cpu${ML_LIBEXT}")
 endif()
 

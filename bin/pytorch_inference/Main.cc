@@ -68,10 +68,7 @@ torch::Tensor infer(torch::jit::script::Module& module_,
         }
 
         auto output = module_.forward(inputs);
-        if (output.isGenericDict()) {            
-            all.push_back(output.toGenericDict().at("logits").toTensor());
-        }
-        else if (output.isTuple()) {
+        if (output.isTuple()) {
             // For transformers the result tensor is the first element in a tuple.
             all.push_back(output.toTuple()->elements()[0].toTensor());
         } else {
@@ -107,6 +104,9 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                     return std::nullopt;
                 } catch (std::runtime_error& e) {
                     resultWriter.writeError(request_.s_RequestId, e.what());
+                    return std::nullopt;
+                } catch (...) {
+                    resultWriter.writeError(request_.s_RequestId, "Unknown Error");
                     return std::nullopt;
                 }
             },
@@ -282,6 +282,9 @@ int main(int argc, char** argv) {
         LOG_DEBUG(<< "model loaded");
     } catch (const c10::Error& e) {
         LOG_FATAL(<< "Error loading the model: " << e.msg());
+        return EXIT_FAILURE;
+    } catch (...) {
+        LOG_FATAL(<< "Unknown error loading the model");
         return EXIT_FAILURE;
     }
 
