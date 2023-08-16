@@ -222,7 +222,7 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 set(Boost_COMPILER "${ML_BOOST_COMPILER_VER}")
 
-find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework json)
 if(Boost_FOUND)
   list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS})
 endif()

@@ -171,35 +171,23 @@ sudo make install
 
 to install.
 
-### Boost 1.77.0
+### Boost 1.83.0
 
-Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
+Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_77_0.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_83_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_77_0` directory, run:
+In the resulting `boost_1_83_0` directory, run:
 
 ```
 ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.
-
-Edit `boost/unordered/detail/implementation.hpp` and change line 287 from:
-
-```
-    (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
-```
-
-to:
-
-```
-    (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
-```
 
 Finally, run:
 
