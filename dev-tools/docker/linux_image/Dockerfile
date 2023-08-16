@@ -149,7 +149,10 @@ RUN \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
-  sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp
+
+RUN \
+  cd ${build_dir}/pytorch && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
@@ -161,19 +164,24 @@ RUN \
   export USE_XNNPACK=OFF && \
   export PYTORCH_BUILD_VERSION=1.13.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  /usr/local/bin/python3.10 setup.py install && \
+  export MAX_JOBS=10 && \
+  /usr/local/bin/python3.10 setup.py install
+
+RUN  \
+  cd ${build_dir} && \
+  echo "1.13.1+cpu\n" > ${build_dir}/pytorch/torch/build-version && \
+  wget https://github.com/intel/intel-extension-for-pytorch/releases/download/v1.13.100%2Bcpu/libintel-ext-pt-cxx11-abi-1.13.100+cpu.run && \
+  bash libintel-ext-pt-cxx11-abi-1.13.100+cpu.run install ${build_dir}/pytorch/torch/
+
+RUN \
+  cd ${build_dir}/pytorch && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
   cp torch/lib/libc10.so /usr/local/gcc103/lib && \
+  cp torch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib && \
   cd .. && \
   rm -rf pytorch
-
-# Install IPEX
-RUN \
-  cd ${build_dir} && \
-  wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.13.1%2Bcpu.zip \
-  bash libintel-ext-pt-cxx11-abi-1.13.100+cpu.run install /usr/local/gcc103/lib
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
