@@ -11,7 +11,7 @@
 #
 
 # Builds the Docker image that can be used to compile the machine learning
-# C++ code for Linux
+# C++ code for macOS
 #
 # This script is not intended to be run regularly.  When changing the tools
 # or 3rd party components required to build the machine learning C++ code
