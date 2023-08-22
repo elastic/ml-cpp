@@ -189,13 +189,6 @@ In the resulting `boost_1_83_0` directory, run:
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit file `boost/test/impl/execution_monitor.ipp` and change line 198 to read
-
-```
-#  include "/usr/include/inttypes.h"
-```
-
-
 Finally, run:
 
 ```
