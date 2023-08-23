@@ -12,11 +12,11 @@
 
 cat <<EOL
 steps:
-  - label: "Upload DRA artifacts to S3 :s3:"
+  - label: ":rocket: Upload DRA artifacts to S3 :s3:"
     key: "upload_dra_artifacts"
     depends_on: create_dra_artifacts
     command:
-      - 'buildkite-agent artifact download "build/distributions/*" .'
+      - 'buildkite-agent artifact download "build/distributions/*" --step create_dra_artifacts .'
       - "./.buildkite/scripts/steps/upload_dra_to_s3.sh"
     agents:
       cpu: "2"

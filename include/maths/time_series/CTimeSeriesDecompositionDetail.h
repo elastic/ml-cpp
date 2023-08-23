@@ -529,6 +529,9 @@ public:
         //! Controls the rate at which information is lost.
         double m_DecayRate;
 
+        //! The raw data bucketing interval.
+        core_t::TTime m_BucketLength;
+
         //! The last month for which the test was run.
         int m_LastMonth;
 
@@ -690,7 +693,7 @@ public:
 
         private:
             //! The origin for the mean prediction error regression model.
-            core_t::TTime m_RegressionOrigin = 0;
+            core_t::TTime m_RegressionOrigin{0};
             //! The sum of the absolute component predictions w.r.t. their means.
             TFloatMeanAccumulator m_MeanSumAmplitudes;
             //! A regression model for the absolute component predictions.

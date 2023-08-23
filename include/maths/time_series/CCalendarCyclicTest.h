@@ -15,6 +15,7 @@
 #include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
+#include <maths/common/CBasicStatistics.h>
 #include <maths/common/CQuantileSketch.h>
 #include <maths/common/MathsTypes.h>
 
@@ -49,10 +50,10 @@ namespace time_series {
 class MATHS_TIME_SERIES_EXPORT CCalendarCyclicTest {
 public:
     using TFeatureTimePr = std::pair<CCalendarFeature, core_t::TTime>;
-    using TOptionalFeatureTimePr = std::optional<TFeatureTimePr>;
+    using TFeatureTimePrVec = std::vector<TFeatureTimePr>;
 
 public:
-    explicit CCalendarCyclicTest(double decayRate = 0.0);
+    explicit CCalendarCyclicTest(core_t::TTime bucketLength, double decayRate = 0.0);
 
     //! Initialize by reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -67,10 +68,10 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Add \p error at \p time.
-    void add(core_t::TTime time, double error, double weight = 1.0);
+    void add(core_t::TTime time, double value, double error, double weight = 1.0);
 
     //! Check if there are calendar components.
-    TOptionalFeatureTimePr test() const;
+    TFeatureTimePrVec test() const;
 
     //! Get a checksum for this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const;
@@ -85,6 +86,7 @@ private:
     using TTimeVec = std::vector<core_t::TTime>;
     using TByte = unsigned char;
     using TByteVec = std::vector<TByte>;
+    using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     //! \brief Records the daily error statistics.
     struct MATHS_TIME_SERIES_EXPORT SErrorStats {
@@ -108,8 +110,27 @@ private:
     //! Get an estimate of the value of the survival function for \p error.
     double survivalFunction(double error) const;
 
-    //! Get the significance of \p x large errors given \p n samples.
-    double significance(double n, double nl, double nv) const;
+    //! Get the p-value of various error statistics.
+    //!
+    //! We observe \p n errors and have seen \p nl large errors and \p nv
+    //! very large errors.
+    double errorsPValue(double n, double nl, double nv) const;
+
+    //! Get the number of errors we need to observe before we start maintaining
+    //! large errors statistics.
+    double sufficientCountToMeasureLargeErrors() const;
+
+    //! Get the percentile for errors classified as large.
+    double largeErrorPercentile() const;
+
+    //! Get the percentile for errors classified as very large.
+    double veryLargeErrorPercentile() const;
+
+    //! Adjust percentile thresholds for long bucket lengths.
+    double adjustPercentileForLongBuckets(double percentile) const;
+
+    //! Adjust \p error to zero small relative errors.
+    double errorAdj(double error) const;
 
     //! Convert to a compressed representation.
     void deflate(const TErrorStatsVec& stats);
@@ -125,16 +146,22 @@ private:
     //! The rate at which the error counts are aged.
     double m_DecayRate;
 
+    //! The raw data bucketing interval.
+    core_t::TTime m_BucketLength;
+
+    //! The average absolute value.
+    TMeanAccumulator m_MeanAbsValue;
+
     //! Used to estimate large error thresholds.
     common::CQuantileSketch m_ErrorQuantiles;
 
     //! The start time of the bucket to which the last error
     //! was added.
-    core_t::TTime m_CurrentBucketTime;
+    core_t::TTime m_CurrentBucketTime{0};
 
     //! The start time of the earliest bucket for which we have
     //! error statistics.
-    core_t::TTime m_CurrentBucketIndex;
+    core_t::TTime m_CurrentBucketIndex{0};
 
     //! The bucket statistics currently being updated.
     SErrorStats m_CurrentBucketErrorStats;

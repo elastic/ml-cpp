@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
 
     const std::string& output{outputStrm.str()};
     LOG_DEBUG(<< "Output is: " << output);
-    BOOST_REQUIRE_EQUAL(0, output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
+    BOOST_REQUIRE_EQUAL(0, output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0,\"refresh_required\":true}}"));
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {

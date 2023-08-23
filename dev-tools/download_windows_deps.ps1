@@ -15,8 +15,10 @@ $Destination="C:\"
 if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h") -Or
     !(Select-String -Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h" -Pattern "1.13.1" -Quiet)) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
-    $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
+    $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
+    Write-Output "Downloading dependencies at time"
+    Get-Date -Format yyyy-MM-ddTHH:mm:ss.ffffK
     (New-Object Net.WebClient).DownloadFile($ZipSource, $ZipDestination)
     Add-Type -assembly "system.io.compression.filesystem"
     [IO.Compression.ZipFile]::ExtractToDirectory($ZipDestination, $Destination)

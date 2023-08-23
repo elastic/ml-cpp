@@ -31,11 +31,13 @@
 #include "CThreadSettings.h"
 
 #include <ATen/Parallel.h>
+#include <ATen/ops/cat.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 torch::Tensor infer(torch::jit::script::Module& module_,
@@ -44,26 +46,39 @@ torch::Tensor infer(torch::jit::script::Module& module_,
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
-    std::array<std::int64_t, 2> dimensions = {request.s_NumberInferences,
-                                              request.s_NumberInputTokens};
+    std::array<std::int64_t, 2> dimensions = {1, request.s_NumberInputTokens};
     at::IntArrayRef inputSize{dimensions};
 
-    // Sequence tokens.
-    inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
-                                         inputSize, at::dtype(torch::kInt64)));
-    // Attention mask.
-    for (auto& args : request.s_SecondaryArguments) {
-        inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
-                                             inputSize, at::dtype(torch::kInt64)));
-    }
+    std::vector<at::Tensor> all;
 
     torch::InferenceMode inferenceModeGuard;
-    auto result = module_.forward(inputs);
-    if (result.isTuple()) {
-        // For transformers the result tensor is the first element in a tuple.
-        return result.toTuple()->elements()[0].toTensor();
+
+    for (int i = 0; i < request.s_NumberInferences; i++) {
+
+        std::size_t offset = i * request.s_NumberInputTokens;
+
+        // Sequence tokens.
+        inputs.emplace_back(
+            torch::from_blob(static_cast<void*>(request.s_Tokens.data() + offset),
+                             inputSize, at::dtype(torch::kInt64)));
+        // Attention mask etc
+        for (auto& args : request.s_SecondaryArguments) {
+            inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data() + offset),
+                                                 inputSize, at::dtype(torch::kInt64)));
+        }
+
+        auto output = module_.forward(inputs);
+        if (output.isTuple()) {
+            // For transformers the result tensor is the first element in a tuple.
+            all.push_back(output.toTuple()->elements()[0].toTensor());
+        } else {
+            all.push_back(output.toTensor());
+        }
+
+        inputs.clear();
     }
-    return result.toTensor();
+
+    return at::cat(all, 0);
 }
 
 bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
@@ -78,16 +93,24 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
         // We time the combination of the cache lookup and (if necessary)
         // the inference.
         ml::core::CStopWatch stopWatch(true);
-        cache.lookup(std::move(capturedRequest),
-                     [&](auto request_) -> std::string {
-                         torch::Tensor results = infer(module_, request_);
-                         return resultWriter.createInnerResult(results);
-                     },
-                     [&](const auto& innerResponseJson_, bool isCacheHit) {
-                         resultWriter.wrapAndWriteInnerResponse(innerResponseJson_,
-                                                                requestId, isCacheHit,
-                                                                stopWatch.stop());
-                     });
+        cache.lookup(
+            std::move(capturedRequest),
+            [&](auto request_) -> std::optional<std::string> {
+                try {
+                    torch::Tensor results = infer(module_, request_);
+                    return resultWriter.createInnerResult(results);
+                } catch (const c10::Error& e) {
+                    resultWriter.writeError(request_.s_RequestId, e.what());
+                    return std::nullopt;
+                } catch (std::runtime_error& e) {
+                    resultWriter.writeError(request_.s_RequestId, e.what());
+                    return std::nullopt;
+                }
+            },
+            [&](const auto& innerResponseJson_, bool isCacheHit) {
+                resultWriter.wrapAndWriteInnerResponse(
+                    innerResponseJson_, requestId, isCacheHit, stopWatch.stop());
+            });
     });
     return true;
 }
@@ -115,7 +138,10 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
                                        ml::core::CProcessStats::maxResidentSetSize());
         break;
     case ml::torch::CCommandParser::E_Unknown:
-        LOG_ERROR(<< "Attempt to handle unknown control message");
+        std::string message{"Attempt to handle unknown control message"};
+        LOG_ERROR(<< message);
+        resultWriter.writeError(controlMessage.s_RequestId, message);
+
         break;
     }
 }
@@ -138,13 +164,14 @@ int main(int argc, char** argv) {
     std::size_t cacheMemorylimitBytes{0};
     bool validElasticLicenseKeyConfirmed{false};
     bool lowPriority{false};
+    bool useImmediateExecutor{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
             numThreadsPerAllocation, numAllocations, cacheMemorylimitBytes,
-            validElasticLicenseKeyConfirmed, lowPriority) == false) {
+            validElasticLicenseKeyConfirmed, lowPriority, useImmediateExecutor) == false) {
         return EXIT_FAILURE;
     }
 
@@ -260,12 +287,17 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};
 
-    // Size the threadpool to the number of hardware threads
-    // so we can grow and shrink the threadpool dynamically.
-    // The task queue size is set to 1.
-    ml::core::startDefaultAsyncExecutor(0, 1);
-    // Set the number of threads to use
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    if (useImmediateExecutor == false) {
+        // Size the threadpool to the number of hardware threads
+        // so we can grow and shrink the threadpool dynamically.
+        // The task queue size is set to 1.
+        ml::core::startDefaultAsyncExecutor(0, 1);
+        // Set the number of threads to use
+        ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+    } else {
+        // Make sure we're using immediate execution.
+        ml::core::stopDefaultAsyncExecutor();
+    }
 
     commandParser.ioLoop(
         [&module_, &resultWriter](ml::torch::CCommandParser::CRequestCacheInterface& cache,
@@ -282,7 +314,9 @@ int main(int argc, char** argv) {
         });
 
     // Stopping the executor forces this to block until all work is done
-    ml::core::stopDefaultAsyncExecutor();
+    if (useImmediateExecutor == false) {
+        ml::core::stopDefaultAsyncExecutor();
+    }
 
     LOG_DEBUG(<< "ML PyTorch inference process exiting");
 

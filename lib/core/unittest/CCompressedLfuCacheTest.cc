@@ -24,6 +24,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -610,6 +611,21 @@ BOOST_AUTO_TEST_CASE(testClear) {
     BOOST_REQUIRE_EQUAL(0.0, cache.hitFraction());
 
     BOOST_TEST_REQUIRE(cache.checkInvariants());
+}
+
+BOOST_AUTO_TEST_CASE(testComputeValueReturnsNullOpt) {
+    TStrStrCache cache{32 * core::constants::BYTES_IN_KILOBYTES,
+                       [](const TStrStrCache::TDictionary& dictionary, const std::string& key) {
+                           return dictionary.word(key);
+                       }};
+
+    bool valueRead{false};
+
+    BOOST_REQUIRE_EQUAL(
+        false,
+        cache.lookup("key_1", [](std::string) { return std::nullopt; },
+                     [&valueRead](const std::string&, bool) { valueRead = true; }));
+    BOOST_REQUIRE_EQUAL(false, valueRead);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -15,8 +15,8 @@
 # and branches of the current PR, as recorded in the $PR_AUTHOR,
 # $PR_SOURCE_BRANCH and $PR_TARGET_BRANCH environment variables.
 #
-# This is designed to run on an elasticsearch-ci Jenkins worker where all
-# required versions of Java are installed in the Jenkins user's home directory.
+# This is designed to run on a BuildKite worker where all required versions of
+# Java are installed in the BuildKite user's home directory.
 #
 # Arguments:
 # $1 = Where to clone the elasticsearch repo
