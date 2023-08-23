@@ -46,7 +46,8 @@ def main(args):
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              ".buildkite/scripts/steps/build_and_test.sh"
+              #".buildkite/scripts/steps/build_and_test.sh"
+              'echo "macOS build disabled pending new dependency archive including Boost 1.83"'
             ],
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
@@ -82,11 +83,12 @@ def main(args):
           "cpu": "6",
           "ephemeralStorage": "20G",
           "memory": "64G",
-          "image": "docker.elastic.co/ml-dev/ml-macosx-build:17"
+          "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
         },
         "commands": [
           f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-          ".buildkite/scripts/steps/build_and_test.sh"
+          #".buildkite/scripts/steps/build_and_test.sh"
+          'echo "macOS build disabled pending new dependency archive including Boost 1.83"'
         ],
         "depends_on": "check_style",
         "key": "build_macos_x86_64_cross-RelWithDebInfo",
