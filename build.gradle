@@ -217,7 +217,8 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine shell
-  args shellFlag, isWindows ? "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test_seccomp"
+  args shellFlag, isWindows ? "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test_seccomp && \
+                              ls -lR ${cmakeBuildDir} && ${cmakeBuildDir}/test/lib/seccomp/unittest/ml_test_seccomp"
                             : "${setEnv} && cmake --build ${cmakeBuildDir} --config ${cmakeBuildType} -v -j ${numCpus} -t test"
   workingDir "${projectDir}"
   dependsOn 'strip'
