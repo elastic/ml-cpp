@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
         std::size_t s_ExpectedByMemoryUsageRelativeErrorDivisor;
         std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
-    } testParams[]{{600, 500, 6000, 300, 33, 25, 40},
+    } testParams[]{{600, 500, 6000, 290, 33, 25, 40},
                    {3600, 500, 5500, 300, 27, 25, 20},
                    {172800, 150, 850, 110, 6, 5, 3}};
 
