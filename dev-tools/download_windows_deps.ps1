@@ -11,7 +11,7 @@
 $ErrorActionPreference="Stop"
 $Archive="usr-x86_64-windows-2016-10.zip"
 $Destination="C:\"
-if (!(Test-Path "$Destination\usr\local\include\boost-1_83\boost\unordered\detail\prime_fmod.hpp")) {
+if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc142-mt-x64-1_83.dll")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
