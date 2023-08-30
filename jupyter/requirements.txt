@@ -19,4 +19,4 @@ sacred              ==0.8.2
 scikit-learn        ==0.24.1
 scipy               >=1.5.4
 seaborn             ==0.11.1
-tornado>=6.3.2 # not directly required, pinned by Snyk to avoid a vulnerability
+tornado>=6.3.3 # not directly required, pinned by Snyk to avoid a vulnerability
