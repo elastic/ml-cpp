@@ -1522,15 +1522,15 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         }
         // The influence should be dominated by the first influencer for both fields,
         // and the _extra influencers should be dropped by the cutoff threshold
-        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
-        BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
-        BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
-        BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[1].first.first);
+        BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[0].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf_another"),
-                            *lastInfluencersResult[1].first.second);
+                            *lastInfluencersResult[0].first.second);
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[1].first.first);
+        BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[1].first.second);
 
+        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second, lastInfluencersResult[1].second);
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.99);
-        BOOST_TEST_REQUIRE(lastInfluencersResult[1].second > 0.99);
     }
     {
         // The influencer is one of the partitioning fields.
@@ -1897,13 +1897,13 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         // The influence should be dominated by the first influencer for both fields, and the
         // _extra influencers should be dropped by the cutoff threshold
         BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
-        BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
-        BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
-        BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[1].first.first);
+        BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[0].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf_another"),
-                            *lastInfluencersResult[1].first.second);
+                            *lastInfluencersResult[0].first.second);
+        BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[1].first.first);
+        BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[1].first.second);
 
-        BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.8);
+        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second, lastInfluencersResult[1].second);
         BOOST_TEST_REQUIRE(lastInfluencersResult[1].second > 0.8);
     }
 }
