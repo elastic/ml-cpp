@@ -1529,7 +1529,8 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[1].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[1].first.second);
 
-        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second, lastInfluencersResult[1].second);
+        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second,
+                            lastInfluencersResult[1].second);
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.99);
     }
     {
@@ -1903,7 +1904,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[1].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[1].first.second);
 
-        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second, lastInfluencersResult[1].second);
+        BOOST_REQUIRE_EQUAL(lastInfluencersResult[0].second,
+                            lastInfluencersResult[1].second);
         BOOST_TEST_REQUIRE(lastInfluencersResult[1].second > 0.8);
     }
 }
