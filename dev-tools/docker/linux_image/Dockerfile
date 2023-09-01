@@ -167,11 +167,31 @@ RUN \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.10 setup.py install
 
+RUN \
+  cd ${build_dir} && \
+  git clone https://github.com/intel/intel-extension-for-pytorch.git && \
+  cd intel-extension-for-pytorch && \
+  git fetch --all && \
+  git checkout v1.13.100+cpu && \
+  git submodule sync && \
+  git submodule update --init --recursive && \
+  git config --global --add safe.directory `pwd` && \
+  /usr/local/bin/python3.10 -m pip install -r requirements.txt && \
+  /usr/local/bin/python3.10 setup.py clean
+
 RUN  \
   cd ${build_dir} && \
-  echo "1.13.1+cpu\n" > ${build_dir}/pytorch/torch/build-version && \
-  wget https://github.com/intel/intel-extension-for-pytorch/releases/download/v1.13.100%2Bcpu/libintel-ext-pt-cxx11-abi-1.13.100+cpu.run && \
-  bash libintel-ext-pt-cxx11-abi-1.13.100+cpu.run install ${build_dir}/pytorch/torch/
+  echo "1.13.1+cpu\n" > ${build_dir}/pytorch/torch/build-version
+
+RUN \
+  cd ${build_dir}/intel-extension-for-pytorch && \
+  export  CC=/usr/local/gcc103/bin/gcc  && \
+  export TORCH_VERSION="v1.13.1" && \
+  export TORCH_IPEX_VERSION="1.13.100+cpu" && \
+  # building ipex is memory hungry, so we need to limit the number of jobs
+  sed -i 's/multiprocessing.cpu_count()/1/g' setup.py && \
+  /usr/local/bin/python3.10 setup.py build_clib /usr/src/pytorch/torch
+
 
 RUN \
   cd ${build_dir}/pytorch && \
@@ -179,7 +199,7 @@ RUN \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
   cp torch/lib/libc10.so /usr/local/gcc103/lib && \
-  cp torch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib && \
+  cp /usr/src/intel-extension-for-pytorch/build/Release/packages/intel_extension_for_pytorch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib && \
   cd .. && \
   rm -rf pytorch
 

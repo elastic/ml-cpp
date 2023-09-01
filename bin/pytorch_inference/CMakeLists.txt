@@ -17,8 +17,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "
 endif()
 
 if (LINK_IPEX)
-  find_package(intel_ext_pt_cpu REQUIRED)
-
   set(ML_LINK_LIBRARIES 
     ${Boost_LIBRARIES}
     MlCore
