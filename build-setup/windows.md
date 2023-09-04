@@ -130,6 +130,18 @@ cd /c/tools
 tar jxvf /z/cpp_src/boost_1_83_0.tar.bz2
 ```
 
+Edit boost/unordered/detail/prime_fmod.hpp and change line 134 from
+
+```
+    (13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+```
+
+to:
+
+```
+    (3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+```
+
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
