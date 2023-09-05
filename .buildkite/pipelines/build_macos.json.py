@@ -46,8 +46,7 @@ def main(args):
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-              #".buildkite/scripts/steps/build_and_test.sh"
-              'echo "macOS build disabled pending new dependency archive including Boost 1.83"'
+              ".buildkite/scripts/steps/build_and_test.sh"
             ],
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
@@ -61,12 +60,12 @@ def main(args):
               "BOOST_TEST_OUTPUT_FORMAT_FLAGS": "--logger=JUNIT,error,boost_test_results.junit",
             },
             "artifact_paths": "*/*/unittest/boost_test_results.junit",
-            #"plugins": {
-            #  "test-collector#v1.2.0": {                                                              
-            #    "files": "*/*/unittest/boost_test_results.junit",
-            #    "format": "junit"
-            #  }
-            #},
+            "plugins": {
+              "test-collector#v1.2.0": {                                                              
+                "files": "*/*/unittest/boost_test_results.junit",
+                "format": "junit"
+              }
+            },
             "notify": [
               {
                 "github_commit_status": {
@@ -83,12 +82,11 @@ def main(args):
           "cpu": "6",
           "ephemeralStorage": "20G",
           "memory": "64G",
-          "image": "docker.elastic.co/ml-dev/ml-macosx-build:16"
+          "image": "docker.elastic.co/ml-dev/ml-macosx-build:17"
         },
         "commands": [
           f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
-          #".buildkite/scripts/steps/build_and_test.sh"
-          'echo "macOS build disabled pending new dependency archive including Boost 1.83"'
+          ".buildkite/scripts/steps/build_and_test.sh"
         ],
         "depends_on": "check_style",
         "key": "build_macos_x86_64_cross-RelWithDebInfo",
