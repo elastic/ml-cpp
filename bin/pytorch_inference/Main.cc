@@ -105,9 +105,6 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
                 } catch (std::runtime_error& e) {
                     resultWriter.writeError(request_.s_RequestId, e.what());
                     return std::nullopt;
-                } catch (...) {
-                    resultWriter.writeError(request_.s_RequestId, "Unknown Error");
-                    return std::nullopt;
                 }
             },
             [&](const auto& innerResponseJson_, bool isCacheHit) {
@@ -286,8 +283,8 @@ int main(int argc, char** argv) {
     } catch (const c10::Error& e) {
         LOG_FATAL(<< "Error loading the model: " << e.msg());
         return EXIT_FAILURE;
-    } catch (...) {
-        LOG_FATAL(<< "Unknown error loading the model");
+    } catch (std::runtime_error& e) {
+        LOG_FATAL(<< "Error loading the model: " << e.what());
         return EXIT_FAILURE;
     }
 

@@ -32,7 +32,7 @@
 
 === Enhancements
 
-* Add support for PyTorch models quantized with Intel Extension for PyTorch. (see {ml-pull}2547[#2547]).
+* Add support for PyTorch models quantized with Intel Extension for PyTorch. This feature is _only_ available on `linux_x86_64`. (See {ml-pull}2547[#2547]).
 
 == {es} version 8.9.0
 
