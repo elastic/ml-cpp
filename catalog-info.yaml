@@ -25,6 +25,7 @@ spec:
       branch_configuration: main !main
       cancel_intermediate_builds: true
       clone_method: https
+      default_branch: nul
       pipeline_file: .buildkite/pipeline.json.py
       provider_settings:
         build_branches: false
@@ -117,7 +118,7 @@ spec:
         build_branches: true
         build_pull_request_forks: true
         cancel_deleted_branch_builds: true
-        filter_condition: build.branch == "main" || build.branch == "8.9" || build.branch == "8.8" || build.branch == "7.17"
+        filter_condition: build.branch == "main" || build.branch == "8.10" || build.branch == "8.9" || build.branch == "7.17"
         filter_enabled: true
         publish_blocked_as_pending: true
         publish_commit_status: false
@@ -129,14 +130,14 @@ spec:
           branch: '7.17'
           cronline: 30 03 * * *
           message: Daily SNAPSHOT build for 7.17 
-        Daily 8_8:
-          branch: '8.8'
-          cronline: 30 02 * * *
-          message: Daily SNAPSHOT build for 8.8 
         Daily 8_9:
           branch: '8.9'
-          cronline: 30 01 * * *
+          cronline: 30 02 * * *
           message: Daily SNAPSHOT build for 8.9 
+        Daily 8_10:
+          branch: '8.10'
+          cronline: 30 01 * * *
+          message: Daily SNAPSHOT build for 8.10 
         Daily main:
           branch: main
           cronline: 30 00 * * *

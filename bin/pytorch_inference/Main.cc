@@ -141,7 +141,10 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
                                        ml::core::CProcessStats::maxResidentSetSize());
         break;
     case ml::torch::CCommandParser::E_Unknown:
-        LOG_ERROR(<< "Attempt to handle unknown control message");
+        std::string message{"Attempt to handle unknown control message"};
+        LOG_ERROR(<< message);
+        resultWriter.writeError(controlMessage.s_RequestId, message);
+
         break;
     }
 }
