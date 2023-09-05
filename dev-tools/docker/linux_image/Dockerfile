@@ -180,7 +180,7 @@ RUN \
   export TORCH_IPEX_VERSION="1.13.100+cpu" && \
   # building ipex is memory hungry, so we need to limit the number of jobs
   sed -i 's/multiprocessing.cpu_count()/1/g' setup.py && \
-  /usr/local/bin/python3.10 setup.py build_clib /usr/src/pytorch/torch && \
+  /usr/local/bin/python3.10 setup.py build_clib ${build_dir}/pytorch/torch && \
   cd ${build_dir}/pytorch && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
