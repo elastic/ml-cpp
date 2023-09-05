@@ -283,6 +283,9 @@ int main(int argc, char** argv) {
     } catch (const c10::Error& e) {
         LOG_FATAL(<< "Error loading the model: " << e.msg());
         return EXIT_FAILURE;
+    } catch (std::runtime_error& e) {
+        LOG_FATAL(<< "Error loading the model: " << e.what());
+        return EXIT_FAILURE;
     }
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream(), cacheMemorylimitBytes};

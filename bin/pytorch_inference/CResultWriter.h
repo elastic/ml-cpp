@@ -15,8 +15,10 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonLineWriter.h>
 
+#include <c10/util/BFloat16.h>
 #include <rapidjson/stringbuffer.h>
 #include <torch/csrc/api/include/torch/types.h>
+#include <torch/script.h>
 
 #include <cstdint>
 #include <iosfwd>
@@ -92,6 +94,12 @@ public:
 
         } else if (prediction.dtype() == ::torch::kFloat64) {
             auto accessor = prediction.accessor<double, N>();
+            this->writeInferenceResults(accessor, jsonWriter);
+
+        } else if (prediction.dtype() == ::c10::kBFloat16) {
+            // cast the tensor to float32 and then write it
+            auto float32Tensor = prediction.toType(::torch::kFloat32);
+            auto accessor = float32Tensor.accessor<float, N>();
             this->writeInferenceResults(accessor, jsonWriter);
 
         } else {

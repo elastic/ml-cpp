@@ -105,6 +105,10 @@ else()
   set(C10_LIB   "${ML_BASE_PATH}/lib/libc10${ML_LIBEXT}")
 endif()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(IPEX_LIB "${ML_BASE_PATH}/lib/libintel-ext-pt-cpu${ML_LIBEXT}")
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(LIBXML2_LIBRARIES "-lxml2")
 else()
