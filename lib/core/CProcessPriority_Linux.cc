@@ -48,11 +48,16 @@ void increaseOomKillerAdj() {
     // oom_adj is on a scale of -16 to 15.
     // In both cases higher numbers mean the process is more likely to be killed
     // in low memory situations.
+    // These settings cannot be changed in Kubernetes. There's more information
+    // about this in https://github.com/kubernetes/kubernetes/issues/90973 and
+    // it's not ideal for us given that ECK and serverless run on Kubernetes.
+    // To avoid log spam and unnecessary alarm given the prevalence of Kubernetes
+    // we log the failure at a level that won't be seen by default.
     if (writeToSystemFile("/proc/self/oom_score_adj", "667\n") == false &&
         writeToSystemFile("/proc/self/oom_adj", "10\n") == false) {
-        LOG_WARN(<< "Could not increase OOM killer adjustment using "
-                    "/proc/self/oom_score_adj or /proc/self/oom_adj: "
-                 << ::strerror(errno));
+        LOG_DEBUG(<< "Could not increase OOM killer adjustment using "
+                     "/proc/self/oom_score_adj or /proc/self/oom_adj: "
+                  << ::strerror(errno));
     }
 }
 }
