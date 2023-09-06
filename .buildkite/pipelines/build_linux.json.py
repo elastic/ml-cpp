@@ -36,7 +36,7 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:26"
+      "image": "docker.elastic.co/ml-dev/ml-linux-build:27"
    },
    "aarch64": {
       "provider": "aws",
