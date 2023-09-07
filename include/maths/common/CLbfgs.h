@@ -123,7 +123,7 @@ public:
                                                   VECTOR x0,
                                                   double rho,
                                                   double eps = 1e-8,
-                                                  std::size_t iterations = 60) {
+                                                  std::size_t iterations = 50) {
 
         // We use an ADMM update scheme to compute the minimum with respect to the
         // bounding box constraints. This is less efficient but significantly simpler
@@ -210,7 +210,7 @@ public:
             }
 
             if (converged(fi, fl, f0, eps)) {
-                break;
+                return {xmin, fmin};
             }
 
             fl = fmin;
