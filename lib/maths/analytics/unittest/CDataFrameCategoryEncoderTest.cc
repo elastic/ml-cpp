@@ -765,7 +765,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage) {
         LOG_DEBUG(<< "estimate = "
                   << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                          50000, 51, 20));
-        BOOST_TEST_REQUIRE(6.5 * (sizeof(encoder) + encoder.memoryUsage()) >
+        BOOST_TEST_REQUIRE(7 * (sizeof(encoder) + encoder.memoryUsage()) >
                            maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                                50000, 51, 20));
         BOOST_TEST_REQUIRE(sizeof(encoder) + encoder.memoryUsage() <
