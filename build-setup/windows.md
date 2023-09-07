@@ -130,7 +130,7 @@ cd /c/tools
 tar jxvf /z/cpp_src/boost_1_83_0.tar.bz2
 ```
 
-Edit boost/unordered/detail/prime_fmod.hpp and change line 134 from
+Edit `boost/unordered/detail/prime_fmod.hpp` and change line 134 from:
 
 ```
     (13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
