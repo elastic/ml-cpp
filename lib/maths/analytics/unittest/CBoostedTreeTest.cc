@@ -3085,8 +3085,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
         LOG_DEBUG(<< "high water mark = " << predictInstrumentation.maxMemoryUsage());
 
-        BOOST_TEST_REQUIRE(predictInstrumentation.maxMemoryUsage() <=
-                           (estimatedMemory * 101) / 100);
+        BOOST_TEST_REQUIRE(predictInstrumentation.maxMemoryUsage() <= estimatedMemory);
     }
 }
 
