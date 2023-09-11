@@ -3085,16 +3085,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
         LOG_DEBUG(<< "high water mark = " << predictInstrumentation.maxMemoryUsage());
 
-        // Beginning with Boost 1.80, unordered containers require more memory per
-        // bucket than those of previous versions. Even though this has largely been
-        // accounted for in our memory estimations there still is a small discrepancy
-        // between actual and estimated memory. We account for that maximum percentage
-        // difference here in boostUnorderedContainerMemorySlackPercent.
-        static constexpr double boostUnorderedContainerMemorySlackPercent{0.9};
-
-        BOOST_REQUIRE_CLOSE(static_cast<double>(predictInstrumentation.maxMemoryUsage()),
-                            static_cast<double>(estimatedMemory),
-                            boostUnorderedContainerMemorySlackPercent);
+        BOOST_TEST_REQUIRE(predictInstrumentation.maxMemoryUsage() <= estimatedMemory);
     }
 }
 
