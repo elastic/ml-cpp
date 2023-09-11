@@ -208,8 +208,7 @@ std::size_t dynamicSize(const boost::unordered_map<K, V, H, P, A>& t) {
     return memory::elementDynamicSize(t) +
            (t.bucket_count() * memory::storageNodeOverhead(t)) +
            (t.size() * (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t))) +
-           (static_cast<std::size_t>(std::ceil(t.bucket_count() / 2.0 / sizeof(std::size_t))) *
-            sizeof(std::size_t));
+           memory::bucketGroupOverhead(t);
 }
 
 template<typename K, typename V, typename C, typename A>
@@ -221,8 +220,7 @@ template<typename T, typename H, typename P, typename A>
 std::size_t dynamicSize(const boost::unordered_set<T, H, P, A>& t) {
     return memory::elementDynamicSize(t) + (t.bucket_count() * sizeof(std::size_t) * 2) +
            (t.size() * (sizeof(T) + memory::storageNodeOverhead(t))) +
-           (static_cast<std::size_t>(std::ceil(t.bucket_count() / 2.0 / sizeof(std::size_t))) *
-            sizeof(std::size_t));
+           memory::bucketGroupOverhead(t);
 }
 
 template<typename T, typename C, typename A>
@@ -493,11 +491,9 @@ void dynamicSize(const char* name,
     std::string componentName(name);
     componentName += "_umap";
 
-    std::size_t mapSize =
-        (t.bucket_count() * sizeof(std::size_t) * 2) +
-        (t.size() * (sizeof(K) + sizeof(V) + 2 * sizeof(std::size_t))) +
-        (static_cast<std::size_t>(std::ceil(t.bucket_count() / 2.0 / sizeof(std::size_t))) *
-         sizeof(std::size_t));
+    std::size_t mapSize = (t.bucket_count() * memory::storageNodeOverhead(t)) +
+                          (t.size() * (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t))) +
+                          memory::bucketGroupOverhead(t);
 
     CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
@@ -533,11 +529,9 @@ void dynamicSize(const char* name,
     std::string componentName(name);
     componentName += "_uset";
 
-    std::size_t setSize =
-        (t.bucket_count() * memory::storageNodeOverhead(t)) +
-        (t.size() * (sizeof(T) + memory::storageNodeOverhead(t))) +
-        (static_cast<std::size_t>(std::ceil(t.bucket_count() / 2.0 / sizeof(std::size_t))) *
-         sizeof(std::size_t));
+    std::size_t setSize = (t.bucket_count() * memory::storageNodeOverhead(t)) +
+                          (t.size() * (sizeof(T) + memory::storageNodeOverhead(t))) +
+                          memory::bucketGroupOverhead(t);
 
     CMemoryUsage::SMemoryUsage usage(componentName, setSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
