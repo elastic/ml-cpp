@@ -491,9 +491,10 @@ void dynamicSize(const char* name,
     std::string componentName(name);
     componentName += "_umap";
 
-    std::size_t mapSize = (t.bucket_count() * memory::storageNodeOverhead(t)) +
-                          (t.size() * (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t))) +
-                          memory::bucketGroupOverhead(t);
+    std::size_t mapSize =
+        (t.bucket_count() * memory::storageNodeOverhead(t)) +
+        (t.size() * (sizeof(K) + sizeof(V) + memory::storageNodeOverhead(t))) +
+        memory::bucketGroupOverhead(t);
 
     CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
     CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
