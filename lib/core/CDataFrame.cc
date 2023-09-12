@@ -503,19 +503,13 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
         (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
                       : 0);
 
-    // Beginning with Boost 1.80, unordered containers require more memory per
-    // bucket than those of previous versions. Even though this has largely been
-    // accounted for in our memory estimations there still is a small discrepancy
-    // between actual and estimated memory. We account for that maximum percentage
-    // difference here in boostUnorderedContainerMemorySlackPercent.
-    static constexpr double boostUnorderedContainerMemorySlackPercent{2.5};
+    // As good as our memory estimations are, they are not perfect as it is
+    // extremely difficult to account for all scenarios of container state.
+    // We use an "uncertainty percentage factor" to account for this.
+    static constexpr double containerMemoryEstimateUncertaintyPercentage{2.5};
 
-    // calculate the additional memory rounded up to the nearest multiple of sizeof(std::size_t) bytes
-    std::size_t additionalMemory =
-        static_cast<int>((2 * estimatedMemoryUsage * boostUnorderedContainerMemorySlackPercent / 100 +
-                          2 * sizeof(std::size_t) - 1) /
-                         (2 * sizeof(std::size_t))) *
-        sizeof(std::size_t);
+    std::size_t additionalMemory{static_cast<std::size_t>(
+        estimatedMemoryUsage * containerMemoryEstimateUncertaintyPercentage / 100)};
 
     return estimatedMemoryUsage + additionalMemory;
 }
