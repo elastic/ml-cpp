@@ -715,7 +715,7 @@ void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const rapidjson::V
     }
 }
 
-void CAnomalyJobConfig::CAnalysisConfig::parse() {
+void CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig() {
     rapidjson::Document doc;
     if (doc.Parse<0>(m_AnalysisConfigString).HasParseError()) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "

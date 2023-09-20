@@ -246,9 +246,14 @@ public:
             m_ScheduledEvents = scheduledEvents;
         }
 
+        //! Parse a JSON value representing an entire analysis config object.
         void parse(const rapidjson::Value& json);
 
-        void parse();
+        //! Reparse the detector configuration object from within a stored
+        //! string representing the analysis config object.
+        //! This is necessary to correctly reinitialise scoped rule objects
+        //! folowing an update of the fiter rules configuration.
+        void reparseDetectorsFromStoredConfig();
 
         void setConfig(const std::string& analysisConfigString) {
             m_AnalysisConfigString = analysisConfigString;
