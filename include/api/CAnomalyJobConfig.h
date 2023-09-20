@@ -254,8 +254,6 @@ public:
             m_AnalysisConfigString = analysisConfigString;
         }
 
-
-
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
         //! Return the size of the model prune window expressed as a whole number of seconds.
@@ -336,7 +334,6 @@ public:
                         const std::string& rules);
 
         void parseDetectorsConfig(const rapidjson::Value& detectorsConfig);
-
 
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
