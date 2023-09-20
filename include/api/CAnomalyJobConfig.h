@@ -248,9 +248,13 @@ public:
 
         void parse(const rapidjson::Value& json);
 
-        bool updateFilters(const boost::property_tree::ptree& propTree);
+        void parse();
 
-        bool updateScheduledEvents(const boost::property_tree::ptree& propTree);
+        void setConfig(const std::string& analysisConfigString) {
+            m_AnalysisConfigString = analysisConfigString;
+        }
+
+
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
@@ -331,6 +335,9 @@ public:
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                         const std::string& rules);
 
+        void parseDetectorsConfig(const rapidjson::Value& detectorsConfig);
+
+
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
 
@@ -349,7 +356,7 @@ public:
         bool m_MultivariateByFields{false};
 
         //! The detection rules per detector index.
-        TIntDetectionRuleVecUMap m_DetectorRules;
+        TIntDetectionRuleVecUMap m_DetectorRules{};
 
         //! The filters per id used by categorical rule conditions.
         CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters{};
@@ -357,6 +364,8 @@ public:
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
+
+        std::string m_AnalysisConfigString;
 
         friend class ::CTestAnomalyJob;
     };
