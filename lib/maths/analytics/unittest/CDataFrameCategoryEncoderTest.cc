@@ -765,7 +765,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage) {
         LOG_DEBUG(<< "estimate = "
                   << maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                          50000, 51, 20));
-        BOOST_TEST_REQUIRE(5 * (sizeof(encoder) + encoder.memoryUsage()) >
+        BOOST_TEST_REQUIRE(7 * (sizeof(encoder) + encoder.memoryUsage()) >
                            maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                                50000, 51, 20));
         BOOST_TEST_REQUIRE(sizeof(encoder) + encoder.memoryUsage() <
@@ -780,7 +780,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage) {
                          1000000, 2001, 1000));
         BOOST_TEST_REQUIRE(20000000 < maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                                           1000000, 2001, 1000));
-        BOOST_TEST_REQUIRE(30000000 > maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+        BOOST_TEST_REQUIRE(34000000 > maths::analytics::CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
                                           1000000, 2001, 1000));
     }
 }

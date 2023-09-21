@@ -246,11 +246,18 @@ public:
             m_ScheduledEvents = scheduledEvents;
         }
 
+        //! Parse a JSON value representing an entire analysis config object.
         void parse(const rapidjson::Value& json);
 
-        bool updateFilters(const boost::property_tree::ptree& propTree);
+        //! Reparse the detector configuration object from within a stored
+        //! string representing the analysis config object.
+        //! This is necessary to correctly reinitialise scoped rule objects
+        //! folowing an update of the fiter rules configuration.
+        void reparseDetectorsFromStoredConfig();
 
-        bool updateScheduledEvents(const boost::property_tree::ptree& propTree);
+        void setConfig(const std::string& analysisConfigString) {
+            m_AnalysisConfigString = analysisConfigString;
+        }
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
@@ -331,6 +338,8 @@ public:
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                         const std::string& rules);
 
+        void parseDetectorsConfig(const rapidjson::Value& detectorsConfig);
+
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
 
@@ -349,7 +358,7 @@ public:
         bool m_MultivariateByFields{false};
 
         //! The detection rules per detector index.
-        TIntDetectionRuleVecUMap m_DetectorRules;
+        TIntDetectionRuleVecUMap m_DetectorRules{};
 
         //! The filters per id used by categorical rule conditions.
         CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters{};
@@ -357,6 +366,8 @@ public:
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
+
+        std::string m_AnalysisConfigString;
 
         friend class ::CTestAnomalyJob;
     };

@@ -11,7 +11,7 @@
 #
 
 # Builds the Docker image that can be used to compile the machine learning
-# C++ code for Linux
+# C++ code for Intel macOS
 #
 # This script is not intended to be run regularly.  When changing the tools
 # or 3rd party components required to build the machine learning C++ code
@@ -22,7 +22,7 @@
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
-VERSION=16
+VERSION=17
 
 set -e
 
