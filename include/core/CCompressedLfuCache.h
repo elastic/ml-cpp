@@ -97,8 +97,11 @@ public:
 
     //! Lookup an item with \p key in the cache or else fall back to computing.
     //!
+    //! \p readValue will always be called even if writing to the cache fails
+    //! with the exceptions listed below.
     //! \warning If \p computeValue fails to produce a value (returns std::nullopt)
-    //! then \p readValue will not be called.
+    //! or a null value is read from the cache then \p readValue will not be called.
+    //| Null values produced by \p computeValue are not written to the cache.
     //!
     //! \param[in] key The item key.
     //! \param[in] computeValue Computes the value in the case of a cache miss.
@@ -129,8 +132,11 @@ public:
                     ++m_NumberHits;
                     readValue(*hit, true);
                     return true;
+                } else {
+                    // null values are not written to the cache this should never be hit
+                    LOG_ERROR(<< "Inconsistent state: null value read from cache");
+                    return false;
                 }
-                return false;
             })) {
             if (this->guardWrite(TIME_OUT, [&] {
                     this->incrementCount(compressedKey);
@@ -177,6 +183,11 @@ public:
                           false);
             }) == false) {
             ++m_LostCount;
+            // guardWrite failed to acquire the lock but the potentially
+            // expensive work of the compute callback is complete.
+            // Return the computed value even if it has not been written
+            // to the cache.
+            readValue(*value, false);
         }
 
         return false;
