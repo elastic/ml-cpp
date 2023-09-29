@@ -34,6 +34,11 @@
 
 * Add support for PyTorch models quantized with Intel Extension for PyTorch. This feature is _only_ available on `linux_x86_64`. (See {ml-pull}2547[#2547]).
 
+== {es} version 8.10.3
+
+=== Bug Fixes
+* Fix for lost inference requests when writing to the cache times out leading to processing to stall on the Elasticsearch side. (See {ml-pull}2576[#2576].)
+
 == {es} version 8.9.0
 
 === Enhancements
