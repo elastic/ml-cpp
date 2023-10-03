@@ -436,8 +436,6 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
-        std::sort(highAnomalyFactors.begin(), highAnomalyFactors.end());
-
         LOG_DEBUG(<< "high anomalies in = " << highAnomalyTimes);
         LOG_DEBUG(<< "high anomaly factors = " << highAnomalyFactors);
 

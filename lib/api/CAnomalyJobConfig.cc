@@ -558,7 +558,6 @@ void CAnomalyJobConfig::CFilterConfig::parse(const rapidjson::Value& filterConfi
     m_FilterList = parameters[ITEMS].fallback(TStrVec{});
 
     core::CPatternSet& filter = ruleFilters[m_FilterName];
-    filter.clear();
     if (filter.initFromPatternList(m_FilterList) == false) {
         throw CAnomalyJobConfigReader::CParseError("Error building filter rules: " +
                                                    toString(filterConfig));
@@ -581,7 +580,6 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
 
         auto analysisConfig = parameters[ANALYSIS_CONFIG].jsonObject();
         if (analysisConfig != nullptr) {
-            m_AnalysisConfig.setConfig(toString(*analysisConfig));
             m_AnalysisConfig.parse(*analysisConfig);
         }
 
@@ -676,59 +674,6 @@ void CAnomalyJobConfig::CDataDescription::parse(const rapidjson::Value& analysis
     m_TimeFormat = parameters[TIME_FORMAT].fallback(EMPTY_STRING); // Ignore
 }
 
-void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const rapidjson::Value& detectorsConfig) {
-
-    // The Job config has already been validated by Java before being passed to
-    // the C++ backend. So we can safely assume that the detector config is a
-    // non-null array - hence this check isn't strictly necessary.
-    if (detectorsConfig.IsArray()) {
-        m_Detectors.resize(detectorsConfig.Size());
-        int fallbackDetectorIndex{0};
-        for (std::size_t i = 0; i < detectorsConfig.Size(); ++i) {
-            m_DetectorRules[fallbackDetectorIndex].clear();
-            m_Detectors[i].parse(detectorsConfig[fallbackDetectorIndex], m_RuleFilters,
-                                 (m_SummaryCountFieldName.empty() == false), fallbackDetectorIndex,
-                                 m_DetectorRules[fallbackDetectorIndex]);
-
-            if (m_PerPartitionCategorizationEnabled) {
-                if (m_CategorizationFieldName.empty()) {
-                    throw CAnomalyJobConfigReader::CParseError(
-                        "per_partition_categorization enabled without a categorization field");
-                }
-                if (m_Detectors[i].partitionFieldName().empty()) {
-                    throw CAnomalyJobConfigReader::CParseError(
-                        "per_partition_categorization enabled without a partition field");
-                }
-                if (m_CategorizationPartitionFieldName.empty()) {
-                    m_CategorizationPartitionFieldName = m_Detectors[i].partitionFieldName();
-                } else {
-                    if (m_CategorizationPartitionFieldName !=
-                        m_Detectors[i].partitionFieldName()) {
-                        throw CAnomalyJobConfigReader::CParseError(
-                            "per_partition_categorization enabled when partition "
-                            "field varies between detectors");
-                    }
-                }
-            }
-            ++fallbackDetectorIndex;
-        }
-    }
-}
-
-void CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig() {
-    rapidjson::Document doc;
-    if (doc.Parse<0>(m_AnalysisConfigString).HasParseError()) {
-        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
-                  << doc.GetParseError());
-        return;
-    }
-    auto parameters = ANALYSIS_CONFIG_READER.read(doc);
-    auto detectorsConfig = parameters[DETECTORS].jsonObject();
-    if (detectorsConfig != nullptr) {
-        this->parseDetectorsConfig(*detectorsConfig);
-    }
-}
-
 void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisConfig) {
     auto parameters = ANALYSIS_CONFIG_READER.read(analysisConfig);
     // We choose to ignore any errors here parsing the time duration string as
@@ -766,8 +711,40 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     }
 
     auto detectorsConfig = parameters[DETECTORS].jsonObject();
-    if (detectorsConfig != nullptr) {
-        this->parseDetectorsConfig(*detectorsConfig);
+
+    // The Job config has already been validated by Java before being passed to
+    // the C++ backend. So we can safely assume that the detector config is a
+    // non-null array - hence this check isn't strictly necessary.
+    if (detectorsConfig != nullptr && detectorsConfig->IsArray()) {
+        m_Detectors.resize(detectorsConfig->Size());
+        int fallbackDetectorIndex{0};
+        for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
+            m_Detectors[i].parse((*detectorsConfig)[fallbackDetectorIndex], m_RuleFilters,
+                                 (m_SummaryCountFieldName.empty() == false), fallbackDetectorIndex,
+                                 m_DetectorRules[fallbackDetectorIndex]);
+
+            if (m_PerPartitionCategorizationEnabled) {
+                if (m_CategorizationFieldName.empty()) {
+                    throw CAnomalyJobConfigReader::CParseError(
+                        "per_partition_categorization enabled without a categorization field");
+                }
+                if (m_Detectors[i].partitionFieldName().empty()) {
+                    throw CAnomalyJobConfigReader::CParseError(
+                        "per_partition_categorization enabled without a partition field");
+                }
+                if (m_CategorizationPartitionFieldName.empty()) {
+                    m_CategorizationPartitionFieldName = m_Detectors[i].partitionFieldName();
+                } else {
+                    if (m_CategorizationPartitionFieldName !=
+                        m_Detectors[i].partitionFieldName()) {
+                        throw CAnomalyJobConfigReader::CParseError(
+                            "per_partition_categorization enabled when partition "
+                            "field varies between detectors");
+                    }
+                }
+            }
+            ++fallbackDetectorIndex;
+        }
     }
 
     m_Influencers = parameters[INFLUENCERS].fallback(TStrVec{});

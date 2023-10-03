@@ -312,8 +312,8 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     // Most of the times the murmur lookup time will be faster. But it is not
     // always the case. In order to avoid having failing builds but keep guarding
-    // the performance, we give some slack (8%) to the comparison.
-    BOOST_TEST_REQUIRE(murmurLookupTime < (defaultLookupTime * 108) / 100);
+    // the performance, we give some slack (3%) to the comparison.
+    BOOST_TEST_REQUIRE(murmurLookupTime < (defaultLookupTime * 103) / 100);
 
     // Check the number of collisions.
     TSizeSizeMap uniqueHashes;

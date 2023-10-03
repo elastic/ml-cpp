@@ -210,7 +210,7 @@ public:
             }
 
             if (converged(fi, fl, f0, eps)) {
-                return {xmin, fmin};
+                break;
             }
 
             fl = fmin;

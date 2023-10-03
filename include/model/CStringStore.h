@@ -23,7 +23,6 @@
 #include <atomic>
 #include <functional>
 #include <string>
-#include <vector>
 
 namespace CResourceMonitorTest {
 class CTestFixture;
