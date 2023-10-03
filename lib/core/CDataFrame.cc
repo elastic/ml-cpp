@@ -495,23 +495,13 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
                                             std::size_t numberColumns,
                                             CAlignment::EType alignment) {
-    std::size_t estimatedMemoryUsage =
-        sizeof(CDataFrame) + core::memory::dynamicSize(TStrVec(numberColumns)) +
-        core::memory::dynamicSize(TStrVecVec(numberColumns)) +
-        core::memory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
-        core::memory::dynamicSize(TBoolVec(numberColumns)) +
-        (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
-                      : 0);
-
-    // As good as our memory estimations are, they are not perfect as it is
-    // extremely difficult to account for all scenarios of container state.
-    // We use an "uncertainty percentage factor" to account for this.
-    static constexpr double containerMemoryEstimateUncertaintyPercentage{2.5};
-
-    std::size_t additionalMemory{static_cast<std::size_t>(
-        estimatedMemoryUsage * containerMemoryEstimateUncertaintyPercentage / 100)};
-
-    return estimatedMemoryUsage + additionalMemory;
+    return sizeof(CDataFrame) + core::memory::dynamicSize(TStrVec(numberColumns)) +
+           core::memory::dynamicSize(TStrVecVec(numberColumns)) +
+           core::memory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
+           core::memory::dynamicSize(TBoolVec(numberColumns)) +
+           (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
+                         : 0);
+    ;
 }
 
 void CDataFrame::fillCategoricalColumnValueLookup() {

@@ -171,17 +171,17 @@ sudo make install
 
 to install.
 
-### Boost 1.83.0
+### Boost 1.77.0
 
-Download version 1.83.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning build system requires it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_83_0.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_77_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_83_0` directory, run:
+In the resulting `boost_1_77_0` directory, run:
 
 ```
 ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
@@ -189,23 +189,23 @@ In the resulting `boost_1_83_0` directory, run:
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit `boost/unordered/detail/prime_fmod.hpp` and change line 134 from:
+Edit `boost/unordered/detail/implementation.hpp` and change line 287 from:
 
 ```
-    (13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
 ```
 
 to:
 
 ```
-    (3ul)(13ul)(29ul)(53ul)(97ul)(193ul)(389ul)(769ul)(1543ul)(3079ul)(6151ul)(       \
+    (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
 ```
 
 Finally, run:
 
 ```
-./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' cflags='-D__STDC_FORMAT_MACROS' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
-sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc103 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' cflags='-D__STDC_FORMAT_MACROS' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
+./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
+sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc103 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)

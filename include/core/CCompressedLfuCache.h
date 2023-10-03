@@ -505,7 +505,7 @@ private:
                            memory::storageNodeOverhead(m_ItemCache) +
                            sizeof(typename TCacheItemStatsSet::value_type) +
                            memory::storageNodeOverhead(m_ItemStats)};
-        if (m_ItemCache.bucket_count() > 0 && this->needToResizeItemCache()) {
+        if (this->needToResizeItemCache()) {
             memory += static_cast<std::size_t>(
                 (static_cast<double>(this->nextItemCacheBucketCount()) /
                      static_cast<double>(m_ItemCache.bucket_count()) -

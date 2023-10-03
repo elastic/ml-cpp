@@ -75,34 +75,6 @@ namespace memory {
 
 //! Default implementation.
 template<typename T>
-std::size_t bucketGroupOverhead(const T&) {
-    return 0;
-}
-
-//! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group.
-//! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
-//! for more detail.
-//! \note { In practice we round up the bucket overhead to the next highest multiple of \em std::size_t}
-template<typename K, typename V, typename H, typename P, typename A>
-constexpr std::size_t bucketGroupOverhead(const boost::unordered_map<K, V, H, P, A>& t) {
-    return ((t.bucket_count() + 2 * sizeof(std::size_t) - 1) / (2 * sizeof(std::size_t))) *
-           sizeof(std::size_t);
-}
-
-//! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group.
-//! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
-//! for more detail.
-//! \note { In practice we round up the bucket overhead to the next highest multiple of \em std::size_t}
-template<typename T, typename H, typename P, typename A>
-constexpr std::size_t bucketGroupOverhead(const boost::unordered_set<T, H, P, A>& t) {
-    return ((t.bucket_count() + 2 * sizeof(std::size_t) - 1) / (2 * sizeof(std::size_t))) *
-           sizeof(std::size_t);
-}
-
-//! Default implementation.
-template<typename T>
 std::size_t staticSize(const T& t) {
     return memory_detail::SMemoryStaticSize<T>::dispatch(t);
 }
