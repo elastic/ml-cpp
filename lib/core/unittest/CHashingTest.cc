@@ -303,17 +303,10 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     LOG_DEBUG(<< "default lookup runtime = " << defaultLookupTime
               << "ms, murmur lookup runtime = " << murmurLookupTime << "ms");
 
-    // The benefits of the murmur hash are mainly at lookup time, so just assert
-    // on that, but still log a warning for slower insert time
-    if (murmurInsertTime > defaultInsertTime) {
-        LOG_WARN(<< "murmur insert runtime (" << murmurInsertTime << "ms) was longer than default insert runtime ("
-                 << defaultInsertTime << "ms)");
-    }
-
-    // Most of the times the murmur lookup time will be faster. But it is not
-    // always the case. In order to avoid having failing builds but keep guarding
-    // the performance, we give some slack (8%) to the comparison.
-    BOOST_TEST_REQUIRE(murmurLookupTime < (defaultLookupTime * 108) / 100);
+    // Since the upgrade to Boost 1.83 we no longer see a significant
+    // performance difference between murmur hash performance and the
+    // default hash performamce. Hence we don't assert here, but the
+    // debug messages above are still useful to keep.
 
     // Check the number of collisions.
     TSizeSizeMap uniqueHashes;
