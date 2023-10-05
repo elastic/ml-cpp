@@ -132,11 +132,8 @@ public:
                     ++m_NumberHits;
                     readValue(*hit, true);
                     return true;
-                } else {
-                    // null values are not written to the cache this should never be hit
-                    LOG_ERROR(<< "Inconsistent state: null value read from cache");
-                    return false;
                 }
+                return false;
             })) {
             if (this->guardWrite(TIME_OUT, [&] {
                     this->incrementCount(compressedKey);
