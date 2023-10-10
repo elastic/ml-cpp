@@ -80,7 +80,10 @@ std::size_t bucketGroupOverhead(const T&) {
 }
 
 //! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group pointer, of which there are 4.
+//! On average this is 4 bits per bucket. This is because the bucket_group
+//! structure consists of a 64 bit bitmask representing up to 64 buckets,
+//! plus 3 pointers, so a 32 byte structure stores the information for up to
+//! 64 buckets.
 //! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
 //! for more detail.
 //! \note { In practice we round up the bucket overhead to the next highest multiple of \em 4 * std::size_t}
@@ -92,8 +95,10 @@ constexpr std::size_t bucketGroupOverhead(const boost::unordered_map<K, V, H, P,
 }
 
 //! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group pointer, of which there are 4.
-//! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
+//! On average this is 4 bits per bucket. This is because the bucket_group
+//! structure consists of a 64 bit bitmask representing up to 64 buckets,
+//! plus 3 pointers, so a 32 byte structure stores the information for up to
+//! 64 buckets.//! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
 //! for more detail.
 //! \note { In practice we round up the bucket overhead to the next highest multiple of \em 4 * std::size_t}
 template<typename T, typename H, typename P, typename A>
@@ -115,11 +120,15 @@ constexpr std::size_t storageNodeOverhead(const T&) {
     return 0;
 }
 
+//! In Boost 1.83 the bucket lists and node lists are singly linked, hence
+//! only 1 pointer is needed here
 template<typename K, typename V, typename H, typename P, typename A>
 constexpr std::size_t storageNodeOverhead(const boost::unordered_map<K, V, H, P, A>&) {
     return sizeof(std::size_t);
 }
 
+//! In Boost 1.83 the bucket lists and node lists are singly linked, hence
+//! only 1 pointer is needed here
 template<typename T, typename H, typename P, typename A>
 constexpr std::size_t storageNodeOverhead(const boost::unordered_set<T, H, P, A>&) {
     return sizeof(std::size_t);
