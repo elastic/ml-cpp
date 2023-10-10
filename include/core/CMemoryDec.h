@@ -80,25 +80,27 @@ std::size_t bucketGroupOverhead(const T&) {
 }
 
 //! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group.
+//! This is calculated as 4 bits per bucket_group pointer, of which there ae 4.
 //! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
 //! for more detail.
-//! \note { In practice we round up the bucket overhead to the next highest multiple of \em std::size_t}
+//! \note { In practice we round up the bucket overhead to the next highest multiple of \em 4 * std::size_t}
 template<typename K, typename V, typename H, typename P, typename A>
 constexpr std::size_t bucketGroupOverhead(const boost::unordered_map<K, V, H, P, A>& t) {
-    return ((t.bucket_count() + 2 * sizeof(std::size_t) - 1) / (2 * sizeof(std::size_t))) *
-           sizeof(std::size_t);
+    return ((t.bucket_count() + 2 * 4 * sizeof(std::size_t) - 1) /
+            (2 * 4 * sizeof(std::size_t))) *
+           4 * sizeof(std::size_t);
 }
 
 //! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group.
+//! This is calculated as 4 bits per bucket_group pointer, of which there are 4.
 //! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
 //! for more detail.
-//! \note { In practice we round up the bucket overhead to the next highest multiple of \em std::size_t}
+//! \note { In practice we round up the bucket overhead to the next highest multiple of \em 4 * std::size_t}
 template<typename T, typename H, typename P, typename A>
 constexpr std::size_t bucketGroupOverhead(const boost::unordered_set<T, H, P, A>& t) {
-    return ((t.bucket_count() + 2 * sizeof(std::size_t) - 1) / (2 * sizeof(std::size_t))) *
-           sizeof(std::size_t);
+    return ((t.bucket_count() + 2 * 4 * sizeof(std::size_t) - 1) /
+            (2 * 4 * sizeof(std::size_t))) *
+           4 * sizeof(std::size_t);
 }
 
 //! Default implementation.
@@ -115,12 +117,12 @@ constexpr std::size_t storageNodeOverhead(const T&) {
 
 template<typename K, typename V, typename H, typename P, typename A>
 constexpr std::size_t storageNodeOverhead(const boost::unordered_map<K, V, H, P, A>&) {
-    return 2 * sizeof(std::size_t);
+    return sizeof(std::size_t);
 }
 
 template<typename T, typename H, typename P, typename A>
 constexpr std::size_t storageNodeOverhead(const boost::unordered_set<T, H, P, A>&) {
-    return 2 * sizeof(std::size_t);
+    return sizeof(std::size_t);
 }
 
 //! Default implementation for non-pointer types.

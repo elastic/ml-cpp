@@ -429,7 +429,7 @@ void dynamicSize(const char* name,
         mem->addItem(ptrName, sizeof(long) + memory::staticSize(*t));
         memory_debug::dynamicSize(name, *t, mem);
     } else {
-        ptrName += "shared_ptr (x" + std::to_string(uc) + ")";
+        ptrName += "_shared_ptr (x" + std::to_string(uc) + ")";
         // Note we add on sizeof(long) here to account for
         // the memory used by the shared reference count.
         // Also, round up.
