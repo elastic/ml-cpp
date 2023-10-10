@@ -80,7 +80,7 @@ std::size_t bucketGroupOverhead(const T&) {
 }
 
 //! The overhead associated with the unordered container's \em bucket_groups.
-//! This is calculated as 4 bits per bucket_group pointer, of which there ae 4.
+//! This is calculated as 4 bits per bucket_group pointer, of which there are 4.
 //! See https://www.boost.org/doc/libs/1_83_0/libs/unordered/doc/html/unordered.html#structures_closed_addressing_containers
 //! for more detail.
 //! \note { In practice we round up the bucket overhead to the next highest multiple of \em 4 * std::size_t}
