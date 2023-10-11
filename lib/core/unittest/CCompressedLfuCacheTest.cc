@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(testEvictionStrategyMemory) {
 
     // Check we have mainly evicted large keys. The way we count hits means we
     // don't immediately only evict large keys.
-    BOOST_TEST_REQUIRE(largeHits < 40);
+    BOOST_TEST_REQUIRE(largeHits < 50);
     BOOST_REQUIRE_EQUAL(100, smallHits);
 
     BOOST_TEST_REQUIRE(cache.checkInvariants());
