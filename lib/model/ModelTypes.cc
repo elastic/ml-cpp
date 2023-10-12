@@ -902,7 +902,7 @@ TDouble1VecDouble1VecPr support(EFeature feature) {
     case E_IndividualHighVarianceByPerson:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_IndividualMeanLatLongByPerson:
-        return {TDouble1Vec(d, -180.0), TDouble1Vec(d, 180.0)};
+        return {TDouble1Vec{-90, -180.0}, TDouble1Vec{90, 180.0}};
 
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationCountByBucketPersonAndAttribute:
@@ -945,7 +945,7 @@ TDouble1VecDouble1VecPr support(EFeature feature) {
     case E_PopulationHighVarianceByPersonAndAttribute:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_PopulationMeanLatLongByPersonAndAttribute:
-        return {TDouble1Vec(d, -180.0), TDouble1Vec(d, 180.0)};
+        return {TDouble1Vec{-90, -180.0}, TDouble1Vec{90, 180.0}};
     }
 
     return {TDouble1Vec(d, MIN_DOUBLE), TDouble1Vec(d, MAX_DOUBLE)};

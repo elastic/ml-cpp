@@ -25,6 +25,8 @@
 #include <utility>
 #include <vector>
 
+class CTestHelper;
+
 namespace ml {
 namespace model {
 class CAnnotatedProbabilityBuilder;
@@ -303,6 +305,8 @@ private:
 
     //! The memory estimator.
     mutable CMemoryUsageEstimator m_MemoryEstimator;
+
+    friend class ::CTestHelper;
 };
 }
 }
