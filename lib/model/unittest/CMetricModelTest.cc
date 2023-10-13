@@ -51,13 +51,17 @@
 #include <utility>
 #include <vector>
 
-class CTestHelper {
+namespace ml {
+namespace model {
+class CIndividualModelTestHelper {
 public:
     static void setFeature(ml::model::CIndividualModel& model) {
         auto& feature = model.m_FeatureModels[0];
         feature.s_Models.emplace_back(feature.s_NewModel->clone(0));
     }
 };
+}
+}
 
 BOOST_AUTO_TEST_SUITE(CMetricModelTest)
 
@@ -2361,7 +2365,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 class MyFakeModel : public ml::maths::common::CModelStub {
 public:
     MyFakeModel(model_t::TDouble2Vec latLong)
-        : ml::maths::common::CModelStub(), m_LatLong(latLong) {}
+        : m_LatLong(latLong) {}
 
     model_t::TDouble2Vec predict(core_t::TTime /*time*/,
                                  const TSizeDoublePr1Vec& /*correlated*/,
@@ -2398,7 +2402,7 @@ BOOST_FIXTURE_TEST_CASE(testLatLongNotMalformed, CTestFixture) {
 
     // generate random numbers for latitudes and longitudes in the range [-360, 360]
     test::CRandomNumbers rng;
-    std::size_t numberOfTrials{100};
+    int numberOfTrials{100};
     std::vector<double> latitudes;
     std::vector<double> longitudes;
     rng.generateUniformSamples(-360.0, 360.0, numberOfTrials, latitudes);
@@ -2416,7 +2420,7 @@ BOOST_FIXTURE_TEST_CASE(testLatLongNotMalformed, CTestFixture) {
                                       std::move(featureCorrelatesModels),
                                       influenceCalculators,
                                       m_InterimBucketCorrector};
-        CTestHelper::setFeature(model);
+        CIndividualModelTestHelper::setFeature(model);
         model_t::CResultType type(model_t::CResultType::E_Unconditional |
                                   model_t::CResultType::E_Final);
         core_t::TTime time{startTime};
