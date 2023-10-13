@@ -25,8 +25,6 @@
 #include <utility>
 #include <vector>
 
-
-
 namespace ml {
 namespace model {
 class CAnnotatedProbabilityBuilder;
