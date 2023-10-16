@@ -28,6 +28,7 @@
 namespace ml {
 namespace model {
 class CAnnotatedProbabilityBuilder;
+class CIndividualModelTestHelper;
 class CProbabilityAndInfluenceCalculator;
 
 //! \brief The most basic individual model interface.
@@ -303,6 +304,8 @@ private:
 
     //! The memory estimator.
     mutable CMemoryUsageEstimator m_MemoryEstimator;
+
+    friend class CIndividualModelTestHelper;
 };
 }
 }
