@@ -2364,8 +2364,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
 class MyFakeModel : public ml::maths::common::CModelStub {
 public:
-    MyFakeModel(model_t::TDouble2Vec latLong)
-        : m_LatLong(latLong) {}
+    MyFakeModel(model_t::TDouble2Vec latLong) : m_LatLong(latLong) {}
 
     model_t::TDouble2Vec predict(core_t::TTime /*time*/,
                                  const TSizeDoublePr1Vec& /*correlated*/,
