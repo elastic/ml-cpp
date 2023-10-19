@@ -55,7 +55,7 @@ On the "Workloads" page that is displayed after a short while, check "Desktop de
 
 ### Git for Windows
 
-Download `Git-2.16.3-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.16.3.windows.1>.
+Download `Git-2.42.0.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe>.
 
 Install it using mainly the default options suggested by the installer, but on the feature selection dialog also check "On the desktop" in the "Additional icons" section.
 
@@ -65,7 +65,7 @@ As well as providing a Git implementation, Git for Windows comes with Windows po
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-win64-x64.msi> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.3 from <https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-windows-x86_64.msi> (or get a more recent version).
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
@@ -193,7 +193,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.13.1
+### PyTorch 2.1.0
 
 (This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
 
@@ -209,7 +209,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.13.1 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v2.1.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -265,7 +265,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.13.1
+set PYTORCH_BUILD_VERSION=2.1.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
