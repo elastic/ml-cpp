@@ -402,7 +402,7 @@ IPEX expects that PyTorch build directory contains a file `build-hash`, which co
 
 This assumes that you have cloned PyTorch in the directory `${PYTORCH_SRC_DIR}` in the step above. Make sure that this path is correct.
 
-Building IPEX requires a lot of memory. To reduce this requirement, we can patch the MAX_JOBS environment variable to lower the number of parallel processes:
+Building IPEX requires a lot of memory. To reduce this requirement, we can set the MAX_JOBS environment variable to lower the number of parallel processes:
 ```bash
 export MAX_JOBS=1
 ```
@@ -410,6 +410,11 @@ export MAX_JOBS=1
 IPEX expects that the `blas-devel` library package be installed:
 ```bash
 yum install blas-devel.x86_64
+```
+
+IPEX requires the sympy module be installed
+```bash
+sudo /usr/local/gcc103/bin/python3.10 -m pip sympy
 ```
 
 Finally, we can build IPEX:

@@ -124,7 +124,7 @@ RUN \
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.10 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.10 install sympy numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.19.2 minimum is required

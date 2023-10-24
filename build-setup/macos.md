@@ -158,6 +158,15 @@ external processes.
 Edit `tools/setup_helpers/cmake.py` and add `"DNNL_TARGET_ARCH"` to the list
 of environment variables that get passed through to CMake (around line 215).
 
+For compilation on `Apple M1` macs edit `third_party/ideep/include/ideep/utils.hpp` and add:
+```c++
+inline void to_bytes(bytestring& bytes, const unsigned long arg) {
+  auto as_cstring = reinterpret_cast<const char*>(&arg);
+  bytes.append(as_cstring, sizeof(unsigned long));
+}
+```
+at around line 189. This is necessary to resolve a template specialization issue.
+
 Build as follows:
 
 ```

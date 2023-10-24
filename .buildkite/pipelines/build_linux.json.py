@@ -100,7 +100,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:11"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:12"
             },
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"
