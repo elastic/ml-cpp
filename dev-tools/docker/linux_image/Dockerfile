@@ -19,7 +19,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # libffi is required for building Python
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel blas-devel.x86_64
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -174,13 +174,12 @@ RUN \
   git config --global --add safe.directory `pwd` && \
   /usr/local/bin/python3.10 -m pip install -r requirements.txt && \
   /usr/local/bin/python3.10 setup.py clean && \
-  echo "2.1.0+cpu\n" > ${build_dir}/pytorch/torch/build-version && \
+  (cd ${build_dir}/pytorch/torch/ && git rev-parse HEAD > build-hash) && \
   export  CC=/usr/local/gcc103/bin/gcc  && \
   export TORCH_VERSION="v2.1.0" && \
-  export TORCH_IPEX_VERSION="2.1.0+cpu" && \
-  # building ipex is memory hungry, so we need to limit the number of jobs
-  sed -i 's/multiprocessing.cpu_count()/1/g' setup.py && \
-  /usr/local/bin/python3.10 setup.py build_clib ${build_dir}/pytorch/torch && \
+  export IPEX_VERSION="2.1.0+cpu" && \
+  export LIBTORCH_PATH=${build_dir}/pytorch/torch && \
+  /usr/local/bin/python3.10 setup.py develop && \
   cd ${build_dir}/pytorch && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \

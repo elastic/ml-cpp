@@ -395,26 +395,32 @@ git submodule update --init --recursive
 git config --global --add safe.directory `pwd`
 ```
 
-IPEX expects that PyTorch build directory contains a file `build-version`, which contains the PyTorch version string. This file is not created by the PyTorch build process, so we need to create it manually:
+IPEX expects that PyTorch build directory contains a file `build-hash`, which contains the PyTorch git revision. This file is not created by the PyTorch build process, so we need to create it manually:
 ```bash
- echo "2.1.0+cpu\n" > ${PYTORCH_SRC_DIR}/torch/build-version
+ (cd ${PYTORCH_SRC_DIR}/torch/ && git rev-parse HEAD > build-hash)
 ```
 
 This assumes that you have cloned PyTorch in the directory `${PYTORCH_SRC_DIR}` in the step above. Make sure that this path is correct.
 
-Building IPEX requires a lot of memory. To reduce this requirement, we can patch the IPEX build system to lower the number of parallel processes. We use `sed` to replace the call to `multiprocessing.cpu_count()` with a constant `1` in the file `setup.py`:
+Building IPEX requires a lot of memory. To reduce this requirement, we can patch the MAX_JOBS environment variable to lower the number of parallel processes:
 ```bash
-sed -i 's/multiprocessing.cpu_count()/1/g' setup.py
+export MAX_JOBS=1
+```
+
+IPEX expects that the `blas-devel` library package be installed:
+```bash
+yum install blas-devel.x86_64
 ```
 
 Finally, we can build IPEX:
 ```bash
 export CC=/usr/local/gcc103/bin/gcc
 export TORCH_VERSION="v2.1.0"
-export TORCH_IPEX_VERSION="2.1.0+cpu"
+export IPEX_VERSION="2.1.0+cpu"
+export LIBTORCH_PATH=/usr/src/pytorch/torch
 /usr/local/gcc103/bin/python3.10 -m pip install -r requirements.txt
 /usr/local/gcc103/bin/python3.10 setup.py clean
-/usr/local/gcc103/bin/python3.10 setup.py build_clib ${PYTORCH_SRC_DIR}/torch
+/usr/local/gcc103/bin/python3.10 setup.py develop
 cp build/Release/packages/intel_extension_for_pytorch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib
 ```
 
