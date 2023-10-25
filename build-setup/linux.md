@@ -402,7 +402,7 @@ IPEX expects that PyTorch build directory contains a file `build-hash`, which co
 
 This assumes that you have cloned PyTorch in the directory `${PYTORCH_SRC_DIR}` in the step above. Make sure that this path is correct.
 
-Building IPEX requires a lot of memory. To reduce this requirement, we can set the MAX_JOBS environment variable to lower the number of parallel processes:
+Building IPEX requires a lot of memory. To reduce this requirement, we can set the `MAX_JOBS` environment variable to lower the number of parallel processes:
 ```bash
 export MAX_JOBS=1
 ```
