@@ -380,7 +380,7 @@ sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib
 sudo cp torch/lib/libc10.so /usr/local/gcc103/lib
 ```
 
-### Intel Extension for PyTorch
+### Intel Extension for PyTorch (IPEX)
 If you are building on x86_64, you can optionally build the Intel Extension for PyTorch (IPEX). This extension provides additional optimizations for Intel CPUs. It is not available for aarch64. IPEX library is required to run PyTorch models quantized using the IPEX backend.
 
 Begin by cloning the IPEX repository:
@@ -412,7 +412,7 @@ IPEX expects that the `blas-devel` library package be installed:
 yum install blas-devel.x86_64
 ```
 
-IPEX requires the sympy module be installed.
+Building IPEX by passing the `build_clib` argument to `setup.py` hangs at the installation stage (for reasons as yet unknown). This can be worked around by building with `develop` instead. However this does require that the `sympy` python module be installed as a transient dependency:
 ```bash
 sudo /usr/local/gcc103/bin/python3.10 -m pip install sympy
 ```
