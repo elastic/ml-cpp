@@ -13,7 +13,7 @@ $Archive="usr-x86_64-windows-2016-11.zip"
 $Destination="C:\"
 # If PyTorch is not version 2.1.0 then we need the latest download
 if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h") -Or
-    !(Select-String -Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h" -Pattern "2.1.0" -Quiet))
+    !(Select-String -Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h" -Pattern "2.1.0" -Quiet)) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
