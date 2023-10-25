@@ -412,9 +412,9 @@ IPEX expects that the `blas-devel` library package be installed:
 yum install blas-devel.x86_64
 ```
 
-IPEX requires the sympy module be installed
+IPEX requires the sympy module be installed.
 ```bash
-sudo /usr/local/gcc103/bin/python3.10 -m pip sympy
+sudo /usr/local/gcc103/bin/python3.10 -m pip install sympy
 ```
 
 Finally, we can build IPEX:
