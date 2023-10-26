@@ -410,6 +410,8 @@ export MAX_JOBS=1
 The IPEX third party library dependency `LIBXSMM` link stage has a dependency on `libblas`. This dependency can be removed by setting `BLAS=0` in the environment.
 See https://libxsmm.readthedocs.io/en/latest/ for more details.
 
+**TODO** Revisit the `BLAS=0` decision before actually using IPEX in production. In particular investigate if it causes certain operations of `LIBXSMM` to not work.
+
 The IPEX library installation step uses `cpack`, which is configured to build an intermediate tar archive using `xz` compression. This step takes an inordinate amount of time.
 To speed up the process alter the configuration to use `gzip` compression instead. To do this. edit `csrc/CMakeLists.txt` and replace all occurrences of `TXZ` with `TGZ`.
 
