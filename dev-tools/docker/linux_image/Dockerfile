@@ -19,7 +19,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # libffi is required for building Python
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y blas-devel.x86_64 bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
@@ -124,7 +124,7 @@ RUN \
 
 # Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.10 install sympy numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+  /usr/local/bin/pip3.10 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.19.2 minimum is required
@@ -179,7 +179,9 @@ RUN \
   export TORCH_VERSION="v2.1.0" && \
   export IPEX_VERSION="2.1.0+cpu" && \
   export LIBTORCH_PATH=${build_dir}/pytorch/torch && \
-  /usr/local/bin/python3.10 setup.py develop && \
+  export BLAS=0 && \
+  sed -i -e 's/TXZ/TGZ/' csrc/CMakeLists.txt && \
+  /usr/local/bin/python3.10 setup.py build_clib && \
   cd ${build_dir}/pytorch && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \

@@ -407,15 +407,11 @@ Building IPEX requires a lot of memory. To reduce this requirement, we can set t
 export MAX_JOBS=1
 ```
 
-IPEX expects that the `blas-devel` library package be installed:
-```bash
-yum install blas-devel.x86_64
-```
+The IPEX third party library dependency `LIBXSMM` link stage has a dependency on `libblas`. This dependency can be removed by setting `BLAS=0` in the environment.
+See https://libxsmm.readthedocs.io/en/latest/ for more details.
 
-Building IPEX by passing the `build_clib` argument to `setup.py` hangs at the installation stage (for reasons as yet unknown). This can be worked around by building with `develop` instead. However this does require that the `sympy` python module be installed as a transient dependency:
-```bash
-sudo /usr/local/gcc103/bin/python3.10 -m pip install sympy
-```
+The IPEX library installation step uses `cpack`, which is configured to build an intermediate tar archive using `xz` compression. This step takes an inordinate amount of time.
+To speed up the process alter the configuration to use `gzip` compression instead. To do this. edit `csrc/CMakeLists.txt` and replace all occurrences of `TXZ` with `TGZ`.
 
 Finally, we can build IPEX:
 ```bash
@@ -423,9 +419,11 @@ export CC=/usr/local/gcc103/bin/gcc
 export TORCH_VERSION="v2.1.0"
 export IPEX_VERSION="2.1.0+cpu"
 export LIBTORCH_PATH=/usr/src/pytorch/torch
+export BLAS=0
+sed -i -e 's/TXZ/TGZ/' csrc/CMakeLists.txt
 /usr/local/gcc103/bin/python3.10 -m pip install -r requirements.txt
 /usr/local/gcc103/bin/python3.10 setup.py clean
-/usr/local/gcc103/bin/python3.10 setup.py develop
+/usr/local/gcc103/bin/python3.10 setup.py build_clib
 cp build/Release/packages/intel_extension_for_pytorch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib
 ```
 
