@@ -90,7 +90,8 @@ common::CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) 
 
 common::CNaiveBayes initialProbabilityOfChangeModel(double decayRate) {
     return common::CNaiveBayes{naiveBayesExemplar(decayRate),
-                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate, -20.0};
+                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate,
+                               -4.5 /*Don't extrapolate beyond 3 sigmas*/};
 }
 
 common::CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
@@ -294,11 +295,11 @@ void CTrendComponent::shiftLevel(double shift,
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
                                                              {{dt}, {value}});
     }
+    m_TimeOfLastLevelChange = time;
     for (std::size_t i = segments[last]; i < values.size(); ++i, time += bucketLength) {
         this->dontShiftLevel(time, common::CBasicStatistics::mean(values[i]));
     }
     m_MagnitudeOfLevelChangeModel.addSamples({magnitude}, maths_t::CUnitWeights::SINGLE_UNIT);
-    m_TimeOfLastLevelChange = time;
 }
 
 void CTrendComponent::dontShiftLevel(core_t::TTime time, double value) {
@@ -786,14 +787,17 @@ CTrendComponent::TDouble3Vec
 CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction, double confidence) {
     TDouble3Vec result{0.0, 0.0, 0.0};
 
-    if (m_Probability.initialized()) {
+    if (m_Probability.initialized() && m_Probability.numberClasses() > 1) {
         common::CSampling::uniformSample(0.0, 1.0, m_Levels.size(), m_Uniform01);
         bool reorder{false};
         for (std::size_t i = 0; i < m_Levels.size(); ++i) {
             double dt{static_cast<double>(time - m_TimesOfLastChange[i])};
             double x{m_Levels[i] + prediction};
-            double p{m_Probability.classProbability(LEVEL_CHANGE_LABEL, {{dt}, {x}})};
-            m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
+            auto[p, pConfidence] =
+                m_Probability.classProbability(LEVEL_CHANGE_LABEL, {{dt}, {x}});
+            if (pConfidence > 0.5) {
+                m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
+            }
             if (m_Uniform01[i] < m_ProbabilitiesOfChange[i]) {
                 double stepMean{m_Magnitude.marginalLikelihoodMean()};
                 double stepVariance{m_Magnitude.marginalLikelihoodVariance()};

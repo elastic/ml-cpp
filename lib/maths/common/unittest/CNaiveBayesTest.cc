@@ -29,11 +29,13 @@
 #include <cmath>
 #include <memory>
 
+namespace {
 BOOST_AUTO_TEST_SUITE(CNaiveBayesTest)
 
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble1VecVec = std::vector<TDouble1Vec>;
 using TDoubleSizePr = std::pair<double, std::size_t>;
@@ -56,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
 
     test::CRandomNumbers rng;
 
-    TDoubleVec trainingData[4];
+    TDoubleVecVec trainingData(4);
     rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
     rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
     rng.generateNormalSamples(3.0, 14.0, 200, trainingData[2]);
@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
         //   - P(1) = (initialCount + 100) / (2*initialCount + 300)
         //   - P(2) = (initialCount + 200) / (2*initialCount + 300)
 
-        TDoubleSizePrVec probabilities(nb.highestClassProbabilities(2, {{}, {}}));
+        auto[probabilities, confidence](nb.highestClassProbabilities(2, {{}, {}}));
 
         double P1{(initialCount + 100.0) / (2.0 * initialCount + 300.0)};
         double P2{(initialCount + 200.0) / (2.0 * initialCount + 300.0)};
@@ -157,19 +159,22 @@ BOOST_AUTO_TEST_CASE(testClassification) {
                       maths::common::CTools::safePdf(class1[1], xtest[i + 1])};
             double p2{P2 * maths::common::CTools::safePdf(class2[0], xtest[i]) *
                       maths::common::CTools::safePdf(class2[1], xtest[i + 1])};
-            probabilities = nb.highestClassProbabilities(2, {{xtest[i]}, {xtest[i + 1]}});
+            std::tie(probabilities, confidence) =
+                nb.highestClassProbabilities(2, {{xtest[i]}, {xtest[i + 1]}});
             test(p1, p2, probabilities, meanErrors[0]);
 
             // Miss out the first feature value.
             p1 = P1 * maths::common::CTools::safePdf(class1[1], xtest[i + 1]);
             p2 = P2 * maths::common::CTools::safePdf(class2[1], xtest[i + 1]);
-            probabilities = nb.highestClassProbabilities(2, {{}, {xtest[i + 1]}});
+            std::tie(probabilities, confidence) =
+                nb.highestClassProbabilities(2, {{}, {xtest[i + 1]}});
             test(p1, p2, probabilities, meanErrors[1]);
 
             // Miss out the second feature value.
             p1 = P1 * maths::common::CTools::safePdf(class1[0], xtest[i]);
             p2 = P2 * maths::common::CTools::safePdf(class2[0], xtest[i]);
-            probabilities = nb.highestClassProbabilities(2, {{xtest[i]}, {}});
+            std::tie(probabilities, confidence) =
+                nb.highestClassProbabilities(2, {{xtest[i]}, {}});
             test(p1, p2, probabilities, meanErrors[2]);
         }
 
@@ -194,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testUninitialized) {
     maths::common::CNaiveBayes nb{maths::common::CNaiveBayes{
         maths::common::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
 
-    TDoubleVec trainingData[2];
+    TDoubleVecVec trainingData(2);
 
     for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(false, nb.initialized());
@@ -225,7 +230,7 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
         maths::common::CNaiveBayes{
             maths::common::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
 
-    TDoubleVec trainingData[4];
+    TDoubleVecVec trainingData(4);
     for (std::size_t i = 0; i < 1000; ++i) {
         double x{static_cast<double>(i)};
         rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
@@ -248,8 +253,8 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
 
     {
         TDoubleSizePrVec probabilities[]{
-            nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}),
-            nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}})};
+            nb[0].highestClassProbabilities(2, {{-10.0}, {-10.0}}).first,
+            nb[1].highestClassProbabilities(2, {{-10.0}, {-10.0}}).first};
         LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
         LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
         BOOST_REQUIRE_EQUAL(2, probabilities[0][0].second);
@@ -259,8 +264,8 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
     }
     {
         TDoubleSizePrVec probabilities[]{
-            nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}),
-            nb[1].highestClassProbabilities(2, {{10.0}, {10.0}})};
+            nb[0].highestClassProbabilities(2, {{10.0}, {10.0}}).first,
+            nb[1].highestClassProbabilities(2, {{10.0}, {10.0}}).first};
         LOG_DEBUG(<< "Aged class probabilities = " << probabilities[0]);
         LOG_DEBUG(<< "Class probabilities = " << probabilities[1]);
         BOOST_REQUIRE_EQUAL(1, probabilities[0][0].second);
@@ -268,6 +273,38 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
         BOOST_REQUIRE_EQUAL(2, probabilities[1][0].second);
         BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testExtrapolation) {
+    // Test that we detect when we're extrapolating the class conditional
+    // distributions to predict a class labels.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec trainingData(2);
+    rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
+    rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
+
+    maths::common::CNormalMeanPrecConjugate normal{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+    maths::common::CNaiveBayes nb{maths::common::CNaiveBayesFeatureDensityFromPrior(normal),
+                                  0.0, -4.5 /*3 sigma cutoff*/};
+
+    for (auto x : trainingData[0]) {
+        nb.addTrainingDataPoint(0, {{x}});
+    }
+    for (auto x : trainingData[1]) {
+        nb.addTrainingDataPoint(1, {{x}});
+    }
+
+    auto[probabilities, confidence] = nb.classProbabilities({{30.0}});
+    LOG_DEBUG(<< "p = " << probabilities << ", confidence = " << confidence);
+
+    BOOST_REQUIRE_EQUAL(2, probabilities.size());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[0].first, 1e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[1].first, 1e-3);
+    BOOST_TEST_REQUIRE(confidence >= 0);
+    BOOST_TEST_REQUIRE(confidence < 1e-3);
 }
 
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
@@ -313,7 +350,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
-    TDoubleVec trainingData[4];
+    TDoubleVecVec trainingData(4);
     rng.generateNormalSamples(0.0, 12.0, 100, trainingData[0]);
     rng.generateNormalSamples(10.0, 16.0, 100, trainingData[1]);
     rng.generateNormalSamples(3.0, 14.0, 200, trainingData[2]);
@@ -364,3 +401,4 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+}

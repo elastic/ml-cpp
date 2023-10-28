@@ -157,8 +157,10 @@ private:
 //! \brief Implements a Naive Bayes classifier.
 class MATHS_COMMON_EXPORT CNaiveBayes {
 public:
+    using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
+    using TDoubleSizePrVecDoublePr = std::pair<TDoubleSizePrVec, double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
     using TOptionalDouble = std::optional<double>;
@@ -183,6 +185,9 @@ public:
 
     //! Check if any training data has been added initialized.
     bool initialized() const;
+
+    //! Get the number of classes.
+    std::size_t numberClasses() const;
 
     //! This can be used to optionally seed the class counts
     //! with \p counts. These are added on to data class counts
@@ -210,27 +215,43 @@ public:
     //!
     //! \param[in] n The number of class probabilities to estimate.
     //! \param[in] x The feature values.
+    //! \return The class probabilities and our confidence in these
+    //! expressed as float in the range [0.0, 1.0] with 0.0 indicating
+    //! low confidence and 1.0 high confidence. This is derived from
+    //! the soft threshold we apply to how far we'll extrapolate class
+    //! conditional distributions.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    TDoubleSizePrVec highestClassProbabilities(std::size_t n, const TDouble1VecVec& x) const;
+    TDoubleSizePrVecDoublePr
+    highestClassProbabilities(std::size_t n, const TDouble1VecVec& x) const;
 
     //! Get the probability of the class labeled \p label for \p x.
     //!
     //! \param[in] label The label of the class of interest.
     //! \param[in] x The feature values.
+    //! \return The class probability and our confidence in this
+    //! expressed as float in the range [0.0, 1.0] with 0.0 indicating
+    //! low confidence and 1.0 high confidence. This is derived from
+    //! the soft threshold we apply to how far we'll extrapolate class
+    //! conditional distributions.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    double classProbability(std::size_t label, const TDouble1VecVec& x) const;
+    TDoubleDoublePr classProbability(std::size_t label, const TDouble1VecVec& x) const;
 
     //! Get the probabilities of all the classes for \p x.
     //!
     //! \param[in] x The feature values.
     //! \note \p x size should be equal to the number of features.
+    //! \return The class probabilities and our confidence in these
+    //! expressed as float in the range [0.0, 1.0] with 0.0 indicating
+    //! low confidence and 1.0 high confidence. This is derived from
+    //! the soft threshold we apply to how far we'll extrapolate class
+    //! conditional distributions.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    TDoubleSizePrVec classProbabilities(const TDouble1VecVec& x) const;
+    TDoubleSizePrVecDoublePr classProbabilities(const TDouble1VecVec& x) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -298,11 +319,13 @@ private:
     bool validate(const TDouble1VecVec& x) const;
 
 private:
-    //! It is not always appropriate to use features with very low
+    //! It is usually not appropriate to use features with very low
     //! probability in all classes to discriminate: the class choice
     //! will be very sensitive to the underlying conditional density
-    //! model. This is a cutoff (for the minimum maximum class log
-    //! likelihood) in order to use a feature.
+    //! assumption and so the estimated conditional likelihoods will
+    //! likely be unreliable. This is a cutoff (for the minimum maximum
+    //! class log likelihood) in order to treat a feature as a reliable
+    //! descriminator.
     TOptionalDouble m_MinMaxLogLikelihoodToUseFeature;
 
     //! Controls the rate at which data are aged out.

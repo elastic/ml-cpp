@@ -235,6 +235,10 @@ bool CNaiveBayes::initialized() const {
                        });
 }
 
+std::size_t CNaiveBayes::numberClasses() const {
+    return m_ClassConditionalDensities.size();
+}
+
 void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
     for (const auto& count : counts) {
         m_ClassConditionalDensities.emplace(count.second, CClass{count.first});
@@ -288,29 +292,31 @@ void CNaiveBayes::propagateForwardsByTime(double time) {
     }
 }
 
-CNaiveBayes::TDoubleSizePrVec
+CNaiveBayes::TDoubleSizePrVecDoublePr
 CNaiveBayes::highestClassProbabilities(std::size_t n, const TDouble1VecVec& x) const {
-    TDoubleSizePrVec p(this->classProbabilities(x));
+    auto[p, confidence] = this->classProbabilities(x);
     n = std::min(n, p.size());
     std::sort(p.begin(), p.begin() + n, std::greater<>());
-    return TDoubleSizePrVec{p.begin(), p.begin() + n};
+    return {TDoubleSizePrVec{p.begin(), p.begin() + n}, confidence};
 }
 
-double CNaiveBayes::classProbability(std::size_t label, const TDouble1VecVec& x) const {
-    TDoubleSizePrVec p(this->classProbabilities(x));
+CNaiveBayes::TDoubleDoublePr
+CNaiveBayes::classProbability(std::size_t label, const TDouble1VecVec& x) const {
+    auto[p, confidence] = this->classProbabilities(x);
     auto i = std::find_if(p.begin(), p.end(), [label](const TDoubleSizePr& p_) {
         return p_.second == label;
     });
-    return i == p.end() ? 0.0 : i->first;
+    return {i == p.end() ? 0.0 : i->first, confidence};
 }
 
-CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecVec& x) const {
+CNaiveBayes::TDoubleSizePrVecDoublePr
+CNaiveBayes::classProbabilities(const TDouble1VecVec& x) const {
     if (!this->validate(x)) {
-        return {};
+        return {{}, 0.0};
     }
     if (m_ClassConditionalDensities.empty()) {
         LOG_ERROR(<< "Trying to compute class probabilities without supplying training data");
-        return {};
+        return {{}, 0.0};
     }
 
     using TDoubleVec = std::vector<double>;
@@ -321,29 +327,37 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
     for (const auto& class_ : m_ClassConditionalDensities) {
         p.emplace_back(CTools::fastLog(class_.second.count()), class_.first);
     }
+    double confidence{1.0};
+
+    auto computeWeight = [this](const TMaxAccumulator& logLikelihood) {
+        if (logLikelihood.count() == 0) {
+            return 1.0;
+        }
+        return CTools::logisticFunction(
+            (logLikelihood[0] - *m_MinMaxLogLikelihoodToUseFeature) /
+                std::fabs(*m_MinMaxLogLikelihoodToUseFeature),
+            0.1);
+    };
 
     TDoubleVec logLikelihoods;
     for (std::size_t i = 0; i < x.size(); ++i) {
-        if (x[i].size() > 0) {
-            TMaxAccumulator maxLogLikelihood;
+        if (x[i].empty() == false) {
             logLikelihoods.clear();
+            TMaxAccumulator maxLogLikelihood;
             for (const auto& class_ : m_ClassConditionalDensities) {
                 const auto& density = class_.second.conditionalDensities()[i];
                 double logLikelihood{density->logValue(x[i])};
-                double logMaximumLikelihood{density->logMaximumValue()};
-                maxLogLikelihood.add(logLikelihood - logMaximumLikelihood);
                 logLikelihoods.push_back(logLikelihood);
+                if (m_MinMaxLogLikelihoodToUseFeature != std::nullopt) {
+                    double logMaximumLikelihood{density->logMaximumValue()};
+                    maxLogLikelihood.add(logLikelihood - logMaximumLikelihood);
+                }
             }
-            double weight{1.0};
-            if (m_MinMaxLogLikelihoodToUseFeature) {
-                weight = CTools::logisticFunction(
-                    (maxLogLikelihood[0] - *m_MinMaxLogLikelihoodToUseFeature) /
-                        std::fabs(*m_MinMaxLogLikelihoodToUseFeature),
-                    0.1);
-            }
+            double weight{computeWeight(maxLogLikelihood)};
             for (std::size_t j = 0; j < logLikelihoods.size(); ++j) {
                 p[j].first += weight * logLikelihoods[j];
             }
+            confidence = std::min(confidence, weight);
         }
     }
 
@@ -357,7 +371,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
         pc.first /= Z;
     }
 
-    return p;
+    return {std::move(p), confidence};
 }
 
 void CNaiveBayes::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
