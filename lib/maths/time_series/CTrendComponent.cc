@@ -52,6 +52,24 @@ const core_t::TTime UNSET_TIME{0};
 const std::size_t NO_CHANGE_LABEL{0};
 const std::size_t LEVEL_CHANGE_LABEL{1};
 
+class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
+public:
+    void add(std::size_t class_, double logLikelihood) override {
+        if (class_ == NO_CHANGE_LABEL) {
+            m_LogLikelihood = logLikelihood;
+        }
+    }
+
+    double calculate() const override {
+        // Downweight features for which we don't have sufficient examples
+        // of the time series not changing.
+        return common::CTools::logisticFunction((4.5 + m_LogLikelihood) / 4.5, 0.1);
+    }
+
+private:
+    double m_LogLikelihood{0.0};
+};
+
 //! Get the desired weight for the regression model.
 double modelWeight(double targetDecayRate, double modelDecayRate) {
     return targetDecayRate == modelDecayRate
@@ -90,8 +108,7 @@ common::CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) 
 
 common::CNaiveBayes initialProbabilityOfChangeModel(double decayRate) {
     return common::CNaiveBayes{naiveBayesExemplar(decayRate),
-                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate,
-                               -4.5 /*Don't extrapolate beyond 3 sigmas*/};
+                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate};
 }
 
 common::CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
@@ -790,11 +807,16 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
     if (m_Probability.initialized() && m_Probability.numberClasses() > 1) {
         common::CSampling::uniformSample(0.0, 1.0, m_Levels.size(), m_Uniform01);
         bool reorder{false};
+        auto weightProvider = [weight =
+                                   CChangeForecastFeatureWeight{}]() mutable->common::CNaiveBayesFeatureWeight& {
+            weight = CChangeForecastFeatureWeight{};
+            return weight;
+        };
         for (std::size_t i = 0; i < m_Levels.size(); ++i) {
             double dt{static_cast<double>(time - m_TimesOfLastChange[i])};
             double x{m_Levels[i] + prediction};
-            auto[p, pConfidence] =
-                m_Probability.classProbability(LEVEL_CHANGE_LABEL, {{dt}, {x}});
+            auto[p, pConfidence] = m_Probability.classProbability(
+                LEVEL_CHANGE_LABEL, {{dt}, {x}}, weightProvider);
             if (pConfidence > 0.5) {
                 m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
             }

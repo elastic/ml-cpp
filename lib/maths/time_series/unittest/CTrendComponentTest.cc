@@ -386,7 +386,6 @@ BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
         TDoubleVec noise;
         auto level = levels.begin();
         auto changePoint = changePoints.begin();
-        TDoubleVec x;
         core_t::TTime time{1672531200};
         for (std::size_t i = 0; i < 1000; ++i, time += BUCKET_LENGTH) {
             rng.generateNormalSamples(0.0, 0.25, 1, noise);
@@ -408,7 +407,6 @@ BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
             } else {
                 trendModel.dontShiftLevel(time, value);
             }
-            x.push_back(value);
         }
 
         TDouble3VecVec forecast;
@@ -422,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
         // the forecast confidence interval isn't too wide.
         BOOST_TEST_REQUIRE(forecast.back()[1] > -0.75 * interval);
         BOOST_TEST_REQUIRE(forecast.back()[1] < 0.75 * interval);
-        BOOST_TEST_REQUIRE(forecast.back()[2] - forecast.back()[0] < 4.0 * interval);
+        BOOST_TEST_REQUIRE(forecast.back()[2] - forecast.back()[0] < 3.5 * interval);
     }
 }
 

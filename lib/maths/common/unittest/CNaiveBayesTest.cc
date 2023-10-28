@@ -43,6 +43,12 @@ using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
+class CTestFeatureWeight : public maths::common::CNaiveBayesFeatureWeight {
+public:
+    void add(std::size_t, double) override {}
+    double calculate() const override { return 1e-3; }
+};
+
 BOOST_AUTO_TEST_CASE(testClassification) {
     // We'll test classification using Gaussian naive Bayes. We
     // test:
@@ -287,8 +293,7 @@ BOOST_AUTO_TEST_CASE(testExtrapolation) {
 
     maths::common::CNormalMeanPrecConjugate normal{
         maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-    maths::common::CNaiveBayes nb{maths::common::CNaiveBayesFeatureDensityFromPrior(normal),
-                                  0.0, -4.5 /*3 sigma cutoff*/};
+    maths::common::CNaiveBayes nb{maths::common::CNaiveBayesFeatureDensityFromPrior(normal)};
 
     for (auto x : trainingData[0]) {
         nb.addTrainingDataPoint(0, {{x}});
@@ -297,14 +302,17 @@ BOOST_AUTO_TEST_CASE(testExtrapolation) {
         nb.addTrainingDataPoint(1, {{x}});
     }
 
-    auto[probabilities, confidence] = nb.classProbabilities({{30.0}});
+    auto weightProvider = [weight = CTestFeatureWeight()]() mutable->maths::common::CNaiveBayesFeatureWeight& {
+        return weight;
+    };
+    auto[probabilities, confidence] = nb.classProbabilities({{30.0}}, weightProvider);
     LOG_DEBUG(<< "p = " << probabilities << ", confidence = " << confidence);
 
     BOOST_REQUIRE_EQUAL(2, probabilities.size());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[0].first, 1e-3);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[1].first, 1e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[0].first, 1e-2);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[1].first, 1e-2);
     BOOST_TEST_REQUIRE(confidence >= 0);
-    BOOST_TEST_REQUIRE(confidence < 1e-3);
+    BOOST_REQUIRE_EQUAL(1e-3, confidence);
 }
 
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {

@@ -40,8 +40,6 @@ namespace {
 const core::TPersistenceTag PRIOR_TAG{"a", "prior"};
 const core::TPersistenceTag CLASS_LABEL_TAG{"b", "class_label"};
 const core::TPersistenceTag CLASS_MODEL_TAG{"c", "class_model"};
-const core::TPersistenceTag MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG{
-    "d", "min_max_likelihood_to_use_feature"};
 const core::TPersistenceTag COUNT_TAG{"e", "count"};
 const core::TPersistenceTag CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f", "conditional_density_from_prior"};
 }
@@ -141,11 +139,8 @@ std::string CNaiveBayesFeatureDensityFromPrior::print() const {
     return result;
 }
 
-CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
-                         double decayRate,
-                         TOptionalDouble minMaxLogLikelihoodToUseFeature)
-    : m_MinMaxLogLikelihoodToUseFeature{minMaxLogLikelihoodToUseFeature},
-      m_DecayRate{decayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
+CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar, double decayRate)
+    : m_DecayRate{decayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
 }
 
 CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
@@ -160,8 +155,7 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
 }
 
 CNaiveBayes::CNaiveBayes(const CNaiveBayes& other)
-    : m_MinMaxLogLikelihoodToUseFeature{other.m_MinMaxLogLikelihoodToUseFeature},
-      m_DecayRate{other.m_DecayRate}, m_Exemplar{other.m_Exemplar->clone()} {
+    : m_DecayRate{other.m_DecayRate}, m_Exemplar{other.m_Exemplar->clone()} {
     for (const auto& class_ : other.m_ClassConditionalDensities) {
         m_ClassConditionalDensities.emplace(class_.first, class_.second);
     }
@@ -178,9 +172,6 @@ bool CNaiveBayes::acceptRestoreTraverser(const SDistributionRestoreParams& param
                 return class_.acceptRestoreTraverser(params, traverser_);
             }),
             m_ClassConditionalDensities.emplace(label, std::move(class_)))
-        RESTORE_SETUP_TEARDOWN(MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG, double value,
-                               core::CStringUtils::stringToType(traverser.value(), value),
-                               m_MinMaxLogLikelihoodToUseFeature.emplace(value))
     } while (traverser.next());
     return true;
 }
@@ -203,12 +194,6 @@ void CNaiveBayes::acceptPersistInserter(core::CStatePersistInserter& inserter) c
             class_->second.acceptPersistInserter(inserter_);
         });
     }
-
-    if (m_MinMaxLogLikelihoodToUseFeature) {
-        inserter.insertValue(MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG,
-                             *m_MinMaxLogLikelihoodToUseFeature,
-                             core::CIEEE754::E_SinglePrecision);
-    }
 }
 
 CNaiveBayes& CNaiveBayes::operator=(const CNaiveBayes& other) {
@@ -223,7 +208,6 @@ void CNaiveBayes::swap(CNaiveBayes& other) {
     std::swap(m_DecayRate, other.m_DecayRate);
     m_Exemplar.swap(other.m_Exemplar);
     m_ClassConditionalDensities.swap(other.m_ClassConditionalDensities);
-    std::swap(m_MinMaxLogLikelihoodToUseFeature, other.m_MinMaxLogLikelihoodToUseFeature);
 }
 
 bool CNaiveBayes::initialized() const {
@@ -246,7 +230,7 @@ void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec& counts) {
 }
 
 void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& x) {
-    if (!this->validate(x)) {
+    if (this->validate(x) == false) {
         return;
     }
 
@@ -293,16 +277,20 @@ void CNaiveBayes::propagateForwardsByTime(double time) {
 }
 
 CNaiveBayes::TDoubleSizePrVecDoublePr
-CNaiveBayes::highestClassProbabilities(std::size_t n, const TDouble1VecVec& x) const {
-    auto[p, confidence] = this->classProbabilities(x);
+CNaiveBayes::highestClassProbabilities(std::size_t n,
+                                       const TDouble1VecVec& x,
+                                       const TFeatureWeightProvider& weightProvider) const {
+    auto[p, confidence] = this->classProbabilities(x, weightProvider);
     n = std::min(n, p.size());
     std::sort(p.begin(), p.begin() + n, std::greater<>());
     return {TDoubleSizePrVec{p.begin(), p.begin() + n}, confidence};
 }
 
 CNaiveBayes::TDoubleDoublePr
-CNaiveBayes::classProbability(std::size_t label, const TDouble1VecVec& x) const {
-    auto[p, confidence] = this->classProbabilities(x);
+CNaiveBayes::classProbability(std::size_t label,
+                              const TDouble1VecVec& x,
+                              const TFeatureWeightProvider& weightProvider) const {
+    auto[p, confidence] = this->classProbabilities(x, weightProvider);
     auto i = std::find_if(p.begin(), p.end(), [label](const TDoubleSizePr& p_) {
         return p_.second == label;
     });
@@ -310,8 +298,9 @@ CNaiveBayes::classProbability(std::size_t label, const TDouble1VecVec& x) const 
 }
 
 CNaiveBayes::TDoubleSizePrVecDoublePr
-CNaiveBayes::classProbabilities(const TDouble1VecVec& x) const {
-    if (!this->validate(x)) {
+CNaiveBayes::classProbabilities(const TDouble1VecVec& x,
+                                const TFeatureWeightProvider& weightProvider) const {
+    if (this->validate(x) == false) {
         return {{}, 0.0};
     }
     if (m_ClassConditionalDensities.empty()) {
@@ -320,7 +309,6 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x) const {
     }
 
     using TDoubleVec = std::vector<double>;
-    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
     TDoubleSizePrVec p;
     p.reserve(m_ClassConditionalDensities.size());
@@ -329,35 +317,23 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x) const {
     }
     double confidence{1.0};
 
-    auto computeWeight = [this](const TMaxAccumulator& logLikelihood) {
-        if (logLikelihood.count() == 0) {
-            return 1.0;
-        }
-        return CTools::logisticFunction(
-            (logLikelihood[0] - *m_MinMaxLogLikelihoodToUseFeature) /
-                std::fabs(*m_MinMaxLogLikelihoodToUseFeature),
-            0.1);
-    };
-
     TDoubleVec logLikelihoods;
     for (std::size_t i = 0; i < x.size(); ++i) {
         if (x[i].empty() == false) {
+            auto& featureWeight = weightProvider();
             logLikelihoods.clear();
-            TMaxAccumulator maxLogLikelihood;
             for (const auto& class_ : m_ClassConditionalDensities) {
                 const auto& density = class_.second.conditionalDensities()[i];
                 double logLikelihood{density->logValue(x[i])};
+                double logMaximumLikelihood{density->logMaximumValue()};
                 logLikelihoods.push_back(logLikelihood);
-                if (m_MinMaxLogLikelihoodToUseFeature != std::nullopt) {
-                    double logMaximumLikelihood{density->logMaximumValue()};
-                    maxLogLikelihood.add(logLikelihood - logMaximumLikelihood);
-                }
+                featureWeight.add(class_.first, logLikelihood - logMaximumLikelihood);
             }
-            double weight{computeWeight(maxLogLikelihood)};
+            double featureWeight_{featureWeight.calculate()};
             for (std::size_t j = 0; j < logLikelihoods.size(); ++j) {
-                p[j].first += weight * logLikelihoods[j];
+                p[j].first += featureWeight_ * logLikelihoods[j];
             }
-            confidence = std::min(confidence, weight);
+            confidence = std::min(confidence, featureWeight_);
         }
     }
 
@@ -386,7 +362,6 @@ std::size_t CNaiveBayes::memoryUsage() const {
 }
 
 std::uint64_t CNaiveBayes::checksum(std::uint64_t seed) const {
-    CChecksum::calculate(seed, m_MinMaxLogLikelihoodToUseFeature);
     CChecksum::calculate(seed, m_DecayRate);
     CChecksum::calculate(seed, m_Exemplar);
     return CChecksum::calculate(seed, m_ClassConditionalDensities);
