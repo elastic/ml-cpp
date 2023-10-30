@@ -86,7 +86,7 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
          time < endTime; time += bucketLength) {
         this->CIndividualModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
-        gatherer.featureData(time, bucketLength, featureData);
+        gatherer.featureData(time, featureData);
         for (auto& feature_ : featureData) {
             T& data = feature_.second;
             LOG_TRACE(<< model_t::print(feature_.first) << " data = " << data);

@@ -441,26 +441,21 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
         std::size_t cid = *eventData.attributeId();
         isNonNegative &= (*message.s_Dbl1Vec)[0] < 0.0;
 
-        double sampleCount = m_Gatherer->sampleCount(cid);
-        if (sampleCount > 0.0) {
-            TSizeSizePr key{pid, cid};
-            sampleTimes[key].add(static_cast<double>(message.s_Time));
-            sampleMeans[key].add((*message.s_Dbl1Vec)[0]);
-            sampleMins[key].add((*message.s_Dbl1Vec)[0]);
-            sampleMaxs[key].add((*message.s_Dbl1Vec)[0]);
-            if (maths::common::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
-                expectedSampleTimes[key].push_back(
-                    maths::common::CBasicStatistics::mean(sampleTimes[key]));
-                expectedSamples[0][key].push_back(
-                    maths::common::CBasicStatistics::mean(sampleMeans[key]));
-                expectedSamples[1][key].push_back(sampleMins[key][0]);
-                expectedSamples[2][key].push_back(sampleMaxs[key][0]);
-                sampleTimes[key] = TMeanAccumulator();
-                sampleMeans[key] = TMeanAccumulator();
-                sampleMins[key] = TMinAccumulator();
-                sampleMaxs[key] = TMaxAccumulator();
-            }
-        }
+        TSizeSizePr key{pid, cid};
+        sampleTimes[key].add(static_cast<double>(message.s_Time));
+        sampleMeans[key].add((*message.s_Dbl1Vec)[0]);
+        sampleMins[key].add((*message.s_Dbl1Vec)[0]);
+        sampleMaxs[key].add((*message.s_Dbl1Vec)[0]);
+        expectedSampleTimes[key].push_back(
+            maths::common::CBasicStatistics::mean(sampleTimes[key]));
+        expectedSamples[0][key].push_back(
+            maths::common::CBasicStatistics::mean(sampleMeans[key]));
+        expectedSamples[1][key].push_back(sampleMins[key][0]);
+        expectedSamples[2][key].push_back(sampleMaxs[key][0]);
+        sampleTimes[key] = TMeanAccumulator();
+        sampleMeans[key] = TMeanAccumulator();
+        sampleMins[key] = TMinAccumulator();
+        sampleMaxs[key] = TMaxAccumulator();
     }
 }
 

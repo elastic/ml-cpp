@@ -29,7 +29,6 @@ set (SRCS
   CEventRatePopulationModelTest.cc
   CForecastModelPersistTest.cc
   CFunctionTypesTest.cc
-  CGathererToolsTest.cc
   CHierarchicalResultsTest.cc
   CHierarchicalResultsLevelSetTest.cc
   CInterimBucketCorrectorTest.cc
@@ -41,6 +40,7 @@ set (SRCS
   CMetricModelTest.cc
   CMetricPopulationDataGathererTest.cc
   CMetricPopulationModelTest.cc
+  CMetricStatGathererTest.cc
   CModelDetailsViewTest.cc
   CModelMemoryTest.cc
   CModelTestFixtureBase.cc
@@ -50,7 +50,6 @@ set (SRCS
   CResourceLimitTest.cc
   CResourceMonitorTest.cc
   CRuleConditionTest.cc
-  CSampleQueueTest.cc
   CSearchKeyTest.cc
   CStringStoreTest.cc
   CTokenListCategoryTest.cc

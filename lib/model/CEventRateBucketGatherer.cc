@@ -1040,17 +1040,11 @@ bool CEventRateBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     return this->CBucketGatherer::resetBucket(bucketStart);
 }
 
-void CEventRateBucketGatherer::releaseMemory(core_t::TTime /*samplingCutoffTime*/) {
+void CEventRateBucketGatherer::releaseMemory() {
     // Nothing to release
 }
 
-void CEventRateBucketGatherer::sample(core_t::TTime /*time*/) {
-    // Nothing to sample
-}
-
-void CEventRateBucketGatherer::featureData(core_t::TTime time,
-                                           core_t::TTime /*bucketLength*/,
-                                           TFeatureAnyPrVec& result) const {
+void CEventRateBucketGatherer::featureData(core_t::TTime time, TFeatureAnyPrVec& result) const {
     result.clear();
 
     if (!this->dataAvailable(time) ||

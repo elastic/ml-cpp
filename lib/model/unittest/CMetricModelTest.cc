@@ -55,7 +55,7 @@ namespace ml {
 namespace model {
 class CIndividualModelTestHelper {
 public:
-    static void setFeature(ml::model::CIndividualModel& model) {
+    static void setFeature(CIndividualModel& model) {
         auto& feature = model.m_FeatureModels[0];
         feature.s_Models.emplace_back(feature.s_NewModel->clone(0));
     }
@@ -63,18 +63,14 @@ public:
 }
 }
 
+namespace {
+
 BOOST_AUTO_TEST_SUITE(CMetricModelTest)
 
 using namespace ml;
 using namespace model;
 
-namespace {
-
-using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
-using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
-
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
-}
 
 class CTestFixture : public CModelTestFixtureBase {
 public:
@@ -82,447 +78,20 @@ public:
                             model_t::EFeature feature,
                             std::size_t pid,
                             core_t::TTime time) {
-        const CMetricModel::TFeatureData* data = model.featureData(feature, pid, time);
+        const auto* data = model.featureData(feature, pid, time);
         if (data == nullptr) {
-            return TDouble1Vec();
+            return {};
         }
         return data->s_BucketValue ? data->s_BucketValue->value() : TDouble1Vec();
     }
 
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
-                   core_t::TTime startTime,
-                   TOptionalUInt sampleCount = TOptionalUInt()) {
-        this->makeModelT<CMetricModelFactory>(params, features, startTime,
-                                              model_t::E_MetricOnline,
-                                              m_Gatherer, m_Model, sampleCount);
+                   core_t::TTime startTime) {
+        this->makeModelT<CMetricModelFactory>(
+            params, features, startTime, model_t::E_MetricOnline, m_Gatherer, m_Model);
     }
 };
-
-BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
-    core_t::TTime startTime{45};
-    core_t::TTime bucketLength{5};
-    SModelParams params(bucketLength);
-    params.s_InitialDecayRateMultiplier = 1.0;
-    params.s_MaximumUpdatesPerBucket = 0.0;
-
-    // Check basic sampling.
-    {
-        TTimeDoublePrVec data{{49, 1.5},  {60, 1.3},  {61, 1.3},   {62, 1.6},
-                              {65, 1.7},  {66, 1.33}, {68, 1.5},   {84, 1.58},
-                              {87, 1.69}, {157, 1.6}, {164, 1.66}, {199, 1.28},
-                              {202, 1.2}, {204, 1.5}};
-
-        TUIntVec sampleCounts{2, 1};
-        TUIntVec expectedSampleCounts{2, 1};
-        std::size_t i{0};
-        for (auto& sampleCount : sampleCounts) {
-            model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson,
-                                          model_t::E_IndividualMinByPerson,
-                                          model_t::E_IndividualMaxByPerson};
-
-            this->makeModel(params, features, startTime, sampleCount);
-            auto& model = static_cast<CMetricModel&>(*m_Model);
-            BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-            // Bucket values.
-            std::uint64_t expectedCount{0};
-            TMeanAccumulator baselineMeanError;
-            TMeanAccumulator expectedMean;
-            TMeanAccumulator expectedBaselineMean;
-            TMinAccumulator expectedMin;
-            TMaxAccumulator expectedMax;
-
-            // Sampled values.
-            TMeanAccumulator expectedSampleTime;
-            TMeanAccumulator expectedMeanSample;
-            TMinAccumulator expectedMinSample;
-            TMaxAccumulator expectedMaxSample;
-            TDouble1Vec expectedSampleTimes;
-            TDouble1Vec expectedMeanSamples;
-            TDouble1Vec expectedMinSamples;
-            TDouble1Vec expectedMaxSamples;
-            std::size_t numberSamples{0};
-
-            TMathsModelPtr expectedMeanModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true);
-            TMathsModelPtr expectedMinModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMinByPerson, bucketLength, 0.4, true);
-            TMathsModelPtr expectedMaxModel = m_Factory->defaultFeatureModel(
-                model_t::E_IndividualMaxByPerson, bucketLength, 0.4, true);
-
-            std::size_t j{0};
-            core_t::TTime time{startTime};
-            for (;;) {
-                if (j < data.size() && data[j].first < time + bucketLength) {
-                    LOG_DEBUG(<< "Adding " << data[j].second << " at "
-                              << data[j].first);
-
-                    this->addArrival(SMessage(data[j].first, "p", data[j].second), m_Gatherer);
-
-                    ++expectedCount;
-                    expectedMean.add(data[j].second);
-                    expectedMin.add(data[j].second);
-                    expectedMax.add(data[j].second);
-
-                    expectedSampleTime.add(static_cast<double>(data[j].first));
-                    expectedMeanSample.add(data[j].second);
-                    expectedMinSample.add(data[j].second);
-                    expectedMaxSample.add(data[j].second);
-
-                    ++j;
-
-                    if (j % expectedSampleCounts[i] == 0) {
-                        ++numberSamples;
-                        expectedSampleTimes.push_back(
-                            maths::common::CBasicStatistics::mean(expectedSampleTime));
-                        expectedMeanSamples.push_back(
-                            maths::common::CBasicStatistics::mean(expectedMeanSample));
-                        expectedMinSamples.push_back(expectedMinSample[0]);
-                        expectedMaxSamples.push_back(expectedMaxSample[0]);
-                        expectedSampleTime = TMeanAccumulator();
-                        expectedMeanSample = TMeanAccumulator();
-                        expectedMinSample = TMinAccumulator();
-                        expectedMaxSample = TMaxAccumulator();
-                    }
-                } else {
-                    LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
-
-                    model.sample(time, time + bucketLength, m_ResourceMonitor);
-                    if (maths::common::CBasicStatistics::count(expectedMean) > 0.0) {
-                        expectedBaselineMean.add(
-                            maths::common::CBasicStatistics::mean(expectedMean));
-                    }
-                    if (numberSamples > 0) {
-                        LOG_DEBUG(<< "Adding mean samples = " << expectedMeanSamples
-                                  << ", min samples = " << expectedMinSamples
-                                  << ", max samples = " << expectedMaxSamples);
-
-                        maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
-                            numberSamples, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                        maths::common::CModelAddSamplesParams params_;
-                        params_.isInteger(false)
-                            .isNonNegative(true)
-                            .propagationInterval(1.0)
-                            .trendWeights(weights)
-                            .priorWeights(weights)
-                            .firstValueTime(startTime);
-
-                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMeanSamples_;
-                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMinSamples_;
-                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMaxSamples_;
-                        for (std::size_t k = 0; k < numberSamples; ++k) {
-                            // We round to the nearest integer time (note this has to match
-                            // the behaviour of CMetricPartialStatistic::time).
-                            core_t::TTime sampleTime{static_cast<core_t::TTime>(
-                                expectedSampleTimes[k] + 0.5)};
-                            expectedMeanSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMeanSamples[k]}, 0);
-                            expectedMinSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMinSamples[k]}, 0);
-                            expectedMaxSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMaxSamples[k]}, 0);
-                        }
-                        expectedMeanModel->addSamples(params_, expectedMeanSamples_);
-                        expectedMinModel->addSamples(params_, expectedMinSamples_);
-                        expectedMaxModel->addSamples(params_, expectedMaxSamples_);
-                        numberSamples = 0;
-                        expectedSampleTimes.clear();
-                        expectedMeanSamples.clear();
-                        expectedMinSamples.clear();
-                        expectedMaxSamples.clear();
-                    }
-
-                    model_t::CResultType type(model_t::CResultType::E_Unconditional |
-                                              model_t::CResultType::E_Final);
-                    TOptionalUInt64 currentCount = model.currentBucketCount(0, time);
-                    TDouble1Vec bucketMean = model.currentBucketValue(
-                        model_t::E_IndividualMeanByPerson, 0, 0, time);
-                    TDouble1Vec baselineMean = model.baselineBucketMean(
-                        model_t::E_IndividualMeanByPerson, 0, 0, type, NO_CORRELATES, time);
-
-                    LOG_DEBUG(<< "bucket count = " << currentCount);
-                    LOG_DEBUG(<< "current bucket mean = " << bucketMean << ", expected baseline bucket mean = "
-                              << maths::common::CBasicStatistics::mean(expectedBaselineMean)
-                              << ", baseline bucket mean = " << baselineMean);
-
-                    BOOST_TEST_REQUIRE(currentCount.has_value());
-                    BOOST_REQUIRE_EQUAL(expectedCount, *currentCount);
-
-                    TDouble1Vec mean =
-                        maths::common::CBasicStatistics::count(expectedMean) > 0.0
-                            ? TDouble1Vec(1, maths::common::CBasicStatistics::mean(expectedMean))
-                            : TDouble1Vec();
-                    TDouble1Vec min = expectedMin.count() > 0
-                                          ? TDouble1Vec(1, expectedMin[0])
-                                          : TDouble1Vec();
-                    TDouble1Vec max = expectedMax.count() > 0
-                                          ? TDouble1Vec(1, expectedMax[0])
-                                          : TDouble1Vec();
-
-                    BOOST_TEST_REQUIRE(mean == bucketMean);
-                    if (!baselineMean.empty()) {
-                        baselineMeanError.add(std::fabs(
-                            baselineMean[0] - maths::common::CBasicStatistics::mean(
-                                                  expectedBaselineMean)));
-                    }
-
-                    BOOST_TEST_REQUIRE(mean == featureData(model, model_t::E_IndividualMeanByPerson,
-                                                           0, time));
-                    BOOST_TEST_REQUIRE(min == featureData(model, model_t::E_IndividualMinByPerson,
-                                                          0, time));
-                    BOOST_TEST_REQUIRE(max == featureData(model, model_t::E_IndividualMaxByPerson,
-                                                          0, time));
-
-                    BOOST_REQUIRE_EQUAL(expectedMeanModel->checksum(),
-                                        model.details()
-                                            ->model(model_t::E_IndividualMeanByPerson, 0)
-                                            ->checksum());
-                    BOOST_REQUIRE_EQUAL(expectedMinModel->checksum(),
-                                        model.details()
-                                            ->model(model_t::E_IndividualMinByPerson, 0)
-                                            ->checksum());
-                    BOOST_REQUIRE_EQUAL(expectedMaxModel->checksum(),
-                                        model.details()
-                                            ->model(model_t::E_IndividualMaxByPerson, 0)
-                                            ->checksum());
-
-                    // Test persistence. (We check for idempotency.)
-                    std::string origXml;
-                    {
-                        core::CRapidXmlStatePersistInserter inserter("root");
-                        model.acceptPersistInserter(inserter);
-                        inserter.toXml(origXml);
-                    }
-
-                    // Restore the XML into a new filter
-                    core::CRapidXmlParser parser;
-                    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-                    core::CRapidXmlStateRestoreTraverser traverser(parser);
-                    CModelFactory::TModelPtr restoredModel(
-                        m_Factory->makeModel(m_Gatherer, traverser));
-
-                    // The XML representation of the new filter should be the same as the original
-                    std::string newXml;
-                    {
-                        ml::core::CRapidXmlStatePersistInserter inserter("root");
-                        restoredModel->acceptPersistInserter(inserter);
-                        inserter.toXml(newXml);
-                    }
-
-                    std::uint64_t origChecksum = model.checksum(false);
-                    LOG_DEBUG(<< "original checksum = " << origChecksum);
-                    std::uint64_t restoredChecksum = restoredModel->checksum(false);
-                    LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
-                    BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                    BOOST_REQUIRE_EQUAL(origXml, newXml);
-
-                    expectedCount = 0;
-                    expectedMean = TMeanAccumulator();
-                    expectedMin = TMinAccumulator();
-                    expectedMax = TMaxAccumulator();
-
-                    if (j >= data.size()) {
-                        break;
-                    }
-
-                    time += bucketLength;
-                }
-            }
-            LOG_DEBUG(<< "baseline mean error = "
-                      << maths::common::CBasicStatistics::mean(baselineMeanError));
-            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(baselineMeanError) < 0.25);
-
-            ++i;
-        }
-    }
-}
-
-BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
-    using TVector2 = maths::common::CVectorNx1<double, 2>;
-    using TMean2Accumulator = maths::common::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
-    using TTimeDouble2AryPr = std::pair<core_t::TTime, std::array<double, 2>>;
-    using TTimeDouble2AryPrVec = std::vector<TTimeDouble2AryPr>;
-
-    core_t::TTime startTime(45);
-    core_t::TTime bucketLength(5);
-    SModelParams params(bucketLength);
-    params.s_InitialDecayRateMultiplier = 1.0;
-    params.s_MaximumUpdatesPerBucket = 0.0;
-    auto interimBucketCorrector = std::make_shared<model::CInterimBucketCorrector>(bucketLength);
-    CMetricModelFactory factory(params, interimBucketCorrector);
-
-    TTimeDouble2AryPrVec data{
-        {49, {1.5, 1.1}},  {60, {1.3, 1.2}},    {61, {1.3, 2.1}},
-        {62, {1.6, 1.5}},  {65, {1.7, 1.4}},    {66, {1.33, 1.6}},
-        {68, {1.5, 1.37}}, {84, {1.58, 1.42}},  {87, {1.6, 1.6}},
-        {157, {1.6, 1.6}}, {164, {1.66, 1.55}}, {199, {1.28, 1.4}},
-        {202, {1.3, 1.1}}, {204, {1.5, 1.8}}};
-
-    TUIntVec sampleCounts{2, 1};
-    TUIntVec expectedSampleCounts{2, 1};
-
-    std::size_t i{0};
-    for (auto& sampleCount : sampleCounts) {
-        LOG_DEBUG(<< "*** sample count = " << sampleCount << " ***");
-
-        this->makeModel(params, {model_t::E_IndividualMeanLatLongByPerson},
-                        startTime, sampleCount);
-        auto& model = static_cast<CMetricModel&>(*m_Model);
-        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
-
-        // Bucket values.
-        std::uint64_t expectedCount{0};
-        TMean2Accumulator baselineLatLongError;
-        TMean2Accumulator expectedLatLong;
-        TMean2Accumulator expectedBaselineLatLong;
-
-        // Sampled values.
-        TMean2Accumulator expectedLatLongSample;
-        std::size_t numberSamples{0};
-        TDoubleVecVec expectedLatLongSamples;
-        TMultivariatePriorPtr expectedPrior =
-            factory.defaultMultivariatePrior(model_t::E_IndividualMeanLatLongByPerson);
-
-        std::size_t j{0};
-        core_t::TTime time{startTime};
-        for (;;) {
-            if (j < data.size() && data[j].first < time + bucketLength) {
-                LOG_DEBUG(<< "Adding " << data[j].second[0] << ","
-                          << data[j].second[1] << " at " << data[j].first);
-
-                this->addArrival(
-                    SMessage(data[j].first, "p", {},
-                             TDoubleDoublePr(data[j].second[0], data[j].second[1])),
-                    m_Gatherer);
-
-                ++expectedCount;
-                expectedLatLong.add(TVector2(data[j].second));
-                expectedLatLongSample.add(TVector2(data[j].second));
-
-                if (++j % expectedSampleCounts[i] == 0) {
-                    ++numberSamples;
-                    expectedLatLongSamples.push_back(TDoubleVec(
-                        maths::common::CBasicStatistics::mean(expectedLatLongSample)
-                            .begin(),
-                        maths::common::CBasicStatistics::mean(expectedLatLongSample)
-                            .end()));
-                    expectedLatLongSample = TMean2Accumulator();
-                }
-            } else {
-                LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
-                model.sample(time, time + bucketLength, m_ResourceMonitor);
-
-                if (maths::common::CBasicStatistics::count(expectedLatLong) > 0.0) {
-                    expectedBaselineLatLong.add(
-                        maths::common::CBasicStatistics::mean(expectedLatLong));
-                }
-                if (numberSamples > 0) {
-                    std::sort(expectedLatLongSamples.begin(),
-                              expectedLatLongSamples.end());
-                    LOG_DEBUG(<< "Adding mean samples = " << expectedLatLongSamples);
-                    expectedPrior->dataType(maths_t::E_ContinuousData);
-                    expectedPrior->addSamples(
-                        expectedLatLongSamples,
-                        maths_t::TDouble10VecWeightsAry1Vec(
-                            expectedLatLongSamples.size(),
-                            maths_t::CUnitWeights::unit<maths_t::TDouble10Vec>(2)));
-                    expectedPrior->propagateForwardsByTime(1.0);
-                    numberSamples = 0;
-                    expectedLatLongSamples.clear();
-                }
-
-                model_t::CResultType type(model_t::CResultType::E_Unconditional |
-                                          model_t::CResultType::E_Final);
-                TOptionalUInt64 count = model.currentBucketCount(0, time);
-                TDouble1Vec bucketLatLong = model.currentBucketValue(
-                    model_t::E_IndividualMeanLatLongByPerson, 0, 0, time);
-                TDouble1Vec baselineLatLong =
-                    model.baselineBucketMean(model_t::E_IndividualMeanLatLongByPerson,
-                                             0, 0, type, NO_CORRELATES, time);
-                TDouble1Vec featureLatLong = featureData(
-                    model, model_t::E_IndividualMeanLatLongByPerson, 0, time);
-                const auto& prior =
-                    dynamic_cast<const maths::time_series::CMultivariateTimeSeriesModel*>(
-                        model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
-                        ->residualModel();
-
-                LOG_DEBUG(<< "bucket count = " << count);
-                LOG_DEBUG(<< "current = " << bucketLatLong << ", expected baseline = "
-                          << maths::common::CBasicStatistics::mean(expectedBaselineLatLong)
-                          << ", actual baseline = " << baselineLatLong);
-
-                BOOST_TEST_REQUIRE(count.has_value());
-                BOOST_REQUIRE_EQUAL(expectedCount, *count);
-
-                TDouble1Vec latLong;
-                if (maths::common::CBasicStatistics::count(expectedLatLong) > 0.0) {
-                    latLong.push_back(
-                        maths::common::CBasicStatistics::mean(expectedLatLong)(0));
-                    latLong.push_back(
-                        maths::common::CBasicStatistics::mean(expectedLatLong)(1));
-                }
-                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
-                                    core::CContainerPrinter::print(bucketLatLong));
-                if (!baselineLatLong.empty()) {
-                    baselineLatLongError.add(maths::common::fabs(
-                        TVector2(baselineLatLong) -
-                        maths::common::CBasicStatistics::mean(expectedBaselineLatLong)));
-                }
-
-                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(latLong),
-                                    core::CContainerPrinter::print(featureLatLong));
-                BOOST_REQUIRE_EQUAL(expectedPrior->checksum(), prior.checksum());
-
-                // Test persistence. (We check for idempotency.)
-                std::string origXml;
-                {
-                    core::CRapidXmlStatePersistInserter inserter("root");
-                    model.acceptPersistInserter(inserter);
-                    inserter.toXml(origXml);
-                }
-
-                // Restore the XML into a new filter
-                core::CRapidXmlParser parser;
-                BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-                core::CRapidXmlStateRestoreTraverser traverser(parser);
-                CModelFactory::TModelPtr restoredModel(factory.makeModel(m_Gatherer, traverser));
-
-                // The XML representation of the new filter should be the same as the original
-                std::string newXml;
-                {
-                    ml::core::CRapidXmlStatePersistInserter inserter("root");
-                    restoredModel->acceptPersistInserter(inserter);
-                    inserter.toXml(newXml);
-                }
-
-                std::uint64_t origChecksum = model.checksum(false);
-                LOG_DEBUG(<< "original checksum = " << origChecksum);
-                std::uint64_t restoredChecksum = restoredModel->checksum(false);
-                LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
-                BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
-                BOOST_REQUIRE_EQUAL(origXml, newXml);
-
-                expectedCount = 0;
-                expectedLatLong = TMean2Accumulator();
-
-                if (j >= data.size()) {
-                    break;
-                }
-
-                time += bucketLength;
-            }
-        }
-        LOG_DEBUG(<< "baseline mean error = "
-                  << maths::common::CBasicStatistics::mean(baselineLatLongError));
-        BOOST_TEST_REQUIRE(
-            maths::common::CBasicStatistics::mean(baselineLatLongError)(0) < 0.25);
-        BOOST_TEST_REQUIRE(
-            maths::common::CBasicStatistics::mean(baselineLatLongError)(1) < 0.25);
-
-        ++i;
-    }
-}
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     core_t::TTime startTime{0};
@@ -533,7 +102,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     double mean{5.0};
     double variance{2.0};
     std::size_t anomalousBucket{12};
-    double anomaly{5 * std::sqrt(variance)};
+    double anomaly{5.0 * std::sqrt(variance)};
 
     SModelParams params(bucketLength);
     model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson,
@@ -1888,8 +1457,9 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelNoZerosPtr->category());
     auto& modelNoZeros = static_cast<CMetricModel&>(*modelNoZerosPtr.get());
 
-    // The idea here is to compare a model that has records with summary count of zero
-    // against a model that has no records at all where the first model had the zero-count records.
+    // The idea here is to compare a model that has records with summary
+    // count of zero against a model that has no records at all where the
+    // first model had the zero-count records.
 
     core_t::TTime now = 100;
     core_t::TTime end = now + 50 * bucketLength;
@@ -2272,8 +1842,9 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     std::size_t endTime = startTime + bucketLength;
 
-    // Add a few buckets to both models (this seems to be necessary to ensure subsequent calls to 'sample'
-    // actually result in samples being added to the model)
+    // Add a few buckets to both models (this seems to be necessary to ensure
+    // subsequent calls to 'sample' actually result in samples being added to
+    // the model).
     for (std::size_t j = 0; j < 3; ++j) {
         for (std::size_t i = 0; i < bucketLength; i++) {
             this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
@@ -2283,7 +1854,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
         endTime += bucketLength;
     }
 
-    // Add a bucket to both models
+    // Add a bucket to both models.
     for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
@@ -2294,8 +1865,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     endTime += bucketLength;
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    // Add data to both models
-    // the model with the detection rule will apply a small weighting to the sample
+    // Add data to both models the model with the detection rule will apply a small
+    // weighting to the sample.
     for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
@@ -2310,7 +1881,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     startTime = endTime;
     endTime += bucketLength;
 
-    // Add more data to both models, for which the detection rule will not apply
+    // Add more data to both models, for which the detection rule will not apply.
     for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
@@ -2322,7 +1893,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // added to the model with the detector rule.
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    // The underlying models should also differ due to the different weighting applied to the samples.
+    // The underlying models should also differ due to the different weighting applied
+    // to the samples.
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
@@ -2337,7 +1909,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     std::uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
-    // Check the last value times of the underlying models are the same
+    // Check the last value times of the underlying models are the same.
     const auto* timeSeriesModel =
         dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0));
@@ -2347,7 +1919,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_TEST_REQUIRE(trendModel != nullptr);
     core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
 
-    // The last times of model with a skip should be the same
+    // The last times of model with a skip should be the same.
     timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
     BOOST_TEST_REQUIRE(timeSeriesModel);
@@ -2381,25 +1953,24 @@ private:
 };
 
 BOOST_FIXTURE_TEST_CASE(testLatLongNotMalformed, CTestFixture) {
-    // This test ensures that the latitudes and longitudes generated by the model are within the
-    // expected range.
+    // This test ensures that the latitudes and longitudes generated by the model
+    // are within the expected range.
 
-    // initialize the model
+    // Initialize the model.
     core_t::TTime startTime{45};
     core_t::TTime bucketLength{5};
     model_t::TFeatureVec features{model_t::E_IndividualMeanLatLongByPerson};
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MaximumUpdatesPerBucket = 0.0;
-    size_t sampleCount{1};
 
-    this->makeModel(params, features, startTime, sampleCount);
+    this->makeModel(params, features, startTime);
 
     ml::model::CAnomalyDetectorModel::TFeatureMultivariatePriorSPtrPrVec newFeatureCorelateModelPriors;
     ml::model::CAnomalyDetectorModel::TFeatureCorrelationsPtrPrVec featureCorrelatesModels;
     ml::model::CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
-    // generate random numbers for latitudes and longitudes in the range [-360, 360]
+    // Generate random numbers for latitudes and longitudes in the range [-360, 360].
     test::CRandomNumbers rng;
     int numberOfTrials{100};
     std::vector<double> latitudes;
@@ -2436,3 +2007,4 @@ BOOST_FIXTURE_TEST_CASE(testLatLongNotMalformed, CTestFixture) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+}

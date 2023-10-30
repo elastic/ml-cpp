@@ -1452,7 +1452,7 @@ BOOST_AUTO_TEST_CASE(testWriter) {
                 model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING,
                 EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec{}, key,
                 model_t::TFeatureVec{model_t::E_IndividualCountByBucketAndPerson},
-                modelConfig.bucketLength(), 0));
+                modelConfig.bucketLength()));
         model::CEventData dummy;
         dataGatherer->addArrival(TStrCPtrVec(1, &EMPTY_STRING), dummy, resourceMonitor);
         dummy.clear();

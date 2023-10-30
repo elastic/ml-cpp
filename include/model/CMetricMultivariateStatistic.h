@@ -19,7 +19,7 @@
 
 #include <maths/common/CChecksum.h>
 
-#include <model/CMetricStatisticWrappers.h>
+#include <model/CMetricStatShims.h>
 
 #include <cstddef>
 #include <string>
@@ -53,29 +53,28 @@ public:
     static const std::string VALUE_TAG;
 
 public:
-    CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {}
+    explicit CMetricMultivariateStatistic(std::size_t dimension)
+        : m_Values(dimension) {}
 
     //! Persist to a state document.
     void persist(core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0; i < m_Values.size(); ++i) {
-            CMetricStatisticWrappers::persist(m_Values[i], VALUE_TAG, inserter);
+            metric_stat_shims::persist(m_Values[i], VALUE_TAG, inserter);
         }
     }
 
     //! Restore from the supplied state document traverser.
     bool restore(core::CStateRestoreTraverser& traverser) {
-        std::size_t i = 0;
+        std::size_t i{0};
         do {
-            const std::string& name = traverser.name();
-            if (name == VALUE_TAG) {
-                if (CMetricStatisticWrappers::restore(traverser, m_Values[i++]) == false) {
-                    LOG_ERROR(<< "Invalid statistic in " << traverser.value());
-                    return false;
-                }
-            }
+            const std::string& name{traverser.name()};
+            RESTORE(VALUE_TAG, metric_stat_shims::restore(traverser, m_Values[i++]))
         } while (traverser.next());
         return true;
     }
+
+    //! Get the statistic dimension.
+    std::size_t dimension() const { return m_Values.size(); }
 
     //! Add a new measurement.
     //!
@@ -95,15 +94,14 @@ public:
 
     //! Returns the aggregated value of all the measurements.
     TDouble1Vec value() const {
-        std::size_t dimension = m_Values.size();
-        TDouble1Vec result(dimension);
-        for (std::size_t i = 0; i < dimension; ++i) {
-            TDouble1Vec vi = CMetricStatisticWrappers::value(m_Values[i]);
+        TDouble1Vec result(this->dimension());
+        for (std::size_t i = 0; i < this->dimension(); ++i) {
+            TDouble1Vec vi{metric_stat_shims::value(m_Values[i])};
             if (vi.size() > 1) {
-                result.resize(vi.size() * dimension);
+                result.resize(vi.size() * this->dimension());
             }
             for (std::size_t j = 0; j < vi.size(); ++j) {
-                result[i + j * dimension] = vi[j];
+                result[i + j * this->dimension()] = vi[j];
             }
         }
         return result;
@@ -112,24 +110,21 @@ public:
     //! Returns the aggregated value of all the measurements suitable
     //! for computing influence.
     TDouble1Vec influencerValue() const {
-        std::size_t dimension = m_Values.size();
-        TDouble1Vec result(dimension);
-        for (std::size_t i = 0; i < dimension; ++i) {
-            TDouble1Vec vi = CMetricStatisticWrappers::influencerValue(m_Values[i]);
+        TDouble1Vec result(this->dimension());
+        for (std::size_t i = 0; i < this->dimension(); ++i) {
+            TDouble1Vec vi{metric_stat_shims::influencerValue(m_Values[i])};
             if (vi.size() > 1) {
-                result.resize(vi.size() * dimension);
+                result.resize(vi.size() * this->dimension());
             }
             for (std::size_t j = 0; j < vi.size(); ++j) {
-                result[i + j * dimension] = vi[j];
+                result[i + j * this->dimension()] = vi[j];
             }
         }
         return result;
     }
 
     //! Returns the count of all the measurements.
-    double count() const {
-        return CMetricStatisticWrappers::count(m_Values[0]);
-    }
+    double count() const { return metric_stat_shims::count(m_Values[0]); }
 
     //! Combine two partial statistics.
     const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {

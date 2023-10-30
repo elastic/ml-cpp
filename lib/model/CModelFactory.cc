@@ -370,17 +370,13 @@ CModelFactory::SModelInitializationData::SModelInitializationData(const TDataGat
     : s_DataGatherer(dataGatherer) {
 }
 
-CModelFactory::SGathererInitializationData::SGathererInitializationData(
-    core_t::TTime startTime,
-    const std::string& partitionFieldValue,
-    unsigned int sampleOverrideCount)
-    : s_StartTime(startTime), s_PartitionFieldValue(partitionFieldValue),
-      s_SampleOverrideCount(sampleOverrideCount) {
+CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime,
+                                                                        const std::string& partitionFieldValue)
+    : s_StartTime(startTime), s_PartitionFieldValue(partitionFieldValue) {
 }
 
 CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime)
-    : s_StartTime(startTime), s_PartitionFieldValue(EMPTY_STRING),
-      s_SampleOverrideCount(0u) {
+    : s_StartTime(startTime), s_PartitionFieldValue(EMPTY_STRING) {
 }
 }
 }

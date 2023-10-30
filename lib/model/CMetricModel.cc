@@ -27,7 +27,6 @@
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
-#include <model/CGathererTools.h>
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
@@ -206,7 +205,7 @@ void CMetricModel::sample(core_t::TTime startTime,
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
-        gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
+        gatherer.featureData(time, m_CurrentBucketStats.s_FeatureData);
 
         const TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
         TSizeTimeUMap lastBucketTimesMap;
@@ -233,7 +232,7 @@ void CMetricModel::sample(core_t::TTime startTime,
 
             for (const auto& data_ : data) {
                 std::size_t pid = data_.first;
-                const CGathererTools::TSampleVec& samples = data_.second.s_Samples;
+                const auto& samples = data_.second.s_Samples;
 
                 maths::common::CModel* model = this->model(feature, pid);
                 if (model == nullptr) {
@@ -344,9 +343,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     })
                     .memoryCircuitBreaker(circuitBreaker);
 
-                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
-                    gatherer.resetSampleCount(pid);
-                }
+                model->addSamples(params, values);
             }
         }
 
@@ -553,7 +550,7 @@ void CMetricModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& 
     // Stop collecting for these people and add them to the free list.
     gatherer.recyclePeople(people);
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(),
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime,
                              m_CurrentBucketStats.s_FeatureData);
     }
 

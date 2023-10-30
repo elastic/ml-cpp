@@ -164,10 +164,6 @@ public:
     //! \param[in] features The features of the data to model.
     //! \param[in] startTime The start of the time interval for which
     //! to gather data.
-    //! \param[in] sampleCountOverride for the number of measurements
-    //! in a statistic. (Note that this is intended for testing only.)
-    //! A zero value means that the data gatherer class will determine
-    //! an appropriate value for the bucket length and data rate.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
                   const SModelParams& modelParams,
@@ -179,8 +175,7 @@ public:
                   const TStrVec& influenceFieldNames,
                   const CSearchKey& key,
                   const TFeatureVec& features,
-                  core_t::TTime startTime,
-                  int sampleCountOverride);
+                  core_t::TTime startTime);
 
     //! Construct from a state document.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
@@ -336,10 +331,9 @@ public:
     //! \tparam T The type of the feature data.
     template<typename T>
     bool featureData(core_t::TTime time,
-                     core_t::TTime bucketLength,
                      std::vector<std::pair<model_t::EFeature, T>>& result) const {
         TFeatureAnyPrVec rawFeatureData;
-        m_BucketGatherer->featureData(time, bucketLength, rawFeatureData);
+        m_BucketGatherer->featureData(time, rawFeatureData);
 
         bool succeeded = true;
 
@@ -501,36 +495,6 @@ public:
     bool isAttributeActive(std::size_t cid) const;
     //@}
 
-    //! \name Metric
-    //@{
-    //! Get the current number of measurements in a sample for
-    //! the model of the entity identified by \p id.
-    //!
-    //! If we are performing temporal analysis we have one sample
-    //! count per person and if we are performing population analysis
-    //! we have one sample count per attribute.
-    double sampleCount(std::size_t id) const;
-
-    //! Get the effective number of measurements in a sample for
-    //! the model of the entity identified by \p id.
-    //!
-    //! If we are performing temporal analysis we have one sample
-    //! count per person and if we are performing population analysis
-    //! we have one sample count per attribute.
-    double effectiveSampleCount(std::size_t id) const;
-
-    //! Reset the number of measurements in a sample for the entity
-    //! identified \p id.
-    //!
-    //! If we are performing individual analysis we have one sample
-    //! count per person and if we are performing population analysis
-    //! we have one sample count per attribute.
-    void resetSampleCount(std::size_t id);
-
-    //! Get the sample counts.
-    const TSampleCountsPtr& sampleCounts() const;
-    //@}
-
     //! \name Time
     //@{
     //! Get the start of the current bucketing time interval.
@@ -592,7 +556,7 @@ public:
     bool resetBucket(core_t::TTime bucketStart);
 
     //! Release memory that is no longer needed
-    void releaseMemory(core_t::TTime samplingCutoffTime);
+    void releaseMemory();
 
     //! Get the global configuration parameters.
     const SModelParams& params() const;
@@ -715,8 +679,7 @@ private:
                               const std::string& attributeFieldName,
                               const std::string& valueFieldName,
                               const TStrVec& influenceFieldNames,
-                              core_t::TTime startTime,
-                              unsigned int sampleCountOverride);
+                              core_t::TTime startTime);
 
 private:
     //! The type of the bucket gatherer(s) used.
@@ -753,9 +716,6 @@ private:
 
     //! If true the gatherer will process missing person field values.
     bool m_UseNull;
-
-    //! The object responsible for managing sample counts.
-    TSampleCountsPtr m_SampleCounts;
 };
 }
 }

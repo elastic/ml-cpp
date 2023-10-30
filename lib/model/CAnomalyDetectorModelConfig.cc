@@ -68,7 +68,7 @@ const double CAnomalyDetectorModelConfig::DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTI
 const double CAnomalyDetectorModelConfig::DEFAULT_POPULATION_MINIMUM_MODE_FRACTION(0.05);
 const double CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT(12.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION(0.8);
-const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36u);
+const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36);
 const core_t::TTime
     CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE(core::constants::DAY);
 const core_t::TTime
@@ -730,10 +730,6 @@ void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef sch
 
 void CAnomalyDetectorModelConfig::modelPruneWindow(core_t::TTime modelPruneWindow) {
     m_ModelPruneWindow = modelPruneWindow;
-}
-
-core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {
-    return m_Factories.begin()->second->modelParams().s_SamplingAgeCutoff;
 }
 
 namespace {

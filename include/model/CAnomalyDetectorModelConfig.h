@@ -445,9 +445,6 @@ public:
     //! bucket length.
     double bucketNormalizationFactor() const;
 
-    //! The time window during which samples are accepted.
-    core_t::TTime samplingAgeCutoff() const;
-
 private:
     //! Bucket length.
     core_t::TTime m_BucketLength{0};

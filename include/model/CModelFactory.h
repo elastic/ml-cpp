@@ -126,15 +126,13 @@ public:
     //! time we need extra data to initialize a data gatherer.
     struct MODEL_EXPORT SGathererInitializationData {
         SGathererInitializationData(core_t::TTime startTime,
-                                    const std::string& partitionFieldValue,
-                                    unsigned int sampleOverrideCount = 0u);
+                                    const std::string& partitionFieldValue);
 
         //! This constructor is to simplify unit testing.
         SGathererInitializationData(const core_t::TTime startTime);
 
         core_t::TTime s_StartTime;
         const std::string& s_PartitionFieldValue;
-        unsigned int s_SampleOverrideCount;
     };
 
 public:

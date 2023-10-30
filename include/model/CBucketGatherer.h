@@ -331,7 +331,7 @@ public:
     virtual bool resetBucket(core_t::TTime bucketStart) = 0;
 
     //! Release memory that is no longer needed
-    virtual void releaseMemory(core_t::TTime samplingCutoffTime) = 0;
+    virtual void releaseMemory() = 0;
 
     //! Remove the values in queue for the people or attributes
     //! in \p toRemove.
@@ -381,18 +381,13 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void featureData(core_t::TTime time,
-                             core_t::TTime bucketLength,
-                             TFeatureAnyPrVec& result) const = 0;
+    virtual void featureData(core_t::TTime time, TFeatureAnyPrVec& result) const = 0;
 
     //! Get a reference to the owning data gatherer.
     const CDataGatherer& dataGatherer() const;
 
     //! Has this pid/cid pair had only explicit null records?
     bool hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, std::size_t cid) const;
-
-    //! Create samples if possible for the bucket pointed out by \p time.
-    virtual void sample(core_t::TTime time) = 0;
 
     //! Persist state by passing information \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;

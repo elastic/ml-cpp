@@ -18,11 +18,11 @@
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
+#include <model/CFeatureData.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CMetricBucketGatherer.h>
 #include <model/CMetricPopulationModelFactory.h>
 #include <model/CResourceMonitor.h>
-#include <model/CSampleGatherer.h>
 #include <model/ModelTypes.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -179,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
                       << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, bucketLength, tmp);
+            gatherer.featureData(bucketStart, tmp);
             BOOST_REQUIRE_EQUAL(features.size(), tmp.size());
             BOOST_REQUIRE_EQUAL(features[0], tmp[0].first);
 
@@ -218,9 +218,8 @@ BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
     // Test that we correctly sample the bucket minimums.
 
     using TMinAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
-    using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -246,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
                       << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, bucketLength, tmp);
+            gatherer.featureData(bucketStart, tmp);
             BOOST_REQUIRE_EQUAL(features.size(), tmp.size());
             BOOST_REQUIRE_EQUAL(features[0], tmp[0].first);
 
@@ -262,8 +261,7 @@ BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
             }
 
             TStrStrPrDoubleMap expectedMins;
-            for (TStrStrPrMinAccumulatorMapCItr itr = accumulators.begin();
-                 itr != accumulators.end(); ++itr) {
+            for (auto itr = accumulators.begin(); itr != accumulators.end(); ++itr) {
                 expectedMins[itr->first] = itr->second[0];
             }
 
@@ -312,7 +310,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
                       << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, bucketLength, tmp);
+            gatherer.featureData(bucketStart, tmp);
             BOOST_REQUIRE_EQUAL(features.size(), tmp.size());
             BOOST_REQUIRE_EQUAL(features[0], tmp[0].first);
 
@@ -373,7 +371,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
                       << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, bucketLength, tmp);
+            gatherer.featureData(bucketStart, tmp);
             BOOST_REQUIRE_EQUAL(features.size(), tmp.size());
             BOOST_REQUIRE_EQUAL(features[0], tmp[0].first);
 
@@ -401,82 +399,17 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
-    // Test that we set sensible sample counts for each attribute.
-
-    const core_t::TTime startTime = 1373932800;
-    const core_t::TTime bucketLength = 3600;
-    SModelParams params(bucketLength);
-    const std::string attribute("c1");
-    const std::string person("p1");
-    const std::size_t numberBuckets = 40;
-    const std::size_t personMessageCount[] = {
-        11,  11,  11,  11,  110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-        110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-        110, 110, 110, 97,  97,  97,  97,  97,  97,  97,  97,  97};
-    const double expectedSampleCounts[] = {
-        0.0,     0.0,    0.0,     11.0,   11.0,    11.0,    11.0,    11.0,
-        11.0,    11.0,   11.0,    11.0,   11.0,    11.0,    11.0,    11.0,
-        11.0,    11.0,   11.0,    11.0,   11.0,    11.0,    11.0,    11.0,
-        11.0,    11.0,   11.0,    11.0,   11.0,    11.0,    11.3597, 11.7164,
-        12.0701, 12.421, 12.7689, 13.114, 13.4562, 13.7957, 14.1325, 14.4665};
-    const double tolerance = 5e-4;
-
-    TMessageVec messages;
-    for (std::size_t bucket = 0; bucket < numberBuckets; ++bucket) {
-        core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
-
-        std::size_t n = personMessageCount[bucket];
-        for (std::size_t i = 0; i < n; ++i) {
-            core_t::TTime time = bucketStart + bucketLength *
-                                                   static_cast<core_t::TTime>(i) /
-                                                   static_cast<core_t::TTime>(n);
-            messages.push_back(SMessage(time, person, attribute, 1.0));
-        }
-    }
-
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationMeanByPersonAndAttribute});
-    CModelFactory::SGathererInitializationData initData(startTime);
-    CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer& gatherer(*gathererPtr);
-
-    std::size_t bucket = 0;
-    for (std::size_t i = 0; i < messages.size(); ++i) {
-        core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
-
-        if (messages[i].s_Time >= bucketStart + bucketLength) {
-            gatherer.sampleNow(bucketStart);
-            LOG_DEBUG(<< gatherer.effectiveSampleCount(0));
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedSampleCounts[bucket],
-                                         gatherer.effectiveSampleCount(0), tolerance);
-            ++bucket;
-        }
-
-        addArrival(messages[i], gatherer, m_ResourceMonitor);
-    }
-
-    core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
-    gatherer.sampleNow(bucketStart);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedSampleCounts[bucket],
-                                 gatherer.effectiveSampleCount(0), tolerance);
-}
-
 BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     // Test we correctly sample the mean, minimum and maximum statistics.
 
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
-    using TStrStrPrMeanAccumulatorMapCItr = TStrStrPrMeanAccumulatorMap::const_iterator;
     using TMinAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
-    using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
     using TMaxAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
-    using TStrStrPrMaxAccumulatorMapCItr = TStrStrPrMaxAccumulatorMap::const_iterator;
     using TStrStrPrDoubleVecMap = std::map<TStrStrPr, TDoubleVec>;
 
     const core_t::TTime startTime = 1373932800;
@@ -516,7 +449,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             gatherer.sampleNow(bucketStart);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, bucketLength, tmp);
+            gatherer.featureData(bucketStart, tmp);
             BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(3), tmp.size());
 
             BOOST_REQUIRE_EQUAL(model_t::E_PopulationMeanByPersonAndAttribute,
@@ -577,20 +510,20 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             }
 
             TStrStrPrDoubleMap expectedMeans;
-            for (TStrStrPrMeanAccumulatorMapCItr itr = bucketMeanAccumulators.begin();
+            for (auto itr = bucketMeanAccumulators.begin();
                  itr != bucketMeanAccumulators.end(); ++itr) {
                 expectedMeans[itr->first] =
                     maths::common::CBasicStatistics::mean(itr->second);
             }
 
             TStrStrPrDoubleMap expectedMins;
-            for (TStrStrPrMinAccumulatorMapCItr itr = bucketMinAccumulators.begin();
+            for (auto itr = bucketMinAccumulators.begin();
                  itr != bucketMinAccumulators.end(); ++itr) {
                 expectedMins[itr->first] = itr->second[0];
             }
 
             TStrStrPrDoubleMap expectedMaxs;
-            for (TStrStrPrMaxAccumulatorMapCItr itr = bucketMaxAccumulators.begin();
+            for (auto itr = bucketMaxAccumulators.begin();
                  itr != bucketMaxAccumulators.end(); ++itr) {
                 expectedMaxs[itr->first] = itr->second[0];
             }
@@ -631,22 +564,16 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
         std::size_t cid;
         BOOST_TEST_REQUIRE(gatherer.attributeId(messages[i].s_Attribute, cid));
 
-        double sampleCount = gatherer.effectiveSampleCount(cid);
-        if (sampleCount > 0.0) {
-            sampleMeanAccumulators[key].add(messages[i].s_Value);
-            sampleMinAccumulators[key].add(messages[i].s_Value);
-            sampleMaxAccumulators[key].add(messages[i].s_Value);
-            if (maths::common::CBasicStatistics::count(sampleMeanAccumulators[key]) ==
-                std::floor(sampleCount + 0.5)) {
-                expectedMeanSamples[key].push_back(
-                    maths::common::CBasicStatistics::mean(sampleMeanAccumulators[key]));
-                expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
-                expectedMaxSamples[key].push_back(sampleMaxAccumulators[key][0]);
-                sampleMeanAccumulators[key] = TMeanAccumulator();
-                sampleMinAccumulators[key] = TMinAccumulator();
-                sampleMaxAccumulators[key] = TMaxAccumulator();
-            }
-        }
+        sampleMeanAccumulators[key].add(messages[i].s_Value);
+        sampleMinAccumulators[key].add(messages[i].s_Value);
+        sampleMaxAccumulators[key].add(messages[i].s_Value);
+        expectedMeanSamples[key].push_back(
+            maths::common::CBasicStatistics::mean(sampleMeanAccumulators[key]));
+        expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
+        expectedMaxSamples[key].push_back(sampleMaxAccumulators[key][0]);
+        sampleMeanAccumulators[key] = TMeanAccumulator();
+        sampleMinAccumulators[key] = TMinAccumulator();
+        sampleMaxAccumulators[key] = TMaxAccumulator();
     }
 }
 
@@ -672,7 +599,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     features.push_back(model_t::E_PopulationSumByBucketPersonAndAttribute);
     CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, searchKey, features, startTime, 0);
+                           EMPTY_STRING, {}, searchKey, features, startTime);
 
     TMessageVec messages;
     generateTestMessages(startTime, messages);
@@ -728,7 +655,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrFeatureDataPrVec expectedFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(bucketStart, bucketLength, featureData);
+        gatherer.featureData(bucketStart, featureData);
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0; j < data.size(); ++j) {
@@ -770,14 +697,14 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrFeatureDataPrVec actualFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(bucketStart, bucketLength, featureData);
+        gatherer.featureData(bucketStart, featureData);
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
-                actualFeatureData.push_back(TStrFeatureDataPr(key, data[j].second));
+                actualFeatureData.emplace_back(key, data[j].second);
                 LOG_TRACE(<< "  " << key);
                 LOG_TRACE(<< "    " << data[j].second.print());
             }
@@ -807,7 +734,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     features.push_back(model_t::E_PopulationSumByBucketPersonAndAttribute);
     CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           EMPTY_STRING, {}, searchKey, features, startTime, 0);
+                           EMPTY_STRING, {}, searchKey, features, startTime);
 
     TMessageVec messages;
     generateTestMessages(startTime, messages);
@@ -825,21 +752,19 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
 
     // Remove attributes 0, 2, 3, 9 (i.e. last).
     TSizeVec attributesToRemove;
-    attributesToRemove.push_back(0u);
-    attributesToRemove.push_back(2u);
-    attributesToRemove.push_back(3u);
-    attributesToRemove.push_back(9u);
+    attributesToRemove.push_back(0);
+    attributesToRemove.push_back(2);
+    attributesToRemove.push_back(3);
+    attributesToRemove.push_back(9);
 
     std::size_t numberAttributes = gatherer.numberActiveAttributes();
     BOOST_REQUIRE_EQUAL(numberAttributes, gatherer.numberByFieldValues());
     TStrVec expectedAttributeNames;
     TSizeVec expectedAttributeIds;
-    TDoubleVec expectedSampleCounts;
     for (std::size_t i = 0; i < numberAttributes; ++i) {
         if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), i)) {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
-            expectedSampleCounts.push_back(gatherer.effectiveSampleCount(i));
         } else {
             LOG_DEBUG(<< "Removing " << gatherer.attributeName(i));
         }
@@ -850,7 +775,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         LOG_TRACE(<< "Expected");
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(bucketStart, bucketLength, featureData);
+        gatherer.featureData(bucketStart, featureData);
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0; j < data.size(); ++j) {
@@ -879,19 +804,13 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     }
 
     numberAttributes = gatherer.numberActiveAttributes();
-    TDoubleVec actualSampleCounts;
-    for (std::size_t i = 0; i < numberAttributes; ++i) {
-        actualSampleCounts.push_back(gatherer.effectiveSampleCount(expectedAttributeIds[i]));
-    }
-    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampleCounts),
-                        core::CContainerPrinter::print(actualSampleCounts));
 
     std::string actualFeatureData;
     {
         LOG_TRACE(<< "Actual");
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-        gatherer.featureData(bucketStart, bucketLength, featureData);
+        gatherer.featureData(bucketStart, featureData);
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0; j < data.size(); ++j) {
@@ -973,16 +892,16 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
     TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
-    CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
+    CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           influencerNames, searchKey, features, startTime, 2u);
+                           EMPTY_STRING, influencerNames, searchKey, features, startTime);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0; i < std::size(data); ++i) {
+    for (std::size_t i = 0; i < std::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-            gatherer.featureData(bucketStart, bucketLength, featureData);
+            gatherer.featureData(bucketStart, featureData);
             for (std::size_t j = 0; j < featureData.size(); ++j) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
@@ -1016,7 +935,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             }
 
             bucketStart += bucketLength;
-            ++b;
         }
         addArrival(data[i], gatherer, m_ResourceMonitor);
     }
@@ -1036,7 +954,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     CDataGatherer origDataGatherer(model_t::E_PopulationMetric, model_t::E_None,
                                    params, EMPTY_STRING, EMPTY_STRING,
                                    EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, {},
-                                   searchKey, features, startTime, 0);
+                                   searchKey, features, startTime);
 
     TMessageVec messages;
     generateTestMessages(startTime, messages);
@@ -1135,7 +1053,7 @@ BOOST_FIXTURE_TEST_CASE(testReleaseMemory, CTestFixture) {
         }
         gatherer.sampleNow(bucketStart - params.s_LatencyBuckets * bucketLength);
         bucketStart += bucketLength;
-        gatherer.releaseMemory(bucketStart - params.s_SamplingAgeCutoff);
+        gatherer.releaseMemory();
         if (i <= 40) {
             BOOST_TEST_REQUIRE(gatherer.memoryUsage() >= mem - 1000);
         }

@@ -681,7 +681,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
             continue;
         }
         detector->buildResults(bucketStartTime, bucketStartTime + bucketLength, results);
-        detector->releaseMemory(bucketStartTime - m_ModelConfig.samplingAgeCutoff());
+        detector->releaseMemory();
 
         this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength,
                                 *detector, modelPlotData);

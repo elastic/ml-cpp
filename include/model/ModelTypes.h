@@ -614,21 +614,19 @@ std::string print(EFeature feature);
 //! These enumerate the distinct types of metric statistic
 //! which we gather.
 enum EMetricCategory {
-    E_Mean,
-    E_Min,
-    E_Max,
-    E_Sum,
-    E_MultivariateMean,
-    E_MultivariateMin,
-    E_MultivariateMax,
-    E_Median,
-    E_Variance
+    E_Mean = 0,
+    E_Min = 1,
+    E_Max = 2,
+    E_Sum = 3,
+    E_MultivariateMean = 4,
+    E_Median = 7,
+    E_Variance = 8
     // If you add any more enumeration values here then be sure to update the
     // constant beneath too!
 };
 
 //! Must correspond to the number of enumeration values of EMetricCategory
-const size_t NUM_METRIC_CATEGORIES = 9;
+constexpr std::size_t NUM_METRIC_CATEGORIES{9};
 
 //! Get the metric feature data corresponding to \p feature
 //! if there is one.

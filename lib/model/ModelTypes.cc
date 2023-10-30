@@ -398,14 +398,12 @@ bool isMedianFeature(EFeature feature) {
 
 bool isMinFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) &&
-           (category == E_Min || category == E_MultivariateMin);
+    return metricCategory(feature, category) && (category == E_Min);
 }
 
 bool isMaxFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) &&
-           (category == E_Max || category == E_MultivariateMax);
+    return metricCategory(feature, category) && (category == E_Max);
 }
 
 bool isVarianceFeature(EFeature feature) {
@@ -1656,10 +1654,6 @@ std::string print(EMetricCategory category) {
         return "'sum'";
     case E_MultivariateMean:
         return "'multivariate mean'";
-    case E_MultivariateMin:
-        return "'multivariate minimum'";
-    case E_MultivariateMax:
-        return "'multivariate maximum'";
     case E_Median:
         return "'median'";
     case E_Variance:

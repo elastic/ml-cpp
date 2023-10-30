@@ -21,10 +21,8 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CGathererTools.h>
+#include <model/CMetricStatGatherer.h>
 #include <model/CResourceMonitor.h>
-#include <model/CSampleCounts.h>
-#include <model/CSampleGatherer.h>
 #include <model/CSearchKey.h>
 
 #include <boost/tuple/tuple.hpp>
@@ -50,33 +48,23 @@ using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
     std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLess>;
 using TSampleVec = std::vector<CSample>;
-using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMeanGatherer>;
+using TSizeSumGathererUMap = boost::unordered_map<std::size_t, TSumGatherer>;
+using TSizeSizeSumGathererUMapUMap = boost::unordered_map<std::size_t, TSizeSumGathererUMap>;
+using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, TMeanGatherer>;
 using TSizeSizeMeanGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMeanGathererUMap>;
-using TSizeMedianGathererUMap =
-    boost::unordered_map<std::size_t, CGathererTools::TMedianGatherer>;
+using TSizeMedianGathererUMap = boost::unordered_map<std::size_t, TMedianGatherer>;
 using TSizeSizeMedianGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMedianGathererUMap>;
-using TSizeMinGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMinGatherer>;
+using TSizeMinGathererUMap = boost::unordered_map<std::size_t, TMinGatherer>;
 using TSizeSizeMinGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMinGathererUMap>;
-using TSizeMaxGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMaxGatherer>;
+using TSizeMaxGathererUMap = boost::unordered_map<std::size_t, TMaxGatherer>;
 using TSizeSizeMaxGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMaxGathererUMap>;
-using TSizeVarianceGathererUMap =
-    boost::unordered_map<std::size_t, CGathererTools::TVarianceGatherer>;
+using TSizeVarianceGathererUMap = boost::unordered_map<std::size_t, TVarianceGatherer>;
 using TSizeSizeVarianceGathererUMapUMap =
     boost::unordered_map<std::size_t, TSizeVarianceGathererUMap>;
-using TSizeSumGathererUMap = boost::unordered_map<std::size_t, CGathererTools::CSumGatherer>;
-using TSizeSizeSumGathererUMapUMap = boost::unordered_map<std::size_t, TSizeSumGathererUMap>;
 using TSizeMultivariateMeanGathererUMap =
-    boost::unordered_map<std::size_t, CGathererTools::TMultivariateMeanGatherer>;
+    boost::unordered_map<std::size_t, TMultivariateMeanGatherer>;
 using TSizeSizeMultivariateMeanGathererUMapUMap =
     boost::unordered_map<std::size_t, TSizeMultivariateMeanGathererUMap>;
-using TSizeMultivariateMinGathererUMap =
-    boost::unordered_map<std::size_t, CGathererTools::TMultivariateMinGatherer>;
-using TSizeSizeMultivariateMinGathererUMapUMap =
-    boost::unordered_map<std::size_t, TSizeMultivariateMinGathererUMap>;
-using TSizeMultivariateMaxGathererUMap =
-    boost::unordered_map<std::size_t, CGathererTools::TMultivariateMaxGatherer>;
-using TSizeSizeMultivariateMaxGathererUMapUMap =
-    boost::unordered_map<std::size_t, TSizeMultivariateMaxGathererUMap>;
 using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
 using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
 using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, SMetricFeatureData>;
@@ -103,8 +91,6 @@ const std::string MIN_TAG("f");
 const std::string MAX_TAG("g");
 const std::string SUM_TAG("h");
 const std::string MULTIVARIATE_MEAN_TAG("i");
-const std::string MULTIVARIATE_MIN_TAG("j");
-const std::string MULTIVARIATE_MAX_TAG("k");
 const std::string MEDIAN_TAG("l");
 const std::string VARIANCE_TAG("m");
 const std::string EMPTY_STRING;
@@ -155,14 +141,6 @@ template<>
 struct SDataType<model_t::E_MultivariateMean> {
     using Type = TSizeSizeMultivariateMeanGathererUMapUMap;
 };
-template<>
-struct SDataType<model_t::E_MultivariateMin> {
-    using Type = TSizeSizeMultivariateMinGathererUMapUMap;
-};
-template<>
-struct SDataType<model_t::E_MultivariateMax> {
-    using Type = TSizeSizeMultivariateMaxGathererUMapUMap;
-};
 template<typename ITR, typename T>
 struct SMaybeConst {};
 template<typename T>
@@ -185,8 +163,6 @@ void registerMemoryCallbacks(VISITOR& visitor) {
     visitor.template registerCallback<TSizeSizeVarianceGathererUMapUMap>();
     visitor.template registerCallback<TSizeSizeSumGathererUMapUMap>();
     visitor.template registerCallback<TSizeSizeMultivariateMeanGathererUMapUMap>();
-    visitor.template registerCallback<TSizeSizeMultivariateMinGathererUMapUMap>();
-    visitor.template registerCallback<TSizeSizeMultivariateMaxGathererUMapUMap>();
 }
 
 //! Register the callbacks for computing the size of feature data gatherers.
@@ -233,12 +209,6 @@ bool applyFunc(ITR begin, ITR end, const F& f) {
                 break;
             case model_t::E_MultivariateMean:
                 applyFunc<model_t::E_MultivariateMean>(i, f);
-                break;
-            case model_t::E_MultivariateMin:
-                applyFunc<model_t::E_MultivariateMin>(i, f);
-                break;
-            case model_t::E_MultivariateMax:
-                applyFunc<model_t::E_MultivariateMax>(i, f);
                 break;
             }
         } catch (const std::exception& e) {
@@ -297,12 +267,6 @@ private:
             return SUM_TAG;
         case model_t::E_MultivariateMean:
             return MULTIVARIATE_MEAN_TAG +
-                   core::CStringUtils::typeToString(category.second);
-        case model_t::E_MultivariateMin:
-            return MULTIVARIATE_MIN_TAG +
-                   core::CStringUtils::typeToString(category.second);
-        case model_t::E_MultivariateMax:
-            return MULTIVARIATE_MAX_TAG +
                    core::CStringUtils::typeToString(category.second);
         }
         return EMPTY_STRING;
@@ -410,7 +374,8 @@ private:
     //! \brief Responsible for restoring individual gatherers.
     class CDoNewRestore {
     public:
-        CDoNewRestore(std::size_t dimension) : m_Dimension(dimension) {}
+        explicit CDoNewRestore(std::size_t dimension)
+            : m_Dimension(dimension) {}
 
         template<typename T>
         bool operator()(core::CStateRestoreTraverser& traverser,
@@ -486,10 +451,12 @@ private:
                                   << traverser.value());
                         return false;
                     }
-                    T initial(gatherer.dataGatherer().params(), m_Dimension,
+                    T initial{gatherer.dataGatherer().params().s_LatencyBuckets,
+                              m_Dimension,
                               gatherer.currentBucketStartTime(),
-                              gatherer.bucketLength(), gatherer.beginInfluencers(),
-                              gatherer.endInfluencers());
+                              gatherer.bucketLength(),
+                              gatherer.beginInfluencers(),
+                              gatherer.endInfluencers()};
                     if (traverser.traverseSubLevel(
                             std::bind<bool>(&T::acceptRestoreTraverser, &initial,
                                             std::placeholders::_1)) == false) {
@@ -510,14 +477,14 @@ private:
     //! \brief Responsible for restoring individual gatherers.
     class CDoOldRestore {
     public:
-        CDoOldRestore(std::size_t dimension) : m_Dimension(dimension) {}
+        explicit CDoOldRestore(std::size_t dimension)
+            : m_Dimension(dimension) {}
 
         template<typename T>
         bool operator()(core::CStateRestoreTraverser& traverser,
                         const CMetricBucketGatherer& gatherer,
                         TSizeSizeTUMapUMap<T>& result) const {
-            bool isPopulation = gatherer.dataGatherer().isPopulation();
-            if (isPopulation) {
+            if (gatherer.dataGatherer().isPopulation()) {
                 this->restorePopulation(traverser, gatherer, result);
             } else {
                 this->restoreIndividual(traverser, gatherer, result);
@@ -533,10 +500,12 @@ private:
             do {
                 const std::string& name = traverser.name();
                 if (name == DATA_TAG) {
-                    T initial(gatherer.dataGatherer().params(), m_Dimension,
+                    T initial{gatherer.dataGatherer().params().s_LatencyBuckets,
+                              m_Dimension,
                               gatherer.currentBucketStartTime(),
-                              gatherer.bucketLength(), gatherer.beginInfluencers(),
-                              gatherer.endInfluencers());
+                              gatherer.bucketLength(),
+                              gatherer.beginInfluencers(),
+                              gatherer.endInfluencers()};
                     if (traverser.traverseSubLevel(
                             std::bind(&T::acceptRestoreTraverser, &initial,
                                       std::placeholders::_1)) == false) {
@@ -575,10 +544,12 @@ private:
                         return false;
                     }
 
-                    T initial(gatherer.dataGatherer().params(), m_Dimension,
+                    T initial{gatherer.dataGatherer().params().s_LatencyBuckets,
+                              m_Dimension,
                               gatherer.currentBucketStartTime(),
-                              gatherer.bucketLength(), gatherer.beginInfluencers(),
-                              gatherer.endInfluencers());
+                              gatherer.bucketLength(),
+                              gatherer.beginInfluencers(),
+                              gatherer.endInfluencers()};
                     if (traverser.traverseSubLevel(
                             std::bind(&T::acceptRestoreTraverser, &initial,
                                       std::placeholders::_1)) == false) {
@@ -649,38 +620,6 @@ struct SRemoveAttributes {
     }
 };
 
-//! Sample the metric statistics.
-struct SDoSample {
-public:
-    template<typename T>
-    void operator()(const TCategorySizePr& /*category*/,
-                    TSizeSizeTUMapUMap<T>& data,
-                    core_t::TTime time,
-                    const CMetricBucketGatherer& gatherer,
-                    CSampleCounts& sampleCounts) const {
-        for (const auto& count : gatherer.bucketCounts(time)) {
-            std::size_t pid = CDataGatherer::extractPersonId(count);
-            std::size_t cid = CDataGatherer::extractAttributeId(count);
-            std::size_t activeId = gatherer.dataGatherer().isPopulation() ? cid : pid;
-            auto cidEntry = data.find(cid);
-            if (cidEntry == data.end()) {
-                LOG_ERROR(<< "No gatherer for attribute "
-                          << gatherer.dataGatherer().attributeName(cid) << " of person "
-                          << gatherer.dataGatherer().personName(pid));
-            } else {
-                auto pidEntry = cidEntry->second.find(pid);
-                if (pidEntry == cidEntry->second.end()) {
-                    LOG_ERROR(<< "No gatherer for attribute "
-                              << gatherer.dataGatherer().attributeName(cid) << " of person "
-                              << gatherer.dataGatherer().personName(pid));
-                } else if (pidEntry->second.sample(time, sampleCounts.count(activeId))) {
-                    sampleCounts.updateSampleVariance(activeId);
-                }
-            }
-        }
-    }
-};
-
 //! Stably hashes the collection of data gatherers.
 struct SHash {
 public:
@@ -720,23 +659,19 @@ public:
                     const CMetricBucketGatherer& gatherer,
                     model_t::EFeature feature,
                     core_t::TTime time,
-                    core_t::TTime bucketLength,
                     TFeatureAnyPrVec& result) const {
         if (gatherer.dataGatherer().isPopulation()) {
             result.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
             this->featureData(
-                data, gatherer, time, bucketLength, this->isSum(feature),
+                data, gatherer, time, this->isSum(feature),
                 *std::any_cast<TSizeSizePrFeatureDataPrVec>(&result.back().second));
         } else {
             result.emplace_back(feature, TSizeFeatureDataPrVec());
             this->featureData(
-                data, gatherer, time, bucketLength, this->isSum(feature),
+                data, gatherer, time, this->isSum(feature),
                 *std::any_cast<TSizeFeatureDataPrVec>(&result.back().second));
         }
     }
-
-private:
-    static const TSampleVec ZERO_SAMPLE;
 
 private:
     bool isSum(model_t::EFeature feature) const {
@@ -749,7 +684,6 @@ private:
     void featureData(const TSizeSizeTUMapUMap<T>& data,
                      const CMetricBucketGatherer& gatherer,
                      core_t::TTime time,
-                     core_t::TTime bucketLength,
                      bool isSum,
                      U& result) const {
         result.clear();
@@ -761,9 +695,9 @@ private:
                     std::size_t pid = pidEntry.first;
                     if (gatherer.hasExplicitNullsOnly(
                             time, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID) == false) {
-                        this->featureData(pidEntry.second, gatherer, pid,
+                        this->featureData(pidEntry.second, pid,
                                           model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                                          time, bucketLength, result);
+                                          time, result);
                     }
                 }
             }
@@ -785,9 +719,7 @@ private:
                               << gatherer.dataGatherer().personName(pid));
                     continue;
                 }
-
-                this->featureData(pidEntry->second, gatherer, pid, cid, time,
-                                  bucketLength, result);
+                this->featureData(pidEntry->second, pid, cid, time, result);
             }
         }
         std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
@@ -795,51 +727,24 @@ private:
 
     //! Individual model specialization
     template<typename T>
-    void featureData(const T& data,
-                     const CMetricBucketGatherer& gatherer,
+    void featureData(const T& gatherer,
                      std::size_t pid,
                      std::size_t /*cid*/,
                      core_t::TTime time,
-                     core_t::TTime bucketLength,
                      TSizeFeatureDataPrVec& result) const {
-        result.emplace_back(
-            pid, this->featureData(data, time, bucketLength,
-                                   gatherer.dataGatherer().effectiveSampleCount(pid)));
+        result.emplace_back(pid, gatherer.featureData(time));
     }
 
     //! Population model specialization
     template<typename T>
-    void featureData(const T& data,
-                     const CMetricBucketGatherer& gatherer,
+    void featureData(const T& gatherer,
                      std::size_t pid,
                      std::size_t cid,
                      core_t::TTime time,
-                     core_t::TTime bucketLength,
                      TSizeSizePrFeatureDataPrVec& result) const {
-        result.emplace_back(
-            TSizeSizePr(pid, cid),
-            this->featureData(data, time, bucketLength,
-                              gatherer.dataGatherer().effectiveSampleCount(cid)));
-    }
-
-    SMetricFeatureData featureData(const CGathererTools::CSumGatherer& data,
-                                   core_t::TTime time,
-                                   core_t::TTime bucketLength,
-                                   double /*effectiveSampleCount*/) const {
-        return data.featureData(time, bucketLength, ZERO_SAMPLE);
-    }
-
-    template<typename T>
-    inline SMetricFeatureData featureData(const T& data,
-                                          core_t::TTime time,
-                                          core_t::TTime bucketLength,
-                                          double effectiveSampleCount) const {
-        return data.featureData(time, bucketLength, effectiveSampleCount);
+        result.emplace_back(TSizeSizePr(pid, cid), gatherer.featureData(time));
     }
 };
-
-const TSampleVec
-    SExtractFeatureData::ZERO_SAMPLE(1, CSample(0, TDoubleVec(1, 0.0), 1.0, 1.0));
 
 //! Adds a value to the specified data gatherers.
 struct SAddValue {
@@ -847,7 +752,6 @@ struct SAddValue {
         core_t::TTime s_Time;
         const CEventData::TDouble1VecArray* s_Values;
         unsigned int s_Count;
-        unsigned int s_SampleCount;
         const TStoredStringPtrVec* s_Influences;
     };
 
@@ -858,17 +762,17 @@ struct SAddValue {
                            std::size_t cid,
                            const CMetricBucketGatherer& gatherer,
                            const SStatistic& stat) const {
-        auto& entry =
+        auto& statGatherer =
             data[cid]
                 .emplace(boost::unordered::piecewise_construct, boost::make_tuple(pid),
                          boost::make_tuple(
-                             std::cref(gatherer.dataGatherer().params()),
+                             gatherer.dataGatherer().params().s_LatencyBuckets,
                              category.second, gatherer.currentBucketStartTime(),
                              gatherer.bucketLength(), gatherer.beginInfluencers(),
                              gatherer.endInfluencers()))
                 .first->second;
-        entry.add(stat.s_Time, (*stat.s_Values)[category.first], stat.s_Count,
-                  stat.s_SampleCount, *stat.s_Influences);
+        statGatherer.add(stat.s_Time, (*stat.s_Values)[category.first],
+                         stat.s_Count, *stat.s_Influences);
     }
 };
 
@@ -906,13 +810,11 @@ public:
 struct SReleaseMemory {
 public:
     template<typename T>
-    void operator()(const TCategorySizePr& /*category*/,
-                    TSizeSizeTUMapUMap<T>& data,
-                    core_t::TTime samplingCutoffTime) const {
+    void operator()(const TCategorySizePr& /*category*/, TSizeSizeTUMapUMap<T>& data) const {
         for (auto& cidEntry : data) {
             auto& pidMap = cidEntry.second;
             for (auto i = pidMap.begin(); i != pidMap.end(); /**/) {
-                if (i->second.isRedundant(samplingCutoffTime)) {
+                if (i->second.isRedundant()) {
                     i = pidMap.erase(i);
                 } else {
                     ++i;
@@ -1052,30 +954,6 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
         CRestoreFeatureData<model_t::E_MultivariateMean> restore;
         if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR(<< "Invalid multivariate mean data in " << traverser.value());
-            return false;
-        }
-    } else if (name.find(MULTIVARIATE_MIN_TAG) != std::string::npos) {
-        std::size_t dimension;
-        if (core::CStringUtils::stringToType(
-                name.substr(MULTIVARIATE_MIN_TAG.length()), dimension) == false) {
-            LOG_ERROR(<< "Invalid dimension in " << name);
-            return false;
-        }
-        CRestoreFeatureData<model_t::E_MultivariateMin> restore;
-        if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ERROR(<< "Invalid multivariate min data in " << traverser.value());
-            return false;
-        }
-    } else if (name.find(MULTIVARIATE_MAX_TAG) != std::string::npos) {
-        std::size_t dimension;
-        if (core::CStringUtils::stringToType(
-                name.substr(MULTIVARIATE_MAX_TAG.length()), dimension) == false) {
-            LOG_ERROR(<< "Invalid dimension in " << name);
-            return false;
-        }
-        CRestoreFeatureData<model_t::E_MultivariateMax> restore;
-        if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ERROR(<< "Invalid multivariate max data in " << traverser.value());
             return false;
         }
     }
@@ -1373,24 +1251,14 @@ bool CMetricBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     return true;
 }
 
-void CMetricBucketGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
+void CMetricBucketGatherer::releaseMemory() {
     applyFunc(m_FeatureData,
               [&, releaseMemory = SReleaseMemory{} ](const auto& category, auto& data) {
-                  releaseMemory(category, data, samplingCutoffTime);
+                  releaseMemory(category, data);
               });
 }
 
-void CMetricBucketGatherer::sample(core_t::TTime time) {
-    if (m_DataGatherer.sampleCounts()) {
-        applyFunc(m_FeatureData, [&, sample = SDoSample{} ](const auto& category, auto& data) {
-            sample(category, data, time, *this, *m_DataGatherer.sampleCounts());
-        });
-    }
-}
-
-void CMetricBucketGatherer::featureData(core_t::TTime time,
-                                        core_t::TTime bucketLength,
-                                        TFeatureAnyPrVec& result) const {
+void CMetricBucketGatherer::featureData(core_t::TTime time, TFeatureAnyPrVec& result) const {
     result.clear();
 
     if (!this->dataAvailable(time) ||
@@ -1413,8 +1281,8 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
                 applyFunc(begin, end,
                           [&, extractFeatureData = SExtractFeatureData{} ](
                               const auto& category_, const auto& data) {
-                              extractFeatureData(category_, data, *this, feature,
-                                                 time, bucketLength, result);
+                              extractFeatureData(category_, data, *this,
+                                                 feature, time, result);
                           });
             } else {
                 LOG_ERROR(<< "No data for category " << model_t::print(category));
@@ -1425,12 +1293,7 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
     }
 }
 
-void CMetricBucketGatherer::resize(std::size_t pid, std::size_t cid) {
-    if (m_DataGatherer.sampleCounts()) {
-        m_DataGatherer.sampleCounts()->resize(m_DataGatherer.isPopulation() ? cid : pid);
-    } else {
-        LOG_ERROR(<< "Invalid sample counts for gatherer");
-    }
+void CMetricBucketGatherer::resize(std::size_t /*pid*/, std::size_t /*cid*/) {
 }
 
 void CMetricBucketGatherer::addValue(std::size_t pid,
@@ -1447,14 +1310,6 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
     stat.s_Time = time;
     stat.s_Values = &values;
     stat.s_Count = static_cast<unsigned int>(count);
-    if (m_DataGatherer.sampleCounts()) {
-        stat.s_SampleCount = m_DataGatherer.sampleCounts()->count(
-            m_DataGatherer.isPopulation() ? cid : pid);
-    } else {
-        LOG_ERROR(<< "Invalid sample counts for gatherer");
-        stat.s_SampleCount = 0.0;
-    }
-
     stat.s_Influences = &influences;
     applyFunc(m_FeatureData, [&, addValue = SAddValue{} ](const auto& category, auto& data) {
         addValue(category, data, pid, cid, *this, stat);
@@ -1485,19 +1340,6 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
                         .first->second[0] += CDataGatherer::extractData(count);
                 }
             }
-            double alpha = std::exp(-m_DataGatherer.params().s_DecayRate);
-
-            for (auto& count : counts) {
-                std::sort(count.second.begin(), count.second.end());
-                std::size_t n = count.second.size() / 2;
-                double median =
-                    count.second.size() % 2 == 0
-                        ? static_cast<double>(count.second[n - 1] + count.second[n]) / 2.0
-                        : static_cast<double>(count.second[n]);
-                m_DataGatherer.sampleCounts()->updateMeanNonZeroBucketCount(
-                    count.first, median, alpha);
-            }
-            m_DataGatherer.sampleCounts()->refresh(m_DataGatherer);
         }
     }
     applyFunc(m_FeatureData,
@@ -1576,12 +1418,6 @@ void CMetricBucketGatherer::initializeFeatureData() {
                 break;
             case model_t::E_MultivariateMean:
                 initializeFeatureDataInstance<model_t::E_MultivariateMean>(dimension, m_FeatureData);
-                break;
-            case model_t::E_MultivariateMin:
-                initializeFeatureDataInstance<model_t::E_MultivariateMin>(dimension, m_FeatureData);
-                break;
-            case model_t::E_MultivariateMax:
-                initializeFeatureDataInstance<model_t::E_MultivariateMax>(dimension, m_FeatureData);
                 break;
             }
         } else {

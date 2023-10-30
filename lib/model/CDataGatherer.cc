@@ -24,7 +24,6 @@
 
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
-#include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 
@@ -154,8 +153,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              const TStrVec& influenceFieldNames,
                              const CSearchKey& key,
                              const TFeatureVec& features,
-                             core_t::TTime startTime,
-                             int sampleCountOverride)
+                             core_t::TTime startTime)
     : m_GathererType(gathererType),
       m_Features(detail::sanitize(features, gathererType)),
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
@@ -172,8 +170,8 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
 
     std::sort(m_Features.begin(), m_Features.end());
     this->createBucketGatherer(gathererType, summaryCountFieldName,
-                               personFieldName, attributeFieldName, valueFieldName,
-                               influenceFieldNames, startTime, sampleCountOverride);
+                               personFieldName, attributeFieldName,
+                               valueFieldName, influenceFieldNames, startTime);
 }
 
 CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
@@ -219,9 +217,6 @@ CDataGatherer::CDataGatherer(bool isForPersistence, const CDataGatherer& other)
         LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
     m_BucketGatherer.reset(other.m_BucketGatherer->cloneForPersistence());
-    if (other.m_SampleCounts) {
-        m_SampleCounts.reset(other.m_SampleCounts->cloneForPersistence());
-    }
 }
 
 CDataGatherer::~CDataGatherer() {
@@ -384,10 +379,6 @@ void CDataGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
 
     m_BucketGatherer->recyclePeople(peopleToRemove);
 
-    if (!this->isPopulation() && m_SampleCounts) {
-        m_SampleCounts->recycle(peopleToRemove);
-    }
-
     m_PeopleRegistry.recycleNames(peopleToRemove, DEFAULT_PERSON_NAME);
     core::CProgramCounters::counter(counter_t::E_TSADNumberPrunedItems) +=
         peopleToRemove.size();
@@ -396,10 +387,6 @@ void CDataGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
 void CDataGatherer::removePeople(std::size_t lowestPersonToRemove) {
     if (lowestPersonToRemove >= this->numberPeople()) {
         return;
-    }
-
-    if (!this->isPopulation() && m_SampleCounts) {
-        m_SampleCounts->remove(lowestPersonToRemove);
     }
 
     m_BucketGatherer->removePeople(lowestPersonToRemove);
@@ -452,10 +439,6 @@ void CDataGatherer::recycleAttributes(const TSizeVec& attributesToRemove) {
         return;
     }
 
-    if (this->isPopulation() && m_SampleCounts) {
-        m_SampleCounts->recycle(attributesToRemove);
-    }
-
     m_BucketGatherer->recycleAttributes(attributesToRemove);
 
     m_AttributesRegistry.recycleNames(attributesToRemove, DEFAULT_ATTRIBUTE_NAME);
@@ -466,10 +449,6 @@ void CDataGatherer::recycleAttributes(const TSizeVec& attributesToRemove) {
 void CDataGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     if (lowestAttributeToRemove >= this->numberAttributes()) {
         return;
-    }
-
-    if (this->isPopulation() && m_SampleCounts) {
-        m_SampleCounts->remove(lowestAttributeToRemove);
     }
 
     m_BucketGatherer->removeAttributes(lowestAttributeToRemove);
@@ -491,34 +470,6 @@ std::size_t CDataGatherer::addAttribute(const std::string& attribute,
     return m_AttributesRegistry.addName(attribute,
                                         m_BucketGatherer->currentBucketStartTime(),
                                         resourceMonitor, addedAttribute);
-}
-
-double CDataGatherer::sampleCount(std::size_t id) const {
-    if (m_SampleCounts) {
-        return static_cast<double>(m_SampleCounts->count(id));
-    } else {
-        LOG_ERROR(<< "Sample count for non-metric gatherer");
-        return 0.0;
-    }
-}
-
-double CDataGatherer::effectiveSampleCount(std::size_t id) const {
-    if (m_SampleCounts) {
-        return m_SampleCounts->effectiveSampleCount(id);
-    } else {
-        LOG_ERROR(<< "Effective sample count for non-metric gatherer");
-        return 0.0;
-    }
-}
-
-void CDataGatherer::resetSampleCount(std::size_t id) {
-    if (m_SampleCounts) {
-        m_SampleCounts->resetSampleCount(*this, id);
-    }
-}
-
-const CDataGatherer::TSampleCountsPtr& CDataGatherer::sampleCounts() const {
-    return m_SampleCounts;
 }
 
 core_t::TTime CDataGatherer::currentBucketStartTime() const {
@@ -559,9 +510,6 @@ std::uint64_t CDataGatherer::checksum() const {
     result = maths::common::CChecksum::calculate(result, m_AttributesRegistry);
     result = maths::common::CChecksum::calculate(result, m_SummaryMode);
     result = maths::common::CChecksum::calculate(result, m_Features);
-    if (m_SampleCounts) {
-        result = maths::common::CChecksum::calculate(result, m_SampleCounts->checksum(*this));
-    }
     result = maths::common::CChecksum::calculate(result, m_BucketGatherer);
 
     LOG_TRACE(<< "checksum = " << result);
@@ -574,7 +522,6 @@ void CDataGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& 
     core::memory_debug::dynamicSize("m_Features", m_Features, mem);
     core::memory_debug::dynamicSize("m_PeopleRegistry", m_PeopleRegistry, mem);
     core::memory_debug::dynamicSize("m_AttributesRegistry", m_AttributesRegistry, mem);
-    core::memory_debug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
     core::memory_debug::dynamicSize("m_BucketGatherer", m_BucketGatherer, mem);
 }
 
@@ -582,7 +529,6 @@ std::size_t CDataGatherer::memoryUsage() const {
     std::size_t mem = core::memory::dynamicSize(m_Features);
     mem += core::memory::dynamicSize(m_PeopleRegistry);
     mem += core::memory::dynamicSize(m_AttributesRegistry);
-    mem += core::memory::dynamicSize(m_SampleCounts);
     mem += core::memory::dynamicSize(m_BucketGatherer);
     return mem;
 }
@@ -594,10 +540,7 @@ bool CDataGatherer::useNull() const {
 void CDataGatherer::clear() {
     m_PeopleRegistry.clear();
     m_AttributesRegistry.clear();
-    if (m_SampleCounts) {
-        m_SampleCounts->clear();
-    }
-    if (m_BucketGatherer) {
+    if (m_BucketGatherer != nullptr) {
         m_BucketGatherer->clear();
     }
 }
@@ -606,9 +549,9 @@ bool CDataGatherer::resetBucket(core_t::TTime bucketStart) {
     return m_BucketGatherer->resetBucket(bucketStart);
 }
 
-void CDataGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
+void CDataGatherer::releaseMemory() {
     if (this->isPopulation()) {
-        m_BucketGatherer->releaseMemory(samplingCutoffTime);
+        m_BucketGatherer->releaseMemory();
     }
 }
 
@@ -626,13 +569,6 @@ void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter)
     inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG,
                          std::bind(&CDynamicStringIdRegistry::acceptPersistInserter,
                                    m_AttributesRegistry, std::placeholders::_1));
-
-    if (m_SampleCounts) {
-        inserter.insertLevel(SAMPLE_COUNTS_TAG,
-                             std::bind(&CSampleCounts::acceptPersistInserter,
-                                       m_SampleCounts.get(), std::placeholders::_1));
-    }
-
     inserter.insertLevel(BUCKET_GATHERER_TAG, std::bind(&CDataGatherer::persistBucketGatherers,
                                                         this, std::placeholders::_1));
 }
@@ -776,11 +712,6 @@ bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldN
                 traverser.traverseSubLevel(
                     std::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
                               &m_AttributesRegistry, std::placeholders::_1)))
-        RESTORE_SETUP_TEARDOWN(
-            SAMPLE_COUNTS_TAG, m_SampleCounts = std::make_unique<CSampleCounts>(0),
-            traverser.traverseSubLevel(std::bind(&CSampleCounts::acceptRestoreTraverser,
-                                                 m_SampleCounts.get(), std::placeholders::_1)),
-            /**/)
         RESTORE(BUCKET_GATHERER_TAG,
                 traverser.traverseSubLevel(std::bind(
                     &CDataGatherer::restoreBucketGatherer, this,
@@ -839,8 +770,7 @@ void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType
                                          const std::string& attributeFieldName,
                                          const std::string& valueFieldName,
                                          const TStrVec& influenceFieldNames,
-                                         core_t::TTime startTime,
-                                         unsigned int sampleCountOverride) {
+                                         core_t::TTime startTime) {
     switch (gathererType) {
     case model_t::E_EventRate:
     case model_t::E_PopulationEventRate:
@@ -850,7 +780,6 @@ void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType
         break;
     case model_t::E_Metric:
     case model_t::E_PopulationMetric:
-        m_SampleCounts = std::make_unique<CSampleCounts>(sampleCountOverride);
         m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(
             *this, summaryCountFieldName, personFieldName, attributeFieldName,
             valueFieldName, influenceFieldNames, startTime);

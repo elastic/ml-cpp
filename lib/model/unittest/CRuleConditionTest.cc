@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testTimeContition) {
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(std::make_shared<CDataGatherer>(
         model_t::E_Metric, model_t::E_None, params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime, 0));
+        EMPTY_STRING, EMPTY_STRING, TStrVec{}, key, features, startTime));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
 
