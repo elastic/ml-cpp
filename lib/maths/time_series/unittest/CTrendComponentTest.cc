@@ -362,8 +362,8 @@ BOOST_AUTO_TEST_CASE(testForecast) {
 BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
     // A randomized test that forecasts of time series with step changes
     // don't explode. We previously sometimes ran into issues when we
-    // extrapolated the feature distributions we use to predict changes.
-    // In such cases we would predict far too many changes leading to
+    // extrapolated the feature distributions we use to predict steps.
+    // In such cases we would predict far too many steps leading to
     // overly wide forecast bounds and unrealistic predictions.
 
     using TSizeVec = std::vector<std::size_t>;
