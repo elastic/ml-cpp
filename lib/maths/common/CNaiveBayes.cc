@@ -150,8 +150,7 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
     // If we persist before we create class conditional distributions we will
     // not have anything to restore and hasSubLevel will be false. Trying to
     // restore sets the traverser state to bad so we need to handle explicitly.
-    if (traverser.hasSubLevel() &&
-        traverser.traverseSubLevel([&](auto& traverser_) {
+    if (traverser.hasSubLevel() && traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(params, traverser_);
         }) == false) {
         traverser.setBadState();
