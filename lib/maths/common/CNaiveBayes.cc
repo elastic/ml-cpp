@@ -147,7 +147,11 @@ CNaiveBayes::CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                          const SDistributionRestoreParams& params,
                          core::CStateRestoreTraverser& traverser)
     : m_DecayRate{params.s_DecayRate}, m_Exemplar{exemplar.clone()}, m_ClassConditionalDensities{2} {
-    if (traverser.traverseSubLevel([&](auto& traverser_) {
+    // If we persist before we create class conditional distributions we will
+    // not have anything to restore and hasSubLevel will be false. Trying to
+    // restore sets the traverser state to bad so we need to handle explicitly.
+    if (traverser.hasSubLevel() &&
+        traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(params, traverser_);
         }) == false) {
         traverser.setBadState();
@@ -211,7 +215,7 @@ void CNaiveBayes::swap(CNaiveBayes& other) {
 }
 
 bool CNaiveBayes::initialized() const {
-    return m_ClassConditionalDensities.size() > 0 &&
+    return m_ClassConditionalDensities.empty() == false &&
            std::all_of(m_ClassConditionalDensities.begin(),
                        m_ClassConditionalDensities.end(),
                        [](const std::pair<std::size_t, CClass>& class_) {
@@ -245,7 +249,7 @@ void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& 
 
     bool updateCount{false};
     for (std::size_t i = 0; i < x.size(); ++i) {
-        if (x[i].size() > 0) {
+        if (x[i].empty() == false) {
             class_.conditionalDensities()[i]->add(x[i]);
             updateCount = true;
         }
@@ -383,7 +387,7 @@ std::string CNaiveBayes::print() const {
 bool CNaiveBayes::validate(const TDouble1VecVec& x) const {
     auto class_ = m_ClassConditionalDensities.begin();
     if (class_ != m_ClassConditionalDensities.end() &&
-        class_->second.conditionalDensities().size() > 0 &&
+        class_->second.conditionalDensities().empty() == false &&
         class_->second.conditionalDensities().size() != x.size()) {
         LOG_ERROR(<< "Unexpected feature vector: " << x);
         return false;
@@ -420,7 +424,7 @@ bool CNaiveBayes::CClass::acceptRestoreTraverser(const SDistributionRestoreParam
 void CNaiveBayes::CClass::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(COUNT_TAG, m_Count, core::CIEEE754::E_SinglePrecision);
     for (const auto& density : m_ConditionalDensities) {
-        if (dynamic_cast<const CNaiveBayesFeatureDensityFromPrior*>(density.get())) {
+        if (dynamic_cast<const CNaiveBayesFeatureDensityFromPrior*>(density.get()) != nullptr) {
             inserter.insertLevel(CONDITIONAL_DENSITY_FROM_PRIOR_TAG,
                                  [&density](auto& inserter_) {
                                      density->acceptPersistInserter(inserter_);

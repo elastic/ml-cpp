@@ -18,8 +18,7 @@ namespace core {
 CStateRestoreTraverser::CStateRestoreTraverser() : m_BadState(false) {
 }
 
-CStateRestoreTraverser::~CStateRestoreTraverser() {
-}
+CStateRestoreTraverser::~CStateRestoreTraverser() = default;
 
 bool CStateRestoreTraverser::haveBadState() const {
     return m_BadState;
