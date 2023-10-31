@@ -21,6 +21,7 @@ class Config:
     def parse_comment(self):
         if "GITHUB_PR_COMMENT_VAR_ACTION" in os.environ:
             self.action = os.environ["GITHUB_PR_COMMENT_VAR_ACTION"]
+            self.run_qa_tests = self.action == "run_qa_tests"
 
         if "GITHUB_PR_COMMENT_VAR_PLATFORM" in os.environ:
             csv_platform = os.environ["GITHUB_PR_COMMENT_VAR_PLATFORM"]
