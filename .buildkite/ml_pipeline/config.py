@@ -37,7 +37,7 @@ class Config:
             self.build_linux = True
 
     def parse_label(self):
-        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:qa-tests']
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:run-qa-tests']
         all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
         ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
         if not ci_labels:
