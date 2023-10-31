@@ -57,6 +57,9 @@ class Config:
                 elif "ci:build-linux" == label:
                     self.build_linux = True
                 elif "ci:run-qa-tests" == label:
+                    self.build_windows = True
+                    self.build_macos = True
+                    self.build_linux = True
                     self.run_qa_tests = True
 
     def parse(self):
