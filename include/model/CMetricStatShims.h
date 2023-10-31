@@ -102,6 +102,16 @@ std::size_t dimension(const CMetricMultivariateStatistic<STAT>& stat) {
 }
 
 template<typename STAT>
+bool wouldAdd(const TDouble1Vec&, STAT&) {
+    return true;
+}
+template<typename LESS>
+bool wouldAdd(const TDouble1Vec& value,
+              maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+    return stat.wouldAdd(value[0]);
+}
+
+template<typename STAT>
 void add(const TDouble1Vec& value, unsigned int count, STAT& stat) {
     stat.add(value[0], count);
 }

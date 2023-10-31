@@ -121,21 +121,91 @@ template<typename STAT>
 using TStoredStringPtrStatUMapQueueSerializer =
     typename TStoredStringPtrStatUMapQueue<STAT>::template CSerializer<CStoredStringPtrStatUMapSerializer<STAT>>;
 
+class CMidTime {
+public:
+    explicit CMidTime(core_t::TTime bucketLength) : m_Time{bucketLength / 2} {}
+
+    core_t::TTime value() const { return m_Time; }
+
+    void add(core_t::TTime, unsigned int) {}
+
+    std::string toDelimited() const {
+        return core::CStringUtils::typeToString(m_Time);
+    }
+    bool fromDelimited(const std::string& value) {
+        return core::CStringUtils::stringToType(value, m_Time);
+    }
+    std::uint64_t checksum() const {
+        return static_cast<std::uint64_t>(m_Time);
+    }
+
+private:
+    core_t::TTime m_Time{0};
+};
+
+class CLastTime {
+public:
+    explicit CLastTime(core_t::TTime) {}
+
+    core_t::TTime value() const { return m_Time; }
+
+    void add(core_t::TTime time, unsigned int) { m_Time = time; }
+
+    std::string toDelimited() const {
+        return core::CStringUtils::typeToString(m_Time);
+    }
+    bool fromDelimited(const std::string& value) {
+        return core::CStringUtils::stringToType(value, m_Time);
+    }
+    std::uint64_t checksum() const {
+        return static_cast<std::uint64_t>(m_Time);
+    }
+
+private:
+    core_t::TTime m_Time{0};
+};
+
+class CMeanTime {
+public:
+    explicit CMeanTime(core_t::TTime) {}
+
+    core_t::TTime value() const {
+        return static_cast<core_t::TTime>(
+                   std::round(maths::common::CBasicStatistics::mean(m_Time)));
+    }
+
+    void add(core_t::TTime time, unsigned int count) {
+        m_Time.add(static_cast<double>(time), count);
+    }
+
+    std::string toDelimited() const {
+        return m_Time.toDelimited();
+    }
+    bool fromDelimited(const std::string& value) {
+        return m_Time.fromDelimited(value);
+    }
+    std::uint64_t checksum() const {
+        return m_Time.checksum();
+    }
+
+private:
+    TMeanAccumulator m_Time;
+};
+
 //! \brief Gathers a STAT statistic and it's bucket time.
-template<typename STAT>
+template<typename STAT, typename TIME>
 class CStatGatherer {
 public:
     using TStat = STAT;
 
 public:
-    explicit CStatGatherer(const STAT& initial = STAT{}) : m_Stat{initial} {}
+    explicit CStatGatherer(core_t::TTime bucketLength, const STAT& initial) : m_Time{bucketLength}, m_Stat{initial} {}
 
     std::size_t dimension() const {
         return metric_stat_shims::dimension(m_Stat);
     }
     core_t::TTime bucketTime(core_t::TTime time) const {
-        return time + static_cast<core_t::TTime>(
-                          std::round(maths::common::CBasicStatistics::mean(m_Time)));
+        return time + m_Time.value();
     }
     TDouble1Vec value() const { return metric_stat_shims::value(m_Stat); }
     double count() const { return metric_stat_shims::count(m_Stat); }
@@ -146,7 +216,9 @@ public:
     }
 
     void add(core_t::TTime bucketTime, const TDouble1Vec& value, unsigned int count) {
-        m_Time.add(bucketTime, count);
+        if (metric_stat_shims::wouldAdd(value, m_Stat)) {
+            m_Time.add(bucketTime, count);
+        }
         metric_stat_shims::add(value, count, m_Stat);
     }
 
@@ -168,17 +240,17 @@ public:
     }
 
 private:
-    TMeanAccumulator m_Time;
+    TIME m_Time;
     STAT m_Stat;
 };
 
-using TSumGatherer = CStatGatherer<CSumAccumulator>;
-using TMeanGatherer = CStatGatherer<TMeanAccumulator>;
-using TMultivariateMeanGatherer = CStatGatherer<TMultivariateMeanAccumulator>;
-using TMedianGatherer = CStatGatherer<TMedianAccumulator>;
-using TMinGatherer = CStatGatherer<TMinAccumulator>;
-using TMaxGatherer = CStatGatherer<TMaxAccumulator>;
-using TVarianceGatherer = CStatGatherer<TVarianceAccumulator>;
+using TSumGatherer = CStatGatherer<CSumAccumulator, CMidTime>;
+using TMeanGatherer = CStatGatherer<TMeanAccumulator, CMeanTime>;
+using TMultivariateMeanGatherer = CStatGatherer<TMultivariateMeanAccumulator, CMeanTime>;
+using TMedianGatherer = CStatGatherer<TMedianAccumulator, CMeanTime>;
+using TMinGatherer = CStatGatherer<TMinAccumulator, CLastTime>;
+using TMaxGatherer = CStatGatherer<TMaxAccumulator, CLastTime>;
+using TVarianceGatherer = CStatGatherer<TVarianceAccumulator, CMeanTime>;
 
 } // metric_stat_gatherer_detail::
 
@@ -215,7 +287,7 @@ public:
           m_BucketStats(latencyBuckets,
                         bucketLength,
                         startTime,
-                        STAT{metric_stat_shims::makeStat<TBaseStat>(dimension)}),
+                        STAT{bucketLength, metric_stat_shims::makeStat<TBaseStat>(dimension)}),
           m_InfluencerBucketStats(
               std::distance(beginInfluencers, endInfluencers),
               TStoredStringPtrBaseStatUMapQueue(latencyBuckets,
@@ -264,9 +336,6 @@ public:
                 gatherer.samples(time)};
     }
 
-    //! Returns false.
-    bool sample(core_t::TTime, unsigned int) { return false; }
-
     //! Update the state with a new measurement.
     //!
     //! \param[in] time The time of \p value.
@@ -292,7 +361,7 @@ public:
 
     //! Update the state to represent the start of a new bucket.
     void startNewBucket(core_t::TTime time) {
-        m_BucketStats.push(STAT{m_BaseStat}, time);
+        m_BucketStats.push(STAT{m_BucketStats.bucketLength(), m_BaseStat}, time);
         for (auto& stat : m_InfluencerBucketStats) {
             stat.push(TStoredStringPtrBaseStatUMap(1), time);
         }
@@ -300,7 +369,7 @@ public:
 
     //! Reset bucket.
     void resetBucket(core_t::TTime bucketStart) {
-        m_BucketStats.get(bucketStart) = STAT{m_BaseStat};
+        m_BucketStats.get(bucketStart) = STAT{m_BucketStats.bucketLength(), m_BaseStat};
         for (auto& stat : m_InfluencerBucketStats) {
             stat.get(bucketStart).clear();
         }
