@@ -10,7 +10,7 @@
 # limitation.
 #
 
-# Runs some Elasticsearch CI tests using C++ artifacts from a local Ivy repo.
+# Runs some QA tests using C++ artifacts from a local Ivy repo.
 # The elasticsearch fork and branch that are tested are based on the author
 # and branches of the current PR, as recorded in the $PR_AUTHOR,
 # $PR_SOURCE_BRANCH and $PR_TARGET_BRANCH environment variables.
@@ -29,7 +29,7 @@ function isCloneTargetValid {
     BRANCH_TO_CHECK="$2"
     echo "Checking for '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch"
     if [ -n "$(git ls-remote --heads "git@github.com:$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
-        echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for ES integration tests"
+        echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for QA tests"
         return 0
     fi
     return 1
@@ -72,9 +72,7 @@ export SELECTED_FORK
 export SELECTED_BRANCH
 export IVY_REPO_URL
 
-#rm -rf qaf-src
-#git clone git@github.com:elastic/qaf.git qaf-src
-#cd qaf-src
+git clone git@github.com:elastic/qaf.git qaf
 cd qaf
 pip install -e .
 
@@ -83,9 +81,7 @@ qaf deployments create --stack-version ${RAW_VERSION} --plan 3-nodes --distribut
 qaf deployments start
 
 cd ..
-#rm -rf qaf-tests-src
-#git clone git@github.com:elastic/qaf-tests.git qaf-tests-src
-#cd qaf-tests-src
+git clone git@github.com:elastic/qaf-tests.git qaf-tests
 cd qaf-tests
 USE_LOCAL_QAF=y make setup
 source .venv/bin/activate
