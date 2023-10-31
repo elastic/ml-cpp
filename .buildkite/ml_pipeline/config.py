@@ -15,6 +15,7 @@ class Config:
     build_windows: bool = False
     build_macos: bool = False
     build_linux: bool = False
+    run_qa_tests: bool = False
     action: str = "build"
 
     def parse_comment(self):
@@ -36,13 +37,14 @@ class Config:
             self.build_linux = True
 
     def parse_label(self):
-        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows']
+        build_labels = ['ci:build-linux','ci:build-macos','ci:build-windows','ci:qa-tests']
         all_labels = [x.strip().lower() for x in os.environ["GITHUB_PR_LABELS"].split(",")]
         ci_labels = [label for label in all_labels if re.search("|".join(build_labels), label)]
         if not ci_labels:
             self.build_windows = True
             self.build_macos = True
             self.build_linux = True
+            self.run_qa_tests = False
         else:
             for label in ci_labels:
                 if "ci:build-windows" == label:
@@ -51,6 +53,8 @@ class Config:
                     self.build_macos = True
                 elif "ci:build-linux" == label:
                     self.build_linux = True
+                elif "ci:run-qa-tests" == label:
+                    self.run_qa_tests = True
 
     def parse(self):
         """Parse Github label or Github comment passed through buildkite-pr-bot."""
@@ -63,4 +67,5 @@ class Config:
             self.build_windows = True
             self.build_macos = True
             self.build_linux = True
+            self.run_qa_tests = False
 
