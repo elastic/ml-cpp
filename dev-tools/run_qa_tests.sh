@@ -28,7 +28,7 @@ function isCloneTargetValid {
     FORK_TO_CHECK="$1"
     BRANCH_TO_CHECK="$2"
     echo "Checking for '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch"
-    if [ -n "$(git ls-remote --heads "git@github.com:$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
+    if [ -n "$(git ls-remote --heads "https://github.com/$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
         echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for QA tests"
         return 0
     fi
