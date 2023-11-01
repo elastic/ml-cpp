@@ -13,7 +13,6 @@ steps:
   - label: "Appex QA Tests :test_tube:"
     key: "appex_qa_tests"
     command:
-      - "sudo apt-get -y install openjdk-17-jre openjdk-17-jdk"
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
       - '.buildkite/scripts/steps/run_qa_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
@@ -21,7 +20,7 @@ steps:
       "cpu": "16"
       "ephemeralStorage": "20G"
       "memory": "64G"
-      "image": "docker.elastic.co/employees/dolaru/qaf:latest"
+      "image": "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:4"
     env:
       IVY_REPO: "../ivy"
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"

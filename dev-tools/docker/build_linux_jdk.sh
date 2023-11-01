@@ -10,8 +10,8 @@
 # limitation.
 #
 
-# Builds the Docker image that can be used to run a subset of the ES
-# integration tests.
+# Builds the Docker image that can be used to run a subset of the QA tests.
+# It also is used to create and upload DRA files for BuildKite CI jobs.
 #
 # This script is not intended to be run regularly.
 
@@ -30,7 +30,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml_cpp_linux_x86_64_jdk17
-VERSION=3
+VERSION=4
 
 set -e
 
