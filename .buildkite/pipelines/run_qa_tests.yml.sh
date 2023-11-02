@@ -10,20 +10,19 @@
 
 cat <<EOL
 steps:
-  - label: "Appex QA Tests :test_tube:"
-    key: "appex_qa_tests"
     command:
+      - echo 'Trigger QA Tests'
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
-      - '.buildkite/scripts/steps/run_qa_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
+    label: "Trigger Appex QA Tests :test_tube:"
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
-    agents:
-      "cpu": "16"
-      "ephemeralStorage": "20G"
-      "memory": "64G"
-      "image": "docker.elastic.co/ml-dev/ml_cpp_linux_x86_64_jdk17:4"
-    env:
-      IVY_REPO: "../ivy"
-      GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
+    trigger: appex-qa-stateful-ml-cpp-custom
+    async: false
+    build:
+      commit: "${BUILDKITE_COMMIT}"
+      branch: "${BUILDKITE_BRANCH}"
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        QAF_TESTS_TO_RUN: "test1,test2,test3"
     notify:
       - github_commit_status:
           context: "QA Tests"
