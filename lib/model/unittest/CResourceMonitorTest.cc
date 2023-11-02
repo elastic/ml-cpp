@@ -56,8 +56,6 @@ public:
         CHierarchicalResults results;
         std::string pervasive("IShouldNotBeRemoved");
 
-        std::size_t numBuckets = 0;
-
         for (core_t::TTime time = firstTime;
              time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
              time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
@@ -66,7 +64,6 @@ public:
                 detector.buildResults(bucketStart, bucketStart + bucketLength, results);
                 monitor.pruneIfRequired(bucketStart);
                 monitor.updateMoments(monitor.totalMemory(), bucketStart, bucketLength);
-                ++numBuckets;
                 newBucket = true;
             }
 

@@ -154,19 +154,43 @@ private:
     TPriorPtr m_Prior;
 };
 
+//! \brief Enables using custom feature weights in class prediction.
+class CNaiveBayesFeatureWeight {
+public:
+    virtual ~CNaiveBayesFeatureWeight() = default;
+    virtual void add(std::size_t class_, double logLikelihood) = 0;
+    virtual double calculate() const = 0;
+};
+
 //! \brief Implements a Naive Bayes classifier.
 class MATHS_COMMON_EXPORT CNaiveBayes {
 public:
+    using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
+    using TDoubleSizePrVecDoublePr = std::pair<TDoubleSizePrVec, double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TOptionalDouble = std::optional<double>;
+    using TFeatureWeightProvider = std::function<CNaiveBayesFeatureWeight&()>;
+
+private:
+    //! \brief All features have unit weight in class prediction.
+    class CUnitFeatureWeight : public CNaiveBayesFeatureWeight {
+    public:
+        void add(std::size_t, double) override {}
+        double calculate() const override { return 1.0; }
+    };
+
+    class CUnitFeatureWeightProvider {
+    public:
+        CUnitFeatureWeight& operator()() const { return m_UnitWeight; }
+
+    private:
+        mutable CUnitFeatureWeight m_UnitWeight;
+    };
 
 public:
-    explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
-                         double decayRate = 0.0,
-                         TOptionalDouble minMaxLogLikelihoodToUseFeature = TOptionalDouble());
+    explicit CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar, double decayRate = 0.0);
     CNaiveBayes(const CNaiveBayesFeatureDensity& exemplar,
                 const SDistributionRestoreParams& params,
                 core::CStateRestoreTraverser& traverser);
@@ -183,6 +207,9 @@ public:
 
     //! Check if any training data has been added initialized.
     bool initialized() const;
+
+    //! Get the number of classes.
+    std::size_t numberClasses() const;
 
     //! This can be used to optionally seed the class counts
     //! with \p counts. These are added on to data class counts
@@ -210,27 +237,53 @@ public:
     //!
     //! \param[in] n The number of class probabilities to estimate.
     //! \param[in] x The feature values.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
+    //! \return The class probabilities and the minimum feature weight.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    TDoubleSizePrVec highestClassProbabilities(std::size_t n, const TDouble1VecVec& x) const;
+    TDoubleSizePrVecDoublePr highestClassProbabilities(
+        std::size_t n,
+        const TDouble1VecVec& x,
+        const TFeatureWeightProvider& weightProvider = CUnitFeatureWeightProvider{}) const;
 
     //! Get the probability of the class labeled \p label for \p x.
     //!
     //! \param[in] label The label of the class of interest.
     //! \param[in] x The feature values.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
+    //! \return The class probabilities and the minimum feature weight.
+    //! conditional distributions.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    double classProbability(std::size_t label, const TDouble1VecVec& x) const;
+    TDoubleDoublePr classProbability(std::size_t label,
+                                     const TDouble1VecVec& x,
+                                     const TFeatureWeightProvider& weightProvider =
+                                         CUnitFeatureWeightProvider{}) const;
 
     //! Get the probabilities of all the classes for \p x.
     //!
     //! \param[in] x The feature values.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
+    //! \return The class probabilities and the minimum feature weight.
+    //! A feature is missing is indicated by passing an empty vector
+    //! for that feature.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
-    TDoubleSizePrVec classProbabilities(const TDouble1VecVec& x) const;
+    TDoubleSizePrVecDoublePr
+    classProbabilities(const TDouble1VecVec& x,
+                       const TFeatureWeightProvider& weightProvider = CUnitFeatureWeightProvider{}) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -298,13 +351,6 @@ private:
     bool validate(const TDouble1VecVec& x) const;
 
 private:
-    //! It is not always appropriate to use features with very low
-    //! probability in all classes to discriminate: the class choice
-    //! will be very sensitive to the underlying conditional density
-    //! model. This is a cutoff (for the minimum maximum class log
-    //! likelihood) in order to use a feature.
-    TOptionalDouble m_MinMaxLogLikelihoodToUseFeature;
-
     //! Controls the rate at which data are aged out.
     double m_DecayRate;
 
