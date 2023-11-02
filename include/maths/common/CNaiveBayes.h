@@ -237,6 +237,10 @@ public:
     //!
     //! \param[in] n The number of class probabilities to estimate.
     //! \param[in] x The feature values.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
     //! \return The class probabilities and the minimum feature weight.
     //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
@@ -250,6 +254,10 @@ public:
     //!
     //! \param[in] label The label of the class of interest.
     //! \param[in] x The feature values.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
     //! \return The class probabilities and the minimum feature weight.
     //! conditional distributions.
     //! \note \p x size should be equal to the number of features.
@@ -263,8 +271,14 @@ public:
     //! Get the probabilities of all the classes for \p x.
     //!
     //! \param[in] x The feature values.
-    //! \note \p x size should be equal to the number of features.
+    //! \param[in] weightProvider Computes a feature weight from the class
+    //! conditional log-likelihood of the feature value. It should be in
+    //! the range [0,1]. The smaller the value the less impact the feature
+    //! has on class selection.
     //! \return The class probabilities and the minimum feature weight.
+    //! A feature is missing is indicated by passing an empty vector
+    //! for that feature.
+    //! \note \p x size should be equal to the number of features.
     //! A feature is missing is indicated by passing an empty vector
     //! for that feature.
     TDoubleSizePrVecDoublePr

@@ -283,21 +283,21 @@ CNaiveBayes::TDoubleSizePrVecDoublePr
 CNaiveBayes::highestClassProbabilities(std::size_t n,
                                        const TDouble1VecVec& x,
                                        const TFeatureWeightProvider& weightProvider) const {
-    auto[p, confidence] = this->classProbabilities(x, weightProvider);
+    auto[p, minFeatureWeight] = this->classProbabilities(x, weightProvider);
     n = std::min(n, p.size());
     std::sort(p.begin(), p.begin() + n, std::greater<>());
-    return {TDoubleSizePrVec{p.begin(), p.begin() + n}, confidence};
+    return {TDoubleSizePrVec{p.begin(), p.begin() + n}, minFeatureWeight};
 }
 
 CNaiveBayes::TDoubleDoublePr
 CNaiveBayes::classProbability(std::size_t label,
                               const TDouble1VecVec& x,
                               const TFeatureWeightProvider& weightProvider) const {
-    auto[p, confidence] = this->classProbabilities(x, weightProvider);
+    auto[p, minFeatureWeight] = this->classProbabilities(x, weightProvider);
     auto i = std::find_if(p.begin(), p.end(), [label](const TDoubleSizePr& p_) {
         return p_.second == label;
     });
-    return {i == p.end() ? 0.0 : i->first, confidence};
+    return {i == p.end() ? 0.0 : i->first, minFeatureWeight};
 }
 
 CNaiveBayes::TDoubleSizePrVecDoublePr
@@ -318,7 +318,7 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x,
     for (const auto& class_ : m_ClassConditionalDensities) {
         p.emplace_back(CTools::fastLog(class_.second.count()), class_.first);
     }
-    double confidence{1.0};
+    double minFeatureWeight{1.0};
 
     TDoubleVec logLikelihoods;
     for (std::size_t i = 0; i < x.size(); ++i) {
@@ -332,11 +332,21 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x,
                 logLikelihoods.push_back(logLikelihood);
                 featureWeight.add(class_.first, logLikelihood - logMaximumLikelihood);
             }
+
+            // We compute the class c_i probability using
+            //
+            //    p(c_i | x) = exp(sum_i{w_j * log(L(x_j | c_i))}) / Z * p(c_i).
+            //
+            // Any feature whose weight < 1 has its significance dropped in class
+            // selection, effectively we use the w_i'th root of the log-likelihood
+            // which tends to 1 for all values if w_i is small enough. This can be
+            // used to ignore features that for which x is the extreme tails of the
+            // class conditional distribution.
             double featureWeight_{featureWeight.calculate()};
             for (std::size_t j = 0; j < logLikelihoods.size(); ++j) {
                 p[j].first += featureWeight_ * logLikelihoods[j];
             }
-            confidence = std::min(confidence, featureWeight_);
+            minFeatureWeight = std::min(minFeatureWeight, featureWeight_);
         }
     }
 
@@ -350,7 +360,7 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x,
         pc.first /= Z;
     }
 
-    return {std::move(p), confidence};
+    return {std::move(p), minFeatureWeight};
 }
 
 void CNaiveBayes::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

@@ -63,6 +63,9 @@ public:
     double calculate() const override {
         // Downweight features for which we don't have sufficient examples
         // of the time series not changing.
+        // Note that m_LogLikelihood = 0.5 * (x - m)^2 / sigma^2 so 4.5
+        // corresponds to the case the feature value is at the 3 sigma
+        // point of the conditional distribution.
         return common::CTools::logisticFunction((4.5 + m_LogLikelihood) / 4.5, 0.1);
     }
 
@@ -817,6 +820,10 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
             double x{m_Levels[i] + prediction};
             auto[p, pConfidence] = m_Probability.classProbability(
                 LEVEL_CHANGE_LABEL, {{dt}, {x}}, weightProvider);
+            // Here we decide whether to increase the probability we should have
+            // seen a step change for this rollout. If we are no longer confident
+            // in our predicted probability we do not predict changes based on
+            // the principle of least surprise.
             if (pConfidence > 0.5) {
                 m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
             }

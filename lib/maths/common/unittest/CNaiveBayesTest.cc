@@ -282,8 +282,11 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
 }
 
 BOOST_AUTO_TEST_CASE(testExtrapolation) {
-    // Test that we detect when we're extrapolating the class conditional
-    // distributions to predict a class labels.
+    // Test that:
+    //   1. Applying low feature weights means the conditional probabilies
+    //      of all classes tend to 1 / "number of classes",
+    //   2. That the number returned as a confidence in the probabilities
+    //      is the minimum feature weight.
 
     test::CRandomNumbers rng;
 
@@ -311,7 +314,6 @@ BOOST_AUTO_TEST_CASE(testExtrapolation) {
     BOOST_REQUIRE_EQUAL(2, probabilities.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[0].first, 1e-2);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[1].first, 1e-2);
-    BOOST_TEST_REQUIRE(confidence >= 0);
     BOOST_REQUIRE_EQUAL(1e-3, confidence);
 }
 
