@@ -15,7 +15,8 @@ steps:
       - echo 'Trigger QA Tests'
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-x86_64-RelWithDebInfo'
     depends_on: "build_test_linux-x86_64-RelWithDebInfo"
-    trigger: appex-qa-stateful-custom-ml-c-plus-plus-build-testing
+  - wait
+  - trigger: appex-qa-stateful-custom-ml-c-plus-plus-build-testing
     async: false
     build:
       commit: "${BUILDKITE_COMMIT}"
