@@ -260,14 +260,6 @@ void CMetricModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                const TOptionalSample& bucket = data_.second.s_BucketValue;
-                if (model_t::isSampled(feature) && bucket != std::nullopt) {
-                    values.assign(1, core::make_triple(
-                                         bucket->time(), TDouble2Vec(bucket->value(dimension)),
-                                         model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
-                    model->addBucketValue(values);
-                }
-
                 // For sparse data we reduce the impact of samples from empty buckets.
                 // In effect, we smoothly transition to modeling only values from non-empty
                 // buckets as the data becomes sparse.
@@ -276,12 +268,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                std::size_t n = samples.size();
-                double countWeight =
-                    (this->params().s_MaximumUpdatesPerBucket > 0.0 && n > 0
-                         ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
-                         : 1.0) *
-                    this->learnRate(feature) * initialCountWeight;
+                double countWeight = this->learnRate(feature) * initialCountWeight;
                 double outlierWeightDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
@@ -297,10 +284,10 @@ void CMetricModel::sample(core_t::TTime startTime,
                           << ", scaled count weight = " << scaledCountWeight
                           << ", scaled interval = " << scaledInterval);
 
-                values.resize(n);
-                trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                priorWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                for (std::size_t i = 0; i < n; ++i) {
+                values.resize(samples.size());
+                trendWeights.resize(samples.size(), maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                priorWeights.resize(samples.size(), maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                for (std::size_t i = 0; i < samples.size(); ++i) {
                     core_t::TTime ithSampleTime = samples[i].time();
                     TDouble2Vec ithSampleValue(samples[i].value(dimension));
                     double countVarianceScale = samples[i].varianceScale();

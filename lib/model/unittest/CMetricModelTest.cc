@@ -580,9 +580,9 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             {},
             {},
             {},
-            {},
-            {},
-            {},
+            {core::make_triple(std::string{"i3"}, 1.0, 1.0)},
+            {core::make_triple(std::string{"i2"}, 1.0, 1.0)},
+            {core::make_triple(std::string{"i1"}, 0.9, 1.0)},
             {core::make_triple(std::string{"i1"}, 0.9, 1.0)},
             {core::make_triple(std::string{"i1"}, 0.8, 0.9)},
             {},
@@ -659,12 +659,14 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             {},
             {},
             {},
-            {},
-            {},
-            {},
-            {},
             {core::make_triple(std::string{"i1"}, 0.9, 1.0),
              core::make_triple(std::string{"i3"}, 0.9, 1.0)},
+            {core::make_triple(std::string{"i3"}, 1.0, 1.0)},
+            {core::make_triple(std::string{"i1"}, 0.9, 1.0),
+             core::make_triple(std::string{"i2"}, 0.9, 1.0)},
+            {core::make_triple(std::string{"i1"}, 0.9, 1.0),
+             core::make_triple(std::string{"i2"}, 0.9, 1.0)},
+            {},
             {core::make_triple(std::string{"i1"}, 0.9, 1.0)},
             {core::make_triple(std::string{"i5"}, 0.9, 1.0)},
             {}};
@@ -1962,7 +1964,6 @@ BOOST_FIXTURE_TEST_CASE(testLatLongNotMalformed, CTestFixture) {
     model_t::TFeatureVec features{model_t::E_IndividualMeanLatLongByPerson};
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
-    params.s_MaximumUpdatesPerBucket = 0.0;
 
     this->makeModel(params, features, startTime);
 

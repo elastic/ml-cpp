@@ -33,20 +33,26 @@
 #include <boost/test/unit_test.hpp>
 
 #include <optional>
+#include <tuple>
+
+namespace {
 
 BOOST_AUTO_TEST_SUITE(CMetricDataGathererTest)
 
 using namespace ml;
 using namespace model;
 
-namespace {
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TTimeVecVec = std::vector<TTimeVec>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TFeatureVec = std::vector<model_t::EFeature>;
 using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
 using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
 using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
 using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
 using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
@@ -203,7 +209,6 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
-}
 
 class CTestFixture {
 protected:
@@ -211,215 +216,133 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
-    // Test that the various statistics come back as we suspect.
+    // Test mean, min, max and sum gathering.
 
-    const core_t::TTime startTime = 0;
-    const core_t::TTime bucketLength = 600;
+    const core_t::TTime startTime{0};
+    const core_t::TTime bucketLength{600};
+    TTimeDoublePrVec bucket1{{1, 1.0},   {15, 2.1},  {180, 0.9},
+                             {190, 1.5}, {400, 1.5}, {550, 2.0}};
+    TTimeDoublePrVec bucket2{{600, 2.0}, {799, 2.2}, {1199, 1.8}};
 
-    TTimeDoublePr bucket1[] = {
-        TTimeDoublePr(1, 1.0),   TTimeDoublePr(15, 2.1),
-        TTimeDoublePr(180, 0.9), TTimeDoublePr(190, 1.5),
-        TTimeDoublePr(400, 1.5), TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket2[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2),
-                               TTimeDoublePr(1199, 1.8)};
-    TTimeDoublePr bucket3[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
-    TTimeDoublePr bucket4[] = {TTimeDoublePr(1900, 3.5)};
-    TTimeDoublePr bucket5[] = {TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2),
-                               TTimeDoublePr(2490, 3.8)};
-    {
-        TFeatureVec features;
-        features.push_back(model_t::E_IndividualMeanByPerson);
-        features.push_back(model_t::E_IndividualMinByPerson);
-        features.push_back(model_t::E_IndividualMaxByPerson);
-        features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-        features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        SModelParams params(bucketLength);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime);
-        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
-        BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson,
+                         model_t::E_IndividualCountByBucketAndPerson}; // Should be ignored.
+    SModelParams params(bucketLength);
+    CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
+                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                           EMPTY_STRING, {}, KEY, features, startTime);
+    BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+    BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
-        BOOST_REQUIRE_EQUAL(4, gatherer.numberFeatures());
-        for (std::size_t i = 0; i < 4; ++i) {
-            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
-        }
-
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
-        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
-        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
-        std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
-        BOOST_REQUIRE_EQUAL(0, pid);
-        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
-
-        {
-            addArrival(gatherer, m_ResourceMonitor, bucket1[0].first, "p",
-                       bucket1[0].second);
-            TFeatureSizeFeatureDataPrVecPrVec featureData;
-            gatherer.featureData(startTime, featureData);
-            LOG_DEBUG(<< "featureData = " << featureData);
-            BOOST_REQUIRE_EQUAL(
-                1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                1.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                1.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-        }
-
-        for (std::size_t i = 1; i < std::size(bucket1); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket1[i].first, "p",
-                       bucket1[i].second);
-        }
-        {
-            TFeatureSizeFeatureDataPrVecPrVec featureData;
-            gatherer.sampleNow(startTime);
-            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1), featureData);
-            LOG_DEBUG(<< "featureData = " << featureData);
-            BOOST_TEST_REQUIRE(!featureData.empty());
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                0.9, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                2.1, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                9.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(
-                std::string("[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(
-                std::string("[(8 [1] 1 2), (185 [0.9] 1 2), (475 [1.5] 1 2)]"),
-                core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(
-                std::string("[(8 [2.1] 1 2), (185 [1.5] 1 2), (475 [2] 1 2)]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
-                                core::CContainerPrinter::print(
-                                    featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
-        }
-
-        gatherer.timeNow(startTime + bucketLength);
-        for (const auto& value : bucket2) {
-            addArrival(gatherer, m_ResourceMonitor, value.first, "p", value.second);
-        }
-        {
-            TFeatureSizeFeatureDataPrVecPrVec featureData;
-            gatherer.sampleNow(startTime + bucketLength);
-            gatherer.featureData(startTime + bucketLength, featureData);
-            BOOST_TEST_REQUIRE(!featureData.empty());
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                1.8, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                2.2, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                6.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
-            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1] 1 2)]"),
-                                core::CContainerPrinter::print(
-                                    featureData[0].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(700 [2] 1 2)]"),
-                                core::CContainerPrinter::print(
-                                    featureData[1].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.2] 1 2)]"),
-                                core::CContainerPrinter::print(
-                                    featureData[2].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(600 [6] 1 3)]"),
-                                core::CContainerPrinter::print(
-                                    featureData[3].second[0].second.s_Samples));
-            testPersistence(params, gatherer);
-        }
+    BOOST_REQUIRE_EQUAL(4, gatherer.numberFeatures());
+    for (std::size_t i = 0; i < 4; ++i) {
+        BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
     }
 
-    // Test capture of sample measurement count.
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
+    BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
+    std::size_t pid;
+    BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+    BOOST_REQUIRE_EQUAL(0, pid);
+    BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
+
     {
-        TFeatureVec features;
-        features.push_back(model_t::E_IndividualMeanByPerson);
-        features.push_back(model_t::E_IndividualMinByPerson);
-        features.push_back(model_t::E_IndividualMaxByPerson);
-        features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-        SModelParams params(bucketLength);
-        CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
-                               EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                               EMPTY_STRING, {}, KEY, features, startTime);
-        BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
-
-        TTimeDoublePrVecVec buckets;
-        buckets.push_back(TTimeDoublePrVec(std::begin(bucket1), std::end(bucket1)));
-        buckets.push_back(TTimeDoublePrVec(std::begin(bucket2), std::end(bucket2)));
-        buckets.push_back(TTimeDoublePrVec(std::begin(bucket3), std::end(bucket3)));
-        buckets.push_back(TTimeDoublePrVec(std::begin(bucket4), std::end(bucket4)));
-        buckets.push_back(TTimeDoublePrVec(std::begin(bucket5), std::end(bucket5)));
-
-        for (std::size_t i = 0; i < buckets.size(); ++i) {
-            LOG_DEBUG(<< "Processing bucket " << i);
-            gatherer.timeNow(startTime + i * bucketLength);
-            const TTimeDoublePrVec& bucket = buckets[i];
-            for (std::size_t j = 0; j < bucket.size(); ++j) {
-                addArrival(gatherer, m_ResourceMonitor, bucket[j].first, "p",
-                           bucket[j].second);
-            }
-        }
-
+        addArrival(gatherer, m_ResourceMonitor, bucket1[0].first, "p",
+                   bucket1[0].second);
         TFeatureSizeFeatureDataPrVecPrVec featureData;
-        core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
-        gatherer.sampleNow(featureBucketStart);
-        gatherer.featureData(featureBucketStart, featureData);
+        gatherer.featureData(startTime, featureData);
+        LOG_DEBUG(<< "featureData = " << featureData);
+        BOOST_REQUIRE_EQUAL(1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(1.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(1.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+    }
+
+    for (std::size_t i = 1; i < bucket1.size(); ++i) {
+        addArrival(gatherer, m_ResourceMonitor, bucket1[i].first, "p",
+                   bucket1[i].second);
+    }
+    {
+        TFeatureSizeFeatureDataPrVecPrVec featureData;
+        gatherer.sampleNow(startTime);
+        gatherer.featureData(core_t::TTime(startTime + bucketLength - 1), featureData);
+        LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_TEST_REQUIRE(!featureData.empty());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+            1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            3.2, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
+            0.9, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            3.8, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
+            2.1, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            10.5, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
+            9.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
         BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
         BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
         BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
         BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
-
         BOOST_REQUIRE_EQUAL(
-            std::string("[(2323 [3.5] 1 4)]"),
+            "[(223 [1.5] 1 6)]",
             core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
         BOOST_REQUIRE_EQUAL(
-            std::string("[(2323 [3.2] 1 4)]"),
+            "[(180 [0.9] 1 1)]",
             core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
         BOOST_REQUIRE_EQUAL(
-            std::string("[(2323 [3.8] 1 4)]"),
+            "[(15 [2.1] 1 1)]",
             core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
         BOOST_REQUIRE_EQUAL(
-            std::string("[(2400 [10.5] 1 3)]"),
+            "[(300 [9] 1 6)]",
             core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+        testPersistence(params, gatherer);
+    }
+
+    gatherer.timeNow(startTime + bucketLength);
+    for (const auto& value : bucket2) {
+        addArrival(gatherer, m_ResourceMonitor, value.first, "p", value.second);
+    }
+    {
+        TFeatureSizeFeatureDataPrVecPrVec featureData;
+        gatherer.sampleNow(startTime + bucketLength);
+        gatherer.featureData(startTime + bucketLength, featureData);
+        BOOST_TEST_REQUIRE(!featureData.empty());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            1.8, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            2.2, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            6.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_EQUAL(
+            "[(866 [2] 1 3)]",
+            core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
+        BOOST_REQUIRE_EQUAL(
+            "[(1199 [1.8] 1 1)]",
+            core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
+        BOOST_REQUIRE_EQUAL(
+            "[(799 [2.2] 1 1)]",
+            core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
+        BOOST_REQUIRE_EQUAL(
+            "[(900 [6] 1 3)]",
+            core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+        testPersistence(params, gatherer);
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
-    // Test that the various statistics come back as we suspect
-    // for multiple people.
+    // Test mean, min, max and sum gathering for multiple time series.
 
-    const core_t::TTime startTime = 0;
-    const core_t::TTime bucketLength = 600;
-
-    TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
-    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    const core_t::TTime startTime{0};
+    const core_t::TTime bucketLength{600};
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson};
     SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
@@ -427,126 +350,80 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(1, addPerson("p2", gatherer, m_ResourceMonitor));
 
-    TTimeDoublePr bucket11[] = {
-        TTimeDoublePr(1, 1.0),   TTimeDoublePr(15, 2.1),
-        TTimeDoublePr(180, 0.9), TTimeDoublePr(190, 1.5),
-        TTimeDoublePr(400, 1.5), TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket12[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2),
-                                TTimeDoublePr(1199, 1.8)};
-    TTimeDoublePr bucket13[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
-    TTimeDoublePr bucket14[] = {TTimeDoublePr(1900, 3.5)};
-    TTimeDoublePr bucket15[] = {TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2),
-                                TTimeDoublePr(2490, 3.8)};
-    TTimeDoublePrVecVec buckets1;
-    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket11), std::end(bucket11)));
-    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket12), std::end(bucket12)));
-    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket13), std::end(bucket13)));
-    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket14), std::end(bucket14)));
-    buckets1.push_back(TTimeDoublePrVec(std::begin(bucket15), std::end(bucket15)));
+    TTimeDoublePrVecVec buckets1{
+        {{1, 1.0}, {15, 2.1}, {180, 0.9}, {190, 1.5}, {400, 1.5}, {550, 2.0}},
+        {{600, 2.0}, {799, 2.2}, {1199, 1.8}}};
 
-    TTimeDoublePr bucket21[] = {
-        TTimeDoublePr(1, 1.0),   TTimeDoublePr(5, 1.0),
-        TTimeDoublePr(15, 2.1),  TTimeDoublePr(25, 2.0),
-        TTimeDoublePr(180, 0.9), TTimeDoublePr(190, 1.5),
-        TTimeDoublePr(400, 1.5), TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket22[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(605, 2.0),
-                                TTimeDoublePr(609, 2.0), TTimeDoublePr(799, 2.2),
-                                TTimeDoublePr(1199, 1.8)};
-    TTimeDoublePr bucket23[] = {
-        TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5),
-        TTimeDoublePr(1255, 2.2), TTimeDoublePr(1256, 2.4),
-        TTimeDoublePr(1300, 2.2), TTimeDoublePr(1400, 2.5)};
-    TTimeDoublePr bucket24[] = {TTimeDoublePr(1900, 3.5), TTimeDoublePr(1950, 3.5)};
-    TTimeDoublePr bucket25[] = {
-        TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 2.9),
-        TTimeDoublePr(2490, 3.9), TTimeDoublePr(2500, 3.4),
-        TTimeDoublePr(2550, 4.1), TTimeDoublePr(2600, 3.8)};
-    TTimeDoublePrVecVec buckets2;
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket21), std::end(bucket21)));
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket22), std::end(bucket22)));
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket23), std::end(bucket23)));
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket24), std::end(bucket24)));
-    buckets2.push_back(TTimeDoublePrVec(std::begin(bucket25), std::end(bucket25)));
+    TTimeDoublePrVecVec buckets2{
+        {{1, 1.0}, {5, 1.0}, {15, 2.1}, {25, 2.0}, {180, 0.9}, {190, 1.5}, {400, 1.5}, {550, 2.0}},
+        {{600, 2.2}, {605, 2.2}, {609, 2.2}, {799, 2.4}, {1199, 2.0}}};
 
-    for (std::size_t i = 0; i < 5; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         LOG_DEBUG(<< "Processing bucket " << i);
         gatherer.timeNow(startTime + i * bucketLength);
-
-        const TTimeDoublePrVec& bucket1 = buckets1[i];
-        for (std::size_t j = 0; j < bucket1.size(); ++j) {
-            addArrival(gatherer, m_ResourceMonitor, bucket1[j].first, "p1",
-                       bucket1[j].second);
+        for (auto[time, value] : buckets1[i]) {
+            addArrival(gatherer, m_ResourceMonitor, time, "p1", value);
         }
-
-        const TTimeDoublePrVec& bucket2 = buckets2[i];
-        TMeanAccumulator a;
-        for (std::size_t j = 0; j < bucket2.size(); ++j) {
-            addArrival(gatherer, m_ResourceMonitor, bucket2[j].first, "p2",
-                       bucket2[j].second);
-            a.add(bucket2[j].second);
+        for (auto[time, value] : buckets2[i]) {
+            addArrival(gatherer, m_ResourceMonitor, time, "p2", value);
         }
     }
 
     TSizeUInt64PrVec nonZeroCounts;
-    gatherer.personNonZeroCounts(startTime + 4 * bucketLength, nonZeroCounts);
-    BOOST_REQUIRE_EQUAL(std::string("[(0, 3), (1, 6)]"),
-                        core::CContainerPrinter::print(nonZeroCounts));
+    gatherer.personNonZeroCounts(startTime + bucketLength, nonZeroCounts);
+    BOOST_REQUIRE_EQUAL("[(0, 3), (1, 5)]", core::CContainerPrinter::print(nonZeroCounts));
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
-    core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
-    gatherer.sampleNow(featureBucketStart);
-    gatherer.featureData(featureBucketStart, featureData);
+    gatherer.sampleNow(startTime + bucketLength);
+    gatherer.featureData(startTime + bucketLength, featureData);
 
     BOOST_TEST_REQUIRE(!featureData.empty());
     BOOST_REQUIRE_EQUAL(2, featureData[0].second.size());
     BOOST_REQUIRE_EQUAL(2, featureData[1].second.size());
     BOOST_REQUIRE_EQUAL(2, featureData[2].second.size());
     BOOST_REQUIRE_EQUAL(2, featureData[3].second.size());
-
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-    BOOST_REQUIRE_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
+        2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+    BOOST_REQUIRE_EQUAL(1.8, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.2, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
+    BOOST_REQUIRE_EQUAL("[(866 [2] 1 3)]", core::CContainerPrinter::print(
+                                               featureData[0].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2323 [3.5] 1 4)]"),
-        core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(2323 [3.2] 1 4)]"),
+        "[(1199 [1.8] 1 1)]",
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2323 [3.8] 1 4)]"),
+        "[(799 [2.2] 1 1)]",
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(2400 [10.5] 1 3)]"),
-        core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(900 [6] 1 3)]", core::CContainerPrinter::print(
+                                               featureData[3].second[0].second.s_Samples));
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        3.6, featureData[0].second[1].second.s_BucketValue->value()[0], 1e-10);
-    BOOST_REQUIRE_EQUAL(2.9, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(4.1, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(21.6, featureData[3].second[1].second.s_BucketValue->value()[0]);
+        2.2, featureData[0].second[1].second.s_BucketValue->value()[0], 1e-10);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.4, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(11.0, featureData[3].second[1].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(false, featureData[0].second[1].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[1].second[1].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[2].second[1].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[3].second[1].second.s_IsInteger);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [3.45] 1 6)]"),
+        "[(762 [2.2] 1 5)]",
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [2.9] 1 6)]"),
+        "[(1199 [2] 1 1)]",
         core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [3.9] 1 6)]"),
+        "[(799 [2.4] 1 1)]",
         core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2400 [21.6] 1 6)]"),
+        "[(900 [11] 1 5)]",
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
     testPersistence(params, gatherer);
 
@@ -568,10 +445,9 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(0, gatherer.numberOverFieldValues());
 
     gatherer.personNonZeroCounts(startTime + 4 * bucketLength, nonZeroCounts);
-    BOOST_REQUIRE_EQUAL(std::string("[(1, 6)]"),
-                        core::CContainerPrinter::print(nonZeroCounts));
+    BOOST_REQUIRE_EQUAL("[(1, 5)]", core::CContainerPrinter::print(nonZeroCounts));
 
-    gatherer.featureData(core_t::TTime(startTime + 4 * bucketLength), featureData);
+    gatherer.featureData(startTime + bucketLength, featureData);
 
     BOOST_TEST_REQUIRE(!featureData.empty());
     BOOST_REQUIRE_EQUAL(1, featureData[0].second.size());
@@ -579,40 +455,38 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(1, featureData[2].second.size());
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        3.6, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-    BOOST_REQUIRE_EQUAL(2.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(4.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(21.6, featureData[3].second[0].second.s_BucketValue->value()[0]);
+        2.2, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.4, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(11.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
     BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [3.45] 1 6)]"),
+        "[(762 [2.2] 1 5)]",
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [2.9] 1 6)]"),
+        "[(1199 [2] 1 1)]",
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2290 [3.9] 1 6)]"),
+        "[(799 [2.4] 1 1)]",
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(2400 [21.6] 1 6)]"),
+        "[(900 [11] 1 5)]",
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
 BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     // Test various combinations of removed people.
 
-    const core_t::TTime startTime = 0;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{0};
+    const core_t::TTime bucketLength{3600};
 
-    TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
-    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson};
     SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
@@ -626,28 +500,24 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     BOOST_REQUIRE_EQUAL(6, addPerson("p7", gatherer, m_ResourceMonitor));
     BOOST_REQUIRE_EQUAL(7, addPerson("p8", gatherer, m_ResourceMonitor));
 
-    core_t::TTime times[][8] = {
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {10, 20, 100, 0, 0, 0, 0, 0},
-        {110, 120, 150, 170, 200, 0, 0, 0},
-        {210, 220, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {400, 410, 480, 510, 530, 0, 0, 0},
-        {1040, 1100, 1080, 1200, 1300, 1311, 2100, 0},
-        {2200, 2500, 2600, 2610, 2702, 2731, 2710, 2862},
-    };
-    double values[][8] = {
-        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {1.0, 2.0, 1.1, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {2.0, 5.0, 6.0, 1.0, 0.2, 0.0, 0.0, 0.0},
-        {2.1, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {4.0, 1.0, 8.0, 1.0, 0.3, 0.0, 0.0, 0.0},
-        {4.0, 1.0, 8.0, 1.0, 0.3, 1.1, 10.3, 0.0},
-        {2.0, 5.0, 6.0, 1.0, 0.2, 3.1, 7.1, 6.2},
-    };
-    for (std::size_t i = 0; i < std::size(values); ++i) {
-        for (std::size_t j = 0; j < std::size(values[i]); ++j) {
+    TTimeVecVec times{{0, 0, 0, 0, 0, 0, 0, 0},
+                      {10, 20, 100, 0, 0, 0, 0, 0},
+                      {110, 120, 150, 170, 200, 0, 0, 0},
+                      {210, 220, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 0},
+                      {400, 410, 480, 510, 530, 0, 0, 0},
+                      {1040, 1100, 1080, 1200, 1300, 1311, 2100, 0},
+                      {2200, 2500, 2600, 2610, 2702, 2731, 2710, 2862}};
+    TDoubleVecVec values{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                         {1.0, 2.0, 1.1, 0.0, 0.0, 0.0, 0.0, 0.0},
+                         {2.0, 5.0, 6.0, 1.0, 0.2, 0.0, 0.0, 0.0},
+                         {2.1, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                         {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                         {4.0, 1.0, 8.0, 1.0, 0.3, 0.0, 0.0, 0.0},
+                         {4.0, 1.0, 8.0, 1.0, 0.3, 1.1, 10.3, 0.0},
+                         {2.0, 5.0, 6.0, 1.0, 0.2, 3.1, 7.1, 6.2}};
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        for (std::size_t j = 0; j < values[i].size(); ++j) {
             if (values[i][j] > 0.0) {
                 addArrival(gatherer, m_ResourceMonitor, startTime + times[i][j],
                            gatherer.personName(i), values[i][j]);
@@ -745,31 +615,27 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     // Test sum and non-zero sum work as expected.
 
     const core_t::TTime bucketLength = 600;
-    const std::size_t bucketCounts[] = {2, 5, 2, 1, 0, 0, 4, 8, 0, 1};
+    const TSizeVec bucketCounts{2, 5, 2, 1, 0, 0, 4, 8, 0, 1};
     const core_t::TTime startTime = 0;
 
     test::CRandomNumbers rng;
 
-    TFeatureVec sumFeatures;
-    sumFeatures.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    TFeatureVec sumFeatures{model_t::E_IndividualSumByBucketAndPerson};
     SModelParams params(bucketLength);
     CDataGatherer sum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                       {}, KEY, sumFeatures, startTime);
     BOOST_REQUIRE_EQUAL(0, addPerson("p1", sum, m_ResourceMonitor));
 
-    TFeatureVec nonZeroSumFeatures;
-    nonZeroSumFeatures.push_back(model_t::E_IndividualNonNullSumByBucketAndPerson);
+    TFeatureVec nonNullSumFeatures{model_t::E_IndividualNonNullSumByBucketAndPerson};
 
-    CDataGatherer nonZeroSum(model_t::E_Metric, model_t::E_None, params,
+    CDataGatherer nonNullSum(model_t::E_Metric, model_t::E_None, params,
                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                             EMPTY_STRING, {}, KEY, nonZeroSumFeatures, startTime);
-    BOOST_REQUIRE_EQUAL(0, addPerson("p1", nonZeroSum, m_ResourceMonitor));
+                             EMPTY_STRING, {}, KEY, nonNullSumFeatures, startTime);
+    BOOST_REQUIRE_EQUAL(0, addPerson("p1", nonNullSum, m_ResourceMonitor));
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0; i < std::size(bucketCounts); ++i) {
-        std::size_t count = bucketCounts[i];
-
+    for (auto count : bucketCounts) {
         TDoubleVec times;
         rng.generateUniformSamples(0.0, static_cast<double>(bucketLength - 0.1), count, times);
         std::sort(times.begin(), times.end());
@@ -782,7 +648,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
             addArrival(sum, m_ResourceMonitor,
                        bucketStart + static_cast<core_t::TTime>(times[j]), "p1",
                        values[j]);
-            addArrival(nonZeroSum, m_ResourceMonitor,
+            addArrival(nonNullSum, m_ResourceMonitor,
                        bucketStart + static_cast<core_t::TTime>(times[j]), "p1",
                        values[j]);
             expected += doubleToStringToDouble(values[j]);
@@ -808,7 +674,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec data;
-            nonZeroSum.featureData(bucketStart, data);
+            nonNullSum.featureData(bucketStart, data);
             BOOST_REQUIRE_EQUAL(1, data.size());
             for (std::size_t j = 0; j < data.size(); ++j) {
                 const TSizeFeatureDataPrVec& featureData = data[j].second;
@@ -830,7 +696,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
 
         bucketStart += bucketLength;
         sum.timeNow(bucketStart);
-        nonZeroSum.timeNow(bucketStart);
+        nonNullSum.timeNow(bucketStart);
     }
 }
 
@@ -844,30 +710,23 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    TTimeDoublePr bucket1[] = {TTimeDoublePr(1, 1.0), TTimeDoublePr(15, 2.1),
-                               TTimeDoublePr(180, 0.9), TTimeDoublePr(400, 1.5),
-                               TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket2[] = {TTimeDoublePr(600, 2.0), TTimeDoublePr(190, 1.5),
-                               TTimeDoublePr(799, 2.2), TTimeDoublePr(1199, 1.8)};
+    TTimeDoublePrVec bucket1{{1, 1.0}, {15, 2.1}, {180, 0.9}, {400, 1.5}, {550, 2.0}};
+    TTimeDoublePrVec bucket2{{600, 2.0}, {190, 1.5}, {799, 2.2}, {1199, 1.8}};
 
     {
-        TFeatureVec features;
-        features.push_back(model_t::E_IndividualMeanByPerson);
-        features.push_back(model_t::E_IndividualMinByPerson);
-        features.push_back(model_t::E_IndividualMaxByPerson);
-        features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-        features.push_back(model_t::E_IndividualCountByBucketAndPerson);
+        TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                             model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                             model_t::E_IndividualSumByBucketAndPerson,
+                             model_t::E_IndividualCountByBucketAndPerson};
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime);
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
-
         BOOST_REQUIRE_EQUAL(4, gatherer.numberFeatures());
         for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-
         BOOST_REQUIRE_EQUAL(1, gatherer.numberActivePeople());
         BOOST_REQUIRE_EQUAL(1, gatherer.numberByFieldValues());
         BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
@@ -896,13 +755,13 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
         }
 
-        for (std::size_t i = 1; i < std::size(bucket1); ++i) {
+        for (std::size_t i = 1; i < bucket1.size(); ++i) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[i].first, "p",
                        bucket1[i].second);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
-            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1), featureData);
+            gatherer.featureData(startTime + bucketLength - 1, featureData);
             LOG_DEBUG(<< "featureData = " << featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
             BOOST_REQUIRE_EQUAL(
@@ -917,16 +776,16 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
             BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
             BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
             BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(std::string("[]"),
+            BOOST_REQUIRE_EQUAL("[(229 [1.5] 1 5)]",
                                 core::CContainerPrinter::print(
                                     featureData[0].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[]"),
+            BOOST_REQUIRE_EQUAL("[(180 [0.9] 1 1)]",
                                 core::CContainerPrinter::print(
                                     featureData[1].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[]"),
+            BOOST_REQUIRE_EQUAL("[(15 [2.1] 1 1)]",
                                 core::CContainerPrinter::print(
                                     featureData[2].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(0 [7.5] 1 5)]"),
+            BOOST_REQUIRE_EQUAL("[(300 [7.5] 1 5)]",
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
@@ -949,17 +808,16 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
                 2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
             BOOST_REQUIRE_EQUAL(
                 9.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(
-                std::string("[(8 [1.55] 1 2), (257 [1.3] 0.666667 3)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
+            BOOST_REQUIRE_EQUAL("[(223 [1.5] 1 6)]",
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL("[(180 [0.9] 1 1)]",
                                 core::CContainerPrinter::print(
                                     featureData[1].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
+            BOOST_REQUIRE_EQUAL("[(15 [2.1] 1 1)]",
                                 core::CContainerPrinter::print(
                                     featureData[2].second[0].second.s_Samples));
-            BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
+            BOOST_REQUIRE_EQUAL("[(300 [9] 1 6)]",
                                 core::CContainerPrinter::print(
                                     featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
@@ -967,7 +825,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testResetBucketSingleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -975,15 +833,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    TTimeDoublePr data[] = {TTimeDoublePr(1, 1.0),    TTimeDoublePr(550, 2.0),
-                            TTimeDoublePr(600, 3.0),  TTimeDoublePr(700, 4.0),
-                            TTimeDoublePr(1000, 5.0), TTimeDoublePr(1200, 6.0)};
+    TTimeDoublePrVec data{{1, 1.0},   {550, 2.0},  {600, 3.0},
+                          {700, 4.0}, {1000, 5.0}, {1200, 6.0}};
 
-    TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
-    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson};
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, KEY, features, startTime);
@@ -1052,36 +907,30 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     gatherer.featureData(0, featureData);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1.5] 1 2)]"),
+        "[(276 [1.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(0 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(1 [1] 1 1)]", core::CContainerPrinter::print(
+                                             featureData[1].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(550 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(300 [3] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[0].second.s_Samples));
 
     gatherer.sampleNow(600);
     gatherer.featureData(600, featureData);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2.5] 1 2)]"),
+        "[(615 [2.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(600 [5] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(610 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[1].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(620 [3] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(900 [5] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[0].second.s_Samples));
 }
 
-BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testResetBucketMultipleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -1089,15 +938,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    TTimeDoublePr data[] = {TTimeDoublePr(1, 1.0),    TTimeDoublePr(550, 2.0),
-                            TTimeDoublePr(600, 3.0),  TTimeDoublePr(700, 4.0),
-                            TTimeDoublePr(1000, 5.0), TTimeDoublePr(1200, 6.0)};
+    TTimeDoublePrVec data{{1, 1.0},   {550, 2.0},  {600, 3.0},
+                          {700, 4.0}, {1000, 5.0}, {1200, 6.0}};
 
-    TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
-    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson};
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, KEY, features, startTime);
@@ -1247,86 +1093,68 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     gatherer.featureData(0, featureData);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1.5] 1 2)]"),
+        "[(276 [1.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1.5] 1 2)]"),
+        "[(276 [1.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1.5] 1 2)]"),
+        "[(276 [1.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [1] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(276 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(0 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(0 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(0 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(1 [1] 1 1)]", core::CContainerPrinter::print(
+                                             featureData[1].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(1 [1] 1 1)]", core::CContainerPrinter::print(
+                                             featureData[1].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(1 [1] 1 1)]", core::CContainerPrinter::print(
+                                             featureData[1].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(550 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(550 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(550 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(300 [3] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(300 [3] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(300 [3] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[2].second.s_Samples));
 
     gatherer.sampleNow(600);
     gatherer.featureData(600, featureData);
 
     BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2.5] 1 2)]"),
+        "[(615 [2.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2.5] 1 2)]"),
+        "[(615 [2.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
     BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2.5] 1 2)]"),
+        "[(615 [2.5] 1 2)]",
         core::CContainerPrinter::print(featureData[0].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [2] 1 2)]"),
-        core::CContainerPrinter::print(featureData[1].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(615 [3] 1 2)]"),
-        core::CContainerPrinter::print(featureData[2].second[2].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(600 [5] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(600 [5] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    BOOST_REQUIRE_EQUAL(
-        std::string("[(600 [5] 1 2)]"),
-        core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(610 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[1].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(610 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[1].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(610 [2] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[1].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(620 [3] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(620 [3] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(620 [3] 1 1)]", core::CContainerPrinter::print(
+                                               featureData[2].second[2].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(900 [5] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[0].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(900 [5] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[1].second.s_Samples));
+    BOOST_REQUIRE_EQUAL("[(900 [5] 1 2)]", core::CContainerPrinter::print(
+                                               featureData[3].second[2].second.s_Samples));
 }
 
 BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
-    using TTimeDoubleStrStrTuple =
-        boost::tuple<core_t::TTime, double, std::string, std::string>;
+    using TTimeDoubleStrStrTuple = std::tuple<core_t::TTime, double, std::string, std::string>;
+    using TTimeDoubleStrStrTupleVec = std::vector<TTimeDoubleStrStrTuple>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TStrDoubleDoublePrPr = std::pair<std::string, TDoubleDoublePr>;
     using TStrDoubleDoublePrPrVec = std::vector<TStrDoubleDoublePrPr>;
@@ -1338,64 +1166,60 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
 
-    std::string influencerNames_[] = {"i1", "i2"};
-    std::string influencerValues[][3] = {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
+    TStrVec influencerNames{"i1", "i2"};
+    TStrVecVec influencerValues{{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
 
-    TTimeDoubleStrStrTuple data[] = {
-        TTimeDoubleStrStrTuple(1, 1.0, influencerValues[0][0], influencerValues[1][0]), // Bucket 1
-        TTimeDoubleStrStrTuple(150, 5.0, influencerValues[0][1], influencerValues[1][1]),
-        TTimeDoubleStrStrTuple(150, 3.0, influencerValues[0][2], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(550, 2.0, influencerValues[0][0], influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(551, 2.1, influencerValues[0][1], influencerValues[1][1]),
-        TTimeDoubleStrStrTuple(552, 4.0, influencerValues[0][2], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(554, 2.3, influencerValues[0][2], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(600, 3.0, influencerValues[0][1], influencerValues[1][0]), // Bucket 2
-        TTimeDoubleStrStrTuple(660, 3.0, influencerValues[0][0], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(690, 7.1, influencerValues[0][1], ""),
-        TTimeDoubleStrStrTuple(700, 4.0, influencerValues[0][0], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(800, 2.1, influencerValues[0][2], influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(900, 2.5, influencerValues[0][1], influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(1000, 5.0, influencerValues[0][1], influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(1200, 6.4, "", influencerValues[1][2]), // Bucket 3
-        TTimeDoubleStrStrTuple(1210, 6.0, "", influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(1240, 7.0, "", influencerValues[1][1]),
-        TTimeDoubleStrStrTuple(1600, 11.0, "", influencerValues[1][0]),
+    TTimeDoubleStrStrTupleVec data{
+        {1, 1.0, influencerValues[0][0], influencerValues[1][0]}, // Bucket 1
+        {150, 5.0, influencerValues[0][1], influencerValues[1][1]},
+        {150, 3.0, influencerValues[0][2], influencerValues[1][2]},
+        {550, 2.0, influencerValues[0][0], influencerValues[1][0]},
+        {551, 2.1, influencerValues[0][1], influencerValues[1][1]},
+        {552, 4.0, influencerValues[0][2], influencerValues[1][2]},
+        {554, 2.3, influencerValues[0][2], influencerValues[1][2]},
+        {600, 3.0, influencerValues[0][1], influencerValues[1][0]}, // Bucket 2
+        {660, 3.0, influencerValues[0][0], influencerValues[1][2]},
+        {690, 7.1, influencerValues[0][1], ""},
+        {700, 4.0, influencerValues[0][0], influencerValues[1][2]},
+        {800, 2.1, influencerValues[0][2], influencerValues[1][0]},
+        {900, 2.5, influencerValues[0][1], influencerValues[1][0]},
+        {1000, 5.0, influencerValues[0][1], influencerValues[1][0]},
+        {1200, 6.4, "", influencerValues[1][2]}, // Bucket 3
+        {1210, 6.0, "", influencerValues[1][2]},
+        {1240, 7.0, "", influencerValues[1][1]},
+        {1600, 11.0, "", influencerValues[1][0]},
         TTimeDoubleStrStrTuple(1800, 11.0, "", "") // Sentinel
     };
 
-    std::string expectedStatistics[] = {
-        "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), (i23, (3.1, 3))]",
+    TStrVec expectedStatistics{
+        "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), (i23, (3.1, 3))]", // Bucket 1
         "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), (i23, (3.1, 3))]",
         "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, (2.3, 1))]",
         "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, (2.3, 1))]",
         "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, 1))]",
         "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, 1))]",
-        "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, (9.3, 1))]",
-        "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, (9.3, 1))]",
-        "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
+        "[(i11, (3, 2)), (i12, (7.1, 2)), (i13, (9.3, 3)), (i21, (3, 2)), (i22, (7.1, 2)), (i23, (9.3, 3))]",
+        "[(i11, (3, 2)), (i12, (7.1, 2)), (i13, (9.3, 3)), (i21, (3, 2)), (i22, (7.1, 2)), (i23, (9.3, 3))]",
+        "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]", // Bucket 2
         "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
         "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
         "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
         "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
         "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
-        "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
-        "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
+        "[(i11, (7, 2)), (i12, (17.6, 4)), (i13, (2.1, 1)), (i21, (12.6, 4)), (i23, (7, 2))]",
+        "[(i11, (7, 2)), (i12, (17.6, 4)), (i13, (2.1, 1)), (i21, (12.6, 4)), (i23, (7, 2))]",
+        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]", // Bucket 3
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]"};
-    const std::string* expected = expectedStatistics;
+        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 2))]",
+        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 2))]"};
 
-    TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
-    features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
+    TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                         model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson,
+                         model_t::E_IndividualSumByBucketAndPerson};
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            influencerNames, KEY, features, startTime);
@@ -1404,8 +1228,9 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0; i < std::size(data); ++i) {
-        if (data[i].get<0>() >= bucketStart + bucketLength) {
+    auto expected = expectedStatistics.begin();
+    for (std::size_t i = 0; i < std::size(data); ++i) {
+        if (std::get<0>(data[i]) >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, featureData);
@@ -1442,18 +1267,17 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             }
 
             bucketStart += bucketLength;
-            ++b;
         }
         for (std::size_t pid = 0; pid < gatherer.numberActivePeople(); ++pid) {
-            addArrival(gatherer, m_ResourceMonitor, data[i].get<0>(),
-                       gatherer.personName(pid), data[i].get<1>(),
-                       data[i].get<2>(), data[i].get<3>());
+            addArrival(gatherer, m_ResourceMonitor, std::get<0>(data[i]),
+                       gatherer.personName(pid), std::get<1>(data[i]),
+                       std::get<2>(data[i]), std::get<3>(data[i]));
         }
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
-    using TTimeDoubleDoubleTuple = boost::tuple<core_t::TTime, double, double>;
+    using TTimeDoubleDoubleTuple = std::tuple<core_t::TTime, double, double>;
     using TTimeDoubleDoubleTupleVec = std::vector<TTimeDoubleDoubleTuple>;
     using TTimeDoubleDoubleTupleVecVec = std::vector<TTimeDoubleDoubleTupleVec>;
 
@@ -1465,21 +1289,13 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_MultivariateComponentDelimiter = DELIMITER;
 
-    TTimeDoubleDoubleTuple bucket1[] = {TTimeDoubleDoubleTuple(1, 1.0, 1.0),
-                                        TTimeDoubleDoubleTuple(15, 2.1, 2.0),
-                                        TTimeDoubleDoubleTuple(180, 0.9, 0.8),
-                                        TTimeDoubleDoubleTuple(190, 1.5, 1.4),
-                                        TTimeDoubleDoubleTuple(400, 1.5, 1.4),
-                                        TTimeDoubleDoubleTuple(550, 2.0, 1.8)};
-    TTimeDoubleDoubleTuple bucket2[] = {TTimeDoubleDoubleTuple(600, 2.0, 1.8),
-                                        TTimeDoubleDoubleTuple(799, 2.2, 2.0),
-                                        TTimeDoubleDoubleTuple(1199, 1.8, 1.6)};
-    TTimeDoubleDoubleTuple bucket3[] = {TTimeDoubleDoubleTuple(1200, 2.1, 2.0),
-                                        TTimeDoubleDoubleTuple(1250, 2.5, 2.4)};
-    TTimeDoubleDoubleTuple bucket4[] = {TTimeDoubleDoubleTuple(1900, 3.5, 3.2)};
-    TTimeDoubleDoubleTuple bucket5[] = {TTimeDoubleDoubleTuple(2420, 3.5, 3.2),
-                                        TTimeDoubleDoubleTuple(2480, 3.2, 3.0),
-                                        TTimeDoubleDoubleTuple(2490, 3.8, 3.8)};
+    TTimeDoubleDoubleTupleVec bucket1{{1, 1.0, 1.0},   {15, 2.1, 2.0},
+                                      {180, 0.9, 0.8}, {190, 1.5, 1.4},
+                                      {400, 1.5, 1.4}, {550, 2.0, 1.8}};
+    TTimeDoubleDoubleTupleVec bucket2{{600, 2.0, 1.8}, {799, 2.2, 2.0}, {1199, 1.8, 1.6}};
+    TTimeDoubleDoubleTupleVec bucket3{{1200, 2.1, 2.0}, {1250, 2.5, 2.4}};
+    TTimeDoubleDoubleTupleVec bucket4{{1900, 3.5, 3.2}};
+    TTimeDoubleDoubleTupleVec bucket5{{2420, 3.5, 3.2}, {2480, 3.2, 3.0}, {2490, 3.8, 3.8}};
 
     {
         TFeatureVec features;
@@ -1503,8 +1319,8 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
         {
-            addArrival(gatherer, m_ResourceMonitor, bucket1[0].get<0>(), "p",
-                       bucket1[0].get<1>(), bucket1[0].get<2>(), DELIMITER);
+            addArrival(gatherer, m_ResourceMonitor, std::get<0>(bucket1[0]), "p",
+                       std::get<1>(bucket1[0]), std::get<2>(bucket1[0]), DELIMITER);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, featureData);
             LOG_DEBUG(<< "featureData = " << featureData);
@@ -1515,9 +1331,9 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
         }
 
-        for (std::size_t i = 1; i < std::size(bucket1); ++i) {
-            addArrival(gatherer, m_ResourceMonitor, bucket1[i].get<0>(), "p",
-                       bucket1[i].get<1>(), bucket1[i].get<2>(), DELIMITER);
+        for (std::size_t i = 1; i < bucket1.size(); ++i) {
+            addArrival(gatherer, m_ResourceMonitor, std::get<0>(bucket1[i]), "p",
+                       std::get<1>(bucket1[i]), std::get<2>(bucket1[i]), DELIMITER);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1530,16 +1346,16 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.4, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
             BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-            BOOST_REQUIRE_EQUAL(
-                std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL("[(223 [1.5, 1.4] 1 6)]",
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
 
         gatherer.timeNow(startTime + bucketLength);
         for (const auto& value : bucket2) {
-            addArrival(gatherer, m_ResourceMonitor, value.get<0>(), "p",
-                       value.get<1>(), value.get<2>(), DELIMITER);
+            addArrival(gatherer, m_ResourceMonitor, std::get<0>(value), "p",
+                       std::get<1>(value), std::get<2>(value), DELIMITER);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1551,7 +1367,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
                 2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.8, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
+            BOOST_REQUIRE_EQUAL("[(866 [2, 1.8] 1 3)]",
                                 core::CContainerPrinter::print(
                                     featureData[0].second[0].second.s_Samples));
             testPersistence(params, gatherer);
@@ -1559,8 +1375,8 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
 
         gatherer.timeNow(startTime + 2 * bucketLength);
         for (const auto& value : bucket3) {
-            addArrival(gatherer, m_ResourceMonitor, value.get<0>(), "p",
-                       value.get<1>(), value.get<2>(), DELIMITER);
+            addArrival(gatherer, m_ResourceMonitor, std::get<0>(value), "p",
+                       std::get<1>(value), std::get<2>(value), DELIMITER);
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1572,7 +1388,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
                 2.3, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.2, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            BOOST_REQUIRE_EQUAL(std::string("[(1200 [1.95, 1.8] 1 2)]"),
+            BOOST_REQUIRE_EQUAL("[(1225 [2.3, 2.2] 1 2)]",
                                 core::CContainerPrinter::print(
                                     featureData[0].second[0].second.s_Samples));
         }
@@ -1588,19 +1404,19 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         BOOST_REQUIRE_EQUAL(0, addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
-        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket1), std::end(bucket1)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket2), std::end(bucket2)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket3), std::end(bucket3)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket4), std::end(bucket4)));
-        buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket5), std::end(bucket5)));
+        buckets.emplace_back(std::begin(bucket1), std::end(bucket1));
+        buckets.emplace_back(std::begin(bucket2), std::end(bucket2));
+        buckets.emplace_back(std::begin(bucket3), std::end(bucket3));
+        buckets.emplace_back(std::begin(bucket4), std::end(bucket4));
+        buckets.emplace_back(std::begin(bucket5), std::end(bucket5));
 
         for (std::size_t i = 0; i < buckets.size(); ++i) {
             LOG_DEBUG(<< "Processing bucket " << i);
             gatherer.timeNow(startTime + i * bucketLength);
             const TTimeDoubleDoubleTupleVec& bucket = buckets[i];
             for (std::size_t j = 0; j < bucket.size(); ++j) {
-                addArrival(gatherer, m_ResourceMonitor, bucket[j].get<0>(), "p",
-                           bucket[j].get<1>(), bucket[j].get<2>(), DELIMITER);
+                addArrival(gatherer, m_ResourceMonitor, std::get<0>(bucket[j]), "p",
+                           std::get<1>(bucket[j]), std::get<2>(bucket[j]), DELIMITER);
             }
         }
 
@@ -1614,7 +1430,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
         LOG_DEBUG(<< "featureData = " << featureData);
         BOOST_REQUIRE_EQUAL(
-            std::string("[(2323 [3.5, 3.3] 1 4)]"),
+            "[(2463 [3.5, 3.333333] 1 3)]",
             core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
     }
 }
@@ -1632,8 +1448,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     SModelParams params(bucketLength);
 
     {
-        TFeatureVec features;
-        features.push_back(model_t::E_IndividualVarianceByPerson);
+        TFeatureVec features{model_t::E_IndividualVarianceByPerson};
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime);
@@ -1667,8 +1482,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, featureData);
             LOG_DEBUG(<< "featureData = " << featureData);
-            CSample::TDouble1Vec v =
-                featureData[0].second[0].second.s_BucketValue->value();
+            auto v = featureData[0].second[0].second.s_BucketValue->value();
             double expectedMean = 0;
             double expectedVariance = variance(values, expectedMean);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(v[0], expectedVariance, 0.0001);
@@ -1788,3 +1602,4 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+}

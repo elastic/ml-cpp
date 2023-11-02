@@ -319,10 +319,6 @@ public:
     //! models.
     void initialDecayRateMultiplier(double multiplier);
 
-    //! Set the maximum number of times we'll update a person's model
-    //! in a bucketing interval.
-    void maximumUpdatesPerBucket(double maximumUpdatesPerBucket);
-
     //! Set the prune window scale factor minimum
     void pruneWindowScaleMinimum(double factor);
 

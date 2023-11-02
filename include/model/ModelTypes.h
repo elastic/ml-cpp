@@ -429,14 +429,6 @@ bool isSumFeature(EFeature feature);
 MODEL_EXPORT
 double varianceScale(EFeature feature, double sampleCount, double count);
 
-//! Check if the feature is sampled.
-MODEL_EXPORT
-bool isSampled(EFeature feature);
-
-//! Get the minimum useful sample count for a feature.
-MODEL_EXPORT
-unsigned minimumSampleCount(EFeature feature);
-
 //! Offset count features so that their range starts at zero.
 MODEL_EXPORT
 double offsetCountToZero(EFeature feature, double count);

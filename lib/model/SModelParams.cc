@@ -48,7 +48,6 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
           CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER),
       s_ExcludeFrequent(model_t::E_XF_None), s_ExcludePersonFrequency(0.1),
       s_ExcludeAttributeFrequency(0.1),
-      s_MaximumUpdatesPerBucket(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET),
       s_LatencyBuckets(CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS),
       s_SampleCountFactor(CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY),
       s_SampleQueueGrowthFactor(CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR),
@@ -101,7 +100,6 @@ std::uint64_t SModelParams::checksum(std::uint64_t seed) const {
     seed = maths::common::CChecksum::calculate(seed, s_ExcludeFrequent);
     seed = maths::common::CChecksum::calculate(seed, s_ExcludePersonFrequency);
     seed = maths::common::CChecksum::calculate(seed, s_ExcludeAttributeFrequency);
-    seed = maths::common::CChecksum::calculate(seed, s_MaximumUpdatesPerBucket);
     seed = maths::common::CChecksum::calculate(seed, s_InfluenceCutoff);
     seed = maths::common::CChecksum::calculate(seed, s_LatencyBuckets);
     seed = maths::common::CChecksum::calculate(seed, s_SampleCountFactor);

@@ -65,14 +65,6 @@ BOOST_AUTO_TEST_CASE(testNormal) {
             2.0, config.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier);
         BOOST_REQUIRE_EQUAL(
             2.0, config.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            0.0, config.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
         BOOST_REQUIRE_EQUAL(0.1, config.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.1, config.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(0.01, config.factory(1, POPULATION_COUNT)->minimumModeFraction());
@@ -184,18 +176,6 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             config2.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier,
             config1.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_REQUIRE_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
         BOOST_REQUIRE_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction(),
                             config1.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
         BOOST_REQUIRE_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction(),

@@ -239,10 +239,6 @@ void CModelFactory::initialDecayRateMultiplier(double multiplier) {
     m_ModelParams.s_InitialDecayRateMultiplier = multiplier;
 }
 
-void CModelFactory::maximumUpdatesPerBucket(double maximumUpdatesPerBucket) {
-    m_ModelParams.s_MaximumUpdatesPerBucket = maximumUpdatesPerBucket;
-}
-
 void CModelFactory::pruneWindowScaleMinimum(double factor) {
     m_ModelParams.s_PruneWindowScaleMinimum = factor;
 }

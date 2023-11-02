@@ -133,9 +133,6 @@ struct MODEL_EXPORT SModelParams {
     //! The frequency at which to exclude an attribute.
     double s_ExcludeAttributeFrequency;
 
-    //! The maximum number of times we'll update a metric model in a bucket.
-    double s_MaximumUpdatesPerBucket;
-
     //! The number of buckets that are within the latency window.
     std::size_t s_LatencyBuckets;
 

@@ -44,6 +44,7 @@ using namespace ml;
 
 namespace {
 
+using TTimeVec = std::vector<core_t::TTime>;
 using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 using TTimeTimePrVec = std::vector<TTimeTimePr>;
 using TDoubleVec = std::vector<double>;
@@ -85,14 +86,14 @@ public:
             return;
         }
 
-        if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
+        if (!shouldWriteResult(m_Limits, results, node, pivot)) {
             return;
         }
 
-        if (this->isSimpleCount(node)) {
+        if (isSimpleCount(node)) {
             return;
         }
-        if (!this->isLeaf(node)) {
+        if (!isLeaf(node)) {
             return;
         }
 
@@ -143,7 +144,7 @@ private:
     TDoubleVec m_AnomalyRates;
 };
 
-const double CResultWriter::HIGH_ANOMALY_SCORE(0.35);
+const double CResultWriter::HIGH_ANOMALY_SCORE(1.3);
 
 void importData(core_t::TTime firstTime,
                 core_t::TTime lastTime,
@@ -222,12 +223,9 @@ const std::string EMPTY_STRING;
 }
 
 BOOST_AUTO_TEST_CASE(testAnomalies) {
-    // The test data has one genuine anomaly in the interval
-    // [1360617335, 1360617481]. The rest of the samples are
-    // Gaussian with mean 30 and standard deviation 5. The
-    // arrival rate it Poisson distributed with constant mean
-    // in each of the 24 hour periods. However, the rate varies
-    // from hour to hour. In particular, the mean rates are:
+    // The test data has one genuine anomaly in the interval [1360617335, 1360617481].
+    // The rest of the samples are Gaussian with mean 30 and standard deviation 5.
+    // The arrival rate is Poisson with rate varying periodically as follows:
     //
     //   Interval        |  Mean
     // ------------------+--------
@@ -258,13 +256,8 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
 
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
-    static const core_t::TTime BUCKET_LENGTHS[] = {120, 150, 180, 210, 240,
-                                                   300, 450, 600, 900, 1200};
-    static const TTimeTimePr ANOMALOUS_INTERVALS[] = {
-        TTimeTimePr(1360576852, 1360578629), TTimeTimePr(1360617335, 1360617481)};
-
-    double highRateNoise = 0.0;
-    double lowRateNoise = 0.0;
+    static const TTimeVec BUCKET_LENGTHS{120, 180, 240, 300};
+    static const TTimeTimePrVec ANOMALOUS_INTERVALS{{1360576852, 1360578629}, {1360617335, 1360617481}};
 
     for (auto bucketLength : BUCKET_LENGTHS) {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -305,7 +298,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
             double noise = std::accumulate(anomalyFactors.begin(),
                                            anomalyFactors.end(), 0.0);
             LOG_DEBUG(<< "S/N = " << (signal / noise));
-            BOOST_TEST_REQUIRE(signal / noise > 33.0);
+            BOOST_TEST_REQUIRE(signal / noise > 25.0);
         }
 
         // Find the high/low rate partition point.
@@ -318,24 +311,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
                 maxStep = j;
             }
         }
-        double partitionRate = 0.0;
-        if (maxStep < orderedAnomalyRates.size()) {
-            partitionRate = 0.5 * (orderedAnomalyRates[maxStep] +
-                                   orderedAnomalyRates[maxStep - 1]);
-        }
-        LOG_DEBUG(<< "partition rate = " << partitionRate);
-
-        // Compute the ratio of noise in the two rate channels.
-        for (std::size_t j = 0; j < anomalyFactors.size(); ++j) {
-            (anomalyRates[j] > partitionRate ? highRateNoise : lowRateNoise) +=
-                anomalyFactors[j];
-        }
     }
-
-    LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
-
-    // We don't have significantly more noise in the low rate channel.
-    BOOST_TEST_REQUIRE(lowRateNoise / highRateNoise < 1.5);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

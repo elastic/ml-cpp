@@ -35,15 +35,16 @@
 #include <string>
 #include <vector>
 
+namespace {
+
 BOOST_AUTO_TEST_SUITE(CMetricPopulationDataGathererTest)
 
 using namespace ml;
 using namespace model;
 
-namespace {
-
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
 using TStrStrPr = std::pair<std::string, std::string>;
 using TStrStrPrDoubleMap = std::map<TStrStrPr, double>;
 using TOptionalStr = std::optional<std::string>;
@@ -70,12 +71,6 @@ struct SMessage {
     TStrVec s_Influences;
 };
 using TMessageVec = std::vector<SMessage>;
-
-TStrVec vec(const std::string& s1, const std::string& s2) {
-    TStrVec result(1, s1);
-    result.push_back(s2);
-    return result;
-}
 
 void generateTestMessages(const core_t::TTime& startTime, TMessageVec& result) {
     const std::size_t numberMessages = 100000;
@@ -139,8 +134,6 @@ bool isSpace(const char x) {
 
 const CSearchKey searchKey;
 const std::string EMPTY_STRING;
-
-} // unnamed::
 
 class CTestFixture {
 protected:
@@ -403,12 +396,10 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     // Test we correctly sample the mean, minimum and maximum statistics.
 
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
+    using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
-    using TMinAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
-    using TMaxAccumulator =
-        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
     using TStrStrPrDoubleVecMap = std::map<TStrStrPr, TDoubleVec>;
 
@@ -432,14 +423,9 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     CDataGatherer& gatherer(*gathererPtr);
 
     TStrStrPrMeanAccumulatorMap bucketMeanAccumulators;
-    TStrStrPrMeanAccumulatorMap sampleMeanAccumulators;
-    TStrStrPrDoubleVecMap expectedMeanSamples;
     TStrStrPrMinAccumulatorMap bucketMinAccumulators;
-    TStrStrPrMinAccumulatorMap sampleMinAccumulators;
-    TStrStrPrDoubleVecMap expectedMinSamples;
     TStrStrPrMaxAccumulatorMap bucketMaxAccumulators;
-    TStrStrPrMaxAccumulatorMap sampleMaxAccumulators;
-    TStrStrPrDoubleVecMap expectedMaxSamples;
+
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
@@ -448,132 +434,71 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
 
             gatherer.sampleNow(bucketStart);
 
-            TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
-            gatherer.featureData(bucketStart, tmp);
-            BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(3), tmp.size());
-
+            TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
+            gatherer.featureData(bucketStart, featureData);
+            BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(3), featureData.size());
             BOOST_REQUIRE_EQUAL(model_t::E_PopulationMeanByPersonAndAttribute,
-                                tmp[0].first);
-            TStrStrPrDoubleMap means;
-            TStrStrPrDoubleVecMap meanSamples;
-            for (std::size_t j = 0; j < tmp[0].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr& data = tmp[0].second[j];
-                TStrStrPr key(gatherer.personName(data.first.first),
-                              gatherer.attributeName(data.first.second));
-                if (data.second.s_BucketValue) {
-                    means[key] = data.second.s_BucketValue->value()[0];
-                }
-                TDoubleVec& samples = meanSamples[key];
-                for (std::size_t k = 0;
-                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
-                    samples.push_back(
-                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
-                }
-            }
-
+                                featureData[0].first);
             BOOST_REQUIRE_EQUAL(model_t::E_PopulationMinByPersonAndAttribute,
-                                tmp[1].first);
-            TStrStrPrDoubleMap mins;
-            TStrStrPrDoubleVecMap minSamples;
-            for (std::size_t j = 0; j < tmp[1].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr& data = tmp[1].second[j];
-                TStrStrPr key(gatherer.personName(data.first.first),
-                              gatherer.attributeName(data.first.second));
-                if (data.second.s_BucketValue) {
-                    mins[key] = data.second.s_BucketValue->value()[0];
-                }
-                TDoubleVec& samples = minSamples[key];
-                for (std::size_t k = 0;
-                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
-                    samples.push_back(
-                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
-                }
-            }
-
+                                featureData[1].first);
             BOOST_REQUIRE_EQUAL(model_t::E_PopulationMaxByPersonAndAttribute,
-                                tmp[2].first);
-            TStrStrPrDoubleMap maxs;
-            TStrStrPrDoubleVecMap maxSamples;
-            for (std::size_t j = 0; j < tmp[2].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr& data = tmp[2].second[j];
-                TStrStrPr key(gatherer.personName(data.first.first),
-                              gatherer.attributeName(data.first.second));
-                if (data.second.s_BucketValue) {
-                    maxs[key] = data.second.s_BucketValue->value()[0];
+                                featureData[2].first);
+
+            for (std::size_t j = 0; j < 3; ++j) {
+                TStrStrPrDoubleMap bucketValues;
+                TStrStrPrDoubleVecMap sampleValues;
+                for (const auto& data : featureData[j].second) {
+                    TStrStrPr key{gatherer.personName(data.first.first),
+                                  gatherer.attributeName(data.first.second)};
+                    if (data.second.s_BucketValue) {
+                        bucketValues[key] = data.second.s_BucketValue->value()[0];
+                    }
+                    for (const auto& sample : data.second.s_Samples) {
+                        sampleValues[key].push_back(sample.value()[0]);
+                    }
                 }
-                TDoubleVec& samples = maxSamples[key];
-                for (std::size_t k = 0;
-                     k < core::unwrap_ref(data.second.s_Samples).size(); ++k) {
-                    samples.push_back(
-                        core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                TStrStrPrDoubleMap expectedBucketValues;
+                TStrStrPrDoubleVecMap expectedSampleValues;
+                switch (j) {
+                case 0:
+                    for (const auto & [ key, value ] : bucketMeanAccumulators) {
+                        expectedBucketValues[key] =
+                            maths::common::CBasicStatistics::mean(value);
+                        expectedSampleValues[key].push_back(
+                            maths::common::CBasicStatistics::mean(value));
+                    }
+                    break;
+                case 1:
+                    for (const auto & [ key, value ] : bucketMinAccumulators) {
+                        expectedBucketValues[key] = value[0];
+                        expectedSampleValues[key].push_back(value[0]);
+                    }
+                    break;
+                case 2:
+                    for (const auto & [ key, value ] : bucketMaxAccumulators) {
+                        expectedBucketValues[key] = value[0];
+                        expectedSampleValues[key].push_back(value[0]);
+                    }
+                    break;
                 }
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedBucketValues),
+                                    core::CContainerPrinter::print(bucketValues));
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampleValues),
+                                    core::CContainerPrinter::print(sampleValues));
             }
-
-            TStrStrPrDoubleMap expectedMeans;
-            for (auto itr = bucketMeanAccumulators.begin();
-                 itr != bucketMeanAccumulators.end(); ++itr) {
-                expectedMeans[itr->first] =
-                    maths::common::CBasicStatistics::mean(itr->second);
-            }
-
-            TStrStrPrDoubleMap expectedMins;
-            for (auto itr = bucketMinAccumulators.begin();
-                 itr != bucketMinAccumulators.end(); ++itr) {
-                expectedMins[itr->first] = itr->second[0];
-            }
-
-            TStrStrPrDoubleMap expectedMaxs;
-            for (auto itr = bucketMaxAccumulators.begin();
-                 itr != bucketMaxAccumulators.end(); ++itr) {
-                expectedMaxs[itr->first] = itr->second[0];
-            }
-
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
-                                core::CContainerPrinter::print(means));
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMins),
-                                core::CContainerPrinter::print(mins));
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMaxs),
-                                core::CContainerPrinter::print(maxs));
-
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeanSamples),
-                                core::CContainerPrinter::print(meanSamples));
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMinSamples),
-                                core::CContainerPrinter::print(minSamples));
-            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMaxSamples),
-                                core::CContainerPrinter::print(maxSamples));
 
             bucketStart += bucketLength;
             bucketMeanAccumulators.clear();
-            expectedMeanSamples.clear();
             bucketMinAccumulators.clear();
-            expectedMinSamples.clear();
             bucketMaxAccumulators.clear();
-            expectedMaxSamples.clear();
         }
 
         addArrival(messages[i], gatherer, m_ResourceMonitor);
-        TStrStrPr key(messages[i].s_Person, messages[i].s_Attribute);
 
+        TStrStrPr key(messages[i].s_Person, messages[i].s_Attribute);
         bucketMeanAccumulators[key].add(messages[i].s_Value);
         bucketMinAccumulators[key].add(messages[i].s_Value);
         bucketMaxAccumulators[key].add(messages[i].s_Value);
-        expectedMeanSamples.insert(TStrStrPrDoubleVecMap::value_type(key, TDoubleVec()));
-        expectedMinSamples.insert(TStrStrPrDoubleVecMap::value_type(key, TDoubleVec()));
-        expectedMaxSamples.insert(TStrStrPrDoubleVecMap::value_type(key, TDoubleVec()));
-
-        std::size_t cid;
-        BOOST_TEST_REQUIRE(gatherer.attributeId(messages[i].s_Attribute, cid));
-
-        sampleMeanAccumulators[key].add(messages[i].s_Value);
-        sampleMinAccumulators[key].add(messages[i].s_Value);
-        sampleMaxAccumulators[key].add(messages[i].s_Value);
-        expectedMeanSamples[key].push_back(
-            maths::common::CBasicStatistics::mean(sampleMeanAccumulators[key]));
-        expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
-        expectedMaxSamples[key].push_back(sampleMaxAccumulators[key][0]);
-        sampleMeanAccumulators[key] = TMeanAccumulator();
-        sampleMinAccumulators[key] = TMinAccumulator();
-        sampleMaxAccumulators[key] = TMaxAccumulator();
     }
 }
 
@@ -784,7 +709,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
                     std::string key = model_t::print(featureData[i].first) + " " +
                                       gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
-                    expected.push_back(TStrFeatureDataPr(key, data[j].second));
+                    expected.emplace_back(key, data[j].second);
                     LOG_TRACE(<< "  " << key);
                     LOG_TRACE(<< "    " << data[j].second.print());
                 }
@@ -817,7 +742,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
-                actual.push_back(TStrFeatureDataPr(key, data[j].second));
+                actual.emplace_back(key, data[j].second);
                 LOG_TRACE(<< "  " << key);
                 LOG_TRACE(<< "    " << data[j].second.print());
             }
@@ -838,32 +763,31 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
 
-    std::string influencerNames_[] = {"i1", "i2"};
-    std::string influencerValues[][3] = {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
+    TStrVecVec influencerValues{{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
 
-    SMessage data[] = {
-        SMessage(1, "p1", "", 1.0, vec(influencerValues[0][0], influencerValues[1][0])), // Bucket 1
-        SMessage(150, "p1", "", 5.0, vec(influencerValues[0][1], influencerValues[1][1])),
-        SMessage(150, "p1", "", 3.0, vec(influencerValues[0][2], influencerValues[1][2])),
-        SMessage(550, "p2", "", 2.0, vec(influencerValues[0][0], influencerValues[1][0])),
-        SMessage(551, "p2", "", 2.1, vec(influencerValues[0][1], influencerValues[1][1])),
-        SMessage(552, "p2", "", 4.0, vec(influencerValues[0][2], influencerValues[1][2])),
-        SMessage(554, "p2", "", 2.2, vec(influencerValues[0][2], influencerValues[1][2])),
-        SMessage(600, "p1", "", 3.0, vec(influencerValues[0][1], influencerValues[1][0])), // Bucket 2
-        SMessage(660, "p2", "", 3.0, vec(influencerValues[0][0], influencerValues[1][2])),
-        SMessage(690, "p1", "", 7.3, vec(influencerValues[0][1], "")),
-        SMessage(700, "p2", "", 4.0, vec(influencerValues[0][0], influencerValues[1][2])),
-        SMessage(800, "p1", "", 2.2, vec(influencerValues[0][2], influencerValues[1][0])),
-        SMessage(900, "p2", "", 2.5, vec(influencerValues[0][1], influencerValues[1][0])),
-        SMessage(1000, "p1", "", 5.0, vec(influencerValues[0][1], influencerValues[1][0])),
-        SMessage(1200, "p2", "", 6.4, vec("", influencerValues[1][2])), // Bucket 3
-        SMessage(1210, "p2", "", 6.0, vec("", influencerValues[1][2])),
-        SMessage(1240, "p2", "", 7.0, vec("", influencerValues[1][1])),
-        SMessage(1600, "p2", "", 11.0, vec("", influencerValues[1][0])),
-        SMessage(1800, "p1", "", 11.0, vec("", "")) // Sentinel
+    TMessageVec data{
+        SMessage(1, "p1", "", 1.0, {influencerValues[0][0], influencerValues[1][0]}), // Bucket 1
+        SMessage(150, "p1", "", 5.0, {influencerValues[0][1], influencerValues[1][1]}),
+        SMessage(150, "p1", "", 3.0, {influencerValues[0][2], influencerValues[1][2]}),
+        SMessage(550, "p2", "", 2.0, {influencerValues[0][0], influencerValues[1][0]}),
+        SMessage(551, "p2", "", 2.1, {influencerValues[0][1], influencerValues[1][1]}),
+        SMessage(552, "p2", "", 4.0, {influencerValues[0][2], influencerValues[1][2]}),
+        SMessage(554, "p2", "", 2.2, {influencerValues[0][2], influencerValues[1][2]}),
+        SMessage(600, "p1", "", 3.0, {influencerValues[0][1], influencerValues[1][0]}), // Bucket 2
+        SMessage(660, "p2", "", 3.0, {influencerValues[0][0], influencerValues[1][2]}),
+        SMessage(690, "p1", "", 7.3, {influencerValues[0][1], ""}),
+        SMessage(700, "p2", "", 4.0, {influencerValues[0][0], influencerValues[1][2]}),
+        SMessage(800, "p1", "", 2.2, {influencerValues[0][2], influencerValues[1][0]}),
+        SMessage(900, "p2", "", 2.5, {influencerValues[0][1], influencerValues[1][0]}),
+        SMessage(1000, "p1", "", 5.0, {influencerValues[0][1], influencerValues[1][0]}),
+        SMessage(1200, "p2", "", 6.4, {"", influencerValues[1][2]}), // Bucket 3
+        SMessage(1210, "p2", "", 6.0, {"", influencerValues[1][2]}),
+        SMessage(1240, "p2", "", 7.0, {"", influencerValues[1][1]}),
+        SMessage(1600, "p2", "", 11.0, {"", influencerValues[1][0]}),
+        SMessage(1800, "p1", "", 11.0, {"", ""}) // Sentinel
     };
 
-    std::string expectedStatistics[] = {
+    TStrVec expectedStatistics{
         "[(i11, (1, 1)), (i12, (5, 1)), (i13, (3, 1)), (i21, (1, 1)), (i22, (5, 1)), (i23, (3, 1))]",
         "[(i11, (2, 1)), (i12, (2.1, 1)), (i13, (3.1, 2)), (i21, (2, 1)), (i22, (2.1, 1)), (i23, (3.1, 2))]",
         "[(i11, (1, 1)), (i12, (5, 1)), (i13, (3, 1)), (i21, (1, 1)), (i22, (5, 1)), (i23, (3, 1))]",
@@ -871,57 +795,44 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
         "[(i11, (1, 1)), (i12, (5, 1)), (i13, (3, 1)), (i21, (1, 1)), (i22, (5, 1)), (i23, (3, 1))]",
         "[(i11, (2, 1)), (i12, (2.1, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (2.1, 1)), (i23, (4, 1))]",
         "[(i11, (1, 1)), (i12, (5, 1)), (i13, (3, 1)), (i21, (1, 1)), (i22, (5, 1)), (i23, (3, 1))]",
-        "[(i11, (2, 1)), (i12, (2.1, 1)), (i13, (6.2, 1)), (i21, (2, 1)), (i22, (2.1, 1)), (i23, (6.2, 1))]",
+        "[(i11, (2, 1)), (i12, (2.1, 1)), (i13, (6.2, 2)), (i21, (2, 1)), (i22, (2.1, 1)), (i23, (6.2, 2))]",
         "[(i12, (5.1, 3)), (i13, (2.2, 1)), (i21, (3.4, 3))]",
         "[(i11, (3.5, 2)), (i12, (2.5, 1)), (i21, (2.5, 1)), (i23, (3.5, 2))]",
         "[(i12, (3, 1)), (i13, (2.2, 1)), (i21, (2.2, 1))]",
         "[(i11, (3, 1)), (i12, (2.5, 1)), (i21, (2.5, 1)), (i23, (3, 1))]",
         "[(i12, (7.3, 1)), (i13, (2.2, 1)), (i21, (5, 1))]",
         "[(i11, (4, 1)), (i12, (2.5, 1)), (i21, (2.5, 1)), (i23, (4, 1))]",
-        "[(i12, (15.3, 1)), (i13, (2.2, 1)), (i21, (10.2, 1))]",
-        "[(i11, (7, 1)), (i12, (2.5, 1)), (i21, (2.5, 1)), (i23, (7, 1))]",
+        "[(i12, (15.3, 3)), (i13, (2.2, 1)), (i21, (10.2, 3))]",
+        "[(i11, (7, 2)), (i12, (2.5, 1)), (i21, (2.5, 1)), (i23, (7, 2))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]"};
-    const std::string* expected = expectedStatistics;
+        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 2))]"};
 
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
-    TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
+    model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
+                                  model_t::E_PopulationMinByPersonAndAttribute,
+                                  model_t::E_PopulationMaxByPersonAndAttribute,
+                                  model_t::E_PopulationHighSumByBucketPersonAndAttribute};
+    TStrVec influencerNames{"i1", "i2"};
     CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, influencerNames, searchKey, features, startTime);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0; i < std::size(data); ++i) {
+    auto expected = expectedStatistics.begin();
+    for (std::size_t i = 0; i < data.size(); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
-            TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
-            gatherer.featureData(bucketStart, featureData);
-            for (std::size_t j = 0; j < featureData.size(); ++j) {
-                model_t::EFeature feature = featureData[j].first;
+            TFeatureSizeSizePrFeatureDataPrVecPrVec featuresData;
+            gatherer.featureData(bucketStart, featuresData);
+            for (const auto & [ feature, featureData ] : featuresData) {
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
-
-                const TSizeSizePrFeatureDataPrVec& data_ = featureData[j].second;
-                for (std::size_t k = 0; k < data_.size(); ++k) {
+                for (const auto& data_ : featureData) {
                     TStrDoubleDoublePrPrVec statistics;
-                    for (std::size_t m = 0;
-                         m < data_[k].second.s_InfluenceValues.size(); ++m) {
-                        for (std::size_t n = 0;
-                             n < data_[k].second.s_InfluenceValues[m].size(); ++n) {
-                            statistics.push_back(TStrDoubleDoublePrPr(
-                                data_[k].second.s_InfluenceValues[m][n].first,
-                                TDoubleDoublePr(
-                                    data_[k]
-                                        .second.s_InfluenceValues[m][n]
-                                        .second.first[0],
-                                    data_[k]
-                                        .second.s_InfluenceValues[m][n]
-                                        .second.second)));
+                    for (const auto& influenceValue : data_.second.s_InfluenceValues) {
+                        for (const auto & [ influence, value ] : influenceValue) {
+                            statistics.emplace_back(
+                                influence, std::make_pair(value.first[0], value.second));
                         }
                     }
                     std::sort(statistics.begin(), statistics.end(),
@@ -1010,55 +921,6 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-BOOST_FIXTURE_TEST_CASE(testReleaseMemory, CTestFixture) {
-    const core_t::TTime startTime = 1373932800;
-    const core_t::TTime bucketLength = 3600;
-
-    SModelParams params(bucketLength);
-    params.s_LatencyBuckets = 3;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationMeanByPersonAndAttribute});
-    CModelFactory::SGathererInitializationData initData(startTime);
-    CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer& gatherer(*gathererPtr);
-    BOOST_TEST_REQUIRE(gatherer.isPopulation());
-
-    core_t::TTime bucketStart = startTime;
-    // Add a few buckets with count of 10 so that sample count gets estimated
-    for (std::size_t i = 0; i < 10; ++i) {
-        // Add 10 events
-        for (std::size_t j = 0; j < 10; ++j) {
-            addArrival(SMessage(bucketStart, "p1", "", 10.0), gatherer, m_ResourceMonitor);
-            addArrival(SMessage(bucketStart, "p2", "", 10.0), gatherer, m_ResourceMonitor);
-        }
-        gatherer.sampleNow(bucketStart - params.s_LatencyBuckets * bucketLength);
-        bucketStart += bucketLength;
-    }
-
-    // Add a bucket with not enough data to sample for p2
-    for (std::size_t j = 0; j < 10; ++j) {
-        addArrival(SMessage(bucketStart, "p1", "", 10.0), gatherer, m_ResourceMonitor);
-    }
-    addArrival(SMessage(bucketStart, "p2", "", 10.0), gatherer, m_ResourceMonitor);
-    gatherer.sampleNow(bucketStart - params.s_LatencyBuckets * bucketLength);
-    bucketStart += bucketLength;
-
-    std::size_t mem = gatherer.memoryUsage();
-
-    // Add 48 + 1 buckets ( > 2 days) to force incomplete samples out of consideration for p2
-    for (std::size_t i = 0; i < 49 + 1; ++i) {
-        for (std::size_t j = 0; j < 10; ++j) {
-            addArrival(SMessage(bucketStart, "p1", "", 10.0), gatherer, m_ResourceMonitor);
-        }
-        gatherer.sampleNow(bucketStart - params.s_LatencyBuckets * bucketLength);
-        bucketStart += bucketLength;
-        gatherer.releaseMemory();
-        if (i <= 40) {
-            BOOST_TEST_REQUIRE(gatherer.memoryUsage() >= mem - 1000);
-        }
-    }
-    BOOST_TEST_REQUIRE(gatherer.memoryUsage() < mem - 1000);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
+
+}

@@ -736,7 +736,6 @@ namespace {
 const std::string ONLINE_LEARN_RATE_PROPERTY("learnrate");
 const std::string DECAY_RATE_PROPERTY("decayrate");
 const std::string INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY("initialdecayratemultiplier");
-const std::string MAXIMUM_UPDATES_PER_BUCKET_PROPERTY("maximumupdatesperbucket");
 const std::string INDIVIDUAL_MODE_FRACTION_PROPERTY("individualmodefraction");
 const std::string POPULATION_MODE_FRACTION_PROPERTY("populationmodefraction");
 const std::string COMPONENT_SIZE_PROPERTY("componentsize");
@@ -795,18 +794,6 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
 
             for (auto& factory : m_Factories) {
                 factory.second->initialDecayRateMultiplier(multiplier);
-            }
-        } else if (propName == MAXIMUM_UPDATES_PER_BUCKET_PROPERTY) {
-            double maximumUpdatesPerBucket;
-            if (core::CStringUtils::stringToType(propValue, maximumUpdatesPerBucket) == false ||
-                maximumUpdatesPerBucket < 0.0) {
-                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
-                result = false;
-                continue;
-            }
-
-            for (auto& factory : m_Factories) {
-                factory.second->maximumUpdatesPerBucket(maximumUpdatesPerBucket);
             }
         } else if (propName == INDIVIDUAL_MODE_FRACTION_PROPERTY) {
             double fraction;

@@ -171,22 +171,18 @@ public:
 
     core_t::TTime value() const {
         return static_cast<core_t::TTime>(
-                   std::round(maths::common::CBasicStatistics::mean(m_Time)));
+            std::round(maths::common::CBasicStatistics::mean(m_Time)));
     }
 
     void add(core_t::TTime time, unsigned int count) {
         m_Time.add(static_cast<double>(time), count);
     }
 
-    std::string toDelimited() const {
-        return m_Time.toDelimited();
-    }
+    std::string toDelimited() const { return m_Time.toDelimited(); }
     bool fromDelimited(const std::string& value) {
         return m_Time.fromDelimited(value);
     }
-    std::uint64_t checksum() const {
-        return m_Time.checksum();
-    }
+    std::uint64_t checksum() const { return m_Time.checksum(); }
 
 private:
     TMeanAccumulator m_Time;
@@ -199,7 +195,8 @@ public:
     using TStat = STAT;
 
 public:
-    explicit CStatGatherer(core_t::TTime bucketLength, const STAT& initial) : m_Time{bucketLength}, m_Stat{initial} {}
+    explicit CStatGatherer(core_t::TTime bucketLength, const STAT& initial)
+        : m_Time{bucketLength}, m_Stat{initial} {}
 
     std::size_t dimension() const {
         return metric_stat_shims::dimension(m_Stat);
@@ -218,8 +215,8 @@ public:
     void add(core_t::TTime bucketTime, const TDouble1Vec& value, unsigned int count) {
         if (metric_stat_shims::wouldAdd(value, m_Stat)) {
             m_Time.add(bucketTime, count);
+            metric_stat_shims::add(value, count, m_Stat);
         }
-        metric_stat_shims::add(value, count, m_Stat);
     }
 
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -307,7 +304,7 @@ public:
 
         const auto& gatherer = m_BucketStats.get(time);
 
-        if (gatherer.count() > 0) {
+        if (gatherer.value().empty() == false) {
             TStrCRefDouble1VecDoublePrPrVecVec influenceValues(
                 m_InfluencerBucketStats.size());
             for (std::size_t i = 0; i < m_InfluencerBucketStats.size(); ++i) {
@@ -332,8 +329,7 @@ public:
                     gatherer.samples(time)};
         }
 
-        return {m_Classifier.isInteger(), m_Classifier.isNonNegative(),
-                gatherer.samples(time)};
+        return {m_Classifier.isInteger(), m_Classifier.isNonNegative(), {}};
     }
 
     //! Update the state with a new measurement.

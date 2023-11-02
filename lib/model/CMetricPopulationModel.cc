@@ -406,8 +406,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                const TOptionalSample& bucket =
-                    CDataGatherer::extractData(data_).s_BucketValue;
                 const auto& samples = CDataGatherer::extractData(data_).s_Samples;
                 bool isInteger = CDataGatherer::extractData(data_).s_IsInteger;
                 bool isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
@@ -421,22 +419,9 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
                 attribute.s_IsInteger &= isInteger;
                 attribute.s_IsNonNegative &= isNonNegative;
-                if (model_t::isSampled(feature) && bucket) {
-                    attribute.s_BucketValues.emplace_back(
-                        bucket->time(), TDouble2Vec(bucket->value(dimension)), pid);
-                }
-
-                std::size_t n = std::count_if(samples.begin(), samples.end(),
-                                              [cutoff](const CSample& sample) {
-                                                  return sample.time() >= cutoff;
-                                              });
-                double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
                 double countWeight = initialCountWeight *
                                      this->sampleRateWeight(pid, cid) *
-                                     this->learnRate(feature) *
-                                     (updatesPerBucket > 0.0 && n > 0
-                                          ? updatesPerBucket / static_cast<double>(n)
-                                          : 1.0);
+                                     this->learnRate(feature);
                 LOG_TRACE(<< "countWeight = " << countWeight);
 
                 for (const auto& sample : samples) {
