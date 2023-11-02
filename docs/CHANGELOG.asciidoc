@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.17.15
+
+=== Enhancements
+
+* Improve forecasting for time series with step changes. (See {ml-pull}#2591[2591],
+  issue: {ml-issue}2466[#2466]).
+
 == {es} version 7.17.13
 
 === Enhancements

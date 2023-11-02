@@ -977,10 +977,14 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
     CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           influencerNames, searchKey, features, startTime, 2u);
+                           influencerNames, searchKey, features, startTime, 2);
 
     core_t::TTime bucketStart = startTime;
+<<<<<<< HEAD
     for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
+=======
+    for (std::size_t i = 0; i < std::size(data); ++i) {
+>>>>>>> 5441e736 ([ML] Improve forecasting for time series with step changes (#2591))
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -1019,7 +1023,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             }
 
             bucketStart += bucketLength;
-            ++b;
         }
         addArrival(data[i], gatherer, m_ResourceMonitor);
     }

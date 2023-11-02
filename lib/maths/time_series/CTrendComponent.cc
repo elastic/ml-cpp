@@ -54,6 +54,27 @@ const core_t::TTime UNSET_TIME{0};
 const std::size_t NO_CHANGE_LABEL{0};
 const std::size_t LEVEL_CHANGE_LABEL{1};
 
+class CChangeForecastFeatureWeight : public common::CNaiveBayesFeatureWeight {
+public:
+    void add(std::size_t class_, double logLikelihood) override {
+        if (class_ == NO_CHANGE_LABEL) {
+            m_LogLikelihood = logLikelihood;
+        }
+    }
+
+    double calculate() const override {
+        // Downweight features for which we don't have sufficient examples
+        // of the time series not changing.
+        // Note that m_LogLikelihood = 0.5 * (x - m)^2 / sigma^2 so 4.5
+        // corresponds to the case the feature value is at the 3 sigma
+        // point of the conditional distribution.
+        return common::CTools::logisticFunction((4.5 + m_LogLikelihood) / 4.5, 0.1);
+    }
+
+private:
+    double m_LogLikelihood{0.0};
+};
+
 //! Get the desired weight for the regression model.
 double modelWeight(double targetDecayRate, double modelDecayRate) {
     return targetDecayRate == modelDecayRate
@@ -92,7 +113,7 @@ common::CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) 
 
 common::CNaiveBayes initialProbabilityOfChangeModel(double decayRate) {
     return common::CNaiveBayes{naiveBayesExemplar(decayRate),
-                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate, -20.0};
+                               TIME_SCALES[NUMBER_MODELS - 1] * decayRate};
 }
 
 common::CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
@@ -296,11 +317,11 @@ void CTrendComponent::shiftLevel(double shift,
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
                                                              {{dt}, {value}});
     }
+    m_TimeOfLastLevelChange = time;
     for (std::size_t i = segments[last]; i < values.size(); ++i, time += bucketLength) {
         this->dontShiftLevel(time, common::CBasicStatistics::mean(values[i]));
     }
     m_MagnitudeOfLevelChangeModel.addSamples({magnitude}, maths_t::CUnitWeights::SINGLE_UNIT);
-    m_TimeOfLastLevelChange = time;
 }
 
 void CTrendComponent::dontShiftLevel(core_t::TTime time, double value) {
@@ -789,14 +810,26 @@ CTrendComponent::TDouble3Vec
 CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction, double confidence) {
     TDouble3Vec result{0.0, 0.0, 0.0};
 
-    if (m_Probability.initialized()) {
+    if (m_Probability.initialized() && m_Probability.numberClasses() > 1) {
         common::CSampling::uniformSample(0.0, 1.0, m_Levels.size(), m_Uniform01);
         bool reorder{false};
+        auto weightProvider = [weight =
+                                   CChangeForecastFeatureWeight{}]() mutable->common::CNaiveBayesFeatureWeight& {
+            weight = CChangeForecastFeatureWeight{};
+            return weight;
+        };
         for (std::size_t i = 0; i < m_Levels.size(); ++i) {
             double dt{static_cast<double>(time - m_TimesOfLastChange[i])};
             double x{m_Levels[i] + prediction};
-            double p{m_Probability.classProbability(LEVEL_CHANGE_LABEL, {{dt}, {x}})};
-            m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
+            auto[p, pConfidence] = m_Probability.classProbability(
+                LEVEL_CHANGE_LABEL, {{dt}, {x}}, weightProvider);
+            // Here we decide whether to increase the probability we should have
+            // seen a step change for this rollout. If we are no longer confident
+            // in our predicted probability we do not predict changes based on
+            // the principle of least surprise.
+            if (pConfidence > 0.5) {
+                m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
+            }
             if (m_Uniform01[i] < m_ProbabilitiesOfChange[i]) {
                 double stepMean{m_Magnitude.marginalLikelihoodMean()};
                 double stepVariance{m_Magnitude.marginalLikelihoodVariance()};

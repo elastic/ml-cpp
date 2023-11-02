@@ -1469,13 +1469,13 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                           influencerNames, KEY, features, startTime, 2u);
+                           influencerNames, KEY, features, startTime, 2);
 
     addPerson("p1", gatherer, m_ResourceMonitor, influencerNames.size());
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
+    for (std::size_t i = 0; i < std::size(data); ++i) {
         if (data[i].get<0>() >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
@@ -1514,7 +1514,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
             }
 
             bucketStart += bucketLength;
-            ++b;
         }
         for (std::size_t pid = 0; pid < gatherer.numberActivePeople(); ++pid) {
             addArrival(gatherer, m_ResourceMonitor, data[i].get<0>(),
