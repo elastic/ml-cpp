@@ -19,8 +19,6 @@ steps:
   - trigger: appex-qa-stateful-custom-ml-c-plus-plus-build-testing
     async: false
     build:
-      commit: "${BUILDKITE_COMMIT}"
-      branch: "${BUILDKITE_BRANCH}"
       message: "${BUILDKITE_MESSAGE}"
       env:
         QAF_TESTS_TO_RUN: "test1,test2,test3"
