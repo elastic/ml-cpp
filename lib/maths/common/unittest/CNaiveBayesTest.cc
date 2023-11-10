@@ -99,7 +99,9 @@ BOOST_AUTO_TEST_CASE(testClassification) {
         //   - P(1) = (initialCount + 100) / (2*initialCount + 300)
         //   - P(2) = (initialCount + 200) / (2*initialCount + 300)
 
-        auto[probabilities, confidence](nb.highestClassProbabilities(2, {{}, {}}));
+        TDoubleSizePrVec probabilities;
+        double confidence;
+        std::tie(probabilities, confidence) = nb.highestClassProbabilities(2, {{}, {}});
 
         double P1{(initialCount + 100.0) / (2.0 * initialCount + 300.0)};
         double P2{(initialCount + 200.0) / (2.0 * initialCount + 300.0)};
@@ -311,7 +313,9 @@ BOOST_AUTO_TEST_CASE(testExtrapolation) {
     auto weightProvider = [weight = CTestFeatureWeight()]() mutable->maths::common::CNaiveBayesFeatureWeight& {
         return weight;
     };
-    auto[probabilities, confidence] = nb.classProbabilities({{30.0}}, weightProvider);
+    TDoubleSizePrVec probabilities;
+    double confidence;
+    std::tie(probabilities, confidence) = nb.classProbabilities({{30.0}}, weightProvider);
     LOG_DEBUG(<< "p = " << probabilities << ", confidence = " << confidence);
 
     BOOST_REQUIRE_EQUAL(2, probabilities.size());

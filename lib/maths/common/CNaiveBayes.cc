@@ -278,7 +278,9 @@ CNaiveBayes::TDoubleSizePrVecDoublePr
 CNaiveBayes::highestClassProbabilities(std::size_t n,
                                        const TDouble1VecVec& x,
                                        const TFeatureWeightProvider& weightProvider) const {
-    auto[p, minFeatureWeight] = this->classProbabilities(x, weightProvider);
+    TDoubleSizePrVec p;
+    double minFeatureWeight;
+    std::tie(p, minFeatureWeight) = this->classProbabilities(x, weightProvider);
     n = std::min(n, p.size());
     std::sort(p.begin(), p.begin() + n, std::greater<>());
     return {TDoubleSizePrVec{p.begin(), p.begin() + n}, minFeatureWeight};
@@ -288,7 +290,9 @@ CNaiveBayes::TDoubleDoublePr
 CNaiveBayes::classProbability(std::size_t label,
                               const TDouble1VecVec& x,
                               const TFeatureWeightProvider& weightProvider) const {
-    auto[p, minFeatureWeight] = this->classProbabilities(x, weightProvider);
+    TDoubleSizePrVec p;
+    double minFeatureWeight;
+    std::tie(p, minFeatureWeight) = this->classProbabilities(x, weightProvider);
     auto i = std::find_if(p.begin(), p.end(), [label](const TDoubleSizePr& p_) {
         return p_.second == label;
     });

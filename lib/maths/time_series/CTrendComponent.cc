@@ -821,7 +821,9 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
         for (std::size_t i = 0; i < m_Levels.size(); ++i) {
             double dt{static_cast<double>(time - m_TimesOfLastChange[i])};
             double x{m_Levels[i] + prediction};
-            auto[p, pConfidence] = m_Probability.classProbability(
+            double p;
+            double pConfidence;
+            std::tie(p, pConfidence) = m_Probability.classProbability(
                 LEVEL_CHANGE_LABEL, {{dt}, {x}}, weightProvider);
             // Here we decide whether to increase the probability we should have
             // seen a step change for this rollout. If we are no longer confident
