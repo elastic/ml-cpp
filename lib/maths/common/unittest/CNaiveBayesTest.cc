@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include "core/CContainerPrinter.h"
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -316,7 +317,8 @@ BOOST_AUTO_TEST_CASE(testExtrapolation) {
     TDoubleSizePrVec probabilities;
     double confidence;
     std::tie(probabilities, confidence) = nb.classProbabilities({{30.0}}, weightProvider);
-    LOG_DEBUG(<< "p = " << probabilities << ", confidence = " << confidence);
+    LOG_DEBUG(<< "p = " << core::CContainerPrinter::print(probabilities)
+              << ", confidence = " << confidence);
 
     BOOST_REQUIRE_EQUAL(2, probabilities.size());
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, probabilities[0].first, 1e-2);

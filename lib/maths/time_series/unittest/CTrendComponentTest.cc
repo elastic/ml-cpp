@@ -393,7 +393,8 @@ BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
             rng.generateNormalSamples(0.0, 0.25, 1, noise);
             double value{*level + noise[0]};
             trendModel.add(time, value);
-            values.emplace_back().add(value);
+            values.emplace_back();
+            values.back().add(value);
             if (i == *changePoint) {
                 ++level;
                 ++changePoint;

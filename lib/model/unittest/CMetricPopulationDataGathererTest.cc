@@ -980,11 +980,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                            influencerNames, searchKey, features, startTime, 2);
 
     core_t::TTime bucketStart = startTime;
-<<<<<<< HEAD
-    for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
-=======
-    for (std::size_t i = 0; i < std::size(data); ++i) {
->>>>>>> 5441e736 ([ML] Improve forecasting for time series with step changes (#2591))
+    for (std::size_t i = 0; i < boost::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
