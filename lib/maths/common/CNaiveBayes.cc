@@ -339,8 +339,8 @@ CNaiveBayes::classProbabilities(const TDouble1VecVec& x,
             // Any feature whose weight < 1 has its significance dropped in class
             // selection, effectively we use the w_i'th root of the log-likelihood
             // which tends to 1 for all values if w_i is small enough. This can be
-            // used to ignore features that for which x is the extreme tails of the
-            // class conditional distribution.
+            // used to ignore features for which x is the extreme tails of the class
+            // conditional distribution.
             double featureWeight_{featureWeight.calculate()};
             for (std::size_t j = 0; j < logLikelihoods.size(); ++j) {
                 p[j].first += featureWeight_ * logLikelihoods[j];
