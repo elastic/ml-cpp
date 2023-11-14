@@ -14,11 +14,11 @@
 #include <api/CNdInputParser.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <iosfwd>
 #include <string>
-
+namespace json = boost::json;
 namespace ml {
 namespace api {
 
@@ -83,31 +83,31 @@ public:
 
 private:
     //! Attempt to parse the current working record into data fields.
-    bool parseDocument(char* begin, rapidjson::Document& document);
+    bool parseDocument(char* begin, json::value& document);
 
     bool decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
-                                        const rapidjson::Document& document,
+                                        const json::value& document,
                                         TStrVec& fieldNames,
                                         TStrRefVec& fieldValRefs,
                                         TStrStrUMap& recordFields);
 
     bool decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
-                                        const rapidjson::Document& document,
+                                        const json::value& document,
                                         TStrVec& fieldNames,
                                         TStrVec& fieldValues);
 
     bool decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
-                                           const rapidjson::Document& document,
+                                           const json::value& document,
                                            TStrVec& fieldNames,
                                            TStrStrUMap& recordFields);
 
     bool decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
-                                           const rapidjson::Document& document,
+                                           const json::value& document,
                                            TStrVec& fieldNames,
                                            TStrVec& fieldValues);
 
     static bool jsonValueToString(const std::string& fieldName,
-                                  const rapidjson::Value& jsonValue,
+                                  const json::value& jsonValue,
                                   std::string& fieldValueStr);
 
 private:

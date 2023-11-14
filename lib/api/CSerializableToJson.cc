@@ -12,10 +12,9 @@
 #include <api/CSerializableToJson.h>
 
 #include <core/CBase64Filter.h>
-#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/rapidjson.h>
+#include <boost/json.hpp>
 
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -30,13 +29,14 @@
 #include <stdexcept>
 #include <string>
 
+namespace json = boost::json;
 namespace ml {
 namespace api {
 namespace {
 namespace io = boost::iostreams;
 using TFilteredInput = io::filtering_stream<io::input>;
 using TFilteredOutput = io::filtering_stream<io::output>;
-using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
 void compressAndEncode(std::function<void(TGenericLineWriter&)> addToJsonStream,
                        std::ostream& sink) {
@@ -44,7 +44,7 @@ void compressAndEncode(std::function<void(TGenericLineWriter&)> addToJsonStream,
     outFilter.push(io::gzip_compressor());
     outFilter.push(core::CBase64Encoder());
     outFilter.push(sink);
-    rapidjson::OStreamWrapper osw{outFilter};
+    std::ostringstream osw;
     TGenericLineWriter writer{osw};
     addToJsonStream(writer);
     outFilter.flush();
@@ -71,7 +71,7 @@ const std::string JSON_EOS_TAG{"eos"};
 std::string CSerializableToJsonStream::jsonString() const {
     std::ostringstream jsonStream;
     {
-        rapidjson::OStreamWrapper osw{jsonStream};
+        std::ostringstream &osw = jsonStream;
         TGenericLineWriter writer{osw};
         this->addToJsonStream(writer);
     }
@@ -91,7 +91,7 @@ std::stringstream CSerializableToCompressedChunkedJson::jsonCompressedStream() c
 void CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
     const std::string& compressedDocTag,
     const std::string& payloadTag,
-    TRapidJsonWriter& writer) const {
+    TBoostJsonWriter& writer) const {
 
     using TCharVec = std::vector<char>;
 
@@ -102,8 +102,7 @@ void CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
 
     std::size_t docNum{0};
     for (std::size_t i = 0; i < buffer.size(); i += m_MaxDocumentSize) {
-        rapidjson::SizeType bytesToWrite{static_cast<rapidjson::SizeType>(
-            std::min(m_MaxDocumentSize, buffer.size() - i))};
+        std::size_t bytesToWrite = std::min(m_MaxDocumentSize, buffer.size() - i);
 
         writer.StartObject();
         writer.Key(compressedDocTag);
@@ -111,7 +110,7 @@ void CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
         writer.Key(JSON_DOC_NUM_TAG);
         writer.Uint64(docNum);
         writer.Key(payloadTag);
-        writer.String(&buffer[i], bytesToWrite);
+        writer.String(std::string(&buffer[i], bytesToWrite));
         if (i + bytesToWrite == buffer.size()) {
             writer.Key(JSON_EOS_TAG);
             writer.Bool(true);
@@ -129,18 +128,21 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       TIStreamPtr inputStream,
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
-        core::CRapidJsonUnbufferedIStreamWrapper isw{*inputStream};
+//        core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
         try {
-            rapidjson::Document doc;
+            json::value doc;
+            json::error_code ec;
+            json::stream_parser p;
+            std::string line;
             bool done{false};
-            do {
-                doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
-                assertNoParseError(doc);
-                auto chunk = ifExists(compressedDocTag, getAsObjectFrom, doc);
+            while (std::getline( *inputStream, line ) && done == false) {
+                p.write( line, ec );
+                assertNoParseError(ec);
+                auto chunk = ifExists(compressedDocTag, getAsObjectFrom, doc.as_object());
                 buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
                              ifExists(payloadTag, getStringLengthFrom, chunk));
-                done = chunk.HasMember(JSON_EOS_TAG);
-            } while (done == false);
+                done = chunk.contains(JSON_EOS_TAG);
+            }
 
             consumeSpace(*inputStream);
 

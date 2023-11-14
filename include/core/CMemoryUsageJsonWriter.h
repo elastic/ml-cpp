@@ -11,11 +11,9 @@
 #ifndef INCLUDED_ml_core_CMemoryUsageJsonWriter_h
 #define INCLUDED_ml_core_CMemoryUsageJsonWriter_h
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CMemoryUsage.h>
-#include <core/CRapidJsonLineWriter.h>
 #include <core/ImportExport.h>
-
-#include <rapidjson/ostreamwrapper.h>
 
 #include <iosfwd>
 #include <sstream>
@@ -62,10 +60,10 @@ public:
     void addItem(const CMemoryUsage::SMemoryUsage& item);
 
 private:
-    //! JSON writer ostream wrapper
-    rapidjson::OStreamWrapper m_WriteStream;
+    //! JSON writer ostream
+    std::ostream& m_WriteStream;
 
-    using TGenericLineWriter = CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+    using TGenericLineWriter = CBoostJsonLineWriter<std::ostream>;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

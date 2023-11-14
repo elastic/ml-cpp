@@ -37,7 +37,7 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
 
     char* begin(this->parseLine().first);
     while (begin != nullptr) {
-        rapidjson::Document document;
+        json::value document;
         if (this->parseDocument(begin, document) == false) {
             LOG_ERROR(<< "Failed to parse JSON document");
             return false;
@@ -80,7 +80,7 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
 
     char* begin{this->parseLine().first};
     while (begin != nullptr) {
-        rapidjson::Document document;
+        json::value document;
         if (this->parseDocument(begin, document) == false) {
             LOG_ERROR(<< "Failed to parse JSON document");
             return false;
@@ -111,16 +111,39 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
     return true;
 }
 
-bool CNdJsonInputParser::parseDocument(char* begin, rapidjson::Document& document) {
-    // Parse JSON string using Rapidjson
-    if (document.ParseInsitu<rapidjson::kParseStopWhenDoneFlag>(begin).HasParseError()) {
-        LOG_ERROR(<< "JSON parse error: " << document.GetParseError());
+bool CNdJsonInputParser::parseDocument(char* begin, json::value& document) {
+    // Parse JSON string
+    json::error_code ec;
+    json::stream_parser p;
+    std::string line;
+    char buffer[4096];
+    size_t bytesRead{0};
+    while (begin != nullptr) {
+        buffer[bytesRead] = *begin++;
+        ++bytesRead;
+        if (bytesRead == 4096) {
+            p.write_some(buffer, sizeof(buffer), ec);
+            if (ec) {
+                LOG_ERROR(<< "JSON parse error: " << ec.message());
+                return false;
+            }
+        }
+    }
+    p.write_some(buffer, sizeof(buffer), ec);
+    if (ec) {
+        LOG_ERROR(<< "JSON parse error: " << ec.message());
         return false;
     }
+    p.finish( ec );
+    if( ec ) {
+        LOG_ERROR(<< "JSON parse error: " << ec.message());
+        return false;
+    }
+    document = p.release();
 
-    if (!document.IsObject()) {
+    if (document.is_object() == false) {
         LOG_ERROR(<< "Top level of JSON document must be an object: "
-                  << document.GetType());
+                  << document.kind());
         return false;
     }
 
@@ -128,7 +151,7 @@ bool CNdJsonInputParser::parseDocument(char* begin, rapidjson::Document& documen
 }
 
 bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
-                                                        const rapidjson::Document& document,
+                                                        const json::value& document,
                                                         TStrVec& fieldNames,
                                                         TStrRefVec& fieldValRefs,
                                                         TStrStrUMap& recordFields) {
@@ -151,13 +174,13 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 
     auto nameIter = fieldNames.begin();
     auto refIter = fieldValRefs.begin();
-    for (auto iter = document.MemberBegin(); iter != document.MemberEnd(); ++iter, ++refIter) {
+    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter, ++refIter) {
         if (nameIter == fieldNames.end() || refIter == fieldValRefs.end()) {
             LOG_ERROR(<< "More fields than field references");
             return false;
         }
 
-        if (this->jsonValueToString(*nameIter, iter->value, *refIter) == false) {
+        if (this->jsonValueToString(*nameIter, iter->value(), *refIter) == false) {
             return false;
         }
     }
@@ -166,7 +189,7 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 }
 
 bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
-                                                        const rapidjson::Document& document,
+                                                        const json::value& document,
 
                                                         TStrVec& fieldNames,
                                                         TStrVec& fieldValues) {
@@ -178,14 +201,14 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 
     auto nameIter = fieldNames.begin();
     auto valueIter = fieldValues.begin();
-    for (auto iter = document.MemberBegin(); iter != document.MemberEnd();
+    for (auto iter = document.as_object().begin(); iter != document.as_object().end();
          ++iter, ++nameIter, ++valueIter) {
         if (nameIter == fieldNames.end() || valueIter == fieldValues.end()) {
             LOG_ERROR(<< "More fields in document than common fields");
             return false;
         }
 
-        if (this->jsonValueToString(*nameIter, iter->value, *valueIter) == false) {
+        if (this->jsonValueToString(*nameIter, iter->value(), *valueIter) == false) {
             return false;
         }
     }
@@ -194,7 +217,7 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 }
 
 bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
-                                                           const rapidjson::Document& document,
+                                                           const json::value& document,
                                                            TStrVec& fieldNames,
                                                            TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
@@ -202,10 +225,10 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     fieldNames.clear();
     recordFields.clear();
 
-    for (auto iter = document.MemberBegin(); iter != document.MemberEnd(); ++iter) {
-        fieldNames.emplace_back(iter->name.GetString(), iter->name.GetStringLength());
+    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter) {
+        fieldNames.emplace_back(iter->key(), iter->key().size());
         const std::string& fieldName = fieldNames.back();
-        if (this->jsonValueToString(fieldName, iter->value, recordFields[fieldName]) == false) {
+        if (this->jsonValueToString(fieldName, iter->value(), recordFields[fieldName]) == false) {
             return false;
         }
     }
@@ -216,7 +239,7 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
 }
 
 bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
-                                                           const rapidjson::Document& document,
+                                                           const json::value& document,
                                                            TStrVec& fieldNames,
                                                            TStrVec& fieldValues) {
     // The major drawback of having self-describing messages is that we can't
@@ -224,12 +247,12 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     fieldNames.clear();
     fieldValues.clear();
 
-    for (auto iter = document.MemberBegin(); iter != document.MemberEnd(); ++iter) {
-        fieldNames.emplace_back(iter->name.GetString(), iter->name.GetStringLength());
+    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter) {
+        fieldNames.emplace_back(iter->key(), iter->key().size());
         fieldValues.emplace_back();
         const std::string& fieldName = fieldNames.back();
         std::string& fieldValue = fieldValues.back();
-        if (this->jsonValueToString(fieldName, iter->value, fieldValue) == false) {
+        if (this->jsonValueToString(fieldName, iter->value(), fieldValue) == false) {
             return false;
         }
     }
@@ -240,30 +263,9 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
 }
 
 bool CNdJsonInputParser::jsonValueToString(const std::string& fieldName,
-                                           const rapidjson::Value& jsonValue,
+                                           const json::value& jsonValue,
                                            std::string& fieldValueStr) {
-    switch (jsonValue.GetType()) {
-    case rapidjson::kNullType:
-        fieldValueStr.clear();
-        break;
-    case rapidjson::kFalseType:
-        fieldValueStr = '0';
-        break;
-    case rapidjson::kTrueType:
-        fieldValueStr = '1';
-        break;
-    case rapidjson::kObjectType:
-    case rapidjson::kArrayType:
-        LOG_ERROR(<< "Can't handle nested objects/arrays in JSON documents: " << fieldName);
-        return false;
-    case rapidjson::kStringType:
-        fieldValueStr.assign(jsonValue.GetString(), jsonValue.GetStringLength());
-        break;
-    case rapidjson::kNumberType:
-        fieldValueStr = core::CStringUtils::typeToString(jsonValue.GetDouble());
-        break;
-    }
-
+    fieldValueStr = json::serialize(jsonValue);
     return true;
 }
 }

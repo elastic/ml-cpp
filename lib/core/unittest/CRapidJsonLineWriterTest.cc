@@ -9,8 +9,8 @@
  * limitation.
  */
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonLineWriter.h>
 #include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
 
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testDoublePrecission) {
     std::ostringstream strm;
     {
         using TGenericLineWriter =
-            ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper, rapidjson::UTF8<>,
+            ml::core::CBoostJsonLineWriter<rapidjson::OStreamWrapper, rapidjson::UTF8<>,
                                            rapidjson::UTF8<>, rapidjson::CrtAllocator>;
         rapidjson::OStreamWrapper writeStream(strm);
         TGenericLineWriter writer(writeStream);

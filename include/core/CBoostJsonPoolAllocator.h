@@ -8,22 +8,24 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#ifndef INCLUDED_ml_core_CRapidJsonPoolAllocator_h
-#define INCLUDED_ml_core_CRapidJsonPoolAllocator_h
+#ifndef INCLUDED_ml_core_CBoostJsonPoolAllocator_h
+#define INCLUDED_ml_core_CBoostJsonPoolAllocator_h
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <boost/json.hpp>
 
 #include <memory>
+
+#include "ImportExport.h"
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
 //! \brief
-//! A rapidjson memory allocator using a fixed size buffer
+//! A boost::json memory allocator using a fixed size buffer
 //!
 //! DESCRIPTION:\n
-//! Encapsulates a rapidjson MemoryAllocator optimized with a fixed size buffer
+//! Encapsulates a boost::json static_resource optimized with a fixed size buffer
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Use a fixed size buffer for the allocator for performance reasons
@@ -33,37 +35,36 @@ namespace core {
 //!
 //! Clear the allocator on destruction
 //!
-class CRapidJsonPoolAllocator {
+class CBoostJsonPoolAllocator {
 public:
-    using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
-    using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
+    using TDocumentWeakPtr = std::weak_ptr<boost::json::value>;
+    using TDocumentPtr = std::shared_ptr<boost::json::value>;
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
-    CRapidJsonPoolAllocator()
-        : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {}
+    CBoostJsonPoolAllocator()
+        : m_JsonPoolAllocator(m_FixedBuffer) {}
 
-    ~CRapidJsonPoolAllocator() { this->clear(); }
+    ~CBoostJsonPoolAllocator() { this->clear(); }
 
-    void clear() { m_JsonPoolAllocator.Clear(); }
+    void clear() { m_JsonPoolAllocator.release(); }
 
     //! \return document pointer suitable for storing in a container
     //! Note: The API is designed to emphasise that the client does not own the document memory
     //! i.e. The document will be invalidated on destruction of this allocator
     TDocumentWeakPtr makeStorableDoc() {
-        TDocumentPtr newDoc = std::make_shared<rapidjson::Document>(&m_JsonPoolAllocator);
-        newDoc->SetObject();
+        TDocumentPtr newDoc = std::make_shared<boost::json::value>(&m_JsonPoolAllocator);
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);
     }
 
     //! \return const reference to the underlying memory pool allocator
-    const rapidjson::MemoryPoolAllocator<>& get() const {
+    const boost::json::memory_resource& get() const {
         return m_JsonPoolAllocator;
     }
 
     //! \return reference to the underlying memory pool allocator
-    rapidjson::MemoryPoolAllocator<>& get() { return m_JsonPoolAllocator; }
+    boost::json::memory_resource& get() { return m_JsonPoolAllocator; }
 
 private:
     //! Size of the fixed buffer to allocate
@@ -71,14 +72,14 @@ private:
 
 private:
     //! fixed size memory buffer used to optimize allocator performance
-    char m_FixedBuffer[FIXED_BUFFER_SIZE];
+    unsigned char m_FixedBuffer[FIXED_BUFFER_SIZE];
 
-    //! memory pool to use for allocating rapidjson objects
-    rapidjson::MemoryPoolAllocator<> m_JsonPoolAllocator;
+    //! memory pool to use for allocating boost::json objects
+    boost::json::monotonic_resource m_JsonPoolAllocator;
 
-    //! Container used to persist rapidjson documents
+    //! Container used to persist boost::json documents
     TDocumentPtrVec m_JsonDocumentStore;
 };
 }
 }
-#endif // INCLUDED_ml_core_CRapidJsonPoolAllocator_h
+#endif // INCLUDED_ml_core_CBoostJsonPoolAllocator_h

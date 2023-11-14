@@ -27,7 +27,7 @@
 
 namespace ml {
 namespace test {
-using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+using TRapidJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
 CDataFrameAnalysisSpecificationFactory::CDataFrameAnalysisSpecificationFactory()
     : m_MissingString{core::CDataFrame::DEFAULT_MISSING_STRING} {
@@ -253,8 +253,8 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(const rapidjson::Value& value) {
-    m_CustomProcessors.CopyFrom(value, m_CustomProcessors.GetAllocator());
+CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(const json::value& value) {
+    m_CustomProcessors = value;
     return *this;
 }
 
@@ -266,9 +266,10 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double l
 
 std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
-    rapidjson::StringBuffer parameters;
-    TRapidJsonLineWriter writer;
-    writer.Reset(parameters);
+    std::string parameters;
+    std::stringbuf sb;
+    std::ostream os(&sb);
+    TRapidJsonLineWriter writer(os);
 
     writer.StartObject();
     if (m_Method != "") {
@@ -287,9 +288,11 @@ std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
         writer.Double(0.0);
     }
     writer.EndObject();
-    writer.Flush();
+    writer.flush();
 
-    return parameters.GetString();
+    parameters = sb.str();
+
+    return parameters;
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
@@ -317,9 +320,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     using TClassificationRunner = api::CDataFrameTrainBoostedTreeClassifierRunner;
     using TRegressionRunner = api::CDataFrameTrainBoostedTreeRegressionRunner;
 
-    rapidjson::StringBuffer parameters;
-    TRapidJsonLineWriter writer;
-    writer.Reset(parameters);
+    std::string parameters;
+    std::stringbuf sb;
+    std::ostream os(&sb);
+    TRapidJsonLineWriter writer(os);
 
     writer.StartObject();
     writer.Key(TRunner::DEPENDENT_VARIABLE_NAME);
@@ -398,7 +402,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(TRunner::PREDICTION_FIELD_NAME);
         writer.String(m_PredictionFieldName);
     }
-    if (m_CustomProcessors.IsNull() == false) {
+    if (m_CustomProcessors.is_null() == false) {
         writer.Key(TRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
     }
@@ -488,7 +492,8 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
 
     writer.EndObject();
 
-    return parameters.GetString();
+    parameters = sb.str();
+    return parameters;
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr

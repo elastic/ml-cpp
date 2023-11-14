@@ -11,8 +11,8 @@
 #ifndef INCLUDED_ml_api_CMemoryUsageEstimationResultJsonWriter_h
 #define INCLUDED_ml_api_CMemoryUsageEstimationResultJsonWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonCopyable.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <api/ImportExport.h>
 
@@ -41,7 +41,7 @@ public:
 
 private:
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 };
 }
 }

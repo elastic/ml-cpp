@@ -343,11 +343,11 @@ void readIncrementalTrainingState(const std::string& resultsJson,
 
     std::stringstream inferenceModelStream;
     rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
+    core::CBoostJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
         inferenceModelStreamWrapper};
 
     rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+    core::CBoostJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
         incrementalTrainingStateWrapper};
 
     // Read the state used to initialize incremental training.
@@ -402,11 +402,11 @@ void readIncrementalTrainingState(const std::string& resultsJson,
 
     std::stringstream inferenceModelStream;
     rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
+    core::CBoostJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
         inferenceModelStreamWrapper};
 
     rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+    core::CBoostJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
         incrementalTrainingStateWrapper};
 
     // Read the state used to initialize incremental training.

@@ -11,14 +11,11 @@
 
 #include <core/CProgramCounters.h>
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonLineWriter.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 
 #include <ostream>
 #include <string>
@@ -28,7 +25,7 @@ namespace core {
 
 namespace {
 
-using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
 const std::string NAME_TYPE("name");
 const std::string DESCRIPTION_TYPE("description");
@@ -43,18 +40,18 @@ void addStringInt(TGenericLineWriter& writer,
                   const std::string& name,
                   const std::string& description,
                   std::uint64_t counter) {
-    writer.StartObject();
-
-    writer.Key(NAME_TYPE);
-    writer.String(name);
-
-    writer.Key(DESCRIPTION_TYPE);
-    writer.String(description);
-
-    writer.Key(COUNTER_TYPE);
-    writer.Uint64(counter);
-
-    writer.EndObject();
+//    writer.StartObject();
+//
+//    writer.Key(NAME_TYPE);
+//    writer.String(name);
+//
+//    writer.Key(DESCRIPTION_TYPE);
+//    writer.String(description);
+//
+//    writer.Key(COUNTER_TYPE);
+//    writer.Uint64(counter);
+//
+//    writer.EndObject();
 }
 }
 
@@ -195,34 +192,34 @@ void CProgramCounters::registerProgramCounterTypes(const counter_t::TCounterType
 }
 
 std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
-    rapidjson::OStreamWrapper writeStream(o);
-    TGenericLineWriter writer(writeStream);
-
-    writer.StartArray();
-
-    // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set
-    // Take care to print in definition order
-    // We skip 0 values
-    if (counters.m_ProgramCounterTypes.size() == 0) {
-        for (const auto& ctr : counters.m_CounterDefinitions) {
-            if (counters.counter(ctr.s_Type) != 0) {
-                addStringInt(writer, ctr.s_Name, ctr.s_Description,
-                             counters.counter(ctr.s_Type));
-            }
-        }
-    } else {
-        for (const auto& ctr : counters.m_CounterDefinitions) {
-            if (counters.m_ProgramCounterTypes.find(ctr.s_Type) !=
-                    counters.m_ProgramCounterTypes.end() &&
-                (counters.counter(ctr.s_Type) != 0)) {
-                addStringInt(writer, ctr.s_Name, ctr.s_Description,
-                             counters.counter(ctr.s_Type));
-            }
-        }
-    }
-
-    writer.EndArray();
-    writeStream.Flush();
+//   std::ostream& writeStream(o);
+//    TGenericLineWriter writer(writeStream);
+//
+//    writer.StartArray();
+//
+//    // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set
+//    // Take care to print in definition order
+//    // We skip 0 values
+//    if (counters.m_ProgramCounterTypes.size() == 0) {
+//        for (const auto& ctr : counters.m_CounterDefinitions) {
+//            if (counters.counter(ctr.s_Type) != 0) {
+//                addStringInt(writer, ctr.s_Name, ctr.s_Description,
+//                             counters.counter(ctr.s_Type));
+//            }
+//        }
+//    } else {
+//        for (const auto& ctr : counters.m_CounterDefinitions) {
+//            if (counters.m_ProgramCounterTypes.find(ctr.s_Type) !=
+//                    counters.m_ProgramCounterTypes.end() &&
+//                (counters.counter(ctr.s_Type) != 0)) {
+//                addStringInt(writer, ctr.s_Name, ctr.s_Description,
+//                             counters.counter(ctr.s_Type));
+//            }
+//        }
+//    }
+//
+//    writer.EndArray();
+//    writeStream.Flush();
 
     return o;
 }

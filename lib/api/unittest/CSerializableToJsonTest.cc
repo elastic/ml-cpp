@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 
 #include <api/CSerializableToJson.h>
 
@@ -81,7 +81,7 @@ private:
 
     void readFromJsonStream(TIStreamPtr inputStream) {
         if (inputStream != nullptr) {
-            core::CRapidJsonUnbufferedIStreamWrapper isw{*inputStream};
+            core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
             rapidjson::Document doc;
             doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
             m_Name = doc["name"].GetString();
@@ -104,7 +104,7 @@ void arrayToNdJson(std::string array, std::ostream& ndjson) {
     doc.Parse(array);
     for (const auto& chunk : doc.GetArray()) {
         rapidjson::StringBuffer string;
-        core::CRapidJsonLineWriter<rapidjson::StringBuffer> printer{string};
+        core::CBoostJsonLineWriter<rapidjson::StringBuffer> printer{string};
         chunk.Accept(printer);
         ndjson << string.GetString();
     }

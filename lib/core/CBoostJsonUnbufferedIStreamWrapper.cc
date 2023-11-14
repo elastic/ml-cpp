@@ -9,17 +9,17 @@
  * limitation.
  */
 
-#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 
 namespace ml {
 namespace core {
 
-CRapidJsonUnbufferedIStreamWrapper::CRapidJsonUnbufferedIStreamWrapper(std::istream& strm)
+CBoostJsonUnbufferedIStreamWrapper::CBoostJsonUnbufferedIStreamWrapper(std::istream& strm)
     : m_Stream{strm} {};
 
-char CRapidJsonUnbufferedIStreamWrapper::Take() {
+char CBoostJsonUnbufferedIStreamWrapper::Take() {
     int c{m_Stream.get()};
-    if (RAPIDJSON_UNLIKELY(c == std::istream::traits_type::eof())) {
+    if (c == std::istream::traits_type::eof()) {
         return '\0';
     }
     ++m_Count;

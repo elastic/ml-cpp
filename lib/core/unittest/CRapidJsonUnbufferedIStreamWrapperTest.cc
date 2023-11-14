@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(CRapidJsonUnbufferedIStreamWrapperTest)
 BOOST_AUTO_TEST_CASE(testWrap) {
 
     std::istringstream strm{"abc"};
-    ml::core::CRapidJsonUnbufferedIStreamWrapper wrapper{strm};
+    ml::core::CBoostJsonUnbufferedIStreamWrapper wrapper{strm};
 
     BOOST_REQUIRE_EQUAL(nullptr, wrapper.Peek4());
     BOOST_REQUIRE_EQUAL('a', wrapper.Peek());

@@ -16,12 +16,14 @@
 
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <map>
 #include <string>
 #include <type_traits>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -78,7 +80,7 @@ public:
     public:
         explicit CParameter(const std::string& name) : m_Name{name} {}
         CParameter(const std::string& name,
-                   const rapidjson::Value& value,
+                   const json::value& value,
                    const TStrIntMap& permittedValues);
 
         //! Get the name of the parameter.
@@ -93,7 +95,7 @@ public:
             return this->fallback(T{});
         }
         //! Get the JSON object.
-        const rapidjson::Value* jsonObject() { return m_Value; }
+        const json::value* jsonObject() { return m_Value; }
         //! Get a boolean parameter.
         bool fallback(bool value) const;
         //! Get an integer parameter.
@@ -113,11 +115,11 @@ public:
             if (m_Value == nullptr) {
                 return value;
             }
-            if (m_Value->IsString() == false) {
+            if (m_Value->is_string() == false) {
                 this->handleFatal();
                 return value;
             }
-            auto pos = m_PermittedValues->find(std::string{m_Value->GetString()});
+            auto pos = m_PermittedValues->find(std::string{m_Value->as_string()});
             if (pos == m_PermittedValues->end()) {
                 this->handleFatal();
                 return value;
@@ -130,15 +132,16 @@ public:
             if (m_Value == nullptr) {
                 return value;
             }
-            if (m_Value->IsArray() == false) {
+            if (m_Value->is_array() == false) {
                 this->handleFatal();
                 return value;
             }
             std::vector<T> result;
-            result.reserve(m_Value->Size());
+            json::array arr = m_Value->as_array();
+            result.reserve(arr.size());
             CParameter element{m_Name, SArrayElementTag{}};
-            for (std::size_t i = 0; i < m_Value->Size(); ++i) {
-                element.m_Value = &(*m_Value)[static_cast<int>(i)];
+            for (std::size_t i = 0; i < arr.size(); ++i) {
+                element.m_Value = &(arr)[static_cast<int>(i)];
                 result.push_back(element.as<T>());
             }
             return result;
@@ -153,7 +156,7 @@ public:
 
     private:
         std::string m_Name;
-        const rapidjson::Value* m_Value = nullptr;
+        const json::value* m_Value = nullptr;
         const TStrIntMap* m_PermittedValues = nullptr;
         bool m_ArrayElement = false;
     };
@@ -169,7 +172,7 @@ public:
                       TStrIntMap permittedValues = TStrIntMap{});
 
     //! Extract the parameters from a JSON object.
-    CAnomalyJobParameters read(const rapidjson::Value& json) const;
+    CAnomalyJobParameters read(const json::value& json) const;
 
 private:
     //! Reads a parameter from the JSON configuration object.
@@ -179,8 +182,8 @@ private:
 
         const std::string& name() const { return m_Name; }
         bool required() const { return m_Requirement == E_RequiredParameter; }
-        CParameter readFrom(const rapidjson::Value& json) const {
-            return {m_Name, json[m_Name], m_PermittedValues};
+        CParameter readFrom(const json::object& json) const {
+            return {m_Name, json.at(m_Name), m_PermittedValues};
         }
 
     private:

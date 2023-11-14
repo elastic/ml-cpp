@@ -61,7 +61,7 @@ void CMemoryUsageJsonWriter::finalise() {
     if (m_Finalised) {
         return;
     }
-    m_WriteStream.Flush();
+    m_WriteStream.flush();
     m_Finalised = true;
 }
 

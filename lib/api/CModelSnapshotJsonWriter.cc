@@ -89,7 +89,7 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
 void CModelSnapshotJsonWriter::writeQuantileState(const std::string& jobId,
                                                   const std::string& state,
                                                   core_t::TTime time,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) {
+                                                  core::CBoostJsonConcurrentLineWriter& writer) {
     writer.StartObject();
     writer.Key(JOB_ID);
     writer.String(jobId);

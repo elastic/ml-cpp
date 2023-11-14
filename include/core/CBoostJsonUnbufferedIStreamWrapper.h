@@ -14,8 +14,7 @@
 
 #include <core/ImportExport.h>
 
-#include <rapidjson/rapidjson.h>
-
+#include <cassert>
 #include <istream>
 
 namespace ml {
@@ -62,27 +61,27 @@ namespace core {
 //! This is not a problem for us as we know our input is
 //! always UTF-8.
 //!
-class CORE_EXPORT CRapidJsonUnbufferedIStreamWrapper {
+class CORE_EXPORT CBoostJsonUnbufferedIStreamWrapper {
 public:
     //! The stream's char type must be available as Ch.
     using Ch = char;
 
 public:
-    explicit CRapidJsonUnbufferedIStreamWrapper(std::istream& strm);
+    explicit CBoostJsonUnbufferedIStreamWrapper(std::istream& strm);
 
     //! No default constructor.
-    CRapidJsonUnbufferedIStreamWrapper() = delete;
+    CBoostJsonUnbufferedIStreamWrapper() = delete;
 
     //! No copying.
-    CRapidJsonUnbufferedIStreamWrapper(const CRapidJsonUnbufferedIStreamWrapper&) = delete;
-    CRapidJsonUnbufferedIStreamWrapper&
-    operator=(const CRapidJsonUnbufferedIStreamWrapper&) = delete;
+    CBoostJsonUnbufferedIStreamWrapper(const CBoostJsonUnbufferedIStreamWrapper&) = delete;
+    CBoostJsonUnbufferedIStreamWrapper&
+    operator=(const CBoostJsonUnbufferedIStreamWrapper&) = delete;
 
     //! Peek the next character. Returns '\0' when the end of the stream is
     //! reached.
     char Peek() const {
         int c{m_Stream.peek()};
-        return RAPIDJSON_LIKELY(c != std::istream::traits_type::eof())
+        return (c != std::istream::traits_type::eof())
                    ? static_cast<char>(c)
                    : '\0';
     }
@@ -95,20 +94,20 @@ public:
     std::size_t Tell() const { return m_Count; }
 
     //! Not implemented.
-    void Put(char) { RAPIDJSON_ASSERT(false); }
+    void Put(char) { assert(false); }
 
     //! Not implemented.
-    void Flush() { RAPIDJSON_ASSERT(false); }
+    void Flush() { assert(false); }
 
     //! Not implemented.
     char* PutBegin() {
-        RAPIDJSON_ASSERT(false);
+        assert(false);
         return nullptr;
     }
 
     //! Not implemented.
     std::size_t PutEnd(char*) {
-        RAPIDJSON_ASSERT(false);
+        assert(false);
         return 0;
     }
 

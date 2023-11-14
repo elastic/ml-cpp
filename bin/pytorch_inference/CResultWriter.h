@@ -12,13 +12,14 @@
 #ifndef INCLUDED_ml_torch_CResultWriter_h
 #define INCLUDED_ml_torch_CResultWriter_h
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CRapidJsonLineWriter.h>
 
 #include <c10/util/BFloat16.h>
-#include <rapidjson/stringbuffer.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
+
+#include <boost/json.hpp>
 
 #include <cstdint>
 #include <iosfwd>
@@ -49,7 +50,7 @@ class CThreadSettings;
 //!
 class CResultWriter {
 public:
-    using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TBoostJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
 public:
     explicit CResultWriter(std::ostream& strmOut);
@@ -59,16 +60,16 @@ public:
     CResultWriter& operator=(const CResultWriter&) = delete;
 
     //! Write an error directly to the output stream.
-    void writeError(const std::string& requestId, const std::string& message);
+    void writeError(const std::string_view & requestId, const std::string& message);
 
     //! Write thread settings to the output stream.
-    void writeThreadSettings(const std::string& requestId, const CThreadSettings& threadSettings);
+    void writeThreadSettings(const std::string_view& requestId, const CThreadSettings& threadSettings);
 
     //! Write a simple acknowledgement to the output stream.
-    void writeSimpleAck(const std::string& requestId);
+    void writeSimpleAck(const std::string_view& requestId);
 
     //! Write memory usage information to the output stream.
-    void writeProcessStats(const std::string& requestId,
+    void writeProcessStats(const std::string_view & requestId,
                            const std::size_t residentSetSize,
                            const std::size_t maxResidentSetSize);
 
@@ -82,7 +83,7 @@ public:
 
     //! Write the prediction portion of an inference result.
     template<std::size_t N>
-    void writePrediction(const ::torch::Tensor& prediction, TRapidJsonLineWriter& jsonWriter) {
+    void writePrediction(const ::torch::Tensor& prediction, TBoostJsonLineWriter& jsonWriter) {
 
         // Creating the accessor will throw if the tensor does not have exactly
         // N dimensions. Do this before writing any output so the error message
@@ -132,12 +133,12 @@ private:
 private:
     //! Create the invariant portion of an error result, suitable for
     //! caching and later splicing into a full result.
-    static void writeInnerError(const std::string& message, TRapidJsonLineWriter& jsonWriter);
+    static void writeInnerError(const std::string& message, TBoostJsonLineWriter& jsonWriter);
 
     //! Write a one dimensional tensor.
     template<typename T>
     void writeTensor(const ::torch::TensorAccessor<T, 1UL>& accessor,
-                     TRapidJsonLineWriter& jsonWriter) {
+                     TBoostJsonLineWriter& jsonWriter) {
         jsonWriter.StartArray();
         for (int i = 0; i < accessor.size(0); ++i) {
             jsonWriter.Double(static_cast<double>(accessor[i]));
@@ -148,7 +149,7 @@ private:
     //! Write an N dimensional tensor for N > 1.
     template<typename T, std::size_t N_DIMS>
     void writeTensor(const ::torch::TensorAccessor<T, N_DIMS>& accessor,
-                     TRapidJsonLineWriter& jsonWriter) {
+                     TBoostJsonLineWriter& jsonWriter) {
         jsonWriter.StartArray();
         for (int i = 0; i < accessor.size(0); ++i) {
             this->writeTensor(accessor[i], jsonWriter);
@@ -159,7 +160,7 @@ private:
     //! Write a 3D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 3UL>& accessor,
-                               TRapidJsonLineWriter& jsonWriter) {
+                               TBoostJsonLineWriter& jsonWriter) {
 
         jsonWriter.Key(RESULT);
         jsonWriter.StartObject();
@@ -171,7 +172,7 @@ private:
     //! Write a 2D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 2UL>& accessor,
-                               TRapidJsonLineWriter& jsonWriter) {
+                               TBoostJsonLineWriter& jsonWriter) {
 
         jsonWriter.Key(RESULT);
         jsonWriter.StartObject();
@@ -185,7 +186,7 @@ private:
     }
 
 private:
-    core::CJsonOutputStreamWrapper m_WrappedOutputStream;
+    std::ostream& m_WrappedOutputStream;
 };
 }
 }

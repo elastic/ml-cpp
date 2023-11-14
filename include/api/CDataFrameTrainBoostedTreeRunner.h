@@ -20,7 +20,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <memory>
 
@@ -168,7 +168,7 @@ private:
     // Note custom config is written directly to the factory object.
 
     api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
-    rapidjson::Document m_CustomProcessors;
+    json::value m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;

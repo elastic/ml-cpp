@@ -11,12 +11,12 @@
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
@@ -34,10 +34,10 @@
 #include <api/CRetrainableModelJsonReader.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <limits>
-
+namespace json = boost::json;
 namespace ml {
 namespace api {
 namespace {
@@ -197,8 +197,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto maxNumberNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
-        m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
-                                    m_CustomProcessors.GetAllocator());
+        m_CustomProcessors = *parameters[FEATURE_PROCESSORS].jsonObject();
     }
 
     if (std::any_of(alpha.begin(), alpha.end(), [](double x) { return x < 0.0; })) {
@@ -420,7 +419,7 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
 }
 
 void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder& builder) const {
-    if (m_CustomProcessors.IsNull() == false) {
+    if (m_CustomProcessors.is_null() == false) {
         builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(m_CustomProcessors));
     }
     this->boostedTree().accept(builder);

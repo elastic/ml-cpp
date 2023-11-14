@@ -149,7 +149,7 @@ void CDataFrameAnalyzer::run() {
 
         analysisRunner->run(*m_DataFrame);
 
-        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+        core::CBoostJsonConcurrentLineWriter outputWriter{*outStream};
 
         CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
 
@@ -338,13 +338,13 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
-                                             core::CRapidJsonConcurrentLineWriter& writer) const {
+                                             core::CBoostJsonConcurrentLineWriter& writer) const {
     // Write the resulting model for inference.
     auto modelDefinition = analysis.inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
     if (modelDefinition != nullptr) {
         auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
-        rapidjson::Value sizeInfoObject{writer.makeObject()};
+        json::value sizeInfoObject{writer.makeObject()};
         modelDefinitionSizeInfo->addToJsonDocument(sizeInfoObject, writer);
         writer.StartObject();
         writer.Key(modelDefinitionSizeInfo->typeString());
@@ -356,7 +356,7 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
 }
 
 void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
-                                                     core::CRapidJsonConcurrentLineWriter& writer) const {
+                                                     core::CBoostJsonConcurrentLineWriter& writer) const {
     // Write model meta information
     auto modelMetadata = analysis.inferenceModelMetadata();
     if (modelMetadata) {
@@ -371,7 +371,7 @@ void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRun
 }
 
 void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& analysis,
-                                                core::CRapidJsonConcurrentLineWriter& writer) const {
+                                                core::CBoostJsonConcurrentLineWriter& writer) const {
     // Write training data summarization
     auto dataSummarization = analysis.dataSummarization();
     if (dataSummarization != nullptr) {
@@ -381,7 +381,7 @@ void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& 
 }
 
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
-                                        core::CRapidJsonConcurrentLineWriter& writer) const {
+                                        core::CBoostJsonConcurrentLineWriter& writer) const {
 
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it

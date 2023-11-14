@@ -11,7 +11,7 @@
 
 #include "CResultWriter.h"
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 
 #include "CCommandParser.h"
 #include "CThreadSettings.h"
@@ -38,7 +38,7 @@ CResultWriter::CResultWriter(std::ostream& strmOut)
 }
 
 void CResultWriter::writeInnerError(const std::string& message,
-                                    TRapidJsonLineWriter& jsonWriter) {
+                                    TBoostJsonLineWriter& jsonWriter) {
     jsonWriter.Key(ERROR);
     jsonWriter.StartObject();
     jsonWriter.Key(ERROR);
@@ -46,8 +46,8 @@ void CResultWriter::writeInnerError(const std::string& message,
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeError(const std::string& requestId, const std::string& message) {
-    core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
+void CResultWriter::writeError(const std::string_view& requestId, const std::string& message) {
+    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -59,7 +59,7 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
                                               const std::string& requestId,
                                               bool isCacheHit,
                                               std::uint64_t timeMs) {
-    core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
+    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -71,9 +71,9 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeThreadSettings(const std::string& requestId,
+void CResultWriter::writeThreadSettings(const std::string_view& requestId,
                                         const CThreadSettings& threadSettings) {
-    core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
+    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -87,8 +87,8 @@ void CResultWriter::writeThreadSettings(const std::string& requestId,
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeSimpleAck(const std::string& requestId) {
-    core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
+void CResultWriter::writeSimpleAck(const std::string_view& requestId) {
+    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -100,10 +100,10 @@ void CResultWriter::writeSimpleAck(const std::string& requestId) {
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeProcessStats(const std::string& requestId,
+void CResultWriter::writeProcessStats(const std::string_view& requestId,
                                       const std::size_t residentSetSize,
                                       const std::size_t maxResidentSetSize) {
-    core::CRapidJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
+    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -118,9 +118,10 @@ void CResultWriter::writeProcessStats(const std::string& requestId,
 }
 
 std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
-    rapidjson::StringBuffer stringBuffer;
+    std::stringbuf stringBuffer;
+    std::ostream os(&stringBuffer);
     {
-        TRapidJsonLineWriter jsonWriter{stringBuffer};
+        TBoostJsonLineWriter jsonWriter{os};
         // Even though we don't really want the outer braces on the
         // inner result we have to write them or else the JSON
         // writer will not put commas in the correct places.
@@ -152,7 +153,7 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
     // Return the object without the opening and closing braces and
     // the trailing newline. The resulting partial document will
     // later be wrapped, so does not need these.
-    return std::string{stringBuffer.GetString() + 1, stringBuffer.GetLength() - 3};
+    return stringBuffer.str().substr(1, stringBuffer.str().size() - 3);
 }
 }
 }

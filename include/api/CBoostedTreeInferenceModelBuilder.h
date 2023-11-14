@@ -17,11 +17,13 @@
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <boost/unordered_map.hpp>
 
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {

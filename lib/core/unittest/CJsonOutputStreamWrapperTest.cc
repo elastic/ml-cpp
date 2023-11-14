@@ -9,8 +9,8 @@
  * limitation.
  */
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStaticThreadPool.h>
 
 #include <rapidjson/document.h>
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(CJsonOutputStreamWrapperTest)
 namespace {
 
 void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
-    ml::core::CRapidJsonConcurrentLineWriter writer(wrapper);
+    ml::core::CBoostJsonConcurrentLineWriter writer(wrapper);
     for (int i = 0; i < documents; ++i) {
         writer.StartObject();
         writer.Key("id");
@@ -38,7 +38,7 @@ void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
         writer.Key("message");
         writer.Int(i);
 
-        // this automatically causes a flush in CRapidJsonConcurrentLineWriter
+        // this automatically causes a flush in CBoostJsonConcurrentLineWriter
         // A flush internally moves the buffer into the queue, passing it to the writer thread
         // A new buffer gets acquired for the next loop execution
         writer.EndObject();

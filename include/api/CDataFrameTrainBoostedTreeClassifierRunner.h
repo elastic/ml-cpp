@@ -18,7 +18,9 @@
 #include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <boost/json.hpp>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -62,7 +64,7 @@ public:
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer) const override;
+                     core::CBoostJsonConcurrentLineWriter& writer) const override;
 
     //! Write the prediction for \p row to \p writer.
     //!
@@ -72,7 +74,7 @@ public:
                      const TReadPredictionFunc& readClassProbabilities,
                      const TReadClassScoresFunc& readClassScores,
                      const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer,
+                     core::CBoostJsonConcurrentLineWriter& writer,
                      maths::analytics::CTreeShapFeatureImportance* featureImportance = nullptr) const;
 
     //! \return A serialisable definition of the trained classification model.
@@ -90,7 +92,7 @@ private:
                   std::size_t dependentVariableColumn) const override;
 
     void writePredictedCategoryValue(const std::string& categoryValue,
-                                     core::CRapidJsonConcurrentLineWriter& writer) const;
+                                     core::CBoostJsonConcurrentLineWriter& writer) const;
 
 private:
     std::size_t m_NumClasses;
@@ -112,7 +114,7 @@ private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
                          TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters,
+                         const json::value& jsonParameters,
                          TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
 };
 }

@@ -24,13 +24,15 @@
 
 #include <test/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace test {
@@ -92,7 +94,7 @@ public:
     CDataFrameAnalysisSpecificationFactory& predictionFeatureBagFraction(double fraction);
     CDataFrameAnalysisSpecificationFactory& predictionNumberTopShapValues(std::size_t number);
     CDataFrameAnalysisSpecificationFactory&
-    predictionCustomProcessor(const rapidjson::Value& value);
+    predictionCustomProcessor(const json::value& value);
     CDataFrameAnalysisSpecificationFactory&
     predictionPersisterSupplier(TPersisterSupplier* persisterSupplier);
     CDataFrameAnalysisSpecificationFactory&
@@ -160,7 +162,7 @@ private:
     std::size_t m_NumberTopShapValues{0};
     TPersisterSupplier* m_PersisterSupplier{nullptr};
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier{nullptr};
-    rapidjson::Document m_CustomProcessors;
+    json::value m_CustomProcessors;
     TTask m_Task{TTask::E_Train};
     double m_DataSummarizationFraction{-1.0};
     double m_PreviousTrainLossGap{-1.0};

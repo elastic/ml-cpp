@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_core_CRapidJsonPrettyWriter_h
 #define INCLUDED_ml_core_CRapidJsonPrettyWriter_h
 
-#include <core/CRapidJsonWriterBase.h>
+#include <core/CBoostJsonWriterBase.h>
 
 #include <rapidjson/prettywriter.h>
 

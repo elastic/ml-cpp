@@ -50,21 +50,21 @@ CAnnotationJsonWriter::CAnnotationJsonWriter(core::CJsonOutputStreamWrapper& out
 void CAnnotationJsonWriter::writeResult(const std::string& jobId,
                                         const model::CAnnotation& annotation) {
 
-    rapidjson::Value obj{m_Writer.makeObject()};
+    json::value obj{m_Writer.makeObject()};
     this->populateAnnotationObject(jobId, annotation, obj);
 
-    rapidjson::Value wrapper{m_Writer.makeObject()};
+    json::value wrapper{m_Writer.makeObject()};
     m_Writer.addMember(ANNOTATION_RESULT_TYPE, obj, wrapper);
     m_Writer.write(wrapper);
-    m_Writer.Flush();
+    m_Writer.flush();
 }
 
 void CAnnotationJsonWriter::populateAnnotationObject(const std::string& jobId,
                                                      const model::CAnnotation& annotation,
-                                                     rapidjson::Value& obj) {
+                                                     json::value& obj) {
 
     // There is no need to copy the strings, as this is a private method and the
-    // rapidjson::Value it's populating will have a shorter lifetime than the
+    // json::value it's populating will have a shorter lifetime than the
     // CAnnotation object the string references rely on.
     m_Writer.addStringFieldReferenceToObj(JOB_ID, jobId, obj);
     m_Writer.addStringFieldReferenceToObj(ANNOTATION, annotation.annotation(), obj, true);

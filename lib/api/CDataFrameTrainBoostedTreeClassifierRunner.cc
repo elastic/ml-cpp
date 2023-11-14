@@ -11,10 +11,10 @@
 
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -131,7 +131,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CBoostJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
     this->writeOneRow(
@@ -147,7 +147,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const TReadPredictionFunc& readClassProbabilities,
     const TReadClassScoresFunc& readClassScores,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer,
+    core::CBoostJsonConcurrentLineWriter& writer,
     maths::analytics::CTreeShapFeatureImportance* featureImportance) const {
 
     auto probabilities = readClassProbabilities(row);
@@ -201,7 +201,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         m_InferenceModelMetadata.classValues(classValues);
         m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
             [this](const std::string& categoryValue,
-                   core::CRapidJsonConcurrentLineWriter& writer_) {
+                   core::CBoostJsonConcurrentLineWriter& writer_) {
                 this->writePredictedCategoryValue(categoryValue, writer_);
             });
         featureImportance->shap(
@@ -264,7 +264,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     const std::string& categoryValue,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CBoostJsonConcurrentLineWriter& writer) const {
 
     double doubleValue;
     switch (m_PredictionFieldType) {
@@ -386,7 +386,7 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters,
+    const json::value& jsonParameters,
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeClassifierRunner::parameterReader()};

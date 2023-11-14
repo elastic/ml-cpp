@@ -18,13 +18,13 @@
 
 #include <api/CInferenceModelDefinition.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/rapidjson.h>
+#include <boost/json.hpp>
 
 #include <memory>
 #include <sstream>
 #include <utility>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -79,7 +79,7 @@ CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(
     : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame}, m_Encodings{encodings} {
 }
 
-void CDataSummarizationJsonWriter::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
+void CDataSummarizationJsonWriter::addCompressedToJsonStream(TBoostJsonWriter& writer) const {
     this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
         JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, JSON_DATA_SUMMARIZATION_TAG, writer);
 }
@@ -125,16 +125,18 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     }
     writer.EndArray();
 
-    rapidjson::Document doc;
+    json::value doc;
     std::stringstream encodings;
     {
         core::CJsonStatePersistInserter inserter{encodings};
         m_Encodings.acceptPersistInserter(inserter);
     }
-    rapidjson::ParseResult ok(doc.Parse(encodings.str()));
-    if (static_cast<bool>(ok) == false) {
+    json::error_code ec;
+    json::parser p;
+    p.write(encodings.str(), ec);
+    if (ec) {
         LOG_ERROR(<< "Failed parsing encoding json: "
-                  << rapidjson::GetParseError_En(doc.GetParseError())
+                  << ec.message()
                   << ". Please report this error.");
     } else {
         writer.Key(JSON_ENCODINGS_TAG);

@@ -11,18 +11,20 @@
 #ifndef INCLUDED_ml_api_CModelPlotDataJsonWriter_h
 #define INCLUDED_ml_api_CModelPlotDataJsonWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonCopyable.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CoreTypes.h>
 
 #include <api/ImportExport.h>
 
 #include <model/CModelPlotData.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <iosfwd>
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -90,11 +92,11 @@ private:
                       const std::string& byFieldValue,
                       const TByFieldData& byData,
                       core_t::TTime bucketSpan,
-                      rapidjson::Value& doc);
+                      json::value& doc);
 
 private:
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 };
 }
 }

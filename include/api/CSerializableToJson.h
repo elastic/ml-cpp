@@ -11,15 +11,10 @@
 #ifndef INCLUDED_ml_api_CSerializableToJson_h
 #define INCLUDED_ml_api_CSerializableToJson_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/Constants.h>
 
 #include <api/ImportExport.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/rapidjson.h>
 
 #include <sstream>
 #include <stdexcept>
@@ -30,21 +25,21 @@ namespace api {
 //! to a JSON writer.
 class API_EXPORT CSerializableToJsonDocument {
 public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TBoostJsonWriter = core::CBoostJsonConcurrentLineWriter;
 
 public:
     virtual ~CSerializableToJsonDocument() = default;
     //! Serialize the object as JSON items under the \p parentObject using the
     //! specified \p writer.
-    virtual void addToJsonDocument(rapidjson::Value& parentObject,
-                                   TRapidJsonWriter& writer) const = 0;
+    virtual void addToJsonDocument(json::value& parentObject,
+                                   TBoostJsonWriter& writer) const = 0;
 };
 
 //! \brief Interface for writing the inference model defition JSON description
 //! to a stream.
 class API_EXPORT CSerializableToJsonStream {
 public:
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
 public:
     virtual ~CSerializableToJsonStream() = default;
@@ -75,7 +70,7 @@ public:
 //! chunked documents.
 class API_EXPORT CSerializableToCompressedChunkedJson : public CSerializableToJsonStream {
 public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TBoostJsonWriter = core::CBoostJsonConcurrentLineWriter;
 
 public:
     static constexpr std::size_t MAX_DOCUMENT_SIZE{16 * core::constants::BYTES_IN_MEGABYTES};
@@ -87,7 +82,7 @@ public:
     //!
     //! This chunks the compressed encoded JSON into documents no larger than the
     //! specified maximum document size and writes them as individual JSON documents.
-    virtual void addCompressedToJsonStream(TRapidJsonWriter& writer) const = 0;
+    virtual void addCompressedToJsonStream(TBoostJsonWriter& writer) const = 0;
 
     //! \name Test Only
     //@{
@@ -98,7 +93,7 @@ public:
 protected:
     void addCompressedToJsonStream(const std::string& compressedDocTag,
                                    const std::string& payloadTag,
-                                   TRapidJsonWriter& writer) const;
+                                   TBoostJsonWriter& writer) const;
     auto callableAddToJsonStream() const {
         return
             [this](TGenericLineWriter& writer) { this->addToJsonStream(writer); };
@@ -135,21 +130,18 @@ protected:
                                      TIStreamPtr inputStream,
                                      std::iostream& buffer);
 
-    static void assertNoParseError(const rapidjson::Document& doc) {
-        if (doc.HasParseError()) {
-            const char* error{rapidjson::GetParseError_En(doc.GetParseError())};
-            throw std::runtime_error{"Error parsing JSON at offset " +
-                                     std::to_string(doc.GetErrorOffset()) + ": " +
-                                     ((error != nullptr) ? error : "No message")};
+    static void assertNoParseError(const json::error_code& ec) {
+        if (ec) {
+            throw std::runtime_error{"Error parsing JSON: " + ec.message()};
         }
     }
 
     template<typename GET, typename VALUE>
     static auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
-        -> decltype(get(value[tag])) {
-        if (value.HasMember(tag)) {
+        -> decltype(get(value.at(tag))) {
+        if (value.contains(tag)) {
             try {
-                return get(value[tag]);
+                return get(value.at(tag));
             } catch (const std::runtime_error& e) {
                 throw std::runtime_error{"Field '" + tag + "' " + e.what() + "."};
             }
@@ -157,51 +149,51 @@ protected:
         throw std::runtime_error{"Field '" + tag + "' is missing."};
     }
 
-    static auto getAsObjectFrom(const rapidjson::Value& value) {
-        if (value.IsObject()) {
-            return value.GetObject();
+    static auto getAsObjectFrom(const json::value& value) {
+        if (value.is_object()) {
+            return value.as_object();
         }
         throw std::runtime_error{"is not an object"};
     }
 
-    static auto getAsArrayFrom(const rapidjson::Value& value) {
-        if (value.IsArray()) {
-            return value.GetArray();
+    static auto getAsArrayFrom(const json::value& value) {
+        if (value.is_array()) {
+            return value.as_array();
         }
         throw std::runtime_error{"is not an array"};
     }
 
-    static bool getAsBoolFrom(const rapidjson::Value& value) {
-        if (value.IsBool()) {
-            return value.GetBool();
+    static bool getAsBoolFrom(const json::value& value) {
+        if (value.is_bool()) {
+            return value.as_bool();
         }
         throw std::runtime_error{"is not a bool"};
     }
 
-    static std::uint64_t getAsUint64From(const rapidjson::Value& value) {
-        if (value.IsUint64()) {
-            return value.GetUint64();
+    static std::uint64_t getAsUint64From(const json::value& value) {
+        if (value.is_uint64()) {
+            return value.as_uint64();
         }
         throw std::runtime_error{"is not a uint64"};
     }
 
-    static double getAsDoubleFrom(const rapidjson::Value& value) {
-        if (value.IsDouble()) {
-            return value.GetDouble();
+    static double getAsDoubleFrom(const json::value& value) {
+        if (value.is_double()) {
+            return value.as_double();
         }
         throw std::runtime_error{"is not a double"};
     }
 
-    static auto getAsStringFrom(const rapidjson::Value& value) {
-        if (value.IsString()) {
-            return value.GetString();
+    static auto getAsStringFrom(const json::value& value) {
+        if (value.is_string()) {
+            return value.as_string().c_str();
         }
         throw std::runtime_error{"is not a string"};
     }
 
-    static std::size_t getStringLengthFrom(const rapidjson::Value& value) {
-        if (value.IsString()) {
-            return value.GetStringLength();
+    static std::size_t getStringLengthFrom(const json::value& value) {
+        if (value.is_string()) {
+            return value.as_string().size();
         }
         throw std::runtime_error{"is not a string"};
     }

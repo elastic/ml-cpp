@@ -11,22 +11,23 @@
 #ifndef INCLUDED_ml_model_CForecastDataSink_h
 #define INCLUDED_ml_model_CForecastDataSink_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonCopyable.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CoreTypes.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <rapidjson/fwd.h>
-
 #include <boost/unordered_set.hpp>
+#include <boost/json.hpp>
 
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -180,8 +181,8 @@ public:
     uint64_t numRecordsWritten() const;
 
 private:
-    void writeCommonStatsFields(rapidjson::Value& doc);
-    void push(bool flush, rapidjson::Value& doc);
+    void writeCommonStatsFields(json::value& doc);
+    void push(bool flush, json::value& doc);
 
 private:
     //! The job ID
@@ -194,7 +195,7 @@ private:
     std::string m_ForecastAlias;
 
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 
     //! count of how many records written
     uint64_t m_NumRecordsWritten;

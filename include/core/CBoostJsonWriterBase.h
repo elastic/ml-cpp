@@ -9,27 +9,26 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CRapidJsonWriterBase_h
-#define INCLUDED_ml_core_CRapidJsonWriterBase_h
+#ifndef INCLUDED_ml_core_CBoostJsonWriterBase_h
+#define INCLUDED_ml_core_CBoostJsonWriterBase_h
 
+#include <core/CBoostJsonPoolAllocator.h>
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonPoolAllocator.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
+#include <iostream>
 #include <memory>
 #include <stack>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -39,32 +38,14 @@ namespace core {
 //!
 //! DESCRIPTION:\n
 //! Wraps up the code needed to add various types of values to JSON
-//! objects.  Note that if a JSON document is an object then these methods
-//! can be used to add fields to the RapidJSON document object too.
-//!
+//! objects. 
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Templatized on the actual rapidjson writer type - defaults to rapidjson::Writer
-//!
-//! Field names are not copied - the field name strings MUST outlive the
-//! JSON document they are being added to, or else memory corruption will
-//! occur.
-//!
 //! Empty string fields are not written to the output unless specifically
 //! requested.
 //!
-//! Memory for values added to the output documents is allocated from a pool (to
-//! reduce allocation cost and memory fragmentation).  The user of this class
-//! is responsible for managing this pool.
-//!
-template<typename OUTPUT_STREAM,
-         typename SOURCE_ENCODING = rapidjson::UTF8<>,
-         typename TARGET_ENCODING = rapidjson::UTF8<>,
-         typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
-         unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags,
-         template<typename, typename, typename, typename, unsigned> class JSON_WRITER = rapidjson::Writer>
-class CRapidJsonWriterBase
-    : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS> {
+template<typename OUTPUT_STREAM>
+class CBoostJsonWriterBase {
 public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TStrVec = std::vector<std::string>;
@@ -74,57 +55,39 @@ public:
     using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
     using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
     using TStrUSet = boost::unordered_set<std::string>;
-    using TDocument = rapidjson::Document;
-    using TValue = rapidjson::Value;
+    using TDocument = boost::json::value;
+    using TValue = boost::json::value;
     using TDocumentWeakPtr = std::weak_ptr<TDocument>;
     using TValuePtr = std::shared_ptr<TValue>;
-    using TPoolAllocatorPtr = std::shared_ptr<CRapidJsonPoolAllocator>;
+    using TPoolAllocatorPtr = std::shared_ptr<CBoostJsonPoolAllocator>;
     using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMapItr = TStrPoolAllocatorPtrMap::iterator;
     using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
 
 public:
-    using TRapidJsonWriterBase =
-        JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
+    CBoostJsonWriterBase(OUTPUT_STREAM& os)
+        : m_Os(os), m_Values{json::storage_ptr(), m_Buffer, sizeof(m_Buffer)} {
 
-    //! Instances of this class may very well be long lived, potentially for the lifetime of the application.
-    //! Over the course of that lifetime resources will accumulate in the underlying rapidjson memory
-    //! allocator. To prevent excessive memory expansion these resources will need to be cleaned regularly.
-    //!
-    //! In preference to clients of this class explicitly clearing the allocator a helper/wrapper class -
-    //! \p CScopedRapidJsonPoolAllocator - is provided. This helper has an RAII style interface that clears the
-    //! allocator when it goes out of scope which requires that the writer provides the push/popAllocator
-    //! functions.  The intent of this approach is to make it possible to use one or two separate allocators
-    //! for the writer at nested scope.
-    //!
-    //! Note that allocators are not destroyed by the pop operation, they persist for the lifetime of the
-    //! writer in a cache for swift retrieval.
-    CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
-        // push a default rapidjson allocator onto our stack
-        m_JsonPoolAllocators.push(std::make_shared<CRapidJsonPoolAllocator>());
-    }
-
-    CRapidJsonWriterBase() : TRapidJsonWriterBase() {
-        // push a default rapidjson allocator onto our stack
-        m_JsonPoolAllocators.push(std::make_shared<CRapidJsonPoolAllocator>());
+        // push a default boost::json allocator onto our stack
+        m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
     }
 
     // No need for an explicit destructor here as the allocators clear themselves
     // on destruction.
-    virtual ~CRapidJsonWriterBase() = default;
+    virtual ~CBoostJsonWriterBase() = default;
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
     void pushAllocator(const std::string& allocatorName) {
         TPoolAllocatorPtr& ptr = m_AllocatorCache[allocatorName];
         if (ptr == nullptr) {
-            ptr = std::make_shared<CRapidJsonPoolAllocator>();
+            ptr = std::make_shared<CBoostJsonPoolAllocator>();
         }
         m_JsonPoolAllocators.push(ptr);
     }
 
-    //! Clear and remove the last pushed allocator from the stack
+    //! Remove the last pushed allocator from the stack
     void popAllocator() {
         if (!m_JsonPoolAllocators.empty()) {
             TPoolAllocatorPtr allocator = m_JsonPoolAllocators.top();
@@ -137,9 +100,9 @@ public:
 
     //! Get a valid allocator from the stack
     //! If no valid allocator can be found then store and return a freshly minted one
-    std::shared_ptr<CRapidJsonPoolAllocator> getAllocator() const {
+    std::shared_ptr<CBoostJsonPoolAllocator> getAllocator() const {
         TPoolAllocatorPtr allocator;
-        CRapidJsonPoolAllocator* rawAllocator = nullptr;
+        CBoostJsonPoolAllocator* rawAllocator = nullptr;
         while (!m_JsonPoolAllocators.empty()) {
             allocator = m_JsonPoolAllocators.top();
 
@@ -154,53 +117,134 @@ public:
         // shouldn't ever happen as it indicates that the default allocator is invalid
         if (rawAllocator == nullptr) {
             LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
-            allocator = std::make_shared<CRapidJsonPoolAllocator>();
+            allocator = std::make_shared<CBoostJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
         }
 
         return allocator;
     }
 
-    rapidjson::MemoryPoolAllocator<>& getRawAllocator() const {
+    boost::json::memory_resource& getRawAllocator() const {
         return this->getAllocator()->get();
     }
 
-    bool Double(double d) {
+    virtual bool StartObject() {
+        m_Levels.push(0);
+        return true;
+    }
+
+    virtual bool EndObject(std::size_t memberCount = 0) {
+        m_Values.push_object(m_Levels.top());
+        m_Levels.pop();
+        return true;
+    }
+
+    virtual bool StartArray() {
+        m_Levels.push(0);
+        return true;
+    }
+
+    virtual bool EndArray() {
+        m_Values.push_array(m_Levels.top());
+        m_Levels.pop();
+        return true;
+    }
+
+    virtual bool Bool(bool boolVal) {
+        m_Levels.top()++;
+        m_Values.push_bool(boolVal);
+        return true;
+    }
+
+    virtual bool Int(std::int64_t intVal) {
+        m_Levels.top()++;
+        m_Values.push_int64(intVal);
+        return true;
+    }
+
+    virtual bool Int64(std::int64_t int64Val) {
+        m_Levels.top()++;
+        m_Values.push_int64(int64Val);
+        return true;
+    }
+
+    virtual bool Uint(std::uint64_t uintVal) {
+        m_Levels.top()++;
+        m_Values.push_uint64(uintVal);
+        return true;
+    }
+
+    virtual bool Uint64(std::uint64_t uintVal) {
+        m_Levels.top()++;
+        m_Values.push_uint64(uintVal);
+        return true;
+    }
+
+    virtual bool String(const std::string& str) {
+        m_Levels.top()++;
+        m_Values.push_string(str);
+        return true;
+    }
+
+    virtual bool String(const std::string_view & str) {
+        m_Levels.top()++;
+        m_Values.push_string(str);
+        return true;
+    }
+
+    virtual bool Key(const std::string& key) {
+        m_Values.push_key(key);
+        return true;
+    }
+
+    virtual bool Double(double d) {
+        m_Levels.top()++;
         // rewrite NaN and Infinity to 0
         if (std::isfinite(d) == false) {
-            return TRapidJsonWriterBase::Int(0);
+            m_Values.push_double(0);
+            return true;
         }
 
-        return TRapidJsonWriterBase::Double(d);
+        m_Values.push_double(d);
+        return true;
+    }
+
+    void Flush() {
+        this->write();
+        this->flush();
     }
 
     //! Writes an epoch second timestamp as an epoch millis timestamp
-    bool Time(core_t::TTime t) { return this->Int64(CTimeUtils::toEpochMs(t)); }
-
-    //! Push a constant string into a supplied rapidjson object value
-    //! \p[in] value constant string
-    //! \p[out] obj rapidjson value to contain the \p value
-    //! \p name must outlive \p obj or memory corruption will occur.
-    void pushBack(const char* value, TValue& obj) const {
-        obj.PushBack(rapidjson::StringRef(value), this->getRawAllocator());
+    virtual bool Time(core_t::TTime t) {
+        m_Levels.top()++;
+        m_Values.push_int64(CTimeUtils::toEpochMs(t));
+        return true;
     }
 
-    //! Push a generic rapidjson value object into a supplied rapidjson object value
-    //! \p[in] value generic rapidjson value object
-    //! \p[out] obj rapidjson value to contain the \p value
+    //! Push a constant string into a supplied boost::json object value
+    //! \p[in] value constant string
+    //! \p[out] obj boost::json value to contain the \p value
+    //! \p name must outlive \p obj or memory corruption will occur.
+    void pushBack(const char* value, TValue& obj) const {
+        obj.as_array().push_back(value);
+    }
+
+    //! Push a generic boost::json value object into a supplied boost::json object value
+    //! \p[in] value generic boost::json value object
+    //! \p[out] obj boost::json value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
     template<typename T>
     void pushBack(T&& value, TValue& obj) const {
-        obj.PushBack(value, this->getRawAllocator());
+        obj.as_array().push_back(value);
     }
 
-    //! Push a generic rapidjson value object into a supplied rapidjson object value
-    //! \p[in] value generic rapidjson value object
-    //! \p[out] obj shared pointer to a rapidjson value to contain the \p value
+    //! Push a generic boost::json value object into a supplied boost::json object value
+    //! \p[in] value generic boost::json value object
+    //! \p[out] obj shared pointer to a boost::json value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
     template<typename T>
     void pushBack(T&& value, const TValuePtr& obj) const {
-        obj->PushBack(value, this->getRawAllocator());
+        obj->as_array().push_back(value);
     }
 
     //! Add an array of doubles to an object.
@@ -220,99 +264,112 @@ public:
         this->addMember(fieldName, array, obj);
     }
 
-    //! write the rapidjson value document to the output stream
-    //! \p[in] doc rapidjson document value to write out
-    virtual void write(const TValue& doc) { doc.Accept(*this); }
+    //! write the boost::json value document to the output stream
+    //! \p[in] doc boost::json document value to write out
+    virtual void write(const TValue& doc) {
+        m_Os << doc;
+    }
 
-    //! Return a new rapidjson document
+    virtual void write() {
+        json::value doc = m_Values.release();
+        m_Os << json::serialize(doc);
+    }
+
+    //! Return a new boost::json document
     TDocument makeDoc() const {
         TDocument newDoc(&this->getRawAllocator());
-        newDoc.SetObject();
         return newDoc;
     }
 
-    //! Return a weak pointer to a new rapidjson document
+    //! Return a weak pointer to a new boost::json document
     //! This is a convenience function to simplify the (temporary)
     //! storage of newly created documents in containers.
     //! Note: Be aware that the lifetime of the document
     //! should not exceed that of the writer lest the document
     //! be invalidated.
-    TDocumentWeakPtr makeStorableDoc() const {
+    std::weak_ptr<json::value> makeStorableDoc() const {
         return this->getAllocator()->makeStorableDoc();
     }
 
-    //! Return a new rapidjson array
+    //! Return a new boost::json array
     TValue makeArray(size_t length = 0) const {
-        TValue array(rapidjson::kArrayType);
+        boost::json::array array;
         if (length > 0) {
-            array.Reserve(static_cast<rapidjson::SizeType>(length), this->getRawAllocator());
+            array.reserve(length);
         }
         return array;
     }
 
-    //! Return a new rapidjson object
+    //! Return a new boost::json object
     TValue makeObject() const {
-        TValue obj(rapidjson::kObjectType);
+        return boost::json::object();
+    }
+
+    //! Adds a generic boost::json value field to an object.
+    //! \p[in] name field name
+    //! \p[in] value generic boost::json value
+    //! \p[out] obj shared pointer to boost::json object to contain the \p name \p value pair
+    TValuePtr addMember(const std::string& name, TValue& value, const TValuePtr& obj) const {
+        obj->as_object()[name] = value;
         return obj;
     }
 
-    //! Adds a generic rapidjson value field to an object.
-    //! \p[in] name field name
-    //! \p[in] value generic rapidjson value
-    //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
-    TValuePtr addMember(const std::string& name, TValue& value, const TValuePtr& obj) const {
-        obj->AddMember(rapidjson::StringRef(name), value, this->getRawAllocator());
+    TValue& addMember(const std::string& name, TValue value, TValue& obj) const {
+        obj.as_object()[name] = value;
         return obj;
     }
 
     //! Adds a copy of a string field to an object.
     //! \p[in] name field name
     //! \p[in] value string field to be copied
-    //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
+    //! \p[out] obj shared pointer to boost::json object to contain the \p name \p value pair
     TValuePtr addMember(const std::string& name,
                         const std::string& value,
                         const TValuePtr& obj) const {
-        TValue v(value, this->getRawAllocator());
-        obj->AddMember(rapidjson::StringRef(name), v, this->getRawAllocator());
+        obj->as_object()[name] = value;
+        return obj;
+    }
+
+    TValue addMember(const std::string& name,
+                        const std::string& value,
+                        TValue& obj) const {
+        obj.as_object()[name] = value;
         return obj;
     }
 
     //! Adds a string field as a reference to an object (use for adding constant strings).
     //! \p[in] name field name
     //! \p[in] value string field
-    //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
+    //! \p[out] obj shared pointer to boost::json object to contain the \p name \p value pair
     TValuePtr addMemberRef(const std::string& name,
                            const std::string& value,
                            const TValuePtr& obj) const {
-        obj->AddMember(rapidjson::StringRef(name), rapidjson::StringRef(value),
-                       this->getRawAllocator());
+        obj->as_object()[name] = value;
         return obj;
     }
 
-    //! Adds a generic rapidjson value field to an object.
-    //! \p[in] name field name
-    //! \p[in] value generic rapidjson value
-    //! \p[out] obj rapidjson object to contain the \p name \p value pair
-    void addMember(const std::string& name, TValue& value, TValue& obj) const {
-        obj.AddMember(rapidjson::StringRef(name), value, this->getRawAllocator());
-    }
+//    //! Adds a generic boost::json value field to an object.
+//    //! \p[in] name field name
+//    //! \p[in] value generic boost::json value
+//    //! \p[out] obj boost::json object to contain the \p name \p value pair
+//    void addMember(const std::string& name, TValue& value, TValue& obj) const {
+//        obj.as_object()[name] = value;
+//    }
 
-    //! Adds a copy of a string field to an object.
-    //! \p[in] name field name
-    //! \p[in] value string field to be copied
-    //! \p[out] obj rapidjson object to contain the \p name \p value pair
-    void addMember(const std::string& name, const std::string& value, TValue& obj) const {
-        TValue v(value, this->getRawAllocator());
-        obj.AddMember(rapidjson::StringRef(name), v, this->getRawAllocator());
-    }
+//    //! Adds a copy of a string field to an object.
+//    //! \p[in] name field name
+//    //! \p[in] value string field to be copied
+//    //! \p[out] obj boost::json object to contain the \p name \p value pair
+//    void addMember(const std::string& name, json::value value, TValue& obj) const {
+//        obj.as_object()[name] = value;
+//    }
 
     //! Adds a string field as a reference to an object (use for adding constant strings).
     //! \p[in] name field name
     //! \p[in] value string field
-    //! \p[out] obj rapidjson object to contain the \p name \p value pair
+    //! \p[out] obj boost::json object to contain the \p name \p value pair
     void addMemberRef(const std::string& name, const std::string& value, TValue& obj) const {
-        obj.AddMember(rapidjson::StringRef(name), rapidjson::StringRef(value),
-                      this->getRawAllocator());
+        obj.as_object()[name] = value;
     }
 
     //! Adds a copy of a string field with the name fieldname to an object.
@@ -393,6 +450,12 @@ public:
                                   const TStrVec& values,
                                   TValue& obj) const {
         this->addArrayToObj(fieldName, values.begin(), values.end(), obj);
+    }
+
+    void addStringArrayFieldToObj(const std::string& fieldName,
+                                  const json::array& values,
+                                  TValue& obj) const {
+        this->addMember(fieldName, values, obj);
     }
 
     //! Add an array of strings to an object.
@@ -480,10 +543,22 @@ public:
 
     //! Checks if the \p obj has a member named \p fieldName and
     //! removes it if it does.
-    void removeMemberIfPresent(const std::string& fieldName, TValue& obj) const {
-        if (obj.HasMember(fieldName)) {
-            obj.RemoveMember(fieldName);
+    void removeMemberIfPresent(const std::string& fieldName, TValue& obj_) const {
+        boost::json::object obj = obj_.as_object();
+        auto pos = obj.find(fieldName);
+        if (pos != obj.end()) {
+            obj.erase(pos);
         }
+    }
+
+    virtual void put(char c) { m_Os.put(c); }
+
+    bool topLevel() {
+        return m_Levels.empty();
+    }
+
+    virtual void flush() {
+        m_Os.flush();
     }
 
 private:
@@ -507,14 +582,27 @@ private:
     //! Convert the range [\p begin, \p end) to a RapidJSON array and add to \p obj.
     template<typename ITR>
     void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
-        TValue array = this->makeArray(std::distance(begin, end));
+        json::array array = this->makeArray(std::distance(begin, end)).as_array();
         for (/**/; begin != end; ++begin) {
             this->pushBack(asRapidJsonValue(*begin), array);
         }
         this->addMember(fieldName, array, obj);
     }
 
+//    void reset(OUTPUT_STREAM& os) {
+//        m_Os = os;
+//    }
+
 private:
+
+    OUTPUT_STREAM& m_Os;
+
+    unsigned char m_Buffer[4096];
+
+    json::value_stack m_Values;
+
+    std::stack<std::size_t> m_Levels;
+
     //! cache allocators for potential reuse
     TStrPoolAllocatorPtrMap m_AllocatorCache;
 
@@ -524,4 +612,4 @@ private:
 }
 }
 
-#endif /*  INCLUDED_ml_core_CRapidJsonWriterBase_h */
+#endif /*  INCLUDED_ml_core_CBoostJsonWriterBase_h */

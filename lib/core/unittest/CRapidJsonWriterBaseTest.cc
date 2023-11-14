@@ -9,8 +9,8 @@
  * limitation.
  */
 
+#include <core/CBoostJsonWriterBase.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonWriterBase.h>
 #include <core/CStringUtils.h>
 
 #include <rapidjson/document.h>

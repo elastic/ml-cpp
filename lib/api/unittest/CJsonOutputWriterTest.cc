@@ -12,7 +12,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
@@ -916,7 +916,7 @@ void testThroughputHelper(bool useScopedAllocator) {
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         if (useScopedAllocator) {
             using TScopedAllocator =
-                ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
+                ml::core::CScopedBoostJsonPoolAllocator<ml::api::CJsonOutputWriter>;
             static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
             TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
 

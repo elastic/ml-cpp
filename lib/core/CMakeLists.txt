@@ -61,8 +61,8 @@ ml_add_library(MlCore SHARED
   CProcessStats.cc
   CProgName.cc
   CProgramCounters.cc
-  CRapidJsonConcurrentLineWriter.cc
-  CRapidJsonUnbufferedIStreamWrapper.cc
+        CBoostJsonConcurrentLineWriter.cc
+        CBoostJsonUnbufferedIStreamWrapper.cc
   CRapidXmlParser.cc
   CRapidXmlStatePersistInserter.cc
   CRapidXmlStateRestoreTraverser.cc

@@ -11,19 +11,19 @@
 #ifndef INCLUDED_ml_api_CNdJsonOutputWriter_h
 #define INCLUDED_ml_api_CNdJsonOutputWriter_h
 
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CBoostJsonLineWriter.h>
 
 #include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
+#include <boost/json.hpp>
 
 #include <iosfwd>
 #include <set>
 #include <sstream>
 #include <string>
 
+namespace json = boost::json;
 namespace ml {
 namespace api {
 
@@ -83,7 +83,7 @@ private:
     //! Write a single field to the document
     void writeField(const std::string& name,
                     const std::string& value,
-                    rapidjson::Document& doc) const;
+                    json::value& doc) const;
 
 private:
     //! Which output fields are numeric?
@@ -97,9 +97,9 @@ private:
     std::ostream& m_OutStream;
 
     //! JSON writer ostream wrapper
-    rapidjson::OStreamWrapper m_WriteStream;
+//    rapidjson::OStreamWrapper m_WriteStream;
 
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

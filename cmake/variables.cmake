@@ -139,7 +139,6 @@ list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES
   ${TORCH_INC}
   ${CMAKE_SOURCE_DIR}/3rd_party/include
   ${CMAKE_SOURCE_DIR}/3rd_party/eigen
-  ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
   )
 
 set(IMPORT_LIB_DIR lib)
