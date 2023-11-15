@@ -50,6 +50,9 @@ def main():
         pipeline_steps.append(build_linux)
     pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
                                                        ".buildkite/pipelines/run_es_tests.yml.sh"))
+    if config.run_qa_tests:
+        pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
+                                                           ".buildkite/pipelines/run_qa_tests.yml.sh"))
     pipeline["env"] = env
     pipeline["steps"] = pipeline_steps
     print(json.dumps(pipeline, indent=2))

@@ -35,6 +35,8 @@
 * Upgrade Boost libraries to version 1.83. (See {ml-pull}2560[#2560].)
 * Upgrade Pytorch to version 2.1.0. (See {ml-pull}2588[#2588].)
 * Upgrade zlib to version 1.2.13 on Windows. (See {ml-pull}2588[#2588].)
+* Improve forecasting for time series with step changes. (See {ml-pull}#2591[2591],
+  issue: {ml-issue}2466[#2466]).
 
 === Bug Fixes
 
