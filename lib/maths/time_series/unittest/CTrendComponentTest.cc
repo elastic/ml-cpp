@@ -26,14 +26,14 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 
+namespace {
 BOOST_AUTO_TEST_SUITE(CTrendComponentTest)
 
 using namespace ml;
-
-namespace {
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -223,7 +223,6 @@ auto forecastErrors(ITR actual,
     return std::make_pair(maths::common::CBasicStatistics::mean(meanError),
                           maths::common::CBasicStatistics::mean(meanErrorAt95));
 }
-}
 
 BOOST_AUTO_TEST_CASE(testValueAndVariance) {
     // Check that the prediction bias is small in the long run
@@ -360,6 +359,71 @@ BOOST_AUTO_TEST_CASE(testForecast) {
     BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 }
 
+BOOST_AUTO_TEST_CASE(testStepChangeForecasting) {
+    // A randomized test that forecasts of time series with step changes
+    // don't explode. We previously sometimes ran into issues when we
+    // extrapolated the feature distributions we use to predict steps.
+    // In such cases we would predict far too many steps leading to
+    // overly wide forecast bounds and unrealistic predictions.
+
+    using TSizeVec = std::vector<std::size_t>;
+
+    test::CRandomNumbers rng;
+    double interval{20.0};
+
+    maths::time_series::CTrendComponent::TFloatMeanAccumulatorVec values;
+
+    for (std::size_t t = 0; t < 100; ++t) {
+        TSizeVec changePoints;
+        rng.generateUniformSamples(0, 1000, 6, changePoints);
+        std::sort(changePoints.begin(), changePoints.end());
+        changePoints.push_back(1000);
+        TDoubleVec levels;
+        rng.generateUniformSamples(-0.5 * interval, 0.5 * interval, 7, levels);
+
+        maths::time_series::CTrendComponent trendModel{0.012};
+
+        TDoubleVec noise;
+        auto level = levels.begin();
+        auto changePoint = changePoints.begin();
+        core_t::TTime time{1672531200};
+        for (std::size_t i = 0; i < 1000; ++i, time += BUCKET_LENGTH) {
+            rng.generateNormalSamples(0.0, 0.25, 1, noise);
+            double value{*level + noise[0]};
+            trendModel.add(time, value);
+            values.emplace_back().add(value);
+            if (i == *changePoint) {
+                ++level;
+                ++changePoint;
+                double shift{*level - *(level - 1)};
+                core_t::TTime valuesStartTime{
+                    time - static_cast<core_t::TTime>(values.size()) * BUCKET_LENGTH};
+                TSizeVec segments{0, *changePoint - *(changePoint - 1) - 1,
+                                  *changePoint - *(changePoint - 1)};
+                TDoubleVec shifts{0.0, *level - *(level - 1)};
+                trendModel.shiftLevel(shift, valuesStartTime, BUCKET_LENGTH,
+                                      values, segments, shifts);
+                values.clear();
+            } else {
+                trendModel.dontShiftLevel(time, value);
+            }
+        }
+
+        TDouble3VecVec forecast;
+        trendModel.forecast(time, time + 200 * BUCKET_LENGTH, BUCKET_LENGTH, 90.0, false,
+                            [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                            [&forecast](core_t::TTime, const TDouble3Vec& value) {
+                                forecast.push_back(value);
+                            });
+
+        // Check that the prediction is in the switching interval and
+        // the forecast confidence interval isn't too wide.
+        BOOST_TEST_REQUIRE(forecast.back()[1] > -0.75 * interval);
+        BOOST_TEST_REQUIRE(forecast.back()[1] < 0.75 * interval);
+        BOOST_TEST_REQUIRE(forecast.back()[2] - forecast.back()[0] < 3.5 * interval);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that serialization is idempotent.
 
@@ -393,9 +457,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::common::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
     maths::time_series::CTrendComponent restoredComponent{0.1};
-    traverser.traverseSubLevel(
-        std::bind(&maths::time_series::CTrendComponent::acceptRestoreTraverser,
-                  &restoredComponent, std::cref(params), std::placeholders::_1));
+    traverser.traverseSubLevel([&](auto& traverser_) {
+        return restoredComponent.acceptRestoreTraverser(params, traverser_);
+    });
 
     BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
@@ -440,9 +504,9 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     core::CRapidXmlParser parser;
     BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    traverser.traverseSubLevel(
-        std::bind(&maths::time_series::CTrendComponent::acceptRestoreTraverser,
-                  &component, std::cref(params), std::placeholders::_1));
+    traverser.traverseSubLevel([&](auto& traverser_) {
+        return component.acceptRestoreTraverser(params, traverser_);
+    });
 
     test::CRandomNumbers rng;
 
@@ -455,3 +519,4 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+}

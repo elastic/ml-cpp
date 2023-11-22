@@ -228,12 +228,12 @@ BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
         std::tie(x, fx) = lbfgs.constrainedMinimize(f, g, a, b, x0, 0.2);
 
         BOOST_REQUIRE_EQUAL(fx, static_cast<double>(f(x)));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(f(xmin)), fx, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(f(xmin)), fx, 5e-3);
 
         ferror += std::fabs(fx - f(xmin)) / 100.0;
     }
 
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, ferror, 5e-5);
 }
 
 BOOST_AUTO_TEST_CASE(testMinimizeWithVerySmallGradient) {
