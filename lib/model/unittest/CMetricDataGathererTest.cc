@@ -1230,14 +1230,13 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     core_t::TTime bucketStart = startTime;
     auto expected = expectedStatistics.begin();
     for (std::size_t i = 0; i < std::size(data); ++i) {
-        if (std::get<0>(data[i]) >= bucketStart + bucketLength) {
+        if (data[i].get<0>() >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, featureData);
             for (std::size_t j = 0; j < featureData.size(); ++j) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
-
                 const TSizeFeatureDataPrVec& data_ = featureData[j].second;
                 for (std::size_t k = 0; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
