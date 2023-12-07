@@ -16,7 +16,6 @@
 #include <core/CMemoryDec.h>
 #include <core/CPersistUtils.h>
 #include <core/CoreTypes.h>
-#include <core/RestoreMacros.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -51,8 +50,8 @@ public:
     template<typename F>
     class CSerializer {
     public:
-        explicit CSerializer(const T& initial = T(), const F& serializer = F())
-            : m_InitialValue{initial}, m_Serializer{serializer} {}
+        CSerializer(const T& initial = T(), const F& serializer = F())
+            : m_InitialValue(initial), m_Serializer(serializer) {}
 
         void operator()(const CBucketQueue& queue, core::CStatePersistInserter& inserter) const {
             queue.persist(m_Serializer, inserter);
@@ -184,7 +183,7 @@ public:
     //! Generic persist interface that assumes the bucket items can
     //! be persisted by core::CPersistUtils
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        for (std::size_t i = 0; i < m_Queue.size(); ++i) {
+        for (std::size_t i = 0; i < m_Queue.size(); i++) {
             inserter.insertValue(INDEX_TAG, i);
             core::CPersistUtils::persist(BUCKET_TAG, m_Queue[i], inserter);
         }
@@ -193,16 +192,24 @@ public:
     //! Generic restore interface that assumes the bucket items can
     //! be restored by core::CPersistUtils
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-        std::size_t i{0};
+        std::size_t i = 0;
         do {
-            const std::string& name{traverser.name()};
-            RESTORE_BUILT_IN(INDEX_TAG, i)
-            if (i >= m_Queue.size()) {
-                LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
-                          << " >= " << m_Queue.size() << ". Restoration failed.");
-                return false;
+            if (traverser.name() == INDEX_TAG) {
+                if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
+                    LOG_ERROR(<< "Bad index in " << traverser.value());
+                    return false;
+                }
+            } else if (traverser.name() == BUCKET_TAG) {
+                if (i >= m_Queue.size()) {
+                    LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
+                              << " >= " << m_Queue.size() << ". Restoration failed.");
+                    return false;
+                }
+                if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
+                    LOG_ERROR(<< "Invalid bucket");
+                    return false;
+                }
             }
-            RESTORE(BUCKET_TAG, core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))
         } while (traverser.next());
         return true;
     }
@@ -222,21 +229,27 @@ private:
     //! Restore the buckets in the queue using \p bucketRestore.
     template<typename F>
     bool restore(F bucketRestore, const T& initial, core::CStateRestoreTraverser& traverser) {
-        std::size_t i{0};
+        std::size_t i = 0;
         do {
-            const std::string& name{traverser.name()};
-            RESTORE_BUILT_IN(INDEX_TAG, i)
-            if (i >= m_Queue.size()) {
-                LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
-                          << " >= " << m_Queue.size() << ". Restoration failed.");
-                return false;
-            }
-            if (traverser.name() == BUCKET_TAG) {
+            if (traverser.name() == INDEX_TAG) {
+                if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
+                    LOG_DEBUG(<< "Bad index in " << traverser.value());
+                    return false;
+                }
+            } else if (traverser.name() == BUCKET_TAG) {
+                if (i >= m_Queue.size()) {
+                    LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
+                              << " >= " << m_Queue.size() << ". Restoration failed.");
+                    return false;
+                }
                 m_Queue[i] = initial;
                 if (traverser.hasSubLevel()) {
-                    RESTORE(BUCKET_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
-                        return bucketRestore(m_Queue[i], traverser_);
-                    }))
+                    if (traverser.traverseSubLevel(
+                            std::bind<bool>(bucketRestore, std::ref(m_Queue[i]),
+                                            std::placeholders::_1)) == false) {
+                        LOG_ERROR(<< "Invalid bucket");
+                        return false;
+                    }
                 }
             }
         } while (traverser.next());
@@ -256,8 +269,8 @@ private:
             LOG_ERROR(<< "Invalid bucketLength for queue!");
             return 0;
         }
-        std::size_t index{static_cast<std::size_t>((m_LatestBucketEnd - time) / m_BucketLength)};
-        std::size_t size{this->size()};
+        std::size_t index = static_cast<std::size_t>((m_LatestBucketEnd - time) / m_BucketLength);
+        std::size_t size = this->size();
         if (index >= size) {
             LOG_ERROR(<< "Time " << time << " is out of range. Returning earliest bucket index.");
             return size - 1;

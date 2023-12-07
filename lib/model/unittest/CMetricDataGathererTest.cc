@@ -1230,7 +1230,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     core_t::TTime bucketStart = startTime;
     auto expected = expectedStatistics.begin();
     for (std::size_t i = 0; i < std::size(data); ++i) {
-        if (data[i].get<0>() >= bucketStart + bucketLength) {
+        if (std::get<0>(data[i]) >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, featureData);
