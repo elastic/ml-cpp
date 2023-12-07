@@ -189,7 +189,8 @@ void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& 
 }
 
 bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0;
+    std::size_t i = 0;
+    std::size_t j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -276,7 +277,7 @@ bool CMetricPopulationModel::bucketStatsAvailable(core_t::TTime time) const {
 void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
                                                     core_t::TTime endTime,
                                                     CResourceMonitor& resourceMonitor) {
-    CDataGatherer& gatherer = this->dataGatherer();
+    const CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.dataAvailable(startTime)) {
         return;
@@ -344,8 +345,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
         gatherer.personNonZeroCounts(time, personCounts);
         this->applyFilter(model_t::E_XF_Over, true, this->personFilter(), personCounts);
 
-        const TTimeVec& attributeLastBucketTimes = this->attributeLastBucketTimes();
-
         for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             std::size_t dimension = model_t::dimension(feature);
@@ -409,8 +408,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 const auto& samples = CDataGatherer::extractData(data_).s_Samples;
                 bool isInteger = CDataGatherer::extractData(data_).s_IsInteger;
                 bool isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
-                core_t::TTime cutoff = attributeLastBucketTimes[cid] -
-                                       this->params().s_SamplingAgeCutoff;
                 LOG_TRACE(<< "Adding " << CDataGatherer::extractData(data_)
                           << " for person = " << gatherer.personName(pid)
                           << " and attribute = " << gatherer.attributeName(cid));
@@ -425,10 +422,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 LOG_TRACE(<< "countWeight = " << countWeight);
 
                 for (const auto& sample : samples) {
-                    if (sample.time() < cutoff) {
-                        continue;
-                    }
-
                     double countVarianceScale = sample.varianceScale();
                     TDouble2Vec value(sample.value(dimension));
                     std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);

@@ -102,17 +102,6 @@ public:
     //! Default maximum number of buckets for receiving out of order records.
     static const std::size_t DEFAULT_LATENCY_BUCKETS;
 
-    //! Default amount by which metric sample count is reduced for fine-grained
-    //! sampling when there is no latency.
-    static const std::size_t DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY;
-
-    //! Default amount by which metric sample count is reduced for fine-grained
-    //! sampling when there is latency.
-    static const std::size_t DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
-
-    //! Default amount by which the metric sample queue expands when it is full.
-    static const double DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR;
-
     //! Bucket length corresponding to the default decay and learn rates.
     static const core_t::TTime STANDARD_BUCKET_LENGTH;
     //@}

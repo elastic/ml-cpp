@@ -135,15 +135,6 @@ struct MODEL_EXPORT SModelParams {
 
     //! The number of buckets that are within the latency window.
     std::size_t s_LatencyBuckets;
-
-    //! The factor to divide sample count in order to determine size of sub-samples.
-    std::size_t s_SampleCountFactor;
-
-    //! The factor that determines how much the sample queue grows.
-    double s_SampleQueueGrowthFactor;
-
-    //! The time window during which samples are accepted.
-    core_t::TTime s_SamplingAgeCutoff;
     //@}
 
     //! \name Model Life-Cycle Management

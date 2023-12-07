@@ -57,9 +57,6 @@ core_t::TTime validateBucketLength(core_t::TTime length) {
 const std::string CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER(",");
 const core_t::TTime CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH(300);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS(0);
-const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY(1);
-const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY(10);
-const double CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR(0.1);
 const core_t::TTime CAnomalyDetectorModelConfig::STANDARD_BUCKET_LENGTH(1800);
 const double CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE(0.0005);
 const double CAnomalyDetectorModelConfig::DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER(4.0);
@@ -739,7 +736,6 @@ const std::string INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY("initialdecayratemultip
 const std::string INDIVIDUAL_MODE_FRACTION_PROPERTY("individualmodefraction");
 const std::string POPULATION_MODE_FRACTION_PROPERTY("populationmodefraction");
 const std::string COMPONENT_SIZE_PROPERTY("componentsize");
-const std::string SAMPLE_COUNT_FACTOR_PROPERTY("samplecountfactor");
 const std::string PRUNE_WINDOW_SCALE_MINIMUM("prunewindowscaleminimum");
 const std::string PRUNE_WINDOW_SCALE_MAXIMUM("prunewindowscalemaximum");
 const std::string AGGREGATION_STYLE_PARAMS("aggregationstyleparams");
@@ -835,16 +831,6 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
             for (auto& factory : m_Factories) {
                 factory.second->componentSize(componentSize);
-            }
-        } else if (propName == SAMPLE_COUNT_FACTOR_PROPERTY) {
-            int factor;
-            if (core::CStringUtils::stringToType(propValue, factor) == false || factor < 0) {
-                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
-                result = false;
-                continue;
-            }
-            for (auto& factory : m_Factories) {
-                factory.second->sampleCountFactor(factor);
             }
         } else if (propName == PRUNE_WINDOW_SCALE_MINIMUM) {
             double factor;

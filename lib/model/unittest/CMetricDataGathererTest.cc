@@ -707,8 +707,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = 1;
-    params.s_SampleCountFactor = 1;
-    params.s_SampleQueueGrowthFactor = 0.1;
 
     TTimeDoublePrVec bucket1{{1, 1.0}, {15, 2.1}, {180, 0.9}, {400, 1.5}, {550, 2.0}};
     TTimeDoublePrVec bucket2{{600, 2.0}, {190, 1.5}, {799, 2.2}, {1199, 1.8}};
@@ -830,8 +828,6 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketSingleSeries, CTestFixture) {
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
-    params.s_SampleCountFactor = 1;
-    params.s_SampleQueueGrowthFactor = 0.1;
 
     TTimeDoublePrVec data{{1, 1.0},   {550, 2.0},  {600, 3.0},
                           {700, 4.0}, {1000, 5.0}, {1200, 6.0}};
@@ -935,8 +931,6 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketMultipleSeries, CTestFixture) {
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
-    params.s_SampleCountFactor = 1;
-    params.s_SampleQueueGrowthFactor = 0.1;
 
     TTimeDoublePrVec data{{1, 1.0},   {550, 2.0},  {600, 3.0},
                           {700, 4.0}, {1000, 5.0}, {1200, 6.0}};
@@ -1163,8 +1157,6 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
-    params.s_SampleCountFactor = 1;
-    params.s_SampleQueueGrowthFactor = 0.1;
 
     TStrVec influencerNames{"i1", "i2"};
     TStrVecVec influencerValues{{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};

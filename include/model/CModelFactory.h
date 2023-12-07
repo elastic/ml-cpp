@@ -285,10 +285,6 @@ public:
     //! Set the features which will be modeled.
     virtual void features(const TFeatureVec& features) = 0;
 
-    //! Set the amount by which metric sample count is reduced for
-    //! fine-grained sampling when there is latency.
-    void sampleCountFactor(std::size_t sampleCountFactor);
-
     //! Set whether the model should exclude frequent hitters from the
     //! calculations.
     void excludeFrequent(model_t::EExcludeFrequent excludeFrequent);

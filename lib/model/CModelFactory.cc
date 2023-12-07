@@ -207,10 +207,6 @@ CModelFactory::defaultInfluenceCalculators(const std::string& influencerName,
     return result;
 }
 
-void CModelFactory::sampleCountFactor(std::size_t sampleCountFactor) {
-    m_ModelParams.s_SampleCountFactor = sampleCountFactor;
-}
-
 void CModelFactory::excludeFrequent(model_t::EExcludeFrequent excludeFrequent) {
     m_ModelParams.s_ExcludeFrequent = excludeFrequent;
 }

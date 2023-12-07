@@ -30,12 +30,11 @@ CModelPlotData::CModelPlotData(core_t::TTime time,
 }
 
 CModelPlotData::SByFieldData::SByFieldData()
-    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
+    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0) {
 }
 
 CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound, double median)
-    : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median),
-      s_ValuesPerOverField() {
+    : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median) {
 }
 
 const std::string& CModelPlotData::partitionFieldName() const {
