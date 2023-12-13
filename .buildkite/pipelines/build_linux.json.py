@@ -33,11 +33,12 @@ actions = [
 ]
 agents = {
    "x86_64": {
-      "cpu": "6",
-      "ephemeralStorage": "20G",
-      "memory": "64G",
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:14"
-   },
+      "provider": "aws",
+      "instanceType": "m6i.2xlarge",
+      "imagePrefix": "ci-amazonlinux-2",
+      "diskSizeGb": "100",
+      "diskName": "/dev/xvda"
+   }
    "aarch64": {
       "provider": "aws",
       "instanceType": "m6g.2xlarge",

@@ -38,8 +38,9 @@ VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | aw
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
 TEST_OUTCOME=0
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then 
-  # On Linux native aarch64 build using Docker
+if [[ `uname` = Linux && -z "$CPP_CROSS_COMPILE" ]] ; then 
+  # On native Linux build using Docker
+  # This means that we can tolerate a very old Git version inside the Docker container
   
   # The Docker version is helpful to identify version-specific Docker bugs
   docker --version
@@ -47,10 +48,16 @@ if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]
   KERNEL_VERSION=`uname -r`
   GLIBC_VERSION=`ldconfig --version | head -1 | sed 's/ldconfig//'`
 
-  if [ "$RUN_TESTS" = false ] ; then
-    ${REPO_ROOT}/dev-tools/docker_build.sh linux_aarch64_native
+  if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+      DOCKER_BUILD_ARG=linux_aarch64_native
   else
-    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests linux_aarch64_native || TEST_OUTCOME=$?
+      DOCKER_BUILD_ARG=linux_aarch64_native
+  fi
+
+  if [ "$RUN_TESTS" = false ] ; then
+    ${REPO_ROOT}/dev-tools/docker_build.sh $DOCKER_BUILD_ARG
+  else
+    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests $DOCKER_BUILD_ARG || TEST_OUTCOME=$?
   fi
 fi
 
