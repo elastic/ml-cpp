@@ -38,19 +38,26 @@ VERSION=$(cat ${REPO_ROOT}/gradle.properties | grep '^elasticsearchVersion' | aw
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
 TEST_OUTCOME=0
-if [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" && `uname` = Linux ]] ; then 
-  # On Linux native aarch64 build using Docker
-  
+if [[ `uname` = Linux && -z "$CPP_CROSS_COMPILE" ]] ; then
+  # On native Linux build using Docker
+  # This means that we can tolerate a very old Git version inside the Docker container
+
   # The Docker version is helpful to identify version-specific Docker bugs
   docker --version
-  
+
   KERNEL_VERSION=`uname -r`
   GLIBC_VERSION=`ldconfig --version | head -1 | sed 's/ldconfig//'`
 
-  if [ "$RUN_TESTS" = false ] ; then
-    ${REPO_ROOT}/dev-tools/docker_build.sh linux_aarch64_native
+  if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+      DOCKER_BUILD_ARG=linux_aarch64_native
   else
-    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests linux_aarch64_native || TEST_OUTCOME=$?
+      DOCKER_BUILD_ARG=linux
+  fi
+
+  if [ "$RUN_TESTS" = false ] ; then
+    ${REPO_ROOT}/dev-tools/docker_build.sh $DOCKER_BUILD_ARG
+  else
+    ${REPO_ROOT}/dev-tools/docker_test.sh --extract-unit-tests $DOCKER_BUILD_ARG || TEST_OUTCOME=$?
   fi
 fi
 
@@ -62,44 +69,39 @@ if [[ x"$BUILDKITE_PULL_REQUEST" != xfalse && "$CPP_CROSS_COMPILE" = "aarch64" ]
     export ML_DEBUG=1
 fi
 
-# For now, re-use our existing CI scripts based on Docker
-# Don't perform these steps for native linux aarch64 builds as
-# they are built using docker, see above.
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then 
+if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
+  # For ARM macOS, build directly on the machine
+  ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+  if [ "$RUN_TESTS" = false ] ; then
+      TASKS="clean buildZip buildZipSymbols"
+  else
+      TASKS="clean buildZip buildZipSymbols check"
+  fi
+  # For macOS we usually only use a particular version as our build platform
+  # once Xcode has stopped receiving updates for it. However, with Big Sur
+  # on ARM we couldn't do this, as Big Sur was the first macOS version for
+  # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+  # need to hardcode the version that was used to build Boost for that
+  # version of Elasticsearch.
+  export BOOSTCLANGVER=120
+
+  (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=${BUILD_SNAPSHOT:-} -Dbuild.ml_debug=${ML_DEBUG:-} $TASKS) || TEST_OUTCOME=$?
+
+# If cross-compiling re-use our existing CI scripts based on Docker.
+elif [ -n "$CPP_CROSS_COMPILE" ] ; then
   if [ "$RUN_TESTS" = "true" ]; then
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh --test
     grep passed build/test_status.txt || TEST_OUTCOME=$?
   else
     ${REPO_ROOT}/dev-tools/docker/docker_entrypoint.sh
   fi
-else
-  if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
-     # For macOS, build directly on the machine
-     ${REPO_ROOT}/dev-tools/download_macos_deps.sh
-     if [ "$RUN_TESTS" = false ] ; then
-         TASKS="clean buildZip buildZipSymbols"
-     else
-         TASKS="clean buildZip buildZipSymbols check"
-     fi
-     # For macOS we usually only use a particular version as our build platform
-     # once Xcode has stopped receiving updates for it. However, with Big Sur
-     # on ARM we couldn't do this, as Big Sur was the first macOS version for
-     # ARM. Therefore, the compiler may get upgraded on a CI server, and we
-     # need to hardcode the version that was used to build Boost for that
-     # version of Elasticsearch.
-     if [ "$HARDWARE_ARCH" = aarch64 ] ; then
-         export BOOSTCLANGVER=120
-     fi
-
-     (cd ${REPO_ROOT} && ./gradlew --info -Dbuild.version_qualifier=${VERSION_QUALIFIER:-} -Dbuild.snapshot=${BUILD_SNAPSHOT:-} -Dbuild.ml_debug=${ML_DEBUG:-} $TASKS) || TEST_OUTCOME=$?
-  fi
 fi
 
-if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then 
+if ! [[ "$HARDWARE_ARCH" = aarch64 && -n "$CPP_CROSS_COMPILE" ]] && [[ $TEST_OUTCOME -eq 0 ]] ; then
   buildkite-agent artifact upload "build/distributions/*.zip"
 fi
 
-if [[ -z "$CPP_CROSS_COMPILE" ]] ; then 
+if [[ -z "$CPP_CROSS_COMPILE" ]] ; then
   OS=$(uname -s | tr "A-Z" "a-z")
   TEST_RESULTS_ARCHIVE=${OS}-${HARDWARE_ARCH}-unit_test_results.tgz
   find . -path  "*/**/ml_test_*.out" -o -path "*/**/*.junit" | xargs tar cvzf ${TEST_RESULTS_ARCHIVE}
