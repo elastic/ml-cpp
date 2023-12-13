@@ -51,7 +51,7 @@ if [[ `uname` = Linux && -z "$CPP_CROSS_COMPILE" ]] ; then
   if [ "$HARDWARE_ARCH" = aarch64 ] ; then
       DOCKER_BUILD_ARG=linux_aarch64_native
   else
-      DOCKER_BUILD_ARG=linux_aarch64_native
+      DOCKER_BUILD_ARG=linux
   fi
 
   if [ "$RUN_TESTS" = false ] ; then
