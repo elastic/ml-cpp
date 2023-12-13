@@ -38,7 +38,7 @@ agents = {
       "imagePrefix": "ci-amazonlinux-2",
       "diskSizeGb": "100",
       "diskName": "/dev/xvda"
-   }
+   },
    "aarch64": {
       "provider": "aws",
       "instanceType": "m6g.2xlarge",
