@@ -27,6 +27,7 @@ if (LINK_IPEX)
     ${C10_LIB}
     ${IPEX_LIB} 
     )
+  add_compile_definitions(IPEX_LINKED)
 else()
   set(ML_LINK_LIBRARIES 
     ${Boost_LIBRARIES}

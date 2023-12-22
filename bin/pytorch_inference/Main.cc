@@ -248,6 +248,12 @@ int main(int argc, char** argv) {
         ml::core::CProcessPriority::reduceCpuPriority();
     }
 
+#ifdef IPEX_LINKED
+    // Disable JIT profiling mode. This is a workaround for problems where the
+    // first inference works but the second doesn't when IPEX is linked.
+    torch::jit::getProfilingMode() = false;
+#endif
+
     // On Linux we use libgomp (GNU's OMP implementation) for threading and have
     // found that setting this to "threads per allocation" really does allow
     // that number of threads to be used per allocation. On other platforms,
