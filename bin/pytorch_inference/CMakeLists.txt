@@ -11,36 +11,15 @@
 
 project("ML PyTorch Inference")
 
-message(STATUS "Linking IPEX libraries temporarily disabled")
-set(IPEX_DISABLED TRUE)
-
-# IPEX is required on Linux x86_64 architecture
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND NOT IPEX_DISABLED)
-  set(LINK_IPEX ON)
-endif()
-
-if (LINK_IPEX)
-  set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlApi
-    MlSeccomp
-    MlVer
-    ${TORCH_LIB}
-    ${C10_LIB}
-    ${IPEX_LIB} 
-    )
-else()
-  set(ML_LINK_LIBRARIES 
-    ${Boost_LIBRARIES}
-    MlCore
-    MlApi
-    MlSeccomp
-    MlVer
-    ${TORCH_LIB}
-    ${C10_LIB}
-    )
-endif()
+set(ML_LINK_LIBRARIES 
+  ${Boost_LIBRARIES}
+  MlCore
+  MlApi
+  MlSeccomp
+  MlVer
+  ${TORCH_LIB}
+  ${C10_LIB}
+  )
 
 ml_add_executable(pytorch_inference
   CBufferedIStreamAdapter.cc
