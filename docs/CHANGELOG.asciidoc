@@ -28,6 +28,14 @@
 
 //=== Regressions
 
+== {es} version 8.13.0
+
+=== Enhancements
+
+* Better handling of number of allocations in pytorch_inference in the case that
+  hardware_concurrency fails. We were previously forcing maximum number of allocations
+  to be one in this case, we now allow what is requested. (See {ml-pull}#2607[2607].)
+
 == {es} version 8.12.0
 
 === Enhancements
