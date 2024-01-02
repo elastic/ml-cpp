@@ -294,7 +294,7 @@ int main(int argc, char** argv) {
         // Size the threadpool to the number of hardware threads
         // so we can grow and shrink the threadpool dynamically.
         // The task queue size is set to 1.
-        ml::core::startDefaultAsyncExecutor(0, 1);
+        ml::core::startDefaultAsyncExecutor(0, 1, threadSettings.numAllocations());
         // Set the number of threads to use
         ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
         LOG_DEBUG(<< "Using at most '"
