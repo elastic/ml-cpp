@@ -297,9 +297,16 @@ int main(int argc, char** argv) {
         ml::core::startDefaultAsyncExecutor(0, 1);
         // Set the number of threads to use
         ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+        LOG_DEBUG(<< "Using at most '"
+                  << ml::core::defaultAsyncExecutor().numberThreadsInUse() << "' allocations ("
+                  << "requested = " << threadSettings.numAllocations() << ", "
+                  << "hardware concurrency = " << std::thread::hardware_concurrency()
+                  << ")");
+
     } else {
         // Make sure we're using immediate execution.
         ml::core::stopDefaultAsyncExecutor();
+        LOG_DEBUG(<< "Using a single allocation");
     }
 
     commandParser.ioLoop(
