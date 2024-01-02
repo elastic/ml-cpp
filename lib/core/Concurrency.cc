@@ -61,7 +61,7 @@ public:
 
     static CExecutorHolder makeThreadPool(std::size_t threadPoolSize,
                                           std::size_t queueCapacity,
-                                          std::size_t fallbackThreadPoolSize = 0) {
+                                          std::size_t fallbackThreadPoolSize) {
         if (threadPoolSize == 0) {
             threadPoolSize = std::thread::hardware_concurrency();
         }
