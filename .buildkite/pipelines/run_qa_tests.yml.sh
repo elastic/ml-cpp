@@ -21,5 +21,5 @@ steps:
     build:
       message: "${BUILDKITE_MESSAGE}"
       env:
-        QAF_TESTS_TO_RUN: "test1,test2,test3"
+        QAF_TESTS_TO_RUN: "ml_cpp_pr"
 EOL
