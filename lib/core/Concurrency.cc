@@ -28,6 +28,7 @@ public:
     void schedule(std::function<void()>&& f) override { f(); }
     bool busy() const override { return false; }
     void busy(bool) override {}
+    std::size_t numberThreadsInUse() const override { return 1; }
     void numberThreadsInUse(std::size_t) override {}
 };
 
@@ -42,6 +43,10 @@ public:
     }
     bool busy() const override { return m_ThreadPool.busy(); }
     void busy(bool value) override { return m_ThreadPool.busy(value); }
+
+    std::size_t numberThreadsInUse() const override {
+        return m_ThreadPool.numberThreadsInUse();
+    }
 
     //! Adjust the number of threads which are being used by the pool.
     //!
