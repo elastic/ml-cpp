@@ -319,7 +319,7 @@ Then copy the shared libraries to the system directory:
 sudo cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
 ```
 
-### PyTorch 2.1.0
+### PyTorch 2.1.2
 
 (This step requires a reasonable amount of memory. It failed on a machine with 8GB of RAM. It succeeded on a 16GB machine. You can specify the number of parallel jobs using environment variable MAX_JOBS. Lower number of jobs will reduce memory usage.)
 
@@ -338,7 +338,7 @@ sudo /usr/local/gcc103/bin/python3.10 -m pip install install numpy pyyaml setupt
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.1.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v2.1.2 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -366,7 +366,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.1.0
+export PYTORCH_BUILD_VERSION=2.1.2
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc103/bin/python3.10 setup.py install
 ```
@@ -378,55 +378,6 @@ sudo mkdir -p /usr/local/gcc103/include/pytorch
 sudo cp -r torch/include/* /usr/local/gcc103/include/pytorch/
 sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib
 sudo cp torch/lib/libc10.so /usr/local/gcc103/lib
-```
-
-### Intel Extension for PyTorch (IPEX)
-If you are building on x86_64, you can optionally build the Intel Extension for PyTorch (IPEX). This extension provides additional optimizations for Intel CPUs. It is not available for aarch64. IPEX library is required to run PyTorch models quantized using the IPEX backend.
-
-Begin by cloning the IPEX repository:
-
-```bash
-git clone https://github.com/intel/intel-extension-for-pytorch.git
-cd intel-extension-for-pytorch
-git fetch --all
-git checkout v2.1.0+cpu
-git submodule sync
-git submodule update --init --recursive
-git config --global --add safe.directory `pwd`
-```
-
-IPEX expects that PyTorch build directory contains a file `build-hash`, which contains the PyTorch git revision. This file is not created by the PyTorch build process, so we need to create it manually:
-```bash
- (cd ${PYTORCH_SRC_DIR}/torch/ && git rev-parse HEAD > build-hash)
-```
-
-This assumes that you have cloned PyTorch in the directory `${PYTORCH_SRC_DIR}` in the step above. Make sure that this path is correct.
-
-Building IPEX requires a lot of memory. To reduce this requirement, we can set the `MAX_JOBS` environment variable to lower the number of parallel processes:
-```bash
-export MAX_JOBS=1
-```
-
-The IPEX third party library dependency `LIBXSMM` link stage has a dependency on `libblas`. This dependency can be removed by setting `BLAS=0` in the environment.
-See https://libxsmm.readthedocs.io/en/latest/ for more details.
-
-**TODO** Revisit the `BLAS=0` decision before actually using IPEX in production. In particular investigate if it causes certain operations of `LIBXSMM` to not work.
-
-The IPEX library installation step uses `cpack`, which is configured to build an intermediate tar archive using `xz` compression. This step takes an inordinate amount of time.
-To speed up the process alter the configuration to use `gzip` compression instead. To do this. edit `csrc/CMakeLists.txt` and replace all occurrences of `TXZ` with `TGZ`.
-
-Finally, we can build IPEX:
-```bash
-export CC=/usr/local/gcc103/bin/gcc
-export TORCH_VERSION="v2.1.0"
-export IPEX_VERSION="2.1.0+cpu"
-export LIBTORCH_PATH=/usr/src/pytorch/torch
-export BLAS=0
-sed -i -e 's/TXZ/TGZ/' csrc/CMakeLists.txt
-/usr/local/gcc103/bin/python3.10 -m pip install -r requirements.txt
-/usr/local/gcc103/bin/python3.10 setup.py clean
-/usr/local/gcc103/bin/python3.10 setup.py build_clib
-cp build/Release/packages/intel_extension_for_pytorch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib
 ```
 
 ### valgrind

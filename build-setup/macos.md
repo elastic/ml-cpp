@@ -130,7 +130,7 @@ Download the graphical installer for Python 3.10.9 from <https://www.python.org/
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 2.1.0
+### PyTorch 2.1.2
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -141,7 +141,7 @@ sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install inst
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v2.1.0 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -158,13 +158,16 @@ external processes.
 Edit `tools/setup_helpers/cmake.py` and add `"DNNL_TARGET_ARCH"` to the list
 of environment variables that get passed through to CMake (around line 215).
 
-For compilation on `Apple M1` macs edit `third_party/ideep/include/ideep/utils.hpp` and add:
+For compilation on Apple silicon Macs edit `third_party/ideep/include/ideep/utils.hpp`
+and add:
+
 ```c++
 inline void to_bytes(bytestring& bytes, const unsigned long arg) {
   auto as_cstring = reinterpret_cast<const char*>(&arg);
   bytes.append(as_cstring, sizeof(unsigned long));
 }
 ```
+
 at around line 189. This is necessary to resolve a template specialization issue.
 
 Build as follows:
@@ -180,7 +183,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=2.1.0
+export PYTORCH_BUILD_VERSION=2.1.2
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
 ```
