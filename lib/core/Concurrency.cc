@@ -14,6 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CStaticThreadPool.h>
 
+#include <cstddef>
 #include <memory>
 #include <numeric>
 #include <thread>
@@ -27,6 +28,7 @@ public:
     void schedule(std::function<void()>&& f) override { f(); }
     bool busy() const override { return false; }
     void busy(bool) override {}
+    std::size_t numberThreadsInUse() const override { return 1; }
     void numberThreadsInUse(std::size_t) override {}
 };
 
@@ -41,6 +43,10 @@ public:
     }
     bool busy() const override { return m_ThreadPool.busy(); }
     void busy(bool value) override { return m_ThreadPool.busy(value); }
+
+    std::size_t numberThreadsInUse() const override {
+        return m_ThreadPool.numberThreadsInUse();
+    }
 
     //! Adjust the number of threads which are being used by the pool.
     //!
@@ -58,9 +64,15 @@ public:
     CExecutorHolder()
         : m_ThreadPoolSize{0}, m_Executor(std::make_unique<CImmediateExecutor>()) {}
 
-    static CExecutorHolder makeThreadPool(std::size_t threadPoolSize, std::size_t queueCapacity) {
+    static CExecutorHolder makeThreadPool(std::size_t threadPoolSize,
+                                          std::size_t queueCapacity,
+                                          std::size_t fallbackThreadPoolSize) {
         if (threadPoolSize == 0) {
             threadPoolSize = std::thread::hardware_concurrency();
+        }
+        if (threadPoolSize == 0) {
+            // Hardware concurrency is not well defined so use the fallback.
+            threadPoolSize = fallbackThreadPoolSize;
         }
 
         if (threadPoolSize > 0) {
@@ -96,11 +108,14 @@ private:
 CExecutorHolder singletonExecutor;
 }
 
-void startDefaultAsyncExecutor(std::size_t threadPoolSize, std::size_t queueCapacity) {
+void startDefaultAsyncExecutor(std::size_t threadPoolSize,
+                               std::size_t queueCapacity,
+                               std::size_t fallbackThreadPoolSize) {
     // This is purposely not thread safe. This is only meant to be called once from
     // the main thread, typically from main of an executable or in single threaded
     // test code.
-    singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize, queueCapacity);
+    singletonExecutor = CExecutorHolder::makeThreadPool(threadPoolSize, queueCapacity,
+                                                        fallbackThreadPoolSize);
 }
 
 void stopDefaultAsyncExecutor() {
