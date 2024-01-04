@@ -163,6 +163,10 @@ RUN \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.10 setup.py install && \
+  mkdir /usr/local/gcc103/include/pytorch && \
+  cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
+  cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
+  cp torch/lib/libc10.so /usr/local/gcc103/lib && \
   cd .. && \
   rm -rf pytorch
 
