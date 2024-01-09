@@ -43,8 +43,6 @@
 === Enhancements
 
 * Upgrade Boost libraries to version 1.83. (See {ml-pull}2560[#2560].)
-* Improve forecasting for time series with step changes. (See {ml-pull}#2591[2591],
-  issue: {ml-issue}2466[#2466]).
 
 === Bug Fixes
 
