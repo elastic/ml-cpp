@@ -79,6 +79,7 @@ public:
     virtual void schedule(std::function<void()>&& f) = 0;
     virtual bool busy() const = 0;
     virtual void busy(bool value) = 0;
+    virtual std::size_t numberThreadsInUse() const = 0;
     virtual void numberThreadsInUse(std::size_t threads) = 0;
 };
 
@@ -89,13 +90,19 @@ public:
 //! the size specified here. If called with \p threadPoolSize equal to zero
 //! it defaults to calling std::thread::hardware_concurrency to size the
 //! thread pool.
-//! \p queueCapacity is the size of the work queue
+//! \p queueCapacity is the size of the work queue. If the queue is full
+//! when a task is scheduled the calling thread will block until there is
+//! space in the queue.
+//! \p fallbackThreadPoolSize is the size of the thread pool to use if
+//! std::thread::hardware_concurrency returns zero (which is possible on
+//! some platforms).
 //!
 //! \note This is not thread safe as the intention is that it is invoked once,
 //! usually at the beginning of main or in single threaded test code.
 CORE_EXPORT
 void startDefaultAsyncExecutor(std::size_t threadPoolSize = 0,
-                               std::size_t queueCapacity = 50);
+                               std::size_t queueCapacity = 50,
+                               std::size_t fallbackThreadPoolSize = 0);
 
 //! Shutdown the thread pool and reset the executor to sequential in the same thread.
 //!
