@@ -57,7 +57,7 @@ find . \( -path "**/libMl*" -o \
        -path "**/ml-en.dict" -o \
        -path "**/Info.plist" -o \
        -path "**/date_time_zonespec.csv" -o \
-       -path "**/licenses/**" \) -print -exec touch -t 2401000000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
+       -path "**/licenses/**" \) -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
 
 # Create a zip of dependencies only from combined platform-specific C++ distributions
 find . \( -path "**/libMl*" -o \
@@ -67,7 +67,7 @@ find . \( -path "**/libMl*" -o \
           -path "**/ml-en.dict" -o \
           -path "**/Info.plist" -o \
           -path "**/date_time_zonespec.csv" -o \
-          -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401000000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
+          -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
 
 cd -
 
