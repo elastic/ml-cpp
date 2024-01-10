@@ -145,12 +145,11 @@ RUN \
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.13.1 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  cd ${build_dir}/pytorch && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
@@ -160,37 +159,16 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=1.13.1 && \
+  export PYTORCH_BUILD_VERSION=2.1.2 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.10 setup.py install && \
-  cd ${build_dir} && \
-  git clone https://github.com/intel/intel-extension-for-pytorch.git && \
-  cd intel-extension-for-pytorch && \
-  git fetch --all && \
-  git checkout v1.13.100+cpu && \
-  git submodule sync && \
-  git submodule update --init --recursive && \
-  git config --global --add safe.directory `pwd` && \
-  /usr/local/bin/python3.10 -m pip install -r requirements.txt && \
-  /usr/local/bin/python3.10 setup.py clean && \
-  echo "1.13.1+cpu\n" > ${build_dir}/pytorch/torch/build-version && \
-  export  CC=/usr/local/gcc103/bin/gcc  && \
-  export TORCH_VERSION="v1.13.1" && \
-  export TORCH_IPEX_VERSION="1.13.100+cpu" && \
-  # building ipex is memory hungry, so we need to limit the number of jobs
-  sed -i 's/multiprocessing.cpu_count()/1/g' setup.py && \
-  /usr/local/bin/python3.10 setup.py build_clib ${build_dir}/pytorch/torch && \
-  cd ${build_dir}/pytorch && \
   mkdir /usr/local/gcc103/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
   cp torch/lib/libc10.so /usr/local/gcc103/lib && \
-  cp ${build_dir}/intel-extension-for-pytorch/build/Release/packages/intel_extension_for_pytorch/lib/libintel-ext-pt-cpu.so /usr/local/gcc103/lib && \
   cd .. && \
-  rm -rf pytorch && \
-  rm -rf intel-extension-for-pytorch
-
+  rm -rf pytorch
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
