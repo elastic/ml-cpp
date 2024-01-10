@@ -10,9 +10,9 @@
 
 cat <<EOL
 steps:
-  - label: "Java :java: Integration Tests :hammer:"
-    key: "java_integration_tests"
-    command: 
+  - label: "Java :java: Integration Tests for aarch64 :hammer:"
+    key: "java_integration_tests_aarch64"
+    command:
       - "sudo yum -y install java-17-amazon-corretto-devel"
       - 'buildkite-agent artifact download "build/*" . --step build_test_linux-aarch64-RelWithDebInfo'
       - '.buildkite/scripts/steps/run_es_tests.sh || (cd ../elasticsearch && find x-pack -name logs | xargs tar cvzf logs.tgz && buildkite-agent artifact upload logs.tgz && false)'
@@ -28,5 +28,5 @@ steps:
       GRADLE_JVM_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g"
     notify:
       - github_commit_status:
-          context: "Java Integration Tests"
+          context: "Java Integration Tests for aarch64"
 EOL
