@@ -82,7 +82,7 @@ def main(args):
           "cpu": "6",
           "ephemeralStorage": "20G",
           "memory": "64G",
-          "image": "docker.elastic.co/ml-dev/ml-macosx-build:18"
+          "image": "docker.elastic.co/ml-dev/ml-macosx-build:17"
         },
         "commands": [
           f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',

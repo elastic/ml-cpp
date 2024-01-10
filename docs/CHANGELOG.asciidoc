@@ -32,8 +32,6 @@
 
 === Enhancements
 
-* Upgrade Pytorch to version 2.1.2. (See {ml-pull}2588[#2588].)
-* Upgrade zlib to version 1.2.13 on Windows. (See {ml-pull}2588[#2588].)
 * Better handling of number of allocations in pytorch_inference in the case that
   hardware_concurrency fails. We were previously forcing maximum number of allocations
   to be one in this case, we now allow what is requested. (See {ml-pull}#2607[2607].)

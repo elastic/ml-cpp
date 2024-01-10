@@ -36,7 +36,7 @@ agents = {
       "cpu": "6",
       "ephemeralStorage": "20G",
       "memory": "64G",
-      "image": "docker.elastic.co/ml-dev/ml-linux-build:28"
+      "image": "docker.elastic.co/ml-dev/ml-linux-build:27"
    },
    "aarch64": {
       "provider": "aws",
@@ -100,7 +100,7 @@ def main(args):
               "cpu": "6",
               "ephemeralStorage": "20G",
               "memory": "64G",
-              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:12"
+              "image": "docker.elastic.co/ml-dev/ml-linux-aarch64-cross-build:11"
             },
             "commands": [
               ".buildkite/scripts/steps/build_and_test.sh"

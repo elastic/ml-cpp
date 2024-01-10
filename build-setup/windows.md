@@ -55,7 +55,7 @@ On the "Workloads" page that is displayed after a short while, check "Desktop de
 
 ### Git for Windows
 
-Download `Git-2.42.0.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe>.
+Download `Git-2.16.3-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.16.3.windows.1>.
 
 Install it using mainly the default options suggested by the installer, but on the feature selection dialog also check "On the desktop" in the "Additional icons" section.
 
@@ -65,7 +65,7 @@ As well as providing a Git implementation, Git for Windows comes with Windows po
 
 ### CMake
 
-CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.3 from <https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-windows-x86_64.msi> (or get a more recent version).
+CMake version 3.19.2 is the minimum required to build ml-cpp. Download the MSI installer for version 3.23.2 from <https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-win64-x64.msi> (or get a more recent version).
 
 Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
 
@@ -73,17 +73,17 @@ Install it mainly using the default options _except_ on the "Install Options" di
 
 Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2019 C runtime library. Therefore it is necessary to build zlib from source.
 
-Download the source code from <http://zlib.net/> - the file is called `zlib1213.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.13`.
+Download the source code from <http://zlib.net/> - the file is called `zlib1212.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.12`.
 
 To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
-cd \tools\zlib-1.2.13
+cd \tools\zlib-1.2.12
 nmake -f win32/Makefile.msc LOC="-D_WIN32_WINNT=0x0601"
 nmake -f win32/Makefile.msc test
 ```
 
-All the build output will end up in the top level `C:\tools\zlib-1.2.13` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
+All the build output will end up in the top level `C:\tools\zlib-1.2.12` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
 
 ### libxml2
 
@@ -147,8 +147,8 @@ Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt
 ```
 cd \tools\boost_1_83_0
 bootstrap.bat
-b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.13" -sZLIB_LIBPATH="C:\tools\zlib-1.2.13" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
-b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.13" -sZLIB_LIBPATH="C:\tools\zlib-1.2.13" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.12" -sZLIB_LIBPATH="C:\tools\zlib-1.2.12" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.12" -sZLIB_LIBPATH="C:\tools\zlib-1.2.12" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
 ```
 
 The Boost headers and appropriate libraries should end up in `C:\usr\local\include` and `C:\usr\local\lib` respectively.
@@ -193,7 +193,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 2.1.2
+### PyTorch 1.13.1
 
 (This step requires a lot of memory. It failed on a machine with 12GB of RAM. It just about fitted on a 20GB machine. 32GB RAM is recommended.)
 
@@ -209,7 +209,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v1.13.1 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -265,7 +265,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=2.1.2
+set PYTORCH_BUILD_VERSION=1.13.1
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
