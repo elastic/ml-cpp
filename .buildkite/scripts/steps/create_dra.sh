@@ -50,14 +50,14 @@ cd build/temp
 zip ../distributions/ml-cpp-${VERSION}.zip -r platform
 
 # Create a zip excluding dependencies from combined platform-specific C++ distributions
-find . -path "**/libMl*" -o \
+find . \( -path "**/libMl*" -o \
        -path "**/platform/darwin*/controller.app/Contents/MacOS/*" -o \
        -path "**/platform/linux*/bin/*" -o \
        -path "**/platform/windows*/bin/*.exe" -o \
        -path "**/ml-en.dict" -o \
        -path "**/Info.plist" -o \
        -path "**/date_time_zonespec.csv" -o \
-       -path "**/licenses/**" | xargs zip ../distributions/ml-cpp-${VERSION}-nodeps.zip
+       -path "**/licenses/**" \) -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-nodeps.zip
 
 # Create a zip of dependencies only from combined platform-specific C++ distributions
 find . \( -path "**/libMl*" -o \
@@ -67,7 +67,7 @@ find . \( -path "**/libMl*" -o \
           -path "**/ml-en.dict" -o \
           -path "**/Info.plist" -o \
           -path "**/date_time_zonespec.csv" -o \
-          -path "**/licenses/**" \) -prune -o -print | xargs zip ../distributions/ml-cpp-${VERSION}-deps.zip
+          -path "**/licenses/**" \) -prune -o -print -exec touch -t 2401010000 {} \; | sort | xargs zip -X ../distributions/ml-cpp-${VERSION}-deps.zip
 
 cd -
 
