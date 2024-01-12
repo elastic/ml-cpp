@@ -38,11 +38,14 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         json::error_code ec;
         json::parser p;
         p.write(analysisParameters, ec);
-        if (ec) {
+        if (ec.failed()) {
             HANDLE_FATAL(<< "Input error: analysis parameters " << analysisParameters
                          << " cannot be parsed as json. Please report this problem.");
         }
+        analysisParametersDoc = p.release();
     }
+    LOG_DEBUG(<< "analysisParametersDoc: " << analysisParametersDoc);
+
     write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
           resultsField, missingFieldValue, categoricalFields, diskUsageAllowed,
           analysisName, analysisParametersDoc, writer);

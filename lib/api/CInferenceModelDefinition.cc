@@ -25,14 +25,17 @@ namespace api {
 namespace {
 
 auto toBoostjsonValue(std::size_t value) {
-    return json::value{static_cast<std::uint64_t>(value)};
+//    uint64_t val = static_cast<std::uint64_t>(value);
+//    json::value ret = val;
+//    return ret;
+    return json::value(static_cast<std::uint64_t>(value));
 }
 
 void addJsonArray(const std::string& tag,
                   const std::vector<std::size_t>& vector,
-                  boost::json::value& parentObject,
+                  json::object& parentObject,
                   CSerializableToJsonDocument::TBoostJsonWriter& writer) {
-    boost::json::array array{writer.makeArray(vector.size())};
+    json::array array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         array.push_back(static_cast<std::uint64_t>(value));
     }
@@ -135,7 +138,7 @@ CTree::CSizeInfo::CSizeInfo(const CTree& tree)
     : CTrainedModel::CSizeInfo(tree), m_Tree{tree} {
 }
 
-void CTree::CSizeInfo::addToJsonDocument(boost::json::value& parentObject,
+void CTree::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                          TBoostJsonWriter& writer) const {
     std::size_t numLeaves{0};
     std::size_t numNodes{0};
@@ -146,8 +149,8 @@ void CTree::CSizeInfo::addToJsonDocument(boost::json::value& parentObject,
             ++numNodes;
         }
     }
-    writer.addMember(JSON_NUM_NODES_TAG, std::move(numNodes), parentObject);
-    writer.addMember(JSON_NUM_LEAVES_TAG, std::move(numLeaves), parentObject);
+    writer.addMember(JSON_NUM_NODES_TAG, std::move(json::value(numNodes)), parentObject);
+    writer.addMember(JSON_NUM_LEAVES_TAG, std::move(json::value(numLeaves)), parentObject);
 }
 
 std::size_t CTree::CSizeInfo::numOperations() const {
@@ -259,7 +262,7 @@ std::size_t CEnsemble::CSizeInfo::numOperations() const {
     return numOperations;
 }
 
-void CEnsemble::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                              TBoostJsonWriter& writer) const {
     this->CTrainedModel::CSizeInfo::addToJsonDocument(parentObject, writer);
     json::array featureNameLengthsArray{
@@ -272,7 +275,7 @@ void CEnsemble::CSizeInfo::addToJsonDocument(json::value& parentObject,
 
     json::array treeSizesArray{writer.makeArray(m_Ensemble->m_TrainedModels.size())};
     for (const auto& trainedModel : m_Ensemble->m_TrainedModels) {
-        json::value item{writer.makeObject()};
+        json::object item{writer.makeObject()};
         trainedModel->sizeInfo()->addToJsonDocument(item, writer);
         treeSizesArray.push_back(item);
     }
@@ -461,7 +464,7 @@ CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
     : m_TrainedModel{trainedModel} {
 }
 
-void CTrainedModel::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CTrainedModel::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                                  TBoostJsonWriter& writer) const {
     if (m_TrainedModel.targetType() == E_Classification) {
         writer.addMember(
@@ -531,7 +534,7 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
         // we use this scope to finish writing the object in the CJsonOutputStreamWrapper destructor
         core::CJsonOutputStreamWrapper wrapper{stream};
         TBoostJsonWriter writer{wrapper};
-        json::value doc{writer.makeObject()};
+        json::object doc{writer.makeObject()};
         this->addToJsonDocument(doc, writer);
         writer.write(doc);
         stream.flush();
@@ -546,7 +549,7 @@ const std::string& CInferenceModelDefinition::CSizeInfo::typeString() const {
     return JSON_MODEL_SIZE_INFO_TAG;
 }
 
-void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                                              TBoostJsonWriter& writer) const {
     using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
 
@@ -560,15 +563,15 @@ void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(json::value& parent
     json::array preprocessingArray{writer.makeArray()};
     for (const auto& preprocessor : m_Definition.preprocessors()) {
         auto encodingSizeInfo = preprocessor->sizeInfo();
-        json::value encodingValue{writer.makeObject()};
+        json::object encodingValue{writer.makeObject()};
         encodingSizeInfo->addToJsonDocument(encodingValue, writer);
-        json::value encodingEnclosingObject{writer.makeObject()};
+        json::object encodingEnclosingObject{writer.makeObject()};
         writer.addMember(encodingSizeInfo->typeString(), encodingValue, encodingEnclosingObject);
         preprocessingArray.push_back(encodingEnclosingObject);
     }
     writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
-    json::value trainedModelSizeObject{writer.makeObject()};
-    json::value ensembleModelSizeObject{writer.makeObject()};
+    json::object trainedModelSizeObject{writer.makeObject()};
+    json::object ensembleModelSizeObject{writer.makeObject()};
     trainedModelSize->addToJsonDocument(ensembleModelSizeObject, writer);
     writer.addMember(JSON_ENSEMBLE_MODEL_SIZE_TAG, ensembleModelSizeObject,
                      trainedModelSizeObject);
@@ -619,7 +622,7 @@ CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding& encoding)
     : CEncoding::CSizeInfo::CSizeInfo(&encoding), m_Encoding{encoding} {
 }
 
-void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                                        TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     std::size_t featureNameLength{
@@ -669,7 +672,7 @@ CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding)
     : m_Encoding(encoding) {
 }
 
-void CEncoding::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                              TBoostJsonWriter& writer) const {
     writer.addMember(
         JSON_FIELD_LENGTH_TAG,
@@ -711,7 +714,7 @@ CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding& encoding)
     : CEncoding::CSizeInfo::CSizeInfo(&encoding), m_Encoding{encoding} {
 }
 
-void CFrequencyEncoding::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void CFrequencyEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                                       TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     std::size_t featureNameLength{
@@ -765,7 +768,7 @@ COneHotEncoding::COneHotEncoding(const std::string& field, TStrStrMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
 
-void COneHotEncoding::CSizeInfo::addToJsonDocument(json::value& parentObject,
+void COneHotEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                                    TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     TSizeVec fieldValueLengths;

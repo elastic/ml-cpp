@@ -53,7 +53,7 @@ private:
 
 public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
-    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostringstream>;
+    using TGenericLineWriter = core::CBoostJsonLineWriter<std::string>;
 
 public:
     //! Wrap a given ostream for concurrent access.

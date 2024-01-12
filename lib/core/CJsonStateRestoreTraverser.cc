@@ -29,13 +29,13 @@ const std::string EMPTY_STRING;
 }
 
 CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream)
-    : m_ReadStream(inputStream), m_Reader(json::parse_options()), m_Handler(), m_Started(false),
+    : m_ReadStream(inputStream), m_Reader(json::parse_options()), m_Handler(m_Reader.handler()), m_Started(false),
       m_DesiredLevel(0), m_IsArrayOfObjects(false) {
 }
 
 bool CJsonStateRestoreTraverser::isEof() const {
     // CBoostJsonUnbufferedIStreamWrapper returns \0 when it reaches EOF
-    return m_ReadStream.Peek() == '\0';
+    return m_ReadStream.peek() == '\0';
 }
 
 bool CJsonStateRestoreTraverser::next() {
@@ -228,25 +228,50 @@ const std::string& CJsonStateRestoreTraverser::nextValue() const {
 }
 
 bool CJsonStateRestoreTraverser::parseNext(bool remember) {
-    if (m_Reader.last_error()) {
-        this->logError();
-        return false;
-    }
+    bool ret{true};
+    SBoostJsonHandler::ETokenType currentTokenType = m_Handler.s_Type;
+    do {
+        if (m_Reader.last_error()) {
+            this->logError();
+            ret = false;
+            break;
+        }
 
-    m_Handler.s_RememberValue = remember;
+        m_Handler.s_RememberValue = remember;
 
-    json::error_code ec;
-    char buf[1];
-    buf[0] = m_ReadStream.Take();
+        char c = '\0';
+        m_ReadStream.get(c);
+        if (c == '\0') {
+            break;
+        }
 
-    m_Reader.write_some(true, buf, 1, ec);
+        if (c == '"' && m_Handler.s_Type == SBoostJsonHandler::E_TokenObjectStart) {
+            m_Handler.s_Type = SBoostJsonHandler::E_TokenKey;
+        }
 
-    if (ec) {
-        this->logError();
-        return false;
-    }
+        if (c == ',') {
+            m_Handler.s_Type = SBoostJsonHandler::E_TokenComma;
+        }
 
-    return true;
+        if (c == ':') {
+            m_Handler.s_Type = SBoostJsonHandler::E_TokenColon;
+        }
+
+        json::error_code ec;
+        m_Reader.write_some(true, &c, 1, ec);
+        if (ec) {
+            this->logError();
+            ret = false;
+            break;
+        }
+    } while (m_Handler.s_Type != SBoostJsonHandler::E_TokenObjectEnd &&
+             (currentTokenType == m_Handler.s_Type ||
+              m_Handler.s_Type == SBoostJsonHandler::E_TokenKeyPart ||
+              m_Handler.s_Type == SBoostJsonHandler::E_TokenStringPart ||
+              m_Handler.s_Type == SBoostJsonHandler::E_TokenComma ||
+              m_Handler.s_Type == SBoostJsonHandler::E_TokenColon));
+
+    return ret;
 }
 
 bool CJsonStateRestoreTraverser::skipArray() {
@@ -274,7 +299,7 @@ bool CJsonStateRestoreTraverser::skipArray() {
 
 bool CJsonStateRestoreTraverser::start() {
     m_Started = true;
-//    m_Reader.IterativeParseInit();
+    m_Reader.reset();
 
     if (this->parseNext(false) == false) {
         this->logError();
@@ -389,17 +414,51 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d, std::str
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string( std::string_view s, std::size_t n, json::error_code& ec ) {
-    s_Type = E_TokenString;
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string_part( std::string_view s, std::size_t n, json::error_code& ec ) {
+    LOG_TRACE(<< "on_string_part: '" << s << "', n: " << n);
+
+    s_Type = E_TokenStringPart;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(s, n);
+        if (m_NewToken) {
+            s_Value[s_NextIndex].clear();
+            m_NewToken = false;
+        }
+        s_Value[s_NextIndex].push_back(s.front());
     }
 
     return true;
 }
 
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string( std::string_view s, std::size_t n, json::error_code& ec ) {
+    if (s_Type != E_TokenStringPart && s.front() == '"') { // Empty string
+        s_Value[s_NextIndex].clear();
+    }
+    LOG_TRACE(<< "on_string: '" << s_Value[s_NextIndex] << "', n: " << n << ", s_NextIndex: " << s_NextIndex);
+
+    s_Type = E_TokenString;
+    if (s_RememberValue) {
+        if (s.front() != '"') {
+            s_Value[s_NextIndex].push_back(s.front());
+        }
+        m_NewToken = true;
+    }
+    return true;
+}
+
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_document_begin( json::error_code& ec ) {
+    LOG_TRACE(<< "on_document_begin");
+
+    return (ec) ? false : true;
+}
+
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_begin(json::error_code& ec) {
+    LOG_TRACE(<< "on_object_begin");
     s_Type = E_TokenObjectStart;
+
+    if (ec) {
+        return false;
+    }
+
     if (s_RememberValue) {
         ++s_Level[s_NextIndex];
         s_Value[s_NextIndex].clear();
@@ -407,13 +466,37 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_begin(json::error_
     return true;
 }
 
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key_part( std::string_view s, std::size_t n, json::error_code& ec ) {
+    s_Type = E_TokenKeyPart;
+    LOG_TRACE(<< "on_key_part: '" << s << "', n: " << n);
+    if (ec) {
+        return false;
+    }
+
+    if (s_RememberValue) {
+        if (m_NewToken) {
+            m_NewToken = false;
+            s_NextIndex = 1 - s_NextIndex;
+            s_Name[s_NextIndex].clear();
+        }
+        s_Name[s_NextIndex].push_back(s.front());
+    }
+    return true;
+}
+
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key( std::string_view s, std::size_t n, json::error_code& ec ) {
     s_Type = E_TokenKey;
+    LOG_TRACE(<< "on_key: '" << s_Name[s_NextIndex] << "', n: " << n << ", s_NextIndex: " << s_NextIndex);
+    if (ec) {
+        return false;
+    }
     if (s_RememberValue) {
-        s_NextIndex = 1 - s_NextIndex;
+        if (s.front() != '"') {
+            s_Name[s_NextIndex].push_back(s.front());
+        }
         s_Level[s_NextIndex] = s_Level[1 - s_NextIndex];
         s_IsEndOfLevel[s_NextIndex] = false;
-        s_Name[s_NextIndex].assign(s, n);
+        m_NewToken = true;
     }
 
     return true;
@@ -421,10 +504,15 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key( std::string_view s, 
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_end(std::size_t n, json::error_code& ec) {
     s_Type = E_TokenObjectEnd;
+    if (ec) {
+        return false;
+    }
 
     if (s_RememberValue) {
         s_NextIndex = 1 - s_NextIndex;
-        s_Level[s_NextIndex] = s_Level[1 - s_NextIndex] - 1;
+        if (s_Level[1 - s_NextIndex] > 0) {
+            s_Level[s_NextIndex] = s_Level[1 - s_NextIndex] - 1;
+        }
         s_IsEndOfLevel[s_NextIndex] = true;
         s_Name[s_NextIndex].clear();
         s_Value[s_NextIndex].clear();
@@ -435,11 +523,17 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_end(std::size_t n,
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_begin(json::error_code& ec) {
     s_Type = E_TokenArrayStart;
+    if (ec) {
+        return false;
+    }
     return true;
 }
 
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_array_end(std::size_t n, json::error_code& ec) {
     s_Type = E_TokenArrayEnd;
+    if (ec) {
+        return false;
+    }
     return true;
 }
 }

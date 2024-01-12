@@ -13,15 +13,37 @@
 
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CMemoryUsage.h>
+#include <core/CStreamWriter.h>
 #include <core/ImportExport.h>
 
 #include <iosfwd>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace ml {
 namespace core {
+
+//using TStreamWriterBase = CBoostJsonLineWriter<std::ostream>;
+//class CStreamLineWriter : public TStreamWriterBase {
+//public:
+//    CStreamLineWriter(std::ostream& os);
+//    CStreamLineWriter();
+//
+//    void write(const json::value& doc) {
+//        this->outputStream() << doc;
+//    }
+//
+//    void write(const std::string& docStr) {
+//        this->outputStream() << docStr;
+//    }
+//
+//    void write() {
+//        std::string docStr = this->writeDocToString();
+//        this->outputStream() << docStr;
+//    }
+//};
 
 //! \brief A lightweight wrapper over rapidjson::LineWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
@@ -63,7 +85,7 @@ private:
     //! JSON writer ostream
     std::ostream& m_WriteStream;
 
-    using TGenericLineWriter = CBoostJsonLineWriter<std::ostream>;
+    using TGenericLineWriter = CStreamWriter;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

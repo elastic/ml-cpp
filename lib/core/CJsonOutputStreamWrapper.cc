@@ -27,11 +27,13 @@ CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
       m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
     // initialize the bufferpool
     for (auto& stringBuffer : m_StringBuffers) {
-//        stringBuffer.reserve(BUFFER_START_SIZE);
+        stringBuffer.reserve(BUFFER_START_SIZE);
         m_StringBufferQueue.push(&stringBuffer);
     }
 
-    m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_START); });
+    m_ConcurrentOutputStream([](std::ostream& o) {
+        o.put(JSON_ARRAY_START);
+    });
 }
 
 CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
@@ -44,23 +46,25 @@ CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
 void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
                                              std::string *& buffer) {
     buffer = m_StringBufferQueue.pop();
-//    writer.reset(*buffer);
+    writer.Reset(*buffer);
 }
 
 void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
                                              std::string* buffer) {
-    writer.flush();
+    writer.Flush();
 
     // check for data that has to be written
     if (buffer->size() > 0) {
         m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
+            std::string& str = *buffer;
+
             if (m_FirstObject) {
                 m_FirstObject = false;
             } else {
                 o.put(JSON_ARRAY_DELIMITER);
             }
 
-            o.write(buffer->c_str(), buffer->size());
+            o.write(str.c_str(), str.size());
             o.flush();
             this->returnAndCheckBuffer(buffer);
         });
@@ -74,12 +78,13 @@ void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
 //    writer.flush();
 
     m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
+        std::string& str = *buffer;
         if (m_FirstObject) {
             m_FirstObject = false;
         } else {
             o.put(JSON_ARRAY_DELIMITER);
         }
-        o.write(buffer->c_str(), buffer->size());
+        o.write(str.c_str(), str.size());
         this->returnAndCheckBuffer(buffer);
     });
 
@@ -87,12 +92,13 @@ void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
 }
 
 void CJsonOutputStreamWrapper::returnAndCheckBuffer(std::string* buffer) {
-    buffer->clear();
+    std::string& str = *buffer;
+    str.clear();
 
-    if (buffer->capacity() > BUFFER_REALLOC_TRIGGER_SIZE) {
+    if (str.capacity() > BUFFER_REALLOC_TRIGGER_SIZE) {
         // we have to free and realloc
-        buffer->shrink_to_fit();
-        buffer->reserve(BUFFER_START_SIZE);
+        str.shrink_to_fit();
+        str.reserve(BUFFER_START_SIZE);
     }
 
     m_StringBufferQueue.push(buffer);

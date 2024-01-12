@@ -130,6 +130,62 @@ double minBoundary(const CBoostedTreeHyperparameters::TDoubleParameter& paramete
     T minBoundary{maxBoundary - interval};
     return parameter.fromSearchValue(minBoundary);
 }
+
+template<typename streambuf>
+class peekbuf : public streambuf
+{
+    using typename streambuf::char_type;
+    using typename streambuf::traits_type;
+    using typename streambuf::int_type;
+    using string = std::basic_string<char_type, traits_type>;
+
+    static constexpr auto eof = streambuf::traits_type::eof();
+
+    using streambuf::gptr;
+    using streambuf::egptr;
+    using streambuf::setg;
+
+    streambuf& sbuf;           // underlying input buffer
+    string data = {};
+
+public:
+    explicit peekbuf(streambuf& s)
+        : sbuf{s}
+    { }
+
+    string peek(std::size_t n)
+    {
+        auto unread = string{gptr(), egptr()};
+        data = std::move(unread);
+        data.reserve(n);
+        while (data.size() < n) {
+            auto next = sbuf.sbumpc();
+            if (next == eof) {
+                break;
+            }
+            data.push_back(static_cast<char_type>(next));
+        }
+
+        if (!data.empty()) {
+            setg(data.data(), data.data(), data.data() + data.size());
+        }
+
+        return n < data.size()
+                   ? string(data.begin(), data.begin() + n)
+                   : data;
+    }
+
+protected:
+    int_type underflow() override
+    {
+        auto result = sbuf.sbumpc();
+        data.clear();
+        data.push_back(static_cast<char_type>(result));
+        setg(data.data(), data.data(), data.data() + 1);
+        return result;
+    }
+};
+
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -1308,19 +1364,29 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
 
     CBoostedTreeFactory factory{constructFromParameters(numberThreads, std::move(loss))};
 
+    auto is = validInputStream(dataSearcher);
+
+//    auto rdbufCp = is->rdbuf();
+//
+//    LOG_DEBUG(<< "inputStream: " << rdbufCp);
+
     // Read data summarization from the stream.
     TEncoderUPtr encoder;
     TStrSizeUMap encodingsIndices;
     std::tie(encoder, encodingsIndices) =
-        dataSummarizationRestoreCallback(validInputStream(dataSearcher), frame);
+        dataSummarizationRestoreCallback(is, frame);
     if (encoder != nullptr) {
         factory.featureEncoder(std::move(encoder));
     } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
     }
 
+//    auto rdbufCp1 = is->rdbuf();
+//
+//    LOG_DEBUG(<< "inputStream: " << rdbufCp1);
+
     // Read best forest from the stream.
-    auto bestForest = bestForestRestoreCallback(validInputStream(dataSearcher), encodingsIndices);
+    auto bestForest = bestForestRestoreCallback(is, encodingsIndices);
     if (bestForest != nullptr) {
         factory.bestForest(std::move(*bestForest.release()));
     } else {

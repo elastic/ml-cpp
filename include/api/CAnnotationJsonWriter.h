@@ -44,7 +44,7 @@ public:
 private:
     void populateAnnotationObject(const std::string& jobId,
                                   const model::CAnnotation& annotation,
-                                  json::value& obj);
+                                  json::object& obj);
 
 private:
     //! JSON line writer

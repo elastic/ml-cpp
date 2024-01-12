@@ -37,8 +37,8 @@ namespace core {
 //!
 class CBoostJsonPoolAllocator {
 public:
-    using TDocumentWeakPtr = std::weak_ptr<boost::json::value>;
-    using TDocumentPtr = std::shared_ptr<boost::json::value>;
+    using TDocumentWeakPtr = std::weak_ptr<boost::json::object>;
+    using TDocumentPtr = std::shared_ptr<boost::json::object>;
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
@@ -53,7 +53,7 @@ public:
     //! Note: The API is designed to emphasise that the client does not own the document memory
     //! i.e. The document will be invalidated on destruction of this allocator
     TDocumentWeakPtr makeStorableDoc() {
-        TDocumentPtr newDoc = std::make_shared<boost::json::value>(&m_JsonPoolAllocator);
+        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);
     }

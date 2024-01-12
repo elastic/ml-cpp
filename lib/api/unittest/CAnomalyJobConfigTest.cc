@@ -17,8 +17,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <rapidjson/stringbuffer.h>
-
 namespace {
 const std::string EMPTY_STRING;
 }

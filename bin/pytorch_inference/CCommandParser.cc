@@ -53,46 +53,57 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
                             const TErrorHandlerFunc& errorHandler) {
 
 //    core::CBoostJsonUnbufferedIStreamWrapper isw{m_StrmIn};
-
+    json::value doc;
+    json::stream_parser p;
+    json::error_code ec;
+    std::string line;
+    std::size_t n = 0;
     while (true) {
-        json::value doc;
-        json::stream_parser p;
-        json::error_code ec;
-        std::string line;
-        while(std::getline(m_StrmIn, line) && !ec) {
-            p.write_some(line, ec);
-        }
 
-        if (ec) {
-            if (m_StrmIn.eof()) {
+        if (n == line.size()) {
+            if (!std::getline(m_StrmIn, line)) {
                 break;
             }
+            n = 0;
+        }
+
+        n += p.write_some( line.data() + n, line.size() - n, ec );
+
+        if (ec) {
+//            if (m_StrmIn.eof()) {
+//                break;
+//            }
 
             std::ostringstream ss;
-            ss << "Error parsing command from JSON: "
-               << ec.message();
+            ss << "Error parsing command from JSON: " << ec.message();
 
             errorHandler(UNKNOWN_ID, ss.str());
 
             return false;
         }
 
-        LOG_TRACE(<< "Inference command: " << doc);
-        switch (validateJson(doc.as_object(), errorHandler)) {
-        case EMessageType::E_InferenceRequest:
-            if (requestHandler(*m_RequestCache, jsonToInferenceRequest(doc.as_object())) == false) {
-                LOG_ERROR(<< "Request handler forced exit");
-                return false;
+        if(p.done()) {
+            doc = p.release();
+            p.reset();
+            LOG_INFO(<< "Inference command: " << doc);
+
+            assert(doc.is_object());
+            json::object obj = doc.as_object();
+            switch (validateJson(obj, errorHandler)) {
+            case EMessageType::E_InferenceRequest:
+                if (requestHandler(*m_RequestCache, jsonToInferenceRequest(obj)) == false) {
+                    LOG_ERROR(<< "Request handler forced exit");
+                    return false;
+                }
+                break;
+            case EMessageType::E_ControlMessage:
+                controlHandler(*m_RequestCache, jsonToControlMessage(obj));
+                break;
+            case EMessageType::E_MalformedMessage:
+                continue;
             }
-            break;
-        case EMessageType::E_ControlMessage:
-            controlHandler(*m_RequestCache, jsonToControlMessage(doc.as_object()));
-            break;
-        case EMessageType::E_MalformedMessage:
-            continue;
         }
     }
-
     return true;
 }
 
@@ -178,11 +189,12 @@ CCommandParser::validateInferenceRequestJson(const json::object& doc,
             return EMessageType::E_MalformedMessage;
         }
 
+        LOG_INFO(<< "val: " << val);
         const json::array& innerArray = val.as_array();
-        if (checkArrayContainsUInts(innerArray) == false) {
+        if (checkArrayContainsInts(innerArray) == false) {
             errorHandler(doc.at(REQUEST_ID).as_string(),
                          "Invalid command: array [" + TOKENS +
-                             "] contains values that are not unsigned integers");
+                             "] contains values that are not integers");
             return EMessageType::E_MalformedMessage;
         }
     }
@@ -209,7 +221,7 @@ CCommandParser::validateInferenceRequestJson(const json::object& doc,
 
             const json::array& innerArgArray = val.as_array();
 
-            if (checkArrayContainsUInts(innerArgArray) == false) {
+            if (checkArrayContainsInts(innerArgArray) == false) {
                 errorHandler(doc.at(REQUEST_ID).as_string(),
                              "Invalid command: array [" + varArgName +
                                  "] contains values that are not unsigned integers");
@@ -224,9 +236,9 @@ CCommandParser::validateInferenceRequestJson(const json::object& doc,
     return EMessageType::E_InferenceRequest;
 }
 
-bool CCommandParser::checkArrayContainsUInts(const json::array& arr) {
+bool CCommandParser::checkArrayContainsInts(const json::array& arr) {
     return std::find_if(arr.begin(), arr.end(), [](const auto& i) {
-               return i.is_uint64() == false;
+               return i.is_int64() == false;
            }) == arr.end();
 }
 
@@ -243,7 +255,7 @@ CCommandParser::jsonToInferenceRequest(const json::object& doc) {
         request.s_NumberInputTokens = innerArray.size();
         request.s_Tokens.reserve(request.s_NumberInferences * request.s_NumberInputTokens);
         for (const auto& val : innerArray) {
-            request.s_Tokens.push_back(val.as_uint64());
+            request.s_Tokens.push_back(val.as_int64());
         }
     }
 
@@ -258,7 +270,7 @@ CCommandParser::jsonToInferenceRequest(const json::object& doc) {
         for (const auto& vals : outerArray) {
             const auto& innerArray = vals.as_array();
             for (const auto& val : innerArray) {
-                arg.push_back(val.as_uint64());
+                arg.push_back(val.as_int64());
             }
         }
         request.s_SecondaryArguments.push_back(std::move(arg));

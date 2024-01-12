@@ -14,6 +14,7 @@
 
 #include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonInstantiatable.h>
+#include "core/CStreamWriter.h"
 
 #include <api/ImportExport.h>
 
@@ -28,7 +29,7 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisSpecificationJsonWriter : private core::CNonInstantiatable {
 public:
     using TStrVec = std::vector<std::string>;
-    using TBoostJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    using TBoostJsonLineWriter = ml::core::CStreamWriter;
 
 public:
     //! Writes the data frame analysis specification in JSON format.

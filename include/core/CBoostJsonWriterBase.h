@@ -24,8 +24,10 @@
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <regex>
 #include <stack>
 
 namespace json = boost::json;
@@ -55,10 +57,11 @@ public:
     using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
     using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
     using TStrUSet = boost::unordered_set<std::string>;
-    using TDocument = boost::json::value;
+    using TDocument = boost::json::object;
     using TValue = boost::json::value;
+    using TValuePtr = std::shared_ptr<boost::json::value>;
     using TDocumentWeakPtr = std::weak_ptr<TDocument>;
-    using TValuePtr = std::shared_ptr<TValue>;
+    using TDocumentPtr = std::shared_ptr<TDocument>;
     using TPoolAllocatorPtr = std::shared_ptr<CBoostJsonPoolAllocator>;
     using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
     using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
@@ -66,11 +69,21 @@ public:
     using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
 
 public:
-    CBoostJsonWriterBase(OUTPUT_STREAM& os)
-        : m_Os(os), m_Values{json::storage_ptr(), m_Buffer, sizeof(m_Buffer)} {
+    explicit CBoostJsonWriterBase(OUTPUT_STREAM& os)
+        : m_Os(&os)/*, m_Values{json::storage_ptr(), m_Buffer, sizeof(m_Buffer)}*/ {
 
         // push a default boost::json allocator onto our stack
         m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
+    }
+
+    CBoostJsonWriterBase() : m_Os(nullptr) {
+
+        // push a default boost::json allocator onto our stack
+        m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
+    }
+
+    void Reset(OUTPUT_STREAM& os) {
+        m_Os = &os;
     }
 
     // No need for an explicit destructor here as the allocators clear themselves
@@ -128,105 +141,205 @@ public:
         return this->getAllocator()->get();
     }
 
-    virtual bool StartObject() {
+    bool IsComplete() const {
+        return m_Levels.top() == 0;
+    }
+
+    bool WriteRawValue(const std::string& rawValue) {
+        m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        m_JsonStrm << rawValue;
+        return true;
+    }
+
+    virtual bool StartDocument() {
+        m_JsonStrm.str("");
+        m_JsonStrm << "{";
+//        m_Values.reset();
         m_Levels.push(0);
+        m_ContainerType.push(E_Object);
+        return true;
+    }
+
+    virtual bool StartObject() {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
+        m_JsonStrm << "{";
+        m_Levels.top()++;
+        m_Levels.push(0);
+        m_ContainerType.push(E_Object);
         return true;
     }
 
     virtual bool EndObject(std::size_t memberCount = 0) {
-        m_Values.push_object(m_Levels.top());
+        m_JsonStrm << "}";
+//        m_Values.push_object(m_Levels.top());
         m_Levels.pop();
+        m_ContainerType.pop();
         return true;
     }
 
+    bool m_IsArrayDoc{false};
+
     virtual bool StartArray() {
+        if (m_Levels.empty() == false) {
+            if (m_ContainerType.top() == E_Array) {
+                m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+            }
+            m_Levels.top()++;
+        } else {
+            m_IsArrayDoc = true;
+        }
+        m_JsonStrm << "[";
         m_Levels.push(0);
+        m_ContainerType.push(E_Array);
         return true;
     }
 
     virtual bool EndArray() {
-        m_Values.push_array(m_Levels.top());
+        m_JsonStrm << "]";
+//        m_Values.push_array(m_Levels.top());
         m_Levels.pop();
+        m_ContainerType.pop();
         return true;
     }
 
     virtual bool Bool(bool boolVal) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
+
         m_Levels.top()++;
-        m_Values.push_bool(boolVal);
+
+        m_JsonStrm << std::boolalpha << boolVal;
+//        m_Values.push_bool(boolVal);
+        return true;
+    }
+
+    virtual bool Null() {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
+
+        m_Levels.top()++;
+
+        m_JsonStrm << "null";
         return true;
     }
 
     virtual bool Int(std::int64_t intVal) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_int64(intVal);
+
+        m_JsonStrm << intVal;
+//        m_Values.push_int64(intVal);
         return true;
     }
 
     virtual bool Int64(std::int64_t int64Val) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_int64(int64Val);
+
+        m_JsonStrm << int64Val;
+//        m_Values.push_int64(int64Val);
         return true;
     }
 
     virtual bool Uint(std::uint64_t uintVal) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_uint64(uintVal);
+
+        m_JsonStrm << uintVal;
+//        m_Values.push_uint64(uintVal);
         return true;
     }
 
     virtual bool Uint64(std::uint64_t uintVal) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_uint64(uintVal);
+
+        m_JsonStrm << uintVal;
+//        m_Values.push_uint64(uintVal);
         return true;
     }
 
     virtual bool String(const std::string& str) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_string(str);
+
+        m_JsonStrm << "\"" << str << "\"";
+//        m_Values.push_string(str);
         return true;
     }
 
     virtual bool String(const std::string_view & str) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_string(str);
+
+        m_JsonStrm << "\"" << str << "\"";
+//        m_Values.push_string(str);
         return true;
     }
 
     virtual bool Key(const std::string& key) {
-        m_Values.push_key(key);
+        m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        m_JsonStrm << "\"" << key << "\":";
+//        m_Values.push_key(key);
         return true;
     }
 
     virtual bool Double(double d) {
-        m_Levels.top()++;
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         // rewrite NaN and Infinity to 0
         if (std::isfinite(d) == false) {
-            m_Values.push_double(0);
-            return true;
+            d = 0.0;
+//            m_JsonStrm << CStringUtils::typeToStringPretty(0);
+//            m_Values.push_double(0);
         }
-
-        m_Values.push_double(d);
+        m_Levels.top()++;
+//        m_JsonStrm << std::showpoint << std::scientific << std::setprecision(0) << d;
+        m_JsonStrm << CStringUtils::typeToStringPretty(d);
+//        m_Values.push_double(d);
         return true;
     }
 
     void Flush() {
-        this->write();
+//        this->write();
         this->flush();
     }
 
     //! Writes an epoch second timestamp as an epoch millis timestamp
     virtual bool Time(core_t::TTime t) {
+        if (m_ContainerType.top() == E_Array) {
+            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+        }
         m_Levels.top()++;
-        m_Values.push_int64(CTimeUtils::toEpochMs(t));
+
+        m_JsonStrm << CTimeUtils::toEpochMs(t);
+//        m_Values.push_int64(CTimeUtils::toEpochMs(t));
         return true;
     }
 
-    //! Push a constant string into a supplied boost::json object value
+    //! Push a constant string into a supplied boost::json array value
     //! \p[in] value constant string
-    //! \p[out] obj boost::json value to contain the \p value
+    //! \p[out] obj boost::json array to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    void pushBack(const char* value, TValue& obj) const {
-        obj.as_array().push_back(value);
+    void pushBack(const char* value, json::array& obj) const {
+        obj.push_back(value);
     }
 
     //! Push a generic boost::json value object into a supplied boost::json object value
@@ -252,13 +365,17 @@ public:
     template<typename CONTAINER>
     void addDoubleArrayFieldToObj(const std::string& fieldName,
                                   const CONTAINER& values,
-                                  TValue& obj) const {
+                                  TDocument& obj) const {
         TValue array = this->makeArray(values.size());
 
         bool considerLogging(true);
         for (const auto& value : values) {
             this->checkArrayNumberFinite(value, fieldName, considerLogging);
-            this->pushBack(value, array);
+            if (std::isfinite(value) == false) { // TODO tidy into virtual method allowing behaviour override
+                this->pushBack(0, array);
+            } else {
+                this->pushBack(value, array);
+            }
         }
 
         this->addMember(fieldName, array, obj);
@@ -266,13 +383,49 @@ public:
 
     //! write the boost::json value document to the output stream
     //! \p[in] doc boost::json document value to write out
-    virtual void write(const TValue& doc) {
-        m_Os << doc;
+    virtual bool write(const json::value& doc)  = 0;
+    virtual bool write(const std::string& docStr)  = 0;
+    virtual bool write()  = 0;
+
+
+    std::string writeDocToString()  {
+//        json::value doc = m_Values.release();
+//        return this->writeDocToString(doc);
+        return m_JsonStrm.str();
     }
 
-    virtual void write() {
-        json::value doc = m_Values.release();
-        m_Os << json::serialize(doc);
+    std::string writeDocToString(const TValue& doc) const {
+        LOG_INFO(<< "doc: " << doc);
+        if (m_Key.size() > 0) {
+            LOG_INFO(<< "m_Key: " << m_Key);
+
+            if (doc.as_object().contains(m_Key)) {
+                LOG_INFO(<< "Found key: " << m_Key << " in doc " << doc);
+                if (doc.at(m_Key).is_string()) {
+                    json::value jinnerval = doc.at(m_Key).as_string();
+                    std::string innerval = json::serialize(jinnerval);
+                    LOG_INFO(<< "innerval: " << innerval);
+
+                    std::string cooked = std::regex_replace(innerval, std::regex( R"(\\\\)" ), R"(\)");
+                    cooked = std::regex_replace(cooked, std::regex( "\\\\\"" ), R"(")");
+                    cooked = std::regex_replace(cooked, std::regex( "^\"" ), R"()");
+                    cooked = std::regex_replace(cooked, std::regex( R"("$)" ), R"()");
+
+                    LOG_INFO(<< "cooked: " << cooked);
+
+                    json::value jv = json::parse(cooked);
+                    const_cast<json::value&>(doc).as_object()[m_Key] = jv;
+                }
+            } else {
+                LOG_INFO(<< "Did not find key: " << m_Key << " in doc " << doc);
+            }
+        }
+
+        json::serialize_options opt;
+        opt.allow_infinity_and_nan = false;
+        std::string ret = json::serialize(doc, opt);
+        LOG_DEBUG(<< "Returning: " << ret);
+        return ret;
     }
 
     //! Return a new boost::json document
@@ -287,13 +440,13 @@ public:
     //! Note: Be aware that the lifetime of the document
     //! should not exceed that of the writer lest the document
     //! be invalidated.
-    std::weak_ptr<json::value> makeStorableDoc() const {
+    std::weak_ptr<json::object> makeStorableDoc() const {
         return this->getAllocator()->makeStorableDoc();
     }
 
     //! Return a new boost::json array
-    TValue makeArray(size_t length = 0) const {
-        boost::json::array array;
+    json::array makeArray(size_t length = 0) const {
+        json::array array;
         if (length > 0) {
             array.reserve(length);
         }
@@ -301,7 +454,7 @@ public:
     }
 
     //! Return a new boost::json object
-    TValue makeObject() const {
+    json::object makeObject() const {
         return boost::json::object();
     }
 
@@ -314,8 +467,18 @@ public:
         return obj;
     }
 
-    TValue& addMember(const std::string& name, TValue value, TValue& obj) const {
-        obj.as_object()[name] = value;
+    TDocument & addMember(const std::string& name, const TValue& value, TDocument& obj) const {
+        obj[name] = value;
+        return obj;
+    }
+
+    TDocument & addMember(const std::string& name, TDocument value, TDocument& obj) const {
+        obj[name] = value;
+        return obj;
+    }
+
+    TDocument & addMember(const std::string& name, const json::array& value, TDocument& obj) const {
+        obj[name] = value;
         return obj;
     }
 
@@ -356,27 +519,27 @@ public:
 //        obj.as_object()[name] = value;
 //    }
 
-//    //! Adds a copy of a string field to an object.
-//    //! \p[in] name field name
-//    //! \p[in] value string field to be copied
-//    //! \p[out] obj boost::json object to contain the \p name \p value pair
-//    void addMember(const std::string& name, json::value value, TValue& obj) const {
-//        obj.as_object()[name] = value;
-//    }
+    //! Adds a copy of a string field to an object.
+    //! \p[in] name field name
+    //! \p[in] value string field to be copied
+    //! \p[out] obj boost::json object to contain the \p name \p value pair
+    void addMember(const std::string& name, const std::string& value, TDocument & obj) const {
+        obj[name] = value;
+    }
 
     //! Adds a string field as a reference to an object (use for adding constant strings).
     //! \p[in] name field name
     //! \p[in] value string field
     //! \p[out] obj boost::json object to contain the \p name \p value pair
-    void addMemberRef(const std::string& name, const std::string& value, TValue& obj) const {
-        obj.as_object()[name] = value;
+    void addMemberRef(const std::string& name, const std::string& value, TDocument & obj) const {
+        obj[name] = value;
     }
 
     //! Adds a copy of a string field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addStringFieldCopyToObj(const std::string& fieldName,
                                  const std::string& value,
-                                 TValue& obj,
+                                 TDocument& obj,
                                  bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
@@ -392,7 +555,7 @@ public:
     //! the string copy for the value. Use with care.
     void addStringFieldReferenceToObj(const std::string& fieldName,
                                       const std::string& value,
-                                      TValue& obj,
+                                      TDocument & obj,
                                       bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
@@ -405,41 +568,44 @@ public:
     //! Adds a time field with the name fieldname to an object.
     //! Automatically turns time from 'seconds_since_epoch' into 'milliseconds_since_epoch'
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TValue& obj) const {
+    void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TDocument & obj) const {
         TValue v(CTimeUtils::toEpochMs(value));
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds a double field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addDoubleFieldToObj(const std::string& fieldName, double value, TValue& obj) const {
+    void addDoubleFieldToObj(const std::string& fieldName, double value, TDocument& obj) const {
+        TValue v;
         if (std::isfinite(value) == false) {
             LOG_ERROR(<< "Adding " << value << " to the \"" << fieldName
                       << "\" field of a JSON document");
             // Don't return - make a best effort to add the value
-            // Some writers derived from this class may defend themselves by converting to 0
+            // Mimic rapidjson behaviour and convert infinity value to 0
+            v = TValue(0);
+        } else {
+            v = TValue(value);
         }
-        TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds a bool field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addBoolFieldToObj(const std::string& fieldName, bool value, TValue& obj) const {
+    void addBoolFieldToObj(const std::string& fieldName, bool value, TDocument& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds a signed integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addIntFieldToObj(const std::string& fieldName, std::int64_t value, TValue& obj) const {
+    void addIntFieldToObj(const std::string& fieldName, std::int64_t value, TDocument& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds an unsigned integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addUIntFieldToObj(const std::string& fieldName, std::uint64_t value, TValue& obj) const {
+    void addUIntFieldToObj(const std::string& fieldName, std::uint64_t value, TDocument & obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
@@ -448,13 +614,14 @@ public:
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addStringArrayFieldToObj(const std::string& fieldName,
                                   const TStrVec& values,
-                                  TValue& obj) const {
-        this->addArrayToObj(fieldName, values.begin(), values.end(), obj);
+                                  TDocument & obj) const {
+        this->addMember(fieldName, json::value_from(values), obj);
+//        this->addArrayToObj(fieldName, values.begin(), values.end(), obj);
     }
 
     void addStringArrayFieldToObj(const std::string& fieldName,
                                   const json::array& values,
-                                  TValue& obj) const {
+                                  TDocument & obj) const {
         this->addMember(fieldName, values, obj);
     }
 
@@ -531,7 +698,7 @@ public:
     //!i.e. milliseconds since epoch
     void addTimeArrayFieldToObj(const std::string& fieldName,
                                 const TTimeVec& values,
-                                TValue& obj) const {
+                                TDocument& obj) const {
         TValue array = this->makeArray(values.size());
 
         for (const auto& value : values) {
@@ -543,22 +710,36 @@ public:
 
     //! Checks if the \p obj has a member named \p fieldName and
     //! removes it if it does.
-    void removeMemberIfPresent(const std::string& fieldName, TValue& obj_) const {
-        boost::json::object obj = obj_.as_object();
+    void removeMemberIfPresent(const std::string& fieldName, TDocument & obj) const {
         auto pos = obj.find(fieldName);
         if (pos != obj.end()) {
             obj.erase(pos);
         }
     }
 
-    virtual void put(char c) { m_Os.put(c); }
+    virtual void put(char c) {
+//        m_Os->put(c); // TODO
+    }
 
     bool topLevel() {
+        if (m_IsArrayDoc) {
+            return m_Levels.top() == 0;
+        }
         return m_Levels.empty();
     }
 
     virtual void flush() {
-        m_Os.flush();
+        m_JsonStrm.flush();
+    }
+
+    void setKey(const std::string& key) {
+        m_Key = key;
+    }
+
+protected:
+
+    OUTPUT_STREAM& outputStream() {
+        return *m_Os;
     }
 
 private:
@@ -589,25 +770,36 @@ private:
         this->addMember(fieldName, array, obj);
     }
 
-//    void reset(OUTPUT_STREAM& os) {
-//        m_Os = os;
-//    }
+    void reset(OUTPUT_STREAM& os) {
+        m_Os = &os;
+    }
 
 private:
 
-    OUTPUT_STREAM& m_Os;
+    OUTPUT_STREAM* m_Os;
 
     unsigned char m_Buffer[4096];
 
-    json::value_stack m_Values;
-
     std::stack<std::size_t> m_Levels;
+
+    enum E_ContainerType {
+        E_Object = 0,
+        E_Array = 1
+    };
+    std::stack<E_ContainerType> m_ContainerType;
 
     //! cache allocators for potential reuse
     TStrPoolAllocatorPtrMap m_AllocatorCache;
 
     //! Allow for different batches of documents to use independent allocators
     mutable TPoolAllocatorPtrStack m_JsonPoolAllocators;
+
+    std::string m_Key;
+
+protected:
+    std::ostringstream m_JsonStrm;
+//    json::value_stack m_Values;
+    std::size_t m_DocumentCount{0};
 };
 }
 }

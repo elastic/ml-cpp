@@ -13,7 +13,7 @@
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <boost/test/unit_test.hpp>
 
@@ -26,6 +26,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+namespace json = boost::json;
 
 BOOST_AUTO_TEST_SUITE(CLoggerTest)
 
@@ -69,23 +71,29 @@ void loggedExpectedMessages(const std::string& logging, const TStrVec& messages)
     std::string line;
     std::size_t foundMessages{0};
 
+    json::parser p;
     // test that we found the messages we put in,
     while (std::getline(inputStream, line)) {
         if (line.empty()) {
             continue;
         }
-        rapidjson::Document doc;
-        doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        BOOST_TEST_REQUIRE(doc.HasParseError() == false);
-        BOOST_TEST_REQUIRE(doc.HasMember("message"));
-        const rapidjson::Value& messageValue = doc["message"];
-        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
+        json::value doc;
+        json::error_code ec;
+        p.write(line, ec);
+        doc = p.release();
+        LOG_INFO(<< "doc: " << doc);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(doc.is_object());
+        BOOST_TEST_REQUIRE(doc.as_object().contains("message"));
+        BOOST_TEST_REQUIRE(doc.as_object().at("message").is_string());
+        const json::value& messageValue = doc.as_object().at("message");
+        std::string_view messageString = messageValue.as_string();
 
         // we expect messages to be in order, so we only need to test the current one
         if (messageString.find(messages[foundMessages]) != std::string::npos) {
             ++foundMessages;
         } else if (foundMessages > 0) {
-            BOOST_FAIL(messageString + " did not contain " + messages[foundMessages]);
+            BOOST_FAIL(std::string (messageString) + " did not contain " + messages[foundMessages]);
         }
     }
     BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);

@@ -127,7 +127,7 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    LOG_TRACE(<< "Running analysis...");
+    LOG_DEBUG(<< "Running analysis...");
 
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
@@ -344,7 +344,7 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
     if (modelDefinition != nullptr) {
         auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
-        json::value sizeInfoObject{writer.makeObject()};
+        json::object sizeInfoObject{writer.makeObject()};
         modelDefinitionSizeInfo->addToJsonDocument(sizeInfoObject, writer);
         writer.StartObject();
         writer.Key(modelDefinitionSizeInfo->typeString());

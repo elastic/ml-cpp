@@ -12,8 +12,10 @@
 #ifndef INCLUDED_ml_torch_CResultWriter_h
 #define INCLUDED_ml_torch_CResultWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CStringBufWriter.h>
 
 #include <c10/util/BFloat16.h>
 #include <torch/csrc/api/include/torch/types.h>
@@ -29,6 +31,7 @@
 namespace ml {
 namespace torch {
 class CThreadSettings;
+
 
 //! \brief
 //! Formats and writes results for PyTorch inference.
@@ -48,9 +51,10 @@ class CThreadSettings;
 //! building the invariant portion of results to be cached and later
 //! spliced into a complete response.
 //!
-class CResultWriter {
+using TStringBufWriter = ml::core::CStringBufWriter;
+class CResultWriter : public TStringBufWriter {
 public:
-    using TBoostJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    using TBoostJsonLineWriter = core::CBoostJsonLineWriter<std::string>;
 
 public:
     explicit CResultWriter(std::ostream& strmOut);
@@ -83,7 +87,7 @@ public:
 
     //! Write the prediction portion of an inference result.
     template<std::size_t N>
-    void writePrediction(const ::torch::Tensor& prediction, TBoostJsonLineWriter& jsonWriter) {
+    void writePrediction(const ::torch::Tensor& prediction, TStringBufWriter& jsonWriter) {
 
         // Creating the accessor will throw if the tensor does not have exactly
         // N dimensions. Do this before writing any output so the error message
@@ -133,12 +137,14 @@ private:
 private:
     //! Create the invariant portion of an error result, suitable for
     //! caching and later splicing into a full result.
-    static void writeInnerError(const std::string& message, TBoostJsonLineWriter& jsonWriter);
+    //core::CBoostJsonConcurrentLineWriter
+//    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
+    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
 
     //! Write a one dimensional tensor.
     template<typename T>
     void writeTensor(const ::torch::TensorAccessor<T, 1UL>& accessor,
-                     TBoostJsonLineWriter& jsonWriter) {
+                     TStringBufWriter& jsonWriter) {
         jsonWriter.StartArray();
         for (int i = 0; i < accessor.size(0); ++i) {
             jsonWriter.Double(static_cast<double>(accessor[i]));
@@ -149,7 +155,7 @@ private:
     //! Write an N dimensional tensor for N > 1.
     template<typename T, std::size_t N_DIMS>
     void writeTensor(const ::torch::TensorAccessor<T, N_DIMS>& accessor,
-                     TBoostJsonLineWriter& jsonWriter) {
+                     TStringBufWriter& jsonWriter) {
         jsonWriter.StartArray();
         for (int i = 0; i < accessor.size(0); ++i) {
             this->writeTensor(accessor[i], jsonWriter);
@@ -160,7 +166,7 @@ private:
     //! Write a 3D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 3UL>& accessor,
-                               TBoostJsonLineWriter& jsonWriter) {
+                               TStringBufWriter& jsonWriter) {
 
         jsonWriter.Key(RESULT);
         jsonWriter.StartObject();
@@ -172,7 +178,7 @@ private:
     //! Write a 2D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 2UL>& accessor,
-                               TBoostJsonLineWriter& jsonWriter) {
+                               TStringBufWriter& jsonWriter) {
 
         jsonWriter.Key(RESULT);
         jsonWriter.StartObject();
@@ -186,7 +192,8 @@ private:
     }
 
 private:
-    std::ostream& m_WrappedOutputStream;
+//    std::ostream& m_WrappedOutputStream;
+    core::CJsonOutputStreamWrapper m_WrappedOutputStream;
 };
 }
 }

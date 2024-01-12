@@ -52,11 +52,15 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     auto spec = specFactory.rows(5).columns(6).memoryLimit(13000000).predictionSpec(
         test::CDataFrameAnalysisSpecificationFactory::regression(), "dep_var");
-    rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{"
-                         "  \"dependent_variable\": \"dep_var\","
-                         "  \"prediction_field_name\": \"is_training\""
-                         "}");
+
+    json::error_code ec;
+    json::value jsonParameters = json::parse("{"
+                                             "  \"dependent_variable\": \"dep_var\","
+                                             "  \"prediction_field_name\": \"is_training\""
+                                             "}", ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(jsonParameters.is_object());
+
     api::CDataFrameTrainBoostedTreeRegressionRunnerFactory factory;
     auto placeholder = factory.make(*spec, jsonParameters);
 

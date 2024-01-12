@@ -12,6 +12,7 @@
 #include "CResultWriter.h"
 
 #include <core/CBoostJsonConcurrentLineWriter.h>
+#include <core/CStringBufWriter.h>
 
 #include "CCommandParser.h"
 #include "CThreadSettings.h"
@@ -38,7 +39,7 @@ CResultWriter::CResultWriter(std::ostream& strmOut)
 }
 
 void CResultWriter::writeInnerError(const std::string& message,
-                                    TBoostJsonLineWriter& jsonWriter) {
+                                    TStringBufWriter & jsonWriter) {
     jsonWriter.Key(ERROR);
     jsonWriter.StartObject();
     jsonWriter.Key(ERROR);
@@ -46,8 +47,9 @@ void CResultWriter::writeInnerError(const std::string& message,
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeError(const std::string_view& requestId, const std::string& message) {
-    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
+void CResultWriter::writeError(const std::string_view& requestId, const std::string& message) { // TODO
+//    TStringBufWriter jsonWriter{m_WrappedOutputStream};
+    core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -59,7 +61,7 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
                                               const std::string& requestId,
                                               bool isCacheHit,
                                               std::uint64_t timeMs) {
-    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
+    core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -73,7 +75,7 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
 
 void CResultWriter::writeThreadSettings(const std::string_view& requestId,
                                         const CThreadSettings& threadSettings) {
-    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
+    core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -88,7 +90,7 @@ void CResultWriter::writeThreadSettings(const std::string_view& requestId,
 }
 
 void CResultWriter::writeSimpleAck(const std::string_view& requestId) {
-    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
+    core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -103,7 +105,7 @@ void CResultWriter::writeSimpleAck(const std::string_view& requestId) {
 void CResultWriter::writeProcessStats(const std::string_view& requestId,
                                       const std::size_t residentSetSize,
                                       const std::size_t maxResidentSetSize) {
-    TBoostJsonLineWriter jsonWriter{m_WrappedOutputStream};
+    core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -118,10 +120,11 @@ void CResultWriter::writeProcessStats(const std::string_view& requestId,
 }
 
 std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
-    std::stringbuf stringBuffer;
-    std::ostream os(&stringBuffer);
+    std::string stringBuffer;
+//    std::ostream os(&stringBuffer);
     {
-        TBoostJsonLineWriter jsonWriter{os};
+        TStringBufWriter jsonWriter{stringBuffer};
+
         // Even though we don't really want the outer braces on the
         // inner result we have to write them or else the JSON
         // writer will not put commas in the correct places.
@@ -153,7 +156,7 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
     // Return the object without the opening and closing braces and
     // the trailing newline. The resulting partial document will
     // later be wrapped, so does not need these.
-    return stringBuffer.str().substr(1, stringBuffer.str().size() - 3);
+    return stringBuffer.substr(1, stringBuffer.size() - 3);
 }
 }
 }

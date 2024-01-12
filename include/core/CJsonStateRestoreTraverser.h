@@ -131,9 +131,7 @@ private:
         /// @return `true` on success.
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_document_begin( json::error_code& ec ) {
-            return ec ? false : true;
-        }
+        bool on_document_begin( json::error_code& ec );
 
         /// Called when the JSON parsing is done.
         ///
@@ -181,9 +179,7 @@ private:
         /// @param n The total size of the string thus far
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec ) {
-            return true;
-        }
+        bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec );
 
         /// Called with the last characters corresponding to the current string.
         ///
@@ -201,9 +197,7 @@ private:
         /// @param n The total size of the key thus far
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec ) {
-            return true;
-        }
+        bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec );
 
         /// Called with the last characters corresponding to the current key.
         ///
@@ -300,7 +294,11 @@ private:
             E_TokenObjectStart = 9,
             E_TokenObjectEnd = 10,
             E_TokenArrayStart = 11,
-            E_TokenArrayEnd = 12
+            E_TokenArrayEnd = 12,
+            E_TokenKeyPart = 13,
+            E_TokenStringPart = 14,
+            E_TokenComma,
+            E_TokenColon
         };
 
         ETokenType s_Type;
@@ -315,15 +313,17 @@ private:
         size_t s_NextIndex;
 
         bool s_RememberValue;
+        bool m_NewToken{true};
     };
 
     //! JSON reader istream wrapper
-    core::CBoostJsonUnbufferedIStreamWrapper m_ReadStream;
+//    core::CBoostJsonUnbufferedIStreamWrapper m_ReadStream;
+    std::istream& m_ReadStream;
 
     //! JSON reader
     json::basic_parser<SBoostJsonHandler> m_Reader;
 
-    SBoostJsonHandler m_Handler;
+    SBoostJsonHandler& m_Handler;
 
     //! Flag to indicate whether we've started parsing
     bool m_Started;

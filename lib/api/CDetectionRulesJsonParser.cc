@@ -96,7 +96,6 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
     LOG_DEBUG(<< "Parsing detection rules");
 
     rules.clear();
-    json::value doc;
     json::error_code ec;
     json::parser p;
     p.write(json, ec);
@@ -105,6 +104,7 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
                   << ec.message());
         return false;
     }
+    json::value doc = p.release();
 
     std::string errorString;
     if (this->parseRules(doc, rules, errorString) == false) {

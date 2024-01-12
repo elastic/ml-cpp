@@ -168,8 +168,8 @@ protected:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
-    void writeTimingStats(json::value& parentObject);
-    void writeParameters(json::value& parentObject);
+    void writeTimingStats(json::object& parentObject);
+    void writeParameters(json::object& parentObject);
 
 private:
     maths::analytics::COutliers::SComputeParameters m_Parameters;
@@ -215,9 +215,9 @@ private:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
-    void writeHyperparameters(json::value& parentObject);
-    void writeValidationLoss(json::value& parentObject);
-    void writeTimingStats(json::value& parentObject);
+    void writeHyperparameters(json::object& parentObject);
+    void writeValidationLoss(json::object& parentObject);
+    void writeTimingStats(json::object& parentObject);
     void reset();
 
 private:

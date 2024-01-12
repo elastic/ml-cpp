@@ -92,7 +92,7 @@ private:
                       const std::string& byFieldValue,
                       const TByFieldData& byData,
                       core_t::TTime bucketSpan,
-                      json::value& doc);
+                      json::object& doc);
 
 private:
     //! JSON line writer

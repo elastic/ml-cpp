@@ -134,6 +134,7 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     json::error_code ec;
     json::parser p;
     p.write(encodings.str(), ec);
+    doc = p.release();
     if (ec) {
         LOG_ERROR(<< "Failed parsing encoding json: "
                   << ec.message()

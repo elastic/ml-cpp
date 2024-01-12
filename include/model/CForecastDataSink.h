@@ -181,8 +181,8 @@ public:
     uint64_t numRecordsWritten() const;
 
 private:
-    void writeCommonStatsFields(json::value& doc);
-    void push(bool flush, json::value& doc);
+    void writeCommonStatsFields(json::object& doc);
+    void push(bool flush, json::object& doc);
 
 private:
     //! The job ID

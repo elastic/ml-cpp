@@ -442,7 +442,7 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
         return false ;
     }
 
-    json::object obj = doc.as_object();
+    const json::object& obj = doc.as_object();
 
     m_ScheduledEvents.clear();
 
@@ -451,12 +451,12 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
     }
 
     try {
-        if (obj.contains(EVENTS) == false || obj[EVENTS].is_array() == false) {
+        if (obj.contains(EVENTS) == false || obj.at(EVENTS).is_array() == false) {
             LOG_ERROR(<< "Missing expected array field '" << EVENTS << "'. JSON: " << json);
             return false;
         }
 
-        const json::value& value = obj[EVENTS];
+        const json::value& value = obj.at(EVENTS);
 
         if (value.is_array() == false) {
             LOG_ERROR(<< "Expected JSON array but was: \"" << json::serialize(value) << "\"");
@@ -528,19 +528,19 @@ bool CAnomalyJobConfig::parseFilterConfig(const std::string& jsonString) {
         LOG_ERROR(<< "An error occurred while parsing filter config from JSON. "
                   << "Expected JSON object but got \"" << jsonString << "\"");
     }
-    json::object obj = doc.as_object();
+    const json::object& obj = doc.as_object();
     if (obj.empty()) {
         return true;
     }
 
     try {
-        if (obj.contains(FILTERS) == false || obj[FILTERS].is_array() == false) {
+        if (obj.contains(FILTERS) == false || obj.at(FILTERS).is_array() == false) {
             LOG_ERROR(<< "Missing expected array field '" << FILTERS
                       << "'. JSON: " << jsonString);
             return false;
         }
 
-        const json::array& arr = obj[FILTERS].as_array();
+        const json::array& arr = obj.at(FILTERS).as_array();
         m_Filters.resize(arr.size());
         for (unsigned int i = 0; i < arr.size(); ++i) {
             if (arr[i].is_object() == false) {
@@ -574,7 +574,6 @@ void CAnomalyJobConfig::CFilterConfig::parse(const json::value& filterConfig,
 }
 
 bool CAnomalyJobConfig::parse(const std::string& json) {
-    json::value doc;
     json::error_code ec;
     json::parser p;
     p.write(json, ec);
@@ -583,6 +582,10 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
                   << ec.message());
         return false;
     }
+
+    json::value doc = p.release();
+
+    LOG_DEBUG(<< "json doc: " << doc);
 
     try {
         auto parameters = CONFIG_READER.read(doc);

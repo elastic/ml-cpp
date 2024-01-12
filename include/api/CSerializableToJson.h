@@ -16,6 +16,7 @@
 
 #include <api/ImportExport.h>
 
+#include "core/CStreamWriter.h"
 #include <sstream>
 #include <stdexcept>
 
@@ -31,7 +32,7 @@ public:
     virtual ~CSerializableToJsonDocument() = default;
     //! Serialize the object as JSON items under the \p parentObject using the
     //! specified \p writer.
-    virtual void addToJsonDocument(json::value& parentObject,
+    virtual void addToJsonDocument(json::object& parentObject,
                                    TBoostJsonWriter& writer) const = 0;
 };
 
@@ -39,7 +40,8 @@ public:
 //! to a stream.
 class API_EXPORT CSerializableToJsonStream {
 public:
-    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+//    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    using TGenericLineWriter = core::CStreamWriter;
 
 public:
     virtual ~CSerializableToJsonStream() = default;
@@ -136,6 +138,12 @@ protected:
         }
     }
 
+    static void assertIsJsonObject(const json::value& val) {
+        if (val.is_object() == false) {
+            throw std::runtime_error{"Error. JSON value is not object"};
+        }
+    }
+
     template<typename GET, typename VALUE>
     static auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
         -> decltype(get(value.at(tag))) {
@@ -171,10 +179,12 @@ protected:
     }
 
     static std::uint64_t getAsUint64From(const json::value& value) {
-        if (value.is_uint64()) {
-            return value.as_uint64();
+        json::error_code ec;
+        std::uint64_t ret = value.to_number<std::uint64_t>(ec);
+        if (ec) {
+            throw std::runtime_error{"is not a uint64"};
         }
-        throw std::runtime_error{"is not a uint64"};
+        return ret;
     }
 
     static double getAsDoubleFrom(const json::value& value) {

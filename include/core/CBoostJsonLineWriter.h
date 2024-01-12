@@ -34,7 +34,10 @@ public:
 
     //! Overwrites the Writer::StartObject in order to count nested objects
     bool StartObject() override {
-        ++m_ObjectCount;
+        if (m_ObjectCount++ == 0) {
+            return TBoostJsonWriterBase::StartDocument();
+        }
+
         return TBoostJsonWriterBase::StartObject();
     }
 
@@ -47,6 +50,7 @@ public:
 
         // put a new line if at top level or if inside an array
         if (this->topLevel() || m_ObjectCount == 0) {
+            this->write();
             this->put('\n');
         }
         return baseReturnCode;
@@ -54,29 +58,7 @@ public:
 
     //! Add a pre-formatted key and value to the output.
     bool rawKeyAndValue(const std::string& keyAndValue) {
-        // We achieve this by first splitting the keyAndValue string
-        // on the first occurrence of ":". The substring before the first ":"
-        // is the key and the substring after it is the value.
-        auto pos = keyAndValue.find(":");
-        if (pos == keyAndValue.npos) {
-            LOG_ERROR(<< "Invalid JSON snippet: " << keyAndValue);
-            return false;
-        }
-        std::string key = keyAndValue.substr(0, pos);
-        std::string innerVal = keyAndValue.substr(pos+1, keyAndValue.length());
-
-        // Unfortunately value_stack does not support pushing raw json objects so
-        // we temporarily create innerVal as type string.
-        this->Key(key);
-        this->String(innerVal);
-
-        // Then, once the parsing is completed and the json value created with
-        // value_stack.release() it will be necessary to replace the placeholder
-        // innerValue string with the parsed json object, with something like this.
-        // json::value jInnerVal = json::parse(innerVal);
-        // doc[innerValPath].emplace_object() = jInnerVal;
-
-        return true;
+        return TBoostJsonWriterBase::WriteRawValue(keyAndValue);
     }
 
 private:

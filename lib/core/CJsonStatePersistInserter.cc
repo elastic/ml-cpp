@@ -26,12 +26,12 @@ CJsonStatePersistInserter::~CJsonStatePersistInserter() {
 }
 
 void CJsonStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.String(value);
 }
 
 void CJsonStatePersistInserter::insertInteger(const std::string& name, size_t value) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.Uint64(value);
 }
 
@@ -40,7 +40,7 @@ void CJsonStatePersistInserter::flush() {
 }
 
 void CJsonStatePersistInserter::newLevel(const std::string& name) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.StartObject();
 }
 

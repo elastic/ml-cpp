@@ -188,7 +188,7 @@ private:
                                                      const TErrorHandlerFunc& errorHandler);
     static EMessageType validateControlMessageJson(const json::object& doc,
                                                    const TErrorHandlerFunc& errorHandler);
-    static bool checkArrayContainsUInts(const json::array& arr);
+    static bool checkArrayContainsInts(const json::array& arr);
     static SRequest jsonToInferenceRequest(const json::object& doc);
     static SControlMessage jsonToControlMessage(const json::object& doc);
 

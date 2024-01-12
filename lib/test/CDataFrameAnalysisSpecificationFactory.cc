@@ -27,7 +27,8 @@
 
 namespace ml {
 namespace test {
-using TRapidJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+//using TRapidJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+using TRapidJsonLineWriter = core::CStreamWriter;
 
 CDataFrameAnalysisSpecificationFactory::CDataFrameAnalysisSpecificationFactory()
     : m_MissingString{core::CDataFrame::DEFAULT_MISSING_STRING} {
@@ -511,7 +512,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
         m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
         this->predictionParams(analysis, dependentVariable))};
 
-    LOG_TRACE(<< "spec =\n" << spec);
+    LOG_DEBUG(<< "spec =\n" << spec);
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(

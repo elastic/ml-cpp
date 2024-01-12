@@ -46,7 +46,7 @@ CAnomalyJobParameters CAnomalyJobConfigReader::read(const json::value& json) con
                           toString(json) + "'. Please report this problem.");
     }
 
-    json::object obj = json.as_object();
+    const json::object& obj = json.as_object();
     CAnomalyJobParameters result;
     for (const auto& reader : m_ParameterReaders) {
         if (obj.contains(reader.name())) {
@@ -92,10 +92,10 @@ std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) con
     if (m_Value == nullptr) {
         return value;
     }
-    if (m_Value->is_uint64() == false) {
+    if (m_Value->is_int64() == false) {
         this->handleFatal();
     }
-    return m_Value->as_uint64();
+    return m_Value->as_int64();
 }
 
 std::ptrdiff_t CAnomalyJobConfigReader::CParameter::fallback(std::ptrdiff_t value) const {

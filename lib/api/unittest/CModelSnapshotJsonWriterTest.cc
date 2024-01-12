@@ -16,8 +16,6 @@
 
 #include <api/CModelSnapshotJsonWriter.h>
 
-#include <rapidjson/document.h>
-
 #include <boost/test/unit_test.hpp>
 
 #include <string>
@@ -71,83 +69,90 @@ BOOST_AUTO_TEST_CASE(testWrite) {
         writer.write(report);
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc.is_array());
+    BOOST_REQUIRE_EQUAL(1, arrayDoc.as_array().size());
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(1, arrayDoc.Size());
+    const json::value& object_ = arrayDoc.as_array()[0];
+    BOOST_TEST_REQUIRE(object_.is_object());
+    const json::object& object = object_.as_object();
 
-    const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(object.IsObject());
+    BOOST_TEST_REQUIRE(object.contains("model_snapshot"));
+    const json::value& snapshot_ = object.at("model_snapshot");
+    const json::object& snapshot = snapshot_.as_object();
+    
+    BOOST_TEST_REQUIRE(snapshot.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", snapshot.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(snapshot.contains("min_version"));
+    BOOST_REQUIRE_EQUAL("6.3.0", snapshot.at("min_version").as_string());
+    BOOST_TEST_REQUIRE(snapshot.contains("snapshot_id"));
+    BOOST_REQUIRE_EQUAL("test_snapshot_id", snapshot.at("snapshot_id").as_string());
+    BOOST_TEST_REQUIRE(snapshot.contains("snapshot_doc_count"));
+    BOOST_REQUIRE_EQUAL(15, snapshot.at("snapshot_doc_count").as_uint64());
+    BOOST_TEST_REQUIRE(snapshot.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(1521046309000, snapshot.at("timestamp").as_int64());
+    BOOST_TEST_REQUIRE(snapshot.contains("description"));
+    BOOST_REQUIRE_EQUAL("the snapshot description", snapshot.at("description").as_string());
+    BOOST_TEST_REQUIRE(snapshot.contains("latest_record_time_stamp"));
+    BOOST_REQUIRE_EQUAL(1521046409000, snapshot.at("latest_record_time_stamp").as_int64());
+    BOOST_TEST_REQUIRE(snapshot.contains("latest_result_time_stamp"));
+    BOOST_REQUIRE_EQUAL(1521040000000, snapshot.at("latest_result_time_stamp").as_int64());
 
-    BOOST_TEST_REQUIRE(object.HasMember("model_snapshot"));
-    const rapidjson::Value& snapshot = object["model_snapshot"];
-    BOOST_TEST_REQUIRE(snapshot.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", snapshot["job_id"].GetString());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("min_version"));
-    BOOST_REQUIRE_EQUAL("6.3.0", snapshot["min_version"].GetString());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("snapshot_id"));
-    BOOST_REQUIRE_EQUAL("test_snapshot_id", snapshot["snapshot_id"].GetString());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("snapshot_doc_count"));
-    BOOST_REQUIRE_EQUAL(15, snapshot["snapshot_doc_count"].GetUint64());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521046309000, snapshot["timestamp"].GetInt64());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("description"));
-    BOOST_REQUIRE_EQUAL("the snapshot description", snapshot["description"].GetString());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("latest_record_time_stamp"));
-    BOOST_REQUIRE_EQUAL(1521046409000, snapshot["latest_record_time_stamp"].GetInt64());
-    BOOST_TEST_REQUIRE(snapshot.HasMember("latest_result_time_stamp"));
-    BOOST_REQUIRE_EQUAL(1521040000000, snapshot["latest_result_time_stamp"].GetInt64());
+    BOOST_TEST_REQUIRE(snapshot.contains("model_size_stats"));
+    const json::value& modelSizeStats_ = snapshot.at("model_size_stats");
+    const json::object& modelSizeStats = modelSizeStats_.as_object();
+    
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", modelSizeStats.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes"));
+    BOOST_REQUIRE_EQUAL(20000, modelSizeStats.at("model_bytes").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("peak_model_bytes"));
+    BOOST_REQUIRE_EQUAL(60000, modelSizeStats.at("peak_model_bytes").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("total_by_field_count"));
+    BOOST_REQUIRE_EQUAL(3, modelSizeStats.at("total_by_field_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("total_partition_field_count"));
+    BOOST_REQUIRE_EQUAL(1, modelSizeStats.at("total_partition_field_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("total_over_field_count"));
+    BOOST_REQUIRE_EQUAL(150, modelSizeStats.at("total_over_field_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("bucket_allocation_failures_count"));
+    BOOST_REQUIRE_EQUAL(4, modelSizeStats.at("bucket_allocation_failures_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("memory_status"));
+    BOOST_REQUIRE_EQUAL("ok", modelSizeStats.at("memory_status").as_string());
+    BOOST_REQUIRE_EQUAL(false, modelSizeStats.contains("assignment_memory_basis"));
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes_exceeded"));
+    BOOST_REQUIRE_EQUAL(0, modelSizeStats.at("model_bytes_exceeded").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes_memory_limit"));
+    BOOST_REQUIRE_EQUAL(50000, modelSizeStats.at("model_bytes_memory_limit").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(1000, modelSizeStats.at("categorized_doc_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("total_category_count"));
+    BOOST_REQUIRE_EQUAL(100, modelSizeStats.at("total_category_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(7, modelSizeStats.at("frequent_category_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(13, modelSizeStats.at("rare_category_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(2, modelSizeStats.at("dead_category_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(8, modelSizeStats.at("failed_category_count").as_uint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("memory_status"));
+    BOOST_REQUIRE_EQUAL("warn", modelSizeStats.at("categorization_status").as_string());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(1521046309000, modelSizeStats.at("timestamp").as_int64());
+    BOOST_TEST_REQUIRE(modelSizeStats.contains("log_time"));
 
-    BOOST_TEST_REQUIRE(snapshot.HasMember("model_size_stats"));
-    const rapidjson::Value& modelSizeStats = snapshot["model_size_stats"];
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", modelSizeStats["job_id"].GetString());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes"));
-    BOOST_REQUIRE_EQUAL(20000, modelSizeStats["model_bytes"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("peak_model_bytes"));
-    BOOST_REQUIRE_EQUAL(60000, modelSizeStats["peak_model_bytes"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_by_field_count"));
-    BOOST_REQUIRE_EQUAL(3, modelSizeStats["total_by_field_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_partition_field_count"));
-    BOOST_REQUIRE_EQUAL(1, modelSizeStats["total_partition_field_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_over_field_count"));
-    BOOST_REQUIRE_EQUAL(150, modelSizeStats["total_over_field_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("bucket_allocation_failures_count"));
-    BOOST_REQUIRE_EQUAL(4, modelSizeStats["bucket_allocation_failures_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
-    BOOST_REQUIRE_EQUAL("ok", modelSizeStats["memory_status"].GetString());
-    BOOST_REQUIRE_EQUAL(false, modelSizeStats.HasMember("assignment_memory_basis"));
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes_exceeded"));
-    BOOST_REQUIRE_EQUAL(0, modelSizeStats["model_bytes_exceeded"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes_memory_limit"));
-    BOOST_REQUIRE_EQUAL(50000, modelSizeStats["model_bytes_memory_limit"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(1000, modelSizeStats["categorized_doc_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_category_count"));
-    BOOST_REQUIRE_EQUAL(100, modelSizeStats["total_category_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(7, modelSizeStats["frequent_category_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(13, modelSizeStats["rare_category_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(2, modelSizeStats["dead_category_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(8, modelSizeStats["failed_category_count"].GetUint64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
-    BOOST_REQUIRE_EQUAL("warn", modelSizeStats["categorization_status"].GetString());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521046309000, modelSizeStats["timestamp"].GetInt64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("log_time"));
+    BOOST_TEST_REQUIRE(snapshot.contains("quantiles"));
+    const json::value& quantiles_ = snapshot.at("quantiles");
+    const json::object& quantiles = quantiles_.as_object();
 
-    BOOST_TEST_REQUIRE(snapshot.HasMember("quantiles"));
-    const rapidjson::Value& quantiles = snapshot["quantiles"];
-    BOOST_TEST_REQUIRE(quantiles.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", quantiles["job_id"].GetString());
-    BOOST_TEST_REQUIRE(quantiles.HasMember("quantile_state"));
-    BOOST_REQUIRE_EQUAL("some normalizer state", quantiles["quantile_state"].GetString());
-    BOOST_TEST_REQUIRE(quantiles.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521040000000, quantiles["timestamp"].GetInt64());
+    BOOST_TEST_REQUIRE(quantiles.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", quantiles.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(quantiles.contains("quantile_state"));
+    BOOST_REQUIRE_EQUAL("some normalizer state", quantiles.at("quantile_state").as_string());
+    BOOST_TEST_REQUIRE(quantiles.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(1521040000000, quantiles.at("timestamp").as_int64());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

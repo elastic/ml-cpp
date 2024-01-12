@@ -111,7 +111,7 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
         LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return 0.0;
     }
-    return (*docPtr).as_object()[field].as_double();
+    return (*docPtr)[field].as_double();
 }
 
 //! Sort rapidjson documents by the probability lowest to highest
@@ -212,7 +212,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
         return true;
     }
 
-    std::weak_ptr<json::value> newDoc;
+    std::weak_ptr<json::object> newDoc;
     if (!results.s_IsOverallResult) {
         newDoc = m_Writer.makeStorableDoc();
         this->addPopulationCauseFields(results, newDoc);
@@ -521,7 +521,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    json::value anomalyScoreExplanation = m_Writer.makeObject();
+    json::object anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
 
@@ -550,7 +550,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
     if (results.s_FunctionName ==
         CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
-        json::value geoResults = m_Writer.makeObject();
+        json::object geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
@@ -615,7 +615,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
                 LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
-            json::value& docAsValue = *nDocPtr;
+            json::object& docAsValue = *nDocPtr;
 
             m_Writer.pushBack(docAsValue, causeArray);
         }
@@ -669,7 +669,7 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
     if (results.s_FunctionName ==
         CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
-        json::value geoResults = m_Writer.makeObject();
+        json::object geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
@@ -734,9 +734,9 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 
     for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin();
          iter != influences.end(); ++iter) {
-        json::value influenceDoc;
+        json::object influenceDoc;
 
-        json::value values = m_Writer.makeArray(influences.size());
+        json::array values = m_Writer.makeArray(influences.size());
         for (TCharPtrDoublePrVecIter arrayIter = iter->second.second.begin();
              arrayIter != iter->second.second.end(); ++arrayIter) {
             m_Writer.pushBack(arrayIter->first, values);
@@ -766,7 +766,7 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    json::value anomalyScoreExplanation = m_Writer.makeObject();
+    json::object anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
 
@@ -950,7 +950,7 @@ CJsonOutputWriter::SBucketData::SBucketData()
 
 void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
     const CHierarchicalResultsWriter::TResults& results,
-    json::value& anomalyScoreExplanation) {
+    json::object& anomalyScoreExplanation) {
     switch (results.s_AnomalyScoreExplanation.s_AnomalyType) {
     case TAnomalyScoreExplanation::E_DIP:
         m_Writer.addStringFieldCopyToObj(ANOMALY_TYPE, ANOMALY_TYPE_DIP, anomalyScoreExplanation);

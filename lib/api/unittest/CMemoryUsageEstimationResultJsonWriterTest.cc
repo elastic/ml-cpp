@@ -16,8 +16,6 @@
 
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
-#include <rapidjson/document.h>
-
 #include <boost/test/unit_test.hpp>
 
 #include <string>
@@ -37,21 +35,22 @@ BOOST_AUTO_TEST_CASE(testWrite) {
         writer.write("16mb", "8mb");
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc.is_array());
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), arrayDoc.as_array().size());
 
-    const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(object.IsObject());
-
-    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_without_disk"));
+    const json::value& object_ = arrayDoc.as_array()[std::size_t(0)];
+    BOOST_TEST_REQUIRE(object_.is_object());
+    const json::object& object = object_.as_object();
+    BOOST_TEST_REQUIRE(object.contains("expected_memory_without_disk"));
     BOOST_REQUIRE_EQUAL(std::string("16mb"),
-                        std::string(object["expected_memory_without_disk"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_with_disk"));
+                        std::string(object.at("expected_memory_without_disk").as_string()));
+    BOOST_TEST_REQUIRE(object.contains("expected_memory_with_disk"));
     BOOST_REQUIRE_EQUAL(std::string("8mb"),
-                        std::string(object["expected_memory_with_disk"].GetString()));
+                        std::string(object.at("expected_memory_with_disk").as_string()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

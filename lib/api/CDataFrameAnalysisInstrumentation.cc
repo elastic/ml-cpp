@@ -306,12 +306,12 @@ void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestam
         writer->Key(TIMESTAMP_TAG);
         writer->Int64(timestamp);
 
-        json::value parametersObject{writer->makeObject()};
+        json::object parametersObject{writer->makeObject()};
         this->writeParameters(parametersObject);
         writer->Key(PARAMETERS_TAG);
         writer->write(parametersObject);
 
-        json::value timingStatsObject{writer->makeObject()};
+        json::object timingStatsObject{writer->makeObject()};
         this->writeTimingStats(timingStatsObject);
         writer->Key(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
@@ -336,7 +336,7 @@ void CDataFrameOutliersInstrumentation::featureInfluenceThreshold(double feature
     m_FeatureInfluenceThreshold = featureInfluenceThreshold;
 }
 
-void CDataFrameOutliersInstrumentation::writeTimingStats(json::value& parentObject) {
+void CDataFrameOutliersInstrumentation::writeTimingStats(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(TIMING_ELAPSED_TIME_TAG,
@@ -344,7 +344,7 @@ void CDataFrameOutliersInstrumentation::writeTimingStats(json::value& parentObje
     }
 }
 
-void CDataFrameOutliersInstrumentation::writeParameters(json::value& parentObject) {
+void CDataFrameOutliersInstrumentation::writeParameters(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(
@@ -416,17 +416,17 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->Key(ITERATION_TAG);
         writer->Uint64(m_Iteration);
 
-        json::value hyperparametersObject{writer->makeObject()};
+        json::object hyperparametersObject{writer->makeObject()};
         this->writeHyperparameters(hyperparametersObject);
         writer->Key(HYPERPARAMETERS_TAG);
         writer->write(hyperparametersObject);
 
-        json::value validationLossObject{writer->makeObject()};
+        json::object validationLossObject{writer->makeObject()};
         this->writeValidationLoss(validationLossObject);
         writer->Key(VALIDATION_LOSS_TAG);
         writer->write(validationLossObject);
 
-        json::value timingStatsObject{writer->makeObject()};
+        json::object timingStatsObject{writer->makeObject()};
         this->writeTimingStats(timingStatsObject);
         writer->Key(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
@@ -441,7 +441,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::reset() {
     m_LossValues.clear();
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(json::value& parentObject) {
+void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(json::object& parentObject) {
     auto* writer = this->writer();
 
     if (writer != nullptr) {
@@ -526,13 +526,13 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(json::value
     }
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::value& parentObject) {
+void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(VALIDATION_LOSS_TYPE_TAG, json::value(m_LossType), parentObject);
         json::array lossValuesArray{writer->makeArray()};
         for (auto& element : m_LossValues) {
-            json::value item{writer->makeObject()};
+            json::object item{writer->makeObject()};
             writer->addMember(
                 VALIDATION_FOLD_TAG,
                 json::value(static_cast<std::uint64_t>(element.first)), item);
@@ -547,7 +547,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::value&
     }
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(json::value& parentObject) {
+void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(TIMING_ELAPSED_TIME_TAG,

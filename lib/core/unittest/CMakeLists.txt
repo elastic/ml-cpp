@@ -53,9 +53,9 @@ set (SRCS
   CProcessTest.cc
   CProgNameTest.cc
   CProgramCountersTest.cc
-  CRapidJsonLineWriterTest.cc
+        CBoostJsonLineWriterTest.cc
   CRapidJsonUnbufferedIStreamWrapperTest.cc
-  CRapidJsonWriterBaseTest.cc
+        CBoostJsonWriterBaseTest.cc
   CRapidXmlParserTest.cc
   CRapidXmlStatePersistInserterTest.cc
   CRapidXmlStateRestoreTraverserTest.cc

@@ -55,7 +55,7 @@ CDataFrameAnalysisConfigReader::read(const json::value& json) const {
         return result;
     }
 
-    json::object obj = json.as_object();
+    const json::object &obj = json.as_object();
 
     for (const auto& reader : m_ParameterReaders) {
         if (obj.contains(reader.name())) {
@@ -107,11 +107,11 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t fal
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->is_uint64() == false) {
+    if (m_Value->is_int64() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->as_uint64();
+    return m_Value->as_int64();
 }
 
 std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t fallback) const {
@@ -161,7 +161,7 @@ std::pair<std::string, double> CDataFrameAnalysisConfigReader::CParameter::fallb
         this->handleFatal();
         return fallback;
     }
-    json::object obj = m_Value->as_object();
+    const json::object& obj = m_Value->as_object();
     auto name_ = obj.find(name);
     auto value_ = obj.find(value);
     if (name_ == obj.end() || value_ == obj.end()) {

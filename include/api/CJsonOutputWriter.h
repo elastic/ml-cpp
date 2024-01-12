@@ -100,8 +100,8 @@ namespace api {
 //!
 class API_EXPORT CJsonOutputWriter {
 public:
-    using TDocumentPtr = std::shared_ptr<json::value>;
-    using TDocumentWeakPtr = std::weak_ptr<json::value>;
+    using TDocumentPtr = std::shared_ptr<json::object>;
+    using TDocumentWeakPtr = std::weak_ptr<json::object>;
     using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
     using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
     using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
@@ -311,7 +311,7 @@ private:
 
     //! Write anomaly score explanation object.
     void writeAnomalyScoreExplanationObject(const CHierarchicalResultsWriter::TResults& results,
-                                            json::value& anomalyScoreExplanation);
+                                            json::object& anomalyScoreExplanation);
 
 private:
     //! The job ID

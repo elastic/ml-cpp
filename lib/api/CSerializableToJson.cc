@@ -22,6 +22,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 
+#include "core/CStreamWriter.h"
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -36,7 +37,9 @@ namespace {
 namespace io = boost::iostreams;
 using TFilteredInput = io::filtering_stream<io::input>;
 using TFilteredOutput = io::filtering_stream<io::output>;
-using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+using TStreamWriter = core::CStreamWriter;
+//using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+using TGenericLineWriter = TStreamWriter;
 
 void compressAndEncode(std::function<void(TGenericLineWriter&)> addToJsonStream,
                        std::ostream& sink) {
@@ -44,8 +47,7 @@ void compressAndEncode(std::function<void(TGenericLineWriter&)> addToJsonStream,
     outFilter.push(io::gzip_compressor());
     outFilter.push(core::CBase64Encoder());
     outFilter.push(sink);
-    std::ostringstream osw;
-    TGenericLineWriter writer{osw};
+    TGenericLineWriter writer{outFilter};
     addToJsonStream(writer);
     outFilter.flush();
 }
@@ -72,7 +74,7 @@ std::string CSerializableToJsonStream::jsonString() const {
     std::ostringstream jsonStream;
     {
         std::ostringstream &osw = jsonStream;
-        TGenericLineWriter writer{osw};
+        TStreamWriter writer{osw};
         this->addToJsonStream(writer);
     }
     return jsonStream.str();
@@ -129,26 +131,70 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
 //        core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
+//        LOG_DEBUG(<< "inputStream: " << inputStream->rdbuf());
         try {
             json::value doc;
             json::error_code ec;
             json::stream_parser p;
             std::string line;
             bool done{false};
-            while (std::getline( *inputStream, line ) && done == false) {
-                p.write( line, ec );
-                assertNoParseError(ec);
-                auto chunk = ifExists(compressedDocTag, getAsObjectFrom, doc.as_object());
-                buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
-                             ifExists(payloadTag, getStringLengthFrom, chunk));
-                done = chunk.contains(JSON_EOS_TAG);
+            while (inputStream->eof() == false && done == false) {
+                if (inputStream->peek() == '\0') {
+                    inputStream->get();
+                    continue ;
+                }
+                std::getline( *inputStream, line );
+                LOG_DEBUG(<< "line: " << line);
+                std::size_t length{line.length()};
+                std::size_t written{0};
+                std::size_t n{0};
+                p.reset();
+                while (written < length) {
+                    n = p.write_some(line, ec);
+                    written += n;
+                    assertNoParseError(ec);
+                }
+                doc = p.release();
+                assertIsJsonObject(doc);
+                LOG_DEBUG(<< "doc: " << doc);
+                try {
+                    auto chunk = ifExists(compressedDocTag, getAsObjectFrom,
+                                          doc.as_object());
+                    buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
+                                 ifExists(payloadTag, getStringLengthFrom, chunk));
+                    done = chunk.contains(JSON_EOS_TAG);
+                } catch (const std::runtime_error& e) {
+                    LOG_WARN(<< "Caught exception: " << e.what());
+                    continue ;
+                }
+
             }
+//            while (std::getline( *inputStream, line ) && done == false) {
+//                LOG_DEBUG(<< "line: " << line);
+//                p.write( line, ec );
+//                assertNoParseError(ec);
+//                doc = p.release();
+//                assertIsJsonObject(doc);
+//                LOG_DEBUG(<< "doc: " << doc);
+//                try {
+//                    auto chunk = ifExists(compressedDocTag, getAsObjectFrom,
+//                                          doc.as_object());
+//                    buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
+//                                 ifExists(payloadTag, getStringLengthFrom, chunk));
+//                    done = chunk.contains(JSON_EOS_TAG);
+//                } catch (const std::runtime_error& e) {
+//                    LOG_WARN(<< "Caught exception: " << e.what());
+//                    continue;
+//                }
+//            }
 
             consumeSpace(*inputStream);
 
             return decodeAndDecompress(buffer);
 
-        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
+        } catch (const std::runtime_error& e) {
+            LOG_ERROR(<< e.what());
+        }
     }
     return nullptr;
 }

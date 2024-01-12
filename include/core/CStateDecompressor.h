@@ -160,9 +160,7 @@ public:
             /// @param n The total size of the string thus far
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec ) {
-                return true;
-            }
+            bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec );
 
             /// Called with the last characters corresponding to the current string.
             ///
@@ -180,9 +178,7 @@ public:
             /// @param n The total size of the key thus far
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec ) {
-                return true;
-            }
+            bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec );
 
             /// Called with the last characters corresponding to the current key.
             ///
@@ -287,32 +283,53 @@ public:
         };
 
         struct SBoostJsonHandler final : public SBaseBoostJsonHandler {
+            constexpr static std::size_t max_object_size = std::size_t(-1);
+            constexpr static std::size_t max_array_size = std::size_t(-1);
+            constexpr static std::size_t max_key_size = std::size_t(-1);
+            constexpr static std::size_t max_string_size = std::size_t(-1);
+
             bool on_bool(bool b, json::error_code& ec);
             bool on_string( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec );
             bool on_object_begin( json::error_code& ec );
             bool on_key( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec );
             bool on_object_end( std::size_t n, json::error_code& ec );
             bool on_array_begin( json::error_code& ec );
             bool on_array_end( std::size_t n, json::error_code& ec );
 
             enum ETokenType {
+                ETokenNull = 0,
                 E_TokenKey = 1,
                 E_TokenBool = 2,
                 E_TokenString = 3,
                 E_TokenObjectStart = 4,
                 E_TokenObjectEnd = 5,
                 E_TokenArrayStart = 6,
-                E_TokenArrayEnd = 7
+                E_TokenArrayEnd = 7,
+                E_TokenStringPart = 8,
+                E_TokenKeyPart = 9,
+                E_TokenComma = 10,
+                E_TokenColon = 11,
+                E_TokenSpace = 12
             };
 
             //! the last token type extracted
             ETokenType s_Type;
 
             //! the last string (c string) as pointer (only valid till next call)
-            const char* s_CompressedChunk;
+            char s_CompressedChunk[4096*400];
+
+//            const char* s_CompressedChunk;
+//            char* s_CompressedChunk;
 
             //! the last string length (only valid till next call)
             std::streamsize s_CompressedChunkLength;
+
+            bool s_NewToken{true};
+            bool s_StringEnd{false};
+            bool s_IsObject{false};
+            bool s_IsArray{false};
         };
 
         //! Has a valid document been seen?
@@ -340,15 +357,19 @@ public:
         std::shared_ptr<CBoostJsonUnbufferedIStreamWrapper> m_InputStreamWrapper;
 
         //! JSON reader for the downstream stream
-        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
+//        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
+        json::basic_parser<SBoostJsonHandler> m_Reader;
 
-        SBoostJsonHandler m_Handler;
+//        SBoostJsonHandler m_Handler;
 
         //! The offset into the current token that has been read
         std::streamsize m_BufferOffset;
 
         //! Level of nested objects, used to unwind later on.
         std::size_t m_NestedLevel;
+
+        //! Flag to indicate that non null character has been seen by the parser
+        bool m_ParsingStarted{false};
     };
 
 public:

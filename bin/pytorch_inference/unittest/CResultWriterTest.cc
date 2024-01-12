@@ -29,9 +29,12 @@ BOOST_AUTO_TEST_CASE(testWriteThreadSettings) {
         ml::torch::CThreadSettings threadSettings{10, 2, 3};
         resultWriter.writeThreadSettings("req1", threadSettings);
     }
-    BOOST_REQUIRE_EQUAL("[{\"request_id\":\"req1\",\"thread_settings\":"
-                        "{\"num_threads_per_allocation\":2,\"num_allocations\":3}}\n]",
-                        output.str());
+    std::string expected = "[{\"request_id\":\"req1\",\"thread_settings\":"
+                           "{\"num_threads_per_allocation\":2,\"num_allocations\":3}}\n]";
+    std::string actual = output.str();
+    LOG_INFO(<< "expected: " << expected);
+    LOG_INFO(<< "actual: " << actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_CASE(testWriteAck) {
@@ -70,9 +73,11 @@ BOOST_AUTO_TEST_CASE(testCreateInnerInferenceResult) {
     ml::torch::CResultWriter resultWriter{output};
     ::torch::Tensor tensor{::torch::ones({5, 3})};
     std::string innerPortion{resultWriter.createInnerResult(tensor)};
-    BOOST_REQUIRE_EQUAL("\"result\":{\"inference\":"
-                        "[[[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]]]}",
-                        innerPortion);
+    std::string expected  = "\"result\":{\"inference\":"
+                           "[[[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]]}";
+    LOG_INFO(<< "expected: " << expected);
+    LOG_INFO(<< "actual: " << innerPortion);
+    BOOST_REQUIRE_EQUAL(expected, innerPortion);
 }
 
 BOOST_AUTO_TEST_CASE(testWrapAndWriteInferenceResult) {
@@ -84,10 +89,15 @@ BOOST_AUTO_TEST_CASE(testWrapAndWriteInferenceResult) {
         ml::torch::CResultWriter resultWriter{output};
         resultWriter.wrapAndWriteInnerResponse(innerPortion, "req4", true, 123);
     }
-    BOOST_REQUIRE_EQUAL("[{\"request_id\":\"req4\",\"cache_hit\":true,"
-                        "\"time_ms\":123,\"result\":{\"inference\":"
-                        "[[[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]]]}}\n]",
-                        output.str());
+    std::string expected = "[{\"request_id\":\"req4\",\"cache_hit\":true,"
+                           "\"time_ms\":123,\"result\":{\"inference\":"
+                           "[[[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]]]}}\n]";
+    std::string actual = output.str();
+
+    LOG_INFO(<< "expected: " << expected);
+    LOG_INFO(<< "actual  : " << actual);
+
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -18,6 +18,7 @@
 
 #include <boost/json.hpp>
 
+#include "core/CStreamWriter.h"
 #include <iosfwd>
 #include <set>
 #include <sstream>
@@ -83,7 +84,7 @@ private:
     //! Write a single field to the document
     void writeField(const std::string& name,
                     const std::string& value,
-                    json::value& doc) const;
+                    json::object& doc) const;
 
 private:
     //! Which output fields are numeric?
@@ -99,7 +100,7 @@ private:
     //! JSON writer ostream wrapper
 //    rapidjson::OStreamWrapper m_WriteStream;
 
-    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    using TGenericLineWriter = core::CStreamWriter;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

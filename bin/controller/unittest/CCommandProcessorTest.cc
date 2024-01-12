@@ -83,10 +83,13 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
 
     std::string jsonEscapedProcessPath{PROCESS_PATH};
     ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
-    BOOST_REQUIRE_EQUAL("[{\"id\":1,\"success\":true,\"reason\":\"Process '" + jsonEscapedProcessPath +
-                            "' started\"}\n"
-                            "]",
-                        responseStream.str());
+    std::string expected = "[{\"id\":1,\"success\":true,\"reason\":\"Process '" + jsonEscapedProcessPath +
+                           "' started\"}\n"
+                           "]";
+    std::string actual = responseStream.str();
+    LOG_INFO(<< "expected: " << expected);
+    LOG_INFO(<< "actual  : " << actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 
     BOOST_REQUIRE_EQUAL(0, std::remove(OUTPUT_FILE.c_str()));
 }

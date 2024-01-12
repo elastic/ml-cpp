@@ -459,16 +459,18 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     case api_t::E_Encode:
         m_BoostedTree = m_BoostedTreeFactory->buildForEncode(frame, dependentVariableColumn);
         break;
-    case api_t::E_Train:
+    case api_t::E_Train: {
+        auto restoreSearcher = this->spec().restoreSearcher();
+        auto boostedTree = (restoreSearcher == nullptr) ? nullptr : this->restoreBoostedTree(
+            frame, dependentVariableColumn, restoreSearcher);
         m_BoostedTree = [&] {
-            auto boostedTree = this->restoreBoostedTree(
-                frame, dependentVariableColumn, this->spec().restoreSearcher());
             return boostedTree != nullptr
                        ? std::move(boostedTree)
                        : m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }();
         m_BoostedTree->train();
         m_BoostedTree->predict();
+    }
         break;
     case api_t::E_Update:
         m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
@@ -502,17 +504,20 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                 break;
             }
             *frameAndDirectory = this->makeDataFrame();
-            auto dataSummarizationRestorer = [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
-                                                core::CDataFrame& frame) {
-                return CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(
-                    std::move(inputStream), frame);
-            };
+
             auto bestForestRestorer =
                 [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
                    const CRetrainableModelJsonReader::TStrSizeUMap& encodingsIndices) {
                     return CRetrainableModelJsonReader::bestForestFromCompressedJsonStream(
                         std::move(inputStream), encodingsIndices);
                 };
+
+            auto dataSummarizationRestorer = [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
+                                                core::CDataFrame& frame) {
+                return CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(
+                    std::move(inputStream), frame);
+            };
+
             auto& frame = frameAndDirectory->first;
             auto result = std::make_unique<maths::analytics::CBoostedTreeFactory>(
                 maths::analytics::CBoostedTreeFactory::constructFromDefinition(

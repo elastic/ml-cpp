@@ -27,9 +27,7 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <boost/json.hpp>
 
 #include <boost/test/unit_test.hpp>
 
@@ -750,6 +748,9 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     }
     std::string origJson = ss.str();
 
+    boost::json::value v = boost::json::parse(origJson);
+    LOG_DEBUG(<< "v: " << v);
+
     // The traverser expects the state json in a embedded document
     std::string wrappedJson = "{\"topLevel\" : " + origJson + "}";
 
@@ -780,40 +781,49 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
                                            "my normalizer", 1234567890, ss);
     std::string toJson = ss.str();
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(toJson.c_str());
+    boost::json::value val;
+    boost::json::error_code ec;
+    boost::json::parser p;
+    p.write(toJson.c_str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    val = p.release();
+    BOOST_TEST_REQUIRE(val.is_object());
+    boost::json::object& doc = val.as_object();
 
-    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLCUE_ATTRIBUTE.c_str()));
-    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLKEY_ATTRIBUTE.c_str()));
-    BOOST_TEST_REQUIRE(doc.HasMember(
+    LOG_DEBUG(<< "val: " << val);
+
+    BOOST_TEST_REQUIRE(doc.contains(model::CAnomalyScore::MLCUE_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.contains(model::CAnomalyScore::MLKEY_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.contains(
         model::CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE.c_str()));
-    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLVERSION_ATTRIBUTE.c_str()));
-    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::TIME_ATTRIBUTE.c_str()));
-    BOOST_TEST_REQUIRE(doc.HasMember("a"));
+    BOOST_TEST_REQUIRE(doc.contains(model::CAnomalyScore::MLVERSION_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.contains(model::CAnomalyScore::TIME_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.contains("a"));
 
-    rapidjson::Value& stateDoc = doc["a"];
+    boost::json::value& stateDoc_ = doc["a"];
+    BOOST_TEST_REQUIRE(stateDoc_.is_object());
+    boost::json::object& stateDoc = stateDoc_.as_object();
 
     {
         // Check that all required fields are present in the persisted state
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("a"));
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("b"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("a"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("b"));
         // Field 'c' - m_MaxScore - removed in version > 6.5
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("d"));
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("e"));
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("f"));
-        BOOST_TEST_REQUIRE(stateDoc.HasMember("g"));
-        BOOST_TEST_REQUIRE(stateDoc["g"].HasMember("d"));
-        BOOST_TEST_REQUIRE(stateDoc["g"].HasMember("a"));
-        BOOST_TEST_REQUIRE(stateDoc["g"]["a"].HasMember("a"));
-        BOOST_TEST_REQUIRE(stateDoc["g"]["a"].HasMember("b"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("d"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("e"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("f"));
+        BOOST_TEST_REQUIRE(stateDoc.contains("g"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].is_object());
+        BOOST_TEST_REQUIRE(stateDoc["g"].as_object().contains("d"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].as_object().contains("a"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].as_object()["a"].is_object());
+        BOOST_TEST_REQUIRE(stateDoc["g"].as_object()["a"].as_object().contains("a"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].as_object()["a"].as_object().contains("b"));
 
-        rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"]["a"];
+        boost::json::value& partitionMaxScoreDoc = stateDoc_.at_pointer("/g/a/b/a");
 
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        partitionMaxScoreDoc.Accept(writer);
+        std::string partitionMaxScoreStr = boost::json::serialize(partitionMaxScoreDoc);
 
-        std::string partitionMaxScoreStr(buffer.GetString());
         partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
@@ -822,12 +832,14 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
             partitionMaxScoreStr);
     }
 
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    stateDoc.Accept(writer);
+    std::ostringstream os;
+    core::CStreamWriter writer(os);
+    writer.write(stateDoc);
+    std::string state = os.str();
+    LOG_DEBUG(<< "stateDoc: " << stateDoc);
+//    std::string state = boost::json::serialize(stateDoc); // Arrrrgh.. can't do this as the stateDoc contains duplicate member names
 
     // strip out the newlines before comparing
-    std::string state(buffer.GetString());
     state.erase(std::remove(state.begin(), state.end(), '\n'), state.end());
 
     origJson.erase(std::remove(origJson.begin(), origJson.end(), '\n'), origJson.end());

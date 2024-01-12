@@ -56,18 +56,18 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
             const TByFieldData& byData = byItr->second;
             const TStrDoublePrVec& values = byData.s_ValuesPerOverField;
             if (values.empty()) {
-                json::value doc = m_Writer.makeObject();
+                json::object doc = m_Writer.makeObject();
                 this->writeFlatRow(time, jobId, detectorIndex, partitionFieldName,
                                    partitionFieldValue, feature, byFieldName,
                                    byFieldValue, byData, data.bucketSpan(), doc);
 
-                json::value wrapper = m_Writer.makeObject();
+                json::object wrapper = m_Writer.makeObject();
                 m_Writer.addMember(MODEL_PLOT, doc, wrapper);
                 m_Writer.write(wrapper);
             } else {
                 for (std::size_t valueIndex = 0; valueIndex < values.size(); ++valueIndex) {
                     const TStrDoublePr& keyValue = values[valueIndex];
-                    json::value doc = m_Writer.makeObject();
+                    json::object doc = m_Writer.makeObject();
                     this->writeFlatRow(time, jobId, detectorIndex, partitionFieldName,
                                        partitionFieldValue, feature, byFieldName,
                                        byFieldValue, byData, data.bucketSpan(), doc);
@@ -78,7 +78,7 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
                     }
                     m_Writer.addDoubleFieldToObj(ACTUAL, keyValue.second, doc);
 
-                    json::value wrapper = m_Writer.makeObject();
+                    json::object wrapper = m_Writer.makeObject();
                     m_Writer.addMember(MODEL_PLOT, doc, wrapper);
                     m_Writer.write(wrapper);
                 }
@@ -99,7 +99,7 @@ void CModelPlotDataJsonWriter::writeFlatRow(core_t::TTime time,
                                             const std::string& byFieldValue,
                                             const TByFieldData& byData,
                                             core_t::TTime bucketSpan,
-                                            json::value& doc) {
+                                            json::object& doc) {
     m_Writer.addStringFieldCopyToObj(JOB_ID, jobId, doc, true);
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);

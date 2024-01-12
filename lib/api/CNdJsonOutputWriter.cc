@@ -52,7 +52,7 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
     using TScopedAllocator = core::CScopedBoostJsonPoolAllocator<TGenericLineWriter>;
     TScopedAllocator scopedAllocator{"CNdJsonOutputWriter::writeRow", m_Writer};
 
-    json::value doc{m_Writer.makeDoc()};
+    json::object doc{m_Writer.makeDoc()};
 
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
@@ -74,6 +74,7 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
     }
 
     m_Writer.write(doc);
+    m_Writer.put('\n');
 //    m_Writer.reset(m_OutStream);
 
     return true;
@@ -90,7 +91,7 @@ std::string CNdJsonOutputWriter::internalString() const {
 
 void CNdJsonOutputWriter::writeField(const std::string& name,
                                      const std::string& value,
-                                     json::value& doc) const {
+                                     json::object& doc) const {
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue{0.0};
         if (core::CStringUtils::stringToType(value, numericValue) == false) {

@@ -50,10 +50,10 @@ CAnnotationJsonWriter::CAnnotationJsonWriter(core::CJsonOutputStreamWrapper& out
 void CAnnotationJsonWriter::writeResult(const std::string& jobId,
                                         const model::CAnnotation& annotation) {
 
-    json::value obj{m_Writer.makeObject()};
+    json::object obj{m_Writer.makeObject()};
     this->populateAnnotationObject(jobId, annotation, obj);
 
-    json::value wrapper{m_Writer.makeObject()};
+    json::object wrapper{m_Writer.makeObject()};
     m_Writer.addMember(ANNOTATION_RESULT_TYPE, obj, wrapper);
     m_Writer.write(wrapper);
     m_Writer.flush();
@@ -61,7 +61,7 @@ void CAnnotationJsonWriter::writeResult(const std::string& jobId,
 
 void CAnnotationJsonWriter::populateAnnotationObject(const std::string& jobId,
                                                      const model::CAnnotation& annotation,
-                                                     json::value& obj) {
+                                                     json::object& obj) {
 
     // There is no need to copy the strings, as this is a private method and the
     // json::value it's populating will have a shorter lifetime than the

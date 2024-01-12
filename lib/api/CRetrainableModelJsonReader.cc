@@ -80,6 +80,10 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
         p.write(line, ec);
     }
     assertNoParseError(ec);
+    doc = p.release();
+    assertIsJsonObject(doc);
+
+    LOG_DEBUG(<< "Parsed JSON doc: " << doc);
 
     std::size_t numberColumns{ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc.as_object())};
 
@@ -161,7 +165,9 @@ CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream,
     if (istream != nullptr) {
         try {
             return doBestForestFromJsonStream(*istream, encodingIndices);
-        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
+        } catch (const std::runtime_error& e) {
+            LOG_ERROR(<< e.what());
+        }
     }
     return nullptr;
 }
@@ -176,12 +182,17 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     json::error_code ec;
     std::string line;
     while (std::getline(istream, line)) {
+        LOG_DEBUG(<< "write_some: " << line);
         p.write_some(line);
     }
     p.finish( ec );
     assertNoParseError(ec);
 
     json::value doc = p.release();
+
+    assertIsJsonObject(doc);
+
+    LOG_DEBUG(<< "doc: " << doc);
 
     auto inferenceModel = ifExists(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG,
                                    getAsObjectFrom, doc.as_object());

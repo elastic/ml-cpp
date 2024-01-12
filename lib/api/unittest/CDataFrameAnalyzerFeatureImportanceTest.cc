@@ -47,7 +47,7 @@ using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::T
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TMemoryMappedMatrix = maths::common::CMemoryMappedDenseMatrix<double>;
-using TDocumentStrPr = std::pair<rapidjson::Document, std::string>;
+using TDocumentStrPr = std::pair<json::value, std::string>;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
@@ -244,9 +244,11 @@ struct SFixture {
         BOOST_TEST_REQUIRE(
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(s_Output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
+
         return std::make_pair(std::move(results), s_Output.str());
     }
 
@@ -295,9 +297,10 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(s_Output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+
         return std::make_pair(std::move(results), s_Output.str());
     }
 
@@ -349,13 +352,13 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(s_Output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
         return std::make_pair(std::move(results), s_Output.str());
     }
 
-    rapidjson::Document runRegressionWithMissingFeatures(std::size_t shapValues) {
+    json::value runRegressionWithMissingFeatures(std::size_t shapValues) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -395,9 +398,9 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(s_Output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
         return results;
     }
 
@@ -415,16 +418,16 @@ struct SFixture {
 };
 
 template<typename RESULTS>
-double readShapValue(const RESULTS& results, std::string shapField) {
-    if (results["row_results"]["results"]["ml"].HasMember(
+double readShapValue(const RESULTS& results_, std::string shapField) {
+    if (results_.at_pointer("/row_results/results/ml").as_object().contains(
             api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult :
-             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
-                 .GetArray()) {
-            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
-                    .GetString() == shapField) {
-                return shapResult[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
-                    .GetDouble();
+             results_.at_pointer("/row_results/results/ml/"+api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
+                 .as_array()) {
+            if (shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
+                    .as_string() == shapField) {
+                return shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME)
+                    .as_double();
             }
         }
     }
@@ -433,11 +436,11 @@ double readShapValue(const RESULTS& results, std::string shapField) {
 
 template<typename RESULTS>
 double readClassProbability(const RESULTS& results, std::string className) {
-    if (results["row_results"]["results"]["ml"].HasMember("top_classes")) {
+    if (results.at_pointer("/row_results/results/ml").as_object().contains("top_classes")) {
         for (const auto& classResult :
-             results["row_results"]["results"]["ml"]["top_classes"].GetArray()) {
-            if (classResult["class_name"].GetString() == className) {
-                return classResult["class_probability"].GetDouble();
+             results.at_pointer("/row_results/results/ml/top_classes").as_array()) {
+            if (classResult.at("class_name").as_string() == className) {
+                return classResult.at("class_probability").as_double();
             }
         }
     }
@@ -447,20 +450,22 @@ double readClassProbability(const RESULTS& results, std::string className) {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField, std::string className) {
-    if (results["row_results"]["results"]["ml"].HasMember(
+    if (results.at_pointer("/row_results/results/ml").as_object().contains(
             api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
-        for (const auto& shapResult :
-             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
-                 .GetArray()) {
-            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
-                    .GetString() == shapField) {
+        for (const auto& shapResult_ :
+             results.at_pointer("/row_results/results/ml/" + api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
+                 .as_array()) {
+            const json::object& shapResult = shapResult_.as_object();
+
+            if (shapResult_.at_pointer("/"+api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
+                    .as_string() == shapField) {
                 for (const auto& item :
-                     shapResult[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME]
-                         .GetArray()) {
-                    if (item[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME]
-                            .GetString() == className) {
-                        return item[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
-                            .GetDouble();
+                     shapResult_.at_pointer("/"+api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME)
+                         .as_array()) {
+                    if (item.as_object().at(api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME)
+                            .as_string() == className) {
+                        return item.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME)
+                            .as_double();
                     }
                 }
             }
@@ -472,14 +477,14 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    if (results[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
             TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult :
-             results[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG]
-                 .GetArray()) {
-            if (shapResult[TModelMetadata::JSON_FEATURE_NAME_TAG].GetString() == shapField) {
-                return shapResult[TModelMetadata::JSON_IMPORTANCE_TAG][TModelMetadata::JSON_MEAN_MAGNITUDE_TAG]
-                    .GetDouble();
+             results.at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
+                 .as_array()) {
+            if (shapResult.at_pointer("/"+TModelMetadata::JSON_FEATURE_NAME_TAG).as_string() == shapField) {
+                return shapResult.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG)
+                    .as_double();
             }
         }
     }
@@ -489,17 +494,17 @@ double readTotalShapValue(const RESULTS& results, std::string shapField) {
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    if (results[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
             TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
-        for (const auto& shapResult :
-             results[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG]
-                 .GetArray()) {
-            if (shapResult[TModelMetadata::JSON_FEATURE_NAME_TAG].GetString() == shapField) {
+        for (const auto& shapResult_ :
+             results.at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
+                 .as_array()) {
+            if (shapResult_.at_pointer("/"+TModelMetadata::JSON_FEATURE_NAME_TAG).as_string() == shapField) {
                 for (const auto& item :
-                     shapResult[TModelMetadata::JSON_CLASSES_TAG].GetArray()) {
-                    if (item[TModelMetadata::JSON_CLASS_NAME_TAG].GetString() == className) {
-                        return item[TModelMetadata::JSON_IMPORTANCE_TAG][TModelMetadata::JSON_MEAN_MAGNITUDE_TAG]
-                            .GetDouble();
+                     shapResult_.at_pointer("/"+TModelMetadata::JSON_CLASSES_TAG).as_array()) {
+                    if (item.at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
+                        return item.at(TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG)
+                            .as_double();
                     }
                 }
             }
@@ -511,13 +516,17 @@ double readTotalShapValue(const RESULTS& results, std::string shapField, std::st
 template<typename RESULTS>
 double readBaselineValue(const RESULTS& results) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        
+        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
-            return result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
-                         [TModelMetadata::JSON_BASELINE_TAG]
-                             .GetDouble();
+            return result_
+                .at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                            TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
+                            "/" + TModelMetadata::JSON_BASELINE_TAG)
+                .as_double();
         }
     }
     return 0.0;
@@ -526,16 +535,20 @@ double readBaselineValue(const RESULTS& results) {
 template<typename RESULTS>
 double readBaselineValue(const RESULTS& results, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        
+        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
             for (const auto& item :
-                 result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
-                       [TModelMetadata::JSON_CLASSES_TAG]
-                           .GetArray()) {
-                if (item[TModelMetadata::JSON_CLASS_NAME_TAG].GetString() == className) {
-                    return item[TModelMetadata::JSON_BASELINE_TAG].GetDouble();
+                 result_
+                     .at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
+                                 "/" + TModelMetadata::JSON_CLASSES_TAG)
+                     .as_array()) {
+                if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
+                    return item.as_object().at(TModelMetadata::JSON_BASELINE_TAG).as_double();
                 }
             }
         }
@@ -570,14 +583,14 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     double c4TotalShapActual{0.0};
     bool hasTotalFeatureImportance{false};
     double baseline{readBaselineValue(results)};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             double c2{readShapValue(result, "c2")};
             double c3{readShapValue(result, "c3")};
             double c4{readShapValue(result, "c4")};
             double prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
+                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
             // make sure that the local approximation differs from a prediction by a numeric error
             BOOST_REQUIRE_SMALL(prediction - (baseline + c1 + c2 + c3 + c4), 1e-3);
             c1Sum += std::fabs(c1);
@@ -590,8 +603,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c4TotalShapExpected.add(std::fabs(c4));
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
-        } else if (result.HasMember("model_metadata")) {
-            if (result["model_metadata"].HasMember("total_feature_importance")) {
+        } else if (result.as_object().contains("model_metadata")) {
+            if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
                 c1TotalShapActual = readTotalShapValue(result, "c1");
                 c2TotalShapActual = readTotalShapValue(result, "c2");
@@ -612,7 +625,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
               << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
-    // randomly on [-10, 10].
+    // randomly on [-10, 10).
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
     BOOST_REQUIRE_CLOSE(weights[1] / weights[2], c2Sum / c3Sum, 10.0); // ratio within 10% of ratio of coefficients
@@ -642,11 +655,11 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
     auto results{std::move(resultsPair.first)};
 
     TMeanAccumulator cNoImportanceMean;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             double prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
+                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
             // c1 explains 89-92% of the prediction value depending on platform,
             // i.e. the difference from the prediction is less than 11%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 11.0);
@@ -687,12 +700,12 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     double baselineBar{readBaselineValue(results, "bar")};
     BOOST_TEST_REQUIRE(baselineFoo == -baselineBar);
     TStrVec classes{"foo", "bar"};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
             std::string targetPrediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+                result.at_pointer("/row_results/results/ml/target_prediction").as_string()};
             double predictionProbability{
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
+                result.at_pointer("/row_results/results/ml/prediction_probability").as_double()};
             for (const auto& className : classes) {
                 double c1{readShapValue(result, "c1", className)};
                 double c2{readShapValue(result, "c2", className)};
@@ -716,8 +729,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
                     c4TotalShapExpected.add(std::fabs(c4));
                 }
             }
-        } else if (result.HasMember("model_metadata")) {
-            if (result["model_metadata"].HasMember("total_feature_importance")) {
+        } else if (result.as_object().contains("model_metadata")) {
+            if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
             for (std::size_t i = 0; i < classes.size(); ++i) {
@@ -782,8 +795,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     }
     double localApproximations[3];
     double classProbabilities[3];
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
             double c1{0.0};
             double c2{0.0};
             double c3{0.0};
@@ -825,8 +838,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             // We should have at least one feature that is important
             BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
 
-        } else if (result.HasMember("model_metadata")) {
-            if (result["model_metadata"].HasMember("total_feature_importance")) {
+        } else if (result.as_object().contains("model_metadata")) {
+            if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
             for (std::size_t i = 0; i < classes.size(); ++i) {
@@ -866,9 +879,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
     auto resultsPair{runRegression(topShapValues, {50.0, 150.0, 50.0, -50.0})};
     auto results{std::move(resultsPair.first)};
 
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
+            BOOST_TEST_REQUIRE(result.as_object().at("row_results/results/ml").as_object().contains(
                                    api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
                                false);
         }
@@ -888,14 +901,14 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
     double c2Sum{0.0};
     double c3Sum{0.0};
     double c4Sum{0.0};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             double c2{readShapValue(result, "c2")};
             double c3{readShapValue(result, "c3")};
             double c4{readShapValue(result, "c4")};
             double prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
+                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
             // The difference between the prediction and the sum of all SHAP values
             // constitutes bias.
             bias.add(prediction - (c1 + c2 + c3 + c4));

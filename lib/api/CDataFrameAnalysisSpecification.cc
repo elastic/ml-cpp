@@ -125,7 +125,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
                      << "'. Got parse error \"" << ec.message() << "\". "
                      << "Please report this problem.");
     } else {
-
+        LOG_DEBUG(<< "specification: " << specification);
         auto parameters = CONFIG_READER.read(specification);
 
         for (const auto& name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
@@ -259,6 +259,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const json::value& jsonAn
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
+    LOG_DEBUG(<< "jsonAnaysis: " << jsonAnalysis);
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
     m_AnalysisName = analysis[NAME].as<std::string>();

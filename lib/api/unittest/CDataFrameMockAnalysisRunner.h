@@ -70,7 +70,7 @@ private:
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value&,
+                         const boost::json::value&,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 

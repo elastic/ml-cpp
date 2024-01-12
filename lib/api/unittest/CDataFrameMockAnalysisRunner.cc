@@ -81,7 +81,7 @@ CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisS
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                                              const rapidjson::Value&,
+                                              const boost::json::value&,
                                               TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }

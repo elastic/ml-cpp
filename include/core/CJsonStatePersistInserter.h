@@ -13,6 +13,7 @@
 
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CStatePersistInserter.h>
+#include <core/CStreamWriter.h>
 #include <core/ImportExport.h>
 
 #include <iosfwd>
@@ -20,6 +21,31 @@
 
 namespace ml {
 namespace core {
+
+//class CStreamLineWriter : public core::CBoostJsonLineWriter<std::ostream> {
+//public:
+//    using TStreamLineWriter = CBoostJsonLineWriter<std::ostream>;
+//    using TStreamLineWriter::TStreamLineWriter;
+//
+//    CStreamLineWriter(std::ostream& os) : TStreamLineWriter(os) {}
+//
+//    void write(const json::value& doc) {
+//        this->outputStream() << doc;
+//    }
+//
+//    void write(const std::string& docStr) {
+//        this->outputStream() << docStr;
+//    }
+//
+//    void write() {
+//        std::string docStr = this->writeDocToString();
+//        this->outputStream() << docStr;
+//    }
+//
+//    void put(char c) {
+//        this->outputStream().put(c);
+//    }
+//};
 
 //! \brief
 //! For persisting state in JSON format.
@@ -69,7 +95,7 @@ private:
     //! JSON writer ostream
     std::ostream& m_WriteStream;
 
-    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    using TGenericLineWriter = CStreamWriter;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

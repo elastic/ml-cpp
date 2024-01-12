@@ -12,6 +12,7 @@
 #ifndef INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
 #define INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
 
+#include "CStringBufWriter.h"
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 
@@ -44,9 +45,9 @@ namespace core {
 //! Hardcode encoding and stream type.
 //!
 class CORE_EXPORT CBoostJsonConcurrentLineWriter
-    : public CBoostJsonLineWriter<std::ostringstream> {
+    : public CStringBufWriter {
 public:
-    using TBoostJsonLineWriterBase = CBoostJsonLineWriter<std::ostringstream>;
+    using TBoostJsonLineWriterBase = CBoostJsonLineWriter<std::string>;
 
 public:
     //! Take a wrapped stream and provide a json writer object
@@ -61,7 +62,7 @@ public:
 
     //! Hooks into end object to automatically flush if json object is complete
     //! Note: This is a non-virtual overwrite
-    bool on_object_end(std::size_t memberCount = 0);
+    virtual bool EndObject(std::size_t memberCount = 0) override;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -70,7 +71,7 @@ public:
     std::size_t memoryUsage() const;
     
      void put(char c) override {
-        m_StringBuffer->push_back(c);
+        this->outputStream().push_back(c);
     }
 
 private:
