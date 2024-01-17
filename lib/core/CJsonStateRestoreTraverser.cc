@@ -373,31 +373,31 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_bool(bool b, json::error_
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_int64(std::int64_t i, std::string_view/* s*/, json::error_code&/* ec*/) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_int64(std::int64_t i, std::string_view s, json::error_code&/* ec*/) {
     s_Type = E_TokenInt64;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(CStringUtils::typeToString(i));
+        s_Value[s_NextIndex].assign(s);
     }
 
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_uint64(std::uint64_t u, std::string_view/* s*/, json::error_code&/* ec*/) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_uint64(std::uint64_t u, std::string_view s, json::error_code&/* ec*/) {
     s_Type = E_TokenUInt64;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(CStringUtils::typeToString(u));
+        s_Value[s_NextIndex].assign(s);
     }
 
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d, std::string_view/* s*/, json::error_code&/* ec*/) {
+bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d, std::string_view s, json::error_code&/* ec*/) {
     s_Type = E_TokenDouble;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(CStringUtils::typeToString(d));
+        s_Value[s_NextIndex].assign(s);
     }
 
     return true;
@@ -413,7 +413,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string_part( std::string_
             s_Value[s_NextIndex].clear();
             m_NewToken = false;
         }
-        s_Value[s_NextIndex].push_back(s.front());
+        s_Value[s_NextIndex].append(s);
     }
 
     return true;
@@ -429,7 +429,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string( std::string_view 
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
         if (s.front() != '"') {
-            s_Value[s_NextIndex].push_back(s.front());
+            s_Value[s_NextIndex].append(s);
         }
         m_NewToken = true;
     }
@@ -471,7 +471,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key_part( std::string_vie
             s_NextIndex = 1 - s_NextIndex;
             s_Name[s_NextIndex].clear();
         }
-        s_Name[s_NextIndex].push_back(s.front());
+        s_Name[s_NextIndex].append(s);
     }
     return true;
 }
@@ -486,7 +486,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key( std::string_view s, 
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
         if (s.front() != '"') {
-            s_Name[s_NextIndex].push_back(s.front());
+            s_Name[s_NextIndex].append(s);
         }
         s_Level[s_NextIndex] = s_Level[1 - s_NextIndex];
         s_IsEndOfLevel[s_NextIndex] = false;
