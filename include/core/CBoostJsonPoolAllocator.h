@@ -53,7 +53,9 @@ public:
     //! Note: The API is designed to emphasise that the client does not own the document memory
     //! i.e. The document will be invalidated on destruction of this allocator
     TDocumentWeakPtr makeStorableDoc() {
-        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
+        // TODO sort out the allocator pool?
+//        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
+        TDocumentPtr newDoc = std::make_shared<boost::json::object>();
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);
     }

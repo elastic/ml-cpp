@@ -426,8 +426,9 @@ double readShapValue(const RESULTS& results_, std::string shapField) {
                  .as_array()) {
             if (shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
                     .as_string() == shapField) {
-                return shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME)
-                    .as_double();
+                json::value jv = shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                BOOST_TEST_REQUIRE(jv.is_number());
+                return jv.to_number<double>();
             }
         }
     }
@@ -440,7 +441,9 @@ double readClassProbability(const RESULTS& results, std::string className) {
         for (const auto& classResult :
              results.at_pointer("/row_results/results/ml/top_classes").as_array()) {
             if (classResult.at("class_name").as_string() == className) {
-                return classResult.at("class_probability").as_double();
+                json::value jv = classResult.at("class_probability");
+                BOOST_TEST_REQUIRE(jv.is_double());
+                return jv.as_double();
             }
         }
     }
@@ -464,8 +467,9 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                          .as_array()) {
                     if (item.as_object().at(api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME)
                             .as_string() == className) {
-                        return item.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME)
-                            .as_double();
+                        json::value jv = item.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                        BOOST_TEST_REQUIRE(jv.is_double());
+                        return jv.as_double();
                     }
                 }
             }
@@ -480,11 +484,12 @@ double readTotalShapValue(const RESULTS& results, std::string shapField) {
     if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
             TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult :
-             results.at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
+             results.at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
                  .as_array()) {
             if (shapResult.at_pointer("/"+TModelMetadata::JSON_FEATURE_NAME_TAG).as_string() == shapField) {
-                return shapResult.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG)
-                    .as_double();
+                json::value jv = shapResult.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
+                BOOST_TEST_REQUIRE(jv.is_double());
+                return jv.as_double();
             }
         }
     }
@@ -503,8 +508,9 @@ double readTotalShapValue(const RESULTS& results, std::string shapField, std::st
                 for (const auto& item :
                      shapResult_.at_pointer("/"+TModelMetadata::JSON_CLASSES_TAG).as_array()) {
                     if (item.at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
-                        return item.at(TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG)
-                            .as_double();
+                        json::value jv = item.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
+                        BOOST_TEST_REQUIRE(jv.is_double());
+                        return jv.as_double();
                     }
                 }
             }
@@ -522,11 +528,12 @@ double readBaselineValue(const RESULTS& results) {
         if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
             result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
-            return result_
-                .at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
-                            TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
-                            "/" + TModelMetadata::JSON_BASELINE_TAG)
-                .as_double();
+            json::value jv = result_.at_pointer(
+                "/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG + "/" +
+                TModelMetadata::JSON_BASELINE_TAG);
+            BOOST_TEST_REQUIRE(jv.is_double());
+            return jv.as_double();
         }
     }
     return 0.0;
@@ -543,12 +550,14 @@ double readBaselineValue(const RESULTS& results, std::string className) {
                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
             for (const auto& item :
                  result_
-                     .at_pointer(TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                     .at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
                                  TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
                                  "/" + TModelMetadata::JSON_CLASSES_TAG)
                      .as_array()) {
                 if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
-                    return item.as_object().at(TModelMetadata::JSON_BASELINE_TAG).as_double();
+                    json::value jv = item.as_object().at(TModelMetadata::JSON_BASELINE_TAG);
+                    BOOST_TEST_REQUIRE(jv.is_double());
+                    return jv.as_double();
                 }
             }
         }
@@ -589,8 +598,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             double c2{readShapValue(result, "c2")};
             double c3{readShapValue(result, "c3")};
             double c4{readShapValue(result, "c4")};
-            double prediction{
-                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
+            json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
+            BOOST_TEST_REQUIRE(jv.is_double());
+            double prediction{jv.as_double()};
             // make sure that the local approximation differs from a prediction by a numeric error
             BOOST_REQUIRE_SMALL(prediction - (baseline + c1 + c2 + c3 + c4), 1e-3);
             c1Sum += std::fabs(c1);
@@ -658,8 +668,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
     for (const auto& result : results.as_array()) {
         if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
-            double prediction{
-                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
+            json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
+            BOOST_TEST_REQUIRE(jv.is_double());
+            double prediction{jv.as_double()};
             // c1 explains 89-92% of the prediction value depending on platform,
             // i.e. the difference from the prediction is less than 11%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 11.0);
@@ -704,8 +715,9 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
         if (result.as_object().contains("row_results")) {
             std::string targetPrediction{
                 result.at_pointer("/row_results/results/ml/target_prediction").as_string()};
-            double predictionProbability{
-                result.at_pointer("/row_results/results/ml/prediction_probability").as_double()};
+            json::value jv = result.at_pointer("/row_results/results/ml/prediction_probability");
+            BOOST_TEST_REQUIRE(jv.is_double());
+            double predictionProbability{jv.as_double()};
             for (const auto& className : classes) {
                 double c1{readShapValue(result, "c1", className)};
                 double c2{readShapValue(result, "c2", className)};
@@ -881,7 +893,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
 
     for (const auto& result : results.as_array()) {
         if (result.as_object().contains("row_results")) {
-            BOOST_TEST_REQUIRE(result.as_object().at("row_results/results/ml").as_object().contains(
+            BOOST_TEST_REQUIRE(result.at_pointer("/row_results/results/ml").as_object().contains(
                                    api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
                                false);
         }
@@ -907,8 +919,9 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
             double c2{readShapValue(result, "c2")};
             double c3{readShapValue(result, "c3")};
             double c4{readShapValue(result, "c4")};
-            double prediction{
-                result.at_pointer("/row_results/results/ml/target_prediction").as_double()};
+            json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
+            BOOST_TEST_REQUIRE(jv.is_double());
+            double prediction{jv.as_double()};
             // The difference between the prediction and the sum of all SHAP values
             // constitutes bias.
             bias.add(prediction - (c1 + c2 + c3 + c4));

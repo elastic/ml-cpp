@@ -129,8 +129,11 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
 
     json::value results;
     json::error_code ec;
-    json::parse(outputStream.str(), ec);
+    json::parser p;
+    std::size_t written = p.write(outputStream.str(), ec);
+    BOOST_TEST_REQUIRE(outputStream.str().size() == written);
     BOOST_TEST_REQUIRE(ec.failed() == false);
+    results = p.release();
     BOOST_TEST_REQUIRE(results.is_array() == true);
 
     bool hasMemoryUsage{false};

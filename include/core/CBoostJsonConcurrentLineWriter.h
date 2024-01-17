@@ -62,17 +62,13 @@ public:
 
     //! Hooks into end object to automatically flush if json object is complete
     //! Note: This is a non-virtual overwrite
-    virtual bool EndObject(std::size_t memberCount = 0) override;
+    bool EndObject(std::size_t memberCount = 0) override;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;
-    
-     void put(char c) override {
-        this->outputStream().push_back(c);
-    }
 
 private:
     //! The stream object

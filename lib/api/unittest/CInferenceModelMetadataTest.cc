@@ -155,46 +155,46 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
                      result_.at_pointer("/model_metadata/hyperparameters").as_array()) {
                     std::string hyperparameterName{hyperparameter.at("name").as_string()};
                     if (hyperparameterName == api::CDataFrameTrainBoostedTreeRunner::ALPHA) {
-                        specFactory.predictionAlpha(hyperparameter.at("value").as_double());
+                        specFactory.predictionAlpha(hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR) {
                         specFactory.predictionDownsampleFactor(
-                            hyperparameter.at("value").as_double());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA) {
-                        specFactory.predictionEta(hyperparameter.at("value").as_double());
+                        specFactory.predictionEta(hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE) {
                         specFactory.predictionEtaGrowthRatePerTree(
-                            hyperparameter.at("value").as_double());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION) {
                         specFactory.predictionFeatureBagFraction(
-                            hyperparameter.at("value").as_double());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::GAMMA) {
-                        specFactory.predictionGamma(hyperparameter.at("value").as_double());
+                        specFactory.predictionGamma(hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::LAMBDA) {
-                        specFactory.predictionLambda(hyperparameter.at("value").as_double());
+                        specFactory.predictionLambda(hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT) {
                         specFactory.predictionSoftTreeDepthLimit(
-                            hyperparameter.at("value").as_double());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE) {
                         specFactory.predictionSoftTreeDepthTolerance(
-                            hyperparameter.at("value").as_double());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
                         specFactory.predictionMaximumNumberTrees(
-                            hyperparameter.at("value").as_uint64());
+                            hyperparameter.at("value").as_int64());
                     }
                 }
 
             } else if (result.contains("row_results")) {
                 expectedPredictions.emplace_back(
-                    result_.at_pointer("/row_results/results/ml/target_prediction").as_double());
+                    result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
             }
         }
     }
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
             const json::object& result = result_.as_object();
             if (result.contains("row_results")) {
                 actualPredictions.emplace_back(
-                    result_.at_pointer("/row_results/results/ml/target_prediction").as_double());
+                    result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
             }
         }
     }
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testDataSummarization) {
             if (result_.at_pointer("/model_metadata").as_object().contains("data_summarization") &&
                 result_.at_pointer("/model_metadata/data_summarization").as_object().contains("num_rows")) {
                 dataSummarizationNumRows =
-                    result_.at_pointer("/model_metadata/data_summarization/num_rows").as_uint64();
+                    result_.at_pointer("/model_metadata/data_summarization/num_rows").to_number<std::size_t>();
             }
         }
     }

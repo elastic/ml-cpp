@@ -214,7 +214,7 @@ private:
         /// @param s The partial characters
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_number_part( std::string_view s, json::error_code& ec ) {
+        bool on_number_part( std::string_view/* s*/, json::error_code&/* ec*/ ) {
             return true;
         }
 
@@ -225,7 +225,7 @@ private:
         /// @param s The remaining characters
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_int64( int64_t i, std::string_view s, json::error_code& ec );
+        bool on_int64( int64_t i, std::string_view/* s*/, json::error_code&/* ec*/ );
 
         /// Called when an unsigend integer is parsed.
         ///
@@ -267,7 +267,7 @@ private:
         /// @param s The partial characters.
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_comment_part( std::string_view s, json::error_code& ec ) {
+        bool on_comment_part( std::string_view/* s*/, json::error_code&/* ec*/ ) {
             return true;
         }
 
@@ -277,7 +277,7 @@ private:
         /// @param s The remaining characters
         /// @param ec Set to the error, if any occurred.
         ///
-        bool on_comment( std::string_view s, json::error_code& ec ) {
+        bool on_comment( std::string_view/* s*/, json::error_code&/* ec*/ ) {
             return true;
         }
 
@@ -298,7 +298,8 @@ private:
             E_TokenKeyPart = 13,
             E_TokenStringPart = 14,
             E_TokenComma,
-            E_TokenColon
+            E_TokenColon,
+            E_TokenWhiteSpace
         };
 
         ETokenType s_Type;

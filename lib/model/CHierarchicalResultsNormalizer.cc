@@ -261,6 +261,7 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream& inputStream) {
                 return E_Ok;
             }
         }
+        LOG_DEBUG(<< "name: " << traverser.name());
 
         // The MLCUE_ATTRIBUTE should always be the first field
         if (traverser.name() != CAnomalyScore::MLCUE_ATTRIBUTE) {

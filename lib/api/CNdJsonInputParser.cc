@@ -57,8 +57,6 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
             }
         }
 
-        LOG_INFO(<< "record fields: " << core::CContainerPrinter::print(recordFields));
-
         if (readerFunc(recordFields) == false) {
             LOG_ERROR(<< "Record handler function forced exit");
             return false;
@@ -122,8 +120,7 @@ bool CNdJsonInputParser::parseDocument(char* begin, json::value& document) {
     memset(buffer, '\0', 4096);
     size_t bytesRead{0};
     while (*begin != '\0') {
-        buffer[bytesRead] = *begin++;
-        ++bytesRead;
+        buffer[bytesRead++] = *begin++;
         if (bytesRead == 4096) {
             p.write_some(buffer, sizeof(buffer), ec);
             if (ec) {
@@ -134,14 +131,8 @@ bool CNdJsonInputParser::parseDocument(char* begin, json::value& document) {
             bytesRead = 0;
         }
     }
-    p.write(buffer, ec);
-//    p.write_some(buffer, sizeof(buffer), ec);
+    p.write_some(buffer, sizeof(buffer), ec);
     if (ec) {
-        LOG_ERROR(<< "JSON parse error: " << ec.message());
-        return false;
-    }
-    p.finish( ec );
-    if( ec ) {
         LOG_ERROR(<< "JSON parse error: " << ec.message());
         return false;
     }
@@ -152,8 +143,6 @@ bool CNdJsonInputParser::parseDocument(char* begin, json::value& document) {
                   << document.kind());
         return false;
     }
-
-    LOG_INFO(<< "parsed document: " << document);
 
     return true;
 }
@@ -233,14 +222,9 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     fieldNames.clear();
     recordFields.clear();
 
-    LOG_INFO(<< "decodeDocumentWithArbitraryFields: " << document);
-
     for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter) {
-        LOG_INFO(<< "emplacing key: " << iter->key());
         fieldNames.emplace_back(iter->key());
         const std::string& fieldName = fieldNames.back();
-        LOG_INFO(<< "fieldName: " << fieldName);
-        LOG_INFO(<< "iter->value(): " << iter->value());
         if (this->jsonValueToString(fieldName, iter->value(), recordFields[fieldName]) == false) {
             return false;
         }
@@ -283,8 +267,6 @@ bool CNdJsonInputParser::jsonValueToString(const std::string& fieldName,
     fieldValueStr.erase(
         std::remove(fieldValueStr.begin(), fieldValueStr.end(), '\"'),
         fieldValueStr.end());
-    LOG_INFO(<< "jsonValueToString: fieldName = " << fieldName
-             << ", jsonValue = " << jsonValue << ", fieldValueStr = " << fieldValueStr);
     return true;
 }
 }

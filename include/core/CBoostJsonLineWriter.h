@@ -35,7 +35,7 @@ public:
     //! Overwrites the Writer::StartObject in order to count nested objects
     bool StartObject() override {
         if (m_ObjectCount++ == 0) {
-            return TBoostJsonWriterBase::StartDocument();
+            return this->StartDocument();
         }
 
         return TBoostJsonWriterBase::StartObject();
@@ -50,7 +50,6 @@ public:
 
         // put a new line if at top level or if inside an array
         if (this->topLevel() || m_ObjectCount == 0) {
-            this->write();
             this->put('\n');
         }
         return baseReturnCode;
@@ -58,7 +57,7 @@ public:
 
     //! Add a pre-formatted key and value to the output.
     bool rawKeyAndValue(const std::string& keyAndValue) {
-        return TBoostJsonWriterBase::WriteRawValue(keyAndValue);
+        return this->WriteRawValue(keyAndValue);
     }
 
 private:

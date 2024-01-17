@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     BOOST_REQUIRE_EQUAL(std::string("'count per bucket by person'"),
                         std::string(modelPlot.at("model_feature").as_string()));
     BOOST_TEST_REQUIRE(modelPlot.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(1000, modelPlot.at("timestamp").as_uint64());
+    BOOST_REQUIRE_EQUAL(1000, modelPlot.at("timestamp").as_int64());
     BOOST_TEST_REQUIRE(modelPlot.contains("partition_field_name"));
     BOOST_REQUIRE_EQUAL(std::string("pName"),
                         std::string(modelPlot.at("partition_field_name").as_string()));
@@ -67,13 +67,13 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     BOOST_REQUIRE_EQUAL(std::string("bName"),
                         std::string(modelPlot.at("by_field_value").as_string()));
     BOOST_TEST_REQUIRE(modelPlot.contains("model_lower"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, modelPlot.at("model_lower").as_double(), 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, modelPlot.at("model_lower").to_number<double>(), 0.01);
     BOOST_TEST_REQUIRE(modelPlot.contains("model_upper"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, modelPlot.at("model_upper").as_double(), 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, modelPlot.at("model_upper").to_number<double>(), 0.01);
     BOOST_TEST_REQUIRE(modelPlot.contains("model_median"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, modelPlot.at("model_median").as_double(), 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, modelPlot.at("model_median").to_number<double>(), 0.01);
     BOOST_TEST_REQUIRE(modelPlot.contains("bucket_span"));
-    BOOST_REQUIRE_EQUAL(300, modelPlot.at("bucket_span").as_uint64());
+    BOOST_REQUIRE_EQUAL(300, modelPlot.at("bucket_span").as_int64());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

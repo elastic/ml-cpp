@@ -25,13 +25,13 @@ CBoostJsonConcurrentLineWriter::~CBoostJsonConcurrentLineWriter() {
 }
 
 void CBoostJsonConcurrentLineWriter::flush() {
-//    TBoostJsonLineWriterBase::flush();
+    TBoostJsonLineWriterBase::flush();
 
     m_OutputStreamWrapper.flush();
 }
 
 bool CBoostJsonConcurrentLineWriter::EndObject(std::size_t memberCount){
-    bool baseReturnCode = TBoostJsonLineWriterBase::EndObject(memberCount);
+    bool baseReturnCode =  CBoostJsonLineWriter::EndObject(memberCount);
 
     if (this->topLevel()) {
         m_OutputStreamWrapper.flushBuffer(*this, m_StringBuffer);

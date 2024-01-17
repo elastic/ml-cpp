@@ -72,9 +72,7 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
 
         this->writeField(name, value, doc);
     }
-
     m_Writer.write(doc);
-    m_Writer.put('\n');
 //    m_Writer.reset(m_OutStream);
 
     return true;

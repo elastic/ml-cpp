@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
             ++expectedScore;
         } else if (result.contains("phase_progress")) {
-            BOOST_TEST_REQUIRE(result_.at_pointer("phase_progress/progress_percent").as_int64() >= 0);
-            BOOST_TEST_REQUIRE(result_.at_pointer("phase_progress/progress_percent").as_int64() <= 100);
+            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
         }
     }
@@ -334,7 +334,14 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
                                expectedFeatureInfluences.end());
             for (int i = 0; i < 5; ++i) {
                 std::stringstream base_path;
-                base_path << "/row_results/results/ml/feature_influence" << i;
+                base_path << "/row_results/results/ml/feature_influence/" << i;
+                json::value jv;
+                try {
+                    jv = result_.at_pointer(base_path.str() + "/feature_name");
+                } catch (std::exception& e) {
+                    LOG_ERROR(<< "jv: " << jv);
+                    BOOST_REQUIRE(false);
+                }
                 BOOST_REQUIRE_EQUAL(
                     expectedNames[i].c_str(),
                     result_.at_pointer(base_path.str() + "/feature_name")
@@ -621,7 +628,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
                 } else if (status == "hard_limit") {
                     memoryStatusHardLimit = true;
                     if (result.at("analytics_memory_usage").as_object().contains("memory_reestimate_bytes") &&
-                        result_.at_pointer("analytics_memory_usage/memory_reestimate_bytes")
+                        result_.at_pointer("/analytics_memory_usage/memory_reestimate_bytes")
                                 .as_int64() > 0) {
                         memoryReestimateAvailable = true;
                     }

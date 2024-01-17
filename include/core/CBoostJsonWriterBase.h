@@ -70,7 +70,7 @@ public:
 
 public:
     explicit CBoostJsonWriterBase(OUTPUT_STREAM& os)
-        : m_Os(&os)/*, m_Values{json::storage_ptr(), m_Buffer, sizeof(m_Buffer)}*/ {
+        : m_Os(&os) {
 
         // push a default boost::json allocator onto our stack
         m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
@@ -142,38 +142,73 @@ public:
     }
 
     bool IsComplete() const {
-        return m_Levels.top() == 0;
+        bool ret = m_Levels.empty() || m_Levels.top() == 0;
+        return ret;
     }
 
-    bool WriteRawValue(const std::string& rawValue) {
-        m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
-        m_JsonStrm << rawValue;
-        return true;
-    }
-
-    virtual bool StartDocument() {
-        m_JsonStrm.str("");
-        m_JsonStrm << "{";
-//        m_Values.reset();
-        m_Levels.push(0);
-        m_ContainerType.push(E_Object);
-        return true;
-    }
-
-    virtual bool StartObject() {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    bool checkPrerequisites() {
+        if (m_Levels.empty()) {
+            HANDLE_FATAL(<< "Level stack unexpectedly empty.");
+            return false;
         }
-        m_JsonStrm << "{";
-        m_Levels.top()++;
+        if (m_ContainerType.empty()) {
+            HANDLE_FATAL(<< "Container type stack unexpectedly empty.");
+            return false;
+        }
+        return true;
+    }
+
+    bool maybeHandleArrayElement() {
+        if (this->checkPrerequisites() == false) {
+            return false;
+        }
+        if (m_ContainerType.top() == E_Array) {
+            this->append((IsComplete() ? "" : ","));
+        }
+        return true;
+    }
+
+    virtual void append(const std::string_view& str) = 0;
+
+    virtual bool Key(const std::string& key) {
+        this->append((IsComplete() ? "" : ","));
+        this->append("\"" + key + "\":");
+        return true;
+    }
+
+    virtual bool WriteRawValue(const std::string& rawValue)  {
+//        this->append((IsComplete() ? "" : ","));
+        this->append(rawValue);
+        return true;
+    }
+
+    virtual bool StartDocument()  {
+        this->append("{");
         m_Levels.push(0);
         m_ContainerType.push(E_Object);
         return true;
     }
 
-    virtual bool EndObject(std::size_t memberCount = 0) {
-        m_JsonStrm << "}";
-//        m_Values.push_object(m_Levels.top());
+    virtual bool StartObject()  {
+        if (m_ContainerType.empty() == false && m_ContainerType.top() == E_Array) {
+            this->append(IsComplete() ? "" : ",");
+        }
+        this->append("{");
+        if (m_Levels.empty()) {
+            m_Levels.push(0);
+        } else {
+            m_Levels.top()++;
+            m_Levels.push(0);
+        }
+        m_ContainerType.push(E_Object);
+        return true;
+    }
+
+    virtual bool EndObject(std::size_t memberCount = 0)  {
+        if (this->checkPrerequisites() == false) {
+            return false;
+        }
+        this->append("}");
         m_Levels.pop();
         m_ContainerType.pop();
         return true;
@@ -184,154 +219,162 @@ public:
     virtual bool StartArray() {
         if (m_Levels.empty() == false) {
             if (m_ContainerType.top() == E_Array) {
-                m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+                this->append((IsComplete() ? "" : ","));
             }
             m_Levels.top()++;
         } else {
             m_IsArrayDoc = true;
         }
-        m_JsonStrm << "[";
+        this->append("[");
         m_Levels.push(0);
         m_ContainerType.push(E_Array);
         return true;
     }
 
-    virtual bool EndArray() {
-        m_JsonStrm << "]";
-//        m_Values.push_array(m_Levels.top());
+    virtual bool EndArray()  {
+        if (this->checkPrerequisites() == false) {
+            return false;
+        }
+        this->append("]");
         m_Levels.pop();
         m_ContainerType.pop();
         return true;
     }
 
-    virtual bool Bool(bool boolVal) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Bool(bool boolVal)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
 
         m_Levels.top()++;
 
-        m_JsonStrm << std::boolalpha << boolVal;
-//        m_Values.push_bool(boolVal);
+        this->append(boolVal ? "true" : "false");
         return true;
     }
 
-    virtual bool Null() {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Null()  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
 
         m_Levels.top()++;
 
-        m_JsonStrm << "null";
+        this->append("null");
         return true;
     }
 
-    virtual bool Int(std::int64_t intVal) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Int(std::int64_t intVal)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << intVal;
-//        m_Values.push_int64(intVal);
+        this->append(core::CStringUtils::typeToString(intVal));
         return true;
     }
 
-    virtual bool Int64(std::int64_t int64Val) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Int64(std::int64_t int64Val)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << int64Val;
-//        m_Values.push_int64(int64Val);
+        this->append(core::CStringUtils::typeToString(int64Val));
         return true;
     }
 
-    virtual bool Uint(std::uint64_t uintVal) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Uint(std::uint64_t uintVal)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << uintVal;
-//        m_Values.push_uint64(uintVal);
+        this->append(core::CStringUtils::typeToString(uintVal));
         return true;
     }
 
-    virtual bool Uint64(std::uint64_t uintVal) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Uint64(std::uint64_t uint64Val)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << uintVal;
-//        m_Values.push_uint64(uintVal);
+        this->append(core::CStringUtils::typeToString(uint64Val));
         return true;
     }
 
-    virtual bool String(const std::string& str) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool RawString(const std::string& str)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << "\"" << str << "\"";
-//        m_Values.push_string(str);
+        this->WriteRawValue(str);
         return true;
     }
 
-    virtual bool String(const std::string_view & str) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool String(const std::string& str)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << "\"" << str << "\"";
-//        m_Values.push_string(str);
+        this->append("\"" + str + "\"");
         return true;
     }
 
-    virtual bool Key(const std::string& key) {
-        m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
-        m_JsonStrm << "\"" << key << "\":";
-//        m_Values.push_key(key);
-        return true;
-    }
-
-    virtual bool Double(double d) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool String(const std::string_view & str)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
+        m_Levels.top()++;
+
+        this->append("\"");
+        this->append(str);
+        this->append("\"");
+
+        return true;
+    }
+
+    virtual bool Double(double d)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
+        }
+
         // rewrite NaN and Infinity to 0
         if (std::isfinite(d) == false) {
             d = 0.0;
-//            m_JsonStrm << CStringUtils::typeToStringPretty(0);
-//            m_Values.push_double(0);
         }
         m_Levels.top()++;
-//        m_JsonStrm << std::showpoint << std::scientific << std::setprecision(0) << d;
-        m_JsonStrm << CStringUtils::typeToStringPretty(d);
-//        m_Values.push_double(d);
+        this->append(CStringUtils::typeToStringPretty(d));
         return true;
     }
 
     void Flush() {
-//        this->write();
         this->flush();
     }
 
     //! Writes an epoch second timestamp as an epoch millis timestamp
-    virtual bool Time(core_t::TTime t) {
-        if (m_ContainerType.top() == E_Array) {
-            m_JsonStrm << (m_Levels.top() == 0 ? "" : ",");
+    virtual bool Time(core_t::TTime t)  {
+        if (this->maybeHandleArrayElement() == false) {
+            return false;
         }
+
         m_Levels.top()++;
 
-        m_JsonStrm << CTimeUtils::toEpochMs(t);
-//        m_Values.push_int64(CTimeUtils::toEpochMs(t));
+        this->append(CStringUtils::typeToString(CTimeUtils::toEpochMs(t)));
         return true;
+    }
+
+    virtual void flush()  {
+        // no-op
     }
 
     //! Push a constant string into a supplied boost::json array value
@@ -383,51 +426,57 @@ public:
 
     //! write the boost::json value document to the output stream
     //! \p[in] doc boost::json document value to write out
-    virtual bool write(const json::value& doc)  = 0;
-    virtual bool write(const std::string& docStr)  = 0;
-    virtual bool write()  = 0;
-
-
-    std::string writeDocToString()  {
-//        json::value doc = m_Values.release();
-//        return this->writeDocToString(doc);
-        return m_JsonStrm.str();
+    virtual bool writeSerialized(const TValue& doc) {
+        std::string docStr = json::serialize(doc);
+        this->append(docStr);
+        this->put('\n');
+        return true;
     }
 
-    std::string writeDocToString(const TValue& doc) const {
-        LOG_INFO(<< "doc: " << doc);
-        if (m_Key.size() > 0) {
-            LOG_INFO(<< "m_Key: " << m_Key);
-
-            if (doc.as_object().contains(m_Key)) {
-                LOG_INFO(<< "Found key: " << m_Key << " in doc " << doc);
-                if (doc.at(m_Key).is_string()) {
-                    json::value jinnerval = doc.at(m_Key).as_string();
-                    std::string innerval = json::serialize(jinnerval);
-                    LOG_INFO(<< "innerval: " << innerval);
-
-                    std::string cooked = std::regex_replace(innerval, std::regex( R"(\\\\)" ), R"(\)");
-                    cooked = std::regex_replace(cooked, std::regex( "\\\\\"" ), R"(")");
-                    cooked = std::regex_replace(cooked, std::regex( "^\"" ), R"()");
-                    cooked = std::regex_replace(cooked, std::regex( R"("$)" ), R"()");
-
-                    LOG_INFO(<< "cooked: " << cooked);
-
-                    json::value jv = json::parse(cooked);
-                    const_cast<json::value&>(doc).as_object()[m_Key] = jv;
-                }
-            } else {
-                LOG_INFO(<< "Did not find key: " << m_Key << " in doc " << doc);
+    //! write the boost::json value document to the output stream
+    //! \p[in] doc boost::json document value to write out
+    virtual bool write(const TValue& doc) {
+        switch(doc.kind()) {
+        case json::kind::bool_ :
+            return this->Bool(doc.as_bool());
+        case json::kind::null :
+            return this->Null();
+        case json::kind::object :
+            if (this->StartObject() == false) {
+                return false;
             }
+            for (const auto& member : doc.as_object()) {
+                if (this->Key(member.key()) == false) {
+                    return false;
+                }
+                if (this->write(member.value()) == false) {
+                    return false;
+                }
+            }
+            return this->EndObject();
+        case json::kind::array :
+            if (this->StartArray() == false) {
+                return false;
+            }
+            for (const auto& member : doc.as_array()) {
+                if (this->write(member) == false) {
+                    return false;
+                }
+            }
+            return this->EndArray();
+        case json::kind::string: {
+            std::string str{json::serialize(doc)};
+            return this->RawString(str);
         }
-
-        json::serialize_options opt;
-        opt.allow_infinity_and_nan = false;
-        std::string ret = json::serialize(doc, opt);
-        LOG_DEBUG(<< "Returning: " << ret);
-        return ret;
+        case json::kind::double_:
+            return this->Double(doc.as_double());
+        case json::kind::int64:
+            return this->Int64(doc.as_int64());
+        case json::kind::uint64:
+            return this->Uint64(doc.as_uint64());
+        }
     }
-
+    
     //! Return a new boost::json document
     TDocument makeDoc() const {
         TDocument newDoc(&this->getRawAllocator());
@@ -511,14 +560,6 @@ public:
         return obj;
     }
 
-//    //! Adds a generic boost::json value field to an object.
-//    //! \p[in] name field name
-//    //! \p[in] value generic boost::json value
-//    //! \p[out] obj boost::json object to contain the \p name \p value pair
-//    void addMember(const std::string& name, TValue& value, TValue& obj) const {
-//        obj.as_object()[name] = value;
-//    }
-
     //! Adds a copy of a string field to an object.
     //! \p[in] name field name
     //! \p[in] value string field to be copied
@@ -581,7 +622,6 @@ public:
             LOG_ERROR(<< "Adding " << value << " to the \"" << fieldName
                       << "\" field of a JSON document");
             // Don't return - make a best effort to add the value
-            // Mimic rapidjson behaviour and convert infinity value to 0
             v = TValue(0);
         } else {
             v = TValue(value);
@@ -616,7 +656,6 @@ public:
                                   const TStrVec& values,
                                   TDocument & obj) const {
         this->addMember(fieldName, json::value_from(values), obj);
-//        this->addArrayToObj(fieldName, values.begin(), values.end(), obj);
     }
 
     void addStringArrayFieldToObj(const std::string& fieldName,
@@ -717,23 +756,13 @@ public:
         }
     }
 
-    virtual void put(char c) {
-//        m_Os->put(c); // TODO
-    }
+    virtual void put(char c) = 0;
 
     bool topLevel() {
         if (m_IsArrayDoc) {
-            return m_Levels.top() == 0;
+            return IsComplete();
         }
         return m_Levels.empty();
-    }
-
-    virtual void flush() {
-        m_JsonStrm.flush();
-    }
-
-    void setKey(const std::string& key) {
-        m_Key = key;
     }
 
 protected:
@@ -755,51 +784,39 @@ private:
         }
     }
 
-    //! Convert \p value to a RapidJSON value.
-    TValue asRapidJsonValue(const std::string& value) const {
+    //! Convert \p value to a JSON value.
+    TValue asJsonValue(const std::string& value) const {
         return {value, this->getRawAllocator()};
     }
 
-    //! Convert the range [\p begin, \p end) to a RapidJSON array and add to \p obj.
+    //! Convert the range [\p begin, \p end) to a JSON array and add to \p obj.
     template<typename ITR>
     void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
         json::array array = this->makeArray(std::distance(begin, end)).as_array();
         for (/**/; begin != end; ++begin) {
-            this->pushBack(asRapidJsonValue(*begin), array);
+            this->pushBack(asJsonValue(*begin), array);
         }
         this->addMember(fieldName, array, obj);
     }
 
-    void reset(OUTPUT_STREAM& os) {
-        m_Os = &os;
-    }
-
-private:
+protected:
 
     OUTPUT_STREAM* m_Os;
-
-    unsigned char m_Buffer[4096];
-
-    std::stack<std::size_t> m_Levels;
-
-    enum E_ContainerType {
-        E_Object = 0,
-        E_Array = 1
-    };
-    std::stack<E_ContainerType> m_ContainerType;
-
+    
     //! cache allocators for potential reuse
     TStrPoolAllocatorPtrMap m_AllocatorCache;
 
     //! Allow for different batches of documents to use independent allocators
     mutable TPoolAllocatorPtrStack m_JsonPoolAllocators;
-
-    std::string m_Key;
-
-protected:
-    std::ostringstream m_JsonStrm;
-//    json::value_stack m_Values;
-    std::size_t m_DocumentCount{0};
+    
+private:
+    enum E_ContainerType {
+        E_Object = 0,
+        E_Array = 1
+    };
+    std::stack<E_ContainerType> m_ContainerType;
+    
+    std::stack<std::size_t> m_Levels;
 };
 }
 }

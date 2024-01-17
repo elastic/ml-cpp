@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(testNumericOutput) {
 
     const std::string& output{writer.internalString()};
 
-    BOOST_REQUIRE_EQUAL("{\"probability\":1E-2,\"normalized_score\":3.3E0}\n", output);
+    BOOST_REQUIRE_EQUAL("{\"probability\":0.01,\"normalized_score\":3.3}\n", output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
