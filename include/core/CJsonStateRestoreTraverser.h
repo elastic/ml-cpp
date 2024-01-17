@@ -315,6 +315,8 @@ private:
 
         bool s_RememberValue;
         bool m_NewToken{true};
+
+        bool s_HaveCompleteToken{false};
     };
 
     //! JSON reader istream wrapper
