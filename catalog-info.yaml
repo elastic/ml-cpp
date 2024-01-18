@@ -29,7 +29,7 @@ spec:
       pipeline_file: .buildkite/pipeline.json.py
       provider_settings:
         build_branches: false
-        build_pull_request_forks: true
+        build_pull_request_forks: false
         build_pull_request_labels_changed: true
         cancel_deleted_branch_builds: true
         filter_condition: build.creator.name == 'elasticmachine'
@@ -116,7 +116,7 @@ spec:
       pipeline_file: .buildkite/branch.json.py
       provider_settings:
         build_branches: true
-        build_pull_request_forks: true
+        build_pull_request_forks: false
         cancel_deleted_branch_builds: true
         filter_condition: build.branch == "main" || build.branch == "8.12" || build.branch == "8.11" || build.branch == "7.17"
         filter_enabled: true
