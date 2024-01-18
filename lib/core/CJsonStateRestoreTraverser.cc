@@ -240,19 +240,21 @@ bool CJsonStateRestoreTraverser::parseNext(bool remember) {
 
         m_Handler.s_RememberValue = remember;
 
-        char c = '\0';
-        m_ReadStream.get(c);
-        if (c == '\0') {
-            break;
+        if (m_BytesRemaining == 0) {
+            m_BytesRemaining = BUFFER_SIZE - 1;
+            ::memset(m_Buffer, '\0', BUFFER_SIZE);
+            m_ReadStream.get(m_Buffer, BUFFER_SIZE, '\0');
+            m_BufferPtr = m_Buffer;
         }
 
         json::error_code ec;
-        m_Reader.write_some(true, &c, 1, ec);
+        std::size_t written = m_Reader.write_some(true, m_BufferPtr++, 1, ec);
         if (ec) {
             this->logError();
             ret = false;
             break;
         }
+        m_BytesRemaining -= written;
     } while (m_Handler.s_HaveCompleteToken == false);
 
     return ret;
@@ -377,7 +379,10 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_int64(std::int64_t i, std
     s_Type = E_TokenInt64;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(s);
+        // Frustratingly, the string_view passed to this handler points to characters
+        // beyond those used to parse the number value. Hence we need to convert the
+        // number _back_ to a string.
+        s_Value[s_NextIndex].assign(CStringUtils::typeToString(i));
     }
 
     return true;
@@ -387,7 +392,10 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_uint64(std::uint64_t u, s
     s_Type = E_TokenUInt64;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(s);
+        // Frustratingly, the string_view passed to this handler points to characters
+        // beyond those used to parse the number value. Hence we need to convert the
+        // number _back_ to a string.
+        s_Value[s_NextIndex].assign(CStringUtils::typeToString(u));
     }
 
     return true;
@@ -397,7 +405,10 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_double(double d, std::str
     s_Type = E_TokenDouble;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
-        s_Value[s_NextIndex].assign(s);
+        // Frustratingly, the string_view passed to this handler points to characters
+        // beyond those used to parse the number value. Hence we need to convert the
+        // number _back_ to a string.
+        s_Value[s_NextIndex].assign(CStringUtils::typeToString(d));
     }
 
     return true;
@@ -492,7 +503,6 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_key( std::string_view s, 
         s_IsEndOfLevel[s_NextIndex] = false;
         m_NewToken = true;
     }
-    s_RememberValue = true;
 
     return true;
 }

@@ -83,6 +83,8 @@ protected:
     void debug() const;
 
 private:
+    static const std::size_t BUFFER_SIZE{256};
+private:
     //! Accessors for alternating state variables
     size_t currentLevel() const;
     bool currentIsEndOfLevel() const;
@@ -285,21 +287,16 @@ private:
             E_TokenNull = 0,
             E_TokenKey = 1,
             E_TokenBool = 2,
-            E_TokenInt = 3,
-            E_TokenUInt = 4,
-            E_TokenInt64 = 5,
-            E_TokenUInt64 = 6,
-            E_TokenDouble = 7,
-            E_TokenString = 8,
-            E_TokenObjectStart = 9,
-            E_TokenObjectEnd = 10,
-            E_TokenArrayStart = 11,
-            E_TokenArrayEnd = 12,
-            E_TokenKeyPart = 13,
-            E_TokenStringPart = 14,
-            E_TokenComma,
-            E_TokenColon,
-            E_TokenWhiteSpace
+            E_TokenInt64 = 3,
+            E_TokenUInt64 = 4,
+            E_TokenDouble = 5,
+            E_TokenString = 6,
+            E_TokenObjectStart = 7,
+            E_TokenObjectEnd = 8,
+            E_TokenArrayStart = 9,
+            E_TokenArrayEnd = 10,
+            E_TokenKeyPart = 11,
+            E_TokenStringPart = 12
         };
 
         ETokenType s_Type;
@@ -337,6 +334,10 @@ private:
 
     //! If the first token is an '[' then we are parsing an array of objects
     bool m_IsArrayOfObjects;
+
+    char m_Buffer[BUFFER_SIZE];
+    char *m_BufferPtr{nullptr};
+    std::size_t m_BytesRemaining{0};
 };
 }
 }
