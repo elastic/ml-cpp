@@ -129,17 +129,17 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
         if (c == '"') {
             if (m_Reader.handler().s_Type == SBoostJsonHandler::E_TokenObjectStart) {
                 m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenKeyPart;
-                LOG_DEBUG(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenKeyPart");
+                LOG_TRACE(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenKeyPart");
             } else if (m_Reader.handler().s_Type == SBoostJsonHandler::E_TokenArrayStart) {
                 m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart;
-                LOG_DEBUG(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
+                LOG_TRACE(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
             } else if (m_Reader.handler().s_Type == SBoostJsonHandler::E_TokenComma) {
                 m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart;
-                LOG_DEBUG(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
+                LOG_TRACE(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
                 currentTokenType = m_Reader.handler().s_Type;
             } else if (m_Reader.handler().s_Type == SBoostJsonHandler::E_TokenColon) {
                 m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart;
-                LOG_DEBUG(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
+                LOG_TRACE(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenStringPart");
                 currentTokenType = m_Reader.handler().s_Type;
             }
         }
@@ -164,16 +164,6 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
 
             LOG_TRACE(<< "m_Reader.handler().s_Type = SBoostJsonHandler::E_TokenSpace");
         }
-
-//        static std::uint64_t charCount{0};
-//        charCount++;
-//        LOG_DEBUG(<< ": characters so far: " << charCount);
-//        static std::ostringstream oss;
-//        oss << c;
-
-//        if (charCount > 4095) {
-//            LOG_DEBUG(<< oss.str().length() << ": characters so far: " << oss.str());
-//        }
 
         json::error_code ec;
         m_Reader.write_some(true, &c, 1, ec);
@@ -307,7 +297,7 @@ std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
         return toCopy;
     }
 
-    LOG_DEBUG(<< "Returning " << bytesDone << " of " << n << " bytes");
+    LOG_TRACE(<< "Returning " << bytesDone << " of " << n << " bytes");
 
     return (bytesDone == 0) ? -1 : bytesDone;
 }

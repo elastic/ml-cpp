@@ -806,7 +806,7 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
 bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        LOG_DEBUG(<< "name: " << name);
+        LOG_TRACE(<< "name: " << name);
 
         // This used to be 64 bit but is now 32 bit, so may need adjusting
         // on restoration

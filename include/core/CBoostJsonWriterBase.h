@@ -158,6 +158,26 @@ public:
         return true;
     }
 
+    bool isObject() {
+        if (this->checkPrerequisites() == false) {
+            return false;
+        }
+        if (m_ContainerType.top() != E_Object) {
+            return false;
+        }
+        return true;
+    }
+
+    bool isArray() {
+        if (this->checkPrerequisites() == false) {
+            return false;
+        }
+        if (m_ContainerType.top() != E_Array) {
+            return false;
+        }
+        return true;
+    }
+
     bool maybeHandleArrayElement() {
         if (this->checkPrerequisites() == false) {
             return false;

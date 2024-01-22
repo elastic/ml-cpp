@@ -57,7 +57,13 @@ public:
 
     //! Add a pre-formatted key and value to the output.
     bool rawKeyAndValue(const std::string& keyAndValue) {
-        return this->WriteRawValue(keyAndValue);
+        // This pre-supposes that the current container is an object.
+        if (this->isObject() == false) {
+            return false;
+        }
+        this->append((this->IsComplete() ? "" : ","));
+        this->append(keyAndValue);
+        return true;
     }
 
 private:
