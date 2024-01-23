@@ -491,8 +491,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 const json::array& values = actualIt->as_array();
 
                 LOG_DEBUG(<< "values: " << values);
-//                BOOST_REQUIRE_EQUAL(102.0, values[0].as_double()); // TODO
-                BOOST_REQUIRE_EQUAL(102, values[0].as_int64());
+                BOOST_REQUIRE_EQUAL(102.0, values[0].to_number<double>());
                 foundRecord = true;
             }
         }
@@ -541,8 +540,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 BOOST_TEST_REQUIRE(actualIt != recordsArray.as_object().end());
                 const json::array& values = actualIt->value().as_array();
 
-//                BOOST_REQUIRE_EQUAL(101.0, values[0].as_double()); // TODO
-                BOOST_REQUIRE_EQUAL(101, values[0].as_int64());
+                BOOST_REQUIRE_EQUAL(101.0, values[0].to_number<double>());
                 foundRecord = true;
             }
         }
