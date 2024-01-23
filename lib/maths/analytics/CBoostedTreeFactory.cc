@@ -1364,29 +1364,19 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
 
     CBoostedTreeFactory factory{constructFromParameters(numberThreads, std::move(loss))};
 
-    auto is = validInputStream(dataSearcher);
-
-//    auto rdbufCp = is->rdbuf();
-//
-//    LOG_DEBUG(<< "inputStream: " << rdbufCp);
-
     // Read data summarization from the stream.
     TEncoderUPtr encoder;
     TStrSizeUMap encodingsIndices;
     std::tie(encoder, encodingsIndices) =
-        dataSummarizationRestoreCallback(is, frame);
+        dataSummarizationRestoreCallback(validInputStream(dataSearcher), frame);
     if (encoder != nullptr) {
         factory.featureEncoder(std::move(encoder));
     } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
     }
 
-//    auto rdbufCp1 = is->rdbuf();
-//
-//    LOG_DEBUG(<< "inputStream: " << rdbufCp1);
-
     // Read best forest from the stream.
-    auto bestForest = bestForestRestoreCallback(is, encodingsIndices);
+    auto bestForest = bestForestRestoreCallback(validInputStream(dataSearcher), encodingsIndices);
     if (bestForest != nullptr) {
         factory.bestForest(std::move(*bestForest.release()));
     } else {
