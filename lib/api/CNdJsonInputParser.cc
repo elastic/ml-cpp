@@ -35,10 +35,12 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
     // We reuse the same field map for every record
     TStrStrUMap recordFields;
 
-    char* begin(this->parseLine().first);
-    while (begin != nullptr) {
+    char *begin;
+    std::size_t length;
+    std::tie(begin, length) = this->parseLine();
+    while (begin != nullptr && length > 0) {
         json::value document;
-        if (this->parseDocument(begin, document) == false) {
+        if (this->parseDocument(begin, length, document) == false) {
             LOG_ERROR(<< "Failed to parse JSON document");
             return false;
         }
@@ -62,7 +64,7 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
             return false;
         }
 
-        begin = this->parseLine().first;
+        std::tie(begin, length) = this->parseLine();
     }
 
     return true;
@@ -78,10 +80,12 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
     // We reuse the same field vector for every record
     TStrVec fieldValues;
 
-    char* begin{this->parseLine().first};
-    while (begin != nullptr) {
+    char *begin;
+    std::size_t length;
+    std::tie(begin, length) = this->parseLine();
+    while (begin != nullptr && length > 0) {
         json::value document;
-        if (this->parseDocument(begin, document) == false) {
+        if (this->parseDocument(begin, length, document) == false) {
             LOG_ERROR(<< "Failed to parse JSON document");
             return false;
         }
@@ -105,37 +109,22 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
             return false;
         }
 
-        begin = this->parseLine().first;
+        std::tie(begin, length) = this->parseLine();
     }
 
     return true;
 }
 
-bool CNdJsonInputParser::parseDocument(char* begin, json::value& document) {
+bool CNdJsonInputParser::parseDocument(char* begin, std::size_t length, json::value& document) {
     // Parse JSON string
     json::error_code ec;
     json::stream_parser p;
-    std::string line;
-    char buffer[4096];
-    memset(buffer, '\0', 4096);
-    size_t bytesRead{0};
-    while (*begin != '\0') {
-        buffer[bytesRead++] = *begin++;
-        if (bytesRead == 4096) {
-            p.write_some(buffer, sizeof(buffer), ec);
-            if (ec) {
-                LOG_ERROR(<< "JSON parse error: " << ec.message());
-                return false;
-            }
-            memset(buffer, '\0', 4096);
-            bytesRead = 0;
-        }
-    }
-    p.write_some(buffer, sizeof(buffer), ec);
+    p.write_some(begin, length, ec);
     if (ec) {
         LOG_ERROR(<< "JSON parse error: " << ec.message());
         return false;
     }
+
     document = p.release();
 
     if (document.is_object() == false) {

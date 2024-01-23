@@ -83,7 +83,7 @@ public:
 
 private:
     //! Attempt to parse the current working record into data fields.
-    bool parseDocument(char* begin, json::value& document);
+    bool parseDocument(char* begin, std::size_t length, json::value& document);
 
     bool decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
                                         const json::value& document,
