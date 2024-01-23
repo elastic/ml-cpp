@@ -81,14 +81,17 @@ private:
     void readFromJsonStream(TIStreamPtr inputStream) {
         if (inputStream != nullptr) {
             json::error_code ec;
-            json::value doc = json::parse(*inputStream, ec);
+            json::parse_options opts;
+            opts.numbers = json::number_precision::precise;
+            json::value doc = json::parse(*inputStream, ec, {}, opts);
             BOOST_TEST_REQUIRE(ec.failed() == false);
             BOOST_TEST_REQUIRE(doc.is_object());
-            
+
             m_Name = doc.as_object().at("name").as_string();
             m_Values.reserve(doc.as_object().at("values").as_array().size());
             for (const auto& value : doc.as_object().at("values").as_array()) {
-                m_Values.push_back(value.as_double());
+                double d = value.to_number<double>();
+                m_Values.push_back(d);
             }
         }
     }

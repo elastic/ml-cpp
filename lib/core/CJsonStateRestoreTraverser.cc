@@ -29,7 +29,7 @@ const std::string EMPTY_STRING;
 }
 
 CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream)
-    : m_ReadStream(inputStream), m_Reader(json::parse_options()), m_Handler(m_Reader.handler()), m_Started(false),
+    : m_ReadStream(inputStream), m_Reader({32, {}, false, false, true, false}), m_Handler(m_Reader.handler()), m_Started(false),
       m_DesiredLevel(0), m_IsArrayOfObjects(false) {
 }
 
@@ -249,13 +249,15 @@ bool CJsonStateRestoreTraverser::parseNext(bool remember) {
         }
 
         json::error_code ec;
-        std::size_t written = m_Reader.write_some(true, m_BufferPtr++, 1, ec);
-        m_BytesRemaining -= written;
+        char c = *m_BufferPtr;
+        std::size_t written = m_Reader.write_some(true, &c, 1, ec);
         if (ec) {
             this->logError();
             ret = false;
             break;
         }
+        m_BytesRemaining -= written;
+        m_BufferPtr++;
     } while (m_Handler.s_HaveCompleteToken == false);
 
     return ret;

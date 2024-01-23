@@ -748,9 +748,6 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     }
     std::string origJson = ss.str();
 
-    boost::json::value v = boost::json::parse(origJson);
-    LOG_DEBUG(<< "v: " << v);
-
     // The traverser expects the state json in a embedded document
     std::string wrappedJson = "{\"topLevel\" : " + origJson + "}";
 
@@ -832,19 +829,14 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
             partitionMaxScoreStr);
     }
 
-    std::ostringstream os;
-    core::CStreamWriter writer(os);
-    writer.write(stateDoc);
-    std::string state = os.str();
+    // We used to write the stateDoc object to a string and compare against the original JSON
+    // string representation here but, as boost::json prohibits the creation of objects with duplicate keys
+    // (as we have in our model state), that is no longer possible.
+    boost::json::value origDoc = boost::json::parse(origJson);
+    LOG_DEBUG(<< "origDoc : " << origDoc);
     LOG_DEBUG(<< "stateDoc: " << stateDoc);
-//    std::string state = boost::json::serialize(stateDoc); // Arrrrgh.. can't do this as the stateDoc contains duplicate member names
 
-    // strip out the newlines before comparing
-    state.erase(std::remove(state.begin(), state.end(), '\n'), state.end());
-
-    origJson.erase(std::remove(origJson.begin(), origJson.end(), '\n'), origJson.end());
-
-    BOOST_REQUIRE_EQUAL(origJson, state);
+    BOOST_TEST_REQUIRE(origDoc == stateDoc);
 
     // restore from the JSON state with extra fields used for
     // indexing in the database

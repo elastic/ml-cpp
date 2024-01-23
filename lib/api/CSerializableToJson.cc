@@ -169,24 +169,6 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                 }
 
             }
-//            while (std::getline( *inputStream, line ) && done == false) {
-//                LOG_DEBUG(<< "line: " << line);
-//                p.write( line, ec );
-//                assertNoParseError(ec);
-//                doc = p.release();
-//                assertIsJsonObject(doc);
-//                LOG_DEBUG(<< "doc: " << doc);
-//                try {
-//                    auto chunk = ifExists(compressedDocTag, getAsObjectFrom,
-//                                          doc.as_object());
-//                    buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
-//                                 ifExists(payloadTag, getStringLengthFrom, chunk));
-//                    done = chunk.contains(JSON_EOS_TAG);
-//                } catch (const std::runtime_error& e) {
-//                    LOG_WARN(<< "Caught exception: " << e.what());
-//                    continue;
-//                }
-//            }
 
             consumeSpace(*inputStream);
 

@@ -345,8 +345,8 @@ public:
 
         m_Levels.top()++;
 
-        this->append("\"" + str + "\"");
-        return true;
+        std::string serializedStr{json::serialize(str)};
+        return this->WriteRawValue(serializedStr);
     }
 
     virtual bool String(const std::string_view & str)  {
@@ -373,7 +373,7 @@ public:
             d = 0.0;
         }
         m_Levels.top()++;
-        this->append(CStringUtils::typeToStringPretty(d));
+        this->append(CStringUtils::typeToStringPrecise(d, CIEEE754::E_DoublePrecision));
         return true;
     }
 
