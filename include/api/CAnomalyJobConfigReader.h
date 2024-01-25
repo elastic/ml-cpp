@@ -79,9 +79,7 @@ public:
     class API_EXPORT CParameter {
     public:
         explicit CParameter(const std::string& name) : m_Name{name} {}
-        CParameter(const std::string& name,
-                   const json::value& value,
-                   const TStrIntMap& permittedValues);
+        CParameter(const std::string& name, const json::value& value, const TStrIntMap& permittedValues);
 
         //! Get the name of the parameter.
         const std::string& name() const { return m_Name; }

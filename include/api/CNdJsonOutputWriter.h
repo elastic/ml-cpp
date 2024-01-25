@@ -82,9 +82,7 @@ public:
 
 private:
     //! Write a single field to the document
-    void writeField(const std::string& name,
-                    const std::string& value,
-                    json::object& doc) const;
+    void writeField(const std::string& name, const std::string& value, json::object& doc) const;
 
 private:
     //! Which output fields are numeric?
@@ -98,7 +96,7 @@ private:
     std::ostream& m_OutStream;
 
     //! JSON writer ostream wrapper
-//    rapidjson::OStreamWrapper m_WriteStream;
+    //    rapidjson::OStreamWrapper m_WriteStream;
 
     using TGenericLineWriter = core::CStreamWriter;
 

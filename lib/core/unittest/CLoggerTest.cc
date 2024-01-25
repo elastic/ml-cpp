@@ -93,7 +93,8 @@ void loggedExpectedMessages(const std::string& logging, const TStrVec& messages)
         if (messageString.find(messages[foundMessages]) != std::string::npos) {
             ++foundMessages;
         } else if (foundMessages > 0) {
-            BOOST_FAIL(std::string (messageString) + " did not contain " + messages[foundMessages]);
+            BOOST_FAIL(std::string(messageString) + " did not contain " +
+                       messages[foundMessages]);
         }
     }
     BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);

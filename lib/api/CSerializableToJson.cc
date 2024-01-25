@@ -73,7 +73,7 @@ const std::string JSON_EOS_TAG{"eos"};
 std::string CSerializableToJsonStream::jsonString() const {
     std::ostringstream jsonStream;
     {
-        std::ostringstream &osw = jsonStream;
+        std::ostringstream& osw = jsonStream;
         TStreamWriter writer{osw};
         this->addToJsonStream(writer);
     }
@@ -130,8 +130,8 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       TIStreamPtr inputStream,
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
-//        core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
-//        LOG_DEBUG(<< "inputStream: " << inputStream->rdbuf());
+        //        core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
+        //        LOG_DEBUG(<< "inputStream: " << inputStream->rdbuf());
         try {
             json::value doc;
             json::error_code ec;
@@ -141,9 +141,9 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
             while (inputStream->eof() == false && done == false) {
                 if (inputStream->peek() == '\0') {
                     inputStream->get();
-                    continue ;
+                    continue;
                 }
-                std::getline( *inputStream, line );
+                std::getline(*inputStream, line);
                 LOG_DEBUG(<< "line: " << line);
                 std::size_t length{line.length()};
                 std::size_t written{0};
@@ -165,18 +165,15 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                     done = chunk.contains(JSON_EOS_TAG);
                 } catch (const std::runtime_error& e) {
                     LOG_WARN(<< "Caught exception: " << e.what());
-                    continue ;
+                    continue;
                 }
-
             }
 
             consumeSpace(*inputStream);
 
             return decodeAndDecompress(buffer);
 
-        } catch (const std::runtime_error& e) {
-            LOG_ERROR(<< e.what());
-        }
+        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
     return nullptr;
 }

@@ -107,7 +107,9 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
                                        .get();
         writer[FILE_NAME] = CJsonLogLayout::cropPath(fullFileName);
 
-        writer[LINE_NAME] = boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec).get();
+        writer[LINE_NAME] =
+            boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
+                .get();
     }
 
     strm << writer;

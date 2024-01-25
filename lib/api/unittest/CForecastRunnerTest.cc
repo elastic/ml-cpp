@@ -103,11 +103,13 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         const json::object& m = m_.as_object();
         if (m.contains("model_forecast_request_stats")) {
             const json::value& forecastStart = m.at("model_forecast_request_stats");
-            if (std::strcmp("scheduled", forecastStart.at("forecast_status").as_string().c_str()) == 0) {
+            if (std::strcmp("scheduled",
+                            forecastStart.at("forecast_status").as_string().c_str()) == 0) {
                 BOOST_TEST_REQUIRE(!foundStartedRecord);
                 foundScheduledRecord = true;
-            } else if (std::strcmp("started",
-                                   forecastStart.at("forecast_status").as_string().c_str()) == 0) {
+            } else if (std::strcmp(
+                           "started",
+                           forecastStart.at("forecast_status").as_string().c_str()) == 0) {
                 BOOST_TEST_REQUIRE(foundScheduledRecord);
                 foundStartedRecord = true;
                 break;

@@ -55,8 +55,7 @@ private:
     static bool hasStringMember(const json::object& object, const std::string& name);
     static bool hasArrayMember(const json::object& object, const std::string& name);
     static bool hasDoubleMember(const json::object& object, const std::string& name);
-    static bool parseRuleActions(const json::object& ruleObject,
-                                 model::CDetectionRule& rule);
+    static bool parseRuleActions(const json::object& ruleObject, model::CDetectionRule& rule);
     static bool parseConditionsConnective(const json::object& ruleObject,
                                           model::CDetectionRule& rule);
     static bool parseConditionAppliesTo(const json::object& ruleConditionObject,

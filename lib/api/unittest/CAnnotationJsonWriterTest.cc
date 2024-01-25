@@ -72,7 +72,8 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(annotation.contains("over_field_name"));
     BOOST_REQUIRE_EQUAL(std::string{"oName"}, annotation.at("over_field_name").as_string());
     BOOST_TEST_REQUIRE(annotation.contains("over_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string{"oValue"}, annotation.at("over_field_value").as_string());
+    BOOST_REQUIRE_EQUAL(std::string{"oValue"},
+                        annotation.at("over_field_value").as_string());
     BOOST_TEST_REQUIRE(annotation.contains("by_field_name"));
     BOOST_REQUIRE_EQUAL(std::string{"bName"}, annotation.at("by_field_name").as_string());
     BOOST_TEST_REQUIRE(annotation.contains("by_field_value"));

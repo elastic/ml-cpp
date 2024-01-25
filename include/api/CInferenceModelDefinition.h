@@ -178,8 +178,7 @@ public:
 
     public:
         explicit CSizeInfo(const CTrainedModel& trainedModel);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         //! \return Expected number of operation for the model evaluation.
         virtual std::size_t numOperations() const = 0;
 
@@ -286,8 +285,7 @@ public:
 
     public:
         explicit CSizeInfo(const CTree& tree);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
     private:
@@ -328,8 +326,7 @@ public:
 
     public:
         explicit CSizeInfo(const CEnsemble& ensemble);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
     private:
@@ -377,8 +374,7 @@ public:
         static const std::string JSON_FIELD_LENGTH_TAG;
 
     public:
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         virtual const std::string& typeString() const = 0;
         const CEncoding* encoding() const;
 
@@ -421,8 +417,7 @@ public:
     class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
         explicit CSizeInfo(const CFrequencyEncoding& encoding);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -460,8 +455,7 @@ public:
 
     public:
         explicit CSizeInfo(const COneHotEncoding& encoding);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -493,8 +487,7 @@ public:
     class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
         explicit CSizeInfo(const CTargetMeanEncoding& encoding);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -564,8 +557,7 @@ public:
 
     public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
-        void addToJsonDocument(json::object& parentObject,
-                               TBoostJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const;
         std::string jsonString();
 

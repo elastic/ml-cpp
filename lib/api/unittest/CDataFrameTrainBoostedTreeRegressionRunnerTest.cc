@@ -57,7 +57,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     json::value jsonParameters = json::parse("{"
                                              "  \"dependent_variable\": \"dep_var\","
                                              "  \"prediction_field_name\": \"is_training\""
-                                             "}", ec);
+                                             "}",
+                                             ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(jsonParameters.is_object());
 

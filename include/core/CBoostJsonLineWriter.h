@@ -24,8 +24,7 @@ namespace core {
 //! \tparam OUTPUT_STREAM Type of output stream.
 //! \note implements Handler concept
 template<typename OUTPUT_STREAM>
-class CBoostJsonLineWriter
-    : public CBoostJsonWriterBase<OUTPUT_STREAM> {
+class CBoostJsonLineWriter : public CBoostJsonWriterBase<OUTPUT_STREAM> {
 public:
     using TBoostJsonWriterBase = CBoostJsonWriterBase<OUTPUT_STREAM>;
     using TBoostJsonWriterBase::TBoostJsonWriterBase;

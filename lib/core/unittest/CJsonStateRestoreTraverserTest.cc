@@ -24,94 +24,102 @@ using namespace std;
 using namespace boost::json;
 
 // The null parser discards all the data
-class null_parser
-{
-    struct handler
-    {
+class null_parser {
+    struct handler {
         constexpr static std::size_t max_object_size = std::size_t(-1);
         constexpr static std::size_t max_array_size = std::size_t(-1);
         constexpr static std::size_t max_key_size = std::size_t(-1);
         constexpr static std::size_t max_string_size = std::size_t(-1);
 
-        bool on_document_begin( boost::json::error_code& ) {
+        bool on_document_begin(boost::json::error_code&) {
             LOG_INFO(<< "on_document_begin");
-            return true; }
-        bool on_document_end( boost::json::error_code& ) {
+            return true;
+        }
+        bool on_document_end(boost::json::error_code&) {
             LOG_INFO(<< "on_document_end");
-            return true; }
-        bool on_object_begin( boost::json::error_code& ) {
+            return true;
+        }
+        bool on_object_begin(boost::json::error_code&) {
             LOG_INFO(<< "on_object_begin");
-            return true; }
-        bool on_object_end( std::size_t, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_object_end(std::size_t, boost::json::error_code&) {
             LOG_INFO(<< "on_object_end");
-            return true; }
-        bool on_array_begin( boost::json::error_code& ) {
+            return true;
+        }
+        bool on_array_begin(boost::json::error_code&) {
             LOG_INFO(<< "on_array_begin");
-            return true; }
-        bool on_array_end( std::size_t, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_array_end(std::size_t, boost::json::error_code&) {
             LOG_INFO(<< "on_array_end");
-            return true; }
-        bool on_key_part( std::string_view str, std::size_t, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_key_part(std::string_view str, std::size_t, boost::json::error_code&) {
             LOG_INFO(<< "on_key_part: " << str);
-            return true; }
-        bool on_key( std::string_view str, std::size_t n, boost::json::error_code& ) {
-            LOG_INFO(<< "on_key: '" << str << "'" << ", size: " << n);
-            return true; }
-        bool on_string_part( std::string_view str, std::size_t, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_key(std::string_view str, std::size_t n, boost::json::error_code&) {
+            LOG_INFO(<< "on_key: '" << str << "'"
+                     << ", size: " << n);
+            return true;
+        }
+        bool on_string_part(std::string_view str, std::size_t, boost::json::error_code&) {
             LOG_INFO(<< "on_string_part: " << str);
-            return true; }
-        bool on_string( std::string_view str, std::size_t n, boost::json::error_code& ) {
-            LOG_INFO(<< "on_string: '" << str << "'" << ", size: " << n);
-            return true; }
-        bool on_number_part( std::string_view str, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_string(std::string_view str, std::size_t n, boost::json::error_code&) {
+            LOG_INFO(<< "on_string: '" << str << "'"
+                     << ", size: " << n);
+            return true;
+        }
+        bool on_number_part(std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_number_part: " << str);
-            return true; }
-        bool on_int64( std::int64_t, std::string_view str, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_int64(std::int64_t, std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_int64: " << str);
-            return true; }
-        bool on_uint64( std::uint64_t, std::string_view str, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_uint64(std::uint64_t, std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_uint64: " << str);
-            return true; }
-        bool on_double( double, std::string_view str, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_double(double, std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_double: " << str);
-            return true; }
-        bool on_bool( bool b, boost::json::error_code& ) {
+            return true;
+        }
+        bool on_bool(bool b, boost::json::error_code&) {
             LOG_INFO(<< "on_bool: " << std::boolalpha << b);
-            return true; }
-        bool on_null( boost::json::error_code& ) {
+            return true;
+        }
+        bool on_null(boost::json::error_code&) {
             LOG_INFO(<< "on_null: ");
-            return true; }
+            return true;
+        }
         bool on_comment_part(std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_comment_part: " << str);
-            return true; }
+            return true;
+        }
         bool on_comment(std::string_view str, boost::json::error_code&) {
             LOG_INFO(<< "on_comment: " << str);
-            return true; }
+            return true;
+        }
     };
 
     basic_parser<handler> p_;
     value m_Doc;
 
 public:
-    null_parser()
-        : p_(parse_options())
-    {
-    }
+    null_parser() : p_(parse_options()) {}
 
-    ~null_parser()
-    {
-    }
+    ~null_parser() {}
 
-    std::size_t
-    write(
-        char const* data,
-        std::size_t size,
-        boost::json::error_code& ec)
-    {
+    std::size_t write(char const* data, std::size_t size, boost::json::error_code& ec) {
         std::size_t n{0};
-        for (int i = 0; i < size-1; i++) {
+        for (int i = 0; i < size - 1; i++) {
             const char* ptr = &data[i];
-            n += p_.write_some( true, ptr, 1, ec );
+            n += p_.write_some(true, ptr, 1, ec);
             if (ec) {
                 LOG_ERROR(<< "Json parsing of [" << data << "] failed at offset << "
                           << i << ". Parser message: " << ec.message());
@@ -124,10 +132,10 @@ public:
             return n;
         }
 
-        const char* ptr = &data[size-1];
+        const char* ptr = &data[size - 1];
 
-        n += p_.write_some( false, ptr, 1, ec );
-        if(! ec && n < size) {
+        n += p_.write_some(false, ptr, 1, ec);
+        if (!ec && n < size) {
             ec = error::extra_data;
         }
         if (ec) {
@@ -135,9 +143,9 @@ public:
             return n;
         }
 
-//        auto const n = p_.write_some( false, data, size, ec );
-//        if(! ec && n < size)
-//            ec = error::extra_data;
+        //        auto const n = p_.write_some( false, data, size, ec );
+        //        if(! ec && n < size)
+        //            ec = error::extra_data;
         return n;
     }
 };

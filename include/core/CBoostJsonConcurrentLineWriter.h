@@ -44,8 +44,7 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! Hardcode encoding and stream type.
 //!
-class CORE_EXPORT CBoostJsonConcurrentLineWriter
-    : public CStringBufWriter {
+class CORE_EXPORT CBoostJsonConcurrentLineWriter : public CStringBufWriter {
 public:
     using TBoostJsonLineWriterBase = CBoostJsonLineWriter<std::string>;
 

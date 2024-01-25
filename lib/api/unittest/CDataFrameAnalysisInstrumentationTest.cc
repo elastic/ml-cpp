@@ -142,12 +142,15 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
         json::object result = result_.as_object();
         if (result.contains("analytics_memory_usage")) {
             BOOST_TEST_REQUIRE(result["analytics_memory_usage"].is_object() == true);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].as_object()["job_id"].as_string() == jobId);
             BOOST_TEST_REQUIRE(
-                result["analytics_memory_usage"].as_object()["peak_usage_bytes"].as_int64() == memoryUsage);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].as_object()["timestamp"].as_int64() >=
-                               timeBefore);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].as_object()["timestamp"].as_int64() <= timeAfter);
+                result["analytics_memory_usage"].as_object()["job_id"].as_string() == jobId);
+            BOOST_TEST_REQUIRE(
+                result["analytics_memory_usage"].as_object()["peak_usage_bytes"].as_int64() ==
+                memoryUsage);
+            BOOST_TEST_REQUIRE(
+                result["analytics_memory_usage"].as_object()["timestamp"].as_int64() >= timeBefore);
+            BOOST_TEST_REQUIRE(
+                result["analytics_memory_usage"].as_object()["timestamp"].as_int64() <= timeAfter);
             hasMemoryUsage = true;
         }
     }

@@ -66,8 +66,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
     const json::array& allRecords = doc.as_array();
 
     // check number of documents
-    BOOST_REQUIRE_EQUAL(std::size_t(WRITERS * DOCUMENTS_PER_WRITER),
-                        allRecords.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(WRITERS * DOCUMENTS_PER_WRITER), allRecords.size());
 }
 
 BOOST_AUTO_TEST_CASE(testShrink) {

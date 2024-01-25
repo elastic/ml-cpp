@@ -107,7 +107,7 @@ void arrayToNdJson(std::string array, std::ostream& ndjson) {
     json::value doc = json::parse(array, ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());
-    
+
     for (const auto& chunk : doc.as_array()) {
         std::string string;
         core::CStringBufWriter printer{string};

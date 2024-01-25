@@ -195,134 +195,134 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
     // 3) Test failures.
     // 4) Test that vector is correctly reserved on restore.
 
-//    {
-//        TDoubleVec collection;
-//        testPersistRestore(collection);
-//        TDoubleVec other;
-//        LOG_DEBUG(<< "The same: " << compare(collection, other));
-//    }
-//    {
-//        TSizeDoubleMap collection;
-//        testPersistRestore(collection);
-//    }
-//
-//    LOG_DEBUG(<< "*** pair ***");
-//    {
-//        std::pair<double, double> pair1{3.1, 5.9};
-//        testPersistRestore(pair1);
-//
-//        std::pair<double, int> pair2{3.1, 50};
-//        testPersistRestore(pair2);
-//    }
-//    LOG_DEBUG(<< "*** tuple ***");
-//    {
-//        std::tuple<double, double, double> tuple1{1.0, 2.0, 3.4};
-//        testPersistRestore(tuple1);
-//
-//        std::tuple<int, double, double> tuple2{99, 2.0, 3.4};
-//        testPersistRestore(tuple2);
-//    }
-//    LOG_DEBUG(<< "*** vector ***");
-//    {
-//        TDoubleVec collection;
-//        testPersistRestore(collection);
-//
-//        collection.push_back(3.2);
-//        testPersistRestore(collection);
-//
-//        collection.push_back(1.0 / 3.0);
-//        testPersistRestore(collection);
-//
-//        collection.push_back(5.0);
-//        collection.push_back(1.678e-45);
-//        collection.push_back(0.562);
-//        collection.push_back(0.11);
-//        collection.push_back(234.768);
-//        testPersistRestore(collection);
-//    }
-//    LOG_DEBUG(<< "*** map ***");
-//    {
-//        TSizeDoubleMap collection;
-//        testPersistRestore(collection);
-//
-//        collection.emplace(1, 3.2);
-//        testPersistRestore(collection);
-//
-//        collection.emplace(4, 1.0 / 3.0);
-//        testPersistRestore(collection);
-//
-//        collection.emplace(20, 158.0 / 3.0);
-//        collection.emplace(0, 1.678e-45);
-//        testPersistRestore(collection);
-//    }
-//    LOG_DEBUG(<< "*** set ***");
-//    {
-//        TIntSet collection;
-//        testPersistRestore(collection);
-//
-//        collection.insert(1);
-//        testPersistRestore(collection);
-//
-//        collection.insert(-1);
-//        testPersistRestore(collection);
-//
-//        collection.insert(55);
-//        collection.insert(-10);
-//        collection.insert(12);
-//        collection.insert(1);
-//        testPersistRestore(collection);
-//    }
-//    LOG_DEBUG(<< "*** array ***");
-//    {
-//        std::array<double, 5> collection{1.2, 4.6, 5.81, 3.8, 1.0 / 3.0};
-//        testPersistRestore(collection);
-//    }
-//    LOG_DEBUG(<< "*** unordered set ***");
-//    {
-//        TSizeUSet set{1, 3, 5, 9, 8, 7, 6, 5, 4};
-//        testPersistRestore(set);
-//    }
-//    LOG_DEBUG(<< "*** nested ***");
-//    {
-//        TDoubleVecVec collection1{{22.22, 3456245, 0.0001, 1.3234324, 0.0054, 33.907},
-//                                  {6.2456, 17.13452345, -99.99},
-//                                  {0.67}};
-//
-//        testPersistRestore(collection1);
-//
-//        TStrVec collection2{
-//            "y",   "n",   "adsf asdf ", "anything goes", "isn#t this fun?",
-//            "w w", "yyy", "ttt ttt.t",  "something"};
-//
-//        testPersistRestore(collection2);
-//
-//        TStrVecVec collection3(6, collection2);
-//        collection3[0].push_back("one");
-//        collection3[1].push_back("two");
-//        collection3[2].push_back("three");
-//        collection3[4].push_back("one");
-//
-//        testPersistRestore(collection3);
-//
-//        TSizeUSetVec collection4{{1, 3, 5, 7, 9},
-//                                 {2, 4, 6, 8, 10},
-//                                 {99, 109, 909, 999, 99999, 91919, 909090909},
-//                                 {0, 1, 2, 3, 4, 5, 6, 7},
-//                                 {7, 6, 5, 4, 3, 2, 1, 0}};
-//
-//        testPersistRestore(collection4);
-//
-//        std::vector<std::tuple<double, double, int>> collection5{{1.3, 7.1, 0},
-//                                                                 {17.1, -2.1, 5}};
-//
-//        testPersistRestore(collection5);
-//    }
-//    LOG_DEBUG(<< "*** unordered_map ***");
-//    {
-//        TStrIntUMap map{
-//            {"hello", 66}, {"thing", 999}, {"wanton destruction", 2}, {"0", 1}, {"hola", 43}};
-//        testPersistRestore(map);
-//    }
+    //    {
+    //        TDoubleVec collection;
+    //        testPersistRestore(collection);
+    //        TDoubleVec other;
+    //        LOG_DEBUG(<< "The same: " << compare(collection, other));
+    //    }
+    //    {
+    //        TSizeDoubleMap collection;
+    //        testPersistRestore(collection);
+    //    }
+    //
+    //    LOG_DEBUG(<< "*** pair ***");
+    //    {
+    //        std::pair<double, double> pair1{3.1, 5.9};
+    //        testPersistRestore(pair1);
+    //
+    //        std::pair<double, int> pair2{3.1, 50};
+    //        testPersistRestore(pair2);
+    //    }
+    //    LOG_DEBUG(<< "*** tuple ***");
+    //    {
+    //        std::tuple<double, double, double> tuple1{1.0, 2.0, 3.4};
+    //        testPersistRestore(tuple1);
+    //
+    //        std::tuple<int, double, double> tuple2{99, 2.0, 3.4};
+    //        testPersistRestore(tuple2);
+    //    }
+    //    LOG_DEBUG(<< "*** vector ***");
+    //    {
+    //        TDoubleVec collection;
+    //        testPersistRestore(collection);
+    //
+    //        collection.push_back(3.2);
+    //        testPersistRestore(collection);
+    //
+    //        collection.push_back(1.0 / 3.0);
+    //        testPersistRestore(collection);
+    //
+    //        collection.push_back(5.0);
+    //        collection.push_back(1.678e-45);
+    //        collection.push_back(0.562);
+    //        collection.push_back(0.11);
+    //        collection.push_back(234.768);
+    //        testPersistRestore(collection);
+    //    }
+    //    LOG_DEBUG(<< "*** map ***");
+    //    {
+    //        TSizeDoubleMap collection;
+    //        testPersistRestore(collection);
+    //
+    //        collection.emplace(1, 3.2);
+    //        testPersistRestore(collection);
+    //
+    //        collection.emplace(4, 1.0 / 3.0);
+    //        testPersistRestore(collection);
+    //
+    //        collection.emplace(20, 158.0 / 3.0);
+    //        collection.emplace(0, 1.678e-45);
+    //        testPersistRestore(collection);
+    //    }
+    //    LOG_DEBUG(<< "*** set ***");
+    //    {
+    //        TIntSet collection;
+    //        testPersistRestore(collection);
+    //
+    //        collection.insert(1);
+    //        testPersistRestore(collection);
+    //
+    //        collection.insert(-1);
+    //        testPersistRestore(collection);
+    //
+    //        collection.insert(55);
+    //        collection.insert(-10);
+    //        collection.insert(12);
+    //        collection.insert(1);
+    //        testPersistRestore(collection);
+    //    }
+    //    LOG_DEBUG(<< "*** array ***");
+    //    {
+    //        std::array<double, 5> collection{1.2, 4.6, 5.81, 3.8, 1.0 / 3.0};
+    //        testPersistRestore(collection);
+    //    }
+    //    LOG_DEBUG(<< "*** unordered set ***");
+    //    {
+    //        TSizeUSet set{1, 3, 5, 9, 8, 7, 6, 5, 4};
+    //        testPersistRestore(set);
+    //    }
+    //    LOG_DEBUG(<< "*** nested ***");
+    //    {
+    //        TDoubleVecVec collection1{{22.22, 3456245, 0.0001, 1.3234324, 0.0054, 33.907},
+    //                                  {6.2456, 17.13452345, -99.99},
+    //                                  {0.67}};
+    //
+    //        testPersistRestore(collection1);
+    //
+    //        TStrVec collection2{
+    //            "y",   "n",   "adsf asdf ", "anything goes", "isn#t this fun?",
+    //            "w w", "yyy", "ttt ttt.t",  "something"};
+    //
+    //        testPersistRestore(collection2);
+    //
+    //        TStrVecVec collection3(6, collection2);
+    //        collection3[0].push_back("one");
+    //        collection3[1].push_back("two");
+    //        collection3[2].push_back("three");
+    //        collection3[4].push_back("one");
+    //
+    //        testPersistRestore(collection3);
+    //
+    //        TSizeUSetVec collection4{{1, 3, 5, 7, 9},
+    //                                 {2, 4, 6, 8, 10},
+    //                                 {99, 109, 909, 999, 99999, 91919, 909090909},
+    //                                 {0, 1, 2, 3, 4, 5, 6, 7},
+    //                                 {7, 6, 5, 4, 3, 2, 1, 0}};
+    //
+    //        testPersistRestore(collection4);
+    //
+    //        std::vector<std::tuple<double, double, int>> collection5{{1.3, 7.1, 0},
+    //                                                                 {17.1, -2.1, 5}};
+    //
+    //        testPersistRestore(collection5);
+    //    }
+    //    LOG_DEBUG(<< "*** unordered_map ***");
+    //    {
+    //        TStrIntUMap map{
+    //            {"hello", 66}, {"thing", 999}, {"wanton destruction", 2}, {"0", 1}, {"hola", 43}};
+    //        testPersistRestore(map);
+    //    }
     {
         TStrDoubleVecVecUMap map;
         map.reserve(1);
@@ -340,65 +340,65 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
 
         testPersistRestore(map);
     }
-//    LOG_DEBUG(<< "*** circular_buffer ***");
-//    {
-//        TSizeDoublePrBuf buf(5);
-//        buf.push_back(std::make_pair(44, 44.4));
-//        buf.push_back(std::make_pair(32, 0.0000043));
-//        buf.push_back(std::make_pair(66667, 99.945));
-//        testPersistRestore(buf, TSizeDoublePrBuf(5));
-//    }
-//    LOG_DEBUG(<< "*** pod ***");
-//    {
-//        int t = -9956;
-//        testPersistRestore(t);
-//        std::size_t s = std::numeric_limits<std::size_t>::max();
-//        testPersistRestore(s);
-//        std::string str("This is a string!");
-//        testPersistRestore(str);
-//        bool b = true;
-//        testPersistRestore(b);
-//        b = false;
-//        testPersistRestore(b);
-//    }
-//    LOG_DEBUG(<< "*** errors ***");
-//    {
-//        std::string bad("dejk");
-//        TDoubleVec collection;
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
-//        BOOST_TEST_REQUIRE(collection.empty());
-//
-//        bad += core::CPersistUtils::DELIMITER;
-//        bad += "12";
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
-//        BOOST_TEST_REQUIRE(collection.empty());
-//
-//        bad = std::string("1.3") + core::CPersistUtils::DELIMITER + bad;
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
-//        BOOST_TEST_REQUIRE(collection.empty());
-//    }
-//    {
-//        std::string bad;
-//        bad += "14";
-//        bad += core::CPersistUtils::PAIR_DELIMITER;
-//        bad += "kdsk";
-//        TSizeDoubleMap collection;
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
-//        BOOST_TEST_REQUIRE(collection.empty());
-//
-//        bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER +
-//              "2.3" + core::CPersistUtils::DELIMITER + bad;
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
-//        BOOST_TEST_REQUIRE(collection.empty());
-//    }
-//    {
-//        std::string state;
-//        state += "12.3";
-//        state += core::CPersistUtils::DELIMITER;
-//        state += "2.4";
-//        std::array<double, 3> wrongSize;
-//        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(state, wrongSize), false);
-//    }
+    //    LOG_DEBUG(<< "*** circular_buffer ***");
+    //    {
+    //        TSizeDoublePrBuf buf(5);
+    //        buf.push_back(std::make_pair(44, 44.4));
+    //        buf.push_back(std::make_pair(32, 0.0000043));
+    //        buf.push_back(std::make_pair(66667, 99.945));
+    //        testPersistRestore(buf, TSizeDoublePrBuf(5));
+    //    }
+    //    LOG_DEBUG(<< "*** pod ***");
+    //    {
+    //        int t = -9956;
+    //        testPersistRestore(t);
+    //        std::size_t s = std::numeric_limits<std::size_t>::max();
+    //        testPersistRestore(s);
+    //        std::string str("This is a string!");
+    //        testPersistRestore(str);
+    //        bool b = true;
+    //        testPersistRestore(b);
+    //        b = false;
+    //        testPersistRestore(b);
+    //    }
+    //    LOG_DEBUG(<< "*** errors ***");
+    //    {
+    //        std::string bad("dejk");
+    //        TDoubleVec collection;
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
+    //        BOOST_TEST_REQUIRE(collection.empty());
+    //
+    //        bad += core::CPersistUtils::DELIMITER;
+    //        bad += "12";
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
+    //        BOOST_TEST_REQUIRE(collection.empty());
+    //
+    //        bad = std::string("1.3") + core::CPersistUtils::DELIMITER + bad;
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
+    //        BOOST_TEST_REQUIRE(collection.empty());
+    //    }
+    //    {
+    //        std::string bad;
+    //        bad += "14";
+    //        bad += core::CPersistUtils::PAIR_DELIMITER;
+    //        bad += "kdsk";
+    //        TSizeDoubleMap collection;
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
+    //        BOOST_TEST_REQUIRE(collection.empty());
+    //
+    //        bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER +
+    //              "2.3" + core::CPersistUtils::DELIMITER + bad;
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(bad, collection), false);
+    //        BOOST_TEST_REQUIRE(collection.empty());
+    //    }
+    //    {
+    //        std::string state;
+    //        state += "12.3";
+    //        state += core::CPersistUtils::DELIMITER;
+    //        state += "2.4";
+    //        std::array<double, 3> wrongSize;
+    //        BOOST_REQUIRE_EQUAL(core::CPersistUtils::fromString(state, wrongSize), false);
+    //    }
 }
 
 BOOST_AUTO_TEST_CASE(testToStringContainers) {

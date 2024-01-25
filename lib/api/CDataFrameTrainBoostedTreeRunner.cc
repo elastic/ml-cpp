@@ -461,8 +461,10 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         break;
     case api_t::E_Train: {
         auto restoreSearcher = this->spec().restoreSearcher();
-        auto boostedTree = (restoreSearcher == nullptr) ? nullptr : this->restoreBoostedTree(
-            frame, dependentVariableColumn, restoreSearcher);
+        auto boostedTree = (restoreSearcher == nullptr)
+                               ? nullptr
+                               : this->restoreBoostedTree(frame, dependentVariableColumn,
+                                                          restoreSearcher);
         m_BoostedTree = [&] {
             return boostedTree != nullptr
                        ? std::move(boostedTree)
@@ -470,8 +472,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         }();
         m_BoostedTree->train();
         m_BoostedTree->predict();
-    }
-        break;
+    } break;
     case api_t::E_Update:
         m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();

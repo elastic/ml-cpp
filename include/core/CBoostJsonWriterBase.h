@@ -40,7 +40,7 @@ namespace core {
 //!
 //! DESCRIPTION:\n
 //! Wraps up the code needed to add various types of values to JSON
-//! objects. 
+//! objects.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Empty string fields are not written to the output unless specifically
@@ -69,8 +69,7 @@ public:
     using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
 
 public:
-    explicit CBoostJsonWriterBase(OUTPUT_STREAM& os)
-        : m_Os(&os) {
+    explicit CBoostJsonWriterBase(OUTPUT_STREAM& os) : m_Os(&os) {
 
         // push a default boost::json allocator onto our stack
         m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
@@ -82,9 +81,7 @@ public:
         m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
     }
 
-    void Reset(OUTPUT_STREAM& os) {
-        m_Os = &os;
-    }
+    void Reset(OUTPUT_STREAM& os) { m_Os = &os; }
 
     // No need for an explicit destructor here as the allocators clear themselves
     // on destruction.
@@ -196,20 +193,20 @@ public:
         return true;
     }
 
-    virtual bool WriteRawValue(const std::string& rawValue)  {
-//        this->append((IsComplete() ? "" : ","));
+    virtual bool WriteRawValue(const std::string& rawValue) {
+        //        this->append((IsComplete() ? "" : ","));
         this->append(rawValue);
         return true;
     }
 
-    virtual bool StartDocument()  {
+    virtual bool StartDocument() {
         this->append("{");
         m_Levels.push(0);
         m_ContainerType.push(E_Object);
         return true;
     }
 
-    virtual bool StartObject()  {
+    virtual bool StartObject() {
         if (m_ContainerType.empty() == false && m_ContainerType.top() == E_Array) {
             this->append(IsComplete() ? "" : ",");
         }
@@ -224,7 +221,7 @@ public:
         return true;
     }
 
-    virtual bool EndObject(std::size_t memberCount = 0)  {
+    virtual bool EndObject(std::size_t memberCount = 0) {
         if (this->checkPrerequisites() == false) {
             return false;
         }
@@ -251,7 +248,7 @@ public:
         return true;
     }
 
-    virtual bool EndArray()  {
+    virtual bool EndArray() {
         if (this->checkPrerequisites() == false) {
             return false;
         }
@@ -261,7 +258,7 @@ public:
         return true;
     }
 
-    virtual bool Bool(bool boolVal)  {
+    virtual bool Bool(bool boolVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -272,7 +269,7 @@ public:
         return true;
     }
 
-    virtual bool Null()  {
+    virtual bool Null() {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -283,7 +280,7 @@ public:
         return true;
     }
 
-    virtual bool Int(std::int64_t intVal)  {
+    virtual bool Int(std::int64_t intVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -294,7 +291,7 @@ public:
         return true;
     }
 
-    virtual bool Int64(std::int64_t int64Val)  {
+    virtual bool Int64(std::int64_t int64Val) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -305,7 +302,7 @@ public:
         return true;
     }
 
-    virtual bool Uint(std::uint64_t uintVal)  {
+    virtual bool Uint(std::uint64_t uintVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -316,7 +313,7 @@ public:
         return true;
     }
 
-    virtual bool Uint64(std::uint64_t uint64Val)  {
+    virtual bool Uint64(std::uint64_t uint64Val) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -327,7 +324,7 @@ public:
         return true;
     }
 
-    virtual bool RawString(const std::string& str)  {
+    virtual bool RawString(const std::string& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -338,7 +335,7 @@ public:
         return true;
     }
 
-    virtual bool String(const std::string& str)  {
+    virtual bool String(const std::string& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -349,7 +346,7 @@ public:
         return this->WriteRawValue(serializedStr);
     }
 
-    virtual bool String(const std::string_view & str)  {
+    virtual bool String(const std::string_view& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -363,7 +360,7 @@ public:
         return true;
     }
 
-    virtual bool Double(double d)  {
+    virtual bool Double(double d) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -377,12 +374,10 @@ public:
         return true;
     }
 
-    void Flush() {
-        this->flush();
-    }
+    void Flush() { this->flush(); }
 
     //! Writes an epoch second timestamp as an epoch millis timestamp
-    virtual bool Time(core_t::TTime t)  {
+    virtual bool Time(core_t::TTime t) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -393,7 +388,7 @@ public:
         return true;
     }
 
-    virtual void flush()  {
+    virtual void flush() {
         // no-op
     }
 
@@ -456,12 +451,12 @@ public:
     //! write the boost::json value document to the output stream
     //! \p[in] doc boost::json document value to write out
     virtual bool write(const TValue& doc) {
-        switch(doc.kind()) {
-        case json::kind::bool_ :
+        switch (doc.kind()) {
+        case json::kind::bool_:
             return this->Bool(doc.as_bool());
-        case json::kind::null :
+        case json::kind::null:
             return this->Null();
-        case json::kind::object :
+        case json::kind::object:
             if (this->StartObject() == false) {
                 return false;
             }
@@ -474,7 +469,7 @@ public:
                 }
             }
             return this->EndObject();
-        case json::kind::array :
+        case json::kind::array:
             if (this->StartArray() == false) {
                 return false;
             }
@@ -496,7 +491,7 @@ public:
             return this->Uint64(doc.as_uint64());
         }
     }
-    
+
     //! Return a new boost::json document
     TDocument makeDoc() const {
         TDocument newDoc(&this->getRawAllocator());
@@ -523,9 +518,7 @@ public:
     }
 
     //! Return a new boost::json object
-    json::object makeObject() const {
-        return boost::json::object();
-    }
+    json::object makeObject() const { return boost::json::object(); }
 
     //! Adds a generic boost::json value field to an object.
     //! \p[in] name field name
@@ -536,17 +529,17 @@ public:
         return obj;
     }
 
-    TDocument & addMember(const std::string& name, const TValue& value, TDocument& obj) const {
+    TDocument& addMember(const std::string& name, const TValue& value, TDocument& obj) const {
         obj[name] = value;
         return obj;
     }
 
-    TDocument & addMember(const std::string& name, TDocument value, TDocument& obj) const {
+    TDocument& addMember(const std::string& name, TDocument value, TDocument& obj) const {
         obj[name] = value;
         return obj;
     }
 
-    TDocument & addMember(const std::string& name, const json::array& value, TDocument& obj) const {
+    TDocument& addMember(const std::string& name, const json::array& value, TDocument& obj) const {
         obj[name] = value;
         return obj;
     }
@@ -562,9 +555,7 @@ public:
         return obj;
     }
 
-    TValue addMember(const std::string& name,
-                        const std::string& value,
-                        TValue& obj) const {
+    TValue addMember(const std::string& name, const std::string& value, TValue& obj) const {
         obj.as_object()[name] = value;
         return obj;
     }
@@ -584,7 +575,7 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field to be copied
     //! \p[out] obj boost::json object to contain the \p name \p value pair
-    void addMember(const std::string& name, const std::string& value, TDocument & obj) const {
+    void addMember(const std::string& name, const std::string& value, TDocument& obj) const {
         obj[name] = value;
     }
 
@@ -592,7 +583,7 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field
     //! \p[out] obj boost::json object to contain the \p name \p value pair
-    void addMemberRef(const std::string& name, const std::string& value, TDocument & obj) const {
+    void addMemberRef(const std::string& name, const std::string& value, TDocument& obj) const {
         obj[name] = value;
     }
 
@@ -616,7 +607,7 @@ public:
     //! the string copy for the value. Use with care.
     void addStringFieldReferenceToObj(const std::string& fieldName,
                                       const std::string& value,
-                                      TDocument & obj,
+                                      TDocument& obj,
                                       bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
@@ -629,7 +620,7 @@ public:
     //! Adds a time field with the name fieldname to an object.
     //! Automatically turns time from 'seconds_since_epoch' into 'milliseconds_since_epoch'
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TDocument & obj) const {
+    void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TDocument& obj) const {
         TValue v(CTimeUtils::toEpochMs(value));
         this->addMember(fieldName, v, obj);
     }
@@ -665,7 +656,7 @@ public:
 
     //! Adds an unsigned integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addUIntFieldToObj(const std::string& fieldName, std::uint64_t value, TDocument & obj) const {
+    void addUIntFieldToObj(const std::string& fieldName, std::uint64_t value, TDocument& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
@@ -674,13 +665,13 @@ public:
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addStringArrayFieldToObj(const std::string& fieldName,
                                   const TStrVec& values,
-                                  TDocument & obj) const {
+                                  TDocument& obj) const {
         this->addMember(fieldName, json::value_from(values), obj);
     }
 
     void addStringArrayFieldToObj(const std::string& fieldName,
                                   const json::array& values,
-                                  TDocument & obj) const {
+                                  TDocument& obj) const {
         this->addMember(fieldName, values, obj);
     }
 
@@ -769,7 +760,7 @@ public:
 
     //! Checks if the \p obj has a member named \p fieldName and
     //! removes it if it does.
-    void removeMemberIfPresent(const std::string& fieldName, TDocument & obj) const {
+    void removeMemberIfPresent(const std::string& fieldName, TDocument& obj) const {
         auto pos = obj.find(fieldName);
         if (pos != obj.end()) {
             obj.erase(pos);
@@ -786,10 +777,7 @@ public:
     }
 
 protected:
-
-    OUTPUT_STREAM& outputStream() {
-        return *m_Os;
-    }
+    OUTPUT_STREAM& outputStream() { return *m_Os; }
 
 private:
     //! Log a message if we're trying to add nan/infinity to a JSON array
@@ -820,22 +808,18 @@ private:
     }
 
 protected:
-
     OUTPUT_STREAM* m_Os;
-    
+
     //! cache allocators for potential reuse
     TStrPoolAllocatorPtrMap m_AllocatorCache;
 
     //! Allow for different batches of documents to use independent allocators
     mutable TPoolAllocatorPtrStack m_JsonPoolAllocators;
-    
+
 private:
-    enum E_ContainerType {
-        E_Object = 0,
-        E_Array = 1
-    };
+    enum E_ContainerType { E_Object = 0, E_Array = 1 };
     std::stack<E_ContainerType> m_ContainerType;
-    
+
     std::stack<std::size_t> m_Levels;
 };
 }

@@ -119,7 +119,9 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     }
 
     json::error_code ec;
-    json::value customProcessors = json::parse("[{\"special_processor\":{\"foo\": 42}}, {\"another_special_processor\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]", ec);
+    json::value customProcessors = json::parse(
+        "[{\"special_processor\":{\"foo\": 42}}, {\"another_special_processor\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]",
+        ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(customProcessors.is_array());
 
@@ -217,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(result_.is_object());
         const json::object& result = result_.as_object();
-        
+
         bool hasFrequencyEncoding{false};
         bool hasTargetMeanEncoding{false};
         bool hasOneHotEncoding{false};
@@ -232,11 +234,13 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                 if (preprocessor.contains("frequency_encoding")) {
                     hasFrequencyEncoding = true;
                     json::error_code ec;
-                    std::size_t fieldLength{
-                        preprocessor_.at_pointer("/frequency_encoding/field_length").to_number<std::size_t>(ec)};
+                    std::size_t fieldLength{preprocessor_
+                                                .at_pointer("/frequency_encoding/field_length")
+                                                .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
-                    std::size_t featureNameLength{preprocessor_.at_pointer("/frequency_encoding/feature_name_length")
+                    std::size_t featureNameLength{preprocessor_
+                                                      .at_pointer("/frequency_encoding/feature_name_length")
                                                       .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(featureNameLength,
@@ -245,11 +249,13 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                 }
                 if (preprocessor.contains("target_mean_encoding")) {
                     hasTargetMeanEncoding = true;
-                    std::size_t fieldLength{
-                        preprocessor_.at_pointer("/target_mean_encoding/field_length").to_number<std::size_t>(ec)};
+                    std::size_t fieldLength{preprocessor_
+                                                .at_pointer("/target_mean_encoding/field_length")
+                                                .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
-                    std::size_t featureNameLength{preprocessor_.at_pointer("/target_mean_encoding/feature_name_length")
+                    std::size_t featureNameLength{preprocessor_
+                                                      .at_pointer("/target_mean_encoding/feature_name_length")
                                                       .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(featureNameLength,
@@ -258,15 +264,18 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                 }
                 if (preprocessor.contains("one_hot_encoding")) {
                     hasOneHotEncoding = true;
-                    std::size_t fieldLength{
-                        preprocessor_.at_pointer("/one_hot_encoding/field_length").to_number<std::size_t>(ec)};
+                    std::size_t fieldLength{preprocessor_
+                                                .at_pointer("/one_hot_encoding/field_length")
+                                                .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
-                    BOOST_REQUIRE_EQUAL(preprocessor_.at_pointer("/one_hot_encoding/field_value_lengths")
+                    BOOST_REQUIRE_EQUAL(preprocessor_
+                                            .at_pointer("/one_hot_encoding/field_value_lengths")
                                             .as_array()
                                             .size(),
                                         3);
-                    BOOST_REQUIRE_EQUAL(preprocessor_.at_pointer("/one_hot_encoding/feature_name_lengths")
+                    BOOST_REQUIRE_EQUAL(preprocessor_
+                                            .at_pointer("/one_hot_encoding/feature_name_lengths")
                                             .as_array()
                                             .size(),
                                         3);
@@ -280,9 +289,12 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         bool hasTreeSizes{false};
         if (result.contains("trained_model_size") &&
             result.at("trained_model_size").as_object().contains("ensemble_model_size") &&
-            result_.at_pointer("/trained_model_size/ensemble_model_size").as_object().contains("tree_sizes")) {
+            result_.at_pointer("/trained_model_size/ensemble_model_size")
+                .as_object()
+                .contains("tree_sizes")) {
             hasTreeSizes = true;
-            std::size_t numTrees{result_.at_pointer("/trained_model_size/ensemble_model_size/tree_sizes")
+            std::size_t numTrees{result_
+                                     .at_pointer("/trained_model_size/ensemble_model_size/tree_sizes")
                                      .as_array()
                                      .size()};
             auto* trainedModel =
@@ -378,7 +390,9 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
     json::error_code ec;
-    json::value customProcessors = json::parse("[{\"special_processor\":{\"foo\": 43}}, {\"another_special\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]", ec);
+    json::value customProcessors = json::parse(
+        "[{\"special_processor\":{\"foo\": 43}}, {\"another_special\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]",
+        ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 
     TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
@@ -452,12 +466,15 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
         for (const auto& result_ : results.as_array()) {
             const json::object& result = result_.as_object();
             if (result.contains("row_results")) {
-                std::string prediction{result_.at_pointer("/row_results/results/ml/target_col_prediction")
+                std::string prediction{result_
+                                           .at_pointer("/row_results/results/ml/target_col_prediction")
                                            .as_string()};
-                double probability{result_.at_pointer("/row_results/results/ml/prediction_probability")
+                double probability{result_
+                                       .at_pointer("/row_results/results/ml/prediction_probability")
                                        .as_double()};
-                double score{
-                    result_.at_pointer("/row_results/results/ml/prediction_score").as_double()};
+                double score{result_
+                                 .at_pointer("/row_results/results/ml/prediction_score")
+                                 .as_double()};
                 bool predictionAsBool;
                 core::CStringUtils::stringToType(prediction, predictionAsBool);
                 std::size_t weight{classLookup[predictionAsBool]};
@@ -494,11 +511,13 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
                 if (preprocessor.contains("frequency_encoding")) {
                     hasFrequencyEncoding = true;
                     json::error_code ec;
-                    std::size_t fieldLength{
-                        preprocessor_.at_pointer("/frequency_encoding/field_length").to_number<std::size_t>(ec)};
+                    std::size_t fieldLength{preprocessor_
+                                                .at_pointer("/frequency_encoding/field_length")
+                                                .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
-                    std::size_t featureNameLength{preprocessor_.at_pointer("/frequency_encoding/feature_name_length")
+                    std::size_t featureNameLength{preprocessor_
+                                                      .at_pointer("/frequency_encoding/feature_name_length")
                                                       .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(featureNameLength,
@@ -507,15 +526,18 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
                 }
                 if (preprocessor.contains("one_hot_encoding")) {
                     hasOneHotEncoding = true;
-                    std::size_t fieldLength{
-                        preprocessor_.at_pointer("/one_hot_encoding/field_length").to_number<std::size_t>(ec)};
+                    std::size_t fieldLength{preprocessor_
+                                                .at_pointer("/one_hot_encoding/field_length")
+                                                .to_number<std::size_t>(ec)};
                     BOOST_REQUIRE(ec.failed() == false);
                     BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
-                    BOOST_REQUIRE_EQUAL(preprocessor_.at_pointer("/one_hot_encoding/field_value_lengths")
+                    BOOST_REQUIRE_EQUAL(preprocessor_
+                                            .at_pointer("/one_hot_encoding/field_value_lengths")
                                             .as_array()
                                             .size(),
                                         2);
-                    BOOST_REQUIRE_EQUAL(preprocessor_.at_pointer("/one_hot_encoding/feature_name_lengths")
+                    BOOST_REQUIRE_EQUAL(preprocessor_
+                                            .at_pointer("/one_hot_encoding/feature_name_lengths")
                                             .as_array()
                                             .size(),
                                         2);
@@ -529,9 +551,12 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
         bool hasTreeSizes{false};
         if (result.contains("trained_model_size") &&
             result.at("trained_model_size").as_object().contains("ensemble_model_size") &&
-            result_.at_pointer("/trained_model_size/ensemble_model_size").as_object().contains("tree_sizes")) {
+            result_.at_pointer("/trained_model_size/ensemble_model_size")
+                .as_object()
+                .contains("tree_sizes")) {
             hasTreeSizes = true;
-            std::size_t numTrees{result_.at_pointer("/trained_model_size/ensemble_model_size/tree_sizes")
+            std::size_t numTrees{result_
+                                     .at_pointer("/trained_model_size/ensemble_model_size/tree_sizes")
                                      .as_array()
                                      .size()};
             auto* trainedModel =

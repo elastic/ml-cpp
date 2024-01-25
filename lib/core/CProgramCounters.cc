@@ -201,7 +201,6 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
     //! JSON line writer
     core::CBoostJsonConcurrentLineWriter writer(writeStream);
 
-
     writer.StartArray();
 
     // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set

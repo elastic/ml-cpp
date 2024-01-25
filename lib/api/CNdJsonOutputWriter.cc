@@ -23,8 +23,7 @@ CNdJsonOutputWriter::CNdJsonOutputWriter()
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(TStrSet numericFields)
-    : m_NumericFields{std::move(numericFields)}, m_OutStream{m_StringOutputBuf},
-      m_Writer{m_OutStream} {
+    : m_NumericFields{std::move(numericFields)}, m_OutStream{m_StringOutputBuf}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(std::ostream& strmOut)
@@ -32,8 +31,7 @@ CNdJsonOutputWriter::CNdJsonOutputWriter(std::ostream& strmOut)
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(TStrSet numericFields, std::ostream& strmOut)
-    : m_NumericFields{std::move(numericFields)}, m_OutStream{strmOut},
-       m_Writer{m_OutStream} {
+    : m_NumericFields{std::move(numericFields)}, m_OutStream{strmOut}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::~CNdJsonOutputWriter() {
@@ -73,14 +71,14 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
         this->writeField(name, value, doc);
     }
     m_Writer.write(doc);
-//    m_Writer.reset(m_OutStream);
+    //    m_Writer.reset(m_OutStream);
 
     return true;
 }
 
 std::string CNdJsonOutputWriter::internalString() const {
     m_OutStream.flush();
-//    const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
+    //    const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this

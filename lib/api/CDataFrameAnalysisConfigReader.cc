@@ -44,8 +44,7 @@ void CDataFrameAnalysisConfigReader::addParameter(const std::string& name,
     m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
 }
 
-CDataFrameAnalysisParameters
-CDataFrameAnalysisConfigReader::read(const json::value& json) const {
+CDataFrameAnalysisParameters CDataFrameAnalysisConfigReader::read(const json::value& json) const {
 
     CDataFrameAnalysisParameters result;
 
@@ -55,7 +54,7 @@ CDataFrameAnalysisConfigReader::read(const json::value& json) const {
         return result;
     }
 
-    const json::object &obj = json.as_object();
+    const json::object& obj = json.as_object();
 
     for (const auto& reader : m_ParameterReaders) {
         if (obj.contains(reader.name())) {
@@ -78,8 +77,8 @@ CDataFrameAnalysisConfigReader::read(const json::value& json) const {
             }
         }
         if (found == false) {
-            HANDLE_FATAL(<< "Input error: unexpected parameter '"
-                         << i->key() << "'. Please report this problem.");
+            HANDLE_FATAL(<< "Input error: unexpected parameter '" << i->key()
+                         << "'. Please report this problem.");
         }
     }
 

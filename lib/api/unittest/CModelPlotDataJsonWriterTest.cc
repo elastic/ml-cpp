@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     json::value doc = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(doc.is_array());
-    
+
     const json::value& firstElement_ = doc.as_array()[0];
     const json::object& firstElement = firstElement_.as_object();
     BOOST_TEST_REQUIRE(firstElement.contains("model_plot"));

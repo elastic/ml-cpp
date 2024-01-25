@@ -39,7 +39,7 @@ bool CConfigUpdater::update(const std::string& json) {
                   << "'. Please report this problem.");
         return false;
     }
-    
+
     json::object obj = doc.as_object();
 
     if (obj.contains(CAnomalyJobConfig::MODEL_PLOT_CONFIG)) {

@@ -73,7 +73,7 @@ bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec containsPatterns;
 
     json::error_code ec;
-    json::value doc = json::parse( json, ec );
+    json::value doc = json::parse(json, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " +
                          ec.message());

@@ -154,7 +154,7 @@ public:
         std::function<void(CRequestCacheInterface&, const SControlMessage&)>;
     using TRequestHandlerFunc = std::function<bool(CRequestCacheInterface&, SRequest)>;
     using TErrorHandlerFunc =
-        std::function<void(const std::string_view & requestId, const std::string& message)>;
+        std::function<void(const std::string_view& requestId, const std::string& message)>;
 
 public:
     static const std::string REQUEST_ID;

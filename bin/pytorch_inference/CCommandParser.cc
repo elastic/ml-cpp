@@ -52,7 +52,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
                             const TControlHandlerFunc& controlHandler,
                             const TErrorHandlerFunc& errorHandler) {
 
-//    core::CBoostJsonUnbufferedIStreamWrapper isw{m_StrmIn};
+    //    core::CBoostJsonUnbufferedIStreamWrapper isw{m_StrmIn};
     json::value doc;
     json::stream_parser p;
     json::error_code ec;
@@ -67,12 +67,12 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
             n = 0;
         }
 
-        n += p.write_some( line.data() + n, line.size() - n, ec );
+        n += p.write_some(line.data() + n, line.size() - n, ec);
 
         if (ec) {
-//            if (m_StrmIn.eof()) {
-//                break;
-//            }
+            //            if (m_StrmIn.eof()) {
+            //                break;
+            //            }
 
             std::ostringstream ss;
             ss << "Error parsing command from JSON: " << ec.message();
@@ -82,7 +82,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
             return false;
         }
 
-        if(p.done()) {
+        if (p.done()) {
             doc = p.release();
             p.reset();
             LOG_INFO(<< "Inference command: " << doc);
@@ -108,8 +108,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
 }
 
 CCommandParser::EMessageType
-CCommandParser::validateJson(const json::object& doc,
-                             const TErrorHandlerFunc& errorHandler) {
+CCommandParser::validateJson(const json::object& doc, const TErrorHandlerFunc& errorHandler) {
     if (doc.contains(REQUEST_ID) == false) {
         errorHandler(UNKNOWN_ID, "Invalid command: missing field [" + REQUEST_ID + "]");
         return EMessageType::E_MalformedMessage;
@@ -242,8 +241,7 @@ bool CCommandParser::checkArrayContainsInts(const json::array& arr) {
            }) == arr.end();
 }
 
-CCommandParser::SRequest
-CCommandParser::jsonToInferenceRequest(const json::object& doc) {
+CCommandParser::SRequest CCommandParser::jsonToInferenceRequest(const json::object& doc) {
     SRequest request;
     request.s_RequestId = doc.at(REQUEST_ID).as_string();
 
@@ -281,8 +279,7 @@ CCommandParser::jsonToInferenceRequest(const json::object& doc) {
     return request;
 }
 
-CCommandParser::SControlMessage
-CCommandParser::jsonToControlMessage(const json::object& doc) {
+CCommandParser::SControlMessage CCommandParser::jsonToControlMessage(const json::object& doc) {
     auto controlMessageType = static_cast<EControlMessageType>(doc.at(CONTROL).as_int64());
     switch (controlMessageType) {
     case E_NumberOfAllocations:

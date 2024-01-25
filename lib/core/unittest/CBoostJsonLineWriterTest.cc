@@ -63,8 +63,7 @@ BOOST_AUTO_TEST_CASE(testDoublePrecission) {
         writer.EndObject();
     }
 
-    BOOST_REQUIRE_EQUAL(std::string("{\"a\":3e-05,\"b\":5e-300,\"c\":0}\n"),
-                        strm.str());
+    BOOST_REQUIRE_EQUAL(std::string("{\"a\":3e-05,\"b\":5e-300,\"c\":0}\n"), strm.str());
 }
 
 // TODO Test different implementation of serialization of doubles by boost json?

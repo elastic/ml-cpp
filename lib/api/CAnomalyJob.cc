@@ -874,7 +874,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
             return false;
         }
 
-//        LOG_INFO(<< "strm: " << strm->rdbuf());
+        //        LOG_INFO(<< "strm: " << strm->rdbuf());
 
         // We're dealing with streaming JSON state
         core::CJsonStateRestoreTraverser traverser(*strm);

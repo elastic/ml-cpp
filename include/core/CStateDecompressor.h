@@ -91,7 +91,7 @@ public:
         //! Note: using the base handler, so we only need to implement what is needed
         //! <a https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/ref/boost__json__basic_parser.html#json.ref.boost__json__basic_parser.handler0">Handler</a>
         //! for events fired by rapidjson during parsing.
-        struct SBaseBoostJsonHandler  {
+        struct SBaseBoostJsonHandler {
 
             /// The maximum number of elements allowed in an array
             static constexpr std::size_t max_array_size = -1;
@@ -110,25 +110,21 @@ public:
             /// @return `true` on success.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_document_begin( json::error_code& ec ) {
-                return true;
-            }
+            bool on_document_begin(json::error_code& ec) { return true; }
 
             /// Called when the JSON parsing is done.
             ///
             /// @return `true` on success.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_document_end( json::error_code& ec ) {
-                return true;
-            }
+            bool on_document_end(json::error_code& ec) { return true; }
 
             /// Called when the beginning of an array is encountered.
             ///
             /// @return `true` on success.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_array_begin( json::error_code& ec );
+            bool on_array_begin(json::error_code& ec);
 
             /// Called when the end of the current array is encountered.
             ///
@@ -136,14 +132,14 @@ public:
             /// @param n The number of elements in the array.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_array_end( std::size_t n, json::error_code& ec );
+            bool on_array_end(std::size_t n, json::error_code& ec);
 
             /// Called when the beginning of an object is encountered.
             ///
             /// @return `true` on success.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_object_begin( json::error_code& ec );
+            bool on_object_begin(json::error_code& ec);
 
             /// Called when the end of the current object is encountered.
             ///
@@ -151,7 +147,7 @@ public:
             /// @param n The number of elements in the object.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_object_end( std::size_t n, json::error_code& ec );
+            bool on_object_end(std::size_t n, json::error_code& ec);
 
             /// Called with characters corresponding to part of the current string.
             ///
@@ -160,7 +156,7 @@ public:
             /// @param n The total size of the string thus far
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_string_part(std::string_view s, std::size_t n, json::error_code& ec);
 
             /// Called with the last characters corresponding to the current string.
             ///
@@ -169,7 +165,7 @@ public:
             /// @param n The total size of the string
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_string( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
 
             /// Called with characters corresponding to part of the current key.
             ///
@@ -178,7 +174,7 @@ public:
             /// @param n The total size of the key thus far
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_key_part(std::string_view s, std::size_t n, json::error_code& ec);
 
             /// Called with the last characters corresponding to the current key.
             ///
@@ -187,7 +183,7 @@ public:
             /// @param n The total size of the key
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_key( std::string_view s, std::size_t n, json::error_code& ec );
+            bool on_key(std::string_view s, std::size_t n, json::error_code& ec);
 
             /// Called with the characters corresponding to part of the current number.
             ///
@@ -195,7 +191,7 @@ public:
             /// @param s The partial characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_number_part( std::string_view s, json::error_code& ec ) {
+            bool on_number_part(std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -206,7 +202,7 @@ public:
             /// @param s The remaining characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_int64( int64_t i, std::string_view s, json::error_code& ec ) {
+            bool on_int64(int64_t i, std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -217,7 +213,7 @@ public:
             /// @param s The remaining characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_uint64( uint64_t u, std::string_view s, json::error_code& ec ) {
+            bool on_uint64(uint64_t u, std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -228,7 +224,7 @@ public:
             /// @param s The remaining characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_double( double d, std::string_view s, json::error_code& ec ) {
+            bool on_double(double d, std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -239,16 +235,14 @@ public:
             /// @param s The remaining characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_bool( bool b, json::error_code& ec );
+            bool on_bool(bool b, json::error_code& ec);
 
             /// Called when a null is parsed.
             ///
             /// @return `true` on success.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_null( json::error_code& ec ) {
-                return true;
-            }
+            bool on_null(json::error_code& ec) { return true; }
 
             /// Called with characters corresponding to part of the current comment.
             ///
@@ -256,7 +250,7 @@ public:
             /// @param s The partial characters.
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_comment_part( std::string_view s, json::error_code& ec ) {
+            bool on_comment_part(std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -266,7 +260,7 @@ public:
             /// @param s The remaining characters
             /// @param ec Set to the error, if any occurred.
             ///
-            bool on_comment( std::string_view s, json::error_code& ec ) {
+            bool on_comment(std::string_view s, json::error_code& ec) {
                 return true;
             }
 
@@ -289,14 +283,14 @@ public:
             constexpr static std::size_t max_string_size = std::size_t(-1);
 
             bool on_bool(bool b, json::error_code& ec);
-            bool on_string( std::string_view s, std::size_t n, json::error_code& ec );
-            bool on_string_part( std::string_view s, std::size_t n, json::error_code& ec );
-            bool on_object_begin( json::error_code& ec );
-            bool on_key( std::string_view s, std::size_t n, json::error_code& ec );
-            bool on_key_part( std::string_view s, std::size_t n, json::error_code& ec );
-            bool on_object_end( std::size_t n, json::error_code& ec );
-            bool on_array_begin( json::error_code& ec );
-            bool on_array_end( std::size_t n, json::error_code& ec );
+            bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_string_part(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_object_begin(json::error_code& ec);
+            bool on_key(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_key_part(std::string_view s, std::size_t n, json::error_code& ec);
+            bool on_object_end(std::size_t n, json::error_code& ec);
+            bool on_array_begin(json::error_code& ec);
+            bool on_array_end(std::size_t n, json::error_code& ec);
 
             enum ETokenType {
                 ETokenNull = 0,
@@ -318,10 +312,10 @@ public:
             ETokenType s_Type;
 
             //! the last string (c string) as pointer (only valid till next call)
-            char s_CompressedChunk[4096*400];
+            char s_CompressedChunk[4096 * 400];
 
-//            const char* s_CompressedChunk;
-//            char* s_CompressedChunk;
+            //            const char* s_CompressedChunk;
+            //            char* s_CompressedChunk;
 
             //! the last string length (only valid till next call)
             std::streamsize s_CompressedChunkLength;
@@ -357,10 +351,10 @@ public:
         std::shared_ptr<CBoostJsonUnbufferedIStreamWrapper> m_InputStreamWrapper;
 
         //! JSON reader for the downstream stream
-//        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
+        //        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
         json::basic_parser<SBoostJsonHandler> m_Reader;
 
-//        SBoostJsonHandler m_Handler;
+        //        SBoostJsonHandler m_Handler;
 
         //! The offset into the current token that has been read
         std::streamsize m_BufferOffset;

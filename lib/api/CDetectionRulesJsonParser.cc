@@ -191,7 +191,8 @@ bool CDetectionRulesJsonParser::parseRuleScope(const json::object& ruleObject,
             LOG_ERROR(<< "Scope member is missing field: " << FILTER_ID);
             return false;
         }
-        const std::string_view & filterId = member.value().as_object().at(FILTER_ID).as_string();
+        const std::string_view& filterId =
+            member.value().as_object().at(FILTER_ID).as_string();
         auto filterEntry = m_FiltersByIdMap.find(std::string(filterId));
         if (filterEntry == m_FiltersByIdMap.end()) {
             LOG_ERROR(<< "Filter with id [" << filterId << "] could not be found");
@@ -203,7 +204,8 @@ bool CDetectionRulesJsonParser::parseRuleScope(const json::object& ruleObject,
             return false;
         }
 
-        const std::string_view & filterType = member.value().as_object().at(FILTER_TYPE).as_string();
+        const std::string_view& filterType =
+            member.value().as_object().at(FILTER_TYPE).as_string();
         if (filterType == INCLUDE) {
             rule.includeScope(member.key(), filterEntry->second);
         } else if (filterType == EXCLUDE) {
@@ -245,7 +247,6 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const json::object& ruleObje
 
         const json::object& conditionObject = conditionObject_.as_object();
 
-
         bool isValid = parseConditionAppliesTo(conditionObject, condition) &&
                        parseConditionOperator(conditionObject, condition) &&
                        parseConditionValue(conditionObject, condition);
@@ -265,7 +266,7 @@ bool CDetectionRulesJsonParser::parseConditionAppliesTo(const json::object& cond
         return false;
     }
 
-    const std::string_view & appliesTo = conditionObject.at(APPLIES_TO).as_string();
+    const std::string_view& appliesTo = conditionObject.at(APPLIES_TO).as_string();
     if (appliesTo == ACTUAL) {
         condition.appliesTo(model::CRuleCondition::E_Actual);
     } else if (appliesTo == TYPICAL) {

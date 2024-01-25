@@ -93,8 +93,7 @@ public:
     CDataFrameAnalysisSpecificationFactory& predictionDownsampleFactor(double downsampleFactor);
     CDataFrameAnalysisSpecificationFactory& predictionFeatureBagFraction(double fraction);
     CDataFrameAnalysisSpecificationFactory& predictionNumberTopShapValues(std::size_t number);
-    CDataFrameAnalysisSpecificationFactory&
-    predictionCustomProcessor(const json::value& value);
+    CDataFrameAnalysisSpecificationFactory& predictionCustomProcessor(const json::value& value);
     CDataFrameAnalysisSpecificationFactory&
     predictionPersisterSupplier(TPersisterSupplier* persisterSupplier);
     CDataFrameAnalysisSpecificationFactory&

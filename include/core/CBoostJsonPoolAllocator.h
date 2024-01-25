@@ -42,8 +42,7 @@ public:
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
-    CBoostJsonPoolAllocator()
-        : m_JsonPoolAllocator(m_FixedBuffer) {}
+    CBoostJsonPoolAllocator() : m_JsonPoolAllocator(m_FixedBuffer) {}
 
     ~CBoostJsonPoolAllocator() { this->clear(); }
 
@@ -54,7 +53,7 @@ public:
     //! i.e. The document will be invalidated on destruction of this allocator
     TDocumentWeakPtr makeStorableDoc() {
         // TODO sort out the allocator pool?
-//        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
+        //        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
         TDocumentPtr newDoc = std::make_shared<boost::json::object>();
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);

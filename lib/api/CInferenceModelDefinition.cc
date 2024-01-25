@@ -25,9 +25,9 @@ namespace api {
 namespace {
 
 auto toBoostjsonValue(std::size_t value) {
-//    uint64_t val = static_cast<std::uint64_t>(value);
-//    json::value ret = val;
-//    return ret;
+    //    uint64_t val = static_cast<std::uint64_t>(value);
+    //    json::value ret = val;
+    //    return ret;
     return json::value(static_cast<std::uint64_t>(value));
 }
 
@@ -268,8 +268,8 @@ void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
     json::array featureNameLengthsArray{
         writer.makeArray(m_Ensemble->featureNames().size())};
     for (const auto& featureName : m_Ensemble->featureNames()) {
-        featureNameLengthsArray.push_back(
-            toBoostjsonValue(core::CStringUtils::utf16LengthOfUtf8String(featureName)));
+        featureNameLengthsArray.push_back(toBoostjsonValue(
+            core::CStringUtils::utf16LengthOfUtf8String(featureName)));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
 
@@ -285,8 +285,7 @@ void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
     writer.addMember(JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG,
                      toBoostjsonValue(numOutputProcessorWeights), parentObject);
     std::size_t numOperations{this->numOperations()};
-    writer.addMember(JSON_NUM_OPERATIONS_TAG,
-                     toBoostjsonValue(numOperations), parentObject);
+    writer.addMember(JSON_NUM_OPERATIONS_TAG, toBoostjsonValue(numOperations), parentObject);
 }
 
 void CTree::addToJsonStream(TGenericLineWriter& writer) const {
@@ -469,12 +468,10 @@ void CTrainedModel::CSizeInfo::addToJsonDocument(json::object& parentObject,
     if (m_TrainedModel.targetType() == E_Classification) {
         writer.addMember(
             JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
-            toBoostjsonValue(m_TrainedModel.classificationWeights()->size()),
-            parentObject);
-        writer.addMember(
-            JSON_NUM_CLASSES_TAG,
-            toBoostjsonValue(m_TrainedModel.classificationLabels()->size()),
-            parentObject);
+            toBoostjsonValue(m_TrainedModel.classificationWeights()->size()), parentObject);
+        writer.addMember(JSON_NUM_CLASSES_TAG,
+                         toBoostjsonValue(m_TrainedModel.classificationLabels()->size()),
+                         parentObject);
     }
 }
 
@@ -674,11 +671,10 @@ CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding)
 
 void CEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                              TBoostJsonWriter& writer) const {
-    writer.addMember(
-        JSON_FIELD_LENGTH_TAG,
-        toBoostjsonValue(core::CStringUtils::utf16LengthOfUtf8String(m_Encoding->field()))
-            ,
-        parentObject);
+    writer.addMember(JSON_FIELD_LENGTH_TAG,
+                     toBoostjsonValue(core::CStringUtils::utf16LengthOfUtf8String(
+                         m_Encoding->field())),
+                     parentObject);
 }
 
 const CEncoding* CEncoding::CSizeInfo::encoding() const {

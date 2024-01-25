@@ -83,7 +83,8 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
 
     std::string jsonEscapedProcessPath{PROCESS_PATH};
     ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
-    std::string expected = "[{\"id\":1,\"success\":true,\"reason\":\"Process '" + jsonEscapedProcessPath +
+    std::string expected = "[{\"id\":1,\"success\":true,\"reason\":\"Process '" +
+                           jsonEscapedProcessPath +
                            "' started\"}\n"
                            "]";
     std::string actual = responseStream.str();

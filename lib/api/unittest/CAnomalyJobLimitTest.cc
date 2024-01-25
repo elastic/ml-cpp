@@ -54,15 +54,15 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
         if (ec.failed() == false) {
             size_t j = 0;
             while (true) {
-                json::value* p2 = doc.find_pointer("/" + std::to_string(i) + "/records/" +
-                                                          std::to_string(j), ec);
+                json::value* p2 = doc.find_pointer(
+                    "/" + std::to_string(i) + "/records/" + std::to_string(j), ec);
                 if (p2 != nullptr) {
                     size_t k = 0;
                     while (true) {
-                        json::value* p3 =
-                            doc.find_pointer("/" + std::to_string(i) + "/records/" +
-                                               std::to_string(j) + "/causes/" +
-                                               std::to_string(k) + "/" + key, ec);
+                        json::value* p3 = doc.find_pointer(
+                            "/" + std::to_string(i) + "/records/" + std::to_string(j) +
+                                "/causes/" + std::to_string(k) + "/" + key,
+                            ec);
 
                         if (p3 != nullptr) {
                             values.insert(std::string(p3->as_string()));

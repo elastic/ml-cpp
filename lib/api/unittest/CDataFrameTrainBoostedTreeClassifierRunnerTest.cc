@@ -154,8 +154,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
 }
 
 void testWriteOneRowExtractString(const std::string& dependentVariableField,
-                     const std::string& predictionFieldType,
-                     const std::vector<std::string>& expectedPredictions) {
+                                  const std::string& predictionFieldType,
+                                  const std::vector<std::string>& expectedPredictions) {
     // Prepare input data frame.
     const std::string predictionField{dependentVariableField + "_prediction"};
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
@@ -184,10 +184,11 @@ void testWriteOneRowExtractString(const std::string& dependentVariableField,
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                     dependentVariableField);
 
-
     json::error_code ec;
-    json::value jsonParameters = json::parse(specFactory.predictionParams(
-                                                 test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField), ec);
+    json::value jsonParameters = json::parse(
+        specFactory.predictionParams(
+            test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField),
+        ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
 
     api::CDataFrameTrainBoostedTreeClassifierRunnerFactory factory;
@@ -251,8 +252,7 @@ BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsBool) {
-    testWriteOneRow("x4", "bool", &json::value::as_bool,
-                    {true, true, true, false, false});
+    testWriteOneRow("x4", "bool", &json::value::as_bool, {true, true, true, false, false});
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsString) {

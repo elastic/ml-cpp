@@ -16,7 +16,7 @@
 #include <string>
 
 namespace {
-void unexpectedError(const std::string_view &, const std::string & message) {
+void unexpectedError(const std::string_view&, const std::string& message) {
     BOOST_TEST_FAIL(message);
 }
 

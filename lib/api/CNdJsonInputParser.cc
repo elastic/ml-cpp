@@ -35,7 +35,7 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
     // We reuse the same field map for every record
     TStrStrUMap recordFields;
 
-    char *begin;
+    char* begin;
     std::size_t length;
     std::tie(begin, length) = this->parseLine();
     while (begin != nullptr && length > 0) {
@@ -80,7 +80,7 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
     // We reuse the same field vector for every record
     TStrVec fieldValues;
 
-    char *begin;
+    char* begin;
     std::size_t length;
     std::tie(begin, length) = this->parseLine();
     while (begin != nullptr && length > 0) {
@@ -160,7 +160,8 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 
     auto nameIter = fieldNames.begin();
     auto refIter = fieldValRefs.begin();
-    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter, ++refIter) {
+    for (auto iter = document.as_object().begin();
+         iter != document.as_object().end(); ++iter, ++refIter) {
         if (nameIter == fieldNames.end() || refIter == fieldValRefs.end()) {
             LOG_ERROR(<< "More fields than field references");
             return false;
@@ -187,8 +188,8 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFi
 
     auto nameIter = fieldNames.begin();
     auto valueIter = fieldValues.begin();
-    for (auto iter = document.as_object().begin(); iter != document.as_object().end();
-         ++iter, ++nameIter, ++valueIter) {
+    for (auto iter = document.as_object().begin();
+         iter != document.as_object().end(); ++iter, ++nameIter, ++valueIter) {
         if (nameIter == fieldNames.end() || valueIter == fieldValues.end()) {
             LOG_ERROR(<< "More fields in document than common fields");
             return false;
@@ -211,7 +212,8 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     fieldNames.clear();
     recordFields.clear();
 
-    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter) {
+    for (auto iter = document.as_object().begin();
+         iter != document.as_object().end(); ++iter) {
         fieldNames.emplace_back(iter->key());
         const std::string& fieldName = fieldNames.back();
         if (this->jsonValueToString(fieldName, iter->value(), recordFields[fieldName]) == false) {
@@ -233,7 +235,8 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     fieldNames.clear();
     fieldValues.clear();
 
-    for (auto iter = document.as_object().begin(); iter != document.as_object().end(); ++iter) {
+    for (auto iter = document.as_object().begin();
+         iter != document.as_object().end(); ++iter) {
         fieldNames.emplace_back(iter->key(), iter->key().size());
         fieldValues.emplace_back();
         const std::string& fieldName = fieldNames.back();
@@ -253,9 +256,8 @@ bool CNdJsonInputParser::jsonValueToString(const std::string& fieldName,
                                            std::string& fieldValueStr) {
     fieldValueStr = json::serialize(jsonValue);
     // serialize surrounds string values with double quotes, strip them off.
-    fieldValueStr.erase(
-        std::remove(fieldValueStr.begin(), fieldValueStr.end(), '\"'),
-        fieldValueStr.end());
+    fieldValueStr.erase(std::remove(fieldValueStr.begin(), fieldValueStr.end(), '\"'),
+                        fieldValueStr.end());
     return true;
 }
 }

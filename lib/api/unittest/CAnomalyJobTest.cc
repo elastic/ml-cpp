@@ -404,36 +404,36 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
 }
 
 BOOST_AUTO_TEST_CASE(testControlMessages) {
-//    {
-//        // Test control messages
-//        model::CLimits limits;
-//        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
-//            "metric", "value", "", "", "greenhouse");
-//
-//        model::CAnomalyDetectorModelConfig modelConfig =
-//            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-//        std::stringstream outputStrm;
-//        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-//
-//        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
-//
-//        CTestAnomalyJob::TStrStrUMap dataRows;
-//        dataRows["."] = " ";
-//        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-//        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-//
-//        dataRows["."] = ".";
-//        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-//        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-//
-//        dataRows["."] = "f";
-//        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-//        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-//
-//        dataRows["."] = "f1";
-//        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-//        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-//    }
+    //    {
+    //        // Test control messages
+    //        model::CLimits limits;
+    //        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+    //            "metric", "value", "", "", "greenhouse");
+    //
+    //        model::CAnomalyDetectorModelConfig modelConfig =
+    //            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    //        std::stringstream outputStrm;
+    //        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+    //
+    //        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+    //
+    //        CTestAnomalyJob::TStrStrUMap dataRows;
+    //        dataRows["."] = " ";
+    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+    //
+    //        dataRows["."] = ".";
+    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+    //
+    //        dataRows["."] = "f";
+    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+    //
+    //        dataRows["."] = "f1";
+    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+    //    }
     {
         // Test reset bucket
         model::CLimits limits;
@@ -481,12 +481,10 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
         bool foundRecord = false;
         for (auto& r : allRecords) {
             BOOST_TEST_REQUIRE(r.is_object());
-            json::object::const_iterator recordsIt =
-                r.as_object().find("records");
+            json::object::const_iterator recordsIt = r.as_object().find("records");
             if (recordsIt != r.as_object().end()) {
                 auto& recordsArray = recordsIt->value().as_array().at(0);
-                const json::value* actualIt =
-                    recordsArray.as_object().if_contains("actual");
+                const json::value* actualIt = recordsArray.as_object().if_contains("actual");
                 BOOST_TEST_REQUIRE(actualIt != nullptr);
                 const json::array& values = actualIt->as_array();
 
@@ -531,8 +529,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
         const json::value& allRecords2 = doc2_.as_array();
         foundRecord = false;
         for (auto& r : allRecords2.as_array()) {
-            json::object::const_iterator recordsIt =
-                r.as_object().find("records");
+            json::object::const_iterator recordsIt = r.as_object().find("records");
             if (recordsIt != r.as_object().end()) {
                 auto& recordsArray = recordsIt->value().as_array().at(0);
                 json::object::const_iterator actualIt =

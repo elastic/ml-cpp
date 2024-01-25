@@ -339,32 +339,28 @@ void CDataFrameOutliersInstrumentation::featureInfluenceThreshold(double feature
 void CDataFrameOutliersInstrumentation::writeTimingStats(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
-        writer->addMember(TIMING_ELAPSED_TIME_TAG,
-                          json::value(m_ElapsedTime), parentObject);
+        writer->addMember(TIMING_ELAPSED_TIME_TAG, json::value(m_ElapsedTime), parentObject);
     }
 }
 
 void CDataFrameOutliersInstrumentation::writeParameters(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
-        writer->addMember(
-            CDataFrameOutliersRunner::N_NEIGHBORS,
-            json::value(static_cast<std::uint64_t>(m_Parameters.s_NumberNeighbours)),
-            parentObject);
-        writer->addMember(
-            CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
-            json::value(m_Parameters.s_ComputeFeatureInfluence), parentObject);
-        writer->addMember(CDataFrameOutliersRunner::OUTLIER_FRACTION,
-                          json::value(m_Parameters.s_OutlierFraction),
+        writer->addMember(CDataFrameOutliersRunner::N_NEIGHBORS,
+                          json::value(static_cast<std::uint64_t>(m_Parameters.s_NumberNeighbours)),
                           parentObject);
+        writer->addMember(CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
+                          json::value(m_Parameters.s_ComputeFeatureInfluence), parentObject);
+        writer->addMember(CDataFrameOutliersRunner::OUTLIER_FRACTION,
+                          json::value(m_Parameters.s_OutlierFraction), parentObject);
         writer->addMember(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,
                           json::value(m_FeatureInfluenceThreshold), parentObject);
         writer->addMember(CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
-                          json::value(m_Parameters.s_StandardizeColumns),
-                          parentObject);
-        writer->addMember(CDataFrameOutliersRunner::METHOD,
-                          json::value(maths::analytics::COutliers::print(m_Parameters.s_Method)),
-                          parentObject);
+                          json::value(m_Parameters.s_StandardizeColumns), parentObject);
+        writer->addMember(
+            CDataFrameOutliersRunner::METHOD,
+            json::value(maths::analytics::COutliers::print(m_Parameters.s_Method)),
+            parentObject);
     }
 }
 
@@ -455,73 +451,59 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(json::objec
                 CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[objective],
                 parentObject);
         }
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::ALPHA,
-            json::value(m_Hyperparameters.s_DepthPenaltyMultiplier),
-            parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
-            json::value(m_Hyperparameters.s_SoftTreeDepthLimit), parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
-            json::value(m_Hyperparameters.s_SoftTreeDepthTolerance),
-            parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::GAMMA,
-            json::value(m_Hyperparameters.s_TreeSizePenaltyMultiplier),
-            parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::LAMBDA,
-            json::value(m_Hyperparameters.s_LeafWeightPenaltyMultiplier),
-            parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::ALPHA,
+                          json::value(m_Hyperparameters.s_DepthPenaltyMultiplier),
+                          parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
+                          json::value(m_Hyperparameters.s_SoftTreeDepthLimit), parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
+                          json::value(m_Hyperparameters.s_SoftTreeDepthTolerance),
+                          parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::GAMMA,
+                          json::value(m_Hyperparameters.s_TreeSizePenaltyMultiplier),
+                          parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::LAMBDA,
+                          json::value(m_Hyperparameters.s_LeafWeightPenaltyMultiplier),
+                          parentObject);
 
         writer->addMember(CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR,
-                          json::value(m_Hyperparameters.s_DownsampleFactor),
-                          parentObject);
+                          json::value(m_Hyperparameters.s_DownsampleFactor), parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::NUM_FOLDS,
-            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_NumFolds))
-                ,
+            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_NumFolds)),
             parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::MAX_TREES,
-            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxTrees))
-                ,
+            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxTrees)),
             parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
-            json::value(m_Hyperparameters.s_FeatureBagFraction), parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE,
-            json::value(m_Hyperparameters.s_EtaGrowthRatePerTree), parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
+                          json::value(m_Hyperparameters.s_FeatureBagFraction), parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE,
+                          json::value(m_Hyperparameters.s_EtaGrowthRatePerTree),
+                          parentObject);
 
-        writer->addMember(
-            MAX_ATTEMPTS_TO_ADD_TREE_TAG,
-            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxAttemptsToAddTree))
-                ,
-            parentObject);
-        writer->addMember(
-            NUM_SPLITS_PER_FEATURE_TAG,
-            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_NumSplitsPerFeature))
-                ,
-            parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
-            json::value(static_cast<std::uint64_t>(m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
-                ,
-            parentObject);
+        writer->addMember(MAX_ATTEMPTS_TO_ADD_TREE_TAG,
+                          json::value(static_cast<std::uint64_t>(
+                              m_Hyperparameters.s_MaxAttemptsToAddTree)),
+                          parentObject);
+        writer->addMember(NUM_SPLITS_PER_FEATURE_TAG,
+                          json::value(static_cast<std::uint64_t>(
+                              m_Hyperparameters.s_NumSplitsPerFeature)),
+                          parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
+                          json::value(static_cast<std::uint64_t>(
+                              m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter)),
+                          parentObject);
         if (m_Task == api_t::E_Update) {
-            writer->addMember(
-                CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY,
-                json::value(m_Hyperparameters.s_TreeTopologyChangePenalty),
-                parentObject);
-            writer->addMember(
-                CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST,
-                json::value(m_Hyperparameters.s_PredictionChangeCost),
-                parentObject);
-            writer->addMember(
-                CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA,
-                json::value(m_Hyperparameters.s_RetrainedTreeEta), parentObject);
+            writer->addMember(CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY,
+                              json::value(m_Hyperparameters.s_TreeTopologyChangePenalty),
+                              parentObject);
+            writer->addMember(CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST,
+                              json::value(m_Hyperparameters.s_PredictionChangeCost),
+                              parentObject);
+            writer->addMember(CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA,
+                              json::value(m_Hyperparameters.s_RetrainedTreeEta),
+                              parentObject);
         }
     }
 }
@@ -533,9 +515,8 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::object
         json::array lossValuesArray{writer->makeArray()};
         for (auto& element : m_LossValues) {
             json::object item{writer->makeObject()};
-            writer->addMember(
-                VALIDATION_FOLD_TAG,
-                json::value(static_cast<std::uint64_t>(element.first)), item);
+            writer->addMember(VALIDATION_FOLD_TAG,
+                              json::value(static_cast<std::uint64_t>(element.first)), item);
             json::array array{writer->makeArray(element.second.size())};
             for (double lossValue : element.second) {
                 array.push_back(json::value(lossValue));
@@ -550,10 +531,8 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::object
 void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(json::object& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
-        writer->addMember(TIMING_ELAPSED_TIME_TAG,
-                          json::value(m_ElapsedTime), parentObject);
-        writer->addMember(TIMING_ITERATION_TIME_TAG,
-                          json::value(m_IterationTime), parentObject);
+        writer->addMember(TIMING_ELAPSED_TIME_TAG, json::value(m_ElapsedTime), parentObject);
+        writer->addMember(TIMING_ITERATION_TIME_TAG, json::value(m_IterationTime), parentObject);
     }
 }
 

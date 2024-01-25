@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(object.contains("model_snapshot"));
     const json::value& snapshot_ = object.at("model_snapshot");
     const json::object& snapshot = snapshot_.as_object();
-    
+
     BOOST_TEST_REQUIRE(snapshot.contains("job_id"));
     BOOST_REQUIRE_EQUAL("job", snapshot.at("job_id").as_string());
     BOOST_TEST_REQUIRE(snapshot.contains("min_version"));
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(snapshot.contains("model_size_stats"));
     const json::value& modelSizeStats_ = snapshot.at("model_size_stats");
     const json::object& modelSizeStats = modelSizeStats_.as_object();
-    
+
     BOOST_TEST_REQUIRE(modelSizeStats.contains("job_id"));
     BOOST_REQUIRE_EQUAL("job", modelSizeStats.at("job_id").as_string());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes"));

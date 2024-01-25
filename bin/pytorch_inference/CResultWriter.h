@@ -32,7 +32,6 @@ namespace ml {
 namespace torch {
 class CThreadSettings;
 
-
 //! \brief
 //! Formats and writes results for PyTorch inference.
 //!
@@ -64,16 +63,17 @@ public:
     CResultWriter& operator=(const CResultWriter&) = delete;
 
     //! Write an error directly to the output stream.
-    void writeError(const std::string_view & requestId, const std::string& message);
+    void writeError(const std::string_view& requestId, const std::string& message);
 
     //! Write thread settings to the output stream.
-    void writeThreadSettings(const std::string_view& requestId, const CThreadSettings& threadSettings);
+    void writeThreadSettings(const std::string_view& requestId,
+                             const CThreadSettings& threadSettings);
 
     //! Write a simple acknowledgement to the output stream.
     void writeSimpleAck(const std::string_view& requestId);
 
     //! Write memory usage information to the output stream.
-    void writeProcessStats(const std::string_view & requestId,
+    void writeProcessStats(const std::string_view& requestId,
                            const std::size_t residentSetSize,
                            const std::size_t maxResidentSetSize);
 
@@ -138,7 +138,7 @@ private:
     //! Create the invariant portion of an error result, suitable for
     //! caching and later splicing into a full result.
     //core::CBoostJsonConcurrentLineWriter
-//    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
+    //    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
     static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
 
     //! Write a one dimensional tensor.
@@ -192,7 +192,7 @@ private:
     }
 
 private:
-//    std::ostream& m_WrappedOutputStream;
+    //    std::ostream& m_WrappedOutputStream;
     core::CJsonOutputStreamWrapper m_WrappedOutputStream;
 };
 }

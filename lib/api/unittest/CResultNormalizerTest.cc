@@ -55,8 +55,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
         resultDocs.push_back(doc);
     }
 
-    BOOST_REQUIRE_EQUAL(std::vector<json::value>::size_type{327},
-                        resultDocs.size());
+    BOOST_REQUIRE_EQUAL(std::vector<json::value>::size_type{327}, resultDocs.size());
 
     // The maximum bucket_time influencer probability in the farequote data used to initialise
     // the normaliser is 2.1305076675260463E-24, so this should map to the highest normalised
@@ -98,7 +97,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
                             std::string(doc.at("partition_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc.at("partition_field_value").as_string()));
-        BOOST_REQUIRE_EQUAL(std::string("inflb"), std::string(doc.at("level").as_string()));
+        BOOST_REQUIRE_EQUAL(std::string("inflb"),
+                            std::string(doc.at("level").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("81.65058"),
                             std::string(doc.at("normalized_score").as_string()));
     }
@@ -413,8 +413,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
         resultDocs.push_back(doc);
     }
 
-    BOOST_REQUIRE_EQUAL(std::vector<json::value>::size_type{38},
-                        resultDocs.size());
+    BOOST_REQUIRE_EQUAL(std::vector<json::value>::size_type{38}, resultDocs.size());
 
     // The maximum bucketTime influencer probability in the Savvis data used to initialise
     // the normaliser is 2.56098e-205, so this should map to the highest normalised
@@ -447,7 +446,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
                             std::string(doc.at("person_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc.at("partition_field_name").as_string()));
-        BOOST_REQUIRE_EQUAL(std::string("inflb"), std::string(doc.at("level").as_string()));
+        BOOST_REQUIRE_EQUAL(std::string("inflb"),
+                            std::string(doc.at("level").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("97.26764"),
                             std::string(doc.at("normalized_score").as_string()));
     }
@@ -505,7 +505,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
                             std::string(doc.at("value_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc.at("function_name").as_string()));
-        BOOST_REQUIRE_EQUAL(std::string("1"), std::string(doc.at("probability").as_string()));
+        BOOST_REQUIRE_EQUAL(std::string("1"),
+                            std::string(doc.at("probability").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("bucketTime"),
                             std::string(doc.at("person_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
@@ -520,7 +521,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
                             std::string(doc.at("value_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc.at("function_name").as_string()));
-        BOOST_REQUIRE_EQUAL(std::string("1"), std::string(doc.at("probability").as_string()));
+        BOOST_REQUIRE_EQUAL(std::string("1"),
+                            std::string(doc.at("probability").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("status"),
                             std::string(doc.at("person_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),
@@ -535,7 +537,8 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
                             std::string(doc.at("value_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("count"),
                             std::string(doc.at("function_name").as_string()));
-        BOOST_REQUIRE_EQUAL(std::string("1"), std::string(doc.at("probability").as_string()));
+        BOOST_REQUIRE_EQUAL(std::string("1"),
+                            std::string(doc.at("probability").as_string()));
         BOOST_REQUIRE_EQUAL(std::string("status"),
                             std::string(doc.at("person_field_name").as_string()));
         BOOST_REQUIRE_EQUAL(std::string(""),

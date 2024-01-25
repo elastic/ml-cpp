@@ -81,9 +81,7 @@ public:
     //! reached.
     char Peek() const {
         int c{m_Stream.peek()};
-        return (c != std::istream::traits_type::eof())
-                   ? static_cast<char>(c)
-                   : '\0';
+        return (c != std::istream::traits_type::eof()) ? static_cast<char>(c) : '\0';
     }
 
     //! Take the next character. Returns '\0' when the end of the stream is

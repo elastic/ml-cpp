@@ -71,7 +71,7 @@ CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istrea
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& istream,
                                                                core::CDataFrame& frame) {
-//    core::CBoostJsonUnbufferedIStreamWrapper isw{istream};
+    //    core::CBoostJsonUnbufferedIStreamWrapper isw{istream};
     json::value doc;
     json::error_code ec;
     json::stream_parser p;
@@ -85,7 +85,8 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
 
     LOG_DEBUG(<< "Parsed JSON doc: " << doc);
 
-    std::size_t numberColumns{ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc.as_object())};
+    std::size_t numberColumns{
+        ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc.as_object())};
 
     TStrVec columnNames;
     TBoolVec columnIsCategorical;
@@ -94,7 +95,8 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     columnIsCategorical.reserve(numberColumns);
     categoricalColumnValues.resize(numberColumns, {});
 
-    for (const auto& name : ifExists(JSON_COLUMN_NAMES_TAG, getAsArrayFrom, doc.as_object())) {
+    for (const auto& name :
+         ifExists(JSON_COLUMN_NAMES_TAG, getAsArrayFrom, doc.as_object())) {
         columnNames.push_back(getAsStringFrom(name));
     }
 
@@ -104,8 +106,8 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     }
 
     std::size_t i{0};
-    for (const auto& categories :
-         ifExists(JSON_CATEGORICAL_COLUMN_VALUES_TAG, getAsArrayFrom, doc.as_object())) {
+    for (const auto& categories : ifExists(JSON_CATEGORICAL_COLUMN_VALUES_TAG,
+                                           getAsArrayFrom, doc.as_object())) {
         for (const auto& category : getAsArrayFrom(categories)) {
             categoricalColumnValues[i].push_back(getAsStringFrom(category));
         }
@@ -113,11 +115,12 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     }
 
     TStrSizeUMap encodingIndices;
-    for (const auto& entry :
-         ifExists(JSON_ENCODING_NAME_INDEX_MAP_TAG, getAsArrayFrom, doc.as_object())) {
-        encodingIndices.emplace(
-            ifExists(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG, getAsStringFrom, entry.as_object()),
-            ifExists(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG, getAsUint64From, entry.as_object()));
+    for (const auto& entry : ifExists(JSON_ENCODING_NAME_INDEX_MAP_TAG,
+                                      getAsArrayFrom, doc.as_object())) {
+        encodingIndices.emplace(ifExists(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG,
+                                         getAsStringFrom, entry.as_object()),
+                                ifExists(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG,
+                                         getAsUint64From, entry.as_object()));
     }
 
     ifExists(JSON_ENCODINGS_TAG, getAsObjectFrom, doc.as_object()); // Validate the nested object exists.
@@ -165,9 +168,7 @@ CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream,
     if (istream != nullptr) {
         try {
             return doBestForestFromJsonStream(*istream, encodingIndices);
-        } catch (const std::runtime_error& e) {
-            LOG_ERROR(<< e.what());
-        }
+        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
     return nullptr;
 }
@@ -185,7 +186,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
         LOG_DEBUG(<< "write_some: " << line);
         p.write_some(line);
     }
-    p.finish( ec );
+    p.finish(ec);
     assertNoParseError(ec);
 
     json::value doc = p.release();
@@ -203,7 +204,8 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     TStrVec featureNames;
     TNodeVec nodes;
     for (const auto& trainedModel : trainedModels) {
-        auto tree = ifExists(CTree::JSON_TREE_TAG, getAsObjectFrom, trainedModel.as_object());
+        auto tree = ifExists(CTree::JSON_TREE_TAG, getAsObjectFrom,
+                             trainedModel.as_object());
         featureNames.clear();
         for (const auto& name :
              ifExists(CTree::JSON_FEATURE_NAMES_TAG, getAsArrayFrom, tree)) {
@@ -222,8 +224,8 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
             if (node.as_object().contains(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
                 // Add a leaf node.
                 if (node.as_object().at(CTree::CTreeNode::JSON_LEAF_VALUE_TAG).is_array()) {
-                    auto leafValueArray =
-                        getAsArrayFrom(node.as_object().at(CTree::CTreeNode::JSON_LEAF_VALUE_TAG));
+                    auto leafValueArray = getAsArrayFrom(
+                        node.as_object().at(CTree::CTreeNode::JSON_LEAF_VALUE_TAG));
                     maths::analytics::CBoostedTreeNode::TVector nodeValue(
                         leafValueArray.size());
                     for (std::size_t i = 0; i < leafValueArray.size(); ++i) {
@@ -239,9 +241,10 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                 }
             } else {
                 // Add a split node.
-                std::size_t splitFeature{lookup(encodingIndices, featureNames,
-                                                ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG,
-                                                         getAsUint64From, node.as_object()))};
+                std::size_t splitFeature{
+                    lookup(encodingIndices, featureNames,
+                           ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG,
+                                    getAsUint64From, node.as_object()))};
                 double gain{ifExists(CTree::CTreeNode::JSON_SPLIT_GAIN_TAG,
                                      getAsDoubleFrom, node.as_object())};
                 double splitValue{ifExists(CTree::CTreeNode::JSON_THRESHOLD_TAG,

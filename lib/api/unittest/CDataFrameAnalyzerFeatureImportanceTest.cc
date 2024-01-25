@@ -419,14 +419,19 @@ struct SFixture {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results_, std::string shapField) {
-    if (results_.at_pointer("/row_results/results/ml").as_object().contains(
-            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
+    if (results_.at_pointer("/row_results/results/ml")
+            .as_object()
+            .contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult :
-             results_.at_pointer("/row_results/results/ml/"+api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
+             results_
+                 .at_pointer("/row_results/results/ml/" +
+                             api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
                  .as_array()) {
-            if (shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
+            if (shapResult.as_object()
+                    .at(api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
                     .as_string() == shapField) {
-                json::value jv = shapResult.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                json::value jv = shapResult.as_object().at(
+                    api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                 BOOST_TEST_REQUIRE(jv.is_number());
                 return jv.to_number<double>();
             }
@@ -453,21 +458,26 @@ double readClassProbability(const RESULTS& results, std::string className) {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField, std::string className) {
-    if (results.at_pointer("/row_results/results/ml").as_object().contains(
-            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
+    if (results.at_pointer("/row_results/results/ml").as_object().contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult_ :
-             results.at_pointer("/row_results/results/ml/" + api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
+             results
+                 .at_pointer("/row_results/results/ml/" +
+                             api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
                  .as_array()) {
             const json::object& shapResult = shapResult_.as_object();
 
-            if (shapResult_.at_pointer("/"+api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
+            if (shapResult_
+                    .at_pointer("/" + api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
                     .as_string() == shapField) {
                 for (const auto& item :
-                     shapResult_.at_pointer("/"+api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME)
+                     shapResult_
+                         .at_pointer("/" + api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME)
                          .as_array()) {
-                    if (item.as_object().at(api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME)
+                    if (item.as_object()
+                            .at(api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME)
                             .as_string() == className) {
-                        json::value jv = item.as_object().at(api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                        json::value jv = item.as_object().at(
+                            api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                         BOOST_TEST_REQUIRE(jv.is_double());
                         return jv.as_double();
                     }
@@ -481,13 +491,18 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
-            TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
+    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult :
-             results.at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
+             results
+                 .at_pointer("/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                             TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
                  .as_array()) {
-            if (shapResult.at_pointer("/"+TModelMetadata::JSON_FEATURE_NAME_TAG).as_string() == shapField) {
-                json::value jv = shapResult.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
+            if (shapResult
+                    .at_pointer("/" + TModelMetadata::JSON_FEATURE_NAME_TAG)
+                    .as_string() == shapField) {
+                json::value jv = shapResult.at_pointer(
+                    "/" + TModelMetadata::JSON_IMPORTANCE_TAG + "/" +
+                    TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
                 BOOST_TEST_REQUIRE(jv.is_double());
                 return jv.as_double();
             }
@@ -499,16 +514,22 @@ double readTotalShapValue(const RESULTS& results, std::string shapField) {
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
-    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
-            TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
+    if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult_ :
-             results.at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG+"/"+TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
+             results
+                 .at_pointer("/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                             TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)
                  .as_array()) {
-            if (shapResult_.at_pointer("/"+TModelMetadata::JSON_FEATURE_NAME_TAG).as_string() == shapField) {
-                for (const auto& item :
-                     shapResult_.at_pointer("/"+TModelMetadata::JSON_CLASSES_TAG).as_array()) {
+            if (shapResult_
+                    .at_pointer("/" + TModelMetadata::JSON_FEATURE_NAME_TAG)
+                    .as_string() == shapField) {
+                for (const auto& item : shapResult_
+                                            .at_pointer("/" + TModelMetadata::JSON_CLASSES_TAG)
+                                            .as_array()) {
                     if (item.at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
-                        json::value jv = item.at_pointer("/"+TModelMetadata::JSON_IMPORTANCE_TAG+"/"+TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
+                        json::value jv = item.at_pointer(
+                            "/" + TModelMetadata::JSON_IMPORTANCE_TAG + "/" +
+                            TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
                         BOOST_TEST_REQUIRE(jv.is_double());
                         return jv.as_double();
                     }
@@ -524,10 +545,9 @@ double readBaselineValue(const RESULTS& results) {
     using TModelMetadata = api::CInferenceModelMetadata;
     for (const auto& result_ : results.as_array()) {
         const json::object& result = result_.as_object();
-        
+
         if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
-                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
             json::value jv = result_.at_pointer(
                 "/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG + "/" +
@@ -544,17 +564,17 @@ double readBaselineValue(const RESULTS& results, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
     for (const auto& result_ : results.as_array()) {
         const json::object& result = result_.as_object();
-        
+
         if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(
-                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
             for (const auto& item :
                  result_
-                     .at_pointer("/"+TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                     .at_pointer("/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
                                  TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
                                  "/" + TModelMetadata::JSON_CLASSES_TAG)
                      .as_array()) {
-                if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() == className) {
+                if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() ==
+                    className) {
                     json::value jv = item.as_object().at(TModelMetadata::JSON_BASELINE_TAG);
                     BOOST_TEST_REQUIRE(jv.is_double());
                     return jv.as_double();
@@ -893,9 +913,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
 
     for (const auto& result : results.as_array()) {
         if (result.as_object().contains("row_results")) {
-            BOOST_TEST_REQUIRE(result.at_pointer("/row_results/results/ml").as_object().contains(
-                                   api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
-                               false);
+            BOOST_TEST_REQUIRE(
+                result.at_pointer("/row_results/results/ml").as_object().contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
+                false);
         }
     }
 }

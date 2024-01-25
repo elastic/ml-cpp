@@ -31,9 +31,7 @@ CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
         m_StringBufferQueue.push(&stringBuffer);
     }
 
-    m_ConcurrentOutputStream([](std::ostream& o) {
-        o.put(JSON_ARRAY_START);
-    });
+    m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_START); });
 }
 
 CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
@@ -44,13 +42,12 @@ CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
 }
 
 void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
-                                             std::string *& buffer) {
+                                             std::string*& buffer) {
     buffer = m_StringBufferQueue.pop();
     writer.Reset(*buffer);
 }
 
-void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
-                                             std::string* buffer) {
+void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, std::string* buffer) {
     writer.Flush();
 
     // check for data that has to be written
@@ -73,9 +70,8 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
     }
 }
 
-void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
-                                           std::string*& buffer) {
-//    writer.flush();
+void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer, std::string*& buffer) {
+    //    writer.flush();
 
     m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
         std::string& str = *buffer;

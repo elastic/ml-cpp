@@ -25,7 +25,6 @@
 
 #include <random>
 
-
 namespace ml {
 namespace api {
 
@@ -439,7 +438,7 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
     if (doc.is_object() == false) {
         LOG_ERROR(<< "An error occurred while parsing scheduled event config from JSON. "
                   << "Expected JSON object but was: \"" << json << "\"");
-        return false ;
+        return false;
     }
 
     const json::object& obj = doc.as_object();

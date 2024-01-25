@@ -155,8 +155,10 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
             ++expectedScore;
         } else if (result.contains("phase_progress")) {
-            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
-            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
         }
     }
@@ -206,10 +208,13 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
             ++expectedScore;
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
         } else if (result.contains("phase_progress")) {
-            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
-            BOOST_TEST_REQUIRE(result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
-            progressCompleted = result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
+            progressCompleted =
+                result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
@@ -345,12 +350,12 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
                 BOOST_REQUIRE_EQUAL(
                     expectedNames[i].c_str(),
                     result_.at_pointer(base_path.str() + "/feature_name")
-                        .as_string().c_str());
+                        .as_string()
+                        .c_str());
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
-                    result_.at_pointer(base_path.str() + "/influence")
-                        .as_double(),
+                    result_.at_pointer(base_path.str() + "/influence").as_double(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
@@ -409,10 +414,11 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                 const json::object& result = result_.as_object();
                 if (result.contains("row_results")) {
                     BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
-                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                        *expectedScore,
-                        result_.at_pointer("/row_results/results/ml/outlier_score").as_double(),
-                        1e-6 * *expectedScore);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(*expectedScore,
+                                                 result_
+                                                     .at_pointer("/row_results/results/ml/outlier_score")
+                                                     .as_double(),
+                                                 1e-6 * *expectedScore);
                     ++expectedScore;
                 }
             }
@@ -622,7 +628,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             BOOST_TEST_REQUIRE(result_.is_object());
             const json::object& result = result_.as_object();
             if (result.contains("analytics_memory_usage")) {
-                std::string status{result_.at_pointer("/analytics_memory_usage/status").as_string()};
+                std::string status{
+                    result_.at_pointer("/analytics_memory_usage/status").as_string()};
                 if (status == "ok") {
                     memoryStatusOk = true;
                 } else if (status == "hard_limit") {
@@ -670,7 +677,8 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
         BOOST_TEST_REQUIRE(result_.is_object());
         const json::object& result = result_.as_object();
         if (result.contains("row_results")) {
-            LOG_DEBUG(<< "checksum = " << result_.at_pointer("/row_results/checksum").as_int64());
+            LOG_DEBUG(<< "checksum = "
+                      << result_.at_pointer("/row_results/checksum").as_int64());
             BOOST_REQUIRE_EQUAL(++expectedHash,
                                 result_.at_pointer("/row_results/checksum").as_int64());
         }
@@ -715,9 +723,9 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             LOG_DEBUG(<< str);
             if (result_.at_pointer("/phase_progress/phase").as_string() ==
                 maths::analytics::COutliers::COMPUTING_OUTLIERS) {
-                computingOutliersProgress =
-                    std::max(computingOutliersProgress,
-                             result_.at_pointer("/phase_progress/progress_percent").as_int64());
+                computingOutliersProgress = std::max(
+                    computingOutliersProgress,
+                    result_.at_pointer("/phase_progress/progress_percent").as_int64());
             }
         }
     }

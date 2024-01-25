@@ -218,7 +218,7 @@ void testBucketWriteHelper(bool isInterim) {
     json::value arrayDoc = json::parse(sstream.str(), ec);
     BOOST_TEST_REQUIRE(ec.failed() == false);
     BOOST_TEST_REQUIRE(arrayDoc.is_array());
-    
+
     LOG_DEBUG(<< "Results:\n" << arrayDoc);
 
     // There are 3 buckets and 3 record arrays in the order: r1, b1, r2, b2, r3, b3
@@ -247,12 +247,12 @@ void testBucketWriteHelper(bool isInterim) {
         BOOST_TEST_REQUIRE(bucketInfluencers_.is_array());
         const json::array& bucketInfluencers = bucketInfluencers_.as_array();
         BOOST_REQUIRE_EQUAL(std::size_t(1), bucketInfluencers.size());
-        const json::value& bucketInfluencer_ =
-            bucketInfluencers[std::size_t(0)];
+        const json::value& bucketInfluencer_ = bucketInfluencers[std::size_t(0)];
         const json::object& bucketInfluencer = bucketInfluencer_.as_object();
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             13.44, bucketInfluencer.at("raw_anomaly_score").to_number<double>(), 0.00001);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.01, bucketInfluencer.at("probability").to_number<double>(), 0.00001);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            0.01, bucketInfluencer.at("probability").to_number<double>(), 0.00001);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             70.0, bucketInfluencer.at("initial_anomaly_score").to_number<double>(), 0.00001);
         BOOST_TEST_REQUIRE(bucketInfluencer.contains("anomaly_score"));
@@ -263,9 +263,11 @@ void testBucketWriteHelper(bool isInterim) {
 
         BOOST_REQUIRE_EQUAL(79, bucket.at("event_count").as_int64());
         BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(70.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            70.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
         BOOST_TEST_REQUIRE(bucket.contains("initial_anomaly_score"));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(70.0, bucket.at("initial_anomaly_score").to_number<double>(), 0.00001);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            70.0, bucket.at("initial_anomaly_score").to_number<double>(), 0.00001);
         if (isInterim) {
             BOOST_TEST_REQUIRE(bucket.contains("is_interim"));
             BOOST_REQUIRE_EQUAL(isInterim, bucket.at("is_interim").as_bool());
@@ -273,7 +275,8 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(!bucket.contains("is_interim"));
         }
 
-        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll), bucket.at("processing_time_ms").to_number<std::uint64_t>());
+        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll),
+                            bucket.at("processing_time_ms").to_number<std::uint64_t>());
     }
 
     for (std::size_t i = 0; i < arrayDoc.as_array().size(); i = i + 2) {
@@ -359,14 +362,18 @@ void testBucketWriteHelper(bool isInterim) {
                                     cause.at("function_description").as_string());
                 BOOST_TEST_REQUIRE(cause.contains("typical"));
                 BOOST_TEST_REQUIRE(cause.at("typical").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), cause.at("typical").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    cause.at("typical").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, cause.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                    6953.0,
+                    cause.at("typical").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(cause.contains("actual"));
                 BOOST_TEST_REQUIRE(cause.at("actual").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), cause.at("actual").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    cause.at("actual").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, cause.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                    10090.0,
+                    cause.at("actual").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(cause.contains("function"));
             }
         }
@@ -390,17 +397,22 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("by_field_value"));
                 BOOST_REQUIRE_EQUAL("GAL", record.at("by_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("correlated_by_field_value"));
-                BOOST_REQUIRE_EQUAL("BAW", record.at("correlated_by_field_value").as_string());
+                BOOST_REQUIRE_EQUAL(
+                    "BAW", record.at("correlated_by_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("typical"));
                 BOOST_TEST_REQUIRE(record.at("typical").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), record.at("typical").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("typical").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                    6953.0,
+                    record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("actual"));
                 BOOST_TEST_REQUIRE(record.at("actual").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), record.at("actual").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("actual").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                    10090.0,
+                    record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("field_name"));
                 BOOST_REQUIRE_EQUAL("responsetime", record.at("field_name").as_string());
                 BOOST_TEST_REQUIRE(record.contains("function"));
@@ -446,17 +458,22 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("by_field_value"));
                 BOOST_REQUIRE_EQUAL("GAL", record.at("by_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("correlated_by_field_value"));
-                BOOST_REQUIRE_EQUAL("BAW", record.at("correlated_by_field_value").as_string());
+                BOOST_REQUIRE_EQUAL(
+                    "BAW", record.at("correlated_by_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("typical"));
                 BOOST_TEST_REQUIRE(record.at("typical").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), record.at("typical").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("typical").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                    6953.0,
+                    record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("actual"));
                 BOOST_TEST_REQUIRE(record.at("actual").is_array());
-                BOOST_REQUIRE_EQUAL(std::size_t(1), record.at("actual").as_array().size());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("actual").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                    10090.0,
+                    record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("function"));
                 // This would be count in the real case with properly generated input data
                 BOOST_REQUIRE_EQUAL("mean", record.at("function").as_string());
@@ -736,13 +753,15 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(records.at(i).as_object().contains("initial_record_score"));
             BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
             BOOST_TEST_REQUIRE(records.at(i).as_object().contains("probability"));
-            BOOST_REQUIRE_EQUAL(EXPECTED_PROBABILITIES[probIndex],
-                                records.at(i).as_object().at("probability").to_number<double>());
+            BOOST_REQUIRE_EQUAL(
+                EXPECTED_PROBABILITIES[probIndex],
+                records.at(i).as_object().at("probability").to_number<double>());
             ++probIndex;
 
             if (isInterim) {
                 BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records.at(i).as_object().at("is_interim").as_bool());
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
                 BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
@@ -782,7 +801,8 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
             if (isInterim) {
                 BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records.at(i).as_object().at("is_interim").as_bool());
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
                 BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
@@ -823,7 +843,8 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
             if (isInterim) {
                 BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records.at(i).as_object().at("is_interim").as_bool());
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
                 BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
@@ -1010,9 +1031,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
         json::error_code ec;
         json::value arrayDoc_ = json::parse(sstream.str(), ec);
         // Debug print record
-        {
-            LOG_DEBUG(<< "Results:\n" << arrayDoc_);
-        }
+        { LOG_DEBUG(<< "Results:\n" << arrayDoc_); }
         BOOST_TEST_REQUIRE(arrayDoc_.is_array());
         const json::array& arrayDoc = arrayDoc_.as_array();
         BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
@@ -1228,8 +1247,9 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
     BOOST_TEST_REQUIRE(category.contains("regex"));
     BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
     BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
-    BOOST_REQUIRE_EQUAL(maxMatchingLength,
-                        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
+    BOOST_REQUIRE_EQUAL(
+        maxMatchingLength,
+        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
     BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
@@ -1288,8 +1308,9 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
     BOOST_TEST_REQUIRE(category.contains("regex"));
     BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
     BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
-    BOOST_REQUIRE_EQUAL(maxMatchingLength,
-                        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
+    BOOST_REQUIRE_EQUAL(
+        maxMatchingLength,
+        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
     BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
@@ -1361,7 +1382,8 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         10.0, influencer.at("initial_influencer_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(influencer.contains("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, influencer.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, influencer.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", influencer.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("daisy", influencer.at("influencer_field_value").as_string());
     BOOST_REQUIRE_EQUAL(42000, influencer.at("timestamp").as_int64());
@@ -1370,11 +1392,13 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
 
     const json::value& influencer2_ = influencers.at(std::size_t(1));
     const json::object& influencer2 = influencer2_.as_object();
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, influencer2.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.9, influencer2.at("probability").to_number<double>(), 0.001);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         100.0, influencer2.at("initial_influencer_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(influencer2.contains("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", influencer2.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("jim", influencer2.at("influencer_field_value").as_string());
     BOOST_REQUIRE_EQUAL(42000, influencer2.at("timestamp").as_int64());
@@ -1469,18 +1493,21 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         100.0, influencer.at("initial_influencer_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(influencer.contains("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, influencer.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", influencer.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("jim", influencer.at("influencer_field_value").as_string());
     BOOST_TEST_REQUIRE(influencer.contains("bucket_span"));
 
     const json::value& influencer2_ = influencers.at(std::size_t(1));
     const json::object& influencer2 = influencer2_.as_object();
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.3, influencer2.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.3, influencer2.at("probability").to_number<double>(), 0.001);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         12.0, influencer2.at("initial_influencer_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(influencer2.contains("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        12.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("computer", influencer2.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("laptop", influencer2.at("influencer_field_value").as_string());
     BOOST_TEST_REQUIRE(influencer2.contains("bucket_span"));
@@ -1498,31 +1525,37 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
     BOOST_TEST_REQUIRE(binf_.is_object());
     const json::object& binf = binf_.as_object();
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, binf.at("probability").to_number<double>(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, binf.at("initial_anomaly_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(binf.contains("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf.at("anomaly_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("computer", binf.at("influencer_field_name").as_string());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf.at("raw_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf.at("raw_anomaly_score").to_number<double>(), 0.001);
 
     const json::value& binf2_ = bucketInfluencers.at(std::size_t(1));
     BOOST_TEST_REQUIRE(binf2_.is_object());
     const json::object& binf2 = binf2_.as_object();
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, binf2.at("probability").to_number<double>(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf2.at("initial_anomaly_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(binf2.contains("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2.at("anomaly_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", binf2.at("influencer_field_name").as_string());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf2.at("raw_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        1.0, binf2.at("raw_anomaly_score").to_number<double>(), 0.001);
 
     const json::value& binf3_ = bucketInfluencers.at(std::size_t(2));
     BOOST_TEST_REQUIRE(binf3_.is_object());
     const json::object& binf3 = binf3_.as_object();
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, binf3.at("probability").to_number<double>(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf3.at("initial_anomaly_score").to_number<double>(), 0.001);
     BOOST_TEST_REQUIRE(binf3.contains("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3.at("anomaly_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("bucket_time", binf3.at("influencer_field_name").as_string());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf3.at("raw_anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        1.0, binf3.at("raw_anomaly_score").to_number<double>(), 0.001);
 }
 
 BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
@@ -1637,8 +1670,8 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         // Check influencers are ordered
         BOOST_REQUIRE_EQUAL("web-server",
                             influencerFieldValues.at(std::size_t(0)).as_string());
-        BOOST_REQUIRE_EQUAL(
-            "localhost", influencerFieldValues.at(std::size_t(1)).as_string());
+        BOOST_REQUIRE_EQUAL("localhost",
+                            influencerFieldValues.at(std::size_t(1)).as_string());
     }
     {
         const json::value& influence_ = influences.at(std::size_t(1));
@@ -1653,8 +1686,7 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
 
         // Check influencers are ordered
         BOOST_REQUIRE_EQUAL("cat", influencerFieldValues.at(std::size_t(0)).as_string());
-        BOOST_REQUIRE_EQUAL(
-            "dave", influencerFieldValues.at(std::size_t(1)).as_string());
+        BOOST_REQUIRE_EQUAL("dave", influencerFieldValues.at(std::size_t(1)).as_string());
         BOOST_REQUIRE_EQUAL("jo", influencerFieldValues.at(std::size_t(2)).as_string());
     }
 }
@@ -1970,14 +2002,20 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
     BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
     BOOST_TEST_REQUIRE(arrayDoc.at(0).as_object().contains("records"));
     BOOST_TEST_REQUIRE(arrayDoc.at(0).as_object().at("records").is_array());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), arrayDoc.at(0).as_object().at("records").as_array().size());
-    const auto& record = arrayDoc.at(0).as_object().at("records").as_array().at(0).as_object();
+    BOOST_REQUIRE_EQUAL(std::size_t(1),
+                        arrayDoc.at(0).as_object().at("records").as_array().size());
+    const auto& record =
+        arrayDoc.at(0).as_object().at("records").as_array().at(0).as_object();
     BOOST_TEST_REQUIRE(record.contains("anomaly_score_explanation"));
     BOOST_TEST_REQUIRE(record.at("anomaly_score_explanation").as_object().contains("by_field_first_occurrence"));
-    BOOST_REQUIRE_EQUAL(
-        true, record.at("anomaly_score_explanation").as_object().at("by_field_first_occurrence").as_bool());
+    BOOST_REQUIRE_EQUAL(true, record.at("anomaly_score_explanation")
+                                  .as_object()
+                                  .at("by_field_first_occurrence")
+                                  .as_bool());
     BOOST_TEST_REQUIRE(record.at("anomaly_score_explanation").as_object().contains("by_field_relative_rarity"));
-    BOOST_REQUIRE_EQUAL(
-        5.0, record.at("anomaly_score_explanation").as_object().at("by_field_relative_rarity").to_number<double>());
+    BOOST_REQUIRE_EQUAL(5.0, record.at("anomaly_score_explanation")
+                                 .as_object()
+                                 .at("by_field_relative_rarity")
+                                 .to_number<double>());
 }
 BOOST_AUTO_TEST_SUITE_END()

@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testCreateInnerInferenceResult) {
     ml::torch::CResultWriter resultWriter{output};
     ::torch::Tensor tensor{::torch::ones({5, 3})};
     std::string innerPortion{resultWriter.createInnerResult(tensor)};
-    std::string expected  = "\"result\":{\"inference\":"
+    std::string expected = "\"result\":{\"inference\":"
                            "[[[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]]}";
     LOG_INFO(<< "expected: " << expected);
     LOG_INFO(<< "actual: " << innerPortion);

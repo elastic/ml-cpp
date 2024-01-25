@@ -12,9 +12,9 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
 
+#include "core/CStreamWriter.h"
 #include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonInstantiatable.h>
-#include "core/CStreamWriter.h"
 
 #include <api/ImportExport.h>
 

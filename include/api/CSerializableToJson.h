@@ -40,7 +40,7 @@ public:
 //! to a stream.
 class API_EXPORT CSerializableToJsonStream {
 public:
-//    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
+    //    using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
     using TGenericLineWriter = core::CStreamWriter;
 
 public:

@@ -19,8 +19,8 @@
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
-#include <boost/unordered_set.hpp>
 #include <boost/json.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <cstdint>
 #include <iosfwd>

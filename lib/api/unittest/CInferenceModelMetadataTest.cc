@@ -149,20 +149,22 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
         // Read hyperparameter into the new spec and the expected predictions.
         for (const auto& result_ : results.as_array()) {
             const json::object& result = result_.as_object();
-            
+
             if (result.contains("model_metadata")) {
                 for (const auto& hyperparameter :
                      result_.at_pointer("/model_metadata/hyperparameters").as_array()) {
                     std::string hyperparameterName{hyperparameter.at("name").as_string()};
                     if (hyperparameterName == api::CDataFrameTrainBoostedTreeRunner::ALPHA) {
-                        specFactory.predictionAlpha(hyperparameter.at("value").to_number<double>());
+                        specFactory.predictionAlpha(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR) {
                         specFactory.predictionDownsampleFactor(
                             hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA) {
-                        specFactory.predictionEta(hyperparameter.at("value").to_number<double>());
+                        specFactory.predictionEta(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE) {
                         specFactory.predictionEtaGrowthRatePerTree(
@@ -173,10 +175,12 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
                             hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::GAMMA) {
-                        specFactory.predictionGamma(hyperparameter.at("value").to_number<double>());
+                        specFactory.predictionGamma(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::LAMBDA) {
-                        specFactory.predictionLambda(hyperparameter.at("value").to_number<double>());
+                        specFactory.predictionLambda(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT) {
                         specFactory.predictionSoftTreeDepthLimit(
@@ -193,8 +197,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
                 }
 
             } else if (result.contains("row_results")) {
-                expectedPredictions.emplace_back(
-                    result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
+                expectedPredictions.emplace_back(result_
+                                                     .at_pointer("/row_results/results/ml/target_prediction")
+                                                     .to_number<double>());
             }
         }
     }
@@ -222,8 +227,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
         for (const auto& result_ : results.as_array()) {
             const json::object& result = result_.as_object();
             if (result.contains("row_results")) {
-                actualPredictions.emplace_back(
-                    result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
+                actualPredictions.emplace_back(result_
+                                                   .at_pointer("/row_results/results/ml/target_prediction")
+                                                   .to_number<double>());
             }
         }
     }
@@ -274,9 +280,12 @@ BOOST_AUTO_TEST_CASE(testDataSummarization) {
         const json::object& result = result_.as_object();
         if (result.contains("model_metadata")) {
             if (result_.at_pointer("/model_metadata").as_object().contains("data_summarization") &&
-                result_.at_pointer("/model_metadata/data_summarization").as_object().contains("num_rows")) {
-                dataSummarizationNumRows =
-                    result_.at_pointer("/model_metadata/data_summarization/num_rows").to_number<std::size_t>();
+                result_.at_pointer("/model_metadata/data_summarization")
+                    .as_object()
+                    .contains("num_rows")) {
+                dataSummarizationNumRows = result_
+                                               .at_pointer("/model_metadata/data_summarization/num_rows")
+                                               .to_number<std::size_t>();
             }
         }
     }

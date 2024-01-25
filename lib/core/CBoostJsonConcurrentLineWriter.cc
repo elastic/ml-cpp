@@ -15,8 +15,8 @@ namespace ml {
 namespace core {
 
 CBoostJsonConcurrentLineWriter::CBoostJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream)
-    :  m_OutputStreamWrapper(outStream) {
-        m_OutputStreamWrapper.acquireBuffer(*this, m_StringBuffer);
+    : m_OutputStreamWrapper(outStream) {
+    m_OutputStreamWrapper.acquireBuffer(*this, m_StringBuffer);
 }
 
 CBoostJsonConcurrentLineWriter::~CBoostJsonConcurrentLineWriter() {
@@ -30,8 +30,8 @@ void CBoostJsonConcurrentLineWriter::flush() {
     m_OutputStreamWrapper.flush();
 }
 
-bool CBoostJsonConcurrentLineWriter::EndObject(std::size_t memberCount){
-    bool baseReturnCode =  CBoostJsonLineWriter::EndObject(memberCount);
+bool CBoostJsonConcurrentLineWriter::EndObject(std::size_t memberCount) {
+    bool baseReturnCode = CBoostJsonLineWriter::EndObject(memberCount);
 
     if (this->topLevel()) {
         m_OutputStreamWrapper.flushBuffer(*this, m_StringBuffer);
