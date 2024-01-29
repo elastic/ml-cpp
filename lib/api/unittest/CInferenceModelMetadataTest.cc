@@ -40,7 +40,7 @@ using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }
 
-// TODO
+// TODO: Requires a JSON schema validator
 //
 //BOOST_AUTO_TEST_CASE(testJsonSchema) {
 //    // Test the results the analyzer produces match running the regression directly.

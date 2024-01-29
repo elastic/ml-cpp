@@ -147,11 +147,9 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                 LOG_DEBUG(<< "line: " << line);
                 std::size_t length{line.length()};
                 std::size_t written{0};
-                std::size_t n{0};
                 p.reset();
                 while (written < length) {
-                    n = p.write_some(line, ec);
-                    written += n;
+                    written += p.write_some(line, ec);
                     assertNoParseError(ec);
                 }
                 doc = p.release();

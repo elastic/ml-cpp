@@ -305,7 +305,7 @@ void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
             m_DataFrameColumnMap->push_back(positions[i - columnNames.begin()]);
         }
     }
-    LOG_TRACE(<< "mapping = " << *m_DataFrameColumnMap);
+    LOG_DEBUG(<< "mapping = " << *m_DataFrameColumnMap);
 }
 
 void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
@@ -389,7 +389,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     std::size_t numberThreads{1};
 
     auto rowsToWriteMask = analysis.rowsToWriteMask(*m_DataFrame);
-    LOG_TRACE(<< "# rows to write = " << rowsToWriteMask.manhattan());
+    LOG_DEBUG(<< "# rows to write = " << rowsToWriteMask.manhattan());
 
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, 0, m_DataFrame->numberRows(),

@@ -178,6 +178,15 @@ protected:
         throw std::runtime_error{"is not a bool"};
     }
 
+    static std::int64_t getAsInt64From(const json::value& value) {
+        json::error_code ec;
+        std::int64_t ret = value.to_number<std::int64_t>(ec);
+        if (ec) {
+            throw std::runtime_error{"is not a uint64"};
+        }
+        return ret;
+    }
+
     static std::uint64_t getAsUint64From(const json::value& value) {
         json::error_code ec;
         std::uint64_t ret = value.to_number<std::uint64_t>(ec);

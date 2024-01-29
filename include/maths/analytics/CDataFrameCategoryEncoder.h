@@ -20,6 +20,7 @@
 
 #include <maths/common/MathsTypes.h>
 
+#include <boost/json.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
@@ -233,6 +234,9 @@ public:
     //! Initialize from serialized data.
     explicit CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
+    CDataFrameCategoryEncoder(const boost::json::value& jv, bool dummy);
+
+
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 
@@ -273,6 +277,8 @@ public:
 private:
     void persistEncodings(core::CStatePersistInserter& inserter) const;
     bool restoreEncodings(core::CStateRestoreTraverser& traverser);
+    template<typename T, typename... Args>
+    bool restore(Args&&... args);
     template<typename T, typename... Args>
     bool restore(core::CStateRestoreTraverser& traverser, Args&&... args);
 

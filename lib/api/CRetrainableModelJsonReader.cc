@@ -23,6 +23,9 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <boost/json.hpp>
+// This file must be manually included when
+// using basic_parser to implement a parser.
+#include <boost/json/basic_parser_impl.hpp>
 
 #include <memory>
 #include <sstream>
@@ -31,6 +34,211 @@
 #include <utility>
 
 namespace json = boost::json;
+
+namespace {
+class custom_parser
+{
+    struct handler
+    {
+        static inline std::string IDENTITY_ENCODING_TAG = "identity_encoding";
+        static inline std::string ONE_HOT_ENCODING_TAG     = "one_hot_encoding";
+        static inline std::string FREQUENCY_ENCODING_TAG   = "frequency_encoding";
+        static inline std::string TARGET_MEAN_ENCODING_TAG = "target_mean_encoding";
+
+        constexpr static std::size_t max_object_size = std::size_t(-1);
+        constexpr static std::size_t max_array_size = std::size_t(-1);
+        constexpr static std::size_t max_key_size = std::size_t(-1);
+        constexpr static std::size_t max_string_size = std::size_t(-1);
+
+        bool on_document_begin( json::error_code& ) {
+            s_Value.emplace_object();
+            s_CurrentValue.push(&s_Value);
+            return true;
+        }
+        bool on_document_end( json::error_code& ) { return true; }
+        bool on_object_begin( json::error_code& ) {
+            LOG_TRACE(<< "on_object_begin: s_Depth = " << s_CurrentValue.size());
+            if (s_Keys.empty() == false) {
+                if (s_Keys.top() == "encoding_vector") {
+                    s_CurrentValue.top()->as_object()[s_Keys.top()] = json::array{};
+                    s_CurrentValue.push(&s_CurrentValue.top()->as_object()[s_Keys.top()]);
+                } else {
+                    if (s_CurrentValue.top()->is_array()) {
+                        s_CurrentValue.top()->as_array().push_back(json::object{});
+                        s_CurrentValue.push(&s_CurrentValue.top()->as_array().back());
+                    } else {
+                        s_CurrentValue.top()->as_object()[s_Keys.top()] = json::object{};
+                        s_CurrentValue.push(&s_CurrentValue.top()->as_object()[s_Keys.top()]);
+                    }
+                }
+            }
+            return true;
+        }
+        bool on_object_end( std::size_t, json::error_code& ) {
+            LOG_TRACE(<< "on_object_end: s_Depth = " << s_CurrentValue.size());
+            s_CurrentValue.pop();
+            if (s_Keys.empty() == false && s_EncodingTags.count(s_Keys.top()) > 0) {
+                s_Keys.pop();
+                s_CurrentValue.pop();
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return true;
+        }
+        bool on_array_begin( json::error_code& ) {
+            LOG_TRACE(<< "on_array_begin: s_Depth = " << s_CurrentValue.size());
+            if (s_CurrentValue.empty() == false) {
+                if (s_CurrentValue.top()->is_array()) {
+                    s_CurrentValue.top()->as_array().push_back(json::array{});
+                    s_CurrentValue.push(&s_CurrentValue.top()->as_array().back());
+                } else {
+                    s_CurrentValue.top()->as_object()[s_Keys.top()] = json::array{};
+                    s_CurrentValue.push(&s_CurrentValue.top()->as_object()[s_Keys.top()]);
+                }
+            }
+
+            return true;
+        }
+        bool on_array_end( std::size_t, json::error_code& ) {
+            LOG_TRACE(<< "on_array_end: s_Depth = " << s_CurrentValue.size());
+
+            s_CurrentValue.pop();
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return true;
+        }
+        bool on_key_part( std::string_view, std::size_t, json::error_code& ) { return true; }
+        bool on_key( std::string_view s, std::size_t n, json::error_code& ec) {
+            LOG_TRACE(<< "on_key: " << s << ", size: " << n);
+            std::string str{s};
+            s_Keys.push(str);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::object{});
+                s_CurrentValue.push(&s_CurrentValue.top()->as_array().back());
+            }
+            return ec ? false : true;
+        }
+        bool on_string_part( std::string_view, std::size_t, json::error_code& ) { return true; }
+        bool on_string( std::string_view s, std::size_t n, json::error_code& ec) {
+            LOG_TRACE(<< "on_string: " << s << ", size: " << n);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::string(s));
+            } else {
+                std::string k{s_Keys.top()};
+                std::string v{s};
+                LOG_TRACE(<< "on_string: key = " << k << ", value = " << v);
+                s_CurrentValue.top()->as_object()[k] = json::string(v);
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return ec ? false : true;
+        }
+        bool on_number_part( std::string_view, json::error_code& ) { return true; }
+        bool on_int64( std::int64_t i, std::string_view, json::error_code& ec) {
+            LOG_TRACE(<< "on_int64: " << i);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::value(i));
+            } else {
+                s_CurrentValue.top()->as_object()[s_Keys.top()] = json::value(i);
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return ec ? false : true;
+        }
+        bool on_uint64( std::uint64_t u, std::string_view, json::error_code& ec ) {
+            LOG_TRACE(<< "on_uint64: " << u);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::value(u));
+            } else {
+                s_CurrentValue.top()->as_object()[s_Keys.top()] = json::value(u);
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return ec ? false : true;
+        }
+        bool on_double( double d, std::string_view, json::error_code& ec ) {
+            LOG_TRACE(<< "on_double: " << d);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::value(d));
+            } else {
+                s_CurrentValue.top()->as_object()[s_Keys.top()] = json::value(d);
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return ec ? false : true;
+        }
+        bool on_bool( bool b, json::error_code& ec ) {
+            LOG_TRACE(<< "on_bool: " << b);
+            if (s_CurrentValue.top()->is_array()) {
+                s_CurrentValue.top()->as_array().push_back(json::value(b));
+            } else {
+                s_CurrentValue.top()->as_object()[s_Keys.top()] = json::value(b);
+            }
+            if (s_CurrentValue.empty() == false && s_CurrentValue.top()->is_array() == false) {
+                s_Keys.pop();
+            }
+            return ec ? false : true;
+        }
+        bool on_null( json::error_code& ) {
+            LOG_TRACE(<< "on_null: ");
+            return true;
+        }
+        bool on_comment_part( std::string_view, json::error_code&) { return true; }
+        bool on_comment( std::string_view, json::error_code&) { return true; }
+
+        std::stack<std::string> s_Keys;
+        json::value s_Value;
+        std::stack<json::value *> s_CurrentValue;
+        std::set<std::string> s_EncodingTags{IDENTITY_ENCODING_TAG, ONE_HOT_ENCODING_TAG,
+                                             TARGET_MEAN_ENCODING_TAG,
+                                             FREQUENCY_ENCODING_TAG};
+    };
+
+    json::basic_parser<handler> p_;
+
+public:
+    custom_parser()
+        : p_(json::parse_options())
+    {
+    }
+
+    ~custom_parser()
+    {
+    }
+
+    std::size_t
+    write(
+        char const* data,
+        std::size_t size,
+        json::error_code& ec)
+    {
+        auto const n = p_.write_some( false, data, size, ec );
+        if(! ec && n < size)
+            ec = json::error::extra_data;
+        return n;
+    }
+
+    json::value release() const {
+        return std::move(p_.handler().s_Value);
+    }
+};
+
+bool
+parse( std::string_view s, json::value& value, json::error_code& ec )
+{
+    // Parse with the custom parser and return false on error
+    custom_parser p;
+    p.write( s.data(), s.size(), ec );
+    value = p.release();
+    return ec ? false : true;
+}
+}
 
 namespace ml {
 namespace api {
@@ -71,19 +279,18 @@ CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istrea
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& istream,
                                                                core::CDataFrame& frame) {
-    //    core::CBoostJsonUnbufferedIStreamWrapper isw{istream};
     json::value doc;
     json::error_code ec;
     json::stream_parser p;
     std::string line;
     while (std::getline(istream, line) && !ec) {
-        p.write(line, ec);
+        LOG_TRACE(<< "Parsing line: " << line);
+        parse(line, doc, ec);
     }
     assertNoParseError(ec);
-    doc = p.release();
     assertIsJsonObject(doc);
 
-    LOG_DEBUG(<< "Parsed JSON doc: " << doc);
+    LOG_TRACE(<< "Parsed JSON doc: " << doc);
 
     std::size_t numberColumns{
         ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc.as_object())};
@@ -123,16 +330,7 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
                                          getAsUint64From, entry.as_object()));
     }
 
-    ifExists(JSON_ENCODINGS_TAG, getAsObjectFrom, doc.as_object()); // Validate the nested object exists.
-    TEncoderUPtr encodings;
-    std::stringstream jsonStrm;
-    CDataSummarizationJsonWriter::TGenericLineWriter writer{jsonStrm};
-    writer.StartObject();
-    writer.Key(JSON_ENCODINGS_TAG);
-    writer.write(doc.as_object()[JSON_ENCODINGS_TAG]);
-    writer.EndObject();
-    core::CJsonStateRestoreTraverser traverser{jsonStrm};
-    encodings = std::make_unique<maths::analytics::CDataFrameCategoryEncoder>(traverser);
+    TEncoderUPtr encodings = std::make_unique<maths::analytics::CDataFrameCategoryEncoder>(doc, true);
 
     frame.columnNames(columnNames);
     frame.categoricalColumns(columnIsCategorical);
@@ -183,7 +381,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     json::error_code ec;
     std::string line;
     while (std::getline(istream, line)) {
-        LOG_DEBUG(<< "write_some: " << line);
+        LOG_TRACE(<< "write_some: " << line);
         p.write_some(line);
     }
     p.finish(ec);
@@ -193,7 +391,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
 
     assertIsJsonObject(doc);
 
-    LOG_DEBUG(<< "doc: " << doc);
+    LOG_TRACE(<< "doc: " << doc);
 
     auto inferenceModel = ifExists(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG,
                                    getAsObjectFrom, doc.as_object());

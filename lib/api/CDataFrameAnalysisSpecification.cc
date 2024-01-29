@@ -117,15 +117,15 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRestoreSearcherSupplier restoreSearcherSupplier)
     : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
       m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
-    ;
     json::error_code ec;
     json::value specification = json::parse(jsonSpecification, ec);
     if (ec) {
-        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '" << jsonSpecification
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
+                     << jsonSpecification
                      << "'. Got parse error \"" << ec.message() << "\". "
                      << "Please report this problem.");
     } else {
-        LOG_DEBUG(<< "specification: " << specification);
+        LOG_TRACE(<< "specification: " << jsonSpecification);
         auto parameters = CONFIG_READER.read(specification);
 
         for (const auto& name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
@@ -259,7 +259,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const json::value& jsonAn
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
-    LOG_DEBUG(<< "jsonAnaysis: " << jsonAnalysis);
+    LOG_TRACE(<< "jsonAnaysis: " << jsonAnalysis);
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
     m_AnalysisName = analysis[NAME].as<std::string>();
