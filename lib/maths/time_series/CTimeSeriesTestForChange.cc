@@ -447,7 +447,7 @@ CTimeSeriesTestForChange::CTimeSeriesTestForChange(int testFor,
 
     TMeanVarAccumulator predictionMoments;
     auto bucketPredictor = this->bucketPredictor();
-    for (auto time = 0; time < WEEK; time += m_BucketLength) {
+    for (core_t::TTime time = 0; time < WEEK; time += m_BucketLength) {
         predictionMoments.add(bucketPredictor(time));
     }
     m_PredictionVariance = common::CBasicStatistics::variance(predictionMoments);
