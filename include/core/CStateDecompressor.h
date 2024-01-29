@@ -351,8 +351,7 @@ public:
         std::shared_ptr<CBoostJsonUnbufferedIStreamWrapper> m_InputStreamWrapper;
 
         //! JSON reader for the downstream stream
-        //        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
-        json::basic_parser<SBoostJsonHandler> m_Reader;
+        std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
 
         //        SBoostJsonHandler m_Handler;
 
