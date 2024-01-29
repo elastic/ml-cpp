@@ -347,6 +347,11 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     }
     frame.finishWritingRows();
 
+    if (encodings->numberEncodedColumns() != encodingIndices.size()) {
+        LOG_FATAL(<< "Size mis-match: Encoded columns [" << encodings->numberEncodedColumns()
+                  << "] != Encoding indices [" << encodingIndices.size() << "]");
+    }
+
     return {std::move(encodings), std::move(encodingIndices)};
 }
 
