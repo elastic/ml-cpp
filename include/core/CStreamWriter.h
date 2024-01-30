@@ -9,8 +9,8 @@
 * limitation.
 */
 
-#ifndef ML_CSTREAMWRITER_H
-#define ML_CSTREAMWRITER_H
+#ifndef INCLUDED_ml_core_CStreamWriter_h
+#define INCLUDED_ml_core_CStreamWriter_h
 
 #include <core/CBoostJsonLineWriter.h>
 
@@ -41,4 +41,4 @@ private:
 }
 }
 
-#endif //ML_CSTREAMWRITER_H
+#endif //INCLUDED_ml_core_CStreamWriter_h

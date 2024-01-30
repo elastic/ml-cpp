@@ -9,8 +9,8 @@
 * limitation.
 */
 
-#ifndef ML_CSTRINGBUFWRITER_H
-#define ML_CSTRINGBUFWRITER_H
+#ifndef INCLUDED_ml_core_CStringBufWriter_h
+#define INCLUDED_ml_core_CStringBufWriter_h
 
 #include <core/CBoostJsonLineWriter.h>
 
@@ -35,4 +35,4 @@ private:
 }
 }
 
-#endif //ML_CSTRINGBUFWRITER_H
+#endif //INCLUDED_ml_core_CStringBufWriter_h

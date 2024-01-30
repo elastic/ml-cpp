@@ -182,7 +182,7 @@ protected:
         json::error_code ec;
         std::int64_t ret = value.to_number<std::int64_t>(ec);
         if (ec) {
-            throw std::runtime_error{"is not a uint64"};
+            throw std::runtime_error{"is not a int64"};
         }
         return ret;
     }

@@ -120,8 +120,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     json::error_code ec;
     json::value specification = json::parse(jsonSpecification, ec);
     if (ec) {
-        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
-                     << jsonSpecification
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '" << jsonSpecification
                      << "'. Got parse error \"" << ec.message() << "\". "
                      << "Please report this problem.");
     } else {

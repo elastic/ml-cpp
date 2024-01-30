@@ -236,7 +236,6 @@ public:
 
     CDataFrameCategoryEncoder(const boost::json::value& jv, bool dummy);
 
-
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 
