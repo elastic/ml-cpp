@@ -11,7 +11,6 @@
 
 #include <api/CRetrainableModelJsonReader.h>
 
-#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CVectorRange.h>
@@ -281,7 +280,6 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
                                                                core::CDataFrame& frame) {
     json::value doc;
     json::error_code ec;
-    json::stream_parser p;
     std::string line;
     while (std::getline(istream, line) && !ec) {
         LOG_TRACE(<< "Parsing line: " << line);

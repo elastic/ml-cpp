@@ -784,7 +784,6 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithRowsMissingTargetValue) {
     BOOST_REQUIRE_EQUAL(std::size_t{50}, numberResults);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testRegressionTrainingWithStateRecovery) {
 
     // Test that restoring state and resuming training from different checkpoints
@@ -822,7 +821,6 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithStateRecovery) {
     }
 }
 
-//TODO
 BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.000001)) {
 
     // This tests that a prediction only task produces the same predictions as the
@@ -1002,7 +1000,6 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     }
 }
 
-//TODO
 BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
 
     // Test running incremental training from the analyzer matches running directly.
@@ -1194,7 +1191,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
                     &newTrainingRowMask);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testClassificationTraining) {
 
     // Test the results the analyzer produces match running classification directly.
@@ -1286,7 +1282,6 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testClassificationImbalancedClasses) {
 
     // Test for the default configuration we get high average recall for each class
@@ -1354,7 +1349,6 @@ BOOST_AUTO_TEST_CASE(testClassificationImbalancedClasses) {
     }
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
 
     // Test when the user supplies class weights to control class assignments the
@@ -1428,7 +1422,6 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
     }
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
 
     // Test running incremental training from the analyzer matches running directly.
@@ -1635,7 +1628,6 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         &newTrainingRowMask);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
 
     // Test running incremental with reordered fields and extra fields.
@@ -1919,7 +1911,6 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         &newTrainingRowMask);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testParsingOfCategoricalFields) {
 
     // Test that we correctly map categorical fields and handle the case that the
@@ -2018,7 +2009,6 @@ BOOST_AUTO_TEST_CASE(testParsingOfCategoricalFields) {
     }
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
 
     // Test supplying an empty category is interpreted as if the value is missing.
@@ -2187,7 +2177,6 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
     BOOST_REQUIRE_EQUAL(100, finalTrainLastProgress);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
 
     // Check our progress picks up where it left off if we restart an analysis
@@ -2263,8 +2252,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
         if (result.as_object().contains("phase_progress")) {
             LOG_DEBUG(<< result.at("phase_progress"));
 
-            std::string phase{result.at_pointer("phase_progress/phase").as_string()};
-            std::int64_t progress{result.at_pointer("phase_progress/progress_percent").as_int64()};
+            std::string phase{result.at_pointer("/phase_progress/phase").as_string()};
+            std::int64_t progress{result.at_pointer("/phase_progress/progress_percent").as_int64()};
             if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
@@ -2290,7 +2279,6 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
     BOOST_REQUIRE_EQUAL(100, finalTrainLastProgress);
 }
 
-// TODO
 BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
     // We perform encoding and training in two separate steps and make sure that
     // no errors were logged.

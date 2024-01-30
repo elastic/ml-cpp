@@ -125,23 +125,15 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     }
     writer.EndArray();
 
-    json::value doc;
     std::stringstream encodings;
     {
         core::CJsonStatePersistInserter inserter{encodings};
         m_Encodings.acceptPersistInserter(inserter);
     }
-    json::error_code ec;
-    json::parser p;
-    p.write(encodings.str(), ec);
-    doc = p.release();
-    if (ec) {
-        LOG_ERROR(<< "Failed parsing encoding json: " << ec.message()
-                  << ". Please report this error.");
-    } else {
-        writer.Key(JSON_ENCODINGS_TAG);
-        writer.write(doc);
-    }
+    std::string encodingsStr = encodings.str();
+    core::CStringUtils::trim("\n", encodingsStr);
+    writer.Key(JSON_ENCODINGS_TAG);
+    writer.RawString(encodingsStr);
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
     writer.StartArray();
