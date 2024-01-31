@@ -995,9 +995,8 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
     for (std::size_t i = 0; i < predictExamples; ++i) {
         std::string expected{std::to_string(i) + ": " +
-                             std::to_string(actualPredictions[i])};
-        std::string actual{std::to_string(i) + ": " +
-                           std::to_string(expectedPredictions[i])};
+                             std::to_string(expectedPredictions[i])};
+        std::string actual{std::to_string(i) + ": " + std::to_string(actualPredictions[i])};
         BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
