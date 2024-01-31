@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_BoostJsonUnbufferedIStreamWrapper_h
+#ifndef INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h
 #define INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h
 
 #include <core/ImportExport.h>
@@ -107,4 +107,4 @@ private:
 }
 }
 
-#endif /*  INCLUDED_ml_core_BoostJsonUnbufferedIStreamWrapper_h */
+#endif /*  INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h */
