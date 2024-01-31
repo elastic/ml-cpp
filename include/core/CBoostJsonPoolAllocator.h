@@ -14,6 +14,7 @@
 #include <boost/json.hpp>
 
 #include <memory>
+#include <vector>
 
 #include "ImportExport.h"
 
