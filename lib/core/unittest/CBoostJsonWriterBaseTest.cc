@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
     writer.addStringFieldCopyToObj(STR_NAME, "hello", doc);
     writer.addStringFieldCopyToObj(EMPTY1_NAME, "", doc);
     writer.addStringFieldCopyToObj(EMPTY2_NAME, "", doc, true);
-    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.77E-156, doc);
+    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.78E-156, doc);
     writer.addDoubleFieldToObj(NAN_NAME, std::numeric_limits<double>::quiet_NaN(), doc);
     writer.addDoubleFieldToObj(INFINITY_NAME, std::numeric_limits<double>::infinity(), doc);
     writer.addBoolFieldToObj(BOOL_NAME, false, doc);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
     std::string expectedDoc("{"
                             "\"str\":\"hello\","
                             "\"empty2\":\"\","
-                            "\"double\":1.77e-156,"
+                            "\"double\":1.78e-156,"
                             "\"nan\":0,"
                             "\"infinity\":0,"
                             "\"bool\":false,"
