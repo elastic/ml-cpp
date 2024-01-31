@@ -529,6 +529,11 @@ public:
         return obj;
     }
 
+    TValue& addMember(const std::string& name, TValue& value, TValue& obj) const {
+        obj.as_object()[name] = value;
+        return obj;
+    }
+
     TDocument& addMember(const std::string& name, const TValue& value, TDocument& obj) const {
         obj[name] = value;
         return obj;
