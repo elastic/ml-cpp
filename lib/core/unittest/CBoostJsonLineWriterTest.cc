@@ -43,7 +43,8 @@ BOOST_AUTO_TEST_CASE(testDoublePrecision) {
         writer.EndObject();
     }
 
-    BOOST_REQUIRE_EQUAL(std::string("{\"a\":1.78e-156,\"b\":5e-300,\"c\":0}\n"), strm.str());
+    BOOST_REQUIRE_EQUAL(std::string("{\"a\":1.78e-156,\"b\":5e-300,\"c\":0}\n"),
+                        strm.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
