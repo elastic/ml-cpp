@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h
-#define INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h
+#ifndef INCLUDED_ml_core_BoostJsonUnbufferedIStreamWrapper_h
+#define INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h
 
 #include <core/ImportExport.h>
 
@@ -21,28 +21,10 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! An unbuffered RapidJSON istream wrapper.
+//! An unbuffered istream wrapper.
 //!
 //! DESCRIPTION:\n
-//! RapidJSON has a class IStreamWrapper that must be used to
-//! wrap istreams before they can be accessed by the parsing
-//! functions.
-//!
-//! In the 2017 versions of RapidJSON, IStreamWrapper was
-//! unbuffered. We came to depend on it being unbuffered because
-//! we use it to parse documents from a stream that contains
-//! additional data after the JSON document currently being
-//! parsed, and hence we don't want the wrapper to consume any
-//! characters beyond those in the document it's parsing.
-//!
-//! In the 2021 versions of RapidJSON, IStreamWrapper was
-//! changed to read multiple characters from the underlying
-//! istream and buffer them. This broke our code. It's also
-//! not possible to simply use a single character buffer, as
-//! in debug mode RapidJSON asserts that the buffer is at least
-//! 4 characters in size.
-//!
-//! This class is an unbuffered istream wrapper compatible
+//! This class is an unbuffered istream wrapper backwardly compatible
 //! with the RapidJSON parser functions, similar to the class
 //! that existed in RapidJSON itself in 2017. It should be
 //! more efficient that a buffered wrapper with a single
@@ -125,4 +107,4 @@ private:
 }
 }
 
-#endif /*  INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h */
+#endif /*  INCLUDED_ml_core_BoostJsonUnbufferedIStreamWrapper_h */

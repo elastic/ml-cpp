@@ -21,7 +21,7 @@ namespace ml {
 namespace core {
 using TBoostJsonLineWriterStringBuf = core::CBoostJsonLineWriter<std::string>;
 
-class CStringBufWriter : public TBoostJsonLineWriterStringBuf {
+class CORE_EXPORT CStringBufWriter : public TBoostJsonLineWriterStringBuf {
 public:
     CStringBufWriter() : TBoostJsonLineWriterStringBuf() {}
     CStringBufWriter(std::string& os) : TBoostJsonLineWriterStringBuf(os) {}

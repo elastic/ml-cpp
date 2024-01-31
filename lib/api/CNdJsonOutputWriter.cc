@@ -78,7 +78,6 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
 
 std::string CNdJsonOutputWriter::internalString() const {
     m_OutStream.flush();
-    //    const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this

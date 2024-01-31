@@ -86,11 +86,8 @@ public:
         bool parseNext();
 
     private:
-        //! <a href="http://rapidjson.org/classrapidjson_1_1_handler.html">Handler</a>
-        //! for events fired by rapidjson during parsing.
-        //! Note: using the base handler, so we only need to implement what is needed
         //! <a https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/ref/boost__json__basic_parser.html#json.ref.boost__json__basic_parser.handler0">Handler</a>
-        //! for events fired by rapidjson during parsing.
+        //! for events fired by boost::json during parsing.
         struct SBaseBoostJsonHandler {
 
             /// The maximum number of elements allowed in an array

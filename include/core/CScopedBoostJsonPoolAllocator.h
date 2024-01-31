@@ -16,7 +16,7 @@
 namespace ml {
 namespace core {
 //! \brief
-//! A scoped rapidjson memory allocator
+//! A scoped json memory allocator
 //!
 //! DESCRIPTION:\n
 //! Control the lifetime of the memory allocator associated with a generic json output writer

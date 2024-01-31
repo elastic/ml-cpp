@@ -45,7 +45,7 @@ namespace core {
 //    }
 //};
 
-//! \brief A lightweight wrapper over rapidjson::LineWriter
+//! \brief A lightweight wrapper around CStreamWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
 //! in a JSON string.
 //!

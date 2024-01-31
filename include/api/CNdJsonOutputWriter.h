@@ -38,7 +38,7 @@ namespace api {
 //! document ends and the next starts.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Using RapidJson to do the heavy lifting.
+//! Using boost::json to do the heavy lifting.
 //!
 class API_EXPORT CNdJsonOutputWriter : public CSimpleOutputWriter {
 public:
@@ -94,9 +94,6 @@ private:
 
     //! Reference to the stream we're going to write to
     std::ostream& m_OutStream;
-
-    //! JSON writer ostream wrapper
-    //    rapidjson::OStreamWrapper m_WriteStream;
 
     using TGenericLineWriter = core::CStreamWriter;
 

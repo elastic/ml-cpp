@@ -27,8 +27,7 @@
 
 namespace ml {
 namespace test {
-//using TRapidJsonLineWriter = core::CBoostJsonLineWriter<std::ostream>;
-using TRapidJsonLineWriter = core::CStreamWriter;
+using TJsonLineWriter = core::CStreamWriter;
 
 CDataFrameAnalysisSpecificationFactory::CDataFrameAnalysisSpecificationFactory()
     : m_MissingString{core::CDataFrame::DEFAULT_MISSING_STRING} {
@@ -270,7 +269,7 @@ std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
     std::string parameters;
     std::stringbuf sb;
     std::ostream os(&sb);
-    TRapidJsonLineWriter writer(os);
+    TJsonLineWriter writer(os);
 
     writer.StartObject();
     if (m_Method != "") {
@@ -324,7 +323,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     std::string parameters;
     std::stringbuf sb;
     std::ostream os(&sb);
-    TRapidJsonLineWriter writer(os);
+    TJsonLineWriter writer(os);
 
     writer.StartObject();
     writer.Key(TRunner::DEPENDENT_VARIABLE_NAME);

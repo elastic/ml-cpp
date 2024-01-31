@@ -36,7 +36,7 @@ namespace api {
 //! for processing.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Using the RapidJson library to do the heavy lifting, but copying output
+//! Using the boost::json library to do the heavy lifting, but copying output
 //! to standard STL/Boost data structures.
 //!
 //! It is possible to tell the parser that all documents have exactly the

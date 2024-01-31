@@ -114,7 +114,7 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
     return (*docPtr)[field].as_double();
 }
 
-//! Sort rapidjson documents by the probability lowest to highest
+//! Sort json documents by the probability lowest to highest
 class CProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
@@ -126,7 +126,7 @@ public:
 
 const CProbabilityLess PROBABILITY_LESS = CProbabilityLess();
 
-//! Sort rapidjson documents by detector name first then probability lowest to highest
+//! Sort json documents by detector name first then probability lowest to highest
 class CDetectorThenProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,

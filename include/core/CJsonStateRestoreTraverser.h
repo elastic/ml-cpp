@@ -113,7 +113,7 @@ private:
 
 private:
     //! <a https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/ref/boost__json__basic_parser.html#json.ref.boost__json__basic_parser.handler0">Handler</a>
-    //! for events fired by rapidjson during parsing.
+    //! for events fired by boost::json during parsing.
     struct SBoostJsonHandler final {
         SBoostJsonHandler();
 

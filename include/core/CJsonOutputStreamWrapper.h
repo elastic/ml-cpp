@@ -69,7 +69,7 @@ public:
     void releaseBuffer(TGenericLineWriter& writer, std::string* buffer);
 
     //! Flush the buffer/writer if necessary, keeps the logic when to flush in here.
-    //! \param writer A rapidjson writer object
+    //! \param writer A boost::json writer object
     //! \param buffer The buffer for writing
     //! Side-effect: the writer as well as the buffer are altered.
     void flushBuffer(TGenericLineWriter& writer, std::string*& buffer);

@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CRapidJsonLineWriter_h
-#define INCLUDED_ml_core_CRapidJsonLineWriter_h
+#ifndef INCLUDED_ml_core_CBoostJsonLineWriter_h
+#define INCLUDED_ml_core_CBoostJsonLineWriter_h
 
 #include <core/CBoostJsonWriterBase.h>
 
@@ -18,8 +18,8 @@ namespace ml {
 namespace core {
 
 //! Writes each Json object to a single line.
-//! Not as verbose as rapidjson::prettywriter but it is still possible to
-//! parse json data streamed in this format by reading one line at a time
+//! It is possible to parse json data streamed
+//! in this format by reading one line at a time
 //!
 //! \tparam OUTPUT_STREAM Type of output stream.
 //! \note implements Handler concept
@@ -71,4 +71,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_core_CRapidJsonLineWriter_h
+#endif // INCLUDED_ml_core_CBoostJsonLineWriter_h
