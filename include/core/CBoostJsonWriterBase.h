@@ -400,6 +400,13 @@ public:
         obj.push_back(value);
     }
 
+    //! Push a json::value into a supplied boost::json array value
+    //! \p[in] value json::value
+    //! \p[out] obj boost::json array to contain the \p value
+    void pushBack(const json::value& value, json::array& obj) const {
+        obj.push_back(value);
+    }
+
     //! Push a generic boost::json value object into a supplied boost::json object value
     //! \p[in] value generic boost::json value object
     //! \p[out] obj boost::json value to contain the \p value
@@ -529,21 +536,37 @@ public:
         return obj;
     }
 
+    //! Adds a generic boost::json value field to a supplied json value.
+    //! \p[in] name field name
+    //! \p[in] value generic boost::json value
+    //! \p[out] obj boost::json value to contain the \p name \p value pair
     TValue& addMember(const std::string& name, TValue& value, TValue& obj) const {
         obj.as_object()[name] = value;
         return obj;
     }
 
+    //! Adds a generic boost::json value field to an object.
+    //! \p[in] name field name
+    //! \p[in] value generic boost::json value
+    //! \p[out] obj boost::json object to contain the \p name \p value pair
     TDocument& addMember(const std::string& name, const TValue& value, TDocument& obj) const {
         obj[name] = value;
         return obj;
     }
 
+    //! Adds a boost::json object field to another supplied object.
+    //! \p[in] name field name
+    //! \p[in] value boost::json object to add
+    //! \p[out] obj boost::json object to contain the \p name \p value pair
     TDocument& addMember(const std::string& name, TDocument value, TDocument& obj) const {
         obj[name] = value;
         return obj;
     }
 
+    //! Adds a boost::json array field to a supplied object.
+    //! \p[in] name field name
+    //! \p[in] value boost::json array to add
+    //! \p[out] obj boost::json object to contain the \p name \p value pair
     TDocument& addMember(const std::string& name, const json::array& value, TDocument& obj) const {
         obj[name] = value;
         return obj;
@@ -560,7 +583,20 @@ public:
         return obj;
     }
 
+    //! Adds a copy of a string field to a supplied json::value.
+    //! \p[in] name field name
+    //! \p[in] value string field to be copied
+    //! \p[out] obj boost::json value to contain the \p name \p value pair
     TValue addMember(const std::string& name, const std::string& value, TValue& obj) const {
+        obj.as_object()[name] = value;
+        return obj;
+    }
+
+    //! Adds a json::array field to a supplied json::value.
+    //! \p[in] name field name
+    //! \p[in] value array field to be added
+    //! \p[out] obj boost::json value to contain the \p name \p value pair
+    TValue addMember(const std::string& name, const json::array& value, TValue& obj) const {
         obj.as_object()[name] = value;
         return obj;
     }
@@ -797,17 +833,12 @@ private:
         }
     }
 
-    //! Convert \p value to a JSON value.
-    TValue asJsonValue(const std::string& value) const {
-        return {value, this->getRawAllocator()};
-    }
-
     //! Convert the range [\p begin, \p end) to a JSON array and add to \p obj.
     template<typename ITR>
     void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
         json::array array = this->makeArray(std::distance(begin, end));
         for (/**/; begin != end; ++begin) {
-            this->pushBack(asJsonValue(*begin), array);
+            this->pushBack(json::value(*begin), array);
         }
         this->addMember(fieldName, array, obj);
     }
