@@ -805,7 +805,7 @@ private:
     //! Convert the range [\p begin, \p end) to a JSON array and add to \p obj.
     template<typename ITR>
     void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
-        json::array array = this->makeArray(std::distance(begin, end)).as_array();
+        json::array array = this->makeArray(std::distance(begin, end));
         for (/**/; begin != end; ++begin) {
             this->pushBack(asJsonValue(*begin), array);
         }
