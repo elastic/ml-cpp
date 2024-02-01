@@ -18,6 +18,6 @@
 cd `dirname "$BASH_SOURCE"`
 
 if [ ! -d "valijson" ] ; then
-    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 --recurse-submodules git@github.com:tristanpenman/valijson.git
+    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 git@github.com:tristanpenman/valijson.git
 fi
 

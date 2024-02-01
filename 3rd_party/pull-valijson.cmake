@@ -17,6 +17,5 @@
 # This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this file's location
 
 if ( NOT EXISTS valijson )
-  #execute_process( COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 --recurse-submodules git@github.com:tristanpenman/valijson.git WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   execute_process( COMMAND ./pull-valijson.sh WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 endif()
