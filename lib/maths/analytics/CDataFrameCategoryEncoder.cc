@@ -38,8 +38,12 @@ namespace analytics {
 namespace {
 template<typename T>
 bool getEncodingAttribute(const json::object& obj, const std::string& tag, T& value) {
-    std::string tmp{obj.at(tag).as_string().c_str()};
-    return core::CStringUtils::stringToType(tmp, value);
+    if (obj.at(tag).is_string() == false) {
+        LOG_ERROR(<< "Value at [" << tag << "] is not a string: " << obj);
+        return false;
+    }
+    // We use json::value_to to convert from json::string type to std::string
+    return core::CStringUtils::stringToType(json::value_to<std::string>(obj.at(tag)), value);
 }
 using TDoubleVec = std::vector<double>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
