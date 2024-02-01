@@ -37,6 +37,12 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
+#include <valijson/validator.hpp>
+
 #include <fstream>
 #include <map>
 #include <string>
@@ -567,117 +573,130 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     }
 }
 
-// TODO
-//BOOST_AUTO_TEST_CASE(testJsonSchema) {
-//    std::size_t numberExamples = 200;
-//    std::size_t cols = 3;
-//    test::CRandomNumbers rng;
-//    TDoubleVec weights{0.1, 100.0};
-//
-//    std::stringstream output;
-//    auto outputWriterFactory = [&output]() {
-//        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-//    };
-//
-//    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
-//
-//    TStrVec fieldValues{"", "", "0", "", ""};
-//
-//    TDoubleVecVec frequencies;
-//    TDoubleVecVec values(cols);
-//    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-//    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
-//
-//    for (std::size_t i = 0; i < numberExamples; ++i) {
-//        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
-//    }
-//
-//    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-//    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
-//                    .rows(numberExamples)
-//                    .columns(cols)
-//                    .memoryLimit(30000000)
-//                    .predictionCategoricalFieldNames({"categorical_col"})
-//                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-//                                    "target_col", &frameAndDirectory);
-//    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
-//                                     std::move(outputWriterFactory)};
-//
-//    TDataFrameUPtr frame{
-//        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
-//    for (std::size_t i = 0; i < numberExamples; ++i) {
-//        for (std::size_t j = 0; j < cols; ++j) {
-//            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-//                values[j][i], core::CIEEE754::E_DoublePrecision);
-//        }
-//        analyzer.handleRecord(fieldNames, fieldValues);
-//    }
-//    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
-//    auto analysisRunner = analyzer.runner();
-//    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
-//    auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
-//
-//    // validating inference model definition
-//    {
-//        std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
-//        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-//        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-//                               std::istreambuf_iterator<char>());
-//        rapidjson::Document schemaDocument;
-//        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-//                              "Cannot parse JSON schema!");
-//        rapidjson::SchemaDocument schema(schemaDocument);
-//
-//        rapidjson::Document doc;
-//        BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
-//                              "Error parsing JSON definition!");
-//
-//        rapidjson::SchemaValidator validator(schema);
-//        if (doc.Accept(validator) == false) {
-//            rapidjson::StringBuffer sb;
-//            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-//            LOG_ERROR(<< "Invalid schema: " << sb.as_string());
-//            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-//            sb.Clear();
-//            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-//            LOG_ERROR(<< "Invalid document: " << sb.as_string());
-//            LOG_DEBUG(<< "Document: " << definition->jsonString());
-//            BOOST_FAIL("Schema validation failed");
-//        }
-//    }
-//
-//    // validating model size info
-//    {
-//        std::ifstream schemaFileStream("testfiles/model_size_info/model_size_info.schema.json");
-//        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-//        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-//                               std::istreambuf_iterator<char>());
-//        rapidjson::Document schemaDocument;
-//        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-//                              "Cannot parse JSON schema!");
-//        rapidjson::SchemaDocument schema(schemaDocument);
-//
-//        rapidjson::Document doc;
-//        BOOST_REQUIRE_MESSAGE(
-//            doc.Parse(definition->sizeInfo()->jsonString()).HasParseError() == false,
-//            "Error parsing JSON definition!");
-//
-//        rapidjson::SchemaValidator validator(schema);
-//        if (doc.Accept(validator) == false) {
-//            rapidjson::StringBuffer sb;
-//            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-//            LOG_ERROR(<< "Invalid schema: " << sb.as_string());
-//            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-//            sb.Clear();
-//            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-//            LOG_ERROR(<< "Invalid document: " << sb.as_string());
-//            LOG_DEBUG(<< "Document: " << definition->sizeInfo()->jsonString());
-//            BOOST_FAIL("Schema validation failed");
-//        }
-//    }
-//
-//    // TODO add multivalued leaf test.
-//}
+BOOST_AUTO_TEST_CASE(testJsonSchema) {
+    std::size_t numberExamples = 200;
+    std::size_t cols = 3;
+    test::CRandomNumbers rng;
+    TDoubleVec weights{0.1, 100.0};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
+
+    TStrVec fieldValues{"", "", "0", "", ""};
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
+
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
+    }
+
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .rows(numberExamples)
+                    .columns(cols)
+                    .memoryLimit(30000000)
+                    .predictionCategoricalFieldNames({"categorical_col"})
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    "target_col", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
+
+    TDataFrameUPtr frame{
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        for (std::size_t j = 0; j < cols; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                values[j][i], core::CIEEE754::E_DoublePrecision);
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
+    auto analysisRunner = analyzer.runner();
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
+    auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
+
+    // validating inference model definition
+    {
+        json::value schemaDocument;
+        BOOST_REQUIRE_MESSAGE(valijson::utils::loadDocument("testfiles/inference_json_schema/model_definition.schema.json",
+                                                            schemaDocument),
+                              "Failed to load schema document");
+
+        // Parse Boost JSON schema content using valijson
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+        valijson::adapters::BoostJsonAdapter schemaAdapter(schemaDocument);
+        parser.populateSchema(schemaAdapter, schema);
+
+        json::error_code ec;
+        json::value doc = json::parse(definition->jsonString(), ec);
+        BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Error parsing JSON definition!");
+
+        valijson::Validator validator;
+        valijson::ValidationResults results;
+        valijson::adapters::BoostJsonAdapter targetAdapter(doc);
+        BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &results),
+                              "Validation failed.");
+
+        valijson::ValidationResults::Error error;
+        unsigned int errorNum = 1;
+        while (results.popError(error)) {
+            LOG_ERROR(<< "Error #" << errorNum);
+            LOG_ERROR(<< "  ");
+            for (const std::string& contextElement : error.context) {
+                LOG_ERROR(<< contextElement << " ");
+            }
+            LOG_ERROR(<< "    - " << error.description);
+            ++errorNum;
+        }
+    }
+
+    // validating model size info
+    {
+        json::value schemaDocument;
+        BOOST_REQUIRE_MESSAGE(valijson::utils::loadDocument("testfiles/model_size_info/model_size_info.schema.json",
+                                                            schemaDocument),
+                              "Failed to load schema document");
+
+        // Parse Boost JSON schema content using valijson
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+        valijson::adapters::BoostJsonAdapter schemaAdapter(schemaDocument);
+        parser.populateSchema(schemaAdapter, schema);
+
+        json::error_code ec;
+        json::value doc = json::parse(definition->sizeInfo()->jsonString(), ec);
+        BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Error parsing JSON size info!");
+
+        valijson::Validator validator;
+        valijson::ValidationResults results;
+        valijson::adapters::BoostJsonAdapter targetAdapter(doc);
+
+        BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &results),
+                              "Validation failed.");
+
+        valijson::ValidationResults::Error error;
+        unsigned int errorNum = 1;
+        while (results.popError(error)) {
+            LOG_ERROR(<< "Error #" << errorNum);
+            LOG_ERROR(<< "  ");
+            for (const std::string& contextElement : error.context) {
+                LOG_ERROR(<< contextElement << " ");
+            }
+            LOG_ERROR(<< "    - " << error.description);
+            ++errorNum;
+        }
+    }
+
+    // TODO add multivalued leaf test.
+}
 
 BOOST_AUTO_TEST_CASE(testEncoders) {
     TStrVec fieldNames{"col1", "target", "col2", "col3"};
