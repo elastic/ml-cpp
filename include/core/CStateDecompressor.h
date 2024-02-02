@@ -86,180 +86,167 @@ public:
         bool parseNext();
 
     private:
-        //! <a https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/ref/boost__json__basic_parser.html#json.ref.boost__json__basic_parser.handler0">Handler</a>
+        //! <a Handler="https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/ref/boost__json__basic_parser.html#json.ref.boost__json__basic_parser.handler0" > Handler </a>
         //! for events fired by boost::json during parsing.
         struct SBaseBoostJsonHandler {
 
-            /// The maximum number of elements allowed in an array
+            //! The maximum number of elements allowed in an array
             static constexpr std::size_t max_array_size = -1;
 
-            /// The maximum number of elements allowed in an object
+            //! The maximum number of elements allowed in an object
             static constexpr std::size_t max_object_size = -1;
 
-            /// The maximum number of characters allowed in a string
+            //! The maximum number of characters allowed in a string
             static constexpr std::size_t max_string_size = -1;
 
-            /// The maximum number of characters allowed in a key
+            //! The maximum number of characters allowed in a key
             static constexpr std::size_t max_key_size = -1;
 
-            /// Called once when the JSON parsing begins.
-            ///
-            /// @return `true` on success.
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_document_begin(json::error_code& ec) { return true; }
+            //! Called once when the JSON parsing begins.
+            //!
+            //! @return `true` on success.
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_document_begin(json::error_code& ec);
 
-            /// Called when the JSON parsing is done.
-            ///
-            /// @return `true` on success.
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_document_end(json::error_code& ec) { return true; }
+            //! Called when the JSON parsing is done.
+            //!
+            //! @return `true` on success.
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_document_end(json::error_code& ec);
 
-            /// Called when the beginning of an array is encountered.
-            ///
-            /// @return `true` on success.
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called when the beginning of an array is encountered.
+            //!
+            //! @return `true` on success.
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_array_begin(json::error_code& ec);
 
-            /// Called when the end of the current array is encountered.
-            ///
-            /// @return `true` on success.
-            /// @param n The number of elements in the array.
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called when the end of the current array is encountered.
+            //!
+            //! @return `true` on success.
+            //! @param n The number of elements in the array.
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_array_end(std::size_t n, json::error_code& ec);
 
-            /// Called when the beginning of an object is encountered.
-            ///
-            /// @return `true` on success.
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called when the beginning of an object is encountered.
+            //!
+            //! @return `true` on success.
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_object_begin(json::error_code& ec);
 
-            /// Called when the end of the current object is encountered.
-            ///
-            /// @return `true` on success.
-            /// @param n The number of elements in the object.
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called when the end of the current object is encountered.
+            //!
+            //! @return `true` on success.
+            //! @param n The number of elements in the object.
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_object_end(std::size_t n, json::error_code& ec);
 
-            /// Called with characters corresponding to part of the current string.
-            ///
-            /// @return `true` on success.
-            /// @param s The partial characters
-            /// @param n The total size of the string thus far
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called with characters corresponding to part of the current string.
+            //!
+            //! @return `true` on success.
+            //! @param s The partial characters
+            //! @param n The total size of the string thus far
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_string_part(std::string_view s, std::size_t n, json::error_code& ec);
 
-            /// Called with the last characters corresponding to the current string.
-            ///
-            /// @return `true` on success.
-            /// @param s The remaining characters
-            /// @param n The total size of the string
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called with the last characters corresponding to the current string.
+            //!
+            //! @return `true` on success.
+            //! @param s The remaining characters
+            //! @param n The total size of the string
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
 
-            /// Called with characters corresponding to part of the current key.
-            ///
-            /// @return `true` on success.
-            /// @param s The partial characters
-            /// @param n The total size of the key thus far
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called with characters corresponding to part of the current key.
+            //!
+            //! @return `true` on success.
+            //! @param s The partial characters
+            //! @param n The total size of the key thus far
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_key_part(std::string_view s, std::size_t n, json::error_code& ec);
 
-            /// Called with the last characters corresponding to the current key.
-            ///
-            /// @return `true` on success.
-            /// @param s The remaining characters
-            /// @param n The total size of the key
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called with the last characters corresponding to the current key.
+            //!
+            //! @return `true` on success.
+            //! @param s The remaining characters
+            //! @param n The total size of the key
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_key(std::string_view s, std::size_t n, json::error_code& ec);
 
-            /// Called with the characters corresponding to part of the current number.
-            ///
-            /// @return `true` on success.
-            /// @param s The partial characters
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_number_part(std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called with the characters corresponding to part of the current number.
+            //!
+            //! @return `true` on success.
+            //! @param s The partial characters
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_number_part(std::string_view s, json::error_code& ec);
 
-            /// Called when a signed integer is parsed.
-            ///
-            /// @return `true` on success.
-            /// @param i The value
-            /// @param s The remaining characters
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_int64(int64_t i, std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called when a signed integer is parsed.
+            //!
+            //! @return `true` on success.
+            //! @param i The value
+            //! @param s The remaining characters
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_int64(int64_t i, std::string_view s, json::error_code& ec);
 
-            /// Called when an unsigend integer is parsed.
-            ///
-            /// @return `true` on success.
-            /// @param u The value
-            /// @param s The remaining characters
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_uint64(uint64_t u, std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called when an unsigend integer is parsed.
+            //!
+            //! @return `true` on success.
+            //! @param u The value
+            //! @param s The remaining characters
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_uint64(uint64_t u, std::string_view s, json::error_code& ec);
 
-            /// Called when a double is parsed.
-            ///
-            /// @return `true` on success.
-            /// @param d The value
-            /// @param s The remaining characters
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_double(double d, std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called when a double is parsed.
+            //!
+            //! @return `true` on success.
+            //! @param d The value
+            //! @param s The remaining characters
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_double(double d, std::string_view s, json::error_code& ec);
 
-            /// Called when a boolean is parsed.
-            ///
-            /// @return `true` on success.
-            /// @param b The value
-            /// @param s The remaining characters
-            /// @param ec Set to the error, if any occurred.
-            ///
+            //! Called when a boolean is parsed.
+            //!
+            //! @return `true` on success.
+            //! @param b The value
+            //! @param ec Set to the error, if any occurred.
+            //!
             bool on_bool(bool b, json::error_code& ec);
 
-            /// Called when a null is parsed.
-            ///
-            /// @return `true` on success.
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_null(json::error_code& ec) { return true; }
+            //! Called when a null is parsed.
+            //!
+            //! @return `true` on success.
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_null(json::error_code& ec);
 
-            /// Called with characters corresponding to part of the current comment.
-            ///
-            /// @return `true` on success.
-            /// @param s The partial characters.
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_comment_part(std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called with characters corresponding to part of the current comment.
+            //!
+            //! @return `true` on success.
+            //! @param s The partial characters.
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_comment_part(std::string_view s, json::error_code& ec);
 
-            /// Called with the last characters corresponding to the current comment.
-            ///
-            /// @return `true` on success.
-            /// @param s The remaining characters
-            /// @param ec Set to the error, if any occurred.
-            ///
-            bool on_comment(std::string_view s, json::error_code& ec) {
-                return true;
-            }
+            //! Called with the last characters corresponding to the current comment.
+            //!
+            //! @return `true` on success.
+            //! @param s The remaining characters
+            //! @param ec Set to the error, if any occurred.
+            //!
+            bool on_comment(std::string_view s, json::error_code& ec);
 
             size_t s_Level[2];
             bool s_IsEndOfLevel[2];

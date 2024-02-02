@@ -221,7 +221,7 @@ public:
         return true;
     }
 
-    virtual bool EndObject(std::size_t memberCount = 0) {
+    virtual bool EndObject(std::size_t) {
         if (this->checkPrerequisites() == false) {
             return false;
         }
@@ -475,7 +475,7 @@ public:
                     return false;
                 }
             }
-            return this->EndObject();
+            return this->EndObject(doc.as_object().size());
         case json::kind::array:
             if (this->StartArray() == false) {
                 return false;
@@ -497,6 +497,7 @@ public:
         case json::kind::uint64:
             return this->Uint64(doc.as_uint64());
         }
+        return true;
     }
 
     //! Return a new boost::json document

@@ -311,8 +311,12 @@ std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
 void CStateDecompressor::CDechunkFilter::close() {
 }
 
-bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_bool(bool b, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_bool(bool, json::error_code& ec) {
     s_Type = E_TokenBool;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
     LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenBool");
     return true;
 }
@@ -321,6 +325,10 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_string(std::strin
                                                                       std::size_t length,
                                                                       json::error_code& ec) {
     s_Type = E_TokenString;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
     LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenString");
     LOG_TRACE(<< "s_CompressedChunk = " << s_CompressedChunk
               << ", s_CompressedChunkLength = " << s_CompressedChunkLength);
@@ -339,10 +347,14 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_string_part(std::
                                                                            std::size_t length,
                                                                            json::error_code& ec) {
     s_Type = E_TokenStringPart;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
     s_StringEnd = false;
     if (s_NewToken == true) {
         s_NewToken = false;
-        memset((void*)s_CompressedChunk, '\0', 4096 * 400);
+        memset(static_cast<void*>(s_CompressedChunk), '\0', 4096 * 400);
     }
     s_CompressedChunk[length - 1] = str.front();
     s_CompressedChunkLength = length;
@@ -353,6 +365,10 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_key(std::string_v
                                                                    std::size_t length,
                                                                    json::error_code& ec) {
     s_Type = E_TokenKey;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
     LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenKey");
     LOG_TRACE(<< "s_CompressedChunk = " << s_CompressedChunk
               << ", s_CompressedChunkLength = " << s_CompressedChunkLength);
@@ -370,9 +386,13 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_key_part(std::str
                                                                         std::size_t length,
                                                                         json::error_code& ec) {
     s_Type = E_TokenKeyPart;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
     if (s_NewToken == true) {
         s_NewToken = false;
-        memset((void*)s_CompressedChunk, '\0', 4096 * 400);
+        memset(static_cast<void*>(s_CompressedChunk), '\0', 4096 * 400);
     }
     s_CompressedChunk[length - 1] = str.front();
     s_CompressedChunkLength = length;
@@ -380,33 +400,85 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_key_part(std::str
 }
 
 bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_object_begin(json::error_code& ec) {
-    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenObjectStart");
     s_Type = E_TokenObjectStart;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
+    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenObjectStart");
     s_IsObject = true;
     return true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_object_end(std::size_t n,
+bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_object_end(std::size_t,
                                                                           json::error_code& ec) {
-    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenObjectEnd");
     s_Type = E_TokenObjectEnd;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
+    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenObjectEnd");
     s_IsObject = false;
     return true;
 }
 
 bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_array_begin(json::error_code& ec) {
-    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenArrayStart");
     s_Type = E_TokenArrayStart;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
+    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenArrayStart");
     s_IsArray = true;
     return true;
 }
 
 bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_array_end(std::size_t,
                                                                          json::error_code& ec) {
-    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenArrayEnd");
     s_Type = E_TokenArrayEnd;
+    if (ec) {
+        LOG_ERROR(<< "Parse error: " << ec.message());
+        return false;
+    }
+    LOG_TRACE(<< "m_Reader->handler().s_Type = SBoostJsonHandler::E_TokenArrayEnd");
     s_IsArray = false;
     return true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_document_begin(json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_document_end(json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_number_part(std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_int64(int64_t /* i */, std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_uint64(uint64_t /* u */, std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_double(double /* d */, std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_null(json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment_part(std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
+}
+
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment(std::string_view /* s */, json::error_code& ec) {
+    return (ec) ? false : true;
 }
 
 } // core

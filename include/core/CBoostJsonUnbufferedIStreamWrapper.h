@@ -74,12 +74,6 @@ public:
     std::size_t Tell() const { return m_Count; }
 
     //! Not implemented.
-    void Put(char) { assert(false); }
-
-    //! Not implemented.
-    void Flush() { assert(false); }
-
-    //! Not implemented.
     char* PutBegin() {
         assert(false);
         return nullptr;
