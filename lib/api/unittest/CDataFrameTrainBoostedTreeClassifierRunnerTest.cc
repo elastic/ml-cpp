@@ -163,11 +163,13 @@ BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsBool) {
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsString) {
-    testWriteOneRow("x5", "string", &json::value_to<std::string>, {"cat", "cat", "cat", "dog", "dog"});
+    testWriteOneRow("x5", "string", &json::value_to<std::string>,
+                    {"cat", "cat", "cat", "dog", "dog"});
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsMissing) {
-    testWriteOneRow("x5", "", &json::value_to<std::string>, {"cat", "cat", "cat", "dog", "dog"});
+    testWriteOneRow("x5", "", &json::value_to<std::string>,
+                    {"cat", "cat", "cat", "dog", "dog"});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
