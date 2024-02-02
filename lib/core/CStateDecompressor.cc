@@ -453,19 +453,27 @@ bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_document_end(
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_number_part(std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_number_part(
+    std::string_view /* s */,
+    json::error_code& ec) {
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_int64(int64_t /* i */, std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_int64(int64_t /* i */,
+                                                                         std::string_view /* s */,
+                                                                         json::error_code& ec) {
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_uint64(uint64_t /* u */, std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_uint64(uint64_t /* u */,
+                                                                          std::string_view /* s */,
+                                                                          json::error_code& ec) {
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_double(double /* d */, std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_double(double /* d */,
+                                                                          std::string_view /* s */,
+                                                                          json::error_code& ec) {
     return (ec) ? false : true;
 }
 
@@ -473,11 +481,14 @@ bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_null(json::er
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment_part(std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment_part(
+    std::string_view /* s */,
+    json::error_code& ec) {
     return (ec) ? false : true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment(std::string_view /* s */, json::error_code& ec) {
+bool CStateDecompressor::CDechunkFilter::SBaseBoostJsonHandler::on_comment(std::string_view /* s */,
+                                                                           json::error_code& ec) {
     return (ec) ? false : true;
 }
 
