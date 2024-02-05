@@ -319,7 +319,7 @@ repo_gpgcheck=1
 gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 EOF
 sudo cp /tmp/oneAPI.repo /etc/yum.repos.d
-sudo yum -y install intel-oneapi-mkl-2024.0
+sudo yum -y install intel-oneapi-mkl-devel-2024.0
 ```
 
 The process is different for distributions that use other package

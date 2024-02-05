@@ -144,7 +144,7 @@ enabled=1\n\
 gpgcheck=1\n\
 repo_gpgcheck=1\n\
 gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB\n' > /etc/yum.repos.d/oneAPI.repo && \
-  yum install -y intel-oneapi-mkl-2024.0 && \
+  yum install -y intel-oneapi-mkl-devel-2024.0 && \
   (cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc103 && tar xvf -)
 
 # Clone PyTorch and build LibTorch
