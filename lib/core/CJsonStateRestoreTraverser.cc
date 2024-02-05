@@ -471,7 +471,6 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string_part(std::string_v
 bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string(std::string_view s,
                                                               std::size_t n,
                                                               json::error_code& ec) {
-    s_Type = E_TokenString;
     if (ec) {
         LOG_ERROR(<< "on_string: ERROR: s: '" << s << "', n: " << n << ". "
                   << ec.to_string());
@@ -482,6 +481,7 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_string(std::string_view s
         s_Value[s_NextIndex].clear();
     }
 
+    s_Type = E_TokenString;
     s_HaveCompleteToken = true;
     if (s_RememberValue) {
         if (s.front() != '"') {
@@ -561,9 +561,6 @@ bool CJsonStateRestoreTraverser::SBoostJsonHandler::on_object_end(std::size_t n,
     s_Type = E_TokenObjectEnd;
     if (ec) {
         LOG_ERROR(<< "on_object_end: ERROR: n: " << n << ". " << ec.to_string());
-        return false;
-    }
-    if (ec) {
         return false;
     }
 
