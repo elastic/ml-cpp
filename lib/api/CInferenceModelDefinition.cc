@@ -35,7 +35,7 @@ void addJsonArray(const std::string& tag,
                   const std::vector<std::size_t>& vector,
                   json::object& parentObject,
                   CSerializableToJsonDocument::TBoostJsonWriter& writer) {
-    json::array array{writer.makeArray(vector.size())};
+    json::array array = writer.makeArray(vector.size());
     for (const auto& value : vector) {
         array.push_back(static_cast<std::uint64_t>(value));
     }
@@ -265,15 +265,15 @@ std::size_t CEnsemble::CSizeInfo::numOperations() const {
 void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
                                              TBoostJsonWriter& writer) const {
     this->CTrainedModel::CSizeInfo::addToJsonDocument(parentObject, writer);
-    json::array featureNameLengthsArray{
-        writer.makeArray(m_Ensemble->featureNames().size())};
+    json::array featureNameLengthsArray =
+        writer.makeArray(m_Ensemble->featureNames().size());
     for (const auto& featureName : m_Ensemble->featureNames()) {
         featureNameLengthsArray.push_back(toBoostjsonValue(
             core::CStringUtils::utf16LengthOfUtf8String(featureName)));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
 
-    json::array treeSizesArray{writer.makeArray(m_Ensemble->m_TrainedModels.size())};
+    json::array treeSizesArray = writer.makeArray(m_Ensemble->m_TrainedModels.size());
     for (const auto& trainedModel : m_Ensemble->m_TrainedModels) {
         json::object item{writer.makeObject()};
         trainedModel->sizeInfo()->addToJsonDocument(item, writer);
@@ -557,7 +557,7 @@ void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(json::object& paren
     }
 
     // preprocessors
-    json::array preprocessingArray{writer.makeArray()};
+    json::array preprocessingArray = writer.makeArray();
     for (const auto& preprocessor : m_Definition.preprocessors()) {
         auto encodingSizeInfo = preprocessor->sizeInfo();
         json::object encodingValue{writer.makeObject()};

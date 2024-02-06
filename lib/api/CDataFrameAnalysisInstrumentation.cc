@@ -512,12 +512,12 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(json::object
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(VALIDATION_LOSS_TYPE_TAG, json::value(m_LossType), parentObject);
-        json::array lossValuesArray{writer->makeArray()};
+        json::array lossValuesArray = writer->makeArray();
         for (auto& element : m_LossValues) {
             json::object item{writer->makeObject()};
             writer->addMember(VALIDATION_FOLD_TAG,
                               json::value(static_cast<std::uint64_t>(element.first)), item);
-            json::array array{writer->makeArray(element.second.size())};
+            json::array array = writer->makeArray(element.second.size());
             for (double lossValue : element.second) {
                 array.push_back(json::value(lossValue));
             }
