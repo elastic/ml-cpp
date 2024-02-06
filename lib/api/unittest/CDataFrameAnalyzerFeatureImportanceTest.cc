@@ -300,6 +300,7 @@ struct SFixture {
         json::error_code ec;
         json::value results = json::parse(s_Output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
 
         return std::make_pair(std::move(results), s_Output.str());
     }
@@ -419,6 +420,7 @@ struct SFixture {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results_, std::string shapField) {
+    BOOST_TEST_REQUIRE(results_.at_pointer("/row_results/results/ml").is_object());
     if (results_.at_pointer("/row_results/results/ml")
             .as_object()
             .contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
@@ -427,6 +429,7 @@ double readShapValue(const RESULTS& results_, std::string shapField) {
                  .at_pointer("/row_results/results/ml/" +
                              api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
                  .as_array()) {
+            BOOST_TEST_REQUIRE(shapResult.is_object());
             if (shapResult.as_object()
                     .at(api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
                     .as_string() == shapField) {
@@ -442,6 +445,7 @@ double readShapValue(const RESULTS& results_, std::string shapField) {
 
 template<typename RESULTS>
 double readClassProbability(const RESULTS& results, std::string className) {
+    BOOST_TEST_REQUIRE(results.at_pointer("/row_results/results/ml").is_object());
     if (results.at_pointer("/row_results/results/ml").as_object().contains("top_classes")) {
         for (const auto& classResult :
              results.at_pointer("/row_results/results/ml/top_classes").as_array()) {
@@ -458,13 +462,14 @@ double readClassProbability(const RESULTS& results, std::string className) {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField, std::string className) {
+    BOOST_TEST_REQUIRE(results.at_pointer("/row_results/results/ml").is_object());
     if (results.at_pointer("/row_results/results/ml").as_object().contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult_ :
              results
                  .at_pointer("/row_results/results/ml/" +
                              api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)
                  .as_array()) {
-            const json::object& shapResult = shapResult_.as_object();
+            BOOST_TEST_REQUIRE(shapResult_.is_object());
 
             if (shapResult_
                     .at_pointer("/" + api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME)
@@ -473,6 +478,7 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                      shapResult_
                          .at_pointer("/" + api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME)
                          .as_array()) {
+                    BOOST_TEST_REQUIRE(item.is_object());
                     if (item.as_object()
                             .at(api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME)
                             .as_string() == className) {
@@ -491,6 +497,7 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField) {
     using TModelMetadata = api::CInferenceModelMetadata;
+    BOOST_TEST_REQUIRE(results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).is_object());
     if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult :
              results
@@ -514,6 +521,7 @@ double readTotalShapValue(const RESULTS& results, std::string shapField) {
 template<typename RESULTS>
 double readTotalShapValue(const RESULTS& results, std::string shapField, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
+    BOOST_TEST_REQUIRE(results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).is_object());
     if (results.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
         for (const auto& shapResult_ :
              results
@@ -544,16 +552,22 @@ template<typename RESULTS>
 double readBaselineValue(const RESULTS& results) {
     using TModelMetadata = api::CInferenceModelMetadata;
     for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
         const json::object& result = result_.as_object();
 
-        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
-            json::value jv = result_.at_pointer(
-                "/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
-                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG + "/" +
-                TModelMetadata::JSON_BASELINE_TAG);
-            BOOST_TEST_REQUIRE(jv.is_double());
-            return jv.as_double();
+        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG)) {
+            BOOST_TEST_REQUIRE(
+                result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).is_object());
+            if (result.at(TModelMetadata::JSON_MODEL_METADATA_TAG)
+                    .as_object()
+                    .contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+                json::value jv = result_.at_pointer(
+                    "/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
+                    TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG + "/" +
+                    TModelMetadata::JSON_BASELINE_TAG);
+                BOOST_TEST_REQUIRE(jv.is_double());
+                return jv.as_double();
+            }
         }
     }
     return 0.0;
@@ -563,21 +577,28 @@ template<typename RESULTS>
 double readBaselineValue(const RESULTS& results, std::string className) {
     using TModelMetadata = api::CInferenceModelMetadata;
     for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
         const json::object& result = result_.as_object();
 
-        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
-            result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).as_object().contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
-            for (const auto& item :
-                 result_
-                     .at_pointer("/" + TModelMetadata::JSON_MODEL_METADATA_TAG + "/" +
-                                 TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
-                                 "/" + TModelMetadata::JSON_CLASSES_TAG)
-                     .as_array()) {
-                if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() ==
-                    className) {
-                    json::value jv = item.as_object().at(TModelMetadata::JSON_BASELINE_TAG);
-                    BOOST_TEST_REQUIRE(jv.is_double());
-                    return jv.as_double();
+        if (result.contains(TModelMetadata::JSON_MODEL_METADATA_TAG)) {
+            BOOST_TEST_REQUIRE(
+                result.at(TModelMetadata::JSON_MODEL_METADATA_TAG).is_object());
+            if (result.at(TModelMetadata::JSON_MODEL_METADATA_TAG)
+                    .as_object()
+                    .contains(TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+                for (const auto& item :
+                     result_
+                         .at_pointer("/" + TModelMetadata::JSON_MODEL_METADATA_TAG +
+                                     "/" + TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG +
+                                     "/" + TModelMetadata::JSON_CLASSES_TAG)
+                         .as_array()) {
+                    BOOST_TEST_REQUIRE(item.is_object());
+                    if (item.as_object().at(TModelMetadata::JSON_CLASS_NAME_TAG).as_string() ==
+                        className) {
+                        json::value jv = item.as_object().at(TModelMetadata::JSON_BASELINE_TAG);
+                        BOOST_TEST_REQUIRE(jv.is_double());
+                        return jv.as_double();
+                    }
                 }
             }
         }
@@ -595,7 +616,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     std::size_t topShapValues{5}; //Note, number of requested shap values is larger than the number of regressors
     TDoubleVec weights{50, 150, 50, -50};
     auto resultsPair{runRegression(topShapValues, weights)};
-    auto results{std::move(resultsPair.first)};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "results" being created as a nested array on linux
+    auto results = std::move(resultsPair.first);
 
     TMeanAccumulator baselineAccumulator;
     TMeanAccumulator c1TotalShapExpected;
@@ -613,6 +636,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     bool hasTotalFeatureImportance{false};
     double baseline{readBaselineValue(results)};
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             double c2{readShapValue(result, "c2")};
@@ -634,6 +658,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
         } else if (result.as_object().contains("model_metadata")) {
+            BOOST_TEST_REQUIRE(result.at("model_metadata").is_object());
             if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
                 c1TotalShapActual = readTotalShapValue(result, "c1");
@@ -682,10 +707,13 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
     // We also add high noise variance.
     std::size_t topShapValues{4};
     auto resultsPair{runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0)};
-    auto results{std::move(resultsPair.first)};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "results" being created as a nested array on linux
+    auto results = std::move(resultsPair.first);
 
     TMeanAccumulator cNoImportanceMean;
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
@@ -713,7 +741,9 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
-    auto results{std::move(resultsPair.first)};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "results" being created as a nested array on linux
+    auto results = std::move(resultsPair.first);
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
@@ -732,6 +762,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_TEST_REQUIRE(baselineFoo == -baselineBar);
     TStrVec classes{"foo", "bar"};
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
             std::string targetPrediction{
                 result.at_pointer("/row_results/results/ml/target_prediction").as_string()};
@@ -762,6 +793,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
                 }
             }
         } else if (result.as_object().contains("model_metadata")) {
+            BOOST_TEST_REQUIRE(result.at("model_metadata").is_object());
             if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
@@ -808,7 +840,9 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
 
     std::size_t topShapValues{4};
     auto resultsPair{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
-    auto results{std::move(resultsPair.first)};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "results" being created as a nested array on linux
+    auto results = std::move(resultsPair.first);
     TMeanAccumulatorVec c1TotalShapExpected(3);
     TMeanAccumulatorVec c2TotalShapExpected(3);
     TMeanAccumulatorVec c3TotalShapExpected(3);
@@ -828,6 +862,7 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     double localApproximations[3];
     double classProbabilities[3];
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
             double c1{0.0};
             double c2{0.0};
@@ -871,6 +906,7 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
 
         } else if (result.as_object().contains("model_metadata")) {
+            BOOST_TEST_REQUIRE(result.at("model_metadata").is_object());
             if (result.as_object().at("model_metadata").as_object().contains("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
@@ -909,10 +945,14 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
     // Test that if topShapValue is set to 0, no feature importance values are returned.
     std::size_t topShapValues{0};
     auto resultsPair{runRegression(topShapValues, {50.0, 150.0, 50.0, -50.0})};
-    auto results{std::move(resultsPair.first)};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "results" being created as a nested array on linux
+    auto results = std::move(resultsPair.first);
 
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
+            BOOST_TEST_REQUIRE(result.at_pointer("/row_results/results/ml").is_object());
             BOOST_TEST_REQUIRE(
                 result.at_pointer("/row_results/results/ml").as_object().contains(api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
                 false);
@@ -934,6 +974,7 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
     double c3Sum{0.0};
     double c4Sum{0.0};
     for (const auto& result : results.as_array()) {
+        BOOST_TEST_REQUIRE(result.is_object());
         if (result.as_object().contains("row_results")) {
             double c1{readShapValue(result, "c1")};
             double c2{readShapValue(result, "c2")};
