@@ -294,12 +294,19 @@ int main(int argc, char** argv) {
         // Size the threadpool to the number of hardware threads
         // so we can grow and shrink the threadpool dynamically.
         // The task queue size is set to 1.
-        ml::core::startDefaultAsyncExecutor(0, 1);
+        ml::core::startDefaultAsyncExecutor(0, 1, threadSettings.numAllocations());
         // Set the number of threads to use
         ml::core::defaultAsyncExecutor().numberThreadsInUse(threadSettings.numAllocations());
+        LOG_DEBUG(<< "Using at most '"
+                  << ml::core::defaultAsyncExecutor().numberThreadsInUse() << "' allocations ("
+                  << "requested = " << threadSettings.numAllocations() << ", "
+                  << "hardware concurrency = " << std::thread::hardware_concurrency()
+                  << ")");
+
     } else {
         // Make sure we're using immediate execution.
         ml::core::stopDefaultAsyncExecutor();
+        LOG_DEBUG(<< "Using a single allocation");
     }
 
     commandParser.ioLoop(

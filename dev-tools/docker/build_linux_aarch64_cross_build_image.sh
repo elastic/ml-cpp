@@ -22,7 +22,7 @@
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-cross-build
-VERSION=11
+VERSION=12
 
 set -e
 
