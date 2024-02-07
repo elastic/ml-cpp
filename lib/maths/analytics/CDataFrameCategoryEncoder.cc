@@ -444,6 +444,9 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                         core::CStringUtils::stringToType(token, d);
                         map.push_back(d);
                     }
+                    double d{0.0};
+                    core::CStringUtils::stringToType(rmdr, d);
+                    map.push_back(d);
                     std::string fallbackStr{
                         obj.at(MAPPED_ENCODING_FALLBACK_TAG).as_string().c_str()};
                     double fallback{0.0};
