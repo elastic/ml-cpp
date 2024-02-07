@@ -350,7 +350,8 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                     }
 
                     std::size_t hotCategory{0};
-                    if (getEncodingAttribute(obj, "one_hot_encoding_category", hotCategory) == false) {
+                    if (getEncodingAttribute(obj, "one_hot_encoding_category",
+                                             hotCategory) == false) {
                         err << obj;
                         throw std::runtime_error("Expected attribute \"one_hot_encoding_category\" not found in : " +
                                                  err.str());
