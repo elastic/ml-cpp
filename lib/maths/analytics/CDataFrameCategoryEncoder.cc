@@ -350,7 +350,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                     }
 
                     std::size_t hotCategory{0};
-                    if (getEncodingAttribute(obj, "one_hot_encoding_category", mic) == false) {
+                    if (getEncodingAttribute(obj, "one_hot_encoding_category", hotCategory) == false) {
                         err << obj;
                         throw std::runtime_error("Expected attribute \"one_hot_encoding_category\" not found in : " +
                                                  err.str());
@@ -395,6 +395,10 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                         core::CStringUtils::stringToType(token, d);
                         map.push_back(d);
                     }
+                    double d{0.0};
+                    core::CStringUtils::stringToType(rmdr, d);
+                    map.push_back(d);
+
                     std::string fallbackStr{
                         obj.at(MAPPED_ENCODING_FALLBACK_TAG).as_string().c_str()};
                     double fallback{0.0};
@@ -444,6 +448,8 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                     double fallback{0.0};
                     core::CStringUtils::stringToType(fallbackStr, fallback);
                     this->restore<CMappedEncoding>(colIdx, mic, E_TargetMean, map, fallback);
+                } else {
+                    LOG_ERROR(<< "Unknown encoding type " << kv.key());
                 }
             }
         }
