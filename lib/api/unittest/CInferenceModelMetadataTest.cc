@@ -21,6 +21,12 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
+#include <valijson/validator.hpp>
+
 #include <fstream>
 #include <string>
 
@@ -40,75 +46,83 @@ using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }
 
-// TODO: Requires a JSON schema validator
-//
-//BOOST_AUTO_TEST_CASE(testJsonSchema) {
-//    // Test the results the analyzer produces match running the regression directly.
-//
-//    std::stringstream output;
-//    auto outputWriterFactory = [&output]() {
-//        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-//    };
-//
-//    TDoubleVec expectedPredictions;
-//
-//    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
-//    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-//    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-//    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
-//                    .predictionLambda(0.5)
-//                    .predictionEta(0.5)
-//                    .predictionGamma(0.5)
-//                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-//                                    "target", &frameAndDirectory);
-//    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
-//                                     std::move(outputWriterFactory)};
-//    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-//        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
-//        expectedPredictions);
-//
-//    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-//
-//    rapidjson::Document results;
-//    rapidjson::ParseResult ok(results.Parse(output.str()));
-//    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-//
-//    std::ifstream modelMetaDataSchemaFileStream("testfiles/model_meta_data/model_meta_data.schema.json");
-//    BOOST_REQUIRE_MESSAGE(modelMetaDataSchemaFileStream.is_open(), "Cannot open test file!");
-//    std::string modelMetaDataSchemaJson(
-//        (std::istreambuf_iterator<char>(modelMetaDataSchemaFileStream)),
-//        std::istreambuf_iterator<char>());
-//    rapidjson::Document modelMetaDataSchemaDocument;
-//    BOOST_REQUIRE_MESSAGE(
-//        modelMetaDataSchemaDocument.Parse(modelMetaDataSchemaJson).HasParseError() == false,
-//        "Cannot parse JSON schema!");
-//    rapidjson::SchemaDocument modelMetaDataSchema(modelMetaDataSchemaDocument);
-//    rapidjson::SchemaValidator modelMetaDataValidator(modelMetaDataSchema);
-//
-//    bool hasModelMetadata{false};
-//    for (const auto& result : results.as_array()) {
-//        if (result.contains("model_metadata")) {
-//            hasModelMetadata = true;
-//            BOOST_TEST_REQUIRE(result_.at_pointer("/model_metadata"].IsObject() = true);
-//            if (result_.at_pointer("/model_metadata"].Accept(modelMetaDataValidator) == false) {
-//                rapidjson::StringBuffer sb;
-//                modelMetaDataValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-//                LOG_ERROR(<< "Invalid schema: " << sb.as_string());
-//                LOG_ERROR(<< "Invalid keyword: "
-//                          << modelMetaDataValidator.GetInvalidSchemaKeyword());
-//                sb.Clear();
-//                modelMetaDataValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-//                LOG_ERROR(<< "Invalid document: " << sb.as_string());
-//                BOOST_FAIL("Schema validation failed");
-//            }
-//        }
-//    }
-//
-//    BOOST_TEST_REQUIRE(hasModelMetadata);
-//}
+BOOST_AUTO_TEST_CASE(testJsonSchema) {
+    // Test the results the analyzer produces match running the regression directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .predictionLambda(0.5)
+                    .predictionEta(0.5)
+                    .predictionGamma(0.5)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
+        expectedPredictions);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+
+    std::ifstream modelMetaDataSchemaFileStream("testfiles/model_meta_data/model_meta_data.schema.json");
+    BOOST_REQUIRE_MESSAGE(modelMetaDataSchemaFileStream.is_open(), "Cannot open test file!");
+    std::string modelMetaDataSchemaJson(
+        (std::istreambuf_iterator<char>(modelMetaDataSchemaFileStream)),
+        std::istreambuf_iterator<char>());
+
+    json::value modelMetaDataSchemaDocument = json::parse(modelMetaDataSchemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::BoostJsonAdapter schemaAdapter(modelMetaDataSchemaDocument);
+    parser.populateSchema(schemaAdapter, schema);
+
+    bool hasModelMetadata{false};
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("model_metadata")) {
+            hasModelMetadata = true;
+            BOOST_TEST_REQUIRE(result.at_pointer("/model_metadata").is_object() = true);
+
+            valijson::Validator validator;
+            valijson::ValidationResults validationResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.at_pointer("/model_metadata"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validationResults),
+                                  "Validation failed.");
+
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validationResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
+            }
+        }
+    }
+
+    BOOST_TEST_REQUIRE(hasModelMetadata);
+}
 
 BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001)) {
-    // insure that training leads to the same results if all identified hyperparameters
+    // ensure that training leads to the same results if all identified hyperparameters
     // are explicitly specified
     std::stringstream output;
     auto outputWriterFactory = [&output]() {

@@ -77,7 +77,7 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
     //   - using the last field for a control message,
     //   - missing.
     //
-    // Note if the the control message field name is missing the analysis must
+    // Note if the control message field name is missing the analysis must
     // be triggered to run by calling run explicitly.
 
     // Note that returning false from this function immediately causes us to stop

@@ -31,6 +31,12 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
+#include <valijson/validator.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -106,36 +112,45 @@ void testSchema(TLossFunctionType lossType) {
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
 
-    // TODO
-    // Verify json schema.
-    //    {
-    //        std::ifstream schemaFileStream(
-    //            "testfiles/data_summarization_schema/data_summarization.schema.json");
-    //        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-    //        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-    //                               std::istreambuf_iterator<char>());
-    //        rapidjson::Document schemaDocument;
-    //        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-    //                              "Cannot parse JSON schema!");
-    //        rapidjson::SchemaDocument schema(schemaDocument);
-    //
-    //        rapidjson::Document doc;
-    //        BOOST_REQUIRE_MESSAGE(doc.Parse(dataSummarization->jsonString()).HasParseError() == false,
-    //                              "Error parsing JSON definition!");
-    //
-    //        rapidjson::SchemaValidator validator(schema);
-    //        if (doc.Accept(validator) == false) {
-    //            rapidjson::StringBuffer sb;
-    //            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-    //            LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-    //            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-    //            sb.Clear();
-    //            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-    //            LOG_ERROR(<< "Invalid document: " << sb.GetString());
-    //            LOG_DEBUG(<< "Document: " << dataSummarization->jsonString());
-    //            BOOST_FAIL("Schema validation failed");
-    //        }
-    //    }
+    //     Verify json schema.
+    {
+        std::ifstream schemaFileStream(
+            "testfiles/data_summarization_schema/data_summarization.schema.json");
+        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                               std::istreambuf_iterator<char>());
+        json::error_code ec;
+        json::value schemaDocument = json::parse(schemaJson, ec);
+        BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+        // Parse Boost JSON schema content using valijson
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+        valijson::adapters::BoostJsonAdapter schemaAdapter(schemaDocument);
+        parser.populateSchema(schemaAdapter, schema);
+
+        json::value doc = json::parse(dataSummarization->jsonString(), ec);
+        BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Error parsing JSON definition!");
+
+        // validate "regression_stats" against schema
+        valijson::Validator validator;
+        valijson::ValidationResults results;
+        valijson::adapters::BoostJsonAdapter targetAdapter(doc);
+        BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &results),
+                              "Validation failed.");
+
+        valijson::ValidationResults::Error error;
+        unsigned int errorNum = 1;
+        while (results.popError(error)) {
+            LOG_ERROR(<< "Error #" << errorNum);
+            LOG_ERROR(<< "  ");
+            for (const std::string& contextElement : error.context) {
+                LOG_ERROR(<< contextElement << " ");
+            }
+            LOG_ERROR(<< "    - " << error.description);
+            ++errorNum;
+        }
+    }
 }
 }
 
