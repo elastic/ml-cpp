@@ -42,10 +42,13 @@ class custom_parser {
         static inline std::string FREQUENCY_ENCODING_TAG = "frequency_encoding";
         static inline std::string TARGET_MEAN_ENCODING_TAG = "target_mean_encoding";
 
-        constexpr static std::size_t max_object_size = std::numeric_limits<std::size_t>::max();
-        constexpr static std::size_t max_array_size = std::numeric_limits<std::size_t>::max();
+        constexpr static std::size_t max_object_size =
+            std::numeric_limits<std::size_t>::max();
+        constexpr static std::size_t max_array_size =
+            std::numeric_limits<std::size_t>::max();
         constexpr static std::size_t max_key_size = std::numeric_limits<std::size_t>::max();
-        constexpr static std::size_t max_string_size = std::numeric_limits<std::size_t>::max();
+        constexpr static std::size_t max_string_size =
+            std::numeric_limits<std::size_t>::max();
 
         bool on_document_begin(json::error_code&) {
             s_Value.emplace_object();

@@ -144,7 +144,7 @@ void CForecastDataSink::writeStats(const double progress,
 }
 
 void CForecastDataSink::writeScheduledMessage() {
-    json::object doc  = m_Writer.makeDoc();
+    json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_SCHEDULED, doc);
     this->push(true /*important, therefore flush*/, doc);
