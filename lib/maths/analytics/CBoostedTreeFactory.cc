@@ -130,54 +130,6 @@ double minBoundary(const CBoostedTreeHyperparameters::TDoubleParameter& paramete
     T minBoundary{maxBoundary - interval};
     return parameter.fromSearchValue(minBoundary);
 }
-
-template<typename streambuf>
-class peekbuf : public streambuf {
-    using typename streambuf::char_type;
-    using typename streambuf::int_type;
-    using typename streambuf::traits_type;
-    using string = std::basic_string<char_type, traits_type>;
-
-    static constexpr auto eof = streambuf::traits_type::eof();
-
-    using streambuf::egptr;
-    using streambuf::gptr;
-    using streambuf::setg;
-
-    streambuf& sbuf; // underlying input buffer
-    string data = {};
-
-public:
-    explicit peekbuf(streambuf& s) : sbuf{s} {}
-
-    string peek(std::size_t n) {
-        auto unread = string{gptr(), egptr()};
-        data = std::move(unread);
-        data.reserve(n);
-        while (data.size() < n) {
-            auto next = sbuf.sbumpc();
-            if (next == eof) {
-                break;
-            }
-            data.push_back(static_cast<char_type>(next));
-        }
-
-        if (!data.empty()) {
-            setg(data.data(), data.data(), data.data() + data.size());
-        }
-
-        return n < data.size() ? string(data.begin(), data.begin() + n) : data;
-    }
-
-protected:
-    int_type underflow() override {
-        auto result = sbuf.sbumpc();
-        data.clear();
-        data.push_back(static_cast<char_type>(result));
-        setg(data.data(), data.data(), data.data() + 1);
-        return result;
-    }
-};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr

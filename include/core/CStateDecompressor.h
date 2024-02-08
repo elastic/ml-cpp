@@ -337,8 +337,6 @@ public:
         //! JSON reader for the downstream stream
         std::shared_ptr<json::basic_parser<SBoostJsonHandler>> m_Reader;
 
-        //        SBoostJsonHandler m_Handler;
-
         //! The offset into the current token that has been read
         std::streamsize m_BufferOffset;
 

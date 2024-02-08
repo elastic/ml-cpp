@@ -14,6 +14,7 @@
 #include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
 
+#include <boost/json.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <map>
@@ -21,6 +22,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {

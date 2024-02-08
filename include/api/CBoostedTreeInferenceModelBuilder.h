@@ -23,8 +23,6 @@
 
 #include <string>
 
-namespace json = boost::json;
-
 namespace ml {
 namespace api {
 

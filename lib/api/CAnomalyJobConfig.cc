@@ -576,7 +576,7 @@ bool CAnomalyJobConfig::parse(const std::string& jsonStr) {
         return false;
     }
 
-    LOG_DEBUG(<< "json doc: " << doc);
+    LOG_TRACE(<< "Received anomaly job configuration document: " << doc);
 
     try {
         auto parameters = CONFIG_READER.read(doc);

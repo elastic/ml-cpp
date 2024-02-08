@@ -25,9 +25,6 @@ namespace api {
 namespace {
 
 auto toBoostjsonValue(std::size_t value) {
-    //    uint64_t val = static_cast<std::uint64_t>(value);
-    //    json::value ret = val;
-    //    return ret;
     return json::value(static_cast<std::uint64_t>(value));
 }
 

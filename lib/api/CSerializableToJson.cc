@@ -13,6 +13,7 @@
 
 #include <core/CBase64Filter.h>
 #include <core/CBoostJsonUnbufferedIStreamWrapper.h>
+#include <core/CStreamWriter.h>
 
 #include <boost/json.hpp>
 
@@ -22,7 +23,6 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#include "core/CStreamWriter.h"
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -38,7 +38,6 @@ namespace io = boost::iostreams;
 using TFilteredInput = io::filtering_stream<io::input>;
 using TFilteredOutput = io::filtering_stream<io::output>;
 using TStreamWriter = core::CStreamWriter;
-//using TGenericLineWriter = core::CBoostJsonLineWriter<std::ostream>;
 using TGenericLineWriter = TStreamWriter;
 
 void compressAndEncode(std::function<void(TGenericLineWriter&)> addToJsonStream,
@@ -73,8 +72,7 @@ const std::string JSON_EOS_TAG{"eos"};
 std::string CSerializableToJsonStream::jsonString() const {
     std::ostringstream jsonStream;
     {
-        std::ostringstream& osw = jsonStream;
-        TStreamWriter writer{osw};
+        TStreamWriter writer{jsonStream};
         this->addToJsonStream(writer);
     }
     return jsonStream.str();
@@ -130,8 +128,6 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       TIStreamPtr inputStream,
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
-        //        core::CBoostJsonUnbufferedIStreamWrapper isw{*inputStream};
-        //        LOG_DEBUG(<< "inputStream: " << inputStream->rdbuf());
         try {
             json::value doc;
             json::error_code ec;
@@ -144,7 +140,6 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                     continue;
                 }
                 std::getline(*inputStream, line);
-                LOG_DEBUG(<< "line: " << line);
                 std::size_t length{line.length()};
                 std::size_t written{0};
                 p.reset();
@@ -154,7 +149,6 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                 }
                 doc = p.release();
                 assertIsJsonObject(doc);
-                LOG_DEBUG(<< "doc: " << doc);
                 try {
                     auto chunk = ifExists(compressedDocTag, getAsObjectFrom,
                                           doc.as_object());

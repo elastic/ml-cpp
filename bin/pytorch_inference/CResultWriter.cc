@@ -46,9 +46,7 @@ void CResultWriter::writeInnerError(const std::string& message, TStringBufWriter
     jsonWriter.EndObject();
 }
 
-void CResultWriter::writeError(const std::string_view& requestId,
-                               const std::string& message) { // TODO
-    //    TStringBufWriter jsonWriter{m_WrappedOutputStream};
+void CResultWriter::writeError(const std::string_view& requestId, const std::string& message) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
     jsonWriter.StartObject();
     jsonWriter.Key(CCommandParser::REQUEST_ID);
@@ -121,7 +119,6 @@ void CResultWriter::writeProcessStats(const std::string_view& requestId,
 
 std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
     std::string stringBuffer;
-    //    std::ostream os(&stringBuffer);
     {
         TStringBufWriter jsonWriter{stringBuffer};
 

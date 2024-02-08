@@ -71,16 +71,15 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, std::st
 }
 
 void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer, std::string*& buffer) {
-    //    writer.flush();
+    writer.flush();
 
     m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
-        std::string& str = *buffer;
         if (m_FirstObject) {
             m_FirstObject = false;
         } else {
             o.put(JSON_ARRAY_DELIMITER);
         }
-        o.write(str.c_str(), str.size());
+        o << *buffer;
         this->returnAndCheckBuffer(buffer);
     });
 

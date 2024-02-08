@@ -25,26 +25,6 @@
 namespace ml {
 namespace core {
 
-//using TStreamWriterBase = CBoostJsonLineWriter<std::ostream>;
-//class CStreamLineWriter : public TStreamWriterBase {
-//public:
-//    CStreamLineWriter(std::ostream& os);
-//    CStreamLineWriter();
-//
-//    void write(const json::value& doc) {
-//        this->outputStream() << doc;
-//    }
-//
-//    void write(const std::string& docStr) {
-//        this->outputStream() << docStr;
-//    }
-//
-//    void write() {
-//        std::string docStr = this->writeDocToString();
-//        this->outputStream() << docStr;
-//    }
-//};
-
 //! \brief A lightweight wrapper around CStreamWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
 //! in a JSON string.

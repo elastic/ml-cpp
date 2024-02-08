@@ -16,9 +16,10 @@
 #include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
+#include <core/CStreamWriter.h>
+
 #include <boost/json.hpp>
 
-#include "core/CStreamWriter.h"
 #include <iosfwd>
 #include <set>
 #include <sstream>

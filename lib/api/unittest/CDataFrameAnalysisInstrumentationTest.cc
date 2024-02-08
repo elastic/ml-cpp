@@ -157,6 +157,9 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
     BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 //
+// TODO: The commented out tests below require a JSON schema library, which Boost.JSON does not supply.
+// These tests will be re-instated once a 3rd party schema validator has been decided upon.
+//
 //BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearingFixture) {
 //    std::stringstream output;
 //    auto outputWriterFactory = [&output]() {

@@ -192,7 +192,6 @@ private:
     }
 
 private:
-    //    std::ostream& m_WrappedOutputStream;
     core::CJsonOutputStreamWrapper m_WrappedOutputStream;
 };
 }

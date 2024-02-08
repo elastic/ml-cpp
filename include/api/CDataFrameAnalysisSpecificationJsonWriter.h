@@ -29,7 +29,7 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisSpecificationJsonWriter : private core::CNonInstantiatable {
 public:
     using TStrVec = std::vector<std::string>;
-    using TBoostJsonLineWriter = ml::core::CStreamWriter;
+    using TBoostJsonLineWriter = core::CStreamWriter;
 
 public:
     //! Writes the data frame analysis specification in JSON format.

@@ -137,15 +137,14 @@ std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(
     const std::string& analysisName,
     const std::string& analysisParameters) {
 
-    std::stringbuf buf;
-    std::ostream os(&buf);
+    std::ostringstream os;
     TBoostJsonLineWriter writer(os);
 
     write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
           missingFieldValue, categoricalFields, diskUsageAllowed, analysisName,
           analysisParameters, writer);
 
-    return buf.str();
+    return os.str();
 }
 }
 }

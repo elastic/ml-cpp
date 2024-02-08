@@ -258,7 +258,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const json::value& jsonAn
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
-    LOG_TRACE(<< "jsonAnaysis: " << jsonAnalysis);
+    LOG_TRACE(<< "jsonAnalysis: " << jsonAnalysis);
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
     m_AnalysisName = analysis[NAME].as<std::string>();

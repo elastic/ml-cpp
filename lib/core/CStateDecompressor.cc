@@ -18,10 +18,6 @@
 // using basic_parser to implement a parser.
 #include <boost/json/basic_parser_impl.hpp>
 
-// This file must be manually included when
-// using basic_parser to implement a parser.
-//#include <boost/json/basic_parser_impl.hpp>
-
 #include <algorithm>
 #include <cstring>
 #include <string>
@@ -110,12 +106,6 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
     bool ret{true};
     SBoostJsonHandler::ETokenType currentTokenType = m_Reader->handler().s_Type;
     do {
-        //        if (m_Reader->last_error()) {
-        //            LOG_ERROR(<< "Error parsing JSON");
-        //            ret = false;
-        //            break;
-        //        }
-
         char c = '\0';
         c = m_InputStreamWrapper->Take();
         if (c == '\0') {

@@ -22,31 +22,6 @@
 namespace ml {
 namespace core {
 
-//class CStreamLineWriter : public core::CBoostJsonLineWriter<std::ostream> {
-//public:
-//    using TStreamLineWriter = CBoostJsonLineWriter<std::ostream>;
-//    using TStreamLineWriter::TStreamLineWriter;
-//
-//    CStreamLineWriter(std::ostream& os) : TStreamLineWriter(os) {}
-//
-//    void write(const json::value& doc) {
-//        this->outputStream() << doc;
-//    }
-//
-//    void write(const std::string& docStr) {
-//        this->outputStream() << docStr;
-//    }
-//
-//    void write() {
-//        std::string docStr = this->writeDocToString();
-//        this->outputStream() << docStr;
-//    }
-//
-//    void put(char c) {
-//        this->outputStream().put(c);
-//    }
-//};
-
 //! \brief
 //! For persisting state in JSON format.
 //!

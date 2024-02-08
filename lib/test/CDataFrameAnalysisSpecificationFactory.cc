@@ -266,9 +266,7 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double l
 
 std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
-    std::string parameters;
-    std::stringbuf sb;
-    std::ostream os(&sb);
+    std::ostringstream os;
     TJsonLineWriter writer(os);
 
     writer.StartObject();
@@ -290,9 +288,7 @@ std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
     writer.EndObject();
     writer.flush();
 
-    parameters = sb.str();
-
-    return parameters;
+    return os.str();
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
@@ -320,9 +316,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     using TClassificationRunner = api::CDataFrameTrainBoostedTreeClassifierRunner;
     using TRegressionRunner = api::CDataFrameTrainBoostedTreeRegressionRunner;
 
-    std::string parameters;
-    std::stringbuf sb;
-    std::ostream os(&sb);
+    std::ostringstream os;
     TJsonLineWriter writer(os);
 
     writer.StartObject();
@@ -492,8 +486,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
 
     writer.EndObject();
 
-    parameters = sb.str();
-    return parameters;
+    return os.str();
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr

@@ -69,7 +69,6 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training].");
 }
 
-//TODO
 BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.000001)) {
     // This test checks correct initialization of data summarization and the best
     // forest for incremental training.

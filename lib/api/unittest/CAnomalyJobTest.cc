@@ -404,36 +404,36 @@ BOOST_AUTO_TEST_CASE(testOutputBucketResultsUntilGivenIncompleteInitialBucket) {
 }
 
 BOOST_AUTO_TEST_CASE(testControlMessages) {
-    //    {
-    //        // Test control messages
-    //        model::CLimits limits;
-    //        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
-    //            "metric", "value", "", "", "greenhouse");
-    //
-    //        model::CAnomalyDetectorModelConfig modelConfig =
-    //            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-    //        std::stringstream outputStrm;
-    //        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    //
-    //        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
-    //
-    //        CTestAnomalyJob::TStrStrUMap dataRows;
-    //        dataRows["."] = " ";
-    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-    //
-    //        dataRows["."] = ".";
-    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-    //
-    //        dataRows["."] = "f";
-    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-    //
-    //        dataRows["."] = "f1";
-    //        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
-    //        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
-    //    }
+    {
+        // Test control messages
+        model::CLimits limits;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+        CTestAnomalyJob::TStrStrUMap dataRows;
+        dataRows["."] = " ";
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+
+        dataRows["."] = ".";
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+
+        dataRows["."] = "f";
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+
+        dataRows["."] = "f1";
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
+    }
     {
         // Test reset bucket
         model::CLimits limits;
