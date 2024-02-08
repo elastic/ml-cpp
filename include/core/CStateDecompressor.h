@@ -298,9 +298,6 @@ public:
             //! the last string (c string) as pointer (only valid till next call)
             char s_CompressedChunk[4096 * 400];
 
-            //            const char* s_CompressedChunk;
-            //            char* s_CompressedChunk;
-
             //! the last string length (only valid till next call)
             std::streamsize s_CompressedChunkLength;
 
