@@ -510,18 +510,13 @@ void CAnomalyJobConfig::CEventConfig::parse(const json::value& filterConfig,
 }
 
 bool CAnomalyJobConfig::parseFilterConfig(const std::string& jsonString) {
-
-    json::value doc;
     json::error_code ec;
-    json::parser p;
-    p.write(jsonString, ec);
+    json::value doc = json::parse(jsonString, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing filter config from JSON: "
                   << ec.message());
         return false;
     }
-
-    doc = p.release();
 
     if (doc.is_object() == false) {
         LOG_ERROR(<< "An error occurred while parsing filter config from JSON. "
@@ -572,10 +567,9 @@ void CAnomalyJobConfig::CFilterConfig::parse(const json::value& filterConfig,
     }
 }
 
-bool CAnomalyJobConfig::parse(const std::string& json) {
+bool CAnomalyJobConfig::parse(const std::string& jsonStr) {
     json::error_code ec;
-    json::parser p;
-    p.write(json, ec);
+    json::value doc = json::parse(jsonStr, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
                   << ec.message());
@@ -730,10 +724,8 @@ void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const json::value&
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig() {
-    json::value doc;
     json::error_code ec;
-    json::parser p;
-    p.write(m_AnalysisConfigString, ec);
+    json::value doc = json::parse(m_AnalysisConfigString, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
                   << ec.message());
