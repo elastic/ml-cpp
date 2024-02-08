@@ -576,8 +576,6 @@ bool CAnomalyJobConfig::parse(const std::string& jsonStr) {
         return false;
     }
 
-    json::value doc = p.release();
-
     LOG_DEBUG(<< "json doc: " << doc);
 
     try {
