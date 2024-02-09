@@ -25,13 +25,9 @@ public:
     CStreamWriter(std::ostream& os) : TBoostJsonLineWriterStream(os) {}
     CStreamWriter() : TBoostJsonLineWriterStream() {}
 
-    void append(const std::string_view& str) override {
-        (*m_Os) << str;
-    }
+    void append(const std::string_view& str) override { (*m_Os) << str; }
 
-    void put(char c) override {
-        m_Os->put(c);
-    }
+    void put(char c) override { m_Os->put(c); }
 };
 }
 }
