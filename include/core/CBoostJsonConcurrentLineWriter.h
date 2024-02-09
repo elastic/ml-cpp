@@ -12,9 +12,9 @@
 #ifndef INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
 #define INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
 
-#include "CStringBufWriter.h"
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CStringBufWriter.h>
 
 namespace json = boost::json;
 

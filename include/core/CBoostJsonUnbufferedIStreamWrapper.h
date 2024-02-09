@@ -14,7 +14,6 @@
 
 #include <core/ImportExport.h>
 
-#include <cassert>
 #include <istream>
 
 namespace ml {
@@ -72,18 +71,6 @@ public:
 
     //! Return the number of characters taken.
     std::size_t Tell() const { return m_Count; }
-
-    //! Not implemented.
-    char* PutBegin() {
-        assert(false);
-        return nullptr;
-    }
-
-    //! Not implemented.
-    std::size_t PutEnd(char*) {
-        assert(false);
-        return 0;
-    }
 
     //! For encoding detection only. In this implementation we pretend there are
     //! fewer than four characters remaining in the stream, which disables

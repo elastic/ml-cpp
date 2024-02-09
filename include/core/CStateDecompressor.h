@@ -23,6 +23,9 @@ namespace json = boost::json;
 namespace ml {
 namespace core {
 
+//! Maximum size of the buffer (in bytes) used to hold a compressed chunk
+static const int COMPRESSED_CHUNK_BUFFER_LENGTH = 1638400;
+
 //! \brief
 //! A CDataSearcher-derived class that decompresses chunked and compressed data
 //!
@@ -91,16 +94,20 @@ public:
         struct SBaseBoostJsonHandler {
 
             //! The maximum number of elements allowed in an array
-            static constexpr std::size_t max_array_size = -1;
+            static constexpr std::size_t max_array_size =
+                std::numeric_limits<std::size_t>::max();
 
             //! The maximum number of elements allowed in an object
-            static constexpr std::size_t max_object_size = -1;
+            static constexpr std::size_t max_object_size =
+                std::numeric_limits<std::size_t>::max();
 
             //! The maximum number of characters allowed in a string
-            static constexpr std::size_t max_string_size = -1;
+            static constexpr std::size_t max_string_size =
+                std::numeric_limits<std::size_t>::max();
 
             //! The maximum number of characters allowed in a key
-            static constexpr std::size_t max_key_size = -1;
+            static constexpr std::size_t max_key_size =
+                std::numeric_limits<std::size_t>::max() - 1;
 
             //! Called once when the JSON parsing begins.
             //!
@@ -261,10 +268,14 @@ public:
         };
 
         struct SBoostJsonHandler final : public SBaseBoostJsonHandler {
-            constexpr static std::size_t max_object_size = std::size_t(-1);
-            constexpr static std::size_t max_array_size = std::size_t(-1);
-            constexpr static std::size_t max_key_size = std::size_t(-1);
-            constexpr static std::size_t max_string_size = std::size_t(-1);
+            constexpr static std::size_t max_object_size =
+                std::numeric_limits<std::size_t>::max();
+            constexpr static std::size_t max_array_size =
+                std::numeric_limits<std::size_t>::max();
+            constexpr static std::size_t max_key_size =
+                std::numeric_limits<std::size_t>::max();
+            constexpr static std::size_t max_string_size =
+                std::numeric_limits<std::size_t>::max();
 
             bool on_bool(bool b, json::error_code& ec);
             bool on_string(std::string_view s, std::size_t n, json::error_code& ec);
@@ -296,7 +307,7 @@ public:
             ETokenType s_Type;
 
             //! the last string (c string) as pointer (only valid till next call)
-            char s_CompressedChunk[4096 * 400];
+            char s_CompressedChunk[COMPRESSED_CHUNK_BUFFER_LENGTH];
 
             //! the last string length (only valid till next call)
             std::streamsize s_CompressedChunkLength;

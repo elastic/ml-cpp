@@ -12,11 +12,11 @@
 #define INCLUDED_ml_api_CSerializableToJson_h
 
 #include <core/CBoostJsonConcurrentLineWriter.h>
+#include <core/CStreamWriter.h>
 #include <core/Constants.h>
 
 #include <api/ImportExport.h>
 
-#include "core/CStreamWriter.h"
 #include <sstream>
 #include <stdexcept>
 

@@ -344,7 +344,7 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_string_part(std::
     s_StringEnd = false;
     if (s_NewToken == true) {
         s_NewToken = false;
-        memset(static_cast<void*>(s_CompressedChunk), '\0', 4096 * 400);
+        memset(static_cast<void*>(s_CompressedChunk), '\0',  COMPRESSED_CHUNK_BUFFER_LENGTH);
     }
     s_CompressedChunk[length - 1] = str.front();
     s_CompressedChunkLength = length;
@@ -382,7 +382,7 @@ bool CStateDecompressor::CDechunkFilter::SBoostJsonHandler::on_key_part(std::str
     }
     if (s_NewToken == true) {
         s_NewToken = false;
-        memset(static_cast<void*>(s_CompressedChunk), '\0', 4096 * 400);
+        memset(static_cast<void*>(s_CompressedChunk), '\0', COMPRESSED_CHUNK_BUFFER_LENGTH);
     }
     s_CompressedChunk[length - 1] = str.front();
     s_CompressedChunkLength = length;

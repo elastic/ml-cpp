@@ -12,8 +12,8 @@
 
 # Script to get the appropriate version of Valijson, if not already present.
 #
-# If updating this script ensure the license information is correct in the
-# licenses sub-directory.
+# Valijson must only be used in test code, _not_ any form of redistributable code.
+
 
 cd `dirname "$BASH_SOURCE"`
 

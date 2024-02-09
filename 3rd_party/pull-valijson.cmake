@@ -11,8 +11,7 @@
 
 # Script to get the latest version of Valijson, if not already present.
 #
-# If updating this script ensure the license information is correct in the
-# licenses sub-directory.
+# Valijson must only be used in test code, _not_ any form of redistributable code.
 
 # This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this file's location
 

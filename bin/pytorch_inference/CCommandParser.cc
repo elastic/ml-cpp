@@ -52,7 +52,6 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
                             const TControlHandlerFunc& controlHandler,
                             const TErrorHandlerFunc& errorHandler) {
 
-    //    core::CBoostJsonUnbufferedIStreamWrapper isw{m_StrmIn};
     json::value doc;
     json::stream_parser p;
     json::error_code ec;
@@ -70,9 +69,9 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
         n += p.write_some(line.data() + n, line.size() - n, ec);
 
         if (ec) {
-            //            if (m_StrmIn.eof()) {
-            //                break;
-            //            }
+            if (m_StrmIn.eof()) {
+                break;
+            }
 
             std::ostringstream ss;
             ss << "Error parsing command from JSON: " << ec.message();
@@ -85,7 +84,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
         if (p.done()) {
             doc = p.release();
             p.reset();
-            LOG_INFO(<< "Inference command: " << doc);
+            LOG_TRACE(<< "Inference command: " << doc);
 
             assert(doc.is_object());
             json::object obj = doc.as_object();

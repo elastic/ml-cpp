@@ -190,6 +190,7 @@ private:
                                                    const TErrorHandlerFunc& errorHandler);
     static bool checkArrayContainsInts(const json::array& arr);
     static SRequest jsonToInferenceRequest(const json::object& doc);
+    //! doc must outlive the returned \p SControlMessage or memory corruption will occur.
     static SControlMessage jsonToControlMessage(const json::object& doc);
 
 private:

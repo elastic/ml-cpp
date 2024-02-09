@@ -27,16 +27,11 @@ public:
 
     void append(const std::string_view& str) override {
         (*m_Os) << str;
-        m_DebugBuffer.append(str);
     }
 
     void put(char c) override {
         m_Os->put(c);
-        m_DebugBuffer.push_back(c);
     }
-
-private:
-    std::string m_DebugBuffer;
 };
 }
 }
