@@ -53,8 +53,6 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, std::st
     // check for data that has to be written
     if (buffer->size() > 0) {
         m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
-            std::string& str = *buffer;
-
             if (m_FirstObject) {
                 m_FirstObject = false;
             } else {
