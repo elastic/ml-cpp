@@ -220,7 +220,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
 
     // verify model size info
     {
-        json::error_code ec;
         json::value result_ = json::parse(modelSizeDefinition, ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(result_.is_object());
@@ -239,7 +238,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                 const json::object& preprocessor = preprocessor_.as_object();
                 if (preprocessor.contains("frequency_encoding")) {
                     hasFrequencyEncoding = true;
-                    json::error_code ec;
                     std::size_t fieldLength{preprocessor_
                                                 .at_pointer("/frequency_encoding/field_length")
                                                 .to_number<std::size_t>(ec)};
@@ -465,7 +463,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
             core::CStringUtils::stringToType((*classificationLabels)[i], labelAsBool);
             classLookup[labelAsBool] = i;
         }
-        json::error_code ec;
         json::value results = json::parse(output.str(), ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(results.is_array());
@@ -477,10 +474,10 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
                                            .as_string()};
                 double probability{result_
                                        .at_pointer("/row_results/results/ml/prediction_probability")
-                                       .as_double()};
+                                       .to_number<double>()};
                 double score{result_
                                  .at_pointer("/row_results/results/ml/prediction_score")
-                                 .as_double()};
+                                 .to_number<double>()};
                 bool predictionAsBool;
                 core::CStringUtils::stringToType(prediction, predictionAsBool);
                 std::size_t weight{classLookup[predictionAsBool]};
@@ -500,7 +497,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
 
     // verify model size info
     {
-        json::error_code ec;
         json::value result_ = json::parse(modelSizeDefinition, ec);
         BOOST_TEST_REQUIRE(ec.failed() == false);
         BOOST_TEST_REQUIRE(result_.is_object());
@@ -516,7 +512,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
                 const json::object& preprocessor = preprocessor_.as_object();
                 if (preprocessor.contains("frequency_encoding")) {
                     hasFrequencyEncoding = true;
-                    json::error_code ec;
                     std::size_t fieldLength{preprocessor_
                                                 .at_pointer("/frequency_encoding/field_length")
                                                 .to_number<std::size_t>(ec)};

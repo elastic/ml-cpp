@@ -111,7 +111,7 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
         LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return 0.0;
     }
-    return (*docPtr)[field].as_double();
+    return (*docPtr)[field].to_number<double>();
 }
 
 //! Sort json documents by the probability lowest to highest

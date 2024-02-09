@@ -127,20 +127,26 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
                         std::string(forecastStats.at("forecast_id").as_string()));
     BOOST_REQUIRE_EQUAL(std::string("sumcount"),
                         std::string(forecastStats.at("forecast_alias").as_string()));
-    BOOST_REQUIRE_EQUAL(1511370819 * int64_t(1000),
-                        forecastStats.at("forecast_create_timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        1511370819 * int64_t(1000),
+        forecastStats.at("forecast_create_timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(forecastStats.contains("processed_record_count"));
-    BOOST_REQUIRE_EQUAL(13, forecastStats.at("processed_record_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        13, forecastStats.at("processed_record_count").to_number<std::int64_t>());
     BOOST_REQUIRE_EQUAL(1.0, forecastStats.at("forecast_progress").to_number<double>());
     BOOST_REQUIRE_EQUAL(std::string("finished"),
                         std::string(forecastStats.at("forecast_status").as_string()));
-    BOOST_REQUIRE_EQUAL(15591600 * int64_t(1000), forecastStats.at("timestamp").as_int64());
     BOOST_REQUIRE_EQUAL(15591600 * int64_t(1000),
-                        forecastStats.at("forecast_start_timestamp").as_int64());
-    BOOST_REQUIRE_EQUAL((15591600 + 13 * BUCKET_LENGTH) * int64_t(1000),
-                        forecastStats.at("forecast_end_timestamp").as_int64());
-    BOOST_REQUIRE_EQUAL((1511370819 + 100 * ml::core::constants::DAY) * int64_t(1000),
-                        forecastStats.at("forecast_expiry_timestamp").as_int64());
+                        forecastStats.at("timestamp").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        15591600 * int64_t(1000),
+        forecastStats.at("forecast_start_timestamp").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        (15591600 + 13 * BUCKET_LENGTH) * int64_t(1000),
+        forecastStats.at("forecast_end_timestamp").to_number<std::int64_t>());
+    BOOST_REQUIRE_EQUAL(
+        (1511370819 + 100 * ml::core::constants::DAY) * int64_t(1000),
+        forecastStats.at("forecast_expiry_timestamp").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testPopulation) {
@@ -182,8 +188,9 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS,
         std::string(forecastStats.at("forecast_messages").as_array()[0].as_string()));
-    BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                        forecastStats.at("forecast_expiry_timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        (1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
+        forecastStats.at("forecast_expiry_timestamp").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testRare) {
@@ -225,8 +232,9 @@ BOOST_AUTO_TEST_CASE(testRare) {
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS,
         std::string(forecastStats.at("forecast_messages").as_array()[0].as_string()));
-    BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                        forecastStats.at("forecast_expiry_timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        (1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
+        forecastStats.at("forecast_expiry_timestamp").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testInsufficientData) {
@@ -270,8 +278,9 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST,
         std::string(forecastStats.at("forecast_messages").as_array()[0].as_string()));
-    BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                        forecastStats.at("forecast_expiry_timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        (1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
+        forecastStats.at("forecast_expiry_timestamp").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testValidateDefaultExpiry) {

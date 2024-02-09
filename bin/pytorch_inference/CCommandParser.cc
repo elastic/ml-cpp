@@ -132,9 +132,9 @@ CCommandParser::validateControlMessageJson(const json::object& doc,
 
     const json::value& control = doc.at(CONTROL);
     EControlMessageType controlMessageType =
-        (control.is_int64() && control.as_int64() >= 0 &&
-         control.as_int64() < EControlMessageType::E_Unknown)
-            ? static_cast<EControlMessageType>(control.as_int64())
+        (control.is_int64() && control.to_number<std::int64_t>() >= 0 &&
+         control.to_number<std::int64_t>() < EControlMessageType::E_Unknown)
+            ? static_cast<EControlMessageType>(control.to_number<std::int64_t>())
             : EControlMessageType::E_Unknown;
 
     switch (controlMessageType) {
@@ -253,7 +253,7 @@ CCommandParser::SRequest CCommandParser::jsonToInferenceRequest(const json::obje
         request.s_NumberInputTokens = innerArray.size();
         request.s_Tokens.reserve(request.s_NumberInferences * request.s_NumberInputTokens);
         for (const auto& val : innerArray) {
-            request.s_Tokens.push_back(val.as_int64());
+            request.s_Tokens.push_back(val.to_number<std::int64_t>());
         }
     }
 
@@ -268,7 +268,7 @@ CCommandParser::SRequest CCommandParser::jsonToInferenceRequest(const json::obje
         for (const auto& vals : outerArray) {
             const auto& innerArray = vals.as_array();
             for (const auto& val : innerArray) {
-                arg.push_back(val.as_int64());
+                arg.push_back(val.to_number<std::int64_t>());
             }
         }
         request.s_SecondaryArguments.push_back(std::move(arg));
@@ -280,10 +280,11 @@ CCommandParser::SRequest CCommandParser::jsonToInferenceRequest(const json::obje
 }
 
 CCommandParser::SControlMessage CCommandParser::jsonToControlMessage(const json::object& doc) {
-    auto controlMessageType = static_cast<EControlMessageType>(doc.at(CONTROL).as_int64());
+    auto controlMessageType =
+        static_cast<EControlMessageType>(doc.at(CONTROL).to_number<std::int64_t>());
     switch (controlMessageType) {
     case E_NumberOfAllocations:
-        return {controlMessageType, doc.at(NUM_ALLOCATIONS).as_int64(),
+        return {controlMessageType, doc.at(NUM_ALLOCATIONS).to_number<std::int64_t>(),
                 doc.at(REQUEST_ID).as_string()};
     case E_ClearCache:
     case E_ProcessStats:

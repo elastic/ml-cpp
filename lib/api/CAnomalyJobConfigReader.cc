@@ -72,7 +72,7 @@ int CAnomalyJobConfigReader::CParameter::fallback(int value) const {
     if (m_Value->is_int64() == false) {
         this->handleFatal();
     }
-    return m_Value->as_int64();
+    return m_Value->to_number<int>();
 }
 
 std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) const {
@@ -82,7 +82,7 @@ std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) con
     if (m_Value->is_int64() == false) {
         this->handleFatal();
     }
-    return m_Value->as_int64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 std::ptrdiff_t CAnomalyJobConfigReader::CParameter::fallback(std::ptrdiff_t value) const {
@@ -92,7 +92,7 @@ std::ptrdiff_t CAnomalyJobConfigReader::CParameter::fallback(std::ptrdiff_t valu
     if (m_Value->is_int64() == false) {
         this->handleFatal();
     }
-    return m_Value->as_int64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 double CAnomalyJobConfigReader::CParameter::fallback(double value) const {
@@ -100,12 +100,12 @@ double CAnomalyJobConfigReader::CParameter::fallback(double value) const {
         return value;
     }
     if (m_Value->is_int64()) {
-        return static_cast<double>(m_Value->as_int64());
+        return static_cast<double>(m_Value->to_number<std::int64_t>());
     }
     if (m_Value->is_double() == false) {
         this->handleFatal();
     }
-    return m_Value->as_double();
+    return m_Value->to_number<double>();
 }
 
 std::string CAnomalyJobConfigReader::CParameter::fallback(const std::string& value) const {

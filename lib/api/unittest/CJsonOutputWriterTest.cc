@@ -241,7 +241,7 @@ void testBucketWriteHelper(bool isInterim) {
 
         // 3 detectors each have 2 records (simple count detector isn't added)
         // except the population detector which has a single record and clauses
-        BOOST_REQUIRE_EQUAL(buckettime, bucket.at("timestamp").as_int64());
+        BOOST_REQUIRE_EQUAL(buckettime, bucket.at("timestamp").to_number<std::int64_t>());
         BOOST_TEST_REQUIRE(bucket.contains("bucket_influencers"));
         const json::value& bucketInfluencers_ = bucket.at("bucket_influencers");
         BOOST_TEST_REQUIRE(bucketInfluencers_.is_array());
@@ -261,7 +261,7 @@ void testBucketWriteHelper(bool isInterim) {
         BOOST_REQUIRE_EQUAL("bucket_time",
                             bucketInfluencer.at("influencer_field_name").as_string());
 
-        BOOST_REQUIRE_EQUAL(79, bucket.at("event_count").as_int64());
+        BOOST_REQUIRE_EQUAL(79, bucket.at("event_count").to_number<std::int64_t>());
         BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             70.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
@@ -301,9 +301,10 @@ void testBucketWriteHelper(bool isInterim) {
 
             BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
             BOOST_TEST_REQUIRE(record.contains("detector_index"));
-            BOOST_REQUIRE_EQUAL(1, record.at("detector_index").as_int64());
+            BOOST_REQUIRE_EQUAL(1, record.at("detector_index").to_number<std::int64_t>());
             BOOST_TEST_REQUIRE(record.contains("timestamp"));
-            BOOST_REQUIRE_EQUAL(buckettime, record.at("timestamp").as_int64());
+            BOOST_REQUIRE_EQUAL(buckettime,
+                                record.at("timestamp").to_number<std::int64_t>());
             BOOST_TEST_REQUIRE(record.contains("probability"));
             BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
             BOOST_TEST_REQUIRE(record.contains("by_field_name"));
@@ -320,7 +321,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(record.contains("over_field_value"));
             BOOST_REQUIRE_EQUAL("pfv", record.at("over_field_value").as_string());
             BOOST_TEST_REQUIRE(record.contains("bucket_span"));
-            BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").as_int64());
+            BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
             // It's hard to predict what these will be, so just assert their
             // presence
             BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
@@ -387,9 +388,11 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("job_id"));
                 BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
                 BOOST_TEST_REQUIRE(record.contains("detector_index"));
-                BOOST_REQUIRE_EQUAL(2, record.at("detector_index").as_int64());
+                BOOST_REQUIRE_EQUAL(
+                    2, record.at("detector_index").to_number<std::int64_t>());
                 BOOST_TEST_REQUIRE(record.contains("timestamp"));
-                BOOST_REQUIRE_EQUAL(buckettime, record.at("timestamp").as_int64());
+                BOOST_REQUIRE_EQUAL(
+                    buckettime, record.at("timestamp").to_number<std::int64_t>());
                 BOOST_TEST_REQUIRE(record.contains("probability"));
                 BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("by_field_name"));
@@ -425,7 +428,7 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("partition_field_value"));
                 BOOST_REQUIRE_EQUAL("", record.at("partition_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("bucket_span"));
-                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").as_int64());
+                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
                 // It's hard to predict what these will be, so just assert their
                 // presence
                 BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
@@ -448,9 +451,11 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("job_id"));
                 BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
                 BOOST_TEST_REQUIRE(record.contains("detector_index"));
-                BOOST_REQUIRE_EQUAL(4, record.at("detector_index").as_int64());
+                BOOST_REQUIRE_EQUAL(
+                    4, record.at("detector_index").to_number<std::int64_t>());
                 BOOST_TEST_REQUIRE(record.contains("timestamp"));
-                BOOST_REQUIRE_EQUAL(buckettime, record.at("timestamp").as_int64());
+                BOOST_REQUIRE_EQUAL(
+                    buckettime, record.at("timestamp").to_number<std::int64_t>());
                 BOOST_TEST_REQUIRE(record.contains("probability"));
                 BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
                 BOOST_TEST_REQUIRE(record.contains("by_field_name"));
@@ -485,7 +490,7 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.contains("partition_field_value"));
                 BOOST_REQUIRE_EQUAL("", record.at("partition_field_value").as_string());
                 BOOST_TEST_REQUIRE(record.contains("bucket_span"));
-                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").as_int64());
+                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
                 // It's hard to predict what these will be, so just assert their
                 // presence
                 BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
@@ -1161,9 +1166,9 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
     const json::object& bucket = bucket_.as_object();
     BOOST_TEST_REQUIRE(bucket.contains("job_id"));
     BOOST_REQUIRE_EQUAL("job", bucket.at("job_id").as_string());
-    BOOST_REQUIRE_EQUAL(1000, bucket.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1000, bucket.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(bucket.contains("bucket_influencers") == false);
-    BOOST_REQUIRE_EQUAL(0, bucket.at("event_count").as_int64());
+    BOOST_REQUIRE_EQUAL(0, bucket.at("event_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
 }
@@ -1198,9 +1203,10 @@ BOOST_AUTO_TEST_CASE(testFlush) {
     BOOST_TEST_REQUIRE(flush.contains("id"));
     BOOST_REQUIRE_EQUAL(testId, flush.at("id").as_string());
     BOOST_TEST_REQUIRE(flush.contains("last_finalized_bucket_end"));
-    BOOST_REQUIRE_EQUAL(lastFinalizedBucketEnd * 1000,
-                        static_cast<ml::core_t::TTime>(
-                            flush.at("last_finalized_bucket_end").as_int64()));
+    BOOST_REQUIRE_EQUAL(
+        lastFinalizedBucketEnd * 1000,
+        static_cast<ml::core_t::TTime>(
+            flush.at("last_finalized_bucket_end").to_number<std::int64_t>()));
 }
 
 BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
@@ -1241,15 +1247,16 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
     BOOST_REQUIRE_EQUAL("job", category.at("job_id").as_string());
     BOOST_TEST_REQUIRE(category.contains("partition_field_value") == false);
     BOOST_TEST_REQUIRE(category.contains("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category.at("category_id").as_int64());
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(),
+                        category.at("category_id").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(category.contains("terms"));
     BOOST_REQUIRE_EQUAL(terms, category.at("terms").as_string());
     BOOST_TEST_REQUIRE(category.contains("regex"));
     BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
     BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
-    BOOST_REQUIRE_EQUAL(
-        maxMatchingLength,
-        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
+    BOOST_REQUIRE_EQUAL(maxMatchingLength,
+                        static_cast<std::size_t>(
+                            category.at("max_matching_length").to_number<std::int64_t>()));
     BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
@@ -1302,15 +1309,16 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
     BOOST_TEST_REQUIRE(category.contains("partition_field_value"));
     BOOST_REQUIRE_EQUAL("elasticsearch", category.at("partition_field_value").as_string());
     BOOST_TEST_REQUIRE(category.contains("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category.at("category_id").as_int64());
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(),
+                        category.at("category_id").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(category.contains("terms"));
     BOOST_REQUIRE_EQUAL(terms, category.at("terms").as_string());
     BOOST_TEST_REQUIRE(category.contains("regex"));
     BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
     BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
-    BOOST_REQUIRE_EQUAL(
-        maxMatchingLength,
-        static_cast<std::size_t>(category.at("max_matching_length").as_int64()));
+    BOOST_REQUIRE_EQUAL(maxMatchingLength,
+                        static_cast<std::size_t>(
+                            category.at("max_matching_length").to_number<std::int64_t>()));
     BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
@@ -1386,7 +1394,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
         10.0, influencer.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", influencer.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("daisy", influencer.at("influencer_field_value").as_string());
-    BOOST_REQUIRE_EQUAL(42000, influencer.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(42000, influencer.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(influencer.at("is_interim").as_bool());
     BOOST_TEST_REQUIRE(influencer.contains("bucket_span"));
 
@@ -1401,7 +1409,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
         100.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
     BOOST_REQUIRE_EQUAL("user", influencer2.at("influencer_field_name").as_string());
     BOOST_REQUIRE_EQUAL("jim", influencer2.at("influencer_field_value").as_string());
-    BOOST_REQUIRE_EQUAL(42000, influencer2.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(42000, influencer2.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(influencer2.at("is_interim").as_bool());
     BOOST_TEST_REQUIRE(influencer2.contains("bucket_span"));
 
@@ -1778,19 +1786,21 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.contains("job_id"));
     BOOST_REQUIRE_EQUAL("job", sizeStats.at("job_id").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes"));
-    BOOST_REQUIRE_EQUAL(2, sizeStats.at("model_bytes").as_int64());
+    BOOST_REQUIRE_EQUAL(2, sizeStats.at("model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("peak_model_bytes"));
-    BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").as_int64());
+    BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_by_field_count"));
-    BOOST_REQUIRE_EQUAL(5, sizeStats.at("total_by_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(5, sizeStats.at("total_by_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_partition_field_count"));
-    BOOST_REQUIRE_EQUAL(6, sizeStats.at("total_partition_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        6, sizeStats.at("total_partition_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_over_field_count"));
-    BOOST_REQUIRE_EQUAL(7, sizeStats.at("total_over_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(7, sizeStats.at("total_over_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("bucket_allocation_failures_count"));
-    BOOST_REQUIRE_EQUAL(8, sizeStats.at("bucket_allocation_failures_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        8, sizeStats.at("bucket_allocation_failures_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(9000, sizeStats.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(9000, sizeStats.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("memory_status"));
     BOOST_REQUIRE_EQUAL("hard_limit", sizeStats.at("memory_status").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("assignment_memory_basis"));
@@ -1798,23 +1808,25 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
                         sizeStats.at("assignment_memory_basis").as_string());
     BOOST_TEST_REQUIRE(sizeStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
-    BOOST_TEST_REQUIRE(nowMs >= sizeStats.at("log_time").as_int64());
+    BOOST_TEST_REQUIRE(nowMs >= sizeStats.at("log_time").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_exceeded"));
-    BOOST_REQUIRE_EQUAL(10, sizeStats.at("model_bytes_exceeded").as_int64());
+    BOOST_REQUIRE_EQUAL(10, sizeStats.at("model_bytes_exceeded").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_memory_limit"));
-    BOOST_REQUIRE_EQUAL(11, sizeStats.at("model_bytes_memory_limit").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        11, sizeStats.at("model_bytes_memory_limit").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(12, sizeStats.at("categorized_doc_count").as_int64());
+    BOOST_REQUIRE_EQUAL(12, sizeStats.at("categorized_doc_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("total_category_count"));
-    BOOST_REQUIRE_EQUAL(13, sizeStats.at("total_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(13, sizeStats.at("total_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(14, sizeStats.at("frequent_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        14, sizeStats.at("frequent_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(15, sizeStats.at("rare_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(15, sizeStats.at("rare_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(16, sizeStats.at("dead_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(16, sizeStats.at("dead_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(17, sizeStats.at("failed_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(17, sizeStats.at("failed_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(sizeStats.contains("categorization_status"));
     BOOST_REQUIRE_EQUAL("warn", sizeStats.at("categorization_status").as_string());
 }
@@ -1859,26 +1871,32 @@ BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
     BOOST_TEST_REQUIRE(categorizerStats.contains("partition_field_value"));
     BOOST_REQUIRE_EQUAL("bar", categorizerStats.at("partition_field_value").as_string());
     BOOST_TEST_REQUIRE(categorizerStats.contains("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(1, categorizerStats.at("categorized_doc_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        1, categorizerStats.at("categorized_doc_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("total_category_count"));
-    BOOST_REQUIRE_EQUAL(2, categorizerStats.at("total_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        2, categorizerStats.at("total_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(3, categorizerStats.at("frequent_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        3, categorizerStats.at("frequent_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(4, categorizerStats.at("rare_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        4, categorizerStats.at("rare_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(5, categorizerStats.at("dead_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        5, categorizerStats.at("dead_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(6, categorizerStats.at("failed_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        6, categorizerStats.at("failed_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("categorization_status"));
     BOOST_REQUIRE_EQUAL("ok", categorizerStats.at("categorization_status").as_string());
     BOOST_TEST_REQUIRE(categorizerStats.contains("categorization_status"));
     BOOST_REQUIRE_EQUAL("ok", categorizerStats.at("categorization_status").as_string());
     BOOST_TEST_REQUIRE(categorizerStats.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(7000, categorizerStats.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(7000, categorizerStats.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(categorizerStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
-    BOOST_TEST_REQUIRE(nowMs >= categorizerStats.at("log_time").as_int64());
+    BOOST_TEST_REQUIRE(nowMs >= categorizerStats.at("log_time").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {

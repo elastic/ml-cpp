@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
                         specFactory.predictionMaximumNumberTrees(
-                            hyperparameter.at("value").as_int64());
+                            hyperparameter.at("value").to_number<std::int64_t>());
                     }
                 }
 

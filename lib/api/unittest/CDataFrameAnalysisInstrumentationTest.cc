@@ -150,13 +150,15 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
             BOOST_TEST_REQUIRE(result["analytics_memory_usage"].is_object() == true);
             BOOST_TEST_REQUIRE(
                 result["analytics_memory_usage"].as_object()["job_id"].as_string() == jobId);
+            BOOST_TEST_REQUIRE(result["analytics_memory_usage"]
+                                   .as_object()["peak_usage_bytes"]
+                                   .to_number<std::int64_t>() == memoryUsage);
             BOOST_TEST_REQUIRE(
-                result["analytics_memory_usage"].as_object()["peak_usage_bytes"].as_int64() ==
-                memoryUsage);
+                result["analytics_memory_usage"].as_object()["timestamp"].to_number<std::int64_t>() >=
+                timeBefore);
             BOOST_TEST_REQUIRE(
-                result["analytics_memory_usage"].as_object()["timestamp"].as_int64() >= timeBefore);
-            BOOST_TEST_REQUIRE(
-                result["analytics_memory_usage"].as_object()["timestamp"].as_int64() <= timeAfter);
+                result["analytics_memory_usage"].as_object()["timestamp"].to_number<std::int64_t>() <=
+                timeAfter);
             hasMemoryUsage = true;
         }
     }
@@ -214,15 +216,15 @@ BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearin
             BOOST_TEST_REQUIRE(result.as_object().at("regression_stats").is_object() == true);
             // validate "regression_stats" against schema
             valijson::Validator validator;
-            valijson::ValidationResults results;
+            valijson::ValidationResults validatorResults;
             valijson::adapters::BoostJsonAdapter targetAdapter(
                 result.as_object().at("regression_stats"));
-            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &results),
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validatorResults),
                                   "Validation failed.");
 
             valijson::ValidationResults::Error error;
             unsigned int errorNum = 1;
-            while (results.popError(error)) {
+            while (validatorResults.popError(error)) {
                 LOG_ERROR(<< "Error #" << errorNum);
                 LOG_ERROR(<< "  ");
                 for (const std::string& contextElement : error.context) {

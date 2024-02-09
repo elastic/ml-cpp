@@ -312,7 +312,7 @@ bool CDetectionRulesJsonParser::parseConditionValue(const json::object& conditio
         return false;
     }
 
-    condition.value(conditionObject.at(VALUE).as_double());
+    condition.value(conditionObject.at(VALUE).to_number<double>());
     return true;
 }
 }

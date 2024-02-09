@@ -197,7 +197,7 @@ protected:
 
     static double getAsDoubleFrom(const json::value& value) {
         if (value.is_double()) {
-            return value.as_double();
+            return value.to_number<double>();
         }
         throw std::runtime_error{"is not a double"};
     }

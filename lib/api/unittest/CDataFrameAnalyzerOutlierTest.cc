@@ -150,15 +150,17 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result_.at_pointer("/row_results/results/ml/outlier_score").as_double(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
             ++expectedScore;
         } else if (result.contains("phase_progress")) {
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
         }
     }
@@ -203,18 +205,21 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result_.at_pointer("/row_results/results/ml/outlier_score").as_double(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
             ++expectedScore;
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
         } else if (result.contains("phase_progress")) {
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
             progressCompleted =
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
@@ -275,7 +280,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result_.at_pointer("/row_results/results/ml/outlier_score").as_double(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
@@ -355,7 +360,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
-                    result_.at_pointer(base_path.str() + "/influence").as_double(),
+                    result_.at_pointer(base_path.str() + "/influence").to_number<double>(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
@@ -417,7 +422,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(*expectedScore,
                                                  result_
                                                      .at_pointer("/row_results/results/ml/outlier_score")
-                                                     .as_double(),
+                                                     .to_number<double>(),
                                                  1e-6 * *expectedScore);
                     ++expectedScore;
                 }
@@ -636,7 +641,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
                     memoryStatusHardLimit = true;
                     if (result.at("analytics_memory_usage").as_object().contains("memory_reestimate_bytes") &&
                         result_.at_pointer("/analytics_memory_usage/memory_reestimate_bytes")
-                                .as_int64() > 0) {
+                                .to_number<std::int64_t>() > 0) {
                         memoryReestimateAvailable = true;
                     }
                 }
@@ -678,9 +683,10 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
         const json::object& result = result_.as_object();
         if (result.contains("row_results")) {
             LOG_DEBUG(<< "checksum = "
-                      << result_.at_pointer("/row_results/checksum").as_int64());
-            BOOST_REQUIRE_EQUAL(++expectedHash,
-                                result_.at_pointer("/row_results/checksum").as_int64());
+                      << result_.at_pointer("/row_results/checksum").to_number<std::int64_t>());
+            BOOST_REQUIRE_EQUAL(
+                ++expectedHash,
+                result_.at_pointer("/row_results/checksum").to_number<std::int64_t>());
         }
     }
 }
@@ -725,7 +731,7 @@ BOOST_AUTO_TEST_CASE(testProgress) {
                 maths::analytics::COutliers::COMPUTING_OUTLIERS) {
                 computingOutliersProgress = std::max(
                     computingOutliersProgress,
-                    result_.at_pointer("/phase_progress/progress_percent").as_int64());
+                    result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>());
             }
         }
     }

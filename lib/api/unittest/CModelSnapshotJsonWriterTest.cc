@@ -90,15 +90,17 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(snapshot.contains("snapshot_id"));
     BOOST_REQUIRE_EQUAL("test_snapshot_id", snapshot.at("snapshot_id").as_string());
     BOOST_TEST_REQUIRE(snapshot.contains("snapshot_doc_count"));
-    BOOST_REQUIRE_EQUAL(15, snapshot.at("snapshot_doc_count").as_int64());
+    BOOST_REQUIRE_EQUAL(15, snapshot.at("snapshot_doc_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(snapshot.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521046309000, snapshot.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1521046309000, snapshot.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(snapshot.contains("description"));
     BOOST_REQUIRE_EQUAL("the snapshot description", snapshot.at("description").as_string());
     BOOST_TEST_REQUIRE(snapshot.contains("latest_record_time_stamp"));
-    BOOST_REQUIRE_EQUAL(1521046409000, snapshot.at("latest_record_time_stamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1521046409000,
+                        snapshot.at("latest_record_time_stamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(snapshot.contains("latest_result_time_stamp"));
-    BOOST_REQUIRE_EQUAL(1521040000000, snapshot.at("latest_result_time_stamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1521040000000,
+                        snapshot.at("latest_result_time_stamp").to_number<std::int64_t>());
 
     BOOST_TEST_REQUIRE(snapshot.contains("model_size_stats"));
     const json::value& modelSizeStats_ = snapshot.at("model_size_stats");
@@ -107,40 +109,54 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(modelSizeStats.contains("job_id"));
     BOOST_REQUIRE_EQUAL("job", modelSizeStats.at("job_id").as_string());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes"));
-    BOOST_REQUIRE_EQUAL(20000, modelSizeStats.at("model_bytes").as_int64());
+    BOOST_REQUIRE_EQUAL(20000, modelSizeStats.at("model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("peak_model_bytes"));
-    BOOST_REQUIRE_EQUAL(60000, modelSizeStats.at("peak_model_bytes").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        60000, modelSizeStats.at("peak_model_bytes").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_by_field_count"));
-    BOOST_REQUIRE_EQUAL(3, modelSizeStats.at("total_by_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        3, modelSizeStats.at("total_by_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_partition_field_count"));
-    BOOST_REQUIRE_EQUAL(1, modelSizeStats.at("total_partition_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        1, modelSizeStats.at("total_partition_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_over_field_count"));
-    BOOST_REQUIRE_EQUAL(150, modelSizeStats.at("total_over_field_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        150, modelSizeStats.at("total_over_field_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("bucket_allocation_failures_count"));
-    BOOST_REQUIRE_EQUAL(4, modelSizeStats.at("bucket_allocation_failures_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        4, modelSizeStats.at("bucket_allocation_failures_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("memory_status"));
     BOOST_REQUIRE_EQUAL("ok", modelSizeStats.at("memory_status").as_string());
     BOOST_REQUIRE_EQUAL(false, modelSizeStats.contains("assignment_memory_basis"));
     BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes_exceeded"));
-    BOOST_REQUIRE_EQUAL(0, modelSizeStats.at("model_bytes_exceeded").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        0, modelSizeStats.at("model_bytes_exceeded").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("model_bytes_memory_limit"));
-    BOOST_REQUIRE_EQUAL(50000, modelSizeStats.at("model_bytes_memory_limit").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        50000, modelSizeStats.at("model_bytes_memory_limit").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(1000, modelSizeStats.at("categorized_doc_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        1000, modelSizeStats.at("categorized_doc_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("total_category_count"));
-    BOOST_REQUIRE_EQUAL(100, modelSizeStats.at("total_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        100, modelSizeStats.at("total_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(7, modelSizeStats.at("frequent_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        7, modelSizeStats.at("frequent_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(13, modelSizeStats.at("rare_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        13, modelSizeStats.at("rare_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(2, modelSizeStats.at("dead_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        2, modelSizeStats.at("dead_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(8, modelSizeStats.at("failed_category_count").as_int64());
+    BOOST_REQUIRE_EQUAL(
+        8, modelSizeStats.at("failed_category_count").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("memory_status"));
     BOOST_REQUIRE_EQUAL("warn", modelSizeStats.at("categorization_status").as_string());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521046309000, modelSizeStats.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1521046309000,
+                        modelSizeStats.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(modelSizeStats.contains("log_time"));
 
     BOOST_TEST_REQUIRE(snapshot.contains("quantiles"));
@@ -152,7 +168,8 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(quantiles.contains("quantile_state"));
     BOOST_REQUIRE_EQUAL("some normalizer state", quantiles.at("quantile_state").as_string());
     BOOST_TEST_REQUIRE(quantiles.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(1521040000000, quantiles.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1521040000000,
+                        quantiles.at("timestamp").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

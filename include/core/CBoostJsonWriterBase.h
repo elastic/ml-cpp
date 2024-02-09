@@ -491,11 +491,11 @@ public:
             return this->RawString(str);
         }
         case json::kind::double_:
-            return this->Double(doc.as_double());
+            return this->Double(doc.to_number<double>());
         case json::kind::int64:
-            return this->Int64(doc.as_int64());
+            return this->Int64(doc.to_number<std::int64_t>());
         case json::kind::uint64:
-            return this->Uint64(doc.as_uint64());
+            return this->Uint64(doc.to_number<std::uint64_t>());
         }
         return true;
     }

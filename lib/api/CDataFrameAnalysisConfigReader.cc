@@ -97,7 +97,7 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t fal
         this->handleFatal();
         return fallback;
     }
-    return m_Value->as_int64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t fallback) const {
@@ -108,7 +108,7 @@ std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff
         this->handleFatal();
         return fallback;
     }
-    return m_Value->as_int64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 double CDataFrameAnalysisConfigReader::CParameter::fallback(double fallback) const {
@@ -116,13 +116,13 @@ double CDataFrameAnalysisConfigReader::CParameter::fallback(double fallback) con
         return fallback;
     }
     if (m_Value->is_int64()) {
-        return static_cast<double>(m_Value->as_int64());
+        return static_cast<double>(m_Value->to_number<std::int64_t>());
     }
     if (m_Value->is_double() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->as_double();
+    return m_Value->to_number<double>();
 }
 
 std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::string& fallback) const {
@@ -158,7 +158,7 @@ std::pair<std::string, double> CDataFrameAnalysisConfigReader::CParameter::fallb
         this->handleFatal();
         return fallback;
     }
-    return {std::string(name_->value().as_string()), value_->value().as_double()};
+    return {std::string(name_->value().as_string()), value_->value().to_number<double>()};
 }
 
 std::vector<std::pair<std::string, double>> CDataFrameAnalysisConfigReader::CParameter::fallback(

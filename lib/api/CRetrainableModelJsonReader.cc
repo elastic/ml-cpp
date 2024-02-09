@@ -115,8 +115,7 @@ class custom_parser {
         bool on_key_part(std::string_view, std::size_t, json::error_code&) {
             return true;
         }
-        bool on_key(std::string_view s, std::size_t n, json::error_code& ec) {
-            LOG_TRACE(<< "on_key: " << s << ", size: " << n);
+        bool on_key(std::string_view s, std::size_t /*n*/, json::error_code& ec) {
             std::string str{s};
             s_Keys.push(str);
             if (s_CurrentValue.top()->is_array()) {
@@ -128,8 +127,7 @@ class custom_parser {
         bool on_string_part(std::string_view, std::size_t, json::error_code&) {
             return true;
         }
-        bool on_string(std::string_view s, std::size_t n, json::error_code& ec) {
-            LOG_TRACE(<< "on_string: " << s << ", size: " << n);
+        bool on_string(std::string_view s, std::size_t /*n*/, json::error_code& ec) {
             if (s_CurrentValue.top()->is_array()) {
                 s_CurrentValue.top()->as_array().push_back(json::string(s));
             } else {

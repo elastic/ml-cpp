@@ -50,7 +50,7 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
     size_t i = 0;
 
     while (true) {
-        json::value* p1 = doc.find_pointer("/" + std::to_string(i), ec);
+        doc.find_pointer("/" + std::to_string(i), ec);
         if (ec.failed() == false) {
             size_t j = 0;
             while (true) {

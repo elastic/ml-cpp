@@ -60,9 +60,9 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(annotation.contains("job_id"));
     BOOST_REQUIRE_EQUAL(std::string{"job-id"}, annotation.at("job_id").as_string());
     BOOST_TEST_REQUIRE(annotation.contains("timestamp"));
-    BOOST_REQUIRE_EQUAL(1000, annotation.at("timestamp").as_int64());
+    BOOST_REQUIRE_EQUAL(1000, annotation.at("timestamp").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(annotation.contains("detector_index"));
-    BOOST_REQUIRE_EQUAL(2, annotation.at("detector_index").as_int64());
+    BOOST_REQUIRE_EQUAL(2, annotation.at("detector_index").to_number<std::int64_t>());
     BOOST_TEST_REQUIRE(annotation.contains("partition_field_name"));
     BOOST_REQUIRE_EQUAL(std::string{"pName"},
                         annotation.at("partition_field_name").as_string());

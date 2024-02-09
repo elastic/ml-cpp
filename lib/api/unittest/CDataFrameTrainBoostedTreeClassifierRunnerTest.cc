@@ -146,7 +146,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
             BOOST_TEST_REQUIRE(extract(object.at(predictionField)) ==
                                expectedPredictions[i]);
             BOOST_TEST_REQUIRE(object.contains("prediction_probability"));
-            BOOST_TEST_REQUIRE(object.at("prediction_probability").as_double() > 0.5);
+            BOOST_TEST_REQUIRE(object.at("prediction_probability").to_number<double>() > 0.5);
             BOOST_TEST_REQUIRE(object.contains("is_training"));
             BOOST_TEST_REQUIRE(object.at("is_training").as_bool());
         }

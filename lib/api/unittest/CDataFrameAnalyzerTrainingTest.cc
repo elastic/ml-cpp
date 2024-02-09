@@ -319,18 +319,21 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result_.at_pointer("/row_results/results/ml/target_prediction").as_double(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.contains("progress_percent") == false);
         } else if (result.contains("phase_progress")) {
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
             progressCompleted =
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -375,7 +378,6 @@ void readIncrementalTrainingState(const std::string& resultsJson,
             LOG_DEBUG(<< "Data summarization found");
         } else if (result.contains("model_metadata")) {
             LOG_DEBUG(<< "Metadata found");
-            json::error_code ec;
             for (const auto& item :
                  result_.at_pointer("/model_metadata/hyperparameters").as_array()) {
                 LOG_DEBUG(<< "/model_metadata/hyperparameters: " << item);
@@ -465,7 +467,7 @@ void readPredictions(const std::string& resultsJson,
         if (result.contains("row_results")) {
             predictions.emplace_back(result_
                                          .at_pointer("/row_results/results/ml/" + targetPredictionName)
-                                         .as_double());
+                                         .to_number<double>());
         }
     }
 }
@@ -614,7 +616,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
                 memoryStatusHardLimit = true;
                 if (result_.at_pointer("/analytics_memory_usage").as_object().contains("memory_reestimate_bytes") &&
                     result_.at_pointer("/analytics_memory_usage/memory_reestimate_bytes")
-                            .as_int64() > 0) {
+                            .to_number<std::int64_t>() > 0) {
                     memoryReestimateAvailable = true;
                 }
             }
@@ -664,18 +666,21 @@ BOOST_AUTO_TEST_CASE(testRegressionTraining) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result_.at_pointer("/row_results/results/ml/target_prediction").as_double(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
         } else if (result.contains("phase_progress")) {
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
             progressCompleted =
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -766,14 +771,13 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithRowsMissingTargetValue) {
     for (const auto& result_ : results.as_array()) {
         const json::object& result = result_.as_object();
         if (result.contains("row_results")) {
-            json::error_code ec;
             std::size_t index(
                 result_.at_pointer("/row_results/checksum").to_number<std::size_t>(ec));
             BOOST_REQUIRE(ec.failed() == false);
             double expected{target(feature[index])};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected,
-                result_.at_pointer("/row_results/results/ml/target_prediction").as_double(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 0.2 * expected);
             BOOST_REQUIRE_EQUAL(
                 index < 40,
@@ -1133,7 +1137,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         const json::object& result = result_.as_object();
         if (result.contains("row_results")) {
             predictions.emplace_back(
-                result_.at_pointer("/row_results/results/ml/target_prediction").as_double());
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -1247,29 +1251,32 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
             BOOST_REQUIRE_EQUAL(
                 result_
                     .at_pointer("/row_results/results/ml/prediction_probability")
-                    .as_double(),
+                    .to_number<double>(),
                 result_.at_pointer("/row_results/results/ml/top_classes")
                     .as_array()[0]
                     .as_object()
                     .at("class_probability")
-                    .as_double());
+                    .to_number<double>());
             BOOST_REQUIRE_EQUAL(
-                result_.at_pointer("/row_results/results/ml/prediction_score").as_double(),
+                result_.at_pointer("/row_results/results/ml/prediction_score").to_number<double>(),
                 result_.at_pointer("/row_results/results/ml/top_classes")
                     .as_array()[0]
                     .as_object()
                     .at("class_score")
-                    .as_double());
+                    .to_number<double>());
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
         } else if (result.contains("phase_progress")) {
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() >= 0);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
             BOOST_TEST_REQUIRE(
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() <= 100);
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
             BOOST_TEST_REQUIRE(result.contains("row_results") == false);
             progressCompleted =
-                result_.at_pointer("/phase_progress/progress_percent").as_int64() == 100;
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -1564,7 +1571,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         if (result.contains("row_results")) {
             predictions.emplace_back(result_
                                          .at_pointer("/row_results/results/ml/prediction_probability")
-                                         .as_double());
+                                         .to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -1851,7 +1858,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         if (result.as_object().contains("row_results")) {
             predictions.emplace_back(result
                                          .at_pointer("/row_results/results/ml/prediction_probability")
-                                         .as_double());
+                                         .to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -2165,7 +2172,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
             std::string phase{result.at_pointer("/phase_progress/phase").as_string()};
             std::int64_t progress{
-                result.at_pointer("/phase_progress/progress_percent").as_int64()};
+                result.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>()};
             if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
@@ -2263,7 +2270,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
 
             std::string phase{result.at_pointer("/phase_progress/phase").as_string()};
             std::int64_t progress{
-                result.at_pointer("/phase_progress/progress_percent").as_int64()};
+                result.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>()};
             if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {

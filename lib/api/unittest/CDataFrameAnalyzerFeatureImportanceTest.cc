@@ -452,7 +452,7 @@ double readClassProbability(const RESULTS& results, std::string className) {
             if (classResult.at("class_name").as_string() == className) {
                 json::value jv = classResult.at("class_probability");
                 BOOST_TEST_REQUIRE(jv.is_double());
-                return jv.as_double();
+                return jv.to_number<double>();
             }
         }
     }
@@ -485,7 +485,7 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                         json::value jv = item.as_object().at(
                             api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                         BOOST_TEST_REQUIRE(jv.is_double());
-                        return jv.as_double();
+                        return jv.to_number<double>();
                     }
                 }
             }
@@ -511,7 +511,7 @@ double readTotalShapValue(const RESULTS& results, std::string shapField) {
                     "/" + TModelMetadata::JSON_IMPORTANCE_TAG + "/" +
                     TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
                 BOOST_TEST_REQUIRE(jv.is_double());
-                return jv.as_double();
+                return jv.to_number<double>();
             }
         }
     }
@@ -539,7 +539,7 @@ double readTotalShapValue(const RESULTS& results, std::string shapField, std::st
                             "/" + TModelMetadata::JSON_IMPORTANCE_TAG + "/" +
                             TModelMetadata::JSON_MEAN_MAGNITUDE_TAG);
                         BOOST_TEST_REQUIRE(jv.is_double());
-                        return jv.as_double();
+                        return jv.to_number<double>();
                     }
                 }
             }
@@ -566,7 +566,7 @@ double readBaselineValue(const RESULTS& results) {
                     TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG + "/" +
                     TModelMetadata::JSON_BASELINE_TAG);
                 BOOST_TEST_REQUIRE(jv.is_double());
-                return jv.as_double();
+                return jv.to_number<double>();
             }
         }
     }
@@ -597,7 +597,7 @@ double readBaselineValue(const RESULTS& results, std::string className) {
                         className) {
                         json::value jv = item.as_object().at(TModelMetadata::JSON_BASELINE_TAG);
                         BOOST_TEST_REQUIRE(jv.is_double());
-                        return jv.as_double();
+                        return jv.to_number<double>();
                     }
                 }
             }
@@ -644,7 +644,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             double c4{readShapValue(result, "c4")};
             json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
             BOOST_TEST_REQUIRE(jv.is_double());
-            double prediction{jv.as_double()};
+            double prediction{jv.to_number<double>()};
             // make sure that the local approximation differs from a prediction by a numeric error
             BOOST_REQUIRE_SMALL(prediction - (baseline + c1 + c2 + c3 + c4), 1e-3);
             c1Sum += std::fabs(c1);
@@ -718,7 +718,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             double c1{readShapValue(result, "c1")};
             json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
             BOOST_TEST_REQUIRE(jv.is_double());
-            double prediction{jv.as_double()};
+            double prediction{jv.to_number<double>()};
             // c1 explains 89-92% of the prediction value depending on platform,
             // i.e. the difference from the prediction is less than 11%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 11.0);
@@ -768,7 +768,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
                 result.at_pointer("/row_results/results/ml/target_prediction").as_string()};
             json::value jv = result.at_pointer("/row_results/results/ml/prediction_probability");
             BOOST_TEST_REQUIRE(jv.is_double());
-            double predictionProbability{jv.as_double()};
+            double predictionProbability{jv.to_number<double>()};
             for (const auto& className : classes) {
                 double c1{readShapValue(result, "c1", className)};
                 double c2{readShapValue(result, "c2", className)};
@@ -982,7 +982,7 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
             double c4{readShapValue(result, "c4")};
             json::value jv = result.at_pointer("/row_results/results/ml/target_prediction");
             BOOST_TEST_REQUIRE(jv.is_double());
-            double prediction{jv.as_double()};
+            double prediction{jv.to_number<double>()};
             // The difference between the prediction and the sum of all SHAP values
             // constitutes bias.
             bias.add(prediction - (c1 + c2 + c3 + c4));
