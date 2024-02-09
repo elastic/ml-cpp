@@ -262,7 +262,7 @@ tar zxvf openssl-1.1.1q.tar.gz
 cd openssl-1.1.1q
 ./Configure --prefix=/usr/local/gcc103 shared linux-`uname -m`
 make
-make install
+sudo make install
 ```
 
 ### Python 3.10
@@ -309,14 +309,27 @@ greatly improves the performance of PyTorch CPU inference
 when PyTorch is built with it. 
 
 ```
-sudo yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
-sudo yum -y install intel-mkl-2020.4-912
+tee > /tmp/oneAPI.repo << EOF
+[oneAPI]
+name=Intel oneAPI repository
+baseurl=https://yum.repos.intel.com/oneapi
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+EOF
+sudo cp /tmp/oneAPI.repo /etc/yum.repos.d
+sudo yum -y install intel-oneapi-mkl-devel-2024.0
 ```
+
+The process is different for distributions that use other package
+managers, for example APT. More instructions can be found at:
+<https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html?operatingsystem=linux>
 
 Then copy the shared libraries to the system directory:
 
 ```
-sudo cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
+(cd /opt/intel/oneapi/mkl/2024.0 && tar cf - lib) | (cd /usr/local/gcc103 && sudo tar xvf -)
 ```
 
 ### PyTorch 2.1.2
