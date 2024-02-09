@@ -69,9 +69,6 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
         n += p.write_some(line.data() + n, line.size() - n, ec);
 
         if (ec) {
-            if (m_StrmIn.eof()) {
-                break;
-            }
 
             std::ostringstream ss;
             ss << "Error parsing command from JSON: " << ec.message();
