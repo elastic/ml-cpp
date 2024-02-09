@@ -18,6 +18,7 @@ set (SRCS
   CBlockingCallCancellingTimerTest.cc
   CBoostJsonLineWriterTest.cc
   CBoostJsonWriterBaseTest.cc
+  CBoostJsonUnbufferedIStreamWrapperTest.cc
   CCompressUtilsTest.cc
   CCompressedDictionaryTest.cc
   CCompressedLfuCacheTest.cc
@@ -55,7 +56,6 @@ set (SRCS
   CProcessTest.cc
   CProgNameTest.cc
   CProgramCountersTest.cc
-  CRapidJsonUnbufferedIStreamWrapperTest.cc
   CRapidXmlParserTest.cc
   CRapidXmlStatePersistInserterTest.cc
   CRapidXmlStateRestoreTraverserTest.cc

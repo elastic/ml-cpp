@@ -23,9 +23,6 @@ namespace json = boost::json;
 namespace ml {
 namespace core {
 
-//! Maximum size of the buffer (in bytes) used to hold a compressed chunk
-static const int COMPRESSED_CHUNK_BUFFER_LENGTH = 1638400;
-
 //! \brief
 //! A CDataSearcher-derived class that decompresses chunked and compressed data
 //!
@@ -54,6 +51,9 @@ public:
     using TFilteredInputP = std::shared_ptr<TFilteredInput>;
 
     static const std::string EMPTY_DATA;
+
+    //! Maximum size of the buffer (in bytes) used to hold a compressed chunk
+    static const std::size_t COMPRESSED_CHUNK_BUFFER_LENGTH{1638400};
 
     // Implements the boost::iostreams Source template interface
     class CDechunkFilter {

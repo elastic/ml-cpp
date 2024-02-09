@@ -106,8 +106,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
     bool ret{true};
     SBoostJsonHandler::ETokenType currentTokenType = m_Reader->handler().s_Type;
     do {
-        char c = '\0';
-        c = m_InputStreamWrapper->Take();
+        char c = m_InputStreamWrapper->Take();
         if (c == '\0') {
             if (m_ParsingStarted == false) {
                 ret = false;
@@ -159,8 +158,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
         json::error_code ec;
         m_Reader->write_some(true, &c, 1, ec);
         if (ec) {
-            LOG_ERROR(<< "Error parsing JSON: ");
-            LOG_ERROR(<< "");
+            LOG_ERROR(<< "Error parsing JSON: " << ec.message());
             ret = false;
             break;
         }

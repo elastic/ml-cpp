@@ -12,6 +12,7 @@
 #include <core/CBoostJsonLineWriter.h>
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
+#include <core/CStreamWriter.h>
 #include <core/CStringUtils.h>
 
 #include <boost/json.hpp>
@@ -20,7 +21,6 @@
 #include <limits>
 #include <sstream>
 
-#include "core/CStreamWriter.h"
 #include <stdio.h>
 
 namespace json = boost::json;

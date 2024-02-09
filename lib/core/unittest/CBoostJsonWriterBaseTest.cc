@@ -11,12 +11,12 @@
 
 #include <core/CBoostJsonWriterBase.h>
 #include <core/CLogger.h>
+#include <core/CStreamWriter.h>
 #include <core/CStringUtils.h>
 
 #include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "core/CStreamWriter.h"
 #include <limits>
 #include <sstream>
 

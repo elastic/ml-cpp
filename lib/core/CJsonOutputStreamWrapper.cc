@@ -61,7 +61,7 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, std::st
                 o.put(JSON_ARRAY_DELIMITER);
             }
 
-            o.write(str.c_str(), str.size());
+            o << *buffer;
             o.flush();
             this->returnAndCheckBuffer(buffer);
         });

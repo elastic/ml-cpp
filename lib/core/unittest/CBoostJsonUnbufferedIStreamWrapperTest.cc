@@ -15,7 +15,7 @@
 
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(CRapidJsonUnbufferedIStreamWrapperTest)
+BOOST_AUTO_TEST_SUITE(CBoostJsonUnbufferedIStreamWrapperTest)
 
 BOOST_AUTO_TEST_CASE(testWrap) {
 
