@@ -297,10 +297,7 @@ public:
                 E_TokenArrayStart = 6,
                 E_TokenArrayEnd = 7,
                 E_TokenStringPart = 8,
-                E_TokenKeyPart = 9,
-                E_TokenComma = 10,
-                E_TokenColon = 11,
-                E_TokenSpace = 12
+                E_TokenKeyPart = 9
             };
 
             //! the last token type extracted
@@ -314,8 +311,8 @@ public:
 
             bool s_NewToken{true};
             bool s_StringEnd{false};
-            bool s_IsObject{false};
-            bool s_IsArray{false};
+
+            bool s_HaveCompleteToken{false};
         };
 
         //! Has a valid document been seen?
