@@ -71,14 +71,12 @@ BOOST_AUTO_TEST_CASE(testReparseDetectorsFromStoredConfig) {
     ml::api::CAnomalyJobConfig jobConfig;
     BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(filterConfigJson));
 
-
     const std::string validScheduledEventsConfigJson{"{\"events\":["
                                                      "]}"};
 
     BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEventsConfigJson));
 
-    jobConfig.analysisConfig().init(jobConfig.ruleFilters(),
-                                    jobConfig.scheduledEvents());
+    jobConfig.analysisConfig().init(jobConfig.ruleFilters(), jobConfig.scheduledEvents());
 
     BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRuleFilter),
                           "Cannot parse JSON job config!");
@@ -86,7 +84,8 @@ BOOST_AUTO_TEST_CASE(testReparseDetectorsFromStoredConfig) {
 
     // Expect parsing to fail if the analysis config JSON string is invalid
     const std::string inValidAnalysisConfigString{"{\"bucket_span\":\"1h\""};
-    BOOST_TEST_REQUIRE(!jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(inValidAnalysisConfigString));
+    BOOST_TEST_REQUIRE(!jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(
+        inValidAnalysisConfigString));
 
     // Expect parsing to fail if the filter referenced by the custom rule cannot be found
     const std::string validAnalysisConfigStringWithUnknownFilter{
@@ -101,7 +100,8 @@ BOOST_AUTO_TEST_CASE(testReparseDetectorsFromStoredConfig) {
     // Expect parsing to succeed if the filter referenced by the custom rule is registered.
     const std::string validAnalysisConfigString{
         "{\"bucket_span\":\"1h\",\"detectors\":[{\"detector_description\":\"count over ip\",\"function\":\"count\",\"over_field_name\":\"ip\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"ip\":{\"filter_id\":\"safe_ips\",\"filter_type\":\"include\"}}}],\"detector_index\":0}],\"influencers\":[],\"model_prune_window\":\"30d\"}"};
-    BOOST_TEST_REQUIRE(jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(validAnalysisConfigString));
+    BOOST_TEST_REQUIRE(jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(
+        validAnalysisConfigString));
 }
 
 BOOST_AUTO_TEST_CASE(testParse) {
