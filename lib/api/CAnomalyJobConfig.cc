@@ -721,19 +721,24 @@ void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const json::value&
     }
 }
 
-void CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig() {
+const std::string& CAnomalyJobConfig::CAnalysisConfig::getAnalysisConfig() {
+    return m_AnalysisConfigString;
+}
+
+bool CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig(const std::string& analysisConfig) {
     json::error_code ec;
-    json::value doc = json::parse(m_AnalysisConfigString, ec);
+    json::value doc = json::parse(analysisConfig, ec);
     if (ec) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
                   << ec.message());
-        return;
+        return false;
     }
     auto parameters = ANALYSIS_CONFIG_READER.read(doc);
     auto detectorsConfig = parameters[DETECTORS].jsonObject();
     if (detectorsConfig != nullptr) {
         this->parseDetectorsConfig(*detectorsConfig);
     }
+    return true;
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::parse(const json::value& analysisConfig) {
