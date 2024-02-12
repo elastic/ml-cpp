@@ -20,6 +20,8 @@ ml_add_library(MlCore SHARED
   CBase64Filter.cc
   CBlockingCallCancellerThread.cc
   CBlockingCallCancellingTimer.cc
+  CBoostJsonConcurrentLineWriter.cc
+  CBoostJsonUnbufferedIStreamWrapper.cc
   CCTimeR.cc
   CCompressOStream.cc
   CCompressedDictionary.cc
@@ -61,8 +63,6 @@ ml_add_library(MlCore SHARED
   CProcessStats.cc
   CProgName.cc
   CProgramCounters.cc
-  CRapidJsonConcurrentLineWriter.cc
-  CRapidJsonUnbufferedIStreamWrapper.cc
   CRapidXmlParser.cc
   CRapidXmlStatePersistInserter.cc
   CRapidXmlStateRestoreTraverser.cc

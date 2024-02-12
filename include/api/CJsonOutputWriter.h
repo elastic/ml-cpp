@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_api_CJsonOutputWriter_h
 #define INCLUDED_ml_api_CJsonOutputWriter_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
@@ -40,7 +40,7 @@ class CHierarchicalResultsNormalizer;
 }
 namespace core {
 template<typename>
-class CScopedRapidJsonPoolAllocator;
+class CScopedBoostJsonPoolAllocator;
 }
 namespace api {
 
@@ -100,8 +100,8 @@ namespace api {
 //!
 class API_EXPORT CJsonOutputWriter {
 public:
-    using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
-    using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
+    using TDocumentPtr = std::shared_ptr<json::object>;
+    using TDocumentWeakPtr = std::weak_ptr<json::object>;
     using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
     using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
     using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
@@ -123,7 +123,7 @@ public:
     using TStringDoublePr = std::pair<std::string, double>;
     using TStringDoublePrVec = std::vector<TStringDoublePr>;
 
-    using TValuePtr = std::shared_ptr<rapidjson::Value>;
+    using TValuePtr = std::shared_ptr<json::value>;
 
     using TAnomalyScoreExplanation = CHierarchicalResultsWriter::TAnomalyScoreExplanation;
 
@@ -266,8 +266,8 @@ public:
 
 private:
     template<typename>
-    friend class core::CScopedRapidJsonPoolAllocator;
-    // hooks for the CScopedRapidJsonPoolAllocator interface
+    friend class core::CScopedBoostJsonPoolAllocator;
+    // hooks for the CScopedBoostJsonPoolAllocator interface
 
     //! use a new allocator for JSON output processing
     //! \p allocatorName A unique identifier for the allocator
@@ -311,14 +311,14 @@ private:
 
     //! Write anomaly score explanation object.
     void writeAnomalyScoreExplanationObject(const CHierarchicalResultsWriter::TResults& results,
-                                            rapidjson::Value& anomalyScoreExplanation);
+                                            json::object& anomalyScoreExplanation);
 
 private:
     //! The job ID
     std::string m_JobId;
 
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 
     //! Time of last non-interim bucket written to output
     core_t::TTime m_LastNonInterimBucketTime;

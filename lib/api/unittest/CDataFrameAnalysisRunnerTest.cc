@@ -164,21 +164,24 @@ void testEstimateMemoryUsage(std::int64_t numberRows,
         spec->estimateMemoryUsage(writer);
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    BOOST_REQUIRE_EQUAL(1, arrayDoc.size());
 
-    const rapidjson::Value& result{arrayDoc[rapidjson::SizeType(0)]};
-    BOOST_TEST_REQUIRE(result.IsObject());
+    const json::value& result_{arrayDoc[0]};
+    BOOST_TEST_REQUIRE(result_.is_object());
+    const json::object& result = result_.as_object();
 
-    BOOST_TEST_REQUIRE(result.HasMember("expected_memory_without_disk"));
+    BOOST_TEST_REQUIRE(result.contains("expected_memory_without_disk"));
     BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithoutDisk,
-                        result["expected_memory_without_disk"].GetString());
-    BOOST_TEST_REQUIRE(result.HasMember("expected_memory_with_disk"));
+                        result.at("expected_memory_without_disk").as_string());
+    BOOST_TEST_REQUIRE(result.contains("expected_memory_with_disk"));
     BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithDisk,
-                        result["expected_memory_with_disk"].GetString());
+                        result.at("expected_memory_with_disk").as_string());
 
     BOOST_REQUIRE_EQUAL(expectedNumberErrors, static_cast<int>(errors.size()));
 }

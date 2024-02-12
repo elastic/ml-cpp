@@ -14,8 +14,7 @@
 #include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
-
+#include <boost/json.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <map>
@@ -24,9 +23,11 @@
 #include <string>
 #include <vector>
 
+namespace json = boost::json;
+
 namespace ml {
 namespace core {
-class CRapidJsonConcurrentLineWriter;
+class CBoostJsonConcurrentLineWriter;
 }
 namespace api {
 
@@ -180,8 +181,7 @@ public:
 
     public:
         explicit CSizeInfo(const CTrainedModel& trainedModel);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         //! \return Expected number of operation for the model evaluation.
         virtual std::size_t numOperations() const = 0;
 
@@ -288,8 +288,7 @@ public:
 
     public:
         explicit CSizeInfo(const CTree& tree);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
     private:
@@ -330,8 +329,7 @@ public:
 
     public:
         explicit CSizeInfo(const CEnsemble& ensemble);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
     private:
@@ -379,8 +377,7 @@ public:
         static const std::string JSON_FIELD_LENGTH_TAG;
 
     public:
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         virtual const std::string& typeString() const = 0;
         const CEncoding* encoding() const;
 
@@ -423,8 +420,7 @@ public:
     class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
         explicit CSizeInfo(const CFrequencyEncoding& encoding);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -462,8 +458,7 @@ public:
 
     public:
         explicit CSizeInfo(const COneHotEncoding& encoding);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -495,8 +490,7 @@ public:
     class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
         explicit CSizeInfo(const CTargetMeanEncoding& encoding);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
@@ -535,12 +529,12 @@ private:
 //! \brief A JSON blob defining a custom encoding or an array of custom encodings.
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
-    explicit COpaqueEncoding(const rapidjson::Document& object);
+    explicit COpaqueEncoding(const json::value& object);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
 private:
-    rapidjson::Document m_Object;
+    json::value m_Object;
 };
 
 //! \brief Technical details required for model evaluation.
@@ -550,7 +544,7 @@ public:
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
     using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
     using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TBoostJsonWriter = core::CBoostJsonConcurrentLineWriter;
     using TSizeStringUMap = boost::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TStringSizeUMap = boost::unordered_map<std::string, std::size_t>;
@@ -566,8 +560,7 @@ public:
 
     public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
-        void addToJsonDocument(rapidjson::Value& parentObject,
-                               TRapidJsonWriter& writer) const override;
+        void addToJsonDocument(json::object& parentObject, TBoostJsonWriter& writer) const override;
         const std::string& typeString() const;
         std::string jsonString();
 
@@ -593,7 +586,7 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToJsonStream(TGenericLineWriter& writer) const final;
-    void addCompressedToJsonStream(TRapidJsonWriter& writer) const final;
+    void addCompressedToJsonStream(TBoostJsonWriter& writer) const final;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

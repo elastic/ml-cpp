@@ -18,7 +18,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
@@ -779,7 +779,7 @@ void CAnomalyJob::writeOutResults(bool interim,
                   << " / " << results.root()->s_NormalizedAnomalyScore
                   << ", count " << results.resultCount() << " at " << bucketTime);
 
-        using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
+        using TScopedAllocator = core::CScopedBoostJsonPoolAllocator<CJsonOutputWriter>;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 

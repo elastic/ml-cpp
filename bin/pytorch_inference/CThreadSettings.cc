@@ -18,24 +18,24 @@
 namespace ml {
 namespace torch {
 
-CThreadSettings::CThreadSettings(std::int32_t maxThreads,
-                                 std::int32_t numThreadsPerAllocation,
-                                 std::int32_t numAllocations)
+CThreadSettings::CThreadSettings(std::int64_t maxThreads,
+                                 std::int64_t numThreadsPerAllocation,
+                                 std::int64_t numAllocations)
     : m_MaxThreads{maxThreads}, m_NumThreadsPerAllocation{numThreadsPerAllocation},
       m_NumAllocations{numAllocations} {
     validateThreadingParameters(m_MaxThreads, m_NumThreadsPerAllocation, m_NumAllocations);
 }
 
-std::int32_t CThreadSettings::numThreadsPerAllocation() const {
+std::int64_t CThreadSettings::numThreadsPerAllocation() const {
     return m_NumThreadsPerAllocation;
 }
 
-std::int32_t CThreadSettings::numAllocations() const {
+std::int64_t CThreadSettings::numAllocations() const {
     return m_NumAllocations;
 }
 
-void CThreadSettings::numAllocations(std::int32_t numAllocations) {
-    std::int32_t maxAllocations{(m_MaxThreads + m_NumThreadsPerAllocation - 1) /
+void CThreadSettings::numAllocations(std::int64_t numAllocations) {
+    std::int64_t maxAllocations{(m_MaxThreads + m_NumThreadsPerAllocation - 1) /
                                 m_NumThreadsPerAllocation};
     if (numAllocations < 1) {
         LOG_WARN(<< "Setting number of allocations to minimum value of 1; value was "
@@ -50,9 +50,9 @@ void CThreadSettings::numAllocations(std::int32_t numAllocations) {
     m_NumAllocations = numAllocations;
 }
 
-void CThreadSettings::validateThreadingParameters(std::int32_t& maxThreads,
-                                                  std::int32_t& numThreadsPerAllocation,
-                                                  std::int32_t& numAllocations) {
+void CThreadSettings::validateThreadingParameters(std::int64_t& maxThreads,
+                                                  std::int64_t& numThreadsPerAllocation,
+                                                  std::int64_t& numAllocations) {
     if (maxThreads < 1) {
         LOG_WARN(<< "Could not determine hardware concurrency; setting max threads to 1");
         maxThreads = 1;
@@ -71,7 +71,7 @@ void CThreadSettings::validateThreadingParameters(std::int32_t& maxThreads,
     // Max threads per allocation would ideally fit within the available
     // concurrency when multiplied by the number of allocations, but we allow
     // rounding up if there isn't a perfect fit.
-    std::int32_t maxThreadsPerAllocation{(maxThreads + numAllocations - 1) / numAllocations};
+    std::int64_t maxThreadsPerAllocation{(maxThreads + numAllocations - 1) / numAllocations};
     if (numThreadsPerAllocation < 1) {
         LOG_WARN(<< "Setting number of threads per allocation to minimum value of 1; value was "
                  << numThreadsPerAllocation);

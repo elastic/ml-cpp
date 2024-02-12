@@ -26,8 +26,11 @@ BOOST_AUTO_TEST_CASE(testStringOutput) {
     BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
     const std::string& output{writer.internalString()};
+    const std::string expected{"{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"};
+    LOG_DEBUG(<< "expected: " << expected);
+    LOG_DEBUG(<< "actual  : " << output);
 
-    BOOST_REQUIRE_EQUAL("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n", output);
+    BOOST_REQUIRE_EQUAL(expected, output);
 }
 
 BOOST_AUTO_TEST_CASE(testNumericOutput) {
@@ -42,7 +45,13 @@ BOOST_AUTO_TEST_CASE(testNumericOutput) {
 
     const std::string& output{writer.internalString()};
 
-    BOOST_REQUIRE_EQUAL("{\"probability\":0.01,\"normalized_score\":3.3}\n", output);
+    json::value val_ = json::parse(output);
+    BOOST_REQUIRE_EQUAL(true, val_.is_object());
+    json::object& val = val_.as_object();
+    BOOST_REQUIRE_EQUAL(true, val.contains("probability"));
+    BOOST_REQUIRE_EQUAL(0.01, val["probability"]);
+    BOOST_REQUIRE_EQUAL(true, val.contains("normalized_score"));
+    BOOST_REQUIRE_EQUAL(3.3, val["normalized_score"]);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

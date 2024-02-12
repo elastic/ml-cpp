@@ -11,4 +11,3 @@
 
 message(STATUS "aarch64 detected for target")
 set(ARCHCFLAGS "-march=armv8-a+crc+crypto")
-add_compile_definitions(RAPIDJSON_NEON)

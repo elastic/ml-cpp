@@ -19,9 +19,13 @@
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 #include <test/CProgramCounterClearingFixture.h>
 
-#include <rapidjson/schema.h>
-
 #include <boost/test/unit_test.hpp>
+
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
+#include <valijson/validator.hpp>
 
 #include <chrono>
 #include <fstream>
@@ -129,21 +133,32 @@ BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixtur
                                std::chrono::system_clock::now().time_since_epoch())
                                .count()};
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-    BOOST_TEST_REQUIRE(results.IsArray() == true);
+    json::value results;
+    json::error_code ec;
+    json::parser p;
+    std::size_t written = p.write(outputStream.str(), ec);
+    BOOST_TEST_REQUIRE(outputStream.str().size() == written);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    results = p.release();
+    BOOST_TEST_REQUIRE(results.is_array() == true);
 
     bool hasMemoryUsage{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage")) {
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["job_id"].GetString() == jobId);
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object() == true);
+        json::object result = result_.as_object();
+        if (result.contains("analytics_memory_usage")) {
+            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].is_object() == true);
             BOOST_TEST_REQUIRE(
-                result["analytics_memory_usage"]["peak_usage_bytes"].GetInt64() == memoryUsage);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() >=
-                               timeBefore);
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() <= timeAfter);
+                result["analytics_memory_usage"].as_object()["job_id"].as_string() == jobId);
+            BOOST_TEST_REQUIRE(result["analytics_memory_usage"]
+                                   .as_object()["peak_usage_bytes"]
+                                   .to_number<std::int64_t>() == memoryUsage);
+            BOOST_TEST_REQUIRE(
+                result["analytics_memory_usage"].as_object()["timestamp"].to_number<std::int64_t>() >=
+                timeBefore);
+            BOOST_TEST_REQUIRE(
+                result["analytics_memory_usage"].as_object()["timestamp"].to_number<std::int64_t>() <=
+                timeAfter);
             hasMemoryUsage = true;
         }
     }
@@ -171,41 +186,52 @@ BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearin
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     std::ifstream regressionSchemaFileStream("testfiles/instrumentation/regression_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(regressionSchemaFileStream.is_open(), "Cannot open test file!");
     std::string regressionSchemaJson((std::istreambuf_iterator<char>(regressionSchemaFileStream)),
                                      std::istreambuf_iterator<char>());
-    rapidjson::Document regressionSchemaDocument;
-    BOOST_REQUIRE_MESSAGE(
-        regressionSchemaDocument.Parse(regressionSchemaJson).HasParseError() == false,
-        "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument regressionSchema(regressionSchemaDocument);
-    rapidjson::SchemaValidator regressionValidator(regressionSchema);
+
+    json::value regressionSchemaDocument = json::parse(regressionSchemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    // Parse Boost JSON schema content using valijson
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::BoostJsonAdapter schemaAdapter(regressionSchemaDocument);
+    parser.populateSchema(schemaAdapter, schema);
 
     bool hasRegressionStats{false};
     bool initialMemoryReport{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage") == true &&
-            result.HasMember("regression_stats") == false) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("analytics_memory_usage") == true &&
+            result.as_object().contains("regression_stats") == false) {
             initialMemoryReport = true;
         }
-        if (result.HasMember("regression_stats")) {
+        if (result.as_object().contains("regression_stats")) {
             hasRegressionStats = true;
-            BOOST_TEST_REQUIRE(result["regression_stats"].IsObject() == true);
-            if (result["regression_stats"].Accept(regressionValidator) == false) {
-                rapidjson::StringBuffer sb;
-                regressionValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: "
-                          << regressionValidator.GetInvalidSchemaKeyword());
-                sb.Clear();
-                regressionValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed");
+            BOOST_TEST_REQUIRE(result.as_object().at("regression_stats").is_object() == true);
+            // validate "regression_stats" against schema
+            valijson::Validator validator;
+            valijson::ValidationResults validatorResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.as_object().at("regression_stats"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validatorResults),
+                                  "Validation failed.");
+
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validatorResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
             }
         }
     }
@@ -216,27 +242,39 @@ BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearin
     BOOST_REQUIRE_MESSAGE(memorySchemaFileStream.is_open(), "Cannot open test file!");
     std::string memorySchemaJson((std::istreambuf_iterator<char>(memorySchemaFileStream)),
                                  std::istreambuf_iterator<char>());
-    rapidjson::Document memorySchemaDocument;
-    BOOST_REQUIRE_MESSAGE(memorySchemaDocument.Parse(memorySchemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument memorySchema(memorySchemaDocument);
-    rapidjson::SchemaValidator memoryValidator(memorySchema);
+
+    json::value memorySchemaDocument = json::parse(memorySchemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    // Parse Boost JSON schema content using valijson
+    valijson::Schema memorySchema;
+    valijson::SchemaParser memoryParser;
+    valijson::adapters::BoostJsonAdapter memorySchemaAdapter(memorySchemaDocument);
+    parser.populateSchema(memorySchemaAdapter, memorySchema);
 
     bool hasMemoryUsage{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("analytics_memory_usage")) {
             hasMemoryUsage = true;
-            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
-            if (result["analytics_memory_usage"].Accept(memoryValidator) == false) {
-                rapidjson::StringBuffer sb;
-                memoryValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: "
-                          << memoryValidator.GetInvalidSchemaKeyword());
-                sb.Clear();
-                memoryValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed");
+            BOOST_TEST_REQUIRE(
+                result.as_object().at("analytics_memory_usage").is_object() == true);
+            // validate "analytics_memory_usage" against schema
+            valijson::Validator validator;
+            valijson::ValidationResults validationResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.as_object().at("analytics_memory_usage"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(memorySchema, targetAdapter, &validationResults),
+                                  "Validation failed.");
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validationResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
             }
         }
     }
@@ -269,39 +307,54 @@ BOOST_FIXTURE_TEST_CASE(testTrainingClassification, ml::test::CProgramCounterCle
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     std::ifstream schemaFileStream("testfiles/instrumentation/classification_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());
-    rapidjson::Document schemaDocument;
-    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument schema(schemaDocument);
-    rapidjson::SchemaValidator validator(schema);
+
+    json::value classificationSchemaDocument = json::parse(schemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    // Parse Boost JSON schema content using valijson
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::BoostJsonAdapter schemaAdapter(classificationSchemaDocument);
+    parser.populateSchema(schemaAdapter, schema);
 
     bool hasClassificationStats{false};
     bool initialMemoryReport{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage") == true &&
-            result.HasMember("classification_stats") == false) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("analytics_memory_usage") == true &&
+            result.as_object().contains("classification_stats") == false) {
             initialMemoryReport = true;
         }
-        if (result.HasMember("classification_stats")) {
+        if (result.as_object().contains("classification_stats")) {
             hasClassificationStats = true;
-            BOOST_TEST_REQUIRE(result["classification_stats"].IsObject() == true);
-            if (result["classification_stats"].Accept(validator) == false) {
-                rapidjson::StringBuffer sb;
-                validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-                sb.Clear();
-                validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed");
+            BOOST_TEST_REQUIRE(
+                result.as_object().at("classification_stats").is_object() == true);
+
+            // validate "classification_stats" against schema
+            valijson::Validator validator;
+            valijson::ValidationResults validationResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.as_object().at("classification_stats"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validationResults),
+                                  "Validation failed.");
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validationResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
             }
         }
     }
@@ -329,39 +382,53 @@ BOOST_FIXTURE_TEST_CASE(testOutlierDetection, ml::test::CProgramCounterClearingF
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     std::ifstream schemaFileStream("testfiles/instrumentation/outlier_detection_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());
-    rapidjson::Document schemaDocument;
-    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument schema(schemaDocument);
-    rapidjson::SchemaValidator validator(schema);
+
+    json::value outlierDetectionSchemaDocument = json::parse(schemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    // Parse Boost JSON schema content using valijson
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::BoostJsonAdapter schemaAdapter(outlierDetectionSchemaDocument);
+    parser.populateSchema(schemaAdapter, schema);
 
     bool hasOutlierDetectionStats{false};
     bool initialMemoryReport{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage") == true &&
-            result.HasMember("outlier_detection_stats") == false) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("analytics_memory_usage") == true &&
+            result.as_object().contains("outlier_detection_stats") == false) {
             initialMemoryReport = true;
         }
-        if (result.HasMember("outlier_detection_stats")) {
+        if (result.as_object().contains("outlier_detection_stats")) {
             hasOutlierDetectionStats = true;
-            BOOST_TEST_REQUIRE(result["outlier_detection_stats"].IsObject() == true);
-            if (result["outlier_detection_stats"].Accept(validator) == false) {
-                rapidjson::StringBuffer sb;
-                validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-                sb.Clear();
-                validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed");
+            BOOST_TEST_REQUIRE(
+                result.as_object().at("outlier_detection_stats").is_object() == true);
+
+            // validate "outlier_detection_stats" against schema
+            valijson::Validator validator;
+            valijson::ValidationResults validationResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.as_object().at("outlier_detection_stats"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validationResults),
+                                  "Validation failed.");
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validationResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
             }
         }
     }

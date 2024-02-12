@@ -32,6 +32,7 @@
 
 === Enhancements
 
+* Use Boost.JSON for JSON processing. (See {ml-pull}2614[#2614].)
 * Upgrade Pytorch to version 2.1.2. (See {ml-pull}2588[#2588].)
 * Upgrade zlib to version 1.2.13 on Windows. (See {ml-pull}2588[#2588].)
 * Better handling of number of allocations in pytorch_inference in the case that

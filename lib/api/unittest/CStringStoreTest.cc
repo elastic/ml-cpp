@@ -25,6 +25,7 @@
 #include "CMockSearcher.h"
 #include "CTestAnomalyJob.h"
 
+#include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
@@ -36,15 +37,15 @@ using namespace ml;
 namespace {
 size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST_REQUIRE(!doc.HasParseError());
-    BOOST_TEST_REQUIRE(doc.IsArray());
+    json::error_code ec;
+    json::value doc = json::parse(output, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc.is_array());
 
-    const rapidjson::Value& allRecords = doc.GetArray();
-    for (auto& r : allRecords.GetArray()) {
-        rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
-        if (recordsIt != r.GetObject().MemberEnd()) {
+    const json::array& allRecords = doc.as_array();
+    for (auto& r : allRecords) {
+        json::object::const_iterator recordsIt = r.as_object().find(key);
+        if (recordsIt != r.as_object().end()) {
             ++count;
         }
     }

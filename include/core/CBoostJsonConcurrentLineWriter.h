@@ -9,11 +9,14 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CRapidJsonConcurrentLineWriter_h
-#define INCLUDED_ml_core_CRapidJsonConcurrentLineWriter_h
+#ifndef INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
+#define INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CStringBufWriter.h>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -23,13 +26,13 @@ namespace core {
 //!
 //! DESCRIPTION:\n
 //! Takes a wrapped output stream, hides all buffering/pooling/concurrency.
-//! CRapidJsonConcurrentLineWriter objects must not be shared between threads.
+//! CBoostJsonConcurrentLineWriter objects must not be shared between threads.
 //! The intended usage is as follows:
 //! \code{.cpp}
 //! std::ostringstream stream;
 //! core::CJsonOutputStreamWrapper streamWrapper{stream};
 //! std::thread thread{[&streamWrapper]() {
-//!     core::CRapidJsonConcurrentLineWriter writer{streamWrapper};
+//!     core::CBoostJsonConcurrentLineWriter writer{streamWrapper};
 //!     writer.StartObject();
 //!     writer.Key("foo");
 //!     writer.Int(1);
@@ -41,25 +44,24 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! Hardcode encoding and stream type.
 //!
-class CORE_EXPORT CRapidJsonConcurrentLineWriter
-    : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
+class CORE_EXPORT CBoostJsonConcurrentLineWriter : public CStringBufWriter {
 public:
-    using TRapidJsonLineWriterBase = CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TBoostJsonLineWriterBase = CBoostJsonLineWriter<std::string>;
 
 public:
     //! Take a wrapped stream and provide a json writer object
     //! \p outStream reference to an wrapped output stream
-    explicit CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
+    explicit CBoostJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
 
-    ~CRapidJsonConcurrentLineWriter() override;
+    ~CBoostJsonConcurrentLineWriter() override;
 
     //! Flush buffers, including the output stream.
     //! Note: flush still happens asynchronous
-    void flush();
+    void flush() override;
 
     //! Hooks into end object to automatically flush if json object is complete
     //! Note: This is a non-virtual overwrite
-    bool EndObject(rapidjson::SizeType memberCount = 0);
+    bool EndObject(std::size_t memberCount = 0) override;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -67,21 +69,14 @@ public:
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;
 
-    //! Write JSON document to outputstream
-    //! \note This overwrite is needed because the members of rapidjson::Writer
-    //! are not virtual and we need to avoid "slicing" the writer to ensure that
-    //! that the correct StartObject/EndObject functions are called when this is
-    //! passed to \p doc Accept.
-    void write(const rapidjson::Value& doc) override { doc.Accept(*this); }
-
 private:
     //! The stream object
     CJsonOutputStreamWrapper& m_OutputStreamWrapper;
 
     //! internal buffer, managed by the stream wrapper
-    rapidjson::StringBuffer* m_StringBuffer;
+    std::string* m_StringBuffer;
 };
 }
 }
 
-#endif /* INCLUDED_ml_core_CRapidJsonConcurrentLineWriter_h */
+#endif /* INCLUDED_ml_core_CBoostJsonConcurrentLineWriter_h */

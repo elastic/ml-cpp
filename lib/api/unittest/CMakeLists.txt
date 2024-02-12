@@ -72,4 +72,7 @@ set(ML_LINK_LIBRARIES
   MlTest
   )
 
+# Valijson must only be used in test cases, never in production code
+include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/3rd_party/valijson/include)
+
 ml_add_test_executable(api ${SRCS})

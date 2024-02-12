@@ -35,7 +35,7 @@ CDataFrameMockAnalysisRunner::rowsToWriteMask(const ml::core::CDataFrame& frame)
 
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
                                                const TRowRef&,
-                                               ml::core::CRapidJsonConcurrentLineWriter&) const {
+                                               ml::core::CBoostJsonConcurrentLineWriter&) const {
 }
 
 bool CDataFrameMockAnalysisRunner::validate(const ml::core::CDataFrame&) const {
@@ -81,7 +81,7 @@ CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisS
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                                              const rapidjson::Value&,
+                                              const boost::json::value&,
                                               TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }

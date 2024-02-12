@@ -13,33 +13,15 @@
 
 #include <core/CLogger.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <boost/json.hpp>
 
 #include <cstring>
-
-#ifdef Windows
-// rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core
-// library, and on Windows it gets exported too, because
-// CRapidJsonConcurrentLineWriter inherits from it and is also exported.
-// To avoid breaching the one-definition rule we must reuse this exported
-// instantiation, as deduplication of template instantiations doesn't work
-// across DLLs.  To make this even more confusing, this is only strictly
-// necessary when building without optimisation, because with optimisation
-// enabled the instantiation in this library gets inlined to the extent that
-// there are no clashing symbols.
-template class CORE_EXPORT rapidjson::Writer<rapidjson::StringBuffer>;
-#endif
 
 namespace ml {
 namespace api {
 namespace {
-std::string toString(const rapidjson::Value& value) {
-    rapidjson::StringBuffer valueAsString;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(valueAsString);
-    value.Accept(writer);
-    return valueAsString.GetString();
+std::string toString(const json::value& value) {
+    return json::serialize(value);
 }
 }
 
@@ -49,20 +31,21 @@ void CDataFrameAnalysisConfigReader::addParameter(const std::string& name,
     m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
 }
 
-CDataFrameAnalysisParameters
-CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
+CDataFrameAnalysisParameters CDataFrameAnalysisConfigReader::read(const json::value& json) const {
 
     CDataFrameAnalysisParameters result;
 
-    if (json.IsObject() == false) {
+    if (json.is_object() == false) {
         HANDLE_FATAL(<< "Input error: expected JSON object but input was '"
                      << toString(json) << "'. Please report this problem.");
         return result;
     }
 
+    const json::object& obj = json.as_object();
+
     for (const auto& reader : m_ParameterReaders) {
-        if (json.HasMember(reader.name())) {
-            result.add(reader.readFrom(json));
+        if (obj.contains(reader.name())) {
+            result.add(reader.readFrom(obj));
         } else if (reader.required()) {
             HANDLE_FATAL(<< "Input error: missing required parameter '"
                          << reader.name() << "'. Please report this problem.");
@@ -72,17 +55,17 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
     }
 
     // Check for any unrecognised fields: these might be typos.
-    for (auto i = json.MemberBegin(); i != json.MemberEnd(); ++i) {
+    for (auto i = obj.begin(); i != obj.end(); ++i) {
         bool found{false};
         for (const auto& param : m_ParameterReaders) {
-            if (i->name.GetString() == param.name()) {
+            if (i->key() == param.name()) {
                 found = true;
                 break;
             }
         }
         if (found == false) {
-            HANDLE_FATAL(<< "Input error: unexpected parameter '"
-                         << i->name.GetString() << "'. Please report this problem.");
+            HANDLE_FATAL(<< "Input error: unexpected parameter '" << i->key()
+                         << "'. Please report this problem.");
         }
     }
 
@@ -90,7 +73,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
 }
 
 CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name,
-                                                       const rapidjson::Value& value,
+                                                       const json::value& value,
                                                        const TStrIntMap& permittedValues)
     : m_Name{name}, m_Value{&value}, m_PermittedValues{&permittedValues} {
 }
@@ -99,58 +82,58 @@ bool CDataFrameAnalysisConfigReader::CParameter::fallback(bool fallback) const {
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsBool() == false) {
+    if (m_Value->is_bool() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->GetBool();
+    return m_Value->as_bool();
 }
 
 std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t fallback) const {
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsUint64() == false) {
+    if (m_Value->is_int64() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->GetUint64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t fallback) const {
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsInt64() == false) {
+    if (m_Value->is_int64() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->GetInt64();
+    return m_Value->to_number<std::int64_t>();
 }
 
 double CDataFrameAnalysisConfigReader::CParameter::fallback(double fallback) const {
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsInt64()) {
-        return static_cast<double>(m_Value->GetInt64());
+    if (m_Value->is_int64()) {
+        return static_cast<double>(m_Value->to_number<std::int64_t>());
     }
-    if (m_Value->IsDouble() == false) {
+    if (m_Value->is_double() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->GetDouble();
+    return m_Value->to_number<double>();
 }
 
 std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::string& fallback) const {
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsString() == false) {
+    if (m_Value->is_string() == false) {
         this->handleFatal();
         return fallback;
     }
-    return m_Value->GetString();
+    return std::string(m_Value->as_string());
 }
 
 std::pair<std::string, double> CDataFrameAnalysisConfigReader::CParameter::fallback(
@@ -160,21 +143,22 @@ std::pair<std::string, double> CDataFrameAnalysisConfigReader::CParameter::fallb
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsObject() == false) {
+    if (m_Value->is_object() == false) {
         this->handleFatal();
         return fallback;
     }
-    auto name_ = m_Value->FindMember(name);
-    auto value_ = m_Value->FindMember(value);
-    if (name_ == m_Value->MemberEnd() || value_ == m_Value->MemberEnd()) {
+    const json::object& obj = m_Value->as_object();
+    auto name_ = obj.find(name);
+    auto value_ = obj.find(value);
+    if (name_ == obj.end() || value_ == obj.end()) {
         this->handleFatal();
         return fallback;
     }
-    if (name_->value.IsString() == false || value_->value.IsDouble() == false) {
+    if (name_->value().is_string() == false || value_->value().is_double() == false) {
         this->handleFatal();
         return fallback;
     }
-    return {name_->value.GetString(), value_->value.GetDouble()};
+    return {std::string(name_->value().as_string()), value_->value().to_number<double>()};
 }
 
 std::vector<std::pair<std::string, double>> CDataFrameAnalysisConfigReader::CParameter::fallback(
@@ -184,15 +168,16 @@ std::vector<std::pair<std::string, double>> CDataFrameAnalysisConfigReader::CPar
     if (m_Value == nullptr) {
         return fallback;
     }
-    if (m_Value->IsArray() == false) {
+    if (m_Value->is_array() == false) {
         this->handleFatal();
         return fallback;
     }
+    json::array arr = m_Value->as_array();
     std::vector<std::pair<std::string, double>> result;
-    result.reserve(m_Value->Size());
+    result.reserve(arr.size());
     CParameter element{m_Name, SArrayElementTag{}};
-    for (std::size_t i = 0; i < m_Value->Size(); ++i) {
-        element.m_Value = &(*m_Value)[static_cast<int>(i)];
+    for (std::size_t i = 0; i < arr.size(); ++i) {
+        element.m_Value = &(arr)[static_cast<int>(i)];
         result.push_back(element.as(name, value));
     }
     return result;

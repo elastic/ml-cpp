@@ -11,8 +11,8 @@
 #ifndef INCLUDED_ml_controller_CResponseJsonWriter_h
 #define INCLUDED_ml_controller_CResponseJsonWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <iosfwd>
 #include <string>
@@ -54,7 +54,7 @@ private:
     core::CJsonOutputStreamWrapper m_WrappedOutputStream;
 
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 };
 }
 }

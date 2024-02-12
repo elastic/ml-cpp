@@ -12,7 +12,7 @@
 #include <model/CForecastDataSink.h>
 
 #include <core/CLogger.h>
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CModel.h>
@@ -60,8 +60,6 @@ const std::string CForecastDataSink::MESSAGES("forecast_messages");
 const std::string CForecastDataSink::PROCESSING_TIME_MS("processing_time_ms");
 const std::string CForecastDataSink::PROGRESS("forecast_progress");
 const std::string CForecastDataSink::STATUS("forecast_status");
-
-using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
 CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(model_t::EFeature feature,
                                                                 const std::string& byFieldValue,
@@ -119,9 +117,8 @@ void CForecastDataSink::writeStats(const double progress,
                                    std::uint64_t runtime,
                                    const TStrUMap& messages,
                                    bool successful) {
-    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
 
-    rapidjson::Document doc = m_Writer.makeDoc();
+    json::object doc = m_Writer.makeDoc();
 
     this->writeCommonStatsFields(doc);
     m_Writer.addUIntFieldToObj(MEMORY_USAGE, m_MemoryUsage, doc);
@@ -130,7 +127,8 @@ void CForecastDataSink::writeStats(const double progress,
     m_Writer.addDoubleFieldToObj(PROGRESS, progress, doc);
     m_Writer.addUIntFieldToObj(PROCESSING_TIME_MS, runtime, doc);
 
-    m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
+    json::value msgs = json::value_from(messages);
+    m_Writer.addStringArrayFieldToObj(MESSAGES, msgs.as_array(), doc);
     if (progress < 1.0) {
         m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_STARTED, doc);
     } else {
@@ -146,27 +144,24 @@ void CForecastDataSink::writeStats(const double progress,
 }
 
 void CForecastDataSink::writeScheduledMessage() {
-    rapidjson::Value doc(rapidjson::kObjectType);
+    json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_SCHEDULED, doc);
     this->push(true /*important, therefore flush*/, doc);
 }
 
 void CForecastDataSink::writeErrorMessage(const std::string& message) {
-    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
 
-    rapidjson::Document doc = m_Writer.makeDoc();
+    json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
-    TStrVec messages{message};
+    json::array messages{message};
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FAILED, doc);
     this->push(true /*important, therefore flush*/, doc);
 }
 
 void CForecastDataSink::writeFinalMessage(const std::string& message) {
-    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
-
-    rapidjson::Document doc = m_Writer.makeDoc();
+    json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
@@ -175,7 +170,7 @@ void CForecastDataSink::writeFinalMessage(const std::string& message) {
     this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeCommonStatsFields(rapidjson::Value& doc) {
+void CForecastDataSink::writeCommonStatsFields(json::object& doc) {
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
     if (m_ForecastAlias.empty() == false) {
@@ -191,10 +186,8 @@ void CForecastDataSink::writeCommonStatsFields(rapidjson::Value& doc) {
     }
 }
 
-void CForecastDataSink::push(bool flush, rapidjson::Value& doc) {
-    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
-
-    rapidjson::Document wrapper = m_Writer.makeDoc();
+void CForecastDataSink::push(bool flush, json::object& doc) {
+    json::object wrapper = m_Writer.makeDoc();
 
     m_Writer.addMember(MODEL_FORECAST_STATS, doc, wrapper);
     m_Writer.write(wrapper);
@@ -215,10 +208,8 @@ void CForecastDataSink::push(const maths::common::SErrorBar errorBar,
                              const std::string& byFieldName,
                              const std::string& byFieldValue,
                              int detectorIndex) {
-    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
-
     ++m_NumRecordsWritten;
-    rapidjson::Document doc = m_Writer.makeDoc();
+    json::object doc = m_Writer.makeDoc();
 
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
@@ -248,7 +239,7 @@ void CForecastDataSink::push(const maths::common::SErrorBar errorBar,
     m_Writer.addDoubleFieldToObj(UPPER, errorBar.s_UpperBound, doc);
     m_Writer.addDoubleFieldToObj(PREDICTION, errorBar.s_Predicted, doc);
 
-    rapidjson::Document wrapper = m_Writer.makeDoc();
+    json::object wrapper = m_Writer.makeDoc();
     m_Writer.addMember(MODEL_FORECAST, doc, wrapper);
     m_Writer.write(wrapper);
 }

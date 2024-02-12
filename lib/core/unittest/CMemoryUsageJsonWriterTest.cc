@@ -41,7 +41,9 @@ BOOST_AUTO_TEST_CASE(test) {
         writer.addItem(description);
         writer.endObject();
         writer.finalise();
-        BOOST_REQUIRE_EQUAL(std::string("{\"Hello\":{\"memory\":223}}\n"), ss.str());
+        std::string expected = "{\"Hello\":{\"memory\":223}}\n";
+        std::string actual = ss.str();
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
     {
         // Check one object with unused space

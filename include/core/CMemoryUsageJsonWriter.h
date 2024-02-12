@@ -11,13 +11,13 @@
 #ifndef INCLUDED_ml_core_CMemoryUsageJsonWriter_h
 #define INCLUDED_ml_core_CMemoryUsageJsonWriter_h
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CMemoryUsage.h>
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CStreamWriter.h>
 #include <core/ImportExport.h>
 
-#include <rapidjson/ostreamwrapper.h>
-
 #include <iosfwd>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -25,7 +25,7 @@
 namespace ml {
 namespace core {
 
-//! \brief A lightweight wrapper over rapidjson::LineWriter
+//! \brief A lightweight wrapper around CStreamWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
 //! in a JSON string.
 //!
@@ -62,10 +62,10 @@ public:
     void addItem(const CMemoryUsage::SMemoryUsage& item);
 
 private:
-    //! JSON writer ostream wrapper
-    rapidjson::OStreamWrapper m_WriteStream;
+    //! JSON writer ostream
+    std::ostream& m_WriteStream;
 
-    using TGenericLineWriter = CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+    using TGenericLineWriter = CStreamWriter;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

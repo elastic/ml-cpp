@@ -319,7 +319,7 @@ int main(int argc, char** argv) {
             const ml::torch::CCommandParser::SControlMessage& controlMessage) {
             return handleControlMessage(controlMessage, threadSettings, cache, resultWriter);
         },
-        [&resultWriter](const std::string& requestId, const std::string& message) {
+        [&resultWriter](const std::string_view& requestId, const std::string& message) {
             resultWriter.writeError(requestId, message);
         });
 

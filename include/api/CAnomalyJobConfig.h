@@ -19,8 +19,6 @@
 #include <model/CLimits.h>
 #include <model/FunctionTypes.h>
 
-#include <rapidjson/document.h>
-
 #include <boost/unordered_map.hpp>
 
 #include <set>
@@ -28,6 +26,8 @@
 #include <vector>
 
 class CTestAnomalyJob;
+
+namespace json = boost::json;
 
 namespace ml {
 namespace model {
@@ -142,7 +142,7 @@ public:
                 this->decipherExcludeFrequentSetting();
             }
 
-            void parse(const rapidjson::Value& detectorConfig,
+            void parse(const json::value& detectorConfig,
                        const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
                        bool haveSummaryCountField,
                        int detectorIndex,
@@ -247,7 +247,7 @@ public:
         }
 
         //! Parse a JSON value representing an entire analysis config object.
-        void parse(const rapidjson::Value& json);
+        void parse(const json::value& json);
 
         //! Reparse the detector configuration object from within a stored
         //! string representing the analysis config object.
@@ -313,9 +313,9 @@ public:
 
         bool parseRules(int detectorIndex, const std::string& rules);
 
-        bool parseRules(int detectorIndex, const rapidjson::Value& rules);
+        bool parseRules(int detectorIndex, const json::value& rules);
 
-        bool parseRulesUpdate(const rapidjson::Value& rulesUpdateConfig);
+        bool parseRulesUpdate(const json::value& rulesUpdateConfig);
 
     private:
         // Convenience method intended for use by the unit tests only
@@ -333,12 +333,12 @@ public:
         }
 
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
-                        const rapidjson::Value& rules);
+                        const json::value& rules);
 
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                         const std::string& rules);
 
-        void parseDetectorsConfig(const rapidjson::Value& detectorsConfig);
+        void parseDetectorsConfig(const json::value& detectorsConfig);
 
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
@@ -387,7 +387,7 @@ public:
         //! Default constructor
         CDataDescription() {}
 
-        void parse(const rapidjson::Value& json);
+        void parse(const json::value& json);
 
         std::string timeField() const { return m_TimeField; }
 
@@ -406,7 +406,7 @@ public:
         //! Default constructor
         CModelPlotConfig() {}
 
-        void parse(const rapidjson::Value& modelPlotConfig);
+        void parse(const json::value& modelPlotConfig);
 
         bool annotationsEnabled() const { return m_AnnotationsEnabled; }
         bool enabled() const { return m_Enabled; }
@@ -433,7 +433,7 @@ public:
         //! Default constructor
         CAnalysisLimits() {}
 
-        void parse(const rapidjson::Value& analysLimits);
+        void parse(const json::value& analysLimits);
 
         //! Size of the memory limit for the resource monitor
         //! as a whole number of MB.
@@ -458,7 +458,7 @@ public:
     public:
         CFilterConfig() {}
 
-        void parse(const rapidjson::Value& filterConfig,
+        void parse(const json::value& filterConfig,
                    CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters);
 
         std::string name() const { return m_FilterName; }
@@ -479,7 +479,7 @@ public:
         static const std::string RULES;
 
     public:
-        void parse(const rapidjson::Value& filterConfig,
+        void parse(const json::value& filterConfig,
                    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
                    TStrDetectionRulePrVec& scheduledEvents);
 

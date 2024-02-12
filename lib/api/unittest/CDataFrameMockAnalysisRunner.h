@@ -42,7 +42,7 @@ public:
     ml::core::CPackedBitVector rowsToWriteMask(const ml::core::CDataFrame& frame) const override;
     void writeOneRow(const ml::core::CDataFrame&,
                      const TRowRef&,
-                     ml::core::CRapidJsonConcurrentLineWriter&) const override;
+                     ml::core::CBoostJsonConcurrentLineWriter&) const override;
     bool validate(const ml::core::CDataFrame&) const override;
     const ml::api::CDataFrameAnalysisInstrumentation& instrumentation() const override;
     ml::api::CDataFrameAnalysisInstrumentation& instrumentation() override;
@@ -70,7 +70,7 @@ private:
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value&,
+                         const boost::json::value&,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 

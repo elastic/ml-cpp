@@ -120,6 +120,7 @@ bool traverse1stLevel4(ml::core::CStateRestoreTraverser& traverser) {
 
 BOOST_AUTO_TEST_CASE(testRestore1) {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}}");
+
     std::istringstream strm(json);
 
     ml::core::CJsonStateRestoreTraverser traverser(strm);

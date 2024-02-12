@@ -63,9 +63,10 @@ TOOLS_DIR=`cd "$MY_DIR" && pwd`
 # The Docker context here is the root directory of the outer repository.
 cd "$TOOLS_DIR/.."
 
-# Update Eigen outside of Docker, as the Docker containers may not have the
+# Update Eigen and Valijson outside of Docker, as the Docker containers may not have the
 # necessary network access
 3rd_party/pull-eigen.sh
+3rd_party/pull-valijson.sh
 
 . "$TOOLS_DIR/docker/prefetch_docker_image.sh"
 

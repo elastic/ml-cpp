@@ -22,25 +22,25 @@ CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream& outputStream)
 
 CJsonStatePersistInserter::~CJsonStatePersistInserter() {
     m_Writer.EndObject();
-    m_WriteStream.Flush();
+    m_WriteStream.flush();
 }
 
 void CJsonStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.String(value);
 }
 
 void CJsonStatePersistInserter::insertInteger(const std::string& name, size_t value) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.Uint64(value);
 }
 
 void CJsonStatePersistInserter::flush() {
-    m_WriteStream.Flush();
+    m_WriteStream.flush();
 }
 
 void CJsonStatePersistInserter::newLevel(const std::string& name) {
-    m_Writer.String(name);
+    m_Writer.Key(name);
     m_Writer.StartObject();
 }
 

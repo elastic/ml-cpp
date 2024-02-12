@@ -11,8 +11,8 @@
 
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -103,7 +103,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     const core::CDataFrame&,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CBoostJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
@@ -211,7 +211,7 @@ CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters,
+    const json::value& jsonParameters,
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeRegressionRunner::parameterReader()};

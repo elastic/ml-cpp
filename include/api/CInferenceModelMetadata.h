@@ -27,7 +27,7 @@
 
 namespace ml {
 namespace core {
-class CRapidJsonConcurrentLineWriter;
+class CBoostJsonConcurrentLineWriter;
 }
 namespace api {
 
@@ -62,14 +62,14 @@ public:
 public:
     using TVector = maths::common::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TBoostJsonWriter = core::CBoostJsonConcurrentLineWriter;
     using THyperparameterImportanceVec = maths::analytics::CBoostedTree::THyperparameterImportanceVec;
     using TPredictionFieldTypeResolverWriter =
-        std::function<void(const std::string&, TRapidJsonWriter&)>;
+        std::function<void(const std::string&, TBoostJsonWriter&)>;
 
 public:
     //! Writes metadata using \p writer.
-    void write(TRapidJsonWriter& writer) const;
+    void write(TBoostJsonWriter& writer) const;
     static const std::string& typeString();
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
@@ -111,11 +111,11 @@ private:
     using THyperparametersVec = std::vector<SHyperparameterImportance>;
 
 private:
-    void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
-    void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
-    void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
-    void writeTrainProperties(TRapidJsonWriter& writer) const;
-    void writeDataSummarization(TRapidJsonWriter& writer) const;
+    void writeTotalFeatureImportance(TBoostJsonWriter& writer) const;
+    void writeFeatureImportanceBaseline(TBoostJsonWriter& writer) const;
+    void writeHyperparameterImportance(TBoostJsonWriter& writer) const;
+    void writeTrainProperties(TBoostJsonWriter& writer) const;
+    void writeDataSummarization(TBoostJsonWriter& writer) const;
 
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
@@ -124,7 +124,7 @@ private:
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
     TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter{
-        [](const std::string& value, TRapidJsonWriter& writer) {
+        [](const std::string& value, TBoostJsonWriter& writer) {
             writer.String(value);
         }};
     THyperparametersVec m_HyperparameterImportance;

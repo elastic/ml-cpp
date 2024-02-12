@@ -24,17 +24,19 @@ namespace api {
 
 namespace {
 
-auto toRapidjsonValue(std::size_t value) {
-    return rapidjson::Value{static_cast<std::uint64_t>(value)};
+auto toBoostjsonValue(std::size_t value) {
+    return json::value(static_cast<std::uint64_t>(value));
 }
 
 void addJsonArray(const std::string& tag,
                   const std::vector<std::size_t>& vector,
-                  rapidjson::Value& parentObject,
-                  CSerializableToJsonDocument::TRapidJsonWriter& writer) {
-    rapidjson::Value array{writer.makeArray(vector.size())};
+                  json::object& parentObject,
+                  CSerializableToJsonDocument::TBoostJsonWriter& writer) {
+    // NOTE: Do not use brace initialization here as that will
+    // result in "array" being created as a nested array on linux
+    json::array array = writer.makeArray(vector.size());
     for (const auto& value : vector) {
-        array.PushBack(static_cast<std::uint64_t>(value), writer.getRawAllocator());
+        array.push_back(static_cast<std::uint64_t>(value));
     }
     writer.addMember(tag, array, parentObject);
 }
@@ -135,8 +137,8 @@ CTree::CSizeInfo::CSizeInfo(const CTree& tree)
     : CTrainedModel::CSizeInfo(tree), m_Tree{tree} {
 }
 
-void CTree::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                         TRapidJsonWriter& writer) const {
+void CTree::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                         TBoostJsonWriter& writer) const {
     std::size_t numLeaves{0};
     std::size_t numNodes{0};
     for (const auto& node : m_Tree.m_TreeStructure) {
@@ -146,8 +148,8 @@ void CTree::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
             ++numNodes;
         }
     }
-    writer.addMember(JSON_NUM_NODES_TAG, toRapidjsonValue(numNodes).Move(), parentObject);
-    writer.addMember(JSON_NUM_LEAVES_TAG, toRapidjsonValue(numLeaves).Move(), parentObject);
+    writer.addMember(JSON_NUM_NODES_TAG, std::move(json::value(numNodes)), parentObject);
+    writer.addMember(JSON_NUM_LEAVES_TAG, std::move(json::value(numLeaves)), parentObject);
 }
 
 std::size_t CTree::CSizeInfo::numOperations() const {
@@ -259,33 +261,33 @@ std::size_t CEnsemble::CSizeInfo::numOperations() const {
     return numOperations;
 }
 
-void CEnsemble::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                             TRapidJsonWriter& writer) const {
+void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                             TBoostJsonWriter& writer) const {
     this->CTrainedModel::CSizeInfo::addToJsonDocument(parentObject, writer);
-    rapidjson::Value featureNameLengthsArray{
-        writer.makeArray(m_Ensemble->featureNames().size())};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "featureNameLengthsArray" being created as a nested array on linux
+    json::array featureNameLengthsArray =
+        writer.makeArray(m_Ensemble->featureNames().size());
     for (const auto& featureName : m_Ensemble->featureNames()) {
-        featureNameLengthsArray.PushBack(
-            toRapidjsonValue(core::CStringUtils::utf16LengthOfUtf8String(featureName))
-                .Move(),
-            writer.getRawAllocator());
+        featureNameLengthsArray.push_back(toBoostjsonValue(
+            core::CStringUtils::utf16LengthOfUtf8String(featureName)));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
-
-    rapidjson::Value treeSizesArray{writer.makeArray(m_Ensemble->m_TrainedModels.size())};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "treeSizesArray" being created as a nested array on linux
+    json::array treeSizesArray = writer.makeArray(m_Ensemble->m_TrainedModels.size());
     for (const auto& trainedModel : m_Ensemble->m_TrainedModels) {
-        rapidjson::Value item{writer.makeObject()};
+        json::object item{writer.makeObject()};
         trainedModel->sizeInfo()->addToJsonDocument(item, writer);
-        treeSizesArray.PushBack(item, writer.getRawAllocator());
+        treeSizesArray.push_back(item);
     }
     writer.addMember(JSON_TREE_SIZES_TAG, treeSizesArray, parentObject);
 
     std::size_t numOutputProcessorWeights{m_Ensemble->m_TrainedModels.size()};
     writer.addMember(JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG,
-                     toRapidjsonValue(numOutputProcessorWeights).Move(), parentObject);
+                     toBoostjsonValue(numOutputProcessorWeights), parentObject);
     std::size_t numOperations{this->numOperations()};
-    writer.addMember(JSON_NUM_OPERATIONS_TAG,
-                     toRapidjsonValue(numOperations).Move(), parentObject);
+    writer.addMember(JSON_NUM_OPERATIONS_TAG, toBoostjsonValue(numOperations), parentObject);
 }
 
 void CTree::addToJsonStream(TGenericLineWriter& writer) const {
@@ -331,7 +333,7 @@ const CTree::TStringVec& CTree::removeUnusedFeatures() {
     return this->featureNames();
 }
 
-void CInferenceModelDefinition::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
+void CInferenceModelDefinition::addCompressedToJsonStream(TBoostJsonWriter& writer) const {
     this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
         JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG, writer);
 }
@@ -463,17 +465,15 @@ CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
     : m_TrainedModel{trainedModel} {
 }
 
-void CTrainedModel::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                                 TRapidJsonWriter& writer) const {
+void CTrainedModel::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                                 TBoostJsonWriter& writer) const {
     if (m_TrainedModel.targetType() == E_Classification) {
         writer.addMember(
             JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
-            toRapidjsonValue(m_TrainedModel.classificationWeights()->size()).Move(),
-            parentObject);
-        writer.addMember(
-            JSON_NUM_CLASSES_TAG,
-            toRapidjsonValue(m_TrainedModel.classificationLabels()->size()).Move(),
-            parentObject);
+            toBoostjsonValue(m_TrainedModel.classificationWeights()->size()), parentObject);
+        writer.addMember(JSON_NUM_CLASSES_TAG,
+                         toBoostjsonValue(m_TrainedModel.classificationLabels()->size()),
+                         parentObject);
     }
 }
 
@@ -532,8 +532,8 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
     {
         // we use this scope to finish writing the object in the CJsonOutputStreamWrapper destructor
         core::CJsonOutputStreamWrapper wrapper{stream};
-        TRapidJsonWriter writer{wrapper};
-        rapidjson::Value doc{writer.makeObject()};
+        TBoostJsonWriter writer{wrapper};
+        json::object doc{writer.makeObject()};
         this->addToJsonDocument(doc, writer);
         writer.write(doc);
         stream.flush();
@@ -548,8 +548,8 @@ const std::string& CInferenceModelDefinition::CSizeInfo::typeString() const {
     return JSON_MODEL_SIZE_INFO_TAG;
 }
 
-void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                                             TRapidJsonWriter& writer) const {
+void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                                             TBoostJsonWriter& writer) const {
     using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
 
     // parse trained models
@@ -559,18 +559,20 @@ void CInferenceModelDefinition::CSizeInfo::addToJsonDocument(rapidjson::Value& p
     }
 
     // preprocessors
-    rapidjson::Value preprocessingArray{writer.makeArray()};
+    // NOTE: Do not use brace initialization here as that will
+    // result in "preprocessingArray" being created as a nested array on linux
+    json::array preprocessingArray = writer.makeArray();
     for (const auto& preprocessor : m_Definition.preprocessors()) {
         auto encodingSizeInfo = preprocessor->sizeInfo();
-        rapidjson::Value encodingValue{writer.makeObject()};
+        json::object encodingValue{writer.makeObject()};
         encodingSizeInfo->addToJsonDocument(encodingValue, writer);
-        rapidjson::Value encodingEnclosingObject{writer.makeObject()};
+        json::object encodingEnclosingObject{writer.makeObject()};
         writer.addMember(encodingSizeInfo->typeString(), encodingValue, encodingEnclosingObject);
-        preprocessingArray.PushBack(encodingEnclosingObject, writer.getRawAllocator());
+        preprocessingArray.push_back(encodingEnclosingObject);
     }
     writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
-    rapidjson::Value trainedModelSizeObject{writer.makeObject()};
-    rapidjson::Value ensembleModelSizeObject{writer.makeObject()};
+    json::object trainedModelSizeObject{writer.makeObject()};
+    json::object ensembleModelSizeObject{writer.makeObject()};
     trainedModelSize->addToJsonDocument(ensembleModelSizeObject, writer);
     writer.addMember(JSON_ENSEMBLE_MODEL_SIZE_TAG, ensembleModelSizeObject,
                      trainedModelSizeObject);
@@ -621,8 +623,8 @@ CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding& encoding)
     : CEncoding::CSizeInfo::CSizeInfo(&encoding), m_Encoding{encoding} {
 }
 
-void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                                       TRapidJsonWriter& writer) const {
+void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                                       TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     std::size_t featureNameLength{
         core::CStringUtils::utf16LengthOfUtf8String(m_Encoding.featureName())};
@@ -632,7 +634,7 @@ void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentO
         fieldValueLengths.push_back(core::CStringUtils::utf16LengthOfUtf8String(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     toRapidjsonValue(featureNameLength).Move(), parentObject);
+                     toBoostjsonValue(featureNameLength), parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
@@ -671,13 +673,12 @@ CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding)
     : m_Encoding(encoding) {
 }
 
-void CEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                             TRapidJsonWriter& writer) const {
-    writer.addMember(
-        JSON_FIELD_LENGTH_TAG,
-        toRapidjsonValue(core::CStringUtils::utf16LengthOfUtf8String(m_Encoding->field()))
-            .Move(),
-        parentObject);
+void CEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                             TBoostJsonWriter& writer) const {
+    writer.addMember(JSON_FIELD_LENGTH_TAG,
+                     toBoostjsonValue(core::CStringUtils::utf16LengthOfUtf8String(
+                         m_Encoding->field())),
+                     parentObject);
 }
 
 const CEncoding* CEncoding::CSizeInfo::encoding() const {
@@ -713,8 +714,8 @@ CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding& encoding)
     : CEncoding::CSizeInfo::CSizeInfo(&encoding), m_Encoding{encoding} {
 }
 
-void CFrequencyEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                                      TRapidJsonWriter& writer) const {
+void CFrequencyEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                                      TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     std::size_t featureNameLength{
         core::CStringUtils::utf16LengthOfUtf8String(m_Encoding.featureName())};
@@ -724,7 +725,7 @@ void CFrequencyEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentOb
         fieldValueLengths.push_back(core::CStringUtils::utf16LengthOfUtf8String(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     toRapidjsonValue(featureNameLength).Move(), parentObject);
+                     toBoostjsonValue(featureNameLength), parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
@@ -767,8 +768,8 @@ COneHotEncoding::COneHotEncoding(const std::string& field, TStrStrMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
 
-void COneHotEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
-                                                   TRapidJsonWriter& writer) const {
+void COneHotEncoding::CSizeInfo::addToJsonDocument(json::object& parentObject,
+                                                   TBoostJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToJsonDocument(parentObject, writer);
     TSizeVec fieldValueLengths;
     fieldValueLengths.reserve(m_Encoding.hotMap().size());
@@ -790,19 +791,19 @@ CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
     return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
 }
 
-COpaqueEncoding::COpaqueEncoding(const rapidjson::Document& object) {
-    m_Object.CopyFrom(object, m_Object.GetAllocator());
+COpaqueEncoding::COpaqueEncoding(const json::value& object) {
+    m_Object = object;
 }
 
 void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
 
-    if (m_Object.IsArray()) {
+    if (m_Object.is_array()) {
         // These are prepended to the array of other encoders so we don't wrap in
         // a StartArray and EndArray.
-        for (const auto& val : m_Object.GetArray()) {
+        for (const auto& val : m_Object.as_array()) {
             writer.write(val);
         }
-    } else if (m_Object.IsObject() && m_Object.ObjectEmpty() == false) {
+    } else if (m_Object.is_object() && m_Object.as_object().empty() == false) {
         writer.write(m_Object);
     }
 }

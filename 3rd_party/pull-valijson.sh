@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
@@ -9,8 +10,14 @@
 # limitation.
 #
 
-message(STATUS "x86_64 detected for target")
-set (ARCHCFLAGS "-msse4.2")
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  list(APPEND ARCHCFLAGS "-mfpmath=sse")
-endif()
+# Script to get the appropriate version of Valijson, if not already present.
+#
+# Valijson must only be used in test code, _not_ any form of redistributable code.
+
+
+cd `dirname "$BASH_SOURCE"`
+
+if [ ! -d "valijson" ] ; then
+    git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git
+fi
+

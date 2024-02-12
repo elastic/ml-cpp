@@ -21,12 +21,8 @@
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
+#include <boost/json.hpp>
 
-#include <boost/filesystem.hpp>
-
-#include <cstring>
 #include <iterator>
 #include <memory>
 
@@ -121,13 +117,14 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRestoreSearcherSupplier restoreSearcherSupplier)
     : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
       m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
-
-    rapidjson::Document specification;
-    if (specification.Parse(jsonSpecification) == false) {
-        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
-                     << jsonSpecification << "'. Please report this problem.");
+    json::error_code ec;
+    json::value specification = json::parse(jsonSpecification, ec);
+    if (ec) {
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '" << jsonSpecification
+                     << "'. Got parse error \"" << ec.message() << "\". "
+                     << "Please report this problem.");
     } else {
-
+        LOG_TRACE(<< "specification: " << jsonSpecification);
         auto parameters = CONFIG_READER.read(specification);
 
         for (const auto& name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
@@ -256,11 +253,12 @@ void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimation
     m_Runner->estimateMemoryUsage(writer);
 }
 
-void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis,
+void CDataFrameAnalysisSpecification::initializeRunner(const json::value& jsonAnalysis,
                                                        TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) {
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
+    LOG_TRACE(<< "jsonAnalysis: " << jsonAnalysis);
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
     m_AnalysisName = analysis[NAME].as<std::string>();

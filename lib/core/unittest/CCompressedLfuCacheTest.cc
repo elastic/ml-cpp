@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origJsonStream.flush();
     }
 
-    LOG_TRACE(<< "JSON representation is: " << origJsonStream.str());
+    LOG_DEBUG(<< "JSON representation is: " << origJsonStream.str());
 
     origJsonStream.seekg(0);
     core::CJsonStateRestoreTraverser traverser{origJsonStream};

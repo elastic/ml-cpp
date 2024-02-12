@@ -9,19 +9,18 @@
  * limitation.
  */
 
+#include <core/CBoostJsonWriterBase.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonWriterBase.h>
+#include <core/CStreamWriter.h>
 #include <core/CStringUtils.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
-
+#include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <limits>
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(CRapidJsonWriterBaseTest)
+BOOST_AUTO_TEST_SUITE(CBoostJsonWriterBaseTest)
 
 namespace {
 const std::string STR_NAME("str");
@@ -42,19 +41,15 @@ const std::string TTIME_ARRAY_NAME("TTime[]");
 
 BOOST_AUTO_TEST_CASE(testAddFields) {
     std::ostringstream strm;
-    rapidjson::OStreamWrapper writeStream(strm);
-    using TGenericLineWriter =
-        ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>,
-                                       rapidjson::UTF8<>, rapidjson::CrtAllocator>;
-    TGenericLineWriter writer(writeStream);
+    using TGenericLineWriter = ml::core::CStreamWriter;
+    TGenericLineWriter writer(strm);
 
-    rapidjson::Document doc = writer.makeDoc();
-    ;
+    json::object doc = writer.makeDoc();
 
     writer.addStringFieldCopyToObj(STR_NAME, "hello", doc);
     writer.addStringFieldCopyToObj(EMPTY1_NAME, "", doc);
     writer.addStringFieldCopyToObj(EMPTY2_NAME, "", doc, true);
-    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.77e-156, doc);
+    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.78E-156, doc);
     writer.addDoubleFieldToObj(NAN_NAME, std::numeric_limits<double>::quiet_NaN(), doc);
     writer.addDoubleFieldToObj(INFINITY_NAME, std::numeric_limits<double>::infinity(), doc);
     writer.addBoolFieldToObj(BOOL_NAME, false, doc);
@@ -82,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
     std::string expectedDoc("{"
                             "\"str\":\"hello\","
                             "\"empty2\":\"\","
-                            "\"double\":1.77e-156,"
+                            "\"double\":1.78e-156,"
                             "\"nan\":0,"
                             "\"infinity\":0,"
                             "\"bool\":false,"
@@ -95,30 +90,28 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
                             "\"TTime[]\":[1421421421000,1421421421000]"
                             "}");
 
+    LOG_DEBUG(<< "Expected doc is: " << expectedDoc);
+
     BOOST_REQUIRE_EQUAL(expectedDoc, printedDoc);
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveMemberIfPresent) {
     std::ostringstream strm;
-    rapidjson::OStreamWrapper writeStream(strm);
-    using TGenericLineWriter =
-        ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>,
-                                       rapidjson::UTF8<>, rapidjson::CrtAllocator>;
-    TGenericLineWriter writer(writeStream);
+    using TGenericLineWriter = ml::core::CStreamWriter;
+    TGenericLineWriter writer(strm);
 
-    rapidjson::Document doc = writer.makeDoc();
-    ;
+    json::object doc = writer.makeDoc();
 
     std::string foo("foo");
 
     writer.addStringFieldCopyToObj(foo, "42", doc);
-    BOOST_TEST_REQUIRE(doc.HasMember(foo));
+    BOOST_TEST_REQUIRE(doc.contains(foo));
 
     writer.removeMemberIfPresent(foo, doc);
-    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.contains(foo) == false);
 
     writer.removeMemberIfPresent(foo, doc);
-    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.contains(foo) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

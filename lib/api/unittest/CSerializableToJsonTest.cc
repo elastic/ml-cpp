@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+#include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 
 #include <api/CSerializableToJson.h>
 
@@ -17,7 +17,6 @@
 
 #include <boost/test/tools/interface.hpp>
 #include <boost/test/unit_test.hpp>
-#include <rapidjson/document.h>
 
 #include <iostream>
 #include <sstream>
@@ -60,7 +59,7 @@ public:
         this->readFromJsonStream(std::move(state));
     }
 
-    void addCompressedToJsonStream(TRapidJsonWriter& writer) const override {
+    void addCompressedToJsonStream(TBoostJsonWriter& writer) const override {
         this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
             "state_doc", "state", writer);
     }
@@ -81,14 +80,18 @@ private:
 
     void readFromJsonStream(TIStreamPtr inputStream) {
         if (inputStream != nullptr) {
-            core::CRapidJsonUnbufferedIStreamWrapper isw{*inputStream};
-            rapidjson::Document doc;
-            doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
-            m_Name = doc["name"].GetString();
-            doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
-            m_Values.reserve(doc["values"].Size());
-            for (const auto& value : doc["values"].GetArray()) {
-                m_Values.push_back(value.GetDouble());
+            json::error_code ec;
+            json::parse_options opts;
+            opts.numbers = json::number_precision::precise;
+            json::value doc = json::parse(*inputStream, ec, {}, opts);
+            BOOST_TEST_REQUIRE(ec.failed() == false);
+            BOOST_TEST_REQUIRE(doc.is_object());
+
+            m_Name = doc.as_object().at("name").as_string();
+            m_Values.reserve(doc.as_object().at("values").as_array().size());
+            for (const auto& value : doc.as_object().at("values").as_array()) {
+                double d = value.to_number<double>();
+                m_Values.push_back(d);
             }
         }
     }
@@ -100,13 +103,16 @@ private:
 
 void arrayToNdJson(std::string array, std::ostream& ndjson) {
     array.erase(std::remove(array.begin(), array.end(), '\n'), array.end());
-    rapidjson::Document doc;
-    doc.Parse(array);
-    for (const auto& chunk : doc.GetArray()) {
-        rapidjson::StringBuffer string;
-        core::CRapidJsonLineWriter<rapidjson::StringBuffer> printer{string};
-        chunk.Accept(printer);
-        ndjson << string.GetString();
+    json::error_code ec;
+    json::value doc = json::parse(array, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc.is_array());
+
+    for (const auto& chunk : doc.as_array()) {
+        std::string string;
+        core::CStringBufWriter printer{string};
+        printer.write(chunk);
+        ndjson << string;
     }
 }
 }
@@ -126,7 +132,7 @@ BOOST_AUTO_TEST_CASE(testRoundTrip) {
         std::ostringstream storage;
         {
             core::CJsonOutputStreamWrapper osw{storage};
-            CSerializableVector::TRapidJsonWriter writer{osw};
+            CSerializableVector::TBoostJsonWriter writer{osw};
             original.addCompressedToJsonStream(writer);
         }
         arrayToNdJson(storage.str(), *ndjson);

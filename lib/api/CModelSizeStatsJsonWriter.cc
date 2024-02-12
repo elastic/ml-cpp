@@ -11,7 +11,7 @@
 
 #include <api/CModelSizeStatsJsonWriter.h>
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CTimeUtils.h>
 
 #include <model/SCategorizerStats.h>
@@ -49,7 +49,7 @@ const std::string PARTITION_FIELD_VALUE{"partition_field_value"};
 
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
                                       const model::CResourceMonitor::SModelSizeStats& results,
-                                      core::CRapidJsonConcurrentLineWriter& writer) {
+                                      core::CBoostJsonConcurrentLineWriter& writer) {
     writer.Key(MODEL_SIZE_STATS);
     writer.StartObject();
 
@@ -97,7 +97,7 @@ void CModelSizeStatsJsonWriter::writeCategorizerStats(
     const std::string& partitionFieldValue,
     const model::SCategorizerStats& categorizerStats,
     const TOptionalTime& timestamp,
-    core::CRapidJsonConcurrentLineWriter& writer) {
+    core::CBoostJsonConcurrentLineWriter& writer) {
 
     writer.Key(CATEGORIZER_STATS);
     writer.StartObject();
@@ -118,7 +118,7 @@ void CModelSizeStatsJsonWriter::writeCategorizerStats(
 void CModelSizeStatsJsonWriter::writeCommonFields(const std::string& jobId,
                                                   const model::SCategorizerStats& categorizerStats,
                                                   const TOptionalTime& timestamp,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) {
+                                                  core::CBoostJsonConcurrentLineWriter& writer) {
 
     writer.Key(JOB_ID);
     writer.String(jobId);

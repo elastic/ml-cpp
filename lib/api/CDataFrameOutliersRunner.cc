@@ -11,22 +11,23 @@
 
 #include <api/CDataFrameOutliersRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/COutliers.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
+#include <boost/json.hpp>
 
 #include <algorithm>
 #include <iterator>
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -103,7 +104,7 @@ CDataFrameOutliersRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
 
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
                                            const TRowRef& row,
-                                           core::CRapidJsonConcurrentLineWriter& writer) const {
+                                           core::CBoostJsonConcurrentLineWriter& writer) const {
     std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
     std::size_t beginFeatureScoreColumns{scoreColumn + 1};
     std::size_t numberFeatureScoreColumns{this->numberExtraColumns() - 1};
@@ -199,7 +200,7 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& jsonParameters,
+                                          const json::value& jsonParameters,
                                           TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     auto parameters = parameterReader().read(jsonParameters);
     return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);

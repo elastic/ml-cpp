@@ -9,12 +9,10 @@
  * limitation.
  */
 
-#ifndef INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h
-#define INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h
+#ifndef INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h
+#define INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h
 
 #include <core/ImportExport.h>
-
-#include <rapidjson/rapidjson.h>
 
 #include <istream>
 
@@ -22,28 +20,10 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! An unbuffered RapidJSON istream wrapper.
+//! An unbuffered istream wrapper.
 //!
 //! DESCRIPTION:\n
-//! RapidJSON has a class IStreamWrapper that must be used to
-//! wrap istreams before they can be accessed by the parsing
-//! functions.
-//!
-//! In the 2017 versions of RapidJSON, IStreamWrapper was
-//! unbuffered. We came to depend on it being unbuffered because
-//! we use it to parse documents from a stream that contains
-//! additional data after the JSON document currently being
-//! parsed, and hence we don't want the wrapper to consume any
-//! characters beyond those in the document it's parsing.
-//!
-//! In the 2021 versions of RapidJSON, IStreamWrapper was
-//! changed to read multiple characters from the underlying
-//! istream and buffer them. This broke our code. It's also
-//! not possible to simply use a single character buffer, as
-//! in debug mode RapidJSON asserts that the buffer is at least
-//! 4 characters in size.
-//!
-//! This class is an unbuffered istream wrapper compatible
+//! This class is an unbuffered istream wrapper backwardly compatible
 //! with the RapidJSON parser functions, similar to the class
 //! that existed in RapidJSON itself in 2017. It should be
 //! more efficient that a buffered wrapper with a single
@@ -62,29 +42,27 @@ namespace core {
 //! This is not a problem for us as we know our input is
 //! always UTF-8.
 //!
-class CORE_EXPORT CRapidJsonUnbufferedIStreamWrapper {
+class CORE_EXPORT CBoostJsonUnbufferedIStreamWrapper {
 public:
     //! The stream's char type must be available as Ch.
     using Ch = char;
 
 public:
-    explicit CRapidJsonUnbufferedIStreamWrapper(std::istream& strm);
+    explicit CBoostJsonUnbufferedIStreamWrapper(std::istream& strm);
 
     //! No default constructor.
-    CRapidJsonUnbufferedIStreamWrapper() = delete;
+    CBoostJsonUnbufferedIStreamWrapper() = delete;
 
     //! No copying.
-    CRapidJsonUnbufferedIStreamWrapper(const CRapidJsonUnbufferedIStreamWrapper&) = delete;
-    CRapidJsonUnbufferedIStreamWrapper&
-    operator=(const CRapidJsonUnbufferedIStreamWrapper&) = delete;
+    CBoostJsonUnbufferedIStreamWrapper(const CBoostJsonUnbufferedIStreamWrapper&) = delete;
+    CBoostJsonUnbufferedIStreamWrapper&
+    operator=(const CBoostJsonUnbufferedIStreamWrapper&) = delete;
 
     //! Peek the next character. Returns '\0' when the end of the stream is
     //! reached.
     char Peek() const {
         int c{m_Stream.peek()};
-        return RAPIDJSON_LIKELY(c != std::istream::traits_type::eof())
-                   ? static_cast<char>(c)
-                   : '\0';
+        return (c != std::istream::traits_type::eof()) ? static_cast<char>(c) : '\0';
     }
 
     //! Take the next character. Returns '\0' when the end of the stream is
@@ -93,24 +71,6 @@ public:
 
     //! Return the number of characters taken.
     std::size_t Tell() const { return m_Count; }
-
-    //! Not implemented.
-    void Put(char) { RAPIDJSON_ASSERT(false); }
-
-    //! Not implemented.
-    void Flush() { RAPIDJSON_ASSERT(false); }
-
-    //! Not implemented.
-    char* PutBegin() {
-        RAPIDJSON_ASSERT(false);
-        return nullptr;
-    }
-
-    //! Not implemented.
-    std::size_t PutEnd(char*) {
-        RAPIDJSON_ASSERT(false);
-        return 0;
-    }
 
     //! For encoding detection only. In this implementation we pretend there are
     //! fewer than four characters remaining in the stream, which disables
@@ -128,4 +88,4 @@ private:
 }
 }
 
-#endif /*  INCLUDED_ml_core_CRapidJsonUnbufferedIStreamWrapper_h */
+#endif /*  INCLUDED_ml_core_CBoostJsonUnbufferedIStreamWrapper_h */

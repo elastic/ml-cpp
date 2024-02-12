@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_api_CModelSnapshotJsonWriter_h
 #define INCLUDED_ml_api_CModelSnapshotJsonWriter_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 
 #include <model/CResourceMonitor.h>
 
@@ -57,14 +57,14 @@ public:
     static void writeQuantileState(const std::string& jobId,
                                    const std::string& state,
                                    core_t::TTime timestamp,
-                                   core::CRapidJsonConcurrentLineWriter& writer);
+                                   core::CBoostJsonConcurrentLineWriter& writer);
 
 private:
     //! The job ID
     std::string m_JobId;
 
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 };
 }
 }

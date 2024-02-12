@@ -23,7 +23,7 @@
 namespace ml {
 namespace api {
 
-void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::write(TBoostJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
@@ -35,7 +35,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     }
 }
 
-void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeTotalFeatureImportance(TBoostJsonWriter& writer) const {
     writer.Key(JSON_TOTAL_FEATURE_IMPORTANCE_TAG);
     writer.StartArray();
     for (const auto& item : m_TotalShapValuesMean) {
@@ -109,7 +109,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
     writer.EndArray();
 }
 
-void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeFeatureImportanceBaseline(TBoostJsonWriter& writer) const {
     if (m_ShapBaseline) {
         writer.Key(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
         writer.StartObject();
@@ -154,7 +154,7 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
     }
 }
 
-void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeHyperparameterImportance(TBoostJsonWriter& writer) const {
     writer.Key(JSON_HYPERPARAMETERS_TAG);
     writer.StartArray();
     for (const auto& item : m_HyperparameterImportance) {
@@ -183,7 +183,7 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeDataSummarization(TBoostJsonWriter& writer) const {
     if (m_NumDataSummarizationRows > 0) {
         // Only output if the data summarization fraction was specified.
         writer.Key(JSON_DATA_SUMMARIZATION_TAG);
@@ -194,7 +194,7 @@ void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) c
     }
 }
 
-void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeTrainProperties(TBoostJsonWriter& writer) const {
     if (m_NumTrainRows > 0) {
         writer.Key(JSON_TRAIN_PROPERTIES_TAG);
         writer.StartObject();

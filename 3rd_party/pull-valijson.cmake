@@ -9,8 +9,12 @@
 # limitation.
 #
 
-message(STATUS "x86_64 detected for target")
-set (ARCHCFLAGS "-msse4.2")
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  list(APPEND ARCHCFLAGS "-mfpmath=sse")
+# Script to get the latest version of Valijson, if not already present.
+#
+# Valijson must only be used in test code, _not_ any form of redistributable code.
+
+# This cmake script is expected to be called from a target or custom command with WORKING_DIRECTORY set to this file's location
+
+if ( NOT EXISTS valijson )
+  execute_process( COMMAND git -c advice.detachedHead=false clone --depth=1 --branch=v1.0.2 https://github.com/tristanpenman/valijson.git WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 endif()

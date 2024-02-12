@@ -12,8 +12,8 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 #define INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/common/CBasicStatistics.h>
@@ -21,7 +21,7 @@
 #include <api/ApiTypes.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <atomic>
 #include <cstdint>
@@ -113,10 +113,10 @@ public:
     //!
     //! \note This doesn't return until instrumentation.setToFinished() is called.
     static void monitor(CDataFrameAnalysisInstrumentation& instrumentation,
-                        core::CRapidJsonConcurrentLineWriter& writer);
+                        core::CBoostJsonConcurrentLineWriter& writer);
 
 protected:
-    using TWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriter = core::CBoostJsonConcurrentLineWriter;
     using TWriterUPtr = std::unique_ptr<TWriter>;
     using TOptionalInt64 = std::optional<std::int64_t>;
 
@@ -137,7 +137,7 @@ private:
     void writeMemory(std::int64_t timestamp);
     static void writeProgress(const std::string& task,
                               int progress,
-                              core::CRapidJsonConcurrentLineWriter* writer);
+                              core::CBoostJsonConcurrentLineWriter* writer);
 
 private:
     std::string m_JobId;
@@ -168,8 +168,8 @@ protected:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
-    void writeTimingStats(rapidjson::Value& parentObject);
-    void writeParameters(rapidjson::Value& parentObject);
+    void writeTimingStats(json::object& parentObject);
+    void writeParameters(json::object& parentObject);
 
 private:
     maths::analytics::COutliers::SComputeParameters m_Parameters;
@@ -215,9 +215,9 @@ private:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
-    void writeHyperparameters(rapidjson::Value& parentObject);
-    void writeValidationLoss(rapidjson::Value& parentObject);
-    void writeTimingStats(rapidjson::Value& parentObject);
+    void writeHyperparameters(json::object& parentObject);
+    void writeValidationLoss(json::object& parentObject);
+    void writeTimingStats(json::object& parentObject);
     void reset();
 
 private:
