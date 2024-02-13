@@ -10,7 +10,7 @@
  */
 #include <api/CNdJsonInputParser.h>
 
-#include "core/CBoostJsonParser.h"
+#include <core/CBoostJsonParser.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 

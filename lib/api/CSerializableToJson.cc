@@ -12,6 +12,7 @@
 #include <api/CSerializableToJson.h>
 
 #include <core/CBase64Filter.h>
+#include <core/CBoostJsonParser.h>
 #include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 #include <core/CStreamWriter.h>
 
@@ -23,7 +24,6 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#include "core/CBoostJsonParser.h"
 #include <functional>
 #include <iostream>
 #include <memory>

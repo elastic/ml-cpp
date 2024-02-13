@@ -265,7 +265,7 @@ const json::object& extractColumnIndexAndMic(const json::value& encodingObj,
     getEncodingAttribute(obj, ENCODING_INPUT_COLUMN_INDEX_TAG, colIdx);
     getEncodingAttribute(obj, ENCODING_MIC_TAG, mic);
 
-    return std::cref(obj);
+    return obj;
 }
 
 void extractMappedEncodingAndFallback(const json::object& obj, TDoubleVec& map, double& fallback) {

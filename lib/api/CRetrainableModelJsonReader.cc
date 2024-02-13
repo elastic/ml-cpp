@@ -11,6 +11,7 @@
 
 #include <api/CRetrainableModelJsonReader.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CVectorRange.h>
@@ -26,7 +27,6 @@
 // using basic_parser to implement a parser.
 #include <boost/json/basic_parser_impl.hpp>
 
-#include "core/CBoostJsonParser.h"
 #include <memory>
 #include <sstream>
 #include <stdexcept>
