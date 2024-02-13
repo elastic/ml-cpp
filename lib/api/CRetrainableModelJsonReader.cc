@@ -35,6 +35,13 @@
 namespace json = boost::json;
 
 namespace {
+// A bespoke SAX style parser for handling non-conformant input JSON that
+// potentially contains duplicate object keys. To handle this case the parser
+// instead wraps each offending key, value pair into another object and inserts
+// these object wrappers in an array.
+//
+// Note that the json::value constructed by this parser is only ever meant to be
+// used as an internal intermediary, never to be serialized for external used.
 class custom_parser {
     struct handler {
         static inline std::string IDENTITY_ENCODING_TAG = "identity_encoding";
