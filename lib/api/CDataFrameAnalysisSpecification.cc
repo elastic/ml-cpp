@@ -11,6 +11,7 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
@@ -117,12 +118,11 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRestoreSearcherSupplier restoreSearcherSupplier)
     : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
       m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
-    json::error_code ec;
-    json::value specification = json::parse(jsonSpecification, ec);
-    if (ec) {
-        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '" << jsonSpecification
-                     << "'. Got parse error \"" << ec.message() << "\". "
-                     << "Please report this problem.");
+    json::value specification;
+    bool ok = core::CBoostJsonParser::parse(jsonSpecification, specification);
+    if (ok == false) {
+        HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
+                     << jsonSpecification << "Please report this problem.");
     } else {
         LOG_TRACE(<< "specification: " << jsonSpecification);
         auto parameters = CONFIG_READER.read(specification);

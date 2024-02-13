@@ -23,6 +23,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 
+#include "core/CBoostJsonParser.h"
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -140,14 +141,8 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                     continue;
                 }
                 std::getline(*inputStream, line);
-                std::size_t length{line.length()};
-                std::size_t written{0};
-                p.reset();
-                while (written < length) {
-                    written += p.write_some(line, ec);
-                    assertNoParseError(ec);
-                }
-                doc = p.release();
+                ec = core::CBoostJsonParser::parse(line.data(), line.length(), doc);
+                assertNoParseError(ec);
                 assertIsJsonObject(doc);
                 try {
                     auto chunk = ifExists(compressedDocTag, getAsObjectFrom,

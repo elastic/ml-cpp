@@ -90,12 +90,10 @@ BOOST_AUTO_TEST_CASE(testReparseDetectorsFromStoredConfig) {
     // Expect parsing to fail if the filter referenced by the custom rule cannot be found
     const std::string validAnalysisConfigStringWithUnknownFilter{
         "{\"bucket_span\":\"1h\",\"detectors\":[{\"detector_description\":\"count over ip\",\"function\":\"count\",\"over_field_name\":\"ip\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"ip\":{\"filter_id\":\"unknown_filter\",\"filter_type\":\"include\"}}}],\"detector_index\":0}],\"influencers\":[],\"model_prune_window\":\"30d\"}"};
-    BOOST_REQUIRE_EXCEPTION(jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(
-                                validAnalysisConfigStringWithUnknownFilter),
-                            ml::api::CAnomalyJobConfigReader::CParseError,
-                            [](ml::api::CAnomalyJobConfigReader::CParseError const& ex) {
-                                return true;
-                            });
+    BOOST_REQUIRE_EXCEPTION(
+        jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(validAnalysisConfigStringWithUnknownFilter),
+        ml::api::CAnomalyJobConfigReader::CParseError,
+        [](ml::api::CAnomalyJobConfigReader::CParseError const&) { return true; });
 
     // Expect parsing to succeed if the filter referenced by the custom rule is registered.
     const std::string validAnalysisConfigString{

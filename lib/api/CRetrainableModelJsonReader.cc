@@ -26,6 +26,7 @@
 // using basic_parser to implement a parser.
 #include <boost/json/basic_parser_impl.hpp>
 
+#include "core/CBoostJsonParser.h"
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -384,18 +385,10 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     using TNodeVec = maths::analytics::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::analytics::CBoostedTreeFactory::TNodeVecVec;
 
-    json::stream_parser p;
-    json::error_code ec;
-    std::string line;
-    while (std::getline(istream, line)) {
-        LOG_TRACE(<< "write_some: " << line);
-        p.write_some(line);
-    }
-    p.finish(ec);
+    json::value doc;
+    json::error_code ec = core::CBoostJsonParser::parse(istream, doc);
+
     assertNoParseError(ec);
-
-    json::value doc = p.release();
-
     assertIsJsonObject(doc);
 
     LOG_TRACE(<< "doc: " << doc);
