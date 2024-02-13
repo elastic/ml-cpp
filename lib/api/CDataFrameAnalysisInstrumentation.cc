@@ -235,37 +235,37 @@ CDataFrameAnalysisInstrumentation::TWriter* CDataFrameAnalysisInstrumentation::w
 void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
     if (m_Writer != nullptr) {
         std::int64_t timestamp{core::CTimeUtils::nowMs()};
-        m_Writer->StartObject();
+        m_Writer->onObjectBegin();
         this->writeMemory(timestamp);
         this->writeAnalysisStats(timestamp);
-        m_Writer->EndObject();
+        m_Writer->onObjectEnd();
     }
 }
 
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
-        m_Writer->Key(MEMORY_TYPE_TAG);
-        m_Writer->StartObject();
-        m_Writer->Key(JOB_ID_TAG);
-        m_Writer->String(m_JobId);
-        m_Writer->Key(TIMESTAMP_TAG);
-        m_Writer->Int64(timestamp);
-        m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
-        m_Writer->Uint64(core::CProgramCounters::counter(this->memoryCounterType()));
-        m_Writer->Key(MEMORY_STATUS_TAG);
+        m_Writer->onKey(MEMORY_TYPE_TAG);
+        m_Writer->onObjectBegin();
+        m_Writer->onKey(JOB_ID_TAG);
+        m_Writer->onString(m_JobId);
+        m_Writer->onKey(TIMESTAMP_TAG);
+        m_Writer->onInt64(timestamp);
+        m_Writer->onKey(PEAK_MEMORY_USAGE_TAG);
+        m_Writer->onUint64(core::CProgramCounters::counter(this->memoryCounterType()));
+        m_Writer->onKey(MEMORY_STATUS_TAG);
         switch (m_MemoryStatus) {
         case E_Ok:
-            m_Writer->String(MEMORY_STATUS_OK_TAG);
+            m_Writer->onString(MEMORY_STATUS_OK_TAG);
             break;
         case E_HardLimit:
-            m_Writer->String(MEMORY_STATUS_HARD_LIMIT_TAG);
+            m_Writer->onString(MEMORY_STATUS_HARD_LIMIT_TAG);
             break;
         }
         if (m_MemoryReestimate) {
-            m_Writer->Key(MEMORY_REESTIMATE_TAG);
-            m_Writer->Int64(*m_MemoryReestimate);
+            m_Writer->onKey(MEMORY_REESTIMATE_TAG);
+            m_Writer->onInt64(*m_MemoryReestimate);
         }
-        m_Writer->EndObject();
+        m_Writer->onObjectEnd();
     }
 }
 
@@ -273,15 +273,15 @@ void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task,
                                                       int progress,
                                                       core::CBoostJsonConcurrentLineWriter* writer) {
     if (writer != nullptr && task != NO_TASK) {
-        writer->StartObject();
-        writer->Key(PHASE_PROGRESS);
-        writer->StartObject();
-        writer->Key(PHASE);
-        writer->String(task);
-        writer->Key(PROGRESS_PERCENT);
-        writer->Int(progress);
-        writer->EndObject();
-        writer->EndObject();
+        writer->onObjectBegin();
+        writer->onKey(PHASE_PROGRESS);
+        writer->onObjectBegin();
+        writer->onKey(PHASE);
+        writer->onString(task);
+        writer->onKey(PROGRESS_PERCENT);
+        writer->onInt(progress);
+        writer->onObjectEnd();
+        writer->onObjectEnd();
         writer->flush();
     }
 }
@@ -299,24 +299,24 @@ counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounte
 void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto* writer = this->writer();
     if (writer != nullptr && m_AnalysisStatsInitialized == true) {
-        writer->Key(OUTLIER_DETECTION_STATS);
-        writer->StartObject();
-        writer->Key(JOB_ID_TAG);
-        writer->String(this->jobId());
-        writer->Key(TIMESTAMP_TAG);
-        writer->Int64(timestamp);
+        writer->onKey(OUTLIER_DETECTION_STATS);
+        writer->onObjectBegin();
+        writer->onKey(JOB_ID_TAG);
+        writer->onString(this->jobId());
+        writer->onKey(TIMESTAMP_TAG);
+        writer->onInt64(timestamp);
 
         json::object parametersObject{writer->makeObject()};
         this->writeParameters(parametersObject);
-        writer->Key(PARAMETERS_TAG);
+        writer->onKey(PARAMETERS_TAG);
         writer->write(parametersObject);
 
         json::object timingStatsObject{writer->makeObject()};
         this->writeTimingStats(timingStatsObject);
-        writer->Key(TIMING_STATS_TAG);
+        writer->onKey(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
 
-        writer->EndObject();
+        writer->onObjectEnd();
     }
 }
 
@@ -398,36 +398,36 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
     if (writer != nullptr && m_AnalysisStatsInitialized == true) {
         switch (m_Type) {
         case E_Regression:
-            writer->Key(REGRESSION_STATS_TAG);
+            writer->onKey(REGRESSION_STATS_TAG);
             break;
         case E_Classification:
-            writer->Key(CLASSIFICATION_STATS_TAG);
+            writer->onKey(CLASSIFICATION_STATS_TAG);
             break;
         }
-        writer->StartObject();
-        writer->Key(JOB_ID_TAG);
-        writer->String(this->jobId());
-        writer->Key(TIMESTAMP_TAG);
-        writer->Int64(timestamp);
-        writer->Key(ITERATION_TAG);
-        writer->Uint64(m_Iteration);
+        writer->onObjectBegin();
+        writer->onKey(JOB_ID_TAG);
+        writer->onString(this->jobId());
+        writer->onKey(TIMESTAMP_TAG);
+        writer->onInt64(timestamp);
+        writer->onKey(ITERATION_TAG);
+        writer->onUint64(m_Iteration);
 
         json::object hyperparametersObject{writer->makeObject()};
         this->writeHyperparameters(hyperparametersObject);
-        writer->Key(HYPERPARAMETERS_TAG);
+        writer->onKey(HYPERPARAMETERS_TAG);
         writer->write(hyperparametersObject);
 
         json::object validationLossObject{writer->makeObject()};
         this->writeValidationLoss(validationLossObject);
-        writer->Key(VALIDATION_LOSS_TAG);
+        writer->onKey(VALIDATION_LOSS_TAG);
         writer->write(validationLossObject);
 
         json::object timingStatsObject{writer->makeObject()};
         this->writeTimingStats(timingStatsObject);
-        writer->Key(TIMING_STATS_TAG);
+        writer->onKey(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
 
-        writer->EndObject();
+        writer->onObjectEnd();
     }
     this->reset();
 }

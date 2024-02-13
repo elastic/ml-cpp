@@ -64,53 +64,53 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       const std::string& analysisName,
                                                       const json::value& analysisParametersDocument,
                                                       TBoostJsonLineWriter& writer) {
-    writer.StartObject();
+    writer.onObjectBegin();
 
-    writer.Key(CDataFrameAnalysisSpecification::JOB_ID);
-    writer.String(jobId);
+    writer.onKey(CDataFrameAnalysisSpecification::JOB_ID);
+    writer.onString(jobId);
 
-    writer.Key(CDataFrameAnalysisSpecification::ROWS);
-    writer.Uint64(rows);
+    writer.onKey(CDataFrameAnalysisSpecification::ROWS);
+    writer.onUint64(rows);
 
-    writer.Key(CDataFrameAnalysisSpecification::COLS);
-    writer.Uint64(cols);
+    writer.onKey(CDataFrameAnalysisSpecification::COLS);
+    writer.onUint64(cols);
 
-    writer.Key(CDataFrameAnalysisSpecification::MEMORY_LIMIT);
-    writer.Uint64(memoryLimit);
+    writer.onKey(CDataFrameAnalysisSpecification::MEMORY_LIMIT);
+    writer.onUint64(memoryLimit);
 
-    writer.Key(CDataFrameAnalysisSpecification::THREADS);
-    writer.Uint64(numberThreads);
+    writer.onKey(CDataFrameAnalysisSpecification::THREADS);
+    writer.onUint64(numberThreads);
 
-    writer.Key(CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY);
-    writer.String(temporaryDirectory);
+    writer.onKey(CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY);
+    writer.onString(temporaryDirectory);
 
-    writer.Key(CDataFrameAnalysisSpecification::RESULTS_FIELD);
-    writer.String(resultsField);
+    writer.onKey(CDataFrameAnalysisSpecification::RESULTS_FIELD);
+    writer.onString(resultsField);
 
     if (missingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING) {
-        writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
-        writer.String(missingFieldValue);
+        writer.onKey(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
+        writer.onString(missingFieldValue);
     }
 
     json::array array;
     for (const auto& field : categoricalFields) {
         array.push_back(json::value(field));
     }
-    writer.Key(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES);
+    writer.onKey(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES);
     writer.write(array);
 
-    writer.Key(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED);
-    writer.Bool(diskUsageAllowed);
+    writer.onKey(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED);
+    writer.onBool(diskUsageAllowed);
 
-    writer.Key(CDataFrameAnalysisSpecification::ANALYSIS);
-    writer.StartObject();
-    writer.Key(CDataFrameAnalysisSpecification::NAME);
-    writer.String(analysisName);
+    writer.onKey(CDataFrameAnalysisSpecification::ANALYSIS);
+    writer.onObjectBegin();
+    writer.onKey(CDataFrameAnalysisSpecification::NAME);
+    writer.onString(analysisName);
 
     // if no parameters are specified, parameters document has Null as its root element
     if (analysisParametersDocument.is_null() == false) {
         if (analysisParametersDocument.is_object()) {
-            writer.Key(CDataFrameAnalysisSpecification::PARAMETERS);
+            writer.onKey(CDataFrameAnalysisSpecification::PARAMETERS);
             writer.write(analysisParametersDocument);
         } else {
             HANDLE_FATAL(<< "Input error: analysis parameters suppose to "
@@ -118,9 +118,9 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         }
     }
 
-    writer.EndObject();
-    writer.EndObject();
-    writer.Flush();
+    writer.onObjectEnd();
+    writer.onObjectEnd();
+    writer.flush();
 }
 
 std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(

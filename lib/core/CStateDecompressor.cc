@@ -106,7 +106,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
     bool ret{true};
     m_Reader->handler().s_HaveCompleteToken = false;
     do {
-        char c = m_InputStreamWrapper->Take();
+        char c = m_InputStreamWrapper->take();
         if (c == '\0') {
             if (m_ParsingStarted == false) {
                 ret = false;

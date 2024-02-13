@@ -91,39 +91,39 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     // are reinitialised anyway. m_NumberColumns is the number of supplied columns,
     // i.e. the feature values and target variable.
 
-    writer.StartObject();
+    writer.onObjectBegin();
 
-    writer.Key(JSON_NUM_COLUMNS_TAG);
-    writer.Uint64(m_NumberColumns);
+    writer.onKey(JSON_NUM_COLUMNS_TAG);
+    writer.onUint64(m_NumberColumns);
 
-    writer.Key(JSON_COLUMN_NAMES_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_COLUMN_NAMES_TAG);
+    writer.onArrayBegin();
     for (std::size_t i = 0; i < m_NumberColumns; ++i) {
-        writer.String(m_Frame.columnNames()[i]);
+        writer.onString(m_Frame.columnNames()[i]);
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
-    writer.Key(JSON_COLUMN_IS_CATEGORICAL_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_COLUMN_IS_CATEGORICAL_TAG);
+    writer.onArrayBegin();
     for (std::size_t i = 0; i < m_NumberColumns; ++i) {
-        writer.Bool(m_Frame.columnIsCategorical()[i]);
+        writer.onBool(m_Frame.columnIsCategorical()[i]);
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
     CEncoderNameIndexMapBuilder encodingIndices{m_Frame.columnNames(),
                                                 m_Frame.categoricalColumnValues()};
     m_Encodings.accept(encodingIndices);
-    writer.Key(JSON_ENCODING_NAME_INDEX_MAP_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_ENCODING_NAME_INDEX_MAP_TAG);
+    writer.onArrayBegin();
     for (const auto& index : encodingIndices) {
-        writer.StartObject();
-        writer.Key(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG);
-        writer.String(index.first);
-        writer.Key(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG);
-        writer.Uint64(index.second);
-        writer.EndObject();
+        writer.onObjectBegin();
+        writer.onKey(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG);
+        writer.onString(index.first);
+        writer.onKey(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG);
+        writer.onUint64(index.second);
+        writer.onObjectEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
     std::stringstream encodings;
     {
@@ -132,42 +132,42 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     }
     std::string encodingsStr = encodings.str();
     core::CStringUtils::trim("\n", encodingsStr);
-    writer.Key(JSON_ENCODINGS_TAG);
-    writer.RawString(encodingsStr);
+    writer.onKey(JSON_ENCODINGS_TAG);
+    writer.onRawString(encodingsStr);
 
-    writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
+    writer.onArrayBegin();
     for (std::size_t i = 0; i < m_NumberColumns; ++i) {
-        writer.StartArray();
+        writer.onArrayBegin();
         for (const auto& category : m_Frame.categoricalColumnValues()[i]) {
-            writer.String(category);
+            writer.onString(category);
         }
-        writer.EndArray();
+        writer.onArrayEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
-    writer.Key(JSON_DATA_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_DATA_TAG);
+    writer.onArrayBegin();
     auto writeRowsToJson = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            writer.StartArray();
+            writer.onArrayBegin();
             for (std::size_t i = 0; i < m_NumberColumns; ++i) {
                 auto value = (*row)[i];
                 if (core::CDataFrame::isMissing(value)) {
-                    writer.String(m_Frame.missingString());
+                    writer.onString(m_Frame.missingString());
                 } else if (m_Frame.categoricalColumnValues()[i].empty()) {
-                    writer.String(value.toString());
+                    writer.onString(value.toString());
                 } else {
-                    writer.String(
+                    writer.onString(
                         m_Frame.categoricalColumnValues()[i][static_cast<std::size_t>(value)]);
                 }
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         }
     };
     m_Frame.readRows(1, 0, m_Frame.numberRows(), writeRowsToJson, &m_RowMask);
-    writer.EndArray();
-    writer.EndObject();
+    writer.onArrayEnd();
+    writer.onObjectEnd();
 }
 }
 }

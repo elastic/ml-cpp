@@ -30,14 +30,14 @@ CResponseJsonWriter::CResponseJsonWriter(std::ostream& responseStream)
 }
 
 void CResponseJsonWriter::writeResponse(std::uint32_t id, bool success, const std::string& reason) {
-    m_Writer.StartObject();
-    m_Writer.Key(ID);
-    m_Writer.Uint(id);
-    m_Writer.Key(SUCCESS);
-    m_Writer.Bool(success);
-    m_Writer.Key(REASON);
-    m_Writer.String(reason);
-    m_Writer.EndObject();
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(ID);
+    m_Writer.onUint(id);
+    m_Writer.onKey(SUCCESS);
+    m_Writer.onBool(success);
+    m_Writer.onKey(REASON);
+    m_Writer.onString(reason);
+    m_Writer.onObjectEnd();
     m_Writer.flush();
     LOG_DEBUG(<< "Wrote controller response - id: " << id
               << " success: " << std::boolalpha << success << " reason: " << reason);

@@ -23,24 +23,13 @@ namespace core {
 //! An unbuffered istream wrapper.
 //!
 //! DESCRIPTION:\n
-//! This class is an unbuffered istream wrapper backwardly compatible
-//! with the RapidJSON parser functions, similar to the class
-//! that existed in RapidJSON itself in 2017. It should be
+//! This class is an unbuffered istream wrapper. It should be
 //! more efficient that a buffered wrapper with a single
 //! character buffer, as it avoids the extra function call to
 //! fill that buffer per character in the stream.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Only works with char, not wchar_t.
-//!
-//! Method names have to match those required by RapidJSON,
-//! which is why they do not conform to our coding standards.
-//!
-//! The Peek4() method used to detect character encodings
-//! pretends that the stream contains fewer than 4 characters
-//! in total, which disables character encoding detection.
-//! This is not a problem for us as we know our input is
-//! always UTF-8.
 //!
 class CORE_EXPORT CBoostJsonUnbufferedIStreamWrapper {
 public:
@@ -60,23 +49,17 @@ public:
 
     //! Peek the next character. Returns '\0' when the end of the stream is
     //! reached.
-    char Peek() const {
+    char peek() const {
         int c{m_Stream.peek()};
         return (c != std::istream::traits_type::eof()) ? static_cast<char>(c) : '\0';
     }
 
     //! Take the next character. Returns '\0' when the end of the stream is
     //! reached.
-    char Take();
+    char take();
 
     //! Return the number of characters taken.
-    std::size_t Tell() const { return m_Count; }
-
-    //! For encoding detection only. In this implementation we pretend there are
-    //! fewer than four characters remaining in the stream, which disables
-    //! encoding detection. This is not a problem for our use case as we always
-    //! work in UTF-8.
-    const char* Peek4() const { return nullptr; }
+    std::size_t tell() const { return m_Count; }
 
 private:
     //! Reference to the stream.

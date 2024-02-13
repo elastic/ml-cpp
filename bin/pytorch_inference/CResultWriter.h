@@ -145,22 +145,22 @@ private:
     template<typename T>
     void writeTensor(const ::torch::TensorAccessor<T, 1UL>& accessor,
                      TStringBufWriter& jsonWriter) {
-        jsonWriter.StartArray();
+        jsonWriter.onArrayBegin();
         for (int i = 0; i < accessor.size(0); ++i) {
-            jsonWriter.Double(static_cast<double>(accessor[i]));
+            jsonWriter.onDouble(static_cast<double>(accessor[i]));
         }
-        jsonWriter.EndArray();
+        jsonWriter.onArrayEnd();
     }
 
     //! Write an N dimensional tensor for N > 1.
     template<typename T, std::size_t N_DIMS>
     void writeTensor(const ::torch::TensorAccessor<T, N_DIMS>& accessor,
                      TStringBufWriter& jsonWriter) {
-        jsonWriter.StartArray();
+        jsonWriter.onArrayBegin();
         for (int i = 0; i < accessor.size(0); ++i) {
             this->writeTensor(accessor[i], jsonWriter);
         }
-        jsonWriter.EndArray();
+        jsonWriter.onArrayEnd();
     }
 
     //! Write a 3D inference result
@@ -168,11 +168,11 @@ private:
     void writeInferenceResults(const ::torch::TensorAccessor<T, 3UL>& accessor,
                                TStringBufWriter& jsonWriter) {
 
-        jsonWriter.Key(RESULT);
-        jsonWriter.StartObject();
-        jsonWriter.Key(INFERENCE);
+        jsonWriter.onKey(RESULT);
+        jsonWriter.onObjectBegin();
+        jsonWriter.onKey(INFERENCE);
         this->writeTensor(accessor, jsonWriter);
-        jsonWriter.EndObject();
+        jsonWriter.onObjectEnd();
     }
 
     //! Write a 2D inference result
@@ -180,15 +180,15 @@ private:
     void writeInferenceResults(const ::torch::TensorAccessor<T, 2UL>& accessor,
                                TStringBufWriter& jsonWriter) {
 
-        jsonWriter.Key(RESULT);
-        jsonWriter.StartObject();
-        jsonWriter.Key(INFERENCE);
+        jsonWriter.onKey(RESULT);
+        jsonWriter.onObjectBegin();
+        jsonWriter.onKey(INFERENCE);
         // The Java side requires a 3D array, so wrap the 2D result in an
         // extra outer array.
-        jsonWriter.StartArray();
+        jsonWriter.onArrayBegin();
         this->writeTensor(accessor, jsonWriter);
-        jsonWriter.EndArray();
-        jsonWriter.EndObject();
+        jsonWriter.onArrayEnd();
+        jsonWriter.onObjectEnd();
     }
 
 private:

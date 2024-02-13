@@ -44,11 +44,11 @@ CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
 void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
                                              std::string*& buffer) {
     buffer = m_StringBufferQueue.pop();
-    writer.Reset(*buffer);
+    writer.reset(*buffer);
 }
 
 void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, std::string* buffer) {
-    writer.Flush();
+    writer.flush();
 
     // check for data that has to be written
     if (buffer->size() > 0) {

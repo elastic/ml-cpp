@@ -28,33 +28,33 @@ CMemoryUsageJsonWriter::~CMemoryUsageJsonWriter() {
 }
 
 void CMemoryUsageJsonWriter::startObject() {
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
 }
 
 void CMemoryUsageJsonWriter::endObject() {
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 }
 
 void CMemoryUsageJsonWriter::startArray(const std::string& description) {
-    m_Writer.Key(description);
-    m_Writer.StartArray();
+    m_Writer.onKey(description);
+    m_Writer.onArrayBegin();
 }
 
 void CMemoryUsageJsonWriter::endArray() {
-    m_Writer.EndArray();
+    m_Writer.onArrayEnd();
 }
 
 void CMemoryUsageJsonWriter::addItem(const CMemoryUsage::SMemoryUsage& item) {
-    m_Writer.Key(item.s_Name);
-    m_Writer.StartObject();
+    m_Writer.onKey(item.s_Name);
+    m_Writer.onObjectBegin();
 
-    m_Writer.Key(MEMORY);
-    m_Writer.Int64(item.s_Memory);
+    m_Writer.onKey(MEMORY);
+    m_Writer.onInt64(item.s_Memory);
     if (item.s_Unused) {
-        m_Writer.Key(UNUSED);
-        m_Writer.Uint64(item.s_Unused);
+        m_Writer.onKey(UNUSED);
+        m_Writer.onUint64(item.s_Unused);
     }
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 }
 
 void CMemoryUsageJsonWriter::finalise() {

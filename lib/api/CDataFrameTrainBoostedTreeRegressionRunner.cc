@@ -108,12 +108,12 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
 
-    writer.StartObject();
-    writer.Key(this->predictionFieldName());
-    writer.Double(tree.prediction(row)[0]);
-    writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(
-                    row[columnHoldingDependentVariable]) == false);
+    writer.onObjectBegin();
+    writer.onKey(this->predictionFieldName());
+    writer.onDouble(tree.prediction(row)[0]);
+    writer.onKey(IS_TRAINING_FIELD_NAME);
+    writer.onBool(maths::analytics::CDataFrameUtils::isMissing(
+                      row[columnHoldingDependentVariable]) == false);
     auto* featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
@@ -122,19 +122,19 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                      const maths::analytics::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
                      const maths::analytics::CTreeShapFeatureImportance::TVectorVec& shap) {
-                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
-                writer.StartArray();
+                writer.onKey(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.onArrayBegin();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.StartObject();
-                        writer.Key(FEATURE_NAME_FIELD_NAME);
-                        writer.String(featureNames[i]);
-                        writer.Key(IMPORTANCE_FIELD_NAME);
-                        writer.Double(shap[i](0));
-                        writer.EndObject();
+                        writer.onObjectBegin();
+                        writer.onKey(FEATURE_NAME_FIELD_NAME);
+                        writer.onString(featureNames[i]);
+                        writer.onKey(IMPORTANCE_FIELD_NAME);
+                        writer.onDouble(shap[i](0));
+                        writer.onObjectEnd();
                     }
                 }
-                writer.EndArray();
+                writer.onArrayEnd();
 
                 for (int i = 0; i < static_cast<int>(shap.size()); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
@@ -144,7 +144,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                 }
             });
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::validate(const core::CDataFrame&,

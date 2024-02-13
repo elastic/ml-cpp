@@ -33,10 +33,10 @@ namespace core {
 //! core::CJsonOutputStreamWrapper streamWrapper{stream};
 //! std::thread thread{[&streamWrapper]() {
 //!     core::CBoostJsonConcurrentLineWriter writer{streamWrapper};
-//!     writer.StartObject();
-//!     writer.Key("foo");
-//!     writer.Int(1);
-//!     writer.EndObject();
+//!     writer.onObjectBegin();
+//!     writer.onKey("foo");
+//!     writer.onInt(1);
+//!     writer.onObjectEnd();
 //! }};
 //! ...
 //! \endcode
@@ -61,7 +61,7 @@ public:
 
     //! Hooks into end object to automatically flush if json object is complete
     //! Note: This is a non-virtual overwrite
-    bool EndObject(std::size_t memberCount = 0) override;
+    bool onObjectEnd(std::size_t memberCount = 0) override;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;

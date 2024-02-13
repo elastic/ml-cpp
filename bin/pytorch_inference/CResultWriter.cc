@@ -39,20 +39,20 @@ CResultWriter::CResultWriter(std::ostream& strmOut)
 }
 
 void CResultWriter::writeInnerError(const std::string& message, TStringBufWriter& jsonWriter) {
-    jsonWriter.Key(ERROR);
-    jsonWriter.StartObject();
-    jsonWriter.Key(ERROR);
-    jsonWriter.String(message);
-    jsonWriter.EndObject();
+    jsonWriter.onKey(ERROR);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(ERROR);
+    jsonWriter.onString(message);
+    jsonWriter.onObjectEnd();
 }
 
 void CResultWriter::writeError(const std::string_view& requestId, const std::string& message) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
-    jsonWriter.StartObject();
-    jsonWriter.Key(CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(CCommandParser::REQUEST_ID);
+    jsonWriter.onString(requestId);
     writeInnerError(message, jsonWriter);
-    jsonWriter.EndObject();
+    jsonWriter.onObjectEnd();
 }
 
 void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
@@ -60,61 +60,61 @@ void CResultWriter::wrapAndWriteInnerResponse(const std::string& innerResponse,
                                               bool isCacheHit,
                                               std::uint64_t timeMs) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
-    jsonWriter.StartObject();
-    jsonWriter.Key(CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(CACHE_HIT);
-    jsonWriter.Bool(isCacheHit);
-    jsonWriter.Key(TIME_MS);
-    jsonWriter.Uint64(timeMs);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(CCommandParser::REQUEST_ID);
+    jsonWriter.onString(requestId);
+    jsonWriter.onKey(CACHE_HIT);
+    jsonWriter.onBool(isCacheHit);
+    jsonWriter.onKey(TIME_MS);
+    jsonWriter.onUint64(timeMs);
     jsonWriter.rawKeyAndValue(innerResponse);
-    jsonWriter.EndObject();
+    jsonWriter.onObjectEnd();
 }
 
 void CResultWriter::writeThreadSettings(const std::string_view& requestId,
                                         const CThreadSettings& threadSettings) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
-    jsonWriter.StartObject();
-    jsonWriter.Key(CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(THREAD_SETTINGS);
-    jsonWriter.StartObject();
-    jsonWriter.Key(NUM_THREADS_PER_ALLOCATION);
-    jsonWriter.Uint(threadSettings.numThreadsPerAllocation());
-    jsonWriter.Key(NUM_ALLOCATIONS);
-    jsonWriter.Uint(threadSettings.numAllocations());
-    jsonWriter.EndObject();
-    jsonWriter.EndObject();
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(CCommandParser::REQUEST_ID);
+    jsonWriter.onString(requestId);
+    jsonWriter.onKey(THREAD_SETTINGS);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(NUM_THREADS_PER_ALLOCATION);
+    jsonWriter.onUint(threadSettings.numThreadsPerAllocation());
+    jsonWriter.onKey(NUM_ALLOCATIONS);
+    jsonWriter.onUint(threadSettings.numAllocations());
+    jsonWriter.onObjectEnd();
+    jsonWriter.onObjectEnd();
 }
 
 void CResultWriter::writeSimpleAck(const std::string_view& requestId) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
-    jsonWriter.StartObject();
-    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(ACK);
-    jsonWriter.StartObject();
-    jsonWriter.Key(ACKNOWLEDGED);
-    jsonWriter.Bool(true);
-    jsonWriter.EndObject();
-    jsonWriter.EndObject();
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.onString(requestId);
+    jsonWriter.onKey(ACK);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(ACKNOWLEDGED);
+    jsonWriter.onBool(true);
+    jsonWriter.onObjectEnd();
+    jsonWriter.onObjectEnd();
 }
 
 void CResultWriter::writeProcessStats(const std::string_view& requestId,
                                       const std::size_t residentSetSize,
                                       const std::size_t maxResidentSetSize) {
     core::CBoostJsonConcurrentLineWriter jsonWriter{m_WrappedOutputStream};
-    jsonWriter.StartObject();
-    jsonWriter.Key(CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(PROCESS_STATS);
-    jsonWriter.StartObject();
-    jsonWriter.Key(MEMORY_RESIDENT_SET_SIZE);
-    jsonWriter.Uint64(residentSetSize);
-    jsonWriter.Key(MEMORY_MAX_RESIDENT_SET_SIZE);
-    jsonWriter.Uint64(maxResidentSetSize);
-    jsonWriter.EndObject();
-    jsonWriter.EndObject();
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(CCommandParser::REQUEST_ID);
+    jsonWriter.onString(requestId);
+    jsonWriter.onKey(PROCESS_STATS);
+    jsonWriter.onObjectBegin();
+    jsonWriter.onKey(MEMORY_RESIDENT_SET_SIZE);
+    jsonWriter.onUint64(residentSetSize);
+    jsonWriter.onKey(MEMORY_MAX_RESIDENT_SET_SIZE);
+    jsonWriter.onUint64(maxResidentSetSize);
+    jsonWriter.onObjectEnd();
+    jsonWriter.onObjectEnd();
 }
 
 std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
@@ -125,7 +125,7 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
         // Even though we don't really want the outer braces on the
         // inner result we have to write them or else the JSON
         // writer will not put commas in the correct places.
-        jsonWriter.StartObject();
+        jsonWriter.onObjectBegin();
         try {
             auto sizes = results.sizes();
 
@@ -148,7 +148,7 @@ std::string CResultWriter::createInnerResult(const ::torch::Tensor& results) {
         } catch (const std::runtime_error& e) {
             writeInnerError(e.what(), jsonWriter);
         }
-        jsonWriter.EndObject();
+        jsonWriter.onObjectEnd();
     }
     // Return the object without the opening and closing braces and
     // the trailing newline. The resulting partial document will

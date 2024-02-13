@@ -81,11 +81,11 @@ public:
         m_JsonPoolAllocators.push(std::make_shared<CBoostJsonPoolAllocator>());
     }
 
-    void Reset(OUTPUT_STREAM& os) { m_Os = &os; }
-
     // No need for an explicit destructor here as the allocators clear themselves
     // on destruction.
     virtual ~CBoostJsonWriterBase() = default;
+
+    void reset(OUTPUT_STREAM& os) { m_Os = &os; }
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
@@ -138,7 +138,7 @@ public:
         return this->getAllocator()->get();
     }
 
-    bool IsComplete() const {
+    bool isComplete() const {
         bool ret = m_Levels.empty() || m_Levels.top() == 0;
         return ret;
     }
@@ -180,35 +180,34 @@ public:
             return false;
         }
         if (m_ContainerType.top() == E_Array) {
-            this->append((IsComplete() ? "" : ","));
+            this->append((isComplete() ? "" : ","));
         }
         return true;
     }
 
     virtual void append(const std::string_view& str) = 0;
 
-    virtual bool Key(const std::string& key) {
-        this->append((IsComplete() ? "" : ","));
+    virtual bool onKey(const std::string& key) {
+        this->append((isComplete() ? "" : ","));
         this->append("\"" + key + "\":");
         return true;
     }
 
-    virtual bool WriteRawValue(const std::string& rawValue) {
-        //        this->append((IsComplete() ? "" : ","));
+    virtual bool writeRawValue(const std::string& rawValue) {
         this->append(rawValue);
         return true;
     }
 
-    virtual bool StartDocument() {
+    virtual bool onDocumentBegin() {
         this->append("{");
         m_Levels.push(0);
         m_ContainerType.push(E_Object);
         return true;
     }
 
-    virtual bool StartObject() {
+    virtual bool onObjectBegin() {
         if (m_ContainerType.empty() == false && m_ContainerType.top() == E_Array) {
-            this->append(IsComplete() ? "" : ",");
+            this->append(isComplete() ? "" : ",");
         }
         this->append("{");
         if (m_Levels.empty()) {
@@ -221,7 +220,7 @@ public:
         return true;
     }
 
-    virtual bool EndObject(std::size_t) {
+    virtual bool onObjectEnd(std::size_t) {
         if (this->checkPrerequisites() == false) {
             return false;
         }
@@ -233,10 +232,10 @@ public:
 
     bool m_IsArrayDoc{false};
 
-    virtual bool StartArray() {
+    virtual bool onArrayBegin() {
         if (m_Levels.empty() == false) {
             if (m_ContainerType.top() == E_Array) {
-                this->append((IsComplete() ? "" : ","));
+                this->append((isComplete() ? "" : ","));
             }
             m_Levels.top()++;
         } else {
@@ -248,7 +247,7 @@ public:
         return true;
     }
 
-    virtual bool EndArray() {
+    virtual bool onArrayEnd() {
         if (this->checkPrerequisites() == false) {
             return false;
         }
@@ -258,7 +257,7 @@ public:
         return true;
     }
 
-    virtual bool Bool(bool boolVal) {
+    virtual bool onBool(bool boolVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -269,7 +268,7 @@ public:
         return true;
     }
 
-    virtual bool Null() {
+    virtual bool onNull() {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -280,7 +279,7 @@ public:
         return true;
     }
 
-    virtual bool Int(std::int64_t intVal) {
+    virtual bool onInt(std::int64_t intVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -291,7 +290,7 @@ public:
         return true;
     }
 
-    virtual bool Int64(std::int64_t int64Val) {
+    virtual bool onInt64(std::int64_t int64Val) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -302,7 +301,7 @@ public:
         return true;
     }
 
-    virtual bool Uint(std::uint64_t uintVal) {
+    virtual bool onUint(std::uint64_t uintVal) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -313,7 +312,7 @@ public:
         return true;
     }
 
-    virtual bool Uint64(std::uint64_t uint64Val) {
+    virtual bool onUint64(std::uint64_t uint64Val) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -324,18 +323,18 @@ public:
         return true;
     }
 
-    virtual bool RawString(const std::string& str) {
+    virtual bool onRawString(const std::string& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
 
         m_Levels.top()++;
 
-        this->WriteRawValue(str);
+        this->writeRawValue(str);
         return true;
     }
 
-    virtual bool String(const std::string& str) {
+    virtual bool onString(const std::string& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -343,10 +342,10 @@ public:
         m_Levels.top()++;
 
         std::string serializedStr{json::serialize(str)};
-        return this->WriteRawValue(serializedStr);
+        return this->writeRawValue(serializedStr);
     }
 
-    virtual bool String(const std::string_view& str) {
+    virtual bool onString(const std::string_view& str) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -360,7 +359,7 @@ public:
         return true;
     }
 
-    virtual bool Double(double d) {
+    virtual bool onDouble(double d) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -374,10 +373,8 @@ public:
         return true;
     }
 
-    void Flush() { this->flush(); }
-
     //! Writes an epoch second timestamp as an epoch millis timestamp
-    virtual bool Time(core_t::TTime t) {
+    virtual bool onTime(core_t::TTime t) {
         if (this->maybeHandleArrayElement() == false) {
             return false;
         }
@@ -460,24 +457,24 @@ public:
     virtual bool write(const TValue& doc) {
         switch (doc.kind()) {
         case json::kind::bool_:
-            return this->Bool(doc.as_bool());
+            return this->onBool(doc.as_bool());
         case json::kind::null:
-            return this->Null();
+            return this->onNull();
         case json::kind::object:
-            if (this->StartObject() == false) {
+            if (this->onObjectBegin() == false) {
                 return false;
             }
             for (const auto& member : doc.as_object()) {
-                if (this->Key(member.key()) == false) {
+                if (this->onKey(member.key()) == false) {
                     return false;
                 }
                 if (this->write(member.value()) == false) {
                     return false;
                 }
             }
-            return this->EndObject(doc.as_object().size());
+            return this->onObjectEnd(doc.as_object().size());
         case json::kind::array:
-            if (this->StartArray() == false) {
+            if (this->onArrayBegin() == false) {
                 return false;
             }
             for (const auto& member : doc.as_array()) {
@@ -485,17 +482,17 @@ public:
                     return false;
                 }
             }
-            return this->EndArray();
+            return this->onArrayEnd();
         case json::kind::string: {
             std::string str{json::serialize(doc)};
-            return this->RawString(str);
+            return this->onRawString(str);
         }
         case json::kind::double_:
-            return this->Double(doc.to_number<double>());
+            return this->onDouble(doc.to_number<double>());
         case json::kind::int64:
-            return this->Int64(doc.to_number<std::int64_t>());
+            return this->onInt64(doc.to_number<std::int64_t>());
         case json::kind::uint64:
-            return this->Uint64(doc.to_number<std::uint64_t>());
+            return this->onUint64(doc.to_number<std::uint64_t>());
         }
         return true;
     }
@@ -813,7 +810,7 @@ public:
 
     bool topLevel() {
         if (m_IsArrayDoc) {
-            return IsComplete();
+            return isComplete();
         }
         return m_Levels.empty();
     }

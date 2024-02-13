@@ -43,18 +43,18 @@ void addStringInt(CBoostJsonConcurrentLineWriter& writer,
                   const std::string& name,
                   const std::string& description,
                   std::uint64_t counter) {
-    writer.StartObject();
+    writer.onObjectBegin();
 
-    writer.Key(NAME_TYPE);
-    writer.String(name);
+    writer.onKey(NAME_TYPE);
+    writer.onString(name);
 
-    writer.Key(DESCRIPTION_TYPE);
-    writer.String(description);
+    writer.onKey(DESCRIPTION_TYPE);
+    writer.onString(description);
 
-    writer.Key(COUNTER_TYPE);
-    writer.Uint64(counter);
+    writer.onKey(COUNTER_TYPE);
+    writer.onUint64(counter);
 
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 }
 
@@ -201,7 +201,7 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
     //! JSON line writer
     core::CBoostJsonConcurrentLineWriter writer(writeStream);
 
-    writer.StartArray();
+    writer.onArrayBegin();
 
     // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set
     // Take care to print in definition order
@@ -224,7 +224,7 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
         }
     }
 
-    writer.EndArray();
+    writer.onArrayEnd();
     writeStream.flush();
 
     return o;
