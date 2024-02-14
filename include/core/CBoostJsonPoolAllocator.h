@@ -24,7 +24,7 @@ namespace core {
 //! A boost::json memory allocator using a fixed size buffer
 //!
 //! DESCRIPTION:\n
-//! Encapsulates a boost::json static_resource optimized with a fixed size buffer
+//! Encapsulates a boost::json monotonic_resource optimized with a fixed size buffer, see https://www.boost.org/doc/libs/1_84_0/libs/json/doc/html/json/allocators/storage_ptr.html
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Use a fixed size buffer for the allocator for performance reasons
@@ -36,46 +36,40 @@ namespace core {
 //!
 class CBoostJsonPoolAllocator {
 public:
-    using TDocumentWeakPtr = std::weak_ptr<boost::json::object>;
-    using TDocumentPtr = std::shared_ptr<boost::json::object>;
+    using TDocumentWeakPtr = std::weak_ptr<json::object>;
+    using TDocumentPtr = std::shared_ptr<json::object>;
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
-    CBoostJsonPoolAllocator() : m_JsonPoolAllocator(m_FixedBuffer) {}
+    CBoostJsonPoolAllocator() {}
 
-    ~CBoostJsonPoolAllocator() { this->clear(); }
-
-    void clear() { m_JsonPoolAllocator.release(); }
+    ~CBoostJsonPoolAllocator() {}
 
     //! \return document pointer suitable for storing in a container
-    //! Note: The API is designed to emphasise that the client does not own the document memory
-    //! i.e. The document will be invalidated on destruction of this allocator
+    //! Note: The document memory is cleaned up once all references to it are destroyed.
     TDocumentWeakPtr makeStorableDoc() {
-        // TODO sort out the allocator pool?
-        //        TDocumentPtr newDoc = std::make_shared<boost::json::object>(&m_JsonPoolAllocator);
-        TDocumentPtr newDoc = std::make_shared<boost::json::object>();
+        TDocumentPtr newDoc = std::make_shared<json::object>(m_JsonStoragePointer);
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);
     }
 
-    //! \return const reference to the underlying memory pool allocator
-    const boost::json::memory_resource& get() const {
-        return m_JsonPoolAllocator;
-    }
+    //! \return const reference to the underlying storage pointer
+    const json::storage_ptr& get() const { return m_JsonStoragePointer; }
 
-    //! \return reference to the underlying memory pool allocator
-    boost::json::memory_resource& get() { return m_JsonPoolAllocator; }
+    //! \return reference to the underlying storage pointer
+    json::storage_ptr& get() { return m_JsonStoragePointer; }
 
 private:
-    //! Size of the fixed buffer to allocate
+    //! Size of the fixed buffer to allocate for parsing JSON
     static const size_t FIXED_BUFFER_SIZE = 4096;
 
 private:
     //! fixed size memory buffer used to optimize allocator performance
     unsigned char m_FixedBuffer[FIXED_BUFFER_SIZE];
 
-    //! memory pool to use for allocating boost::json objects
-    boost::json::monotonic_resource m_JsonPoolAllocator;
+    //! storage pointer to use for allocating boost::json objects
+    json::storage_ptr m_JsonStoragePointer{
+        json::make_shared_resource<json::monotonic_resource>(m_FixedBuffer)};
 
     //! Container used to persist boost::json documents
     TDocumentPtrVec m_JsonDocumentStore;

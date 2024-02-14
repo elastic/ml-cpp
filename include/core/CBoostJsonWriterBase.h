@@ -57,9 +57,9 @@ public:
     using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
     using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
     using TStrUSet = boost::unordered_set<std::string>;
-    using TDocument = boost::json::object;
-    using TValue = boost::json::value;
-    using TValuePtr = std::shared_ptr<boost::json::value>;
+    using TDocument = json::object;
+    using TValue = json::value;
+    using TValuePtr = std::shared_ptr<json::value>;
     using TDocumentWeakPtr = std::weak_ptr<TDocument>;
     using TDocumentPtr = std::shared_ptr<TDocument>;
     using TPoolAllocatorPtr = std::shared_ptr<CBoostJsonPoolAllocator>;
@@ -100,10 +100,6 @@ public:
     //! Remove the last pushed allocator from the stack
     void popAllocator() {
         if (!m_JsonPoolAllocators.empty()) {
-            TPoolAllocatorPtr allocator = m_JsonPoolAllocators.top();
-            if (allocator) {
-                allocator->clear();
-            }
             m_JsonPoolAllocators.pop();
         }
     }
@@ -134,7 +130,7 @@ public:
         return allocator;
     }
 
-    boost::json::memory_resource& getRawAllocator() const {
+    boost::json::storage_ptr& getStoragePointer() const {
         return this->getAllocator()->get();
     }
 
@@ -498,10 +494,7 @@ public:
     }
 
     //! Return a new boost::json document
-    TDocument makeDoc() const {
-        TDocument newDoc(&this->getRawAllocator());
-        return newDoc;
-    }
+    TDocument makeDoc() const { return TDocument(this->getStoragePointer()); }
 
     //! Return a weak pointer to a new boost::json document
     //! This is a convenience function to simplify the (temporary)
@@ -523,7 +516,7 @@ public:
     }
 
     //! Return a new boost::json object
-    json::object makeObject() const { return boost::json::object(); }
+    json::object makeObject() const { return json::object(); }
 
     //! Adds a generic boost::json value field to an object.
     //! \p[in] name field name
