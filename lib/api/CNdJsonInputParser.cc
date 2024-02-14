@@ -10,6 +10,7 @@
  */
 #include <api/CNdJsonInputParser.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -117,15 +118,11 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
 
 bool CNdJsonInputParser::parseDocument(char* begin, std::size_t length, json::value& document) {
     // Parse JSON string
-    json::error_code ec;
-    json::stream_parser p;
-    p.write_some(begin, length, ec);
+    json::error_code ec = core::CBoostJsonParser::parse(begin, length, document);
     if (ec) {
         LOG_ERROR(<< "JSON parse error: " << ec.message());
         return false;
     }
-
-    document = p.release();
 
     if (document.is_object() == false) {
         LOG_ERROR(<< "Top level of JSON document must be an object: "

@@ -234,6 +234,7 @@ public:
     //! Initialize from serialized data.
     explicit CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
+    //! Initialize from a json::value
     CDataFrameCategoryEncoder(const boost::json::value& jv, bool dummy);
 
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;

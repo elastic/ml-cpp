@@ -33,14 +33,14 @@ BOOST_AUTO_TEST_CASE(testDoublePrecision) {
         using TGenericLineWriter = ml::core::CStreamWriter;
         TGenericLineWriter writer(strm);
 
-        writer.StartObject();
-        writer.Key("a");
-        writer.Double(1.78e-156);
-        writer.Key("b");
-        writer.Double(5e-300);
-        writer.Key("c");
-        writer.Double(0.0);
-        writer.EndObject();
+        writer.onObjectBegin();
+        writer.onKey("a");
+        writer.onDouble(1.78e-156);
+        writer.onKey("b");
+        writer.onDouble(5e-300);
+        writer.onKey("c");
+        writer.onDouble(0.0);
+        writer.onObjectEnd();
     }
 
     BOOST_REQUIRE_EQUAL(std::string("{\"a\":1.78e-156,\"b\":5e-300,\"c\":0}\n"),

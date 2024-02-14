@@ -125,7 +125,7 @@ private:
     TStrVec m_ClassValues;
     TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter{
         [](const std::string& value, TBoostJsonWriter& writer) {
-            writer.String(value);
+            writer.onString(value);
         }};
     THyperparametersVec m_HyperparameterImportance;
     std::size_t m_NumTrainRows{0};

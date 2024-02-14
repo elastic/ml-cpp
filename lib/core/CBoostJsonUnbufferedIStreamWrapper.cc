@@ -17,7 +17,7 @@ namespace core {
 CBoostJsonUnbufferedIStreamWrapper::CBoostJsonUnbufferedIStreamWrapper(std::istream& strm)
     : m_Stream{strm} {};
 
-char CBoostJsonUnbufferedIStreamWrapper::Take() {
+char CBoostJsonUnbufferedIStreamWrapper::take() {
     int c{m_Stream.get()};
     if (c == std::istream::traits_type::eof()) {
         return '\0';

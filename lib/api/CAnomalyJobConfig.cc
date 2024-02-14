@@ -10,6 +10,7 @@
  */
 #include <api/CAnomalyJobConfig.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
@@ -427,11 +428,11 @@ bool CAnomalyJobConfig::initFromFiles(const std::string& configFile,
 }
 
 bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
-    json::error_code ec;
-    json::value doc = json::parse(json, ec);
-    if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing scheduled event config from JSON: "
-                  << ec.message());
+    json::value doc;
+    bool ok = core::CBoostJsonParser::parse(json, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing scheduled event config from JSON: \""
+                  << json << "\"");
         return false;
     }
 
@@ -510,17 +511,19 @@ void CAnomalyJobConfig::CEventConfig::parse(const json::value& filterConfig,
 }
 
 bool CAnomalyJobConfig::parseFilterConfig(const std::string& jsonString) {
-    json::error_code ec;
-    json::value doc = json::parse(jsonString, ec);
-    if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing filter config from JSON: "
-                  << ec.message());
+
+    json::value doc;
+    bool ok = core::CBoostJsonParser::parse(jsonString, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing filter config from JSON: \""
+                  << jsonString << "\"");
         return false;
     }
 
     if (doc.is_object() == false) {
         LOG_ERROR(<< "An error occurred while parsing filter config from JSON. "
                   << "Expected JSON object but got \"" << jsonString << "\"");
+        return false;
     }
     const json::object& obj = doc.as_object();
     if (obj.empty()) {
@@ -568,11 +571,11 @@ void CAnomalyJobConfig::CFilterConfig::parse(const json::value& filterConfig,
 }
 
 bool CAnomalyJobConfig::parse(const std::string& jsonStr) {
-    json::error_code ec;
-    json::value doc = json::parse(jsonStr, ec);
-    if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
-                  << ec.message());
+    json::value doc;
+    bool ok = core::CBoostJsonParser::parse(jsonStr, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: \""
+                  << jsonStr << "\"");
         return false;
     }
 
@@ -721,19 +724,25 @@ void CAnomalyJobConfig::CAnalysisConfig::parseDetectorsConfig(const json::value&
     }
 }
 
-void CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig() {
-    json::error_code ec;
-    json::value doc = json::parse(m_AnalysisConfigString, ec);
-    if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
-                  << ec.message());
-        return;
+const std::string& CAnomalyJobConfig::CAnalysisConfig::getAnalysisConfig() {
+    return m_AnalysisConfigString;
+}
+
+bool CAnomalyJobConfig::CAnalysisConfig::reparseDetectorsFromStoredConfig(const std::string& analysisConfig) {
+    json::value doc;
+    bool ok = core::CBoostJsonParser::parse(analysisConfig, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: \""
+                  << analysisConfig << "\"");
+        return false;
     }
+
     auto parameters = ANALYSIS_CONFIG_READER.read(doc);
     auto detectorsConfig = parameters[DETECTORS].jsonObject();
     if (detectorsConfig != nullptr) {
         this->parseDetectorsConfig(*detectorsConfig);
     }
+    return true;
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::parse(const json::value& analysisConfig) {

@@ -31,20 +31,20 @@ public:
 
     CBoostJsonLineWriter(OUTPUT_STREAM&& os) : TBoostJsonWriterBase(os) {}
 
-    //! Overwrites the Writer::StartObject in order to count nested objects
-    bool StartObject() override {
+    //! Overwrites the Writer::onObjectBegin in order to count nested objects
+    bool onObjectBegin() override {
         if (m_ObjectCount++ == 0) {
-            return this->StartDocument();
+            return this->onDocumentBegin();
         }
 
-        return TBoostJsonWriterBase::StartObject();
+        return TBoostJsonWriterBase::onObjectBegin();
     }
 
-    //! Overwrites Writer::EndObject in order to inject new lines if:
+    //! Overwrites Writer::onObjectEnd in order to inject new lines if:
     //! - it's the end of the json object or array
     //! - it's the end of a json object as part of an array
-    bool EndObject(std::size_t memberCount = 0) override {
-        bool baseReturnCode = TBoostJsonWriterBase::EndObject(memberCount);
+    bool onObjectEnd(std::size_t memberCount = 0) override {
+        bool baseReturnCode = TBoostJsonWriterBase::onObjectEnd(memberCount);
         --m_ObjectCount;
 
         // put a new line if at top level or if inside an array
@@ -60,7 +60,7 @@ public:
         if (this->isObject() == false) {
             return false;
         }
-        this->append((this->IsComplete() ? "" : ","));
+        this->append((this->isComplete() ? "" : ","));
         this->append(keyAndValue);
         return true;
     }

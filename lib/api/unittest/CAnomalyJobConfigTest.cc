@@ -12,6 +12,7 @@
 #include <core/CLogger.h>
 
 #include <api/CAnomalyJobConfig.h>
+#include <api/CAnomalyJobConfigReader.h>
 
 #include <model/FunctionTypes.h>
 
@@ -54,6 +55,51 @@ BOOST_AUTO_TEST_CASE(testIntervalStagger) {
     BOOST_REQUIRE_NE(job1Config.intervalStagger(), job2Config.intervalStagger());
     BOOST_REQUIRE_NE(job2Config.intervalStagger(), job3Config.intervalStagger());
     BOOST_REQUIRE_EQUAL(job3Config.intervalStagger(), job1Config.intervalStagger());
+}
+
+BOOST_AUTO_TEST_CASE(testReparseDetectorsFromStoredConfig) {
+    const std::string validAnomalyJobConfigWithCustomRuleFilter{
+        "{\"job_id\":\"mean_bytes_by_clientip\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604671135245,\"description\":\"mean bytes by clientip\","
+        "\"analysis_config\":{\"bucket_span\":\"3h\",\"detectors\":[{\"detector_description\":\"mean(bytes) by clientip\",\"function\":\"mean\",\"field_name\":\"bytes\",\"by_field_name\":\"clientip\","
+        "\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"clientip\":{\"filter_id\":\"safe_ips\",\"filter_type\":\"include\"}},\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\":10.0}]}],"
+        "\"detector_index\":0}],\"influencers\":[\"clientip\"]},\"analysis_limits\":{\"model_memory_limit\":\"42mb\",\"categorization_examples_limit\":4},"
+        "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":false,\"annotations_enabled\":false},"
+        "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+    // Expect parsing to succeed if the filter referenced by the custom rule can be found in the filter map.
+    const std::string filterConfigJson{"{\"filters\":[{\"filter_id\":\"safe_ips\",\"items\":[]}]}"};
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(filterConfigJson));
+
+    const std::string validScheduledEventsConfigJson{"{\"events\":["
+                                                     "]}"};
+
+    BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEventsConfigJson));
+
+    jobConfig.analysisConfig().init(jobConfig.ruleFilters(), jobConfig.scheduledEvents());
+
+    BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRuleFilter),
+                          "Cannot parse JSON job config!");
+    BOOST_TEST_REQUIRE(jobConfig.isInitialized());
+
+    // Expect parsing to fail if the analysis config JSON string is invalid
+    const std::string inValidAnalysisConfigString{"{\"bucket_span\":\"1h\""};
+    BOOST_TEST_REQUIRE(!jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(
+        inValidAnalysisConfigString));
+
+    // Expect parsing to fail if the filter referenced by the custom rule cannot be found
+    const std::string validAnalysisConfigStringWithUnknownFilter{
+        "{\"bucket_span\":\"1h\",\"detectors\":[{\"detector_description\":\"count over ip\",\"function\":\"count\",\"over_field_name\":\"ip\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"ip\":{\"filter_id\":\"unknown_filter\",\"filter_type\":\"include\"}}}],\"detector_index\":0}],\"influencers\":[],\"model_prune_window\":\"30d\"}"};
+    BOOST_REQUIRE_EXCEPTION(
+        jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(validAnalysisConfigStringWithUnknownFilter),
+        ml::api::CAnomalyJobConfigReader::CParseError,
+        [](ml::api::CAnomalyJobConfigReader::CParseError const&) { return true; });
+
+    // Expect parsing to succeed if the filter referenced by the custom rule is registered.
+    const std::string validAnalysisConfigString{
+        "{\"bucket_span\":\"1h\",\"detectors\":[{\"detector_description\":\"count over ip\",\"function\":\"count\",\"over_field_name\":\"ip\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"ip\":{\"filter_id\":\"safe_ips\",\"filter_type\":\"include\"}}}],\"detector_index\":0}],\"influencers\":[],\"model_prune_window\":\"30d\"}"};
+    BOOST_TEST_REQUIRE(jobConfig.analysisConfig().reparseDetectorsFromStoredConfig(
+        validAnalysisConfigString));
 }
 
 BOOST_AUTO_TEST_CASE(testParse) {

@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
                                   TGenericLineWriter::TTimeVec(2, 1421421421), doc);
 
     writer.write(doc);
-    writer.Flush();
+    writer.flush();
 
     std::string printedDoc(strm.str());
     ml::core::CStringUtils::trimWhitespace(printedDoc);

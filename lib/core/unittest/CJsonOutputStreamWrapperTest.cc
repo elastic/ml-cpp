@@ -30,16 +30,16 @@ namespace {
 void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
     ml::core::CBoostJsonConcurrentLineWriter writer(wrapper);
     for (int i = 0; i < documents; ++i) {
-        writer.StartObject();
-        writer.Key("id");
-        writer.Int(id);
-        writer.Key("message");
-        writer.Int(i);
+        writer.onObjectBegin();
+        writer.onKey("id");
+        writer.onInt(id);
+        writer.onKey("message");
+        writer.onInt(i);
 
         // this automatically causes a flush in CBoostJsonConcurrentLineWriter
         // A flush internally moves the buffer into the queue, passing it to the writer thread
         // A new buffer gets acquired for the next loop execution
-        writer.EndObject();
+        writer.onObjectEnd();
     }
 }
 }

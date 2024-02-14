@@ -11,6 +11,7 @@
 
 #include <core/CPatternSet.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CLogger.h>
 
 #include <algorithm>
@@ -72,11 +73,10 @@ bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec suffixPatterns;
     TStrVec containsPatterns;
 
-    json::error_code ec;
-    json::value doc = json::parse(json, ec);
-    if (ec) {
-        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " +
-                         ec.message());
+    json::value doc;
+    bool ok = CBoostJsonParser::parse(json, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " + json);
         return false;
     }
 
@@ -85,7 +85,7 @@ bool CPatternSet::initFromJson(const std::string& json) {
         return false;
     }
 
-    json::array arr = doc.as_array();
+    const json::array& arr = doc.as_array();
 
     for (unsigned int i = 0; i < arr.size(); ++i) {
         if (!arr[i].is_string()) {

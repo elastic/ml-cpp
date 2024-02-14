@@ -249,11 +249,14 @@ public:
         //! Parse a JSON value representing an entire analysis config object.
         void parse(const json::value& json);
 
+        //! Return a JSON string representing the analysis config
+        const std::string& getAnalysisConfig();
+
         //! Reparse the detector configuration object from within a stored
         //! string representing the analysis config object.
         //! This is necessary to correctly reinitialise scoped rule objects
         //! folowing an update of the fiter rules configuration.
-        void reparseDetectorsFromStoredConfig();
+        bool reparseDetectorsFromStoredConfig(const std::string& analysisConfig);
 
         void setConfig(const std::string& analysisConfigString) {
             m_AnalysisConfigString = analysisConfigString;

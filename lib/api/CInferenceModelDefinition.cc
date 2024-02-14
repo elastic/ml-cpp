@@ -44,61 +44,61 @@ void addJsonArray(const std::string& tag,
 void addJsonArray(const std::string& tag,
                   const std::vector<double>& vector,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
-    writer.Key(tag);
-    writer.StartArray();
+    writer.onKey(tag);
+    writer.onArrayBegin();
     for (const auto& value : vector) {
-        writer.Double(value);
+        writer.onDouble(value);
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 }
 
 void addJsonArray(const std::string& tag,
                   const std::vector<std::string>& vector,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
-    writer.Key(tag);
-    writer.StartArray();
+    writer.onKey(tag);
+    writer.onArrayBegin();
     for (const auto& value : vector) {
-        writer.String(value);
+        writer.onString(value);
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 }
 }
 
 void CTree::CTreeNode::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.Key(JSON_NODE_INDEX_TAG);
-    writer.Uint64(m_NodeIndex);
-    writer.Key(JSON_NUMBER_SAMPLES_TAG);
-    writer.Uint64(m_NumberSamples);
+    writer.onKey(JSON_NODE_INDEX_TAG);
+    writer.onUint64(m_NodeIndex);
+    writer.onKey(JSON_NUMBER_SAMPLES_TAG);
+    writer.onUint64(m_NumberSamples);
 
     if (m_LeftChild) {
         // Internal node.
-        writer.Key(JSON_SPLIT_FEATURE_TAG);
-        writer.Uint64(m_SplitFeature);
+        writer.onKey(JSON_SPLIT_FEATURE_TAG);
+        writer.onUint64(m_SplitFeature);
         if (m_SplitGain) {
-            writer.Key(JSON_SPLIT_GAIN_TAG);
-            writer.Double(*m_SplitGain);
+            writer.onKey(JSON_SPLIT_GAIN_TAG);
+            writer.onDouble(*m_SplitGain);
         }
-        writer.Key(JSON_THRESHOLD_TAG);
-        writer.Double(m_Threshold);
-        writer.Key(JSON_DEFAULT_LEFT_TAG);
-        writer.Bool(m_DefaultLeft);
+        writer.onKey(JSON_THRESHOLD_TAG);
+        writer.onDouble(m_Threshold);
+        writer.onKey(JSON_DEFAULT_LEFT_TAG);
+        writer.onBool(m_DefaultLeft);
         switch (m_DecisionType) {
         case E_LT:
-            writer.Key(JSON_DECISION_TYPE_TAG);
-            writer.String(JSON_LT);
+            writer.onKey(JSON_DECISION_TYPE_TAG);
+            writer.onString(JSON_LT);
             break;
         }
-        writer.Key(JSON_LEFT_CHILD_TAG);
-        writer.Uint(*m_LeftChild);
-        writer.Key(JSON_RIGHT_CHILD_TAG);
-        writer.Uint(*m_RightChild);
+        writer.onKey(JSON_LEFT_CHILD_TAG);
+        writer.onUint(*m_LeftChild);
+        writer.onKey(JSON_RIGHT_CHILD_TAG);
+        writer.onUint(*m_RightChild);
     } else if (m_LeafValue.size() > 1) {
         // Leaf node.
         addJsonArray(JSON_LEAF_VALUE_TAG, m_LeafValue, writer);
     } else {
         // Leaf node.
-        writer.Key(JSON_LEAF_VALUE_TAG);
-        writer.Double(m_LeafValue[0]);
+        writer.onKey(JSON_LEAF_VALUE_TAG);
+        writer.onDouble(m_LeafValue[0]);
     }
 }
 
@@ -168,22 +168,22 @@ std::size_t CTree::CSizeInfo::numOperations() const {
 }
 
 void CEnsemble::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.Key(JSON_ENSEMBLE_TAG);
-    writer.StartObject();
+    writer.onKey(JSON_ENSEMBLE_TAG);
+    writer.onObjectBegin();
     this->CTrainedModel::addToJsonStream(writer);
-    writer.Key(JSON_TRAINED_MODELS_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_TRAINED_MODELS_TAG);
+    writer.onArrayBegin();
     for (const auto& trainedModel : m_TrainedModels) {
-        writer.StartObject();
+        writer.onObjectBegin();
         trainedModel->addToJsonStream(writer);
-        writer.EndObject();
+        writer.onObjectEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
     // aggregate output
-    writer.Key(JSON_AGGREGATE_OUTPUT_TAG);
+    writer.onKey(JSON_AGGREGATE_OUTPUT_TAG);
     m_AggregateOutput->addToJsonStream(writer);
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CEnsemble::featureNames(TStringVec featureNames) {
@@ -291,18 +291,18 @@ void CEnsemble::CSizeInfo::addToJsonDocument(json::object& parentObject,
 }
 
 void CTree::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.Key(JSON_TREE_TAG);
-    writer.StartObject();
+    writer.onKey(JSON_TREE_TAG);
+    writer.onObjectBegin();
     this->CTrainedModel::addToJsonStream(writer);
-    writer.Key(JSON_TREE_STRUCTURE_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_TREE_STRUCTURE_TAG);
+    writer.onArrayBegin();
     for (const auto& treeNode : m_TreeStructure) {
-        writer.StartObject();
+        writer.onObjectBegin();
         treeNode.addToJsonStream(writer);
-        writer.EndObject();
+        writer.onObjectEnd();
     }
-    writer.EndArray();
-    writer.EndObject();
+    writer.onArrayEnd();
+    writer.onObjectEnd();
 }
 
 std::size_t CTree::size() const {
@@ -339,33 +339,33 @@ void CInferenceModelDefinition::addCompressedToJsonStream(TBoostJsonWriter& writ
 }
 
 void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
+    writer.onObjectBegin();
     // preprocessors
-    writer.Key(JSON_PREPROCESSORS_TAG);
-    writer.StartArray();
+    writer.onKey(JSON_PREPROCESSORS_TAG);
+    writer.onArrayBegin();
     for (const auto& customEncoding : m_CustomPreprocessors) {
         customEncoding->addToJsonStream(writer);
     }
     for (const auto& encoding : m_Preprocessors) {
-        writer.StartObject();
-        writer.Key(encoding->typeString());
-        writer.StartObject();
+        writer.onObjectBegin();
+        writer.onKey(encoding->typeString());
+        writer.onObjectBegin();
         encoding->addToJsonStream(writer);
-        writer.EndObject();
-        writer.EndObject();
+        writer.onObjectEnd();
+        writer.onObjectEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 
     // trained_model
     if (m_TrainedModel) {
-        writer.Key(JSON_TRAINED_MODEL_TAG);
-        writer.StartObject();
+        writer.onKey(JSON_TRAINED_MODEL_TAG);
+        writer.onObjectBegin();
         m_TrainedModel->addToJsonStream(writer);
-        writer.EndObject();
+        writer.onObjectEnd();
     } else {
         LOG_ERROR(<< "Trained model is not initialized");
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CTrainedModel::addToJsonStream(TGenericLineWriter& writer) const {
@@ -381,12 +381,12 @@ void CTrainedModel::addToJsonStream(TGenericLineWriter& writer) const {
 
     switch (m_TargetType) {
     case E_Classification:
-        writer.Key(JSON_TARGET_TYPE_TAG);
-        writer.String(JSON_TARGET_TYPE_CLASSIFICATION);
+        writer.onKey(JSON_TARGET_TYPE_TAG);
+        writer.onString(JSON_TARGET_TYPE_CLASSIFICATION);
         break;
     case E_Regression:
-        writer.Key(JSON_TARGET_TYPE_TAG);
-        writer.String(JSON_TARGET_TYPE_REGRESSION);
+        writer.onKey(JSON_TARGET_TYPE_TAG);
+        writer.onString(JSON_TARGET_TYPE_REGRESSION);
         break;
     }
 }
@@ -585,18 +585,18 @@ const std::string& CTargetMeanEncoding::typeString() const {
 
 void CTargetMeanEncoding::addToJsonStream(TGenericLineWriter& writer) const {
     this->CEncoding::addToJsonStream(writer);
-    writer.Key(JSON_DEFAULT_VALUE_TAG);
-    writer.Double(m_DefaultValue);
-    writer.Key(JSON_FEATURE_NAME_TAG);
-    writer.String(m_FeatureName);
+    writer.onKey(JSON_DEFAULT_VALUE_TAG);
+    writer.onDouble(m_DefaultValue);
+    writer.onKey(JSON_FEATURE_NAME_TAG);
+    writer.onString(m_FeatureName);
 
-    writer.Key(JSON_TARGET_MAP_TAG);
-    writer.StartObject();
+    writer.onKey(JSON_TARGET_MAP_TAG);
+    writer.onObjectBegin();
     for (const auto& mapping : m_TargetMap) {
-        writer.Key(mapping.first);
-        writer.Double(mapping.second);
+        writer.onKey(mapping.first);
+        writer.onDouble(mapping.second);
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
@@ -658,8 +658,8 @@ void CEncoding::field(const std::string& field) {
 }
 
 void CEncoding::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.Key(JSON_FIELD_TAG);
-    writer.String(m_Field);
+    writer.onKey(JSON_FIELD_TAG);
+    writer.onString(m_Field);
 }
 
 CEncoding::CEncoding(std::string field) : m_Field(std::move(field)) {
@@ -687,15 +687,15 @@ const CEncoding* CEncoding::CSizeInfo::encoding() const {
 
 void CFrequencyEncoding::addToJsonStream(TGenericLineWriter& writer) const {
     this->CEncoding::addToJsonStream(writer);
-    writer.Key(JSON_FEATURE_NAME_TAG);
-    writer.String(m_FeatureName);
-    writer.Key(JSON_FREQUENCY_MAP_TAG);
-    writer.StartObject();
+    writer.onKey(JSON_FEATURE_NAME_TAG);
+    writer.onString(m_FeatureName);
+    writer.onKey(JSON_FREQUENCY_MAP_TAG);
+    writer.onObjectBegin();
     for (const auto& mapping : m_FrequencyMap) {
-        writer.Key(mapping.first);
-        writer.Double(mapping.second);
+        writer.onKey(mapping.first);
+        writer.onDouble(mapping.second);
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 const std::string& CFrequencyEncoding::CSizeInfo::typeString() const {
@@ -751,13 +751,13 @@ const std::string& COneHotEncoding::typeString() const {
 
 void COneHotEncoding::addToJsonStream(TGenericLineWriter& writer) const {
     this->CEncoding::addToJsonStream(writer);
-    writer.Key(JSON_HOT_MAP_TAG);
-    writer.StartObject();
+    writer.onKey(JSON_HOT_MAP_TAG);
+    writer.onObjectBegin();
     for (const auto& mapping : m_HotMap) {
-        writer.Key(mapping.first);
-        writer.String(mapping.second);
+        writer.onKey(mapping.first);
+        writer.onString(mapping.second);
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding& encoding)
@@ -816,12 +816,12 @@ CWeightedSum::CWeightedSum(std::size_t size, double weight)
 }
 
 void CWeightedSum::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(this->stringType());
-    writer.StartObject();
+    writer.onObjectBegin();
+    writer.onKey(this->stringType());
+    writer.onObjectBegin();
     addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
-    writer.EndObject();
-    writer.EndObject();
+    writer.onObjectEnd();
+    writer.onObjectEnd();
 }
 
 const std::string& CWeightedSum::stringType() const {
@@ -837,10 +837,10 @@ const std::string& CWeightedMode::stringType() const {
 }
 
 void CWeightedMode::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(this->stringType());
+    writer.onObjectBegin();
+    writer.onKey(this->stringType());
     addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 CWeightedMode::CWeightedMode(std::size_t size, double weight)
@@ -856,12 +856,12 @@ CLogisticRegression::CLogisticRegression(std::size_t size, double weight)
 }
 
 void CLogisticRegression::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(this->stringType());
-    writer.StartObject();
+    writer.onObjectBegin();
+    writer.onKey(this->stringType());
+    writer.onObjectBegin();
     addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
-    writer.EndObject();
-    writer.EndObject();
+    writer.onObjectEnd();
+    writer.onObjectEnd();
 }
 
 const std::string& CLogisticRegression::stringType() const {
@@ -876,12 +876,12 @@ CExponent::CExponent(std::size_t size, double weight)
 }
 
 void CExponent::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(this->stringType());
-    writer.StartObject();
+    writer.onObjectBegin();
+    writer.onKey(this->stringType());
+    writer.onObjectBegin();
     addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
-    writer.EndObject();
-    writer.EndObject();
+    writer.onObjectEnd();
+    writer.onObjectEnd();
 }
 
 const std::string& CExponent::stringType() const {

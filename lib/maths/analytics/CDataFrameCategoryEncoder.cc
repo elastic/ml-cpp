@@ -36,15 +36,7 @@ namespace ml {
 namespace maths {
 namespace analytics {
 namespace {
-template<typename T>
-bool getEncodingAttribute(const json::object& obj, const std::string& tag, T& value) {
-    if (obj.at(tag).is_string() == false) {
-        LOG_ERROR(<< "Value at [" << tag << "] is not a string: " << obj);
-        return false;
-    }
-    // We use json::value_to to convert from json::string type to std::string
-    return core::CStringUtils::stringToType(json::value_to<std::string>(obj.at(tag)), value);
-}
+
 using TDoubleVec = std::vector<double>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
@@ -239,6 +231,74 @@ private:
     double m_RedundancyWeight;
     TFeatureRelevanceMinusRedundancyList m_Features;
 };
+
+template<typename T>
+void getEncodingAttribute(const json::object& obj, const std::string& tag, T& value) {
+    if (obj.contains(tag) == false) {
+        throw std::runtime_error("Expected attribute [\"" + tag +
+                                 "\"] not found in : " + json::serialize(obj));
+    }
+    if (obj.at(tag).is_string() == false) {
+        throw std::runtime_error("Value at [\"" + tag +
+                                 "\"] is not a string: : " + json::serialize(obj));
+    }
+    // We use json::value_to to convert from json::string type to std::string
+    if (core::CStringUtils::stringToType(json::value_to<std::string>(obj.at(tag)),
+                                         value) == false) {
+        throw std::runtime_error("Unable to convert value at [\"" + tag +
+                                 "\"] to requested type: " + json::serialize(obj));
+    }
+}
+
+const json::object& extractColumnIndexAndMic(const json::value& encodingObj,
+                                             const std::string& tag,
+                                             std::size_t& colIdx,
+                                             double& mic) {
+    std::ostringstream err;
+    if (encodingObj.as_object().at(tag).is_object() == false) {
+        err << encodingObj.as_object().at(tag);
+        throw std::runtime_error("JSON value is not an object: " + err.str());
+    }
+    const json::object& obj = encodingObj.as_object().at(tag).as_object();
+    LOG_TRACE(<< tag << " obj: " << obj);
+
+    getEncodingAttribute(obj, ENCODING_INPUT_COLUMN_INDEX_TAG, colIdx);
+    getEncodingAttribute(obj, ENCODING_MIC_TAG, mic);
+
+    return obj;
+}
+
+void extractMappedEncodingAndFallback(const json::object& obj, TDoubleVec& map, double& fallback) {
+    std::ostringstream err;
+    const json::value& encodingMap = obj.at(MAPPED_ENCODING_MAP_TAG);
+    if (encodingMap.is_string() == false) {
+        err << encodingMap;
+        throw std::runtime_error("JSON value is not a string: " + err.str());
+    }
+    core::CStringUtils::TStrVec tokens;
+    std::string rmdr;
+    core::CStringUtils::tokenise(":", encodingMap.as_string().c_str(), tokens, rmdr);
+    for (const auto& token : tokens) {
+        double d{0.0};
+        if (core::CStringUtils::stringToType(token, d) == false) {
+            throw std::runtime_error("Unable to convert value [\"" + token + "\"] to double.");
+        }
+        map.push_back(d);
+    }
+    double d{0.0};
+    if (core::CStringUtils::stringToType(rmdr, d) == false) {
+        throw std::runtime_error("Unable to convert value [\"" + rmdr + "\"] to double.");
+    }
+    map.push_back(d);
+
+    // We use json::value_to to convert from json::string type to std::string
+    if (core::CStringUtils::stringToType(
+            json::value_to<std::string>(obj.at(MAPPED_ENCODING_FALLBACK_TAG)),
+            fallback) == false) {
+        throw std::runtime_error("Unable to convert value at [\" " + MAPPED_ENCODING_FALLBACK_TAG +
+                                 "\"] to requested type: " + json::serialize(obj));
+    }
+}
 }
 
 CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row,
@@ -299,159 +359,36 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const json::value& jv, bool
                     err << encodingObj;
                     throw std::runtime_error("JSON value is not an object: " + err.str());
                 }
+                std::size_t colIdx{0};
+                double mic{0.0};
                 if (encodingObj.as_object().contains(IDENTITY_ENCODING_TAG)) {
-                    if (encodingObj.as_object().at(IDENTITY_ENCODING_TAG).is_object() == false) {
-                        err << encodingObj.as_object().at(IDENTITY_ENCODING_TAG);
-                        throw std::runtime_error("JSON value is not an object: " +
-                                                 err.str());
-                    }
-                    const json::object& obj =
-                        encodingObj.as_object().at(IDENTITY_ENCODING_TAG).as_object();
-                    LOG_DEBUG(<< "obj: " << obj);
-                    std::size_t colIdx{0};
-                    if (getEncodingAttribute(obj, "encoding_input_column_index",
-                                             colIdx) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_input_column_index\" not found in : " +
-                                                 err.str());
-                    }
-
-                    double mic{0.0};
-                    if (getEncodingAttribute(obj, "encoding_mic", mic) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_mic\" not found in : " +
-                                                 err.str());
-                    }
-
+                    extractColumnIndexAndMic(encodingObj, IDENTITY_ENCODING_TAG, colIdx, mic);
                     this->restore<CIdentityEncoding>(colIdx, mic);
                 } else if (encodingObj.as_object().contains(ONE_HOT_ENCODING_TAG)) {
-                    if (encodingObj.as_object().at(ONE_HOT_ENCODING_TAG).is_object() == false) {
-                        err << encodingObj.as_object().at(ONE_HOT_ENCODING_TAG);
-                        throw std::runtime_error("JSON value is not an object: " +
-                                                 err.str());
-                    }
-                    const json::object& obj =
-                        encodingObj.as_object().at(ONE_HOT_ENCODING_TAG).as_object();
-
-                    LOG_DEBUG(<< "obj: " << obj);
-                    std::size_t colIdx{0};
-                    if (getEncodingAttribute(obj, "encoding_input_column_index",
-                                             colIdx) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_input_column_index\" not found in : " +
-                                                 err.str());
-                    }
-
-                    double mic{0.0};
-                    if (getEncodingAttribute(obj, "encoding_mic", mic) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_mic\" not found in : " +
-                                                 err.str());
-                    }
+                    const json::object& obj = extractColumnIndexAndMic(
+                        encodingObj, ONE_HOT_ENCODING_TAG, colIdx, mic);
 
                     std::size_t hotCategory{0};
-                    if (getEncodingAttribute(obj, "one_hot_encoding_category",
-                                             hotCategory) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"one_hot_encoding_category\" not found in : " +
-                                                 err.str());
-                    }
+                    getEncodingAttribute(obj, ONE_HOT_ENCODING_CATEGORY_TAG, hotCategory);
 
                     this->restore<COneHotEncoding>(colIdx, mic, hotCategory);
                 } else if (encodingObj.as_object().contains(FREQUENCY_ENCODING_TAG)) {
-                    if (encodingObj.as_object().at(FREQUENCY_ENCODING_TAG).is_object() == false) {
-                        err << encodingObj.as_object().at(FREQUENCY_ENCODING_TAG);
-                        throw std::runtime_error("JSON value is not an object: " +
-                                                 err.str());
-                    }
-                    const json::object& obj =
-                        encodingObj.as_object().at(FREQUENCY_ENCODING_TAG).as_object();
-                    LOG_DEBUG(<< "obj: " << obj);
-                    std::size_t colIdx{0};
-                    if (getEncodingAttribute(obj, "encoding_input_column_index",
-                                             colIdx) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_input_column_index\" not found in : " +
-                                                 err.str());
-                    }
+                    const json::object& obj = extractColumnIndexAndMic(
+                        encodingObj, FREQUENCY_ENCODING_TAG, colIdx, mic);
 
-                    double mic{0.0};
-                    if (getEncodingAttribute(obj, "encoding_mic", mic) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_mic\" not found in : " +
-                                                 err.str());
-                    }
-                    const json::value& encodingMap = obj.at(MAPPED_ENCODING_MAP_TAG);
-                    if (encodingMap.is_string() == false) {
-                        err << encodingMap;
-                        throw std::runtime_error("JSON value is not a string: " + err.str());
-                    }
                     TDoubleVec map;
-                    core::CStringUtils::TStrVec tokens;
-                    std::string rmdr;
-                    core::CStringUtils::tokenise(
-                        ":", encodingMap.as_string().c_str(), tokens, rmdr);
-                    for (const auto& token : tokens) {
-                        double d{0.0};
-                        core::CStringUtils::stringToType(token, d);
-                        map.push_back(d);
-                    }
-                    double d{0.0};
-                    core::CStringUtils::stringToType(rmdr, d);
-                    map.push_back(d);
-
-                    std::string fallbackStr{
-                        obj.at(MAPPED_ENCODING_FALLBACK_TAG).as_string().c_str()};
                     double fallback{0.0};
-                    core::CStringUtils::stringToType(fallbackStr, fallback);
+                    extractMappedEncodingAndFallback(obj, map, fallback);
+
                     this->restore<CMappedEncoding>(colIdx, mic, E_Frequency, map, fallback);
                 } else if (encodingObj.as_object().contains(TARGET_MEAN_ENCODING_TAG)) {
-                    if (encodingObj.as_object().at(TARGET_MEAN_ENCODING_TAG).is_object() == false) {
-                        err << encodingObj.as_object().at(TARGET_MEAN_ENCODING_TAG);
-                        throw std::runtime_error("JSON value is not an object: " +
-                                                 err.str());
-                    }
-                    const json::object& obj =
-                        encodingObj.as_object().at(TARGET_MEAN_ENCODING_TAG).as_object();
-                    LOG_DEBUG(<< "obj: " << obj);
-                    std::size_t colIdx{0};
-                    if (getEncodingAttribute(obj, "encoding_input_column_index",
-                                             colIdx) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_input_column_index\" not found in : " +
-                                                 err.str());
-                    }
+                    const json::object& obj = extractColumnIndexAndMic(
+                        encodingObj, TARGET_MEAN_ENCODING_TAG, colIdx, mic);
 
-                    double mic{0.0};
-                    if (getEncodingAttribute(obj, "encoding_mic", mic) == false) {
-                        err << obj;
-                        throw std::runtime_error("Expected attribute \"encoding_mic\" not found in : " +
-                                                 err.str());
-                    }
-
-                    const json::value& encodingMap = obj.at(MAPPED_ENCODING_MAP_TAG);
-                    if (encodingMap.is_string() == false) {
-                        err << encodingMap;
-                        throw std::runtime_error("JSON value is not a string: " + err.str());
-                    }
                     TDoubleVec map;
-                    core::CStringUtils::TStrVec tokens;
-                    std::string rmdr;
-                    core::CStringUtils::tokenise(
-                        ":", encodingMap.as_string().c_str(), tokens, rmdr);
-                    for (const auto& token : tokens) {
-                        double d{0.0};
-                        core::CStringUtils::stringToType(token, d);
-                        map.push_back(d);
-                    }
-                    double d{0.0};
-                    core::CStringUtils::stringToType(rmdr, d);
-                    map.push_back(d);
-                    std::string fallbackStr{
-                        obj.at(MAPPED_ENCODING_FALLBACK_TAG).as_string().c_str()};
                     double fallback{0.0};
-                    core::CStringUtils::stringToType(fallbackStr, fallback);
-                    this->restore<CMappedEncoding>(colIdx, mic, E_TargetMean, map, fallback);
+                    extractMappedEncodingAndFallback(obj, map, fallback);
+
                 } else {
                     LOG_ERROR(<< "Unknown encoding type " << kv.key());
                 }

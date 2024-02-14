@@ -66,16 +66,16 @@ public:
 
 private:
     void addToJsonStream(TGenericLineWriter& writer) const override {
-        writer.StartObject();
-        writer.Key("name");
-        writer.String(m_Name);
-        writer.Key("values");
-        writer.StartArray();
+        writer.onObjectBegin();
+        writer.onKey("name");
+        writer.onString(m_Name);
+        writer.onKey("values");
+        writer.onArrayBegin();
         for (const auto& value : m_Values) {
-            writer.Double(value);
+            writer.onDouble(value);
         }
-        writer.EndArray();
-        writer.EndObject();
+        writer.onArrayEnd();
+        writer.onObjectEnd();
     }
 
     void readFromJsonStream(TIStreamPtr inputStream) {

@@ -12,6 +12,7 @@
 #include <api/CSerializableToJson.h>
 
 #include <core/CBase64Filter.h>
+#include <core/CBoostJsonParser.h>
 #include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 #include <core/CStreamWriter.h>
 
@@ -104,19 +105,19 @@ void CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
     for (std::size_t i = 0; i < buffer.size(); i += m_MaxDocumentSize) {
         std::size_t bytesToWrite = std::min(m_MaxDocumentSize, buffer.size() - i);
 
-        writer.StartObject();
-        writer.Key(compressedDocTag);
-        writer.StartObject();
-        writer.Key(JSON_DOC_NUM_TAG);
-        writer.Uint64(docNum);
-        writer.Key(payloadTag);
-        writer.String(std::string(&buffer[i], bytesToWrite));
+        writer.onObjectBegin();
+        writer.onKey(compressedDocTag);
+        writer.onObjectBegin();
+        writer.onKey(JSON_DOC_NUM_TAG);
+        writer.onUint64(docNum);
+        writer.onKey(payloadTag);
+        writer.onString(std::string(&buffer[i], bytesToWrite));
         if (i + bytesToWrite == buffer.size()) {
-            writer.Key(JSON_EOS_TAG);
-            writer.Bool(true);
+            writer.onKey(JSON_EOS_TAG);
+            writer.onBool(true);
         }
-        writer.EndObject();
-        writer.EndObject();
+        writer.onObjectEnd();
+        writer.onObjectEnd();
 
         ++docNum;
     }
@@ -140,14 +141,8 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                     continue;
                 }
                 std::getline(*inputStream, line);
-                std::size_t length{line.length()};
-                std::size_t written{0};
-                p.reset();
-                while (written < length) {
-                    written += p.write_some(line, ec);
-                    assertNoParseError(ec);
-                }
-                doc = p.release();
+                ec = core::CBoostJsonParser::parse(line.data(), line.length(), doc);
+                assertNoParseError(ec);
                 assertIsJsonObject(doc);
                 try {
                     auto chunk = ifExists(compressedDocTag, getAsObjectFrom,

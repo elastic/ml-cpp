@@ -22,20 +22,18 @@ BOOST_AUTO_TEST_CASE(testWrap) {
     std::istringstream strm{"abc"};
     ml::core::CBoostJsonUnbufferedIStreamWrapper wrapper{strm};
 
-    BOOST_REQUIRE_EQUAL(nullptr, wrapper.Peek4());
-    BOOST_REQUIRE_EQUAL('a', wrapper.Peek());
-    BOOST_REQUIRE_EQUAL('a', wrapper.Take());
-    BOOST_REQUIRE_EQUAL(1, wrapper.Tell());
-    BOOST_REQUIRE_EQUAL('b', wrapper.Take());
-    BOOST_REQUIRE_EQUAL(2, wrapper.Tell());
-    BOOST_REQUIRE_EQUAL('c', wrapper.Peek());
-    BOOST_REQUIRE_EQUAL('c', wrapper.Peek());
-    BOOST_REQUIRE_EQUAL('c', wrapper.Take());
-    BOOST_REQUIRE_EQUAL(3, wrapper.Tell());
-    BOOST_REQUIRE_EQUAL('\0', wrapper.Peek());
-    BOOST_REQUIRE_EQUAL('\0', wrapper.Take());
-    BOOST_REQUIRE_EQUAL(3, wrapper.Tell());
-    BOOST_REQUIRE_EQUAL(nullptr, wrapper.Peek4());
+    BOOST_REQUIRE_EQUAL('a', wrapper.peek());
+    BOOST_REQUIRE_EQUAL('a', wrapper.take());
+    BOOST_REQUIRE_EQUAL(1, wrapper.tell());
+    BOOST_REQUIRE_EQUAL('b', wrapper.take());
+    BOOST_REQUIRE_EQUAL(2, wrapper.tell());
+    BOOST_REQUIRE_EQUAL('c', wrapper.peek());
+    BOOST_REQUIRE_EQUAL('c', wrapper.peek());
+    BOOST_REQUIRE_EQUAL('c', wrapper.take());
+    BOOST_REQUIRE_EQUAL(3, wrapper.tell());
+    BOOST_REQUIRE_EQUAL('\0', wrapper.peek());
+    BOOST_REQUIRE_EQUAL('\0', wrapper.take());
+    BOOST_REQUIRE_EQUAL(3, wrapper.tell());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
