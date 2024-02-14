@@ -24,7 +24,7 @@ namespace core {
 //! A boost::json memory allocator using a fixed size buffer
 //!
 //! DESCRIPTION:\n
-//! Encapsulates a boost::json monotonic_resource optimized with a fixed size buffer, see https://www.boost.org/doc/libs/1_84_0/libs/json/doc/html/json/allocators/storage_ptr.html
+//! Encapsulates a boost::json monotonic_resource optimized with a fixed size buffer, see https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/allocators/storage_ptr.html
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Use a fixed size buffer for the allocator for performance reasons
