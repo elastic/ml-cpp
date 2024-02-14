@@ -184,7 +184,6 @@ CCommandParser::validateInferenceRequestJson(const json::object& doc,
             return EMessageType::E_MalformedMessage;
         }
 
-        LOG_INFO(<< "val: " << val);
         const json::array& innerArray = val.as_array();
         if (checkArrayContainsInts(innerArray) == false) {
             errorHandler(doc.at(REQUEST_ID).as_string(),
