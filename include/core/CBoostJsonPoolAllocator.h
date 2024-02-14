@@ -43,8 +43,6 @@ public:
 public:
     CBoostJsonPoolAllocator() {}
 
-    ~CBoostJsonPoolAllocator() {}
-
     //! \return document pointer suitable for storing in a container
     //! Note: The document memory is cleaned up once all references to it are destroyed.
     TDocumentWeakPtr makeStorableDoc() {
