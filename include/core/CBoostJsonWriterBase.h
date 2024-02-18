@@ -189,7 +189,7 @@ public:
 
     virtual bool onKey(const std::string& key) {
         this->append((isComplete() ? "" : ","));
-        this->append(json::serialize(key)+":");
+        this->append(json::serialize(key) + ":");
         return true;
     }
 
