@@ -11,11 +11,10 @@
 #ifndef INCLUDED_ml_core_CJsonStatePersistInserter_h
 #define INCLUDED_ml_core_CJsonStatePersistInserter_h
 
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CStatePersistInserter.h>
+#include <core/CStreamWriter.h>
 #include <core/ImportExport.h>
-
-#include <rapidjson/ostreamwrapper.h>
 
 #include <iosfwd>
 #include <ostream>
@@ -68,10 +67,10 @@ protected:
     void endLevel() override;
 
 private:
-    //! JSON writer ostream wrapper
-    rapidjson::OStreamWrapper m_WriteStream;
+    //! JSON writer ostream
+    std::ostream& m_WriteStream;
 
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+    using TGenericLineWriter = CStreamWriter;
 
     //! JSON writer
     TGenericLineWriter m_Writer;

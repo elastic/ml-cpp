@@ -28,17 +28,35 @@
 
 //=== Regressions
 
+== {es} version 8.13.0
+
+=== Enhancements
+
+* Use Boost.JSON for JSON processing. (See {ml-pull}2614[#2614].)
+* Upgrade Pytorch to version 2.1.2. (See {ml-pull}2588[#2588].)
+* Upgrade zlib to version 1.2.13 on Windows. (See {ml-pull}2588[#2588].)
+* Better handling of number of allocations in pytorch_inference in the case that
+  hardware_concurrency fails. We were previously forcing maximum number of allocations
+  to be one in this case, we now allow what is requested. (See {ml-pull}2607[#2607].)
+* Upgrade MKL to version 2024.0 on Linux x86_64. (See {ml-pull}2619[#2619].)
+
 == {es} version 8.12.0
 
 === Enhancements
 
 * Upgrade Boost libraries to version 1.83. (See {ml-pull}2560[#2560].)
-* Improve forecasting for time series with step changes. (See {ml-pull}#2591[2591],
-  issue: {ml-issue}2466[#2466]).
 
 === Bug Fixes
 
-* Ensure the estimated latitude is within the allowed range (See {ml-pull}#2586[2586].)
+* Ensure the estimated latitude is within the allowed range (See {ml-pull}2586[#2586].)
+* Remove dependency on the IPEX library (See {ml-pull}2605[#2605] and {ml-pull}2606[#2606].)
+
+== {es} version 8.11.2
+
+=== Enhancements
+
+* Improve forecasting for time series with step changes. (See {ml-pull}2591[#2591],
+  issue: {ml-issue}2466[#2466]).
 
 == {es} version 8.11.0
 
@@ -535,7 +553,7 @@
 * Fix restore from training state for classification and regression. (See
   {ml-pull}1197[#1197].)
 * Improve the initialization of seasonal components for anomaly detection. (See
-  {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
+  {ml-pull}1201[#1201], issue: {ml-issue}1178[#1178].)
 
 == {es} version 7.7.1
 

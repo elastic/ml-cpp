@@ -25,8 +25,7 @@
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
-#include <rapidjson/prettywriter.h>
-
+#include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
@@ -138,24 +137,31 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
     analyzer.receivedAllRows();
     analyzer.run();
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedScore = expectedScores.begin();
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const json::value& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
-            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+            BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
             ++expectedScore;
-        } else if (result.HasMember("phase_progress")) {
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
-            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
+        } else if (result.contains("phase_progress")) {
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
+            BOOST_TEST_REQUIRE(result.contains("row_results") == false);
         }
     }
     BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
@@ -185,26 +191,35 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedScore = expectedScores.begin();
     bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
             ++expectedScore;
-            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
-        } else if (result.HasMember("phase_progress")) {
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
-            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
+            BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
+        } else if (result.contains("phase_progress")) {
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
+            BOOST_TEST_REQUIRE(result.contains("row_results") == false);
+            progressCompleted =
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
@@ -252,17 +267,20 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
                        expectedFeatureInfluences, 990, 10);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedScore = expectedScores.begin();
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
-                result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/outlier_score").to_number<double>(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
@@ -311,26 +329,38 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
                        maths::analytics::COutliers::E_Ensemble, 0, true);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
 
             BOOST_TEST_REQUIRE(expectedFeatureInfluence !=
                                expectedFeatureInfluences.end());
             for (int i = 0; i < 5; ++i) {
+                std::stringstream base_path;
+                base_path << "/row_results/results/ml/feature_influence/" << i;
+                json::value jv;
+                try {
+                    jv = result_.at_pointer(base_path.str() + "/feature_name");
+                } catch (std::exception& e) {
+                    LOG_ERROR(<< "jv: " << jv);
+                    BOOST_REQUIRE(false);
+                }
                 BOOST_REQUIRE_EQUAL(
                     expectedNames[i].c_str(),
-                    result["row_results"]["results"]["ml"]["feature_influence"][i]["feature_name"]
-                        .GetString());
+                    result_.at_pointer(base_path.str() + "/feature_name")
+                        .as_string()
+                        .c_str());
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
-                    result["row_results"]["results"]["ml"]["feature_influence"][i]["influence"]
-                        .GetDouble(),
+                    result_.at_pointer(base_path.str() + "/influence").to_number<double>(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
@@ -378,18 +408,22 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                                expectedFeatureInfluences, 100, 10, method, k);
             analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-            rapidjson::Document results;
-            rapidjson::ParseResult ok(results.Parse(output.str()));
-            BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+            json::error_code ec;
+            json::value results = json::parse(output.str(), ec);
+            BOOST_TEST_REQUIRE(ec.failed() == false);
+            BOOST_TEST_REQUIRE(results.is_array());
 
             auto expectedScore = expectedScores.begin();
-            for (const auto& result : results.GetArray()) {
-                if (result.HasMember("row_results")) {
+            for (const auto& result_ : results.as_array()) {
+                BOOST_TEST_REQUIRE(result_.is_object());
+                const json::object& result = result_.as_object();
+                if (result.contains("row_results")) {
                     BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
-                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                        *expectedScore,
-                        result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
-                        1e-6 * *expectedScore);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(*expectedScore,
+                                                 result_
+                                                     .at_pointer("/row_results/results/ml/outlier_score")
+                                                     .to_number<double>(),
+                                                 1e-6 * *expectedScore);
                     ++expectedScore;
                 }
             }
@@ -588,22 +622,26 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(memoryLimitExceed);
 
         // verify memory status change
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
         bool memoryStatusOk{false};
         bool memoryStatusHardLimit{false};
         bool memoryReestimateAvailable{false};
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("analytics_memory_usage")) {
-                std::string status{result["analytics_memory_usage"]["status"].GetString()};
+        for (const auto& result_ : results.as_array()) {
+            BOOST_TEST_REQUIRE(result_.is_object());
+            const json::object& result = result_.as_object();
+            if (result.contains("analytics_memory_usage")) {
+                std::string status{
+                    result_.at_pointer("/analytics_memory_usage/status").as_string()};
                 if (status == "ok") {
                     memoryStatusOk = true;
                 } else if (status == "hard_limit") {
                     memoryStatusHardLimit = true;
-                    if (result["analytics_memory_usage"].HasMember("memory_reestimate_bytes") &&
-                        result["analytics_memory_usage"]["memory_reestimate_bytes"]
-                                .GetInt() > 0) {
+                    if (result.at("analytics_memory_usage").as_object().contains("memory_reestimate_bytes") &&
+                        result_.at_pointer("/analytics_memory_usage/memory_reestimate_bytes")
+                                .to_number<std::int64_t>() > 0) {
                         memoryReestimateAvailable = true;
                     }
                 }
@@ -634,16 +672,21 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
     analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                           {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     int expectedHash{0};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            BOOST_REQUIRE_EQUAL(++expectedHash,
-                                result["row_results"]["checksum"].GetInt());
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
+            LOG_DEBUG(<< "checksum = "
+                      << result_.at_pointer("/row_results/checksum").to_number<std::int64_t>());
+            BOOST_REQUIRE_EQUAL(
+                ++expectedHash,
+                result_.at_pointer("/row_results/checksum").to_number<std::int64_t>());
         }
     }
 }
@@ -671,22 +714,24 @@ BOOST_AUTO_TEST_CASE(testProgress) {
                        expectedFeatureInfluences);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
-    int computingOutliersProgress{0};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("phase_progress")) {
-            rapidjson::StringBuffer sb;
-            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-            result["phase_progress"].Accept(writer);
-            LOG_DEBUG(<< sb.GetString());
-            if (result["phase_progress"]["phase"] ==
+    std::int64_t computingOutliersProgress{0};
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+
+        if (result.contains("phase_progress")) {
+            std::string str = json::serialize(result.at("phase_progress"));
+            LOG_DEBUG(<< str);
+            if (result_.at_pointer("/phase_progress/phase").as_string() ==
                 maths::analytics::COutliers::COMPUTING_OUTLIERS) {
-                computingOutliersProgress =
-                    std::max(computingOutliersProgress,
-                             result["phase_progress"]["progress_percent"].GetInt());
+                computingOutliersProgress = std::max(
+                    computingOutliersProgress,
+                    result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>());
             }
         }
     }

@@ -11,16 +11,16 @@
 #ifndef INCLUDED_ml_core_CJsonOutputStreamWrapper_h
 #define INCLUDED_ml_core_CJsonOutputStreamWrapper_h
 
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CConcurrentQueue.h>
 #include <core/CConcurrentWrapper.h>
 #include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
-#include <core/CRapidJsonLineWriter.h>
 #include <core/ImportExport.h>
 
-#include <rapidjson/stringbuffer.h>
-
 #include <ostream>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -32,7 +32,7 @@ namespace core {
 //! DESCRIPTION:\n
 //! Takes an output stream and wraps it, provides buffers and pooling.
 //!
-//! Consider not to use this directly but CRapidJsonConcurrentLineWriter.
+//! Consider not to use this directly but CBoostJsonConcurrentLineWriter.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Pool and buffer sizes are hardcoded.
@@ -53,7 +53,7 @@ private:
 
 public:
     using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TGenericLineWriter = core::CBoostJsonLineWriter<std::string>;
 
 public:
     //! Wrap a given ostream for concurrent access.
@@ -63,16 +63,16 @@ public:
     ~CJsonOutputStreamWrapper();
 
     //! Acquires a buffer from the pool and attaches it to the given writer object.
-    void acquireBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer);
+    void acquireBuffer(TGenericLineWriter& writer, std::string*& buffer);
 
     //! Releases a buffer from the pool, remaining data will be written before returning it.
-    void releaseBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer* buffer);
+    void releaseBuffer(TGenericLineWriter& writer, std::string* buffer);
 
     //! Flush the buffer/writer if necessary, keeps the logic when to flush in here.
-    //! \param writer A rapidjson writer object
+    //! \param writer A boost::json writer object
     //! \param buffer The buffer for writing
     //! Side-effect: the writer as well as the buffer are altered.
-    void flushBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer);
+    void flushBuffer(TGenericLineWriter& writer, std::string*& buffer);
 
     //! Flush the wrapped outputstream.
     //!
@@ -92,14 +92,14 @@ public:
     std::size_t memoryUsage() const;
 
 private:
-    void returnAndCheckBuffer(rapidjson::StringBuffer* buffer);
+    void returnAndCheckBuffer(std::string* buffer);
 
 private:
     //! the pool of buffers
-    rapidjson::StringBuffer m_StringBuffers[BUFFER_POOL_SIZE];
+    std::string m_StringBuffers[BUFFER_POOL_SIZE];
 
     //! the pool of available buffers
-    CConcurrentQueue<rapidjson::StringBuffer*> m_StringBufferQueue;
+    CConcurrentQueue<std::string*> m_StringBufferQueue;
 
     //! the stream object wrapped by CConcurrentWrapper
     TOStreamConcurrentWrapper m_ConcurrentOutputStream;

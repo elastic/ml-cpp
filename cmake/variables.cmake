@@ -105,10 +105,6 @@ else()
   set(C10_LIB   "${ML_BASE_PATH}/lib/libc10${ML_LIBEXT}")
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(IPEX_LIB "${ML_BASE_PATH}/lib/libintel-ext-pt-cpu${ML_LIBEXT}")
-endif()
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(LIBXML2_LIBRARIES "-lxml2")
 else()
@@ -139,7 +135,6 @@ list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES
   ${TORCH_INC}
   ${CMAKE_SOURCE_DIR}/3rd_party/include
   ${CMAKE_SOURCE_DIR}/3rd_party/eigen
-  ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
   )
 
 set(IMPORT_LIB_DIR lib)
@@ -177,9 +172,21 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
+  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -fno-omit-frame-pointer" CACHE STRING
+          "Flags used by the C++ compiler during sanitizer builds."
+          FORCE)
+  mark_as_advanced(
+          CMAKE_CXX_FLAGS_MAINTAINER)
+  # Update the documentation string of CMAKE_BUILD_TYPE for GUIs
+  set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
+          "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Sanitizer."
+          FORCE)
+
 endif()
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE = ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO = ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "CMAKE_CXX_FLAGS_SANITIZER = ${CMAKE_CXX_FLAGS_SANITIZER}")
 
 # Perform a "RelWithDebInfo" build by default...
 if(NOT CMAKE_BUILD_TYPE)

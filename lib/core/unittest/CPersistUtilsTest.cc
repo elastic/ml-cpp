@@ -166,21 +166,23 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
         core::CJsonStatePersistInserter inserter(origSs);
         core::CPersistUtils::persist(tag, collection, inserter);
     }
-    LOG_TRACE(<< "String data is: " << origSs.str());
-    LOG_TRACE(<< " - doing restore " << typeid(T).name());
+    LOG_DEBUG(<< "String data is: " << origSs.str());
+    LOG_DEBUG(<< " - doing restore " << typeid(T).name());
     T restored = initial;
     std::stringstream restoredSs;
     {
         core::CJsonStateRestoreTraverser traverser(origSs);
         BOOST_TEST_REQUIRE(core::CPersistUtils::restore(tag, restored, traverser));
     }
-    LOG_TRACE(<< " - doing persist again " << typeid(T).name());
+    LOG_DEBUG(<< " - doing persist again " << typeid(T).name());
     {
         const T& restoredRef = restored;
+        LOG_DEBUG(<< "restored container: " << core::CContainerPrinter::print(restored));
         core::CJsonStatePersistInserter inserter(restoredSs);
         core::CPersistUtils::persist(tag, restoredRef, inserter);
     }
-    LOG_TRACE(<< "String data is: " << restoredSs.str());
+    LOG_DEBUG(<< "Expected string data is: " << origSs.str());
+    LOG_DEBUG(<< "Restored string data is: " << restoredSs.str());
 
     BOOST_REQUIRE_EQUAL(origSs.str(), restoredSs.str());
     BOOST_TEST_REQUIRE(compare(collection, restored));

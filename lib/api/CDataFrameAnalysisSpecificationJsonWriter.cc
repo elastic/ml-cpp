@@ -32,15 +32,20 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
                                                       const std::string& analysisParameters,
-                                                      TRapidJsonLineWriter& writer) {
-    rapidjson::Document analysisParametersDoc;
+                                                      TBoostJsonLineWriter& writer) {
+    json::value analysisParametersDoc;
     if (analysisParameters.empty() == false) {
-        analysisParametersDoc.Parse(analysisParameters);
-        if (analysisParametersDoc.GetParseError()) {
+        json::error_code ec;
+        json::parser p;
+        p.write(analysisParameters, ec);
+        if (ec.failed()) {
             HANDLE_FATAL(<< "Input error: analysis parameters " << analysisParameters
                          << " cannot be parsed as json. Please report this problem.");
         }
+        analysisParametersDoc = p.release();
     }
+    LOG_DEBUG(<< "analysisParametersDoc: " << analysisParametersDoc);
+
     write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
           resultsField, missingFieldValue, categoricalFields, diskUsageAllowed,
           analysisName, analysisParametersDoc, writer);
@@ -57,56 +62,55 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       const TStrVec& categoricalFields,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
-                                                      const rapidjson::Document& analysisParametersDocument,
-                                                      TRapidJsonLineWriter& writer) {
-    writer.StartObject();
+                                                      const json::value& analysisParametersDocument,
+                                                      TBoostJsonLineWriter& writer) {
+    writer.onObjectBegin();
 
-    writer.Key(CDataFrameAnalysisSpecification::JOB_ID);
-    writer.String(jobId);
+    writer.onKey(CDataFrameAnalysisSpecification::JOB_ID);
+    writer.onString(jobId);
 
-    writer.Key(CDataFrameAnalysisSpecification::ROWS);
-    writer.Uint64(rows);
+    writer.onKey(CDataFrameAnalysisSpecification::ROWS);
+    writer.onUint64(rows);
 
-    writer.Key(CDataFrameAnalysisSpecification::COLS);
-    writer.Uint64(cols);
+    writer.onKey(CDataFrameAnalysisSpecification::COLS);
+    writer.onUint64(cols);
 
-    writer.Key(CDataFrameAnalysisSpecification::MEMORY_LIMIT);
-    writer.Uint64(memoryLimit);
+    writer.onKey(CDataFrameAnalysisSpecification::MEMORY_LIMIT);
+    writer.onUint64(memoryLimit);
 
-    writer.Key(CDataFrameAnalysisSpecification::THREADS);
-    writer.Uint64(numberThreads);
+    writer.onKey(CDataFrameAnalysisSpecification::THREADS);
+    writer.onUint64(numberThreads);
 
-    writer.Key(CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY);
-    writer.String(temporaryDirectory);
+    writer.onKey(CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY);
+    writer.onString(temporaryDirectory);
 
-    writer.Key(CDataFrameAnalysisSpecification::RESULTS_FIELD);
-    writer.String(resultsField);
+    writer.onKey(CDataFrameAnalysisSpecification::RESULTS_FIELD);
+    writer.onString(resultsField);
 
     if (missingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING) {
-        writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
-        writer.String(missingFieldValue);
+        writer.onKey(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
+        writer.onString(missingFieldValue);
     }
 
-    rapidjson::Value array(rapidjson::kArrayType);
+    json::array array;
     for (const auto& field : categoricalFields) {
-        array.PushBack(rapidjson::Value(rapidjson::StringRef(field)),
-                       writer.getRawAllocator());
+        array.push_back(json::value(field));
     }
-    writer.Key(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES);
+    writer.onKey(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES);
     writer.write(array);
 
-    writer.Key(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED);
-    writer.Bool(diskUsageAllowed);
+    writer.onKey(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED);
+    writer.onBool(diskUsageAllowed);
 
-    writer.Key(CDataFrameAnalysisSpecification::ANALYSIS);
-    writer.StartObject();
-    writer.Key(CDataFrameAnalysisSpecification::NAME);
-    writer.String(analysisName);
+    writer.onKey(CDataFrameAnalysisSpecification::ANALYSIS);
+    writer.onObjectBegin();
+    writer.onKey(CDataFrameAnalysisSpecification::NAME);
+    writer.onString(analysisName);
 
     // if no parameters are specified, parameters document has Null as its root element
-    if (analysisParametersDocument.IsNull() == false) {
-        if (analysisParametersDocument.IsObject()) {
-            writer.Key(CDataFrameAnalysisSpecification::PARAMETERS);
+    if (analysisParametersDocument.is_null() == false) {
+        if (analysisParametersDocument.is_object()) {
+            writer.onKey(CDataFrameAnalysisSpecification::PARAMETERS);
             writer.write(analysisParametersDocument);
         } else {
             HANDLE_FATAL(<< "Input error: analysis parameters suppose to "
@@ -114,9 +118,9 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         }
     }
 
-    writer.EndObject();
-    writer.EndObject();
-    writer.Flush();
+    writer.onObjectEnd();
+    writer.onObjectEnd();
+    writer.flush();
 }
 
 std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(
@@ -132,15 +136,15 @@ std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(
     const std::string& resultField,
     const std::string& analysisName,
     const std::string& analysisParameters) {
-    rapidjson::StringBuffer stringBuffer;
-    TRapidJsonLineWriter writer;
-    writer.Reset(stringBuffer);
+
+    std::ostringstream os;
+    TBoostJsonLineWriter writer(os);
 
     write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
           missingFieldValue, categoricalFields, diskUsageAllowed, analysisName,
           analysisParameters, writer);
 
-    return stringBuffer.GetString();
+    return os.str();
 }
 }
 }

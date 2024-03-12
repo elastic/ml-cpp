@@ -22,8 +22,7 @@
 #include <boost/log/expressions/message.hpp>
 #include <boost/log/utility/formatting_ostream.hpp>
 
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <boost/json/src.hpp>
 
 #include <cstdint>
 #include <sstream>
@@ -64,40 +63,31 @@ bool CJsonLogLayout::locationInfo() const {
 
 void CJsonLogLayout::operator()(const boost::log::record_view& rec,
                                 boost::log::formatting_ostream& strm) const {
-    using TStringBufferWriter = rapidjson::Writer<rapidjson::StringBuffer>;
-    rapidjson::StringBuffer buffer;
-    TStringBufferWriter writer{buffer};
+    namespace json = boost::json;
 
-    writer.StartObject();
+    json::object writer;
+    writer[LOGGER_NAME] = LOGGER;
 
-    writer.Key(LOGGER_NAME);
-    writer.String(LOGGER);
-
-    writer.Key(TIMESTAMP_NAME);
     const auto& timeStamp = boost::log::extract<boost::posix_time::ptime>(
                                 boost::log::aux::default_attribute_names::timestamp(), rec)
                                 .get();
-    writer.Int64((timeStamp - EPOCH).total_milliseconds());
+    writer[TIMESTAMP_NAME] = (timeStamp - EPOCH).total_milliseconds();
 
-    writer.Key(LEVEL_NAME);
     auto level = boost::log::extract<CLogger::ELevel>(
                      boost::log::aux::default_attribute_names::severity(), rec)
                      .get();
-    writer.String(CLogger::levelToString(level));
+    writer[LEVEL_NAME] = CLogger::levelToString(level);
 
-    writer.Key(PID_NAME);
-    writer.Int64(PID);
+    writer[PID_NAME] = PID;
 
-    writer.Key(THREAD_NAME);
     auto threadId = boost::log::extract<boost::log::attributes::current_thread_id::value_type>(
                         boost::log::aux::default_attribute_names::thread_id(), rec)
                         .get();
     std::ostringstream oss;
     oss << threadId;
-    writer.String(oss.str());
+    writer[THREAD_NAME] = oss.str();
 
-    writer.Key(MESSAGE_NAME);
-    writer.String(rec[boost::log::expressions::smessage].get());
+    writer[MESSAGE_NAME] = rec[boost::log::expressions::smessage].get();
 
     if (m_LocationInfo) {
         std::string className;
@@ -107,27 +97,22 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
                 .get());
 
         if (className.empty() == false) {
-            writer.Key(CLASS_NAME);
-            writer.String(className);
+            writer[CLASS_NAME] = className;
         }
 
-        writer.Key(METHOD_NAME);
-        writer.String(methodName);
+        writer[METHOD_NAME] = methodName;
 
-        writer.Key(FILE_NAME);
         const auto& fullFileName = boost::log::extract<std::string>(
                                        CLogger::instance().fileAttributeName(), rec)
                                        .get();
-        writer.String(CJsonLogLayout::cropPath(fullFileName));
+        writer[FILE_NAME] = CJsonLogLayout::cropPath(fullFileName);
 
-        writer.Key(LINE_NAME);
-        writer.Int(boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
-                       .get());
+        writer[LINE_NAME] =
+            boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
+                .get();
     }
 
-    writer.EndObject();
-
-    strm << buffer.GetString();
+    strm << writer;
 }
 
 std::string CJsonLogLayout::cropPath(const std::string& filename) {

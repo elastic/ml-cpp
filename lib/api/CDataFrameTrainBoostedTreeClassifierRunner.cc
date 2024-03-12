@@ -11,10 +11,10 @@
 
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -131,7 +131,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CBoostJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
     this->writeOneRow(
@@ -147,7 +147,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const TReadPredictionFunc& readClassProbabilities,
     const TReadClassScoresFunc& readClassScores,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer,
+    core::CBoostJsonConcurrentLineWriter& writer,
     maths::analytics::CTreeShapFeatureImportance* featureImportance) const {
 
     auto probabilities = readClassProbabilities(row);
@@ -158,15 +158,15 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                                  scores.begin());
 
     const TStrVec& classValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
-    writer.StartObject();
-    writer.Key(this->predictionFieldName());
+    writer.onObjectBegin();
+    writer.onKey(this->predictionFieldName());
     writePredictedCategoryValue(classValues[predictedClassId], writer);
-    writer.Key(PREDICTION_PROBABILITY_FIELD_NAME);
-    writer.Double(probabilities[predictedClassId]);
-    writer.Key(PREDICTION_SCORE_FIELD_NAME);
-    writer.Double(scores[predictedClassId]);
-    writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(actualClassId) == false);
+    writer.onKey(PREDICTION_PROBABILITY_FIELD_NAME);
+    writer.onDouble(probabilities[predictedClassId]);
+    writer.onKey(PREDICTION_SCORE_FIELD_NAME);
+    writer.onDouble(scores[predictedClassId]);
+    writer.onKey(IS_TRAINING_FIELD_NAME);
+    writer.onBool(maths::analytics::CDataFrameUtils::isMissing(actualClassId) == false);
 
     if (m_NumTopClasses != 0) {
         TSizeVec classIds(scores.size());
@@ -180,19 +180,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             ? classIds.size()
                             : std::min(classIds.size(),
                                        static_cast<std::size_t>(m_NumTopClasses)));
-        writer.Key(TOP_CLASSES_FIELD_NAME);
-        writer.StartArray();
+        writer.onKey(TOP_CLASSES_FIELD_NAME);
+        writer.onArrayBegin();
         for (std::size_t i : classIds) {
-            writer.StartObject();
-            writer.Key(CLASS_NAME_FIELD_NAME);
+            writer.onObjectBegin();
+            writer.onKey(CLASS_NAME_FIELD_NAME);
             writePredictedCategoryValue(classValues[i], writer);
-            writer.Key(CLASS_PROBABILITY_FIELD_NAME);
-            writer.Double(probabilities[i]);
-            writer.Key(CLASS_SCORE_FIELD_NAME);
-            writer.Double(scores[i]);
-            writer.EndObject();
+            writer.onKey(CLASS_PROBABILITY_FIELD_NAME);
+            writer.onDouble(probabilities[i]);
+            writer.onKey(CLASS_SCORE_FIELD_NAME);
+            writer.onDouble(scores[i]);
+            writer.onObjectEnd();
         }
-        writer.EndArray();
+        writer.onArrayEnd();
     }
 
     if (featureImportance != nullptr) {
@@ -201,55 +201,55 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         m_InferenceModelMetadata.classValues(classValues);
         m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
             [this](const std::string& categoryValue,
-                   core::CRapidJsonConcurrentLineWriter& writer_) {
+                   core::CBoostJsonConcurrentLineWriter& writer_) {
                 this->writePredictedCategoryValue(categoryValue, writer_);
             });
         featureImportance->shap(
             row, [&](const maths::analytics::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
                      const maths::analytics::CTreeShapFeatureImportance::TVectorVec& shap) {
-                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
-                writer.StartArray();
+                writer.onKey(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.onArrayBegin();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.StartObject();
-                        writer.Key(FEATURE_NAME_FIELD_NAME);
-                        writer.String(featureNames[i]);
+                        writer.onObjectBegin();
+                        writer.onKey(FEATURE_NAME_FIELD_NAME);
+                        writer.onString(featureNames[i]);
                         if (shap[i].size() == 1) {
                             // output feature importance for individual classes in binary case
-                            writer.Key(CLASSES_FIELD_NAME);
-                            writer.StartArray();
+                            writer.onKey(CLASSES_FIELD_NAME);
+                            writer.onArrayBegin();
                             for (int j = 0; j < numberClasses; ++j) {
-                                writer.StartObject();
-                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writer.onObjectBegin();
+                                writer.onKey(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
-                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                writer.onKey(IMPORTANCE_FIELD_NAME);
                                 if (j == 1) {
-                                    writer.Double(shap[i](0));
+                                    writer.onDouble(shap[i](0));
                                 } else {
-                                    writer.Double(-shap[i](0));
+                                    writer.onDouble(-shap[i](0));
                                 }
-                                writer.EndObject();
+                                writer.onObjectEnd();
                             }
-                            writer.EndArray();
+                            writer.onArrayEnd();
                         } else {
                             // output feature importance for individual classes in multiclass case
-                            writer.Key(CLASSES_FIELD_NAME);
-                            writer.StartArray();
+                            writer.onKey(CLASSES_FIELD_NAME);
+                            writer.onArrayBegin();
                             for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
-                                writer.StartObject();
-                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writer.onObjectBegin();
+                                writer.onKey(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
-                                writer.Key(IMPORTANCE_FIELD_NAME);
-                                writer.Double(shap[i](j));
-                                writer.EndObject();
+                                writer.onKey(IMPORTANCE_FIELD_NAME);
+                                writer.onDouble(shap[i](j));
+                                writer.onObjectEnd();
                             }
-                            writer.EndArray();
+                            writer.onArrayEnd();
                         }
-                        writer.EndObject();
+                        writer.onObjectEnd();
                     }
                 }
-                writer.EndArray();
+                writer.onArrayEnd();
 
                 for (std::size_t i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
@@ -259,30 +259,30 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                 }
             });
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     const std::string& categoryValue,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CBoostJsonConcurrentLineWriter& writer) const {
 
     double doubleValue;
     switch (m_PredictionFieldType) {
     case E_PredictionFieldTypeString:
-        writer.String(categoryValue);
+        writer.onString(categoryValue);
         break;
     case E_PredictionFieldTypeInt:
         if (core::CStringUtils::stringToType(categoryValue, doubleValue)) {
-            writer.Int64(static_cast<std::int64_t>(doubleValue));
+            writer.onInt64(static_cast<std::int64_t>(doubleValue));
         } else {
-            writer.String(categoryValue);
+            writer.onString(categoryValue);
         }
         break;
     case E_PredictionFieldTypeBool:
         if (core::CStringUtils::stringToType(categoryValue, doubleValue)) {
-            writer.Bool(doubleValue != 0.0);
+            writer.onBool(doubleValue != 0.0);
         } else {
-            writer.String(categoryValue);
+            writer.onString(categoryValue);
         }
         break;
     }
@@ -386,7 +386,7 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters,
+    const json::value& jsonParameters,
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeClassifierRunner::parameterReader()};

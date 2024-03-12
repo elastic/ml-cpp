@@ -18,12 +18,13 @@
 
 #include <model/CDetectionRule.h>
 
-#include <rapidjson/document.h>
-
+#include <boost/json.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <string>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -45,24 +46,23 @@ public:
     //! Parses a JSON value object expected to represent a JSON array of
     //! detection rules. Adds rule objects to the given vector. Any error messages
     //! are passed back in the error string.
-    bool parseRules(const rapidjson::Value& value, TDetectionRuleVec& rules, std::string& errorString);
+    bool parseRules(const json::value& value, TDetectionRuleVec& rules, std::string& errorString);
 
 private:
-    bool parseRuleScope(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
-    bool parseRuleConditions(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
+    bool parseRuleScope(const json::object& ruleObject, model::CDetectionRule& rule);
+    bool parseRuleConditions(const json::object& ruleObject, model::CDetectionRule& rule);
 
-    static bool hasStringMember(const rapidjson::Value& object, const std::string& name);
-    static bool hasArrayMember(const rapidjson::Value& object, const std::string& name);
-    static bool hasDoubleMember(const rapidjson::Value& object, const std::string& name);
-    static bool parseRuleActions(const rapidjson::Value& ruleObject,
-                                 model::CDetectionRule& rule);
-    static bool parseConditionsConnective(const rapidjson::Value& ruleObject,
+    static bool hasStringMember(const json::object& object, const std::string& name);
+    static bool hasArrayMember(const json::object& object, const std::string& name);
+    static bool hasDoubleMember(const json::object& object, const std::string& name);
+    static bool parseRuleActions(const json::object& ruleObject, model::CDetectionRule& rule);
+    static bool parseConditionsConnective(const json::object& ruleObject,
                                           model::CDetectionRule& rule);
-    static bool parseConditionAppliesTo(const rapidjson::Value& ruleConditionObject,
+    static bool parseConditionAppliesTo(const json::object& ruleConditionObject,
                                         model::CRuleCondition& ruleCondition);
-    static bool parseConditionOperator(const rapidjson::Value& conditionObject,
+    static bool parseConditionOperator(const json::object& conditionObject,
                                        model::CRuleCondition& condition);
-    static bool parseConditionValue(const rapidjson::Value& conditionObject,
+    static bool parseConditionValue(const json::object& conditionObject,
                                     model::CRuleCondition& condition);
 
 private:

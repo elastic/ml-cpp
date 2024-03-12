@@ -20,7 +20,7 @@
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <boost/json.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -28,6 +28,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -193,7 +195,7 @@ public:
     static TDataSearcherUPtr noopRestoreSearcherSupplier();
 
 private:
-    void initializeRunner(const rapidjson::Value& jsonAnalysis,
+    void initializeRunner(const json::value& jsonAnalysis,
                           TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
 private:

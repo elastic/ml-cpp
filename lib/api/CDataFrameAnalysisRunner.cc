@@ -253,7 +253,7 @@ CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spe
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& jsonParameters,
+                                      const json::value& jsonParameters,
                                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     auto result = this->makeImpl(spec, jsonParameters, frameAndDirectory);
     if (result->numberPartitions() == 0) {

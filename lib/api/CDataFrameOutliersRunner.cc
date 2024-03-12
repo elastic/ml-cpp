@@ -11,22 +11,23 @@
 
 #include <api/CDataFrameOutliersRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/analytics/COutliers.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
+#include <boost/json.hpp>
 
 #include <algorithm>
 #include <iterator>
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -103,28 +104,28 @@ CDataFrameOutliersRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
 
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
                                            const TRowRef& row,
-                                           core::CRapidJsonConcurrentLineWriter& writer) const {
+                                           core::CBoostJsonConcurrentLineWriter& writer) const {
     std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
     std::size_t beginFeatureScoreColumns{scoreColumn + 1};
     std::size_t numberFeatureScoreColumns{this->numberExtraColumns() - 1};
-    writer.StartObject();
-    writer.Key(OUTLIER_SCORE_FIELD_NAME);
-    writer.Double(row[scoreColumn]);
+    writer.onObjectBegin();
+    writer.onKey(OUTLIER_SCORE_FIELD_NAME);
+    writer.onDouble(row[scoreColumn]);
     if (row[scoreColumn] > m_FeatureInfluenceThreshold && numberFeatureScoreColumns > 0) {
-        writer.Key(FEATURE_INFLUENCE_FIELD_NAME);
-        writer.StartArray();
+        writer.onKey(FEATURE_INFLUENCE_FIELD_NAME);
+        writer.onArrayBegin();
 
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
-            writer.StartObject();
-            writer.Key(FEATURE_NAME_FIELD_NAME);
-            writer.String(frame.columnNames()[i]);
-            writer.Key(INFLUENCE_FIELD_NAME);
-            writer.Double(row[beginFeatureScoreColumns + i]);
-            writer.EndObject();
+            writer.onObjectBegin();
+            writer.onKey(FEATURE_NAME_FIELD_NAME);
+            writer.onString(frame.columnNames()[i]);
+            writer.onKey(INFLUENCE_FIELD_NAME);
+            writer.onDouble(row[beginFeatureScoreColumns + i]);
+            writer.onObjectEnd();
         }
-        writer.EndArray();
+        writer.onArrayEnd();
     }
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 bool CDataFrameOutliersRunner::validate(const core::CDataFrame& frame) const {
@@ -199,7 +200,7 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& jsonParameters,
+                                          const json::value& jsonParameters,
                                           TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     auto parameters = parameterReader().read(jsonParameters);
     return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);

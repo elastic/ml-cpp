@@ -26,9 +26,6 @@
 
 #include "CTestAnomalyJob.h"
 
-#include <rapidjson/document.h>
-#include <rapidjson/pointer.h>
-
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -36,7 +33,7 @@
 #include <sstream>
 #include <string>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::MemberIterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(json::object::iterator)
 
 BOOST_AUTO_TEST_SUITE(CAnomalyJobLimitTest)
 
@@ -44,32 +41,31 @@ using namespace ml;
 
 std::set<std::string> getUniqueValues(const std::string& key, const std::string& output) {
     std::set<std::string> values;
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST_REQUIRE(!doc.HasParseError());
-    BOOST_TEST_REQUIRE(doc.IsArray());
+    json::error_code ec;
+    LOG_DEBUG(<< "Parsing: [ " << output << " ]");
+    json::value doc = json::parse(output, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc.is_array());
 
     size_t i = 0;
 
     while (true) {
-        rapidjson::Value* p1 = rapidjson::Pointer("/" + std::to_string(i)).Get(doc);
-        if (p1 != nullptr) {
+        doc.find_pointer("/" + std::to_string(i), ec);
+        if (ec.failed() == false) {
             size_t j = 0;
             while (true) {
-                rapidjson::Value* p2 = rapidjson::Pointer("/" + std::to_string(i) + "/records/" +
-                                                          std::to_string(j))
-                                           .Get(doc);
+                json::value* p2 = doc.find_pointer(
+                    "/" + std::to_string(i) + "/records/" + std::to_string(j), ec);
                 if (p2 != nullptr) {
                     size_t k = 0;
                     while (true) {
-                        rapidjson::Value* p3 =
-                            rapidjson::Pointer("/" + std::to_string(i) + "/records/" +
-                                               std::to_string(j) + "/causes/" +
-                                               std::to_string(k) + "/" + key)
-                                .Get(doc);
+                        json::value* p3 = doc.find_pointer(
+                            "/" + std::to_string(i) + "/records/" + std::to_string(j) +
+                                "/causes/" + std::to_string(k) + "/" + key,
+                            ec);
 
                         if (p3 != nullptr) {
-                            values.insert(p3->GetString());
+                            values.insert(std::string(p3->as_string()));
                         } else {
                             break;
                         }

@@ -17,7 +17,7 @@
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <boost/json.hpp>
 
 namespace ml {
 namespace api {
@@ -52,7 +52,7 @@ public:
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer) const override;
+                     core::CBoostJsonConcurrentLineWriter& writer) const override;
 
     //! Validate if \p frame is suitable for running the analysis on.
     bool validate(const core::CDataFrame& frame) const override;
@@ -110,7 +110,7 @@ private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters,
+                         const json::value& jsonParameters,
                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 }

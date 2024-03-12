@@ -30,8 +30,6 @@
 
 #include "CTestAnomalyJob.h"
 
-#include <rapidjson/document.h>
-
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -129,14 +127,14 @@ void detectorPersistHelper(const std::string& configFileName,
                          std::istreambuf_iterator<char>());
         origFileContents[index] = json;
 
-        // Ensure that the JSON is valid, by parsing string using Rapidjson
-        rapidjson::Document document;
-        BOOST_TEST_REQUIRE(!document.Parse<0>(origFileContents[index].c_str()).HasParseError());
-        BOOST_TEST_REQUIRE(document.IsObject());
+        // Ensure that the JSON is valid, by parsing string using boost::json
+        json::error_code ec;
+        json::value document = json::parse(origFileContents[index].c_str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(document.is_object());
     }
 
     // Now restore the state into a different detector
-
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(

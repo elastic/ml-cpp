@@ -23,7 +23,7 @@
 namespace ml {
 namespace api {
 
-void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::write(TBoostJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
@@ -35,176 +35,176 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     }
 }
 
-void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
-    writer.Key(JSON_TOTAL_FEATURE_IMPORTANCE_TAG);
-    writer.StartArray();
+void CInferenceModelMetadata::writeTotalFeatureImportance(TBoostJsonWriter& writer) const {
+    writer.onKey(JSON_TOTAL_FEATURE_IMPORTANCE_TAG);
+    writer.onArrayBegin();
     for (const auto& item : m_TotalShapValuesMean) {
-        writer.StartObject();
-        writer.Key(JSON_FEATURE_NAME_TAG);
-        writer.String(m_ColumnNames[item.first]);
+        writer.onObjectBegin();
+        writer.onKey(JSON_FEATURE_NAME_TAG);
+        writer.onString(m_ColumnNames[item.first]);
         auto meanFeatureImportance = maths::common::CBasicStatistics::mean(item.second);
         const auto& minMaxFeatureImportance = m_TotalShapValuesMinMax.at(item.first);
         if (meanFeatureImportance.size() == 1 && m_ClassValues.empty()) {
             // Regression.
-            writer.Key(JSON_IMPORTANCE_TAG);
-            writer.StartObject();
-            writer.Key(JSON_MEAN_MAGNITUDE_TAG);
-            writer.Double(meanFeatureImportance[0]);
-            writer.Key(JSON_MIN_TAG);
-            writer.Double(minMaxFeatureImportance[0].min());
-            writer.Key(JSON_MAX_TAG);
-            writer.Double(minMaxFeatureImportance[0].max());
-            writer.EndObject();
+            writer.onKey(JSON_IMPORTANCE_TAG);
+            writer.onObjectBegin();
+            writer.onKey(JSON_MEAN_MAGNITUDE_TAG);
+            writer.onDouble(meanFeatureImportance[0]);
+            writer.onKey(JSON_MIN_TAG);
+            writer.onDouble(minMaxFeatureImportance[0].min());
+            writer.onKey(JSON_MAX_TAG);
+            writer.onDouble(minMaxFeatureImportance[0].max());
+            writer.onObjectEnd();
         } else if (meanFeatureImportance.size() == 1 && m_ClassValues.empty() == false) {
             // Binary classification.
             // Since we track the min/max only for one class, this will make the range more robust.
             double minimum{std::min(minMaxFeatureImportance[0].min(),
                                     -minMaxFeatureImportance[0].max())};
             double maximum{-minimum};
-            writer.Key(JSON_CLASSES_TAG);
-            writer.StartArray();
+            writer.onKey(JSON_CLASSES_TAG);
+            writer.onArrayBegin();
             for (const auto& classValue : m_ClassValues) {
-                writer.StartObject();
-                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(classValue, writer);
-                writer.Key(JSON_IMPORTANCE_TAG);
-                writer.StartObject();
-                writer.Key(JSON_MEAN_MAGNITUDE_TAG);
+                writer.onKey(JSON_IMPORTANCE_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_MEAN_MAGNITUDE_TAG);
                 // mean magnitude is the same for both classes
-                writer.Double(meanFeatureImportance[0]);
-                writer.Key(JSON_MIN_TAG);
-                writer.Double(minimum);
-                writer.Key(JSON_MAX_TAG);
-                writer.Double(maximum);
-                writer.EndObject();
-                writer.EndObject();
+                writer.onDouble(meanFeatureImportance[0]);
+                writer.onKey(JSON_MIN_TAG);
+                writer.onDouble(minimum);
+                writer.onKey(JSON_MAX_TAG);
+                writer.onDouble(maximum);
+                writer.onObjectEnd();
+                writer.onObjectEnd();
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         } else {
             // Multiclass classification.
-            writer.Key(JSON_CLASSES_TAG);
-            writer.StartArray();
+            writer.onKey(JSON_CLASSES_TAG);
+            writer.onArrayBegin();
             for (std::size_t j = 0;
                  j < static_cast<std::size_t>(meanFeatureImportance.size()) &&
                  j < m_ClassValues.size();
                  ++j) {
-                writer.StartObject();
-                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
-                writer.Key(JSON_IMPORTANCE_TAG);
-                writer.StartObject();
-                writer.Key(JSON_MEAN_MAGNITUDE_TAG);
-                writer.Double(meanFeatureImportance[j]);
-                writer.Key(JSON_MIN_TAG);
-                writer.Double(minMaxFeatureImportance[j].min());
-                writer.Key(JSON_MAX_TAG);
-                writer.Double(minMaxFeatureImportance[j].max());
-                writer.EndObject();
-                writer.EndObject();
+                writer.onKey(JSON_IMPORTANCE_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_MEAN_MAGNITUDE_TAG);
+                writer.onDouble(meanFeatureImportance[j]);
+                writer.onKey(JSON_MIN_TAG);
+                writer.onDouble(minMaxFeatureImportance[j].min());
+                writer.onKey(JSON_MAX_TAG);
+                writer.onDouble(minMaxFeatureImportance[j].max());
+                writer.onObjectEnd();
+                writer.onObjectEnd();
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         }
-        writer.EndObject();
+        writer.onObjectEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 }
 
-void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeFeatureImportanceBaseline(TBoostJsonWriter& writer) const {
     if (m_ShapBaseline) {
-        writer.Key(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
-        writer.StartObject();
+        writer.onKey(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
+        writer.onObjectBegin();
         if (m_ShapBaseline->size() == 1 && m_ClassValues.empty()) {
             // Regression.
-            writer.Key(JSON_BASELINE_TAG);
-            writer.Double((*m_ShapBaseline)(0));
+            writer.onKey(JSON_BASELINE_TAG);
+            writer.onDouble((*m_ShapBaseline)(0));
         } else if (m_ShapBaseline->size() == 1 && m_ClassValues.empty() == false) {
             // Binary classification.
-            writer.Key(JSON_CLASSES_TAG);
-            writer.StartArray();
+            writer.onKey(JSON_CLASSES_TAG);
+            writer.onArrayBegin();
             for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
-                writer.StartObject();
-                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
-                writer.Key(JSON_BASELINE_TAG);
+                writer.onKey(JSON_BASELINE_TAG);
                 if (j == 1) {
-                    writer.Double((*m_ShapBaseline)(0));
+                    writer.onDouble((*m_ShapBaseline)(0));
                 } else {
-                    writer.Double(-(*m_ShapBaseline)(0));
+                    writer.onDouble(-(*m_ShapBaseline)(0));
                 }
-                writer.EndObject();
+                writer.onObjectEnd();
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         } else {
             // Multiclass classification.
-            writer.Key(JSON_CLASSES_TAG);
-            writer.StartArray();
+            writer.onKey(JSON_CLASSES_TAG);
+            writer.onArrayBegin();
             for (std::size_t j = 0; j < static_cast<std::size_t>(m_ShapBaseline->size()) &&
                                     j < m_ClassValues.size();
                  ++j) {
-                writer.StartObject();
-                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.onObjectBegin();
+                writer.onKey(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
-                writer.Key(JSON_BASELINE_TAG);
-                writer.Double((*m_ShapBaseline)(j));
-                writer.EndObject();
+                writer.onKey(JSON_BASELINE_TAG);
+                writer.onDouble((*m_ShapBaseline)(j));
+                writer.onObjectEnd();
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         }
-        writer.EndObject();
+        writer.onObjectEnd();
     }
 }
 
-void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
-    writer.Key(JSON_HYPERPARAMETERS_TAG);
-    writer.StartArray();
+void CInferenceModelMetadata::writeHyperparameterImportance(TBoostJsonWriter& writer) const {
+    writer.onKey(JSON_HYPERPARAMETERS_TAG);
+    writer.onArrayBegin();
     for (const auto& item : m_HyperparameterImportance) {
-        writer.StartObject();
-        writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
-        writer.String(item.s_HyperparameterName);
-        writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
+        writer.onObjectBegin();
+        writer.onKey(JSON_HYPERPARAMETER_NAME_TAG);
+        writer.onString(item.s_HyperparameterName);
+        writer.onKey(JSON_HYPERPARAMETER_VALUE_TAG);
         switch (item.s_Type) {
         case SHyperparameterImportance::E_Double:
-            writer.Double(item.s_Value);
+            writer.onDouble(item.s_Value);
             break;
         case SHyperparameterImportance::E_Uint64:
-            writer.Uint64(static_cast<std::uint64_t>(item.s_Value));
+            writer.onUint64(static_cast<std::uint64_t>(item.s_Value));
             break;
         }
         if (item.s_Supplied == false) {
-            writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
-            writer.Double(item.s_AbsoluteImportance);
-            writer.Key(JSON_RELATIVE_IMPORTANCE_TAG);
-            writer.Double(item.s_RelativeImportance);
+            writer.onKey(JSON_ABSOLUTE_IMPORTANCE_TAG);
+            writer.onDouble(item.s_AbsoluteImportance);
+            writer.onKey(JSON_RELATIVE_IMPORTANCE_TAG);
+            writer.onDouble(item.s_RelativeImportance);
         }
-        writer.Key(JSON_HYPERPARAMETER_SUPPLIED_TAG);
-        writer.Bool(item.s_Supplied);
-        writer.EndObject();
+        writer.onKey(JSON_HYPERPARAMETER_SUPPLIED_TAG);
+        writer.onBool(item.s_Supplied);
+        writer.onObjectEnd();
     }
-    writer.EndArray();
+    writer.onArrayEnd();
 }
 
-void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeDataSummarization(TBoostJsonWriter& writer) const {
     if (m_NumDataSummarizationRows > 0) {
         // Only output if the data summarization fraction was specified.
-        writer.Key(JSON_DATA_SUMMARIZATION_TAG);
-        writer.StartObject();
-        writer.Key(JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG);
-        writer.Uint64(m_NumDataSummarizationRows);
-        writer.EndObject();
+        writer.onKey(JSON_DATA_SUMMARIZATION_TAG);
+        writer.onObjectBegin();
+        writer.onKey(JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG);
+        writer.onUint64(m_NumDataSummarizationRows);
+        writer.onObjectEnd();
     }
 }
 
-void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeTrainProperties(TBoostJsonWriter& writer) const {
     if (m_NumTrainRows > 0) {
-        writer.Key(JSON_TRAIN_PROPERTIES_TAG);
-        writer.StartObject();
-        writer.Key(JSON_NUM_TRAIN_ROWS_TAG);
-        writer.Uint64(m_NumTrainRows);
-        writer.Key(JSON_LOSS_GAP_TAG);
-        writer.Double(m_LossGap);
-        writer.Key(JSON_TRAINED_MODEL_MEMORY_USAGE_TAG);
-        writer.Uint64(m_TrainedModelMemoryUsage);
-        writer.EndObject();
+        writer.onKey(JSON_TRAIN_PROPERTIES_TAG);
+        writer.onObjectBegin();
+        writer.onKey(JSON_NUM_TRAIN_ROWS_TAG);
+        writer.onUint64(m_NumTrainRows);
+        writer.onKey(JSON_LOSS_GAP_TAG);
+        writer.onDouble(m_LossGap);
+        writer.onKey(JSON_TRAINED_MODEL_MEMORY_USAGE_TAG);
+        writer.onUint64(m_TrainedModelMemoryUsage);
+        writer.onObjectEnd();
     }
 }
 

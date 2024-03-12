@@ -11,7 +11,7 @@
 
 #include <api/CModelSizeStatsJsonWriter.h>
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CTimeUtils.h>
 
 #include <model/SCategorizerStats.h>
@@ -49,46 +49,46 @@ const std::string PARTITION_FIELD_VALUE{"partition_field_value"};
 
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
                                       const model::CResourceMonitor::SModelSizeStats& results,
-                                      core::CRapidJsonConcurrentLineWriter& writer) {
-    writer.Key(MODEL_SIZE_STATS);
-    writer.StartObject();
+                                      core::CBoostJsonConcurrentLineWriter& writer) {
+    writer.onKey(MODEL_SIZE_STATS);
+    writer.onObjectBegin();
 
-    writer.Key(MODEL_BYTES);
-    writer.Uint64(results.s_AdjustedUsage);
+    writer.onKey(MODEL_BYTES);
+    writer.onUint64(results.s_AdjustedUsage);
 
-    writer.Key(PEAK_MODEL_BYTES);
-    writer.Uint64(results.s_AdjustedPeakUsage);
+    writer.onKey(PEAK_MODEL_BYTES);
+    writer.onUint64(results.s_AdjustedPeakUsage);
 
-    writer.Key(MODEL_BYTES_EXCEEDED);
-    writer.Uint64(results.s_BytesExceeded);
+    writer.onKey(MODEL_BYTES_EXCEEDED);
+    writer.onUint64(results.s_BytesExceeded);
 
-    writer.Key(MODEL_BYTES_MEMORY_LIMIT);
-    writer.Uint64(results.s_BytesMemoryLimit);
+    writer.onKey(MODEL_BYTES_MEMORY_LIMIT);
+    writer.onUint64(results.s_BytesMemoryLimit);
 
-    writer.Key(TOTAL_BY_FIELD_COUNT);
-    writer.Uint64(results.s_ByFields);
+    writer.onKey(TOTAL_BY_FIELD_COUNT);
+    writer.onUint64(results.s_ByFields);
 
-    writer.Key(TOTAL_OVER_FIELD_COUNT);
-    writer.Uint64(results.s_OverFields);
+    writer.onKey(TOTAL_OVER_FIELD_COUNT);
+    writer.onUint64(results.s_OverFields);
 
-    writer.Key(TOTAL_PARTITION_FIELD_COUNT);
-    writer.Uint64(results.s_PartitionFields);
+    writer.onKey(TOTAL_PARTITION_FIELD_COUNT);
+    writer.onUint64(results.s_PartitionFields);
 
-    writer.Key(BUCKET_ALLOCATION_FAILURES_COUNT);
-    writer.Uint64(results.s_AllocationFailures);
+    writer.onKey(BUCKET_ALLOCATION_FAILURES_COUNT);
+    writer.onUint64(results.s_AllocationFailures);
 
-    writer.Key(MEMORY_STATUS);
-    writer.String(model_t::print(results.s_MemoryStatus));
+    writer.onKey(MEMORY_STATUS);
+    writer.onString(model_t::print(results.s_MemoryStatus));
 
     if (results.s_AssignmentMemoryBasis != model_t::E_AssignmentBasisUnknown) {
-        writer.Key(ASSIGNMENT_MEMORY_BASIS);
-        writer.String(model_t::print(results.s_AssignmentMemoryBasis));
+        writer.onKey(ASSIGNMENT_MEMORY_BASIS);
+        writer.onString(model_t::print(results.s_AssignmentMemoryBasis));
     }
 
     CModelSizeStatsJsonWriter::writeCommonFields(
         jobId, results.s_OverallCategorizerStats, results.s_BucketStartTime, writer);
 
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CModelSizeStatsJsonWriter::writeCategorizerStats(
@@ -97,63 +97,63 @@ void CModelSizeStatsJsonWriter::writeCategorizerStats(
     const std::string& partitionFieldValue,
     const model::SCategorizerStats& categorizerStats,
     const TOptionalTime& timestamp,
-    core::CRapidJsonConcurrentLineWriter& writer) {
+    core::CBoostJsonConcurrentLineWriter& writer) {
 
-    writer.Key(CATEGORIZER_STATS);
-    writer.StartObject();
+    writer.onKey(CATEGORIZER_STATS);
+    writer.onObjectBegin();
 
     CModelSizeStatsJsonWriter::writeCommonFields(jobId, categorizerStats, timestamp, writer);
 
     if (partitionFieldName.empty() == false) {
-        writer.Key(PARTITION_FIELD_NAME);
-        writer.String(partitionFieldName);
+        writer.onKey(PARTITION_FIELD_NAME);
+        writer.onString(partitionFieldName);
 
-        writer.Key(PARTITION_FIELD_VALUE);
-        writer.String(partitionFieldValue);
+        writer.onKey(PARTITION_FIELD_VALUE);
+        writer.onString(partitionFieldValue);
     }
 
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 
 void CModelSizeStatsJsonWriter::writeCommonFields(const std::string& jobId,
                                                   const model::SCategorizerStats& categorizerStats,
                                                   const TOptionalTime& timestamp,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) {
+                                                  core::CBoostJsonConcurrentLineWriter& writer) {
 
-    writer.Key(JOB_ID);
-    writer.String(jobId);
+    writer.onKey(JOB_ID);
+    writer.onString(jobId);
 
-    writer.Key(CATEGORIZED_DOC_COUNT);
-    writer.Uint64(categorizerStats.s_CategorizedMessages);
+    writer.onKey(CATEGORIZED_DOC_COUNT);
+    writer.onUint64(categorizerStats.s_CategorizedMessages);
 
-    writer.Key(TOTAL_CATEGORY_COUNT);
-    writer.Uint64(categorizerStats.s_TotalCategories);
+    writer.onKey(TOTAL_CATEGORY_COUNT);
+    writer.onUint64(categorizerStats.s_TotalCategories);
 
-    writer.Key(FREQUENT_CATEGORY_COUNT);
-    writer.Uint64(categorizerStats.s_FrequentCategories);
+    writer.onKey(FREQUENT_CATEGORY_COUNT);
+    writer.onUint64(categorizerStats.s_FrequentCategories);
 
-    writer.Key(RARE_CATEGORY_COUNT);
-    writer.Uint64(categorizerStats.s_RareCategories);
+    writer.onKey(RARE_CATEGORY_COUNT);
+    writer.onUint64(categorizerStats.s_RareCategories);
 
-    writer.Key(DEAD_CATEGORY_COUNT);
-    writer.Uint64(categorizerStats.s_DeadCategories);
+    writer.onKey(DEAD_CATEGORY_COUNT);
+    writer.onUint64(categorizerStats.s_DeadCategories);
 
-    writer.Key(FAILED_CATEGORY_COUNT);
-    writer.Uint64(categorizerStats.s_MemoryCategorizationFailures);
+    writer.onKey(FAILED_CATEGORY_COUNT);
+    writer.onUint64(categorizerStats.s_MemoryCategorizationFailures);
 
-    writer.Key(CATEGORIZATION_STATUS);
-    writer.String(model_t::print(categorizerStats.s_CategorizationStatus));
+    writer.onKey(CATEGORIZATION_STATUS);
+    writer.onString(model_t::print(categorizerStats.s_CategorizationStatus));
 
     std::int64_t nowMs{core::CTimeUtils::nowMs()};
-    writer.Key(TIMESTAMP);
+    writer.onKey(TIMESTAMP);
     if (timestamp.has_value()) {
-        writer.Time(*timestamp);
+        writer.onTime(*timestamp);
     } else {
-        writer.Int64(nowMs);
+        writer.onInt64(nowMs);
     }
 
-    writer.Key(LOG_TIME);
-    writer.Int64(nowMs);
+    writer.onKey(LOG_TIME);
+    writer.onInt64(nowMs);
 }
 }
 }

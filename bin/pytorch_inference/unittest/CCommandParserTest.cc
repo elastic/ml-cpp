@@ -16,7 +16,7 @@
 #include <string>
 
 namespace {
-void unexpectedError(const std::string&, const std::string& message) {
+void unexpectedError(const std::string_view&, const std::string& message) {
     BOOST_TEST_FAIL(message);
 }
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidDoc) {
     ml::torch::CCommandParser processor{commandStream, 0};
     BOOST_TEST_REQUIRE(
         processor.ioLoop(unexpectedRequest, unexpectedControlMessage,
-                         [&errors](const std::string& id, const ::std::string& message) {
+                         [&errors](const std::string_view& id, const ::std::string& message) {
                              errors.push_back(message);
                              BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::UNKNOWN_ID, id);
                          }) == false);
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidRequestId) {
     ml::torch::CCommandParser processor{commandStream, 0};
     BOOST_TEST_REQUIRE(processor.ioLoop(
         unexpectedRequest, unexpectedControlMessage,
-        [&errors](const std::string& id, const ::std::string& message) {
+        [&errors](const std::string_view& id, const ::std::string& message) {
             BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::UNKNOWN_ID, id);
             errors.push_back(message);
         }));
@@ -110,15 +110,15 @@ BOOST_AUTO_TEST_CASE(testParsingTokenArrayNotInts) {
 
     std::vector<std::string> errors;
 
-    std::string command{R"({"request_id": "tokens_should_be_uints", "tokens": [["a", "b", "c"]]})"};
+    std::string command{R"({"request_id": "tokens_should_be_ints", "tokens": [["a", "b", "c"]]})"};
 
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream, 0};
     BOOST_TEST_REQUIRE(processor.ioLoop(
         unexpectedRequest, unexpectedControlMessage,
-        [&errors](const std::string& id, const ::std::string& message) {
-            BOOST_REQUIRE_EQUAL(id, "tokens_should_be_uints");
+        [&errors](const std::string_view& id, const ::std::string& message) {
+            BOOST_REQUIRE_EQUAL(id, "tokens_should_be_ints");
             errors.push_back(message);
         }));
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testParsingTokenVarArgsNotInts) {
     ml::torch::CCommandParser processor{commandStream, 0};
     BOOST_TEST_REQUIRE(processor.ioLoop(
         unexpectedRequest, unexpectedControlMessage,
-        [&errors](const std::string& id, const ::std::string& message) {
+        [&errors](const std::string_view& id, const ::std::string& message) {
             BOOST_REQUIRE_EQUAL("bad", id);
             errors.push_back(message);
         }));
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidVarArg) {
     ml::torch::CCommandParser processor{commandStream, 0};
     BOOST_TEST_REQUIRE(processor.ioLoop(
         unexpectedRequest, unexpectedControlMessage,
-        [&errors](const std::string& id, const ::std::string& message) {
+        [&errors](const std::string_view& id, const ::std::string& message) {
             BOOST_REQUIRE_EQUAL("foo", id);
             errors.push_back(message);
         }));
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {
         ml::torch::CCommandParser processor{commandStream, 0};
         BOOST_TEST_REQUIRE(processor.ioLoop(
             unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
+            [&errors](const std::string_view&, const ::std::string& message) {
                 errors.push_back(message);
             }));
 
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {
         ml::torch::CCommandParser processor{commandStream, 0};
         BOOST_TEST_REQUIRE(processor.ioLoop(
             unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
+            [&errors](const std::string_view&, const ::std::string& message) {
                 errors.push_back(message);
             }));
 
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {
         ml::torch::CCommandParser processor{commandStream, 0};
         BOOST_TEST_REQUIRE(processor.ioLoop(
             unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
+            [&errors](const std::string_view&, const ::std::string& message) {
                 errors.push_back(message);
             }));
 
@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
         ml::torch::CCommandParser processor{commandStream, 0};
         BOOST_TEST_REQUIRE(processor.ioLoop(
             unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
+            [&errors](const std::string_view&, const ::std::string& message) {
                 errors.push_back(message);
             }));
 
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
         ml::torch::CCommandParser processor{commandStream, 0};
         BOOST_TEST_REQUIRE(processor.ioLoop(
             unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
+            [&errors](const std::string_view&, const ::std::string& message) {
                 errors.push_back(message);
             }));
 

@@ -19,10 +19,13 @@
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/schema.h>
-
 #include <boost/test/unit_test.hpp>
+
+#include <valijson/adapters/boost_json_adapter.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/utils/boost_json_utils.hpp>
+#include <valijson/validator.hpp>
 
 #include <fstream>
 #include <string>
@@ -70,37 +73,47 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     std::ifstream modelMetaDataSchemaFileStream("testfiles/model_meta_data/model_meta_data.schema.json");
     BOOST_REQUIRE_MESSAGE(modelMetaDataSchemaFileStream.is_open(), "Cannot open test file!");
     std::string modelMetaDataSchemaJson(
         (std::istreambuf_iterator<char>(modelMetaDataSchemaFileStream)),
         std::istreambuf_iterator<char>());
-    rapidjson::Document modelMetaDataSchemaDocument;
-    BOOST_REQUIRE_MESSAGE(
-        modelMetaDataSchemaDocument.Parse(modelMetaDataSchemaJson).HasParseError() == false,
-        "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument modelMetaDataSchema(modelMetaDataSchemaDocument);
-    rapidjson::SchemaValidator modelMetaDataValidator(modelMetaDataSchema);
+
+    json::value modelMetaDataSchemaDocument = json::parse(modelMetaDataSchemaJson, ec);
+    BOOST_REQUIRE_MESSAGE(ec.failed() == false, "Cannot parse JSON schema!");
+
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    valijson::adapters::BoostJsonAdapter schemaAdapter(modelMetaDataSchemaDocument);
+    parser.populateSchema(schemaAdapter, schema);
 
     bool hasModelMetadata{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("model_metadata")) {
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("model_metadata")) {
             hasModelMetadata = true;
-            BOOST_TEST_REQUIRE(result["model_metadata"].IsObject() = true);
-            if (result["model_metadata"].Accept(modelMetaDataValidator) == false) {
-                rapidjson::StringBuffer sb;
-                modelMetaDataValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: "
-                          << modelMetaDataValidator.GetInvalidSchemaKeyword());
-                sb.Clear();
-                modelMetaDataValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-                LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed");
+            BOOST_TEST_REQUIRE(result.at_pointer("/model_metadata").is_object() = true);
+
+            valijson::Validator validator;
+            valijson::ValidationResults validationResults;
+            valijson::adapters::BoostJsonAdapter targetAdapter(
+                result.at_pointer("/model_metadata"));
+            BOOST_REQUIRE_MESSAGE(validator.validate(schema, targetAdapter, &validationResults),
+                                  "Validation failed.");
+
+            valijson::ValidationResults::Error error;
+            unsigned int errorNum = 1;
+            while (validationResults.popError(error)) {
+                LOG_ERROR(<< "Error #" << errorNum);
+                LOG_ERROR(<< "  ");
+                for (const std::string& contextElement : error.context) {
+                    LOG_ERROR(<< contextElement << " ");
+                }
+                LOG_ERROR(<< "    - " << error.description);
+                ++errorNum;
             }
         }
     }
@@ -109,7 +122,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
 }
 
 BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001)) {
-    // insure that training leads to the same results if all identified hyperparameters
+    // ensure that training leads to the same results if all identified hyperparameters
     // are explicitly specified
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -142,57 +155,65 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        json::error_code ec;
+        json::value results = json::parse(output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
 
         // Read hyperparameter into the new spec and the expected predictions.
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("model_metadata")) {
+        for (const auto& result_ : results.as_array()) {
+            const json::object& result = result_.as_object();
+
+            if (result.contains("model_metadata")) {
                 for (const auto& hyperparameter :
-                     result["model_metadata"]["hyperparameters"].GetArray()) {
-                    std::string hyperparameterName{hyperparameter["name"].GetString()};
+                     result_.at_pointer("/model_metadata/hyperparameters").as_array()) {
+                    std::string hyperparameterName{hyperparameter.at("name").as_string()};
                     if (hyperparameterName == api::CDataFrameTrainBoostedTreeRunner::ALPHA) {
-                        specFactory.predictionAlpha(hyperparameter["value"].GetDouble());
+                        specFactory.predictionAlpha(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR) {
                         specFactory.predictionDownsampleFactor(
-                            hyperparameter["value"].GetDouble());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA) {
-                        specFactory.predictionEta(hyperparameter["value"].GetDouble());
+                        specFactory.predictionEta(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE) {
                         specFactory.predictionEtaGrowthRatePerTree(
-                            hyperparameter["value"].GetDouble());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION) {
                         specFactory.predictionFeatureBagFraction(
-                            hyperparameter["value"].GetDouble());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::GAMMA) {
-                        specFactory.predictionGamma(hyperparameter["value"].GetDouble());
+                        specFactory.predictionGamma(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::LAMBDA) {
-                        specFactory.predictionLambda(hyperparameter["value"].GetDouble());
+                        specFactory.predictionLambda(
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT) {
                         specFactory.predictionSoftTreeDepthLimit(
-                            hyperparameter["value"].GetDouble());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE) {
                         specFactory.predictionSoftTreeDepthTolerance(
-                            hyperparameter["value"].GetDouble());
+                            hyperparameter.at("value").to_number<double>());
                     } else if (hyperparameterName ==
                                api::CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
                         specFactory.predictionMaximumNumberTrees(
-                            hyperparameter["value"].GetUint64());
+                            hyperparameter.at("value").to_number<std::int64_t>());
                     }
                 }
 
-            } else if (result.HasMember("row_results")) {
-                expectedPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+            } else if (result.contains("row_results")) {
+                expectedPredictions.emplace_back(result_
+                                                     .at_pointer("/row_results/results/ml/target_prediction")
+                                                     .to_number<double>());
             }
         }
     }
@@ -213,13 +234,16 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(output.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("row_results")) {
-                actualPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+        json::error_code ec;
+        json::value results = json::parse(output.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
+        for (const auto& result_ : results.as_array()) {
+            const json::object& result = result_.as_object();
+            if (result.contains("row_results")) {
+                actualPredictions.emplace_back(result_
+                                                   .at_pointer("/row_results/results/ml/target_prediction")
+                                                   .to_number<double>());
             }
         }
     }
@@ -259,18 +283,23 @@ BOOST_AUTO_TEST_CASE(testDataSummarization) {
 
     analyzer.handleRecord(fieldNames, {"", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     // Read number rows of data summarization.
     std::size_t dataSummarizationNumRows{0};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("model_metadata")) {
-            if (result["model_metadata"].HasMember("data_summarization") &&
-                result["model_metadata"]["data_summarization"].HasMember("num_rows")) {
-                dataSummarizationNumRows =
-                    result["model_metadata"]["data_summarization"]["num_rows"].GetUint64();
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("model_metadata")) {
+            if (result_.at_pointer("/model_metadata").as_object().contains("data_summarization") &&
+                result_.at_pointer("/model_metadata/data_summarization")
+                    .as_object()
+                    .contains("num_rows")) {
+                dataSummarizationNumRows = result_
+                                               .at_pointer("/model_metadata/data_summarization/num_rows")
+                                               .to_number<std::size_t>();
             }
         }
     }

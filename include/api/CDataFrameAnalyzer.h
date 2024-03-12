@@ -14,7 +14,7 @@
 
 #include <api/ImportExport.h>
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 
 #include <cinttypes>
 #include <cstddef>
@@ -94,13 +94,13 @@ private:
     void validateCategoricalColumnsMatch() const;
     void addRowToDataFrame(const TStrVec& fieldValues);
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
-                        core::CRapidJsonConcurrentLineWriter& writer) const;
+                        core::CBoostJsonConcurrentLineWriter& writer) const;
     void writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
-                             core::CRapidJsonConcurrentLineWriter& writer) const;
+                             core::CBoostJsonConcurrentLineWriter& writer) const;
     void writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
-                                     core::CRapidJsonConcurrentLineWriter& writer) const;
+                                     core::CBoostJsonConcurrentLineWriter& writer) const;
     void writeDataSummarization(const CDataFrameAnalysisRunner& analysis,
-                                core::CRapidJsonConcurrentLineWriter& writer) const;
+                                core::CBoostJsonConcurrentLineWriter& writer) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
