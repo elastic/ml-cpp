@@ -185,7 +185,7 @@ public:
 
     virtual bool onKey(const std::string& key) {
         this->append((isComplete() ? "" : ","));
-        this->append("\"" + key + "\":");
+        this->append(json::serialize(key) + ":");
         return true;
     }
 
@@ -348,9 +348,7 @@ public:
 
         m_Levels.top()++;
 
-        this->append("\"");
-        this->append(str);
-        this->append("\"");
+        this->append(json::serialize(str));
 
         return true;
     }
