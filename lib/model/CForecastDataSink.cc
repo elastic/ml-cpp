@@ -61,6 +61,8 @@ const std::string CForecastDataSink::PROCESSING_TIME_MS("processing_time_ms");
 const std::string CForecastDataSink::PROGRESS("forecast_progress");
 const std::string CForecastDataSink::STATUS("forecast_status");
 
+using TScopedAllocator = core::CScopedBoostJsonPoolAllocator<core::CBoostJsonConcurrentLineWriter>;
+
 CForecastDataSink::CForecastModelWrapper::CForecastModelWrapper(model_t::EFeature feature,
                                                                 const std::string& byFieldValue,
                                                                 TMathsModelPtr&& forecastModel,
@@ -117,6 +119,7 @@ void CForecastDataSink::writeStats(const double progress,
                                    std::uint64_t runtime,
                                    const TStrUMap& messages,
                                    bool successful) {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
 
     json::object doc = m_Writer.makeDoc();
 
@@ -144,6 +147,8 @@ void CForecastDataSink::writeStats(const double progress,
 }
 
 void CForecastDataSink::writeScheduledMessage() {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
+
     json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_SCHEDULED, doc);
@@ -151,6 +156,7 @@ void CForecastDataSink::writeScheduledMessage() {
 }
 
 void CForecastDataSink::writeErrorMessage(const std::string& message) {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
 
     json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
@@ -161,6 +167,8 @@ void CForecastDataSink::writeErrorMessage(const std::string& message) {
 }
 
 void CForecastDataSink::writeFinalMessage(const std::string& message) {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
+
     json::object doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
@@ -187,6 +195,8 @@ void CForecastDataSink::writeCommonStatsFields(json::object& doc) {
 }
 
 void CForecastDataSink::push(bool flush, json::object& doc) {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
+
     json::object wrapper = m_Writer.makeDoc();
 
     m_Writer.addMember(MODEL_FORECAST_STATS, doc, wrapper);
@@ -208,6 +218,8 @@ void CForecastDataSink::push(const maths::common::SErrorBar errorBar,
                              const std::string& byFieldName,
                              const std::string& byFieldValue,
                              int detectorIndex) {
+    TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
+
     ++m_NumRecordsWritten;
     json::object doc = m_Writer.makeDoc();
 
