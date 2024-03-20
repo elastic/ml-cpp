@@ -27,7 +27,7 @@ from ml_pipeline import (
 # Opt in for HTTPS git operations beta by setting USE_HTTPS_CLONE to true
 env = {
     "VERSION_QUALIFIER": "",
-    "USE_HTTPS_CLONE": true
+    "USE_HTTPS_CLONE": True
 }
 
 def main():
