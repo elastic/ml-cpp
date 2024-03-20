@@ -24,8 +24,10 @@ from ml_pipeline import (
 )
 
 # Ensure VERSION_QUALIFIER is always empty for PR builds
+# Opt in for HTTPS git operations beta by setting USE_HTTPS_CLONE to true
 env = {
-    "VERSION_QUALIFIER": ""
+    "VERSION_QUALIFIER": "",
+    "USE_HTTPS_CLONE": true
 }
 
 def main():
