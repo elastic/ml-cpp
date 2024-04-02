@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_core_CBoostJsonConstants_h
 #define INCLUDED_ml_core_CBoostJsonConstants_h
 
+#include <cstddef>
+
 namespace ml {
 namespace core {
 namespace boost_json_constants {
