@@ -11,6 +11,7 @@
 #ifndef INCLUDED_ml_core_CJsonStateRestoreTraverser_h
 #define INCLUDED_ml_core_CJsonStateRestoreTraverser_h
 
+#include <core/BoostJsonConstants.h>
 #include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -118,16 +119,16 @@ private:
         SBoostJsonHandler();
 
         //! The maximum number of elements allowed in an array
-        static constexpr std::size_t max_array_size = 1000000; // 1 million elements
+        static constexpr std::size_t max_array_size = boost_json_constants::MAX_ARRAY_SIZE;
 
         //! The maximum number of elements allowed in an object
-        static constexpr std::size_t max_object_size = 1000000; // 1 million elements
+        static constexpr std::size_t max_object_size = boost_json_constants::MAX_OBJECT_SIZE;
 
         //! The maximum number of characters allowed in a string
-        static constexpr std::size_t max_string_size = 1073741824; // 1GB
+        static constexpr std::size_t max_string_size = boost_json_constants::MAX_STRING_SIZE;
 
         //! The maximum number of characters allowed in a key
-        static constexpr std::size_t max_key_size = 1024; // 1KB
+        static constexpr std::size_t max_key_size = boost_json_constants::MAX_KEY_SIZE;
 
         //! Called once when the JSON parsing begins.
         //!

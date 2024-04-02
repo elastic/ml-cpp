@@ -11,9 +11,9 @@
 
 #include <api/CRetrainableModelJsonReader.h>
 
+#include <core/BoostJsonConstants.h>
 #include <core/CBoostJsonParser.h>
 #include <core/CDataFrame.h>
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CVectorRange.h>
 
 #include <maths/analytics/CBoostedTree.h>
@@ -51,10 +51,12 @@ class custom_parser {
         static inline std::string TARGET_MEAN_ENCODING_TAG = "target_mean_encoding";
 
         // Upper limits
-        constexpr static std::size_t max_object_size = 1000000; // 1 million entries
-        constexpr static std::size_t max_array_size = 1000000; // 1 million elements
-        constexpr static std::size_t max_key_size = 1024;      // 1KB
-        constexpr static std::size_t max_string_size = 1073741824; // 1GB
+        constexpr static std::size_t max_object_size =
+            ml::core::boost_json_constants::MAX_OBJECT_SIZE;
+        constexpr static std::size_t max_array_size = ml::core::boost_json_constants::MAX_ARRAY_SIZE;
+        constexpr static std::size_t max_key_size = ml::core::boost_json_constants::MAX_KEY_SIZE;
+        constexpr static std::size_t max_string_size =
+            ml::core::boost_json_constants::MAX_STRING_SIZE;
 
         bool on_document_begin(json::error_code&) {
             s_Value.emplace_object();
