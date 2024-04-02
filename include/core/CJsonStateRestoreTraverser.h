@@ -118,19 +118,16 @@ private:
         SBoostJsonHandler();
 
         //! The maximum number of elements allowed in an array
-        static constexpr std::size_t max_array_size =
-            std::numeric_limits<std::size_t>::max();
+        static constexpr std::size_t max_array_size = 1000000; // 1 million elements
 
         //! The maximum number of elements allowed in an object
-        static constexpr std::size_t max_object_size =
-            std::numeric_limits<std::size_t>::max();
+        static constexpr std::size_t max_object_size = 1000000; // 1 million elements
 
         //! The maximum number of characters allowed in a string
-        static constexpr std::size_t max_string_size =
-            std::numeric_limits<std::size_t>::max();
+        static constexpr std::size_t max_string_size = 1073741824; // 1GB
 
         //! The maximum number of characters allowed in a key
-        static constexpr std::size_t max_key_size = std::numeric_limits<std::size_t>::max();
+        static constexpr std::size_t max_key_size = 1024; // 1KB
 
         //! Called once when the JSON parsing begins.
         //!

@@ -248,7 +248,7 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutabl
     return true;
 }
 
-bool CNdJsonInputParser::jsonValueToString(const std::string& fieldName,
+bool CNdJsonInputParser::jsonValueToString(const std::string& /*fieldName*/,
                                            const json::value& jsonValue,
                                            std::string& fieldValueStr) {
     fieldValueStr = json::serialize(jsonValue);

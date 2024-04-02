@@ -42,7 +42,7 @@ namespace {
 // these object wrappers in an array.
 //
 // Note that the json::value constructed by this parser is only ever meant to be
-// used as an internal intermediary, never to be serialized for external used.
+// used as an internal intermediary, never to be serialized for external use.
 class custom_parser {
     struct handler {
         static inline std::string IDENTITY_ENCODING_TAG = "identity_encoding";
@@ -50,13 +50,11 @@ class custom_parser {
         static inline std::string FREQUENCY_ENCODING_TAG = "frequency_encoding";
         static inline std::string TARGET_MEAN_ENCODING_TAG = "target_mean_encoding";
 
-        constexpr static std::size_t max_object_size =
-            std::numeric_limits<std::size_t>::max();
-        constexpr static std::size_t max_array_size =
-            std::numeric_limits<std::size_t>::max();
-        constexpr static std::size_t max_key_size = std::numeric_limits<std::size_t>::max();
-        constexpr static std::size_t max_string_size =
-            std::numeric_limits<std::size_t>::max();
+        // Upper limits
+        constexpr static std::size_t max_object_size = 1000000; // 1 million entries
+        constexpr static std::size_t max_array_size = 1000000; // 1 million elements
+        constexpr static std::size_t max_key_size = 1024;      // 1KB
+        constexpr static std::size_t max_string_size = 1073741824; // 1GB
 
         bool on_document_begin(json::error_code&) {
             s_Value.emplace_object();
