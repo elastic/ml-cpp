@@ -75,7 +75,7 @@ public:
     //! Claim memory usage is 0 in the main memory usage calculation, on the
     //! assumption that the actual memory usage will be accounted for in a
     //! string store.
-    static constexpr bool dynamicSizeAlwaysZero() { return true; }
+    // static constexpr bool dynamicSizeAlwaysZero() { return true; }
 
     //! Get the actual memory usage of the string.  For use by the string
     //! store.
@@ -89,6 +89,9 @@ public:
     static CStoredStringPtr makeStoredString(const std::string& str);
     static CStoredStringPtr makeStoredString(std::string&& str);
 
+    using TStrCPtr = std::shared_ptr<const std::string>;
+    TStrCPtr m_String;
+
 private:
     //! Non-NULL constructors are private to prevent accidental construction
     //! outside of a string store.
@@ -96,10 +99,8 @@ private:
     explicit CStoredStringPtr(std::string&& str);
 
 private:
-    using TStrCPtr = std::shared_ptr<const std::string>;
 
     //! The wrapped shared_ptr.
-    TStrCPtr m_String;
 
     friend CORE_EXPORT std::size_t hash_value(const CStoredStringPtr&);
 };

@@ -103,7 +103,6 @@ public:
     //! Get the memory used by this string store
     std::size_t memoryUsage() const;
 
-private:
     using TStoredStringPtrUSet =
         boost::unordered_set<core::CStoredStringPtr, SHashStoredStringPtr, SStoredStringPtrEqual>;
     using TStrVec = std::vector<std::string>;

@@ -62,6 +62,15 @@ const core::CStoredStringPtr& CStringStore::getEmpty() const {
     return m_EmptyString;
 }
 
+std::string makeString(const CStringStore::TStoredStringPtrUSet& strings) {
+#include<sstream>
+    std::ostringstream oss;
+    for (auto &s : strings) {
+        oss << *s.m_String.get() << ",";
+    }
+    return oss.str();
+}
+
 core::CStoredStringPtr CStringStore::get(const std::string& value) {
     // This section is expected to be performed frequently.
     //
@@ -118,6 +127,9 @@ core::CStoredStringPtr CStringStore::get(const std::string& value) {
         result = core::CStoredStringPtr::makeStoredString(value);
     }
 
+//    LOG_ERROR(<< "*** " << *result.m_String << + " : " << result.m_String.use_count());
+//    LOG_ERROR(<< "### SIZE: " << m_Strings.size() << " {" << makeString(m_Strings) << "}");
+
     return result;
 }
 
@@ -169,7 +181,7 @@ std::size_t CStringStore::memoryUsage() const {
     // core::CStoredStringPtr::dynamicSizeAlwaysZero() combined with dead code
     // elimination will make calculating the size of m_Strings boil down to a
     // couple of simple multiplications and additions
-    mem += core::memory::dynamicSize(m_Strings);
+    // mem += core::memory::dynamicSize(m_Strings);
     // This one could be more expensive, but the assumption is that there won't
     // be many memory usage calculations while m_Removed is populated
     mem += core::memory::dynamicSize(m_Removed);

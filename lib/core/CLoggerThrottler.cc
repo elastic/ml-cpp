@@ -78,6 +78,7 @@ void CLoggerThrottler::minimumLogIntervalMs(std::int64_t minimumLogIntervalMs) {
 }
 
 std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) {
+    //return {1, false};
     return m_Impl->skip(file, line);
 }
 }
