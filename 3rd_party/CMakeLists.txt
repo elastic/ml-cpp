@@ -39,5 +39,3 @@ execute_process(
     COMMAND ${CMAKE_COMMAND} -P ./pull-valijson.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_SOURCE_DIR}/3rd_party/eigen)
