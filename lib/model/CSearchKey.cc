@@ -55,22 +55,23 @@ const std::string CSearchKey::COUNT_NAME("count");
 const char CSearchKey::CUE_DELIMITER('/');
 const std::string CSearchKey::EMPTY_STRING;
 
-// TODO(jan): tidy up signature
 CSearchKey::CSearchKey(int detectorIndex,
                        function_t::EFunction function,
                        bool useNull,
                        model_t::EExcludeFrequent excludeFrequent,
-                       std::string fieldName,
-                       std::string byFieldName,
-                       std::string overFieldName,
-                       std::string partitionFieldName,
+                       const std::string& fieldName,
+                       const std::string& byFieldName,
+                       const std::string& overFieldName,
+                       const std::string& partitionFieldName,
                        const TStrVec& influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
-      m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
-    m_FieldName = core::CStoredStringPtr(fieldName);
-    m_ByFieldName = core::CStoredStringPtr(byFieldName);
-    m_OverFieldName = core::CStoredStringPtr(overFieldName);
-    m_PartitionFieldName = core::CStoredStringPtr(partitionFieldName);
+      m_ExcludeFrequent(excludeFrequent),
+      m_FieldName(fieldName),
+      m_ByFieldName(byFieldName),
+      m_OverFieldName(overFieldName),
+      m_PartitionFieldName(partitionFieldName),
+      m_Hash(0)
+    {
     for (const std::string& influenceFieldName : influenceFieldNames) {
         m_InfluenceFieldNames.emplace_back(influenceFieldName);
     }
