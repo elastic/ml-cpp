@@ -24,8 +24,7 @@ const CStoredStringPtr CStoredStringPtr::NULL_STRING;
 CStoredStringPtr::CStoredStringPtr() noexcept : m_String{} {
 }
 
-CStoredStringPtr::CStoredStringPtr(const std::string& str)
-    : m_String{str} {
+CStoredStringPtr::CStoredStringPtr(const std::string& str) : m_String{str} {
 }
 
 CStoredStringPtr::CStoredStringPtr(std::string&& str)

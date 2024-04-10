@@ -10,8 +10,8 @@
  */
 
 #include <core/CLogger.h>
-#include <core/Constants.h>
 #include <core/CStoredStringPtr.h>
+#include <core/Constants.h>
 
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariateNormalConjugateFactory.h>

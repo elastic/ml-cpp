@@ -84,8 +84,7 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
               const ml::core::CStoredStringPtr& partitionName,
               const ml::core::CStoredStringPtr& partitionValue) {
     return makeNode(parent, partitionName, partitionValue,
-                    ml::core::CStoredStringPtr(""),
-                    ml::core::CStoredStringPtr(""));
+                    ml::core::CStoredStringPtr(""), ml::core::CStoredStringPtr(""));
 }
 }
 
