@@ -12,7 +12,7 @@
 #include <model/CHierarchicalResults.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CLogger.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/COrderings.h>
@@ -21,7 +21,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CLimits.h>
 #include <model/CSearchKey.h>
-#include <model/CStringStore.h>
 
 #include <algorithm>
 
@@ -309,12 +308,12 @@ void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability& annotated
     TResultSpec search;
     search.s_IsSimpleCount = true;
     search.s_IsPopulation = false;
-    search.s_FunctionName = CStringStore::names().get(COUNT);
+    search.s_FunctionName = core::CStoredStringPtr(COUNT);
     search.s_Function = function_t::E_IndividualCount;
-    search.s_PersonFieldName = CStringStore::names().get(COUNT);
-    search.s_PersonFieldValue = CStringStore::names().get(COUNT);
+    search.s_PersonFieldName = core::CStoredStringPtr(COUNT);
+    search.s_PersonFieldValue = core::CStoredStringPtr(COUNT);
     search.s_UseNull = (model ? model->dataGatherer().useNull() : false);
-    search.s_ByFieldName = CStringStore::names().get(COUNT);
+    search.s_ByFieldName = core::CStoredStringPtr(COUNT);
     if (model) {
         search.s_ScheduledEventDescriptions = model->scheduledEventDescriptions(bucketStartTime);
     }
@@ -342,18 +341,18 @@ void CHierarchicalResults::addModelResult(int detector,
     TResultSpec spec;
     spec.s_Detector = detector;
     spec.s_IsSimpleCount = false;
-    spec.s_FunctionName = CStringStore::names().get(functionName);
+    spec.s_FunctionName = core::CStoredStringPtr(functionName);
     spec.s_Function = function;
     spec.s_IsPopulation = isPopulation;
     spec.s_UseNull = (model != nullptr ? model->dataGatherer().useNull() : false);
-    spec.s_PartitionFieldName = CStringStore::names().get(partitionFieldName);
-    spec.s_PartitionFieldValue = CStringStore::names().get(partitionFieldValue);
-    spec.s_PersonFieldName = CStringStore::names().get(personFieldName);
-    spec.s_PersonFieldValue = CStringStore::names().get(personFieldValue);
-    spec.s_ValueFieldName = CStringStore::names().get(valueFieldName);
+    spec.s_PartitionFieldName = core::CStoredStringPtr(partitionFieldName);
+    spec.s_PartitionFieldValue = core::CStoredStringPtr(partitionFieldValue);
+    spec.s_PersonFieldName = core::CStoredStringPtr(personFieldName);
+    spec.s_PersonFieldValue = core::CStoredStringPtr(personFieldValue);
+    spec.s_ValueFieldName = core::CStoredStringPtr(valueFieldName);
     spec.s_ByFieldName =
         (model != nullptr
-             ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName())
+             ? core::CStoredStringPtr(model->dataGatherer().searchKey().byFieldName())
              : UNSET_STRING);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
@@ -362,7 +361,7 @@ void CHierarchicalResults::addModelResult(int detector,
 }
 
 void CHierarchicalResults::addInfluencer(const std::string& name) {
-    this->newPivotRoot(CStringStore::influencers().get(name));
+    this->newPivotRoot(core::CStoredStringPtr(name));
 }
 
 void CHierarchicalResults::buildHierarchy() {

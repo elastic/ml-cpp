@@ -13,10 +13,9 @@
 
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
-
-#include <model/CStringStore.h>
 
 namespace ml {
 namespace model {
@@ -81,7 +80,7 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
     do {
         const std::string& name = traverser.name();
         if (name == ATTRIBUTE_TAG) {
-            s_Attribute = CStringStore::names().get(traverser.value());
+            s_Attribute = core::CStoredStringPtr(traverser.value());
         } else if (name == ANOMALY_TYPE_TAG) {
             unsigned int type;
             if (!core::CStringUtils::stringToType(traverser.value(), type)) {
@@ -91,7 +90,7 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
             }
             s_Type = model_t::CResultType(type);
         } else if (name == CORRELATED_ATTRIBUTE_TAG) {
-            s_CorrelatedAttributes.push_back(CStringStore::names().get(traverser.value()));
+            s_CorrelatedAttributes.emplace_back(traverser.value());
         } else if (name == PROBABILITY_TAG) {
             if (!core::CPersistUtils::restore(PROBABILITY_TAG, s_Probability, traverser)) {
                 LOG_ERROR(<< "Failed to restore " << traverser.name() << " / "
@@ -202,9 +201,9 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
         } else if (name == INFLUENCE_NAME_TAG) {
-            influencerName = CStringStore::influencers().get(traverser.value());
+            influencerName = core::CStoredStringPtr(traverser.value());
         } else if (name == INFLUENCE_VALUE_TAG) {
-            influencerValue = CStringStore::influencers().get(traverser.value());
+            influencerValue = core::CStoredStringPtr(traverser.value());
         } else if (name == INFLUENCE_TAG) {
             if (!core::CStringUtils::stringToType(traverser.value(), d)) {
                 LOG_ERROR(<< "Restore error for " << traverser.name() << " / "

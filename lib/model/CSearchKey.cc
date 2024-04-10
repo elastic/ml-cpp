@@ -17,12 +17,11 @@
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CChecksum.h>
-
-#include <model/CStringStore.h>
 
 #include <algorithm>
 #include <functional>
@@ -56,6 +55,7 @@ const std::string CSearchKey::COUNT_NAME("count");
 const char CSearchKey::CUE_DELIMITER('/');
 const std::string CSearchKey::EMPTY_STRING;
 
+// TODO(jan): tidy up signature
 CSearchKey::CSearchKey(int detectorIndex,
                        function_t::EFunction function,
                        bool useNull,
@@ -67,13 +67,12 @@ CSearchKey::CSearchKey(int detectorIndex,
                        const TStrVec& influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
       m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
-    m_FieldName = CStringStore::names().get(fieldName);
-    m_ByFieldName = CStringStore::names().get(byFieldName);
-    m_OverFieldName = CStringStore::names().get(overFieldName);
-    m_PartitionFieldName = CStringStore::names().get(partitionFieldName);
-    for (TStrVec::const_iterator i = influenceFieldNames.begin();
-         i != influenceFieldNames.end(); ++i) {
-        m_InfluenceFieldNames.push_back(CStringStore::influencers().get(*i));
+    m_FieldName = core::CStoredStringPtr(fieldName);
+    m_ByFieldName = core::CStoredStringPtr(byFieldName);
+    m_OverFieldName = core::CStoredStringPtr(overFieldName);
+    m_PartitionFieldName = core::CStoredStringPtr(partitionFieldName);
+    for (const std::string& influenceFieldName : influenceFieldNames) {
+        m_InfluenceFieldNames.emplace_back(influenceFieldName);
     }
 }
 
@@ -116,16 +115,15 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
             }
             m_ExcludeFrequent = static_cast<model_t::EExcludeFrequent>(excludeFrequent);
         } else if (name == FIELD_NAME_TAG) {
-            m_FieldName = CStringStore::names().get(traverser.value());
+            m_FieldName = core::CStoredStringPtr(traverser.value());
         } else if (name == BY_FIELD_NAME_TAG) {
-            m_ByFieldName = CStringStore::names().get(traverser.value());
+            m_ByFieldName = core::CStoredStringPtr(traverser.value());
         } else if (name == OVER_FIELD_NAME_TAG) {
-            m_OverFieldName = CStringStore::names().get(traverser.value());
+            m_OverFieldName = core::CStoredStringPtr(traverser.value());
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            m_PartitionFieldName = CStringStore::names().get(traverser.value());
+            m_PartitionFieldName = core::CStoredStringPtr(traverser.value());
         } else if (name == INFLUENCE_FIELD_NAME_TAG) {
-            m_InfluenceFieldNames.push_back(
-                CStringStore::influencers().get(traverser.value()));
+            m_InfluenceFieldNames.emplace_back(traverser.value());
         }
     } while (traverser.next());
 

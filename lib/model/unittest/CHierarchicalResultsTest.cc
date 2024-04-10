@@ -14,6 +14,7 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -36,7 +37,6 @@
 #include <model/CLimits.h>
 #include <model/CModelDetailsView.h>
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -1146,9 +1146,9 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
-    core::CStoredStringPtr i2(model::CStringStore::influencers().get("i2"));
-    core::CStoredStringPtr i1(model::CStringStore::influencers().get("i1"));
-    core::CStoredStringPtr I(model::CStringStore::influencers().get("I"));
+    core::CStoredStringPtr i2("i2");
+    core::CStoredStringPtr i1("i1");
+    core::CStoredStringPtr I("I");
 
     // Test by.
     {

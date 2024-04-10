@@ -11,6 +11,7 @@
 
 #include <core/CLogger.h>
 #include <core/Constants.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CMultivariateNormalConjugate.h>
 #include <maths/common/CMultivariateNormalConjugateFactory.h>
@@ -21,7 +22,6 @@
 
 #include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CStringStore.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -176,7 +176,7 @@ void computeInfluences(CALCULATOR& calculator,
     params.s_ComputeProbabilityParams.addWeights(weight);
     params.s_Probability = probability;
     params.s_Tail = tail;
-    params.s_InfluencerName = model::CStringStore::influencers().get(influencerName);
+    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5;
     calculator.computeInfluences(params);
@@ -211,7 +211,7 @@ void computeInfluences(CALCULATOR& calculator,
     params.s_Probability = probability;
     params.s_Tail = tail;
     params.s_MostAnomalousCorrelate.push_back(0);
-    params.s_InfluencerName = model::CStringStore::influencers().get(influencerName);
+    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5;
     calculator.computeInfluences(params);

@@ -12,6 +12,7 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <core/CLogger.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CModel.h>
@@ -21,7 +22,6 @@
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CPartitioningFields.h>
-#include <model/CStringStore.h>
 
 namespace ml {
 namespace model {
@@ -53,9 +53,10 @@ using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalc
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
+// TODO(jan): remove canonical??
 //! Get the canonical influence string pointer.
 core::CStoredStringPtr canonical(const std::string& influence) {
-    return CStringStore::influencers().get(influence);
+    return core::CStoredStringPtr(influence);
 }
 
 //! \brief Orders two value influences by decreasing influence.

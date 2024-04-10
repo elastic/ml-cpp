@@ -16,14 +16,13 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-
-#include <model/CStringStore.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -93,7 +92,7 @@ struct SInfluencerSumSerializer {
                 key = traverser.value();
             } else if (name == SUM_MAP_VALUE_TAG) {
                 if (core::CStringUtils::stringToType(
-                        traverser.value(), map[CStringStore::influencers().get(key)]) == false) {
+                        traverser.value(), map[core::CStoredStringPtr(key)]) == false) {
                     LOG_ERROR(<< "Invalid sum in " << traverser.value());
                     return false;
                 }

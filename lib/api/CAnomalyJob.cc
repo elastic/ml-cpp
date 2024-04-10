@@ -19,6 +19,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CScopedBoostJsonPoolAllocator.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
@@ -36,7 +37,6 @@
 #include <model/CModelFactory.h>
 #include <model/CSearchKey.h>
 #include <model/CSimpleCountDetector.h>
-#include <model/CStringStore.h>
 
 #include <api/CAnnotationJsonWriter.h>
 #include <api/CAnomalyJobConfig.h>
@@ -727,7 +727,6 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     // Prune models based on memory resource limits
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
-    model::CStringStore::tidyUpNotThreadSafe();
 }
 
 void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {

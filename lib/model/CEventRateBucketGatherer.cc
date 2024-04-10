@@ -16,6 +16,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CompressUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -28,7 +29,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 
 #include <boost/unordered_set.hpp>
@@ -699,7 +699,7 @@ bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
                 }
             }
             if (i == data.end()) {
-                data[CStringStore::influencers().get(key)].insert(value);
+                data[core::CStoredStringPtr(key)].insert(value);
             }
         }
     } while (traverser.next());

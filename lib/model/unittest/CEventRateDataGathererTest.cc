@@ -14,6 +14,7 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 
@@ -22,7 +23,6 @@
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
-#include <model/CStringStore.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
 
@@ -1564,7 +1564,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("1, [[]]"), featureData.print());
         }
 
-        influencers.back() = CStringStore::influencers().get("inf1");
+        influencers.back() = core::CStoredStringPtr("inf1");
         data.insert("str1", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1577,10 +1577,10 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         data.insert("str2", influencers);
         data.insert("str2", influencers);
         data.insert("str2", influencers);
-        influencers.back() = CStringStore::influencers().get("inf2");
+        influencers.back() = core::CStoredStringPtr("inf2");
         data.insert("str1", influencers);
         data.insert("str3", influencers);
-        influencers.back() = CStringStore::influencers().get("inf3");
+        influencers.back() = core::CStoredStringPtr("inf3");
         data.insert("str3", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1611,7 +1611,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("2, [[], []]"), featureData.print());
         }
 
-        influencers[0] = CStringStore::influencers().get("inf1");
+        influencers[0] = core::CStoredStringPtr("inf1");
         data.insert("str1", influencers);
         data.insert("str2", influencers);
         {
@@ -1620,11 +1620,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"),
                                 featureData.print());
         }
-        influencers[1] = CStringStore::influencers().get("inf_v2");
+        influencers[1] = core::CStoredStringPtr("inf_v2");
 
         data.insert("str2", influencers);
-        influencers[0] = CStringStore::influencers().get("inf2");
-        influencers[1] = CStringStore::influencers().get("inf_v3");
+        influencers[0] = core::CStoredStringPtr("inf2");
+        influencers[1] = core::CStoredStringPtr("inf_v3");
         data.insert("str3", influencers);
         data.insert("str1", influencers);
         data.insert("str3", influencers);
@@ -1693,7 +1693,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("12, [[]]"), featureData.print());
         }
 
-        influencers.back() = CStringStore::influencers().get("inf1");
+        influencers.back() = core::CStoredStringPtr("inf1");
         data.insert("str1", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1706,10 +1706,10 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         data.insert("str2", influencers);
         data.insert("str2", influencers);
         data.insert("str2", influencers);
-        influencers.back() = CStringStore::influencers().get("inf2");
+        influencers.back() = core::CStoredStringPtr("inf2");
         data.insert("str1", influencers);
         data.insert("str3", influencers);
-        influencers.back() = CStringStore::influencers().get("inf3");
+        influencers.back() = core::CStoredStringPtr("inf3");
         data.insert("str3", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1739,7 +1739,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("16, [[], []]"), featureData.print());
         }
 
-        influencers[0] = CStringStore::influencers().get("inf1");
+        influencers[0] = core::CStoredStringPtr("inf1");
         data.insert("str1", influencers);
         data.insert("str2", influencers);
         {
@@ -1748,11 +1748,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"),
                                 featureData.print());
         }
-        influencers[1] = CStringStore::influencers().get("inf_v2");
+        influencers[1] = core::CStoredStringPtr("inf_v2");
 
         data.insert("str2", influencers);
-        influencers[0] = CStringStore::influencers().get("inf2");
-        influencers[1] = CStringStore::influencers().get("inf_v3");
+        influencers[0] = core::CStoredStringPtr("inf2");
+        influencers[1] = core::CStoredStringPtr("inf_v3");
         data.insert("str3", influencers);
         data.insert("str1", influencers);
         data.insert("str3", influencers);

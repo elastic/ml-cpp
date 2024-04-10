@@ -13,13 +13,13 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
 #include <core/CScopedBoostJsonPoolAllocator.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
-#include <model/CStringStore.h>
 #include <model/ModelTypes.h>
 
 #include <api/CGlobalCategoryId.h>
@@ -865,8 +865,8 @@ createInfluencerNode(const std::string& personName,
                      double probability,
                      double normalisedAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
-    spec.s_PersonFieldValue = ml::model::CStringStore::names().get(personValue);
+    spec.s_PersonFieldName = ml::core::CStoredStringPtr(personName);
+    spec.s_PersonFieldValue = ml::core::CStoredStringPtr(personValue);
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -882,7 +882,7 @@ createBucketInfluencerNode(const std::string& personName,
                            double normalisedAnomalyScore,
                            double rawAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
+    spec.s_PersonFieldName = ml::core::CStoredStringPtr(personName);
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -1592,25 +1592,25 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field1 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(dave));
+                ml::core::CStoredStringPtr(user),
+                ml::core::CStoredStringPtr(dave));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field2 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(cat));
+                ml::core::CStoredStringPtr(user),
+                ml::core::CStoredStringPtr(cat));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field3 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(jo));
+                ml::core::CStoredStringPtr(user),
+                ml::core::CStoredStringPtr(jo));
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField1 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(localhost));
+                ml::core::CStoredStringPtr(host),
+                ml::core::CStoredStringPtr(localhost));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField2 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(webserver));
+                ml::core::CStoredStringPtr(host),
+                ml::core::CStoredStringPtr(webserver));
 
         influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
             field1, 0.4));

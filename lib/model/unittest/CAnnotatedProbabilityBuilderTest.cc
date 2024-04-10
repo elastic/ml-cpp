@@ -11,8 +11,9 @@
 
 #include <maths/common/CMultinomialConjugate.h>
 
+#include <core/CStoredStringPtr.h>
+
 #include <model/CAnnotatedProbabilityBuilder.h>
-#include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 #include <model/ModelTypes.h>
 
@@ -33,16 +34,17 @@ using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
+// TODO(jan): tidy up
 const std::string EMPTY_STRING;
-const core::CStoredStringPtr EMPTY_STRING_PTR(CStringStore::names().getEmpty());
+const core::CStoredStringPtr EMPTY_STRING_PTR("");
 const std::string C1("c1");
-const core::CStoredStringPtr C1_PTR(CStringStore::names().get(C1));
+const core::CStoredStringPtr C1_PTR(C1);
 const std::string C2("c2");
-const core::CStoredStringPtr C2_PTR(CStringStore::names().get(C2));
+const core::CStoredStringPtr C2_PTR(C2);
 const std::string C3("c3");
-const core::CStoredStringPtr C3_PTR(CStringStore::names().get(C3));
+const core::CStoredStringPtr C3_PTR(C3);
 const std::string C4("c4");
-const core::CStoredStringPtr C4_PTR(CStringStore::names().get(C4));
+const core::CStoredStringPtr C4_PTR(C4);
 const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
 const TSizeDoublePr1Vec NO_CORRELATES;
 
