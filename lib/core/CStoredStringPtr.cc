@@ -19,6 +19,8 @@
 namespace ml {
 namespace core {
 
+const CStoredStringPtr CStoredStringPtr::NULL_STRING;
+
 CStoredStringPtr::CStoredStringPtr() noexcept : m_String{} {
 }
 
@@ -37,7 +39,8 @@ void CStoredStringPtr::swap(CStoredStringPtr& other) noexcept {
 }
 
 const std::string& CStoredStringPtr::operator*() const noexcept {
-    return *m_String;
+    const static std::string EMPTY_STRING;
+    return m_String ? *m_String : EMPTY_STRING;
 }
 
 const std::string* CStoredStringPtr::operator->() const noexcept {

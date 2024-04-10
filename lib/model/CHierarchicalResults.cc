@@ -35,15 +35,11 @@ namespace {
 using TNodeCPtr = SNode::TNodeCPtr;
 
 const std::string COUNT("count");
-// This is intentionally NOT an empty string from the string store, but instead
-// a completely separate empty string, such that its pointer will be different
-// to other empty string pointers.  (In general, if you need a pointer to an
-// empty string call CStringStore::getEmpty() instead of doing this.)
-core::CStoredStringPtr UNSET_STRING(core::CStoredStringPtr::makeStoredString(std::string()));
+const core::CStoredStringPtr& UNSET_STRING = core::CStoredStringPtr::NULL_STRING;
 
 //! Check if a string reference is unset.
 bool unset(const core::CStoredStringPtr& value) {
-    return value.get() == UNSET_STRING.get();
+    return value.get() == nullptr;
 }
 
 //! True if the node is a leaf.
