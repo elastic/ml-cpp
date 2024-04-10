@@ -38,6 +38,8 @@ namespace core {
 //!
 class CORE_EXPORT CStoredStringPtr {
 public:
+    const static CStoredStringPtr NULL_STRING;
+
     //! NULL constructor.
     CStoredStringPtr() noexcept;
     ~CStoredStringPtr();
@@ -45,6 +47,7 @@ public:
     void swap(CStoredStringPtr& other) noexcept;
 
     //! Get a reference to the string.
+    //! Returns empty string for a null pointer.
     const std::string& operator*() const noexcept;
 
     //! Get a pointer to the string.
