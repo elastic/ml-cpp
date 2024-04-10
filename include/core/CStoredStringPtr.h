@@ -39,6 +39,8 @@ namespace core {
 //!
 class CORE_EXPORT CStoredStringPtr {
 public:
+    using TOptionalStr = std::optional<std::string>;
+
     const static CStoredStringPtr NULL_STRING;
 
     //! NULL constructor.
@@ -54,20 +56,11 @@ public:
     //! Get a pointer to the string.
     const std::string* operator->() const noexcept;
 
-    //! Get a pointer to the string.
-    const std::string* get() const noexcept;
+    //! Get the optional.
+    const TOptionalStr& getOptional() const noexcept;
 
     //! Is the pointer non-NULL?
     explicit operator bool() const noexcept;
-
-    //! Is there only one pointer for this stored string?
-    //! This method is inefficient and should only be used in unit test
-    //! code (and then only infrequently).
-    bool isUnique() const noexcept;
-
-    //! Equality operator for NULL.
-    bool operator==(std::nullptr_t rhs) const noexcept;
-    bool operator!=(std::nullptr_t rhs) const noexcept;
 
     //! Equality operator.
     bool operator==(const CStoredStringPtr& rhs) const noexcept;
@@ -76,16 +69,10 @@ public:
     //! Less than operator.
     bool operator<(const CStoredStringPtr& rhs) const noexcept;
 
-    //! Get the actual memory usage of the string.  For use by the string
-    //! store.
-    std::size_t actualMemoryUsage() const;
-    void debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
-
     explicit CStoredStringPtr(const std::string& str);
     explicit CStoredStringPtr(std::string&& str);
 
 private:
-    using TOptionalStr = std::optional<std::string>;
 
     TOptionalStr m_String;
 

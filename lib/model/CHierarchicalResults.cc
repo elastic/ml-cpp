@@ -38,7 +38,7 @@ const core::CStoredStringPtr& UNSET_STRING = core::CStoredStringPtr::NULL_STRING
 
 //! Check if a string reference is unset.
 bool unset(const core::CStoredStringPtr& value) {
-    return value.get() == nullptr;
+    return value == UNSET_STRING;
 }
 
 //! True if the node is a leaf.
