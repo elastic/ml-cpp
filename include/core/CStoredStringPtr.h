@@ -81,16 +81,6 @@ public:
     std::size_t actualMemoryUsage() const;
     void debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
-    //! These factory methods return a stored string pointer given a string.
-    //! They must only be used within string store classes that contain code
-    //! to account for memory usage outside of the main memory usage
-    //! calculation.
-    static CStoredStringPtr makeStoredString(const std::string& str);
-    static CStoredStringPtr makeStoredString(std::string&& str);
-
-private:
-    //! Non-NULL constructors are private to prevent accidental construction
-    //! outside of a string store.
     explicit CStoredStringPtr(const std::string& str);
     explicit CStoredStringPtr(std::string&& str);
 

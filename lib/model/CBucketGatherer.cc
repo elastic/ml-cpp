@@ -15,6 +15,7 @@
 #include <core/CMemoryDef.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -23,7 +24,6 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
-#include <model/CStringStore.h>
 
 #include <algorithm>
 #include <map>
@@ -122,7 +122,7 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
                 LOG_ERROR(<< "Failed to restore COUNT_TAG, got " << traverser.value());
                 return false;
             }
-            map[{{person, attribute}, CStringStore::influencers().get(influence)}] = count;
+            map[{{person, attribute}, core::CStoredStringPtr(influence)}] = count;
         }
     } while (traverser.next());
     return true;
@@ -294,7 +294,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         for (std::size_t i = 0; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
-                const auto& inf = CStringStore::influencers().get(*influence);
+                const auto& inf = core::CStoredStringPtr(*influence);
                 canonicalInfluences[i] = inf;
                 if (count > 0) {
                     influencerCounts[i]

@@ -15,7 +15,6 @@
 #include <model/CAnnotatedProbability.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CHierarchicalResultsLevelSet.h>
-#include <model/CStringStore.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -65,10 +64,10 @@ auto makeRoot() {
 }
 
 auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              ml::core::CStoredStringPtr partitionName,
-              ml::core::CStoredStringPtr partitionValue,
-              ml::core::CStoredStringPtr personName,
-              ml::core::CStoredStringPtr personValue) {
+              const ml::core::CStoredStringPtr& partitionName,
+              const ml::core::CStoredStringPtr& partitionValue,
+              const ml::core::CStoredStringPtr& personName,
+              const ml::core::CStoredStringPtr& personValue) {
     ml::model::hierarchical_results_detail::SResultSpec spec;
     spec.s_PartitionFieldName = partitionName;
     spec.s_PartitionFieldValue = partitionValue;
@@ -82,11 +81,11 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
 }
 
 auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              ml::core::CStoredStringPtr partitionName,
-              ml::core::CStoredStringPtr partitionValue) {
+              const ml::core::CStoredStringPtr& partitionName,
+              const ml::core::CStoredStringPtr& partitionValue) {
     return makeNode(parent, partitionName, partitionValue,
-                    ml::model::CStringStore::names().getEmpty(),
-                    ml::model::CStringStore::names().getEmpty());
+                    ml::core::CStoredStringPtr(""),
+                    ml::core::CStoredStringPtr(""));
 }
 }
 
@@ -94,12 +93,12 @@ BOOST_AUTO_TEST_CASE(testElements) {
 
     using TNodePtr = std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>;
 
-    ml::core::CStoredStringPtr pa = ml::model::CStringStore::names().get("PA");
-    ml::core::CStoredStringPtr pb = ml::model::CStringStore::names().get("PB");
-    ml::core::CStoredStringPtr pa1 = ml::model::CStringStore::names().get("pa1");
-    ml::core::CStoredStringPtr pa2 = ml::model::CStringStore::names().get("pa2");
-    ml::core::CStoredStringPtr pb1 = ml::model::CStringStore::names().get("pb1");
-    ml::core::CStoredStringPtr pb2 = ml::model::CStringStore::names().get("pb2");
+    ml::core::CStoredStringPtr pa("PA");
+    ml::core::CStoredStringPtr pb("PB");
+    ml::core::CStoredStringPtr pa1("pa1");
+    ml::core::CStoredStringPtr pa2("pa2");
+    ml::core::CStoredStringPtr pb1("pb1");
+    ml::core::CStoredStringPtr pb2("pb2");
 
     CConcreteHierarchicalResultsLevelSet::TNode root{makeRoot()};
     TNodePtr partitions[]{makeNode(root, pa, pa1), makeNode(root, pa, pa2)};

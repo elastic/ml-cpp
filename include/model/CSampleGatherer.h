@@ -30,7 +30,6 @@
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
 #include <model/CSampleQueue.h>
-#include <model/CStringStore.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -392,7 +391,7 @@ private:
                 RESTORE_NO_ERROR(MAP_KEY_TAG, key = traverser.value())
                 RESTORE(MAP_VALUE_TAG,
                         CMetricStatisticWrappers::restore(
-                            traverser, map.insert({CStringStore::influencers().get(key), m_Initial})
+                            traverser, map.insert({core::CStoredStringPtr(key), m_Initial})
                                            .first->second))
             } while (traverser.next());
             return true;

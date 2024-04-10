@@ -90,14 +90,6 @@ void CStoredStringPtr::debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePt
     mem->addItem("m_String", this->actualMemoryUsage());
 }
 
-CStoredStringPtr CStoredStringPtr::makeStoredString(const std::string& str) {
-    return CStoredStringPtr(str);
-}
-
-CStoredStringPtr CStoredStringPtr::makeStoredString(std::string&& str) {
-    return CStoredStringPtr(std::move(str));
-}
-
 std::size_t hash_value(const CStoredStringPtr& ptr) {
     return boost::hash_value(ptr.m_String);
 }

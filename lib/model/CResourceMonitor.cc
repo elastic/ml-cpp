@@ -20,7 +20,6 @@
 #include <maths/common/CTools.h>
 
 #include <model/CMonitoredResource.h>
-#include <model/CStringStore.h>
 
 #include <algorithm>
 #include <cmath>
@@ -485,9 +484,7 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
-           CStringStore::names().memoryUsage() +
-           CStringStore::influencers().memoryUsage();
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory;
 }
 
 } // model

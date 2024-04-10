@@ -16,6 +16,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -26,7 +27,6 @@
 #include <model/CMetricBucketGatherer.h>
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
-#include <model/CStringStore.h>
 
 #include <algorithm>
 
@@ -159,7 +159,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
     : m_GathererType(gathererType),
       m_Features(detail::sanitize(features, gathererType)),
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
-      m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
+      m_PartitionFieldValue(partitionFieldValue),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -189,7 +189,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              core::CStateRestoreTraverser& traverser)
     : m_GathererType(gathererType), m_SummaryMode(summaryMode),
       m_Params(modelParams), m_SearchKey(key),
-      m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
+      m_PartitionFieldValue(partitionFieldValue),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,

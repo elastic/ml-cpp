@@ -14,12 +14,12 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
+#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
 
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 
 #include <boost/unordered_set.hpp>
 
@@ -124,12 +124,12 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
     }
 
     if (id >= m_Names.size()) {
-        m_Names.push_back(CStringStore::names().get(name));
+        m_Names.emplace_back(name);
         addedPerson = true;
         ++core::CProgramCounters::counter(m_AddedCounter);
     } else if (id == newId) {
         LOG_TRACE(<< "Recycling " << id << " for " << m_NameType << " " << name);
-        m_Names[id] = CStringStore::names().get(name);
+        m_Names[id] = core::CStoredStringPtr(name);
         if (m_FreeUids.empty()) {
             LOG_ERROR(<< "Unexpectedly missing free " << m_NameType << " entry for " << id);
         } else {
@@ -164,8 +164,7 @@ void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove,
         }
         m_FreeUids.push_back(id);
         m_Uids.erase(m_Dictionary.word(*m_Names[id]));
-        CStringStore::names().remove(*m_Names[id]);
-        m_Names[id] = CStringStore::names().get(defaultName);
+        m_Names[id] = core::CStoredStringPtr(defaultName);
     }
     std::sort(m_FreeUids.begin(), m_FreeUids.end(), std::greater<std::size_t>());
     m_FreeUids.erase(std::unique(m_FreeUids.begin(), m_FreeUids.end()),
@@ -257,7 +256,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     do {
         const std::string& name = traverser.name();
         if (name == NAMES_TAG) {
-            m_Names.push_back(CStringStore::names().get(traverser.value()));
+            m_Names.emplace_back(traverser.value());
         } else if (name == FREE_NAMES_TAG) {
             if (!core::CPersistUtils::restore(FREE_NAMES_TAG, m_FreeUids, traverser)) {
                 return false;
@@ -274,7 +273,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
 
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
         if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id,
-                               std::greater<std::size_t>())) {
+                               std::greater<>())) {
             LOG_TRACE(<< "Restore ignoring free " << m_NameType << " name "
                       << *m_Names[id] << " = id " << id);
         } else {
