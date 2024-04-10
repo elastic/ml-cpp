@@ -34,23 +34,17 @@ using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
-// TODO(jan): tidy up
-const std::string EMPTY_STRING;
-const core::CStoredStringPtr EMPTY_STRING_PTR("");
-const std::string C1("c1");
-const core::CStoredStringPtr C1_PTR(C1);
-const std::string C2("c2");
-const core::CStoredStringPtr C2_PTR(C2);
-const std::string C3("c3");
-const core::CStoredStringPtr C3_PTR(C3);
-const std::string C4("c4");
-const core::CStoredStringPtr C4_PTR(C4);
+const core::CStoredStringPtr EMPTY_STRING("");
+const core::CStoredStringPtr C1("c1");
+const core::CStoredStringPtr C2("c2");
+const core::CStoredStringPtr C3("c3");
+const core::CStoredStringPtr C4("c4");
 const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
 const TSizeDoublePr1Vec NO_CORRELATES;
 
 class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder {
 public:
-    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability)
+    explicit CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability)
         : CAnnotatedProbabilityBuilder(annotatedProbability) {}
 
     CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability,
@@ -76,14 +70,14 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualCount) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualCount);
 
-    builder.addAttributeProbability(0, EMPTY_STRING_PTR, 0.68,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.68,
                                     model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualCountByBucketAndPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
     BOOST_REQUIRE_EQUAL(1, result.s_AttributeProbabilities.size());
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *result.s_AttributeProbabilities[0].s_Attribute);
+    BOOST_REQUIRE_EQUAL("", *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.68, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
@@ -93,29 +87,29 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationCount) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 3, function_t::E_PopulationCount);
 
-    builder.addAttributeProbability(0, EMPTY_STRING_PTR, 0.09,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.09,
                                     model_t::CResultType::E_Unconditional,
                                     model_t::E_PopulationCountByBucketPersonAndAttribute,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(1, C1_PTR, 0.05, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(1, C1, 0.05, model_t::CResultType::E_Unconditional,
                                     model_t::E_PopulationCountByBucketPersonAndAttribute,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(2, C2_PTR, 0.04, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(2, C2, 0.04, model_t::CResultType::E_Unconditional,
                                     model_t::E_PopulationCountByBucketPersonAndAttribute,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(3, C3_PTR, 0.06, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(3, C3, 0.06, model_t::CResultType::E_Unconditional,
                                     model_t::E_PopulationCountByBucketPersonAndAttribute,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
     BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
 
-    BOOST_REQUIRE_EQUAL(C2, *result.s_AttributeProbabilities[0].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C2, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.04, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
                         result.s_AttributeProbabilities[0].s_Feature);
 
-    BOOST_REQUIRE_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.05, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
                         result.s_AttributeProbabilities[1].s_Feature);
@@ -125,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualRare) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualRare);
 
-    builder.addAttributeProbability(0, EMPTY_STRING_PTR, 0.68,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.68,
                                     model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
@@ -156,26 +150,26 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
     builder.attributeProbabilityPrior(&attributePrior);
     builder.personAttributeProbabilityPrior(&personAttributePrior);
 
-    builder.addAttributeProbability(1, C1_PTR, 0.02, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(1, C1, 0.02, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(2, C2_PTR, 0.06, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(2, C2, 0.06, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(3, C3_PTR, 0.01, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(3, C3, 0.01, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(4, C4_PTR, 0.03, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(4, C4, 0.03, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
     BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
-    BOOST_REQUIRE_EQUAL(C3, *result.s_AttributeProbabilities[0].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C3, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
-    BOOST_REQUIRE_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[1].s_Feature);
@@ -203,26 +197,26 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
     builder.attributeProbabilityPrior(&attributePrior);
     builder.personAttributeProbabilityPrior(&personAttributePrior);
 
-    builder.addAttributeProbability(1, C1_PTR, 0.02, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(1, C1, 0.02, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(2, C2_PTR, 0.06, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(2, C2, 0.06, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(3, C3_PTR, 0.01, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(3, C3, 0.01, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
-    builder.addAttributeProbability(4, C4_PTR, 0.03, model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(4, C4, 0.03, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
 
     BOOST_REQUIRE_EQUAL(2, result.s_AttributeProbabilities.size());
-    BOOST_REQUIRE_EQUAL(C3, *result.s_AttributeProbabilities[0].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C3, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[0].s_Feature);
-    BOOST_REQUIRE_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
+    BOOST_REQUIRE_EQUAL(*C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_REQUIRE_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
                         result.s_AttributeProbabilities[1].s_Feature);

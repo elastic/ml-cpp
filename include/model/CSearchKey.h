@@ -105,10 +105,10 @@ public:
                         function_t::EFunction function = function_t::E_IndividualCount,
                         bool useNull = false,
                         model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-                        std::string fieldName = EMPTY_STRING,
-                        std::string byFieldName = EMPTY_STRING,
-                        std::string overFieldName = EMPTY_STRING,
-                        std::string partitionFieldName = EMPTY_STRING,
+                        const std::string& fieldName = EMPTY_STRING,
+                        const std::string& byFieldName = EMPTY_STRING,
+                        const std::string& overFieldName = EMPTY_STRING,
+                        const std::string& partitionFieldName = EMPTY_STRING,
                         const TStrVec& influenceFieldNames = TStrVec());
 
     //! Create the key from part of an state document.
