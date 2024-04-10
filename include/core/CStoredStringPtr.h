@@ -76,11 +76,6 @@ public:
     //! Less than operator.
     bool operator<(const CStoredStringPtr& rhs) const noexcept;
 
-    //! Claim memory usage is 0 in the main memory usage calculation, on the
-    //! assumption that the actual memory usage will be accounted for in a
-    //! string store.
-    static constexpr bool dynamicSizeAlwaysZero() { return true; }
-
     //! Get the actual memory usage of the string.  For use by the string
     //! store.
     std::size_t actualMemoryUsage() const;

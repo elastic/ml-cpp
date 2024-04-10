@@ -63,6 +63,8 @@ const core::CStoredStringPtr& CStringStore::getEmpty() const {
 }
 
 core::CStoredStringPtr CStringStore::get(const std::string& value) {
+    return core::CStoredStringPtr::makeStoredString(value);
+
     // This section is expected to be performed frequently.
     //
     // We ensure either:
