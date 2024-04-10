@@ -689,7 +689,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                     p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -787,7 +787,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                     p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -892,7 +892,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
                 pid, time, time + bucketLength, partitioningFields, 1, p));
             std::string correlated;
             if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                 p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }

@@ -161,7 +161,7 @@ public:
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
                                const core::CStoredStringPtr& rhs) const {
-            return SDerefLess::less(lhs.get(), rhs.get());
+            return SDerefLess::less(lhs.getOptional(), rhs.getOptional());
         }
 
         template<typename T>
@@ -183,7 +183,7 @@ public:
         }
     };
 
-    //! \brief Wrapper around various less than comparisons.
+    //! \brief Wrapper around various greater than comparisons.
     struct MATHS_COMMON_EXPORT SGreater {
         template<typename U, typename V, std::enable_if_t<!std::is_pointer_v<U> || !std::is_pointer_v<V>>* = nullptr>
         inline bool operator()(const U& lhs, const V& rhs) const {
@@ -202,7 +202,7 @@ public:
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
                                const core::CStoredStringPtr& rhs) const {
-            return SDerefGreater::greater(lhs.get(), rhs.get());
+            return SDerefGreater::greater(lhs.getOptional(), rhs.getOptional());
         }
 
         template<typename T>
