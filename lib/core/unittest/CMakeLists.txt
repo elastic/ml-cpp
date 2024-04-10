@@ -69,7 +69,6 @@ set (SRCS
   CStateMachineTest.cc
   CStaticThreadPoolTest.cc
   CStopWatchTest.cc
-  CStoredStringPtrTest.cc
   CStringSimilarityTesterTest.cc
   CStringUtilsTest.cc
   CThreadMutexConditionTest.cc

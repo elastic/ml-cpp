@@ -25,11 +25,11 @@ CStoredStringPtr::CStoredStringPtr() noexcept : m_String{} {
 }
 
 CStoredStringPtr::CStoredStringPtr(const std::string& str)
-    : m_String{std::make_shared<const std::string>(str)} {
+    : m_String{str} {
 }
 
 CStoredStringPtr::CStoredStringPtr(std::string&& str)
-    : m_String{std::make_shared<const std::string>(std::move(str))} {
+    : m_String{std::move(str)} {
 }
 
 CStoredStringPtr::~CStoredStringPtr() = default;
@@ -40,37 +40,31 @@ void CStoredStringPtr::swap(CStoredStringPtr& other) noexcept {
 
 const std::string& CStoredStringPtr::operator*() const noexcept {
     const static std::string EMPTY_STRING;
-    return m_String ? *m_String : EMPTY_STRING;
+    return m_String ? m_String.value() : EMPTY_STRING;
 }
 
 const std::string* CStoredStringPtr::operator->() const noexcept {
-    return m_String.get();
+    return m_String ? &m_String.value() : nullptr;
 }
 
 const std::string* CStoredStringPtr::get() const noexcept {
-    return m_String.get();
+    return m_String ? &m_String.value() : nullptr;
 }
 
 CStoredStringPtr::operator bool() const noexcept {
-    return m_String.get() != nullptr;
+    return m_String.has_value();
 }
 
 bool CStoredStringPtr::isUnique() const noexcept {
-    // Use count is updated in a relaxed manner, so will not necessarily be
-    // accurate in this thread unless this thread has recently done something
-    // that has updated the value. Updating the value like this is obviously
-    // inefficient, so this method should only be used infrequently and only
-    // in unit test code.
-    TStrCPtr sync{m_String};
-    return sync.use_count() == 2;
+    return true;
 }
 
-bool CStoredStringPtr::operator==(std::nullptr_t rhs) const noexcept {
-    return m_String == rhs;
+bool CStoredStringPtr::operator==(std::nullptr_t) const noexcept {
+    return !m_String.has_value();
 }
 
-bool CStoredStringPtr::operator!=(std::nullptr_t rhs) const noexcept {
-    return m_String != rhs;
+bool CStoredStringPtr::operator!=(std::nullptr_t) const noexcept {
+    return m_String.has_value();
 }
 
 bool CStoredStringPtr::operator==(const CStoredStringPtr& rhs) const noexcept {
@@ -88,7 +82,7 @@ bool CStoredStringPtr::operator<(const CStoredStringPtr& rhs) const noexcept {
 std::size_t CStoredStringPtr::actualMemoryUsage() const {
     // We convert to a raw pointer here to avoid the "divide by use count"
     // feature of CMemory's shared_ptr handling
-    return memory::dynamicSize(m_String.get());
+    return memory::dynamicSize(m_String);
 }
 
 void CStoredStringPtr::debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
