@@ -53,12 +53,6 @@ using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalc
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
-// TODO(jan): remove canonical??
-//! Get the canonical influence string pointer.
-core::CStoredStringPtr canonical(const std::string& influence) {
-    return core::CStoredStringPtr(influence);
-}
-
 //! \brief Orders two value influences by decreasing influence.
 class CDecreasingValueInfluence {
 public:
@@ -342,7 +336,7 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
     result.reserve(influencerValues.size());
     for (const auto& influencerValue : influencerValues) {
         result.emplace_back(
-            std::make_pair(influencerName, canonical(influencerValue.first)), 1.0);
+            std::make_pair(influencerName, influencerValue.first), 1.0);
     }
 }
 
@@ -383,7 +377,7 @@ void doComputeInfluences(model_t::EFeature feature,
                          bool includeCutoff,
                          TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     auto description = [&influencerName](const std::string& v) {
-        return std::make_pair(influencerName, canonical(v));
+        return std::make_pair(influencerName, v);
     };
 
     if (influencerValues.size() == 1) {
@@ -487,7 +481,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
                                   bool includeCutoff,
                                   TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     auto description = [&influencerName](const std::string& v) {
-        return std::make_pair(influencerName, canonical(v));
+        return std::make_pair(influencerName, v);
     };
     auto probability = [feature, elapsedTime](const maths::common::SModelProbabilityResult& r) {
         double p{r.s_Probability};
@@ -792,7 +786,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     double logp = std::log(std::max(params.s_Probability,
                                     maths::common::CTools::smallestProbability()));
 
-    params.s_InfluencerName = canonical(influencerName);
+    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5 / std::max(-logp, 1.0);
     params.s_IncludeCutoff = true;
@@ -801,7 +795,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
         m_Influences.emplace_back(
-            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
+            std::make_pair(params.s_InfluencerName, *influencerValue), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
@@ -831,7 +825,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     double logp = std::log(std::max(params.s_Probability,
                                     maths::common::CTools::smallestProbability()));
 
-    params.s_InfluencerName = canonical(influencerName);
+    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
     params.s_InfluencerValues = influencerValues[params.s_MostAnomalousCorrelate[0]];
     params.s_Cutoff = 0.5 / std::max(-logp, 1.0);
     params.s_IncludeCutoff = true;
@@ -840,7 +834,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     m_Influences.swap(params.s_Influences);
     if (m_Influences.empty() && influencerValue) {
         m_Influences.emplace_back(
-            std::make_pair(params.s_InfluencerName, canonical(*influencerValue)), 1.0);
+            std::make_pair(params.s_InfluencerName, *influencerValue), 1.0);
     }
     this->commitInfluences(params.s_Feature, logp, weight);
 }
