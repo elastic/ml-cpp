@@ -23,7 +23,7 @@ if [ $? != 0 ] ; then
 fi
 
 REQUIRED_CLANG_FORMAT_VERSION=5.0.1
-FOUND_CLANG_FORMAT_VERSION=$(expr "`clang-format --version`" : ".* \([0-9].[0-9].[0-9]\)")
+FOUND_CLANG_FORMAT_VERSION=$(expr "`clang-format --version`" : ".* \([0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\)")
 
 if [ -z "${FOUND_CLANG_FORMAT_VERSION}" ] ; then
     echo "ERROR: Required clang-format major version ${REQUIRED_CLANG_FORMAT_VERSION} not found."
