@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.14.0
+
+=== Bug Fixes
+
+* Remove CStringStore. (See {ml-pull}2652[#2652].)
+
 == {es} version 8.13.0
 
 === Enhancements
