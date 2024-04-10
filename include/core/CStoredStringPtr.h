@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace ml {
@@ -99,10 +100,9 @@ private:
     explicit CStoredStringPtr(std::string&& str);
 
 private:
-    using TStrCPtr = std::shared_ptr<const std::string>;
+    using TOptionalStr = std::optional<std::string>;
 
-    //! The wrapped shared_ptr.
-    TStrCPtr m_String;
+    TOptionalStr m_String;
 
     friend CORE_EXPORT std::size_t hash_value(const CStoredStringPtr&);
 };

@@ -56,7 +56,6 @@ set (SRCS
   CSingleFieldDataCategorizerTest.cc
   CSingleStreamDataAdderTest.cc
   CStateRestoreStreamFilterTest.cc
-  CStringStoreTest.cc
   CTestAnomalyJob.cc
   CTestFieldDataCategorizer.cc
   )

@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
                 json::value jv;
                 try {
                     jv = result_.at_pointer(base_path.str() + "/feature_name");
-                } catch (std::exception& e) {
+                } catch (std::exception&) {
                     LOG_ERROR(<< "jv: " << jv);
                     BOOST_REQUIRE(false);
                 }
