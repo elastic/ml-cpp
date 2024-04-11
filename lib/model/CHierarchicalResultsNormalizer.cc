@@ -101,10 +101,10 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        : maths::common::CTools::anomalyScore(node.probability());
 
     CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
-        dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName),
-        dereferenceOrEmpty(node.s_Spec.s_PartitionFieldValue),
-        dereferenceOrEmpty(node.s_Spec.s_PersonFieldName),
-        dereferenceOrEmpty(node.s_Spec.s_PersonFieldValue)};
+        node.s_Spec.s_PartitionFieldName.value_or(""),
+        node.s_Spec.s_PartitionFieldValue.value_or(""),
+        node.s_Spec.s_PersonFieldName.value_or(""),
+        node.s_Spec.s_PersonFieldValue.value_or("")};
 
     switch (m_Job) {
     case E_RefreshSettings:
@@ -382,14 +382,14 @@ bool CHierarchicalResultsNormalizer::isMemberOfPopulation(const TNode& node,
     // values for this node.
 
     if (test == nullptr) {
-        const std::string& personName = *node.s_Spec.s_PersonFieldName;
-        const std::string& personValue = *node.s_Spec.s_PersonFieldValue;
+        const std::string& personName = node.s_Spec.s_PersonFieldName.value_or("");
+        const std::string& personValue = node.s_Spec.s_PersonFieldValue.value_or("");
         if (personName.empty() || personValue.empty()) {
             return false;
         }
         test = [&personName, &personValue](const TNode& child) {
-            return isPopulation(child) && *child.s_Spec.s_PersonFieldName == personName &&
-                   *child.s_Spec.s_PersonFieldValue == personValue;
+            return isPopulation(child) && child.s_Spec.s_PersonFieldName == personName &&
+                   child.s_Spec.s_PersonFieldValue == personValue;
         };
     }
 
@@ -463,19 +463,16 @@ std::string CHierarchicalResultsNormalizer::leafCue(const TWord& word) {
     return LEAF_CUE_PREFIX + core::CStringUtils::typeToString(word.hash64());
 }
 
-const std::string&
-CHierarchicalResultsNormalizer::dereferenceOrEmpty(const core::CStoredStringPtr& stringPtr) {
-    return stringPtr ? *stringPtr : EMPTY_STRING;
-}
-
 CHierarchicalResultsNormalizer::CNormalizerFactory::CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig)
     : m_ModelConfig{modelConfig} {
 }
 
 CHierarchicalResultsNormalizer::TNormalizer
 CHierarchicalResultsNormalizer::CNormalizerFactory::make(const TNode& node, bool) const {
-    return {*node.s_Spec.s_PartitionFieldName + ' ' + *node.s_Spec.s_PersonFieldName +
-                ' ' + *node.s_Spec.s_FunctionName + ' ' + *node.s_Spec.s_ValueFieldName,
+    return {node.s_Spec.s_PartitionFieldName.value_or("") + ' ' +
+                node.s_Spec.s_PersonFieldName.value_or("") + ' ' +
+                node.s_Spec.s_FunctionName.value_or("") + ' ' +
+                node.s_Spec.s_ValueFieldName.value_or(""),
             std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig)};
 }
 }

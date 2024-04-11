@@ -16,7 +16,7 @@
 namespace ml {
 namespace core {
 const std::string& CContainerPrinter::printElement(const CStoredStringPtr& value) {
-    return value ? *value : NULL_STR;
+    return value ? value.value() : NULL_STR;
 }
 
 const std::string CContainerPrinter::NULL_STR{"\"null\""};

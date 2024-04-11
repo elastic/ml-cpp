@@ -525,22 +525,16 @@ std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) con
         key.data(), static_cast<int>(key.size()), m_Seed);
 }
 
-std::size_t CHashing::CMurmurHash2String::operator()(const CStoredStringPtr& key) const {
-    if (key) {
-        return this->operator()(*key);
-    }
-    return m_Seed;
+std::size_t CHashing::CMurmurHash2String::operator()(const TOptionalStr& key) const {
+    return key ? this->operator()(*key) : m_Seed;
 }
 
 std::uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string& key) const {
     return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 
-std::size_t CHashing::CSafeMurmurHash2String64::operator()(const CStoredStringPtr& key) const {
-    if (key) {
-        return this->operator()(*key);
-    }
-    return m_Seed;
+std::size_t CHashing::CSafeMurmurHash2String64::operator()(const TOptionalStr& key) const {
+    return key ? this->operator()(*key) : m_Seed;
 }
 
 std::uint32_t CHashing::hashCombine(std::uint32_t seed, std::uint32_t h) {

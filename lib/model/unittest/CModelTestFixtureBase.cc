@@ -204,7 +204,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                 TDoubleStrPrVec attributes;
                 for (const auto& probability : annotatedProbability.s_AttributeProbabilities) {
                     attributes.emplace_back(probability.s_Probability,
-                                            *probability.s_Attribute);
+                                            probability.s_Attribute.value_or(""));
                 }
                 anomalies.add({annotatedProbability.s_Probability,
                                {bucket, person, attributes}});

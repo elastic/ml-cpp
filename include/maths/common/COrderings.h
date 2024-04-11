@@ -161,7 +161,7 @@ public:
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
                                const core::CStoredStringPtr& rhs) const {
-            return SDerefLess::less(lhs.getOptional(), rhs.getOptional());
+            return SDerefLess::less(lhs, rhs);
         }
 
         template<typename T>
@@ -202,7 +202,7 @@ public:
 
         inline bool operator()(const core::CStoredStringPtr& lhs,
                                const core::CStoredStringPtr& rhs) const {
-            return SDerefGreater::greater(lhs.getOptional(), rhs.getOptional());
+            return SDerefGreater::greater(lhs, rhs);
         }
 
         template<typename T>

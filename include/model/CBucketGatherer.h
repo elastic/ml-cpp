@@ -101,7 +101,7 @@ public:
             std::uint64_t seed = core::CHashing::hashCombine(
                 static_cast<std::uint64_t>(key.first.first),
                 static_cast<std::uint64_t>(key.first.second));
-            return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
+            return core::CHashing::hashCombine(seed, s_Hasher(key.second));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
     };
@@ -110,7 +110,7 @@ public:
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
         bool operator()(const TSizeSizePrStoredStringPtrPr& lhs,
                         const TSizeSizePrStoredStringPtrPr& rhs) const {
-            return lhs.first == rhs.first && *lhs.second == *rhs.second;
+            return lhs.first == rhs.first && lhs.second == rhs.second;
         }
     };
 

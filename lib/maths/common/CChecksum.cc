@@ -52,7 +52,7 @@ std::uint64_t CChecksumImpl<BasicChecksum>::dispatch(std::uint64_t seed,
 
 std::uint64_t CChecksumImpl<BasicChecksum>::dispatch(std::uint64_t seed,
                                                      const core::CStoredStringPtr& target) {
-    return target ? dispatch(seed, *target) : seed;
+    return target ? dispatch(seed, target.value_or("")) : seed;
 }
 
 std::uint64_t CChecksumImpl<ContainerChecksum>::dispatch(std::uint64_t seed,

@@ -117,8 +117,9 @@ public:
             }
             std::size_t pid;
             const ml::model::CDataGatherer& gatherer = node.s_Model->dataGatherer();
-            if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
-                LOG_ERROR(<< "No identifier for '" << *node.s_Spec.s_PersonFieldValue << "'");
+            if (!gatherer.personId(node.s_Spec.s_PersonFieldValue.value_or(""), pid)) {
+                LOG_ERROR(<< "No identifier for '"
+                          << node.s_Spec.s_PersonFieldValue.value_or("") << "'");
                 return;
             }
             for (std::size_t i = 0;

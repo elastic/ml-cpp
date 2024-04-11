@@ -89,8 +89,8 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
               [](TSizeSizePrStoredStringPtrPrUInt64UMapCItr lhs,
                  TSizeSizePrStoredStringPtrPrUInt64UMapCItr rhs) {
                   return maths::common::COrderings::lexicographicalCompare(
-                      lhs->first.first, *lhs->first.second, lhs->second,
-                      rhs->first.first, *rhs->first.second, rhs->second);
+                      lhs->first.first, lhs->first.second, lhs->second,
+                      rhs->first.first, rhs->first.second, rhs->second);
               });
 
     if (ordered.empty()) {

@@ -30,7 +30,7 @@
 
 namespace ml {
 namespace core {
-class CStoredStringPtr;
+using CStoredStringPtr = std::optional<std::string>;
 }
 namespace maths {
 namespace common {
