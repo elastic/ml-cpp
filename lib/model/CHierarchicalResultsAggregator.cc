@@ -51,12 +51,6 @@ public:
     }
 };
 
-//! Check if the underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
-           const TStoredStringPtrStoredStringPtrPr& rhs) {
-    return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
-}
-
 //! Compute the probability of \p influence.
 bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
                           const TStoredStringPtr& influencerName,
@@ -70,7 +64,7 @@ bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& in
                          maths::common::COrderings::SFirstLess()) -
         influences.begin())};
 
-    if (k < influences.size() && equal(influences[k].first, influence)) {
+    if (k < influences.size() && influences[k].first == influence) {
         result = influences[k].second == 1.0
                      ? p
                      : std::exp(influences[k].second * maths::common::CTools::fastLog(p));

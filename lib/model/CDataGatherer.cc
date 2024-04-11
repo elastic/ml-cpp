@@ -255,7 +255,7 @@ const std::string& CDataGatherer::partitionFieldName() const {
 }
 
 const std::string& CDataGatherer::partitionFieldValue() const {
-    return *m_PartitionFieldValue;
+    return m_PartitionFieldValue ? *m_PartitionFieldValue : EMPTY_STRING;
 }
 
 const CSearchKey& CDataGatherer::searchKey() const {

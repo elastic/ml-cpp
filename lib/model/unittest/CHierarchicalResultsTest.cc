@@ -300,10 +300,10 @@ public:
     class CFactory {
     public:
         SNodeProbabilities make(const model::CHierarchicalResults::TNode& node, bool) const {
-            return SNodeProbabilities(*node.s_Spec.s_PartitionFieldName + ' ' +
-                                      *node.s_Spec.s_PersonFieldName + ' ' +
-                                      *node.s_Spec.s_FunctionName + ' ' +
-                                      *node.s_Spec.s_ValueFieldName);
+            return SNodeProbabilities(node.s_Spec.s_PartitionFieldName.value_or("") + ' ' +
+                                      node.s_Spec.s_PersonFieldName.value_or("") + ' ' +
+                                      node.s_Spec.s_FunctionName.value_or("") + ' ' +
+                                      node.s_Spec.s_ValueFieldName.value_or(""));
         }
     };
 
@@ -747,9 +747,14 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue
 
     // partitioned node
     BOOST_REQUIRE_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(
+        EMPTY_STRING,
+        extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                        extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName.value_or(""));
+    BOOST_REQUIRE_EQUAL(
+        EMPTY_STRING,
+        extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
 
     // partition nodes
     BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
@@ -809,7 +814,8 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(0, extract.partitionNodes().size());
         BOOST_REQUIRE_EQUAL(1, extract.personNodes().size());
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
     }
     {
@@ -837,15 +843,18 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.leafNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[1]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[2]->s_Children.size());
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_FunctionName.value_or(""));
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(3, extract.personNodes()[0]->s_Children.size());
     }
     {
@@ -872,7 +881,8 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
@@ -900,10 +910,12 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(0, extract.partitionNodes().size());
         BOOST_REQUIRE_EQUAL(2, extract.personNodes().size());
         BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[1]->s_Spec.s_FunctionName.value_or(""));
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(2, extract.personNodes()[1]->s_Children.size());
@@ -936,7 +948,9 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
 
         BOOST_REQUIRE_EQUAL(1, extract.partitionedNodes().size());
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(
+            EMPTY_STRING,
+            extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(4, extract.partitionedNodes()[0]->s_Children.size());
 
         BOOST_REQUIRE_EQUAL(4, extract.partitionNodes().size());
@@ -944,7 +958,9 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(
+            EMPTY_STRING,
+            extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
         BOOST_REQUIRE_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
         BOOST_REQUIRE_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
@@ -959,10 +975,12 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[3]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[1]->s_Children.size());

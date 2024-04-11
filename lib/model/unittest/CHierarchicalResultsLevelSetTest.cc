@@ -37,10 +37,10 @@ public:
         CFactory() {}
 
         STestNode make(const ml::model::CHierarchicalResults::TNode& node, bool) const {
-            return STestNode("\"" + *node.s_Spec.s_PartitionFieldName + " " +
-                             *node.s_Spec.s_PartitionFieldValue + " " +
-                             *node.s_Spec.s_PersonFieldName + " " +
-                             *node.s_Spec.s_PersonFieldValue + "\"");
+            return STestNode("\"" + node.s_Spec.s_PartitionFieldName.value_or("") +
+                             " " + node.s_Spec.s_PartitionFieldValue.value_or("") +
+                             " " + node.s_Spec.s_PersonFieldName.value_or("") + " " +
+                             node.s_Spec.s_PersonFieldValue.value_or("") + "\"");
         }
     };
 

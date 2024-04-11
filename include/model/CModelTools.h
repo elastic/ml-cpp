@@ -110,18 +110,10 @@ public:
     struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrHash {
         std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& target) const {
             return static_cast<std::size_t>(core::CHashing::hashCombine(
-                static_cast<uint64_t>(s_Hasher(*target.first)),
-                static_cast<uint64_t>(s_Hasher(*target.second))));
+                static_cast<uint64_t>(s_Hasher(target.first)),
+                static_cast<uint64_t>(s_Hasher(target.second))));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
-    };
-
-    //! \brief Compares two string pointer pairs.
-    struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrEqual {
-        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& lhs,
-                               const TStoredStringPtrStoredStringPtrPr& rhs) const {
-            return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
-        }
     };
 
     //! \brief Manages the aggregation of probabilities.
@@ -168,7 +160,7 @@ public:
     };
 
     using TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap =
-        boost::unordered_map<TStoredStringPtrStoredStringPtrPr, CProbabilityAggregator, SStoredStringPtrStoredStringPtrPrHash, SStoredStringPtrStoredStringPtrPrEqual>;
+        boost::unordered_map<TStoredStringPtrStoredStringPtrPr, CProbabilityAggregator, SStoredStringPtrStoredStringPtrPrHash>;
 
     //! Wraps up the calculation of less likely probabilities for a
     //! multinomial distribution.

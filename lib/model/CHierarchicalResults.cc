@@ -34,12 +34,6 @@ namespace {
 using TNodeCPtr = SNode::TNodeCPtr;
 
 const std::string COUNT("count");
-const core::CStoredStringPtr& UNSET_STRING = core::CStoredStringPtr::NULL_STRING;
-
-//! Check if a string reference is unset.
-bool unset(const core::CStoredStringPtr& value) {
-    return value == UNSET_STRING;
-}
 
 //! True if the node is a leaf.
 bool isLeaf(const SNode& node) {
@@ -51,27 +45,15 @@ bool isAggregate(const SNode& node) {
     return node.s_Children.empty() == false;
 }
 
-//! Check if the underlying strings are equal.
-bool equal(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) {
-    return unset(lhs) == unset(rhs) && *lhs == *rhs;
-}
-
-//! Check if both underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
-           const TStoredStringPtrStoredStringPtrPr& rhs) {
-    return unset(lhs.first) == unset(rhs.first) && *lhs.first == *rhs.first &&
-           unset(lhs.second) == unset(rhs.second) && *lhs.second == *rhs.second;
-}
-
 //! Orders nodes by the value of their person field.
 struct SPersonValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
         return maths::common::COrderings::lexicographicalCompare(
-            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
-            *lhs->s_Spec.s_PersonFieldName, *lhs->s_Spec.s_PersonFieldValue,
-            lhs->s_Spec.s_IsPopulation, *rhs->s_Spec.s_PartitionFieldName,
-            *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName,
-            *rhs->s_Spec.s_PersonFieldValue, rhs->s_Spec.s_IsPopulation);
+            lhs->s_Spec.s_PartitionFieldName, lhs->s_Spec.s_PartitionFieldValue,
+            lhs->s_Spec.s_PersonFieldName, lhs->s_Spec.s_PersonFieldValue,
+            lhs->s_Spec.s_IsPopulation, rhs->s_Spec.s_PartitionFieldName,
+            rhs->s_Spec.s_PartitionFieldValue, rhs->s_Spec.s_PersonFieldName,
+            rhs->s_Spec.s_PersonFieldValue, rhs->s_Spec.s_IsPopulation);
     }
 };
 
@@ -79,9 +61,9 @@ struct SPersonValueLess {
 struct SPersonNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
         return maths::common::COrderings::lexicographicalCompare(
-            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
-            *lhs->s_Spec.s_PersonFieldName, *rhs->s_Spec.s_PartitionFieldName,
-            *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName);
+            lhs->s_Spec.s_PartitionFieldName, lhs->s_Spec.s_PartitionFieldValue,
+            lhs->s_Spec.s_PersonFieldName, rhs->s_Spec.s_PartitionFieldName,
+            rhs->s_Spec.s_PartitionFieldValue, rhs->s_Spec.s_PersonFieldName);
     }
 };
 
@@ -89,15 +71,15 @@ struct SPersonNameLess {
 struct SPartitionValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
         return maths::common::COrderings::lexicographicalCompare(
-            *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
-            *rhs->s_Spec.s_PartitionFieldName, *rhs->s_Spec.s_PartitionFieldValue);
+            lhs->s_Spec.s_PartitionFieldName, lhs->s_Spec.s_PartitionFieldValue,
+            rhs->s_Spec.s_PartitionFieldName, rhs->s_Spec.s_PartitionFieldValue);
     }
 };
 
 //! Orders nodes by the name of their partition field.
 struct SPartitionNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return *lhs->s_Spec.s_PartitionFieldName < *rhs->s_Spec.s_PartitionFieldName;
+        return lhs->s_Spec.s_PartitionFieldName < rhs->s_Spec.s_PartitionFieldName;
     }
 };
 
@@ -170,17 +152,17 @@ public:
         } else {
             for (const auto& child : node.s_Children) {
                 for (const auto& influence : child->s_AnnotatedProbability.s_Influences) {
-                    if (equal({node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue},
-                              influence.first) ||
-                        equal({node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue},
-                              influence.first)) {
+                    if ((node.s_Spec.s_PartitionFieldName == influence.first.first &&
+                         node.s_Spec.s_PartitionFieldValue == influence.first.second) ||
+                        (node.s_Spec.s_PersonFieldName == influence.first.first &&
+                         node.s_Spec.s_PersonFieldValue == influence.first.second)) {
                         auto i = std::lower_bound(
                             node.s_AnnotatedProbability.s_Influences.begin(),
                             node.s_AnnotatedProbability.s_Influences.end(),
                             influence.first, maths::common::COrderings::SFirstLess());
                         if (i == node.s_AnnotatedProbability.s_Influences.end()) {
                             node.s_AnnotatedProbability.s_Influences.push_back(influence);
-                        } else if (!equal(i->first, influence.first)) {
+                        } else if (i->first != influence.first) {
                             node.s_AnnotatedProbability.s_Influences.insert(i, influence);
                         }
                     }
@@ -194,18 +176,19 @@ public:
 
 SResultSpec::SResultSpec()
     : s_Detector(0), s_IsSimpleCount(false), s_IsPopulation(false), s_UseNull(false),
-      s_PartitionFieldName(UNSET_STRING), s_PartitionFieldValue(UNSET_STRING),
-      s_PersonFieldName(UNSET_STRING), s_PersonFieldValue(UNSET_STRING),
-      s_ValueFieldName(UNSET_STRING), s_FunctionName(UNSET_STRING),
-      s_ByFieldName(UNSET_STRING), s_Function(function_t::E_IndividualCount) {
+      s_PartitionFieldName(std::nullopt), s_PartitionFieldValue(std::nullopt),
+      s_PersonFieldName(std::nullopt), s_PersonFieldValue(std::nullopt),
+      s_ValueFieldName(std::nullopt), s_FunctionName(std::nullopt),
+      s_ByFieldName(std::nullopt), s_Function(function_t::E_IndividualCount) {
 }
 
 std::string SResultSpec::print() const {
     return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount) +
            '/' + core::CStringUtils::typeToStringPretty(s_IsPopulation) + '/' +
-           *s_FunctionName + '/' + *s_PartitionFieldName + '/' +
-           *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' +
-           *s_PersonFieldValue + '/' + *s_ValueFieldName + '\'';
+           s_FunctionName.value_or("") + '/' + s_PartitionFieldName.value_or("") +
+           '/' + s_PartitionFieldValue.value_or("") + '/' +
+           s_PersonFieldName.value_or("") + '/' + s_PersonFieldValue.value_or("") +
+           '/' + s_ValueFieldName.value_or("") + '\'';
 }
 
 SNode::SNode()
@@ -241,26 +224,26 @@ void SNode::propagateFields() {
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
     for (std::size_t i = 1; i < s_Children.size(); ++i) {
-        if (!unset(s_Spec.s_PartitionFieldName) &&
-            !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
-            s_Spec.s_PartitionFieldName = UNSET_STRING;
-            s_Spec.s_PartitionFieldValue = UNSET_STRING;
-            s_Spec.s_PersonFieldName = UNSET_STRING;
-            s_Spec.s_PersonFieldValue = UNSET_STRING;
+        if (s_Spec.s_PartitionFieldName &&
+            s_Spec.s_PartitionFieldName != s_Children[i]->s_Spec.s_PartitionFieldName) {
+            s_Spec.s_PartitionFieldName = std::nullopt;
+            s_Spec.s_PartitionFieldValue = std::nullopt;
+            s_Spec.s_PersonFieldName = std::nullopt;
+            s_Spec.s_PersonFieldValue = std::nullopt;
         }
-        if (!unset(s_Spec.s_PartitionFieldValue) &&
-            !equal(s_Spec.s_PartitionFieldValue, s_Children[i]->s_Spec.s_PartitionFieldValue)) {
-            s_Spec.s_PartitionFieldValue = UNSET_STRING;
-            s_Spec.s_PersonFieldName = UNSET_STRING;
-            s_Spec.s_PersonFieldValue = UNSET_STRING;
+        if (s_Spec.s_PartitionFieldValue &&
+            s_Spec.s_PartitionFieldValue != s_Children[i]->s_Spec.s_PartitionFieldValue) {
+            s_Spec.s_PartitionFieldValue = std::nullopt;
+            s_Spec.s_PersonFieldName = std::nullopt;
+            s_Spec.s_PersonFieldValue = std::nullopt;
         }
-        if (!unset(s_Spec.s_PersonFieldName) &&
-            !equal(s_Spec.s_PersonFieldName, s_Children[i]->s_Spec.s_PersonFieldName)) {
-            s_Spec.s_PersonFieldName = UNSET_STRING;
+        if (s_Spec.s_PersonFieldName &&
+            s_Spec.s_PersonFieldName != s_Children[i]->s_Spec.s_PersonFieldName) {
+            s_Spec.s_PersonFieldName = std::nullopt;
         }
-        if (!unset(s_Spec.s_PersonFieldValue) &&
-            !equal(s_Spec.s_PersonFieldValue, s_Children[i]->s_Spec.s_PersonFieldValue)) {
-            s_Spec.s_PersonFieldValue = UNSET_STRING;
+        if (s_Spec.s_PersonFieldValue &&
+            s_Spec.s_PersonFieldValue != s_Children[i]->s_Spec.s_PersonFieldValue) {
+            s_Spec.s_PersonFieldValue = std::nullopt;
         }
     }
 }
@@ -353,7 +336,7 @@ void CHierarchicalResults::addModelResult(int detector,
     spec.s_ByFieldName =
         (model != nullptr
              ? core::CStoredStringPtr(model->dataGatherer().searchKey().byFieldName())
-             : UNSET_STRING);
+             : std::nullopt);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
     leaf.s_BucketStartTime = bucketStartTime;
@@ -573,7 +556,7 @@ CHierarchicalResults::newPivot(TStoredStringPtrStoredStringPtrPr key) {
 CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TStoredStringPtr& key) {
     TNode& result = m_PivotRootNodes[key];
     result.s_Spec.s_PersonFieldName = key;
-    result.s_Spec.s_PersonFieldValue = UNSET_STRING;
+    result.s_Spec.s_PersonFieldValue = std::nullopt;
     return result;
 }
 
@@ -594,29 +577,30 @@ bool CHierarchicalResultsVisitor::isLeaf(const TNode& node) {
 }
 
 bool CHierarchicalResultsVisitor::isPartitioned(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
-           unset(node.s_Spec.s_PartitionFieldValue);
+    return node.s_Spec.s_PartitionFieldName &&
+           !node.s_Spec.s_PartitionFieldName->empty() && !node.s_Spec.s_PartitionFieldValue;
 }
 
 bool CHierarchicalResultsVisitor::isPartition(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
-           !unset(node.s_Spec.s_PartitionFieldValue) &&
+    return node.s_Spec.s_PartitionFieldName &&
+           !node.s_Spec.s_PartitionFieldName->empty() && node.s_Spec.s_PartitionFieldValue &&
            (CHierarchicalResultsVisitor::isRoot(node) ||
-            unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
+            !node.s_Parent->s_Spec.s_PartitionFieldValue);
 }
 
 bool CHierarchicalResultsVisitor::isPerson(const TNode& node) {
-    if ((*node.s_Spec.s_PersonFieldName).empty() || isPartitioned(node)) {
+    if (!node.s_Spec.s_PersonFieldName ||
+        node.s_Spec.s_PersonFieldName->empty() || isPartitioned(node)) {
         return false;
     }
     if (!isPopulation(node)) {
-        return unset(node.s_Spec.s_PersonFieldValue) ||
+        return !(node.s_Spec.s_PersonFieldValue) ||
                CHierarchicalResultsVisitor::isRoot(node) ||
-               unset(node.s_Parent->s_Spec.s_PersonFieldName);
+               !(node.s_Parent->s_Spec.s_PersonFieldName);
     }
-    return !unset(node.s_Spec.s_PersonFieldValue) &&
+    return (node.s_Spec.s_PersonFieldValue) &&
            (CHierarchicalResultsVisitor::isRoot(node) ||
-            (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
+            (!(node.s_Parent->s_Spec.s_PersonFieldValue)));
 }
 
 bool CHierarchicalResultsVisitor::isAttribute(const TNode& node) {
@@ -693,7 +677,7 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits& limits,
 
     // This test ensures that if we are going to write an influencer result
     // we will write at least one of the results it influences. As with the
-    // the test above nodes written as a result of this test must either have
+    // test above nodes written as a result of this test must either have
     // a low probability themselves or be in branch of the results tree which
     // contains low probability results.
     for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {

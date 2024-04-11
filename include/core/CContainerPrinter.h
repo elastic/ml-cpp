@@ -29,7 +29,6 @@
 
 namespace ml {
 namespace core {
-class CStoredStringPtr;
 
 namespace printer_detail {
 
@@ -291,7 +290,7 @@ private:
     }
 
     //! Print a CStoredStringPtr.
-    static const std::string& printElement(const CStoredStringPtr& value);
+    static const std::string& printElement(const std::optional<std::string>& value);
 
 public:
     //! Fallback print.

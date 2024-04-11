@@ -130,11 +130,10 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
 }
 
 void CSearchKey::checkRestoredInvariants() const {
-    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, core::CStoredStringPtr::NULL_STRING);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, core::CStoredStringPtr::NULL_STRING);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, core::CStoredStringPtr::NULL_STRING);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==,
-                                     core::CStoredStringPtr::NULL_STRING);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, std::nullopt);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -165,27 +164,19 @@ void CSearchKey::swap(CSearchKey& other) noexcept {
 }
 
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
-    using TStrEqualTo = std::equal_to<std::string>;
-
     return this->hash() == rhs.hash() && m_DetectorIndex == rhs.m_DetectorIndex &&
            m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
            m_ExcludeFrequent == rhs.m_ExcludeFrequent &&
            m_FieldName == rhs.m_FieldName && m_ByFieldName == rhs.m_ByFieldName &&
            m_OverFieldName == rhs.m_OverFieldName &&
            m_PartitionFieldName == rhs.m_PartitionFieldName &&
-           m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
-           // Compare dereferenced strings rather than pointers as there's a
-           // (small) possibility that the string store will not always return
-           // the same pointer for the same string
-           && std::equal(m_InfluenceFieldNames.begin(), m_InfluenceFieldNames.end(),
-                         rhs.m_InfluenceFieldNames.begin(),
-                         core::CFunctional::SDereference<TStrEqualTo>());
+           m_InfluenceFieldNames == rhs.m_InfluenceFieldNames;
 }
 
 bool CSearchKey::operator<(const CSearchKey& rhs) const {
     // We rely on simple count to come before other detectors when we sort
     if (this->isSimpleCount() != rhs.isSimpleCount()) {
-        return this->isSimpleCount() ? true : false;
+        return this->isSimpleCount();
     }
 
     if (this->hash() == rhs.hash()) {

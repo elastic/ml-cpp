@@ -38,8 +38,9 @@ void CHierarchicalResultsPopulator::visit(const CHierarchicalResults& results,
     const CDataGatherer& gatherer = node.s_Model->dataGatherer();
 
     std::size_t pid;
-    if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
-        LOG_ERROR(<< "No identifier for '" << *node.s_Spec.s_PersonFieldValue << "'");
+    if (!gatherer.personId(node.s_Spec.s_PersonFieldValue.value_or(""), pid)) {
+        LOG_ERROR(<< "No identifier for '"
+                  << node.s_Spec.s_PersonFieldValue.value_or("") << "'");
         return;
     }
 

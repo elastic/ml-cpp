@@ -291,14 +291,16 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
     TOptionalUInt64 currentCount = node.s_AnnotatedProbability.s_CurrentBucketCount;
 
     m_ResultWriterFunc(TResults(
-        E_SimpleCountResult, *node.s_Spec.s_PartitionFieldName, *node.s_Spec.s_PartitionFieldValue,
-        *node.s_Spec.s_ByFieldName, *node.s_Spec.s_PersonFieldValue, EMPTY_STRING,
-        m_BucketTime, EMPTY_STRING, EMPTY_STRING, baselineCount, currentCount,
+        E_SimpleCountResult, node.s_Spec.s_PartitionFieldName.value_or(""),
+        node.s_Spec.s_PartitionFieldValue.value_or(""),
+        node.s_Spec.s_ByFieldName.value_or(""),
+        node.s_Spec.s_PersonFieldValue.value_or(""), EMPTY_STRING, m_BucketTime,
+        EMPTY_STRING, EMPTY_STRING, baselineCount, currentCount,
         baselineCount ? TDouble1Vec(1, *baselineCount) : TDouble1Vec(),
         currentCount ? TDouble1Vec(1, static_cast<double>(*currentCount)) : TDouble1Vec(),
         node.s_RawAnomalyScore, node.s_NormalizedAnomalyScore, node.probability(),
         -1.0 * model::CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE,
-        *node.s_Spec.s_ValueFieldName, node.s_AnnotatedProbability.s_Influences,
+        node.s_Spec.s_ValueFieldName.value_or(""), node.s_AnnotatedProbability.s_Influences,
         node.s_Spec.s_UseNull, model::function_t::isMetric(node.s_Spec.s_Function),
         node.s_Spec.s_Detector, node.s_BucketLength, node.s_Spec.s_ScheduledEventDescriptions,
         node.s_AnnotatedProbability.s_AnomalyScoreExplanation));
