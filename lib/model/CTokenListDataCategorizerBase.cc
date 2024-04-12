@@ -421,9 +421,11 @@ CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeForegroundPers
 
 CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeBackgroundPersistFunc() const {
     // Do NOT change this to capture the member variables by
-    // reference - they MUST be copied for thread safety
+    // reference - they MUST be copied for thread safety.
+    // However, the "this" pointer must be captured to allow the usage of
+    // CTokenListDataCategorizerBase::acceptPersistInserter without a warning
     return [
-        tokenIdLookup = m_TokenIdLookup, categories = m_Categories,
+        this, tokenIdLookup = m_TokenIdLookup, categories = m_Categories,
         memoryCategorizationFailures = m_MemoryCategorizationFailures
     ](core::CStatePersistInserter & inserter) {
         return CTokenListDataCategorizerBase::acceptPersistInserter(
