@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_common_COrderings_h
 
 #include <core/CNonInstantiatable.h>
-#include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/ImportExport.h>
@@ -159,11 +158,6 @@ public:
             return SDerefLess::less(lhs, rhs);
         }
 
-        inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) const {
-            return SDerefLess::less(lhs, rhs);
-        }
-
         template<typename T>
         inline bool operator()(const std::shared_ptr<T>& lhs,
                                const std::shared_ptr<T>& rhs) const {
@@ -197,11 +191,6 @@ public:
 
         template<typename T>
         inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
-            return SDerefGreater::greater(lhs, rhs);
-        }
-
-        inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) const {
             return SDerefGreater::greater(lhs, rhs);
         }
 

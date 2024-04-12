@@ -13,7 +13,6 @@
 
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 
@@ -44,11 +43,11 @@ SAttributeProbability::SAttributeProbability()
 }
 
 SAttributeProbability::SAttributeProbability(std::size_t cid,
-                                             const core::CStoredStringPtr& attribute,
+                                             const TOptionalStr& attribute,
                                              double probability,
                                              model_t::CResultType type,
                                              model_t::EFeature feature,
-                                             const TStoredStringPtr1Vec& correlatedAttributes,
+                                             const TOptionalStr1Vec& correlatedAttributes,
                                              const TSizeDoublePr1Vec& correlated)
     : s_Cid(cid), s_Attribute(attribute), s_Probability(probability),
       s_Type(type), s_Feature(feature),
@@ -80,7 +79,7 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
     do {
         const std::string& name = traverser.name();
         if (name == ATTRIBUTE_TAG) {
-            s_Attribute = core::CStoredStringPtr(traverser.value());
+            s_Attribute = traverser.value();
         } else if (name == ANOMALY_TYPE_TAG) {
             unsigned int type;
             if (!core::CStringUtils::stringToType(traverser.value(), type)) {
@@ -176,8 +175,8 @@ bool SAnnotatedProbability::isInterim() const {
 bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        core::CStoredStringPtr influencerName;
-        core::CStoredStringPtr influencerValue;
+        TOptionalStr influencerName;
+        TOptionalStr influencerValue;
         double d{0.0};
 
         if (name == PROBABILITY_TAG) {
@@ -201,9 +200,9 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
         } else if (name == INFLUENCE_NAME_TAG) {
-            influencerName = core::CStoredStringPtr(traverser.value());
+            influencerName = traverser.value();
         } else if (name == INFLUENCE_VALUE_TAG) {
-            influencerValue = core::CStoredStringPtr(traverser.value());
+            influencerValue = traverser.value();
         } else if (name == INFLUENCE_TAG) {
             if (!core::CStringUtils::stringToType(traverser.value(), d)) {
                 LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
@@ -211,7 +210,7 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
             s_Influences.emplace_back(
-                TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue), d);
+                TOptionalStrOptionalStrPr(influencerName, influencerValue), d);
         } else if (name == CURRENT_BUCKET_COUNT_TAG) {
             std::uint64_t i{0};
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_COUNT_TAG, i, traverser)) {

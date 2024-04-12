@@ -10,7 +10,6 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CStoredStringPtr.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CHierarchicalResults.h>
@@ -64,10 +63,10 @@ auto makeRoot() {
 }
 
 auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              const ml::core::CStoredStringPtr& partitionName,
-              const ml::core::CStoredStringPtr& partitionValue,
-              const ml::core::CStoredStringPtr& personName,
-              const ml::core::CStoredStringPtr& personValue) {
+              const std::string& partitionName,
+              const std::string& partitionValue,
+              const std::string& personName,
+              const std::string& personValue) {
     ml::model::hierarchical_results_detail::SResultSpec spec;
     spec.s_PartitionFieldName = partitionName;
     spec.s_PartitionFieldValue = partitionValue;
@@ -81,10 +80,9 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
 }
 
 auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
-              const ml::core::CStoredStringPtr& partitionName,
-              const ml::core::CStoredStringPtr& partitionValue) {
-    return makeNode(parent, partitionName, partitionValue,
-                    ml::core::CStoredStringPtr(""), ml::core::CStoredStringPtr(""));
+              const std::string& partitionName,
+              const std::string& partitionValue) {
+    return makeNode(parent, partitionName, partitionValue, "", "");
 }
 }
 
@@ -92,12 +90,12 @@ BOOST_AUTO_TEST_CASE(testElements) {
 
     using TNodePtr = std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>;
 
-    ml::core::CStoredStringPtr pa("PA");
-    ml::core::CStoredStringPtr pb("PB");
-    ml::core::CStoredStringPtr pa1("pa1");
-    ml::core::CStoredStringPtr pa2("pa2");
-    ml::core::CStoredStringPtr pb1("pb1");
-    ml::core::CStoredStringPtr pb2("pb2");
+    std::string pa("PA");
+    std::string pb("PB");
+    std::string pa1("pa1");
+    std::string pa2("pa2");
+    std::string pb1("pb1");
+    std::string pb2("pb2");
 
     CConcreteHierarchicalResultsLevelSet::TNode root{makeRoot()};
     TNodePtr partitions[]{makeNode(root, pa, pa1), makeNode(root, pa, pa2)};

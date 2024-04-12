@@ -12,7 +12,6 @@
 #include <model/CHierarchicalResults.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 
 #include <maths/common/COrderings.h>
@@ -291,12 +290,12 @@ void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability& annotated
     TResultSpec search;
     search.s_IsSimpleCount = true;
     search.s_IsPopulation = false;
-    search.s_FunctionName = core::CStoredStringPtr(COUNT);
+    search.s_FunctionName = COUNT;
     search.s_Function = function_t::E_IndividualCount;
-    search.s_PersonFieldName = core::CStoredStringPtr(COUNT);
-    search.s_PersonFieldValue = core::CStoredStringPtr(COUNT);
+    search.s_PersonFieldName = COUNT;
+    search.s_PersonFieldValue = COUNT;
     search.s_UseNull = (model ? model->dataGatherer().useNull() : false);
-    search.s_ByFieldName = core::CStoredStringPtr(COUNT);
+    search.s_ByFieldName = COUNT;
     if (model) {
         search.s_ScheduledEventDescriptions = model->scheduledEventDescriptions(bucketStartTime);
     }
@@ -324,19 +323,17 @@ void CHierarchicalResults::addModelResult(int detector,
     TResultSpec spec;
     spec.s_Detector = detector;
     spec.s_IsSimpleCount = false;
-    spec.s_FunctionName = core::CStoredStringPtr(functionName);
+    spec.s_FunctionName = functionName;
     spec.s_Function = function;
     spec.s_IsPopulation = isPopulation;
     spec.s_UseNull = (model != nullptr ? model->dataGatherer().useNull() : false);
-    spec.s_PartitionFieldName = core::CStoredStringPtr(partitionFieldName);
-    spec.s_PartitionFieldValue = core::CStoredStringPtr(partitionFieldValue);
-    spec.s_PersonFieldName = core::CStoredStringPtr(personFieldName);
-    spec.s_PersonFieldValue = core::CStoredStringPtr(personFieldValue);
-    spec.s_ValueFieldName = core::CStoredStringPtr(valueFieldName);
+    spec.s_PartitionFieldName = partitionFieldName;
+    spec.s_PartitionFieldValue = partitionFieldValue;
+    spec.s_PersonFieldName = personFieldName;
+    spec.s_PersonFieldValue = personFieldValue;
+    spec.s_ValueFieldName = valueFieldName;
     spec.s_ByFieldName =
-        (model != nullptr
-             ? core::CStoredStringPtr(model->dataGatherer().searchKey().byFieldName())
-             : std::nullopt);
+        (model ? TOptionalStr(model->dataGatherer().searchKey().byFieldName()) : std::nullopt);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
     leaf.s_BucketStartTime = bucketStartTime;
@@ -344,7 +341,7 @@ void CHierarchicalResults::addModelResult(int detector,
 }
 
 void CHierarchicalResults::addInfluencer(const std::string& name) {
-    this->newPivotRoot(core::CStoredStringPtr(name));
+    this->newPivotRoot(name);
 }
 
 void CHierarchicalResults::buildHierarchy() {
@@ -461,8 +458,8 @@ const CHierarchicalResults::TNode* CHierarchicalResults::root() const {
 }
 
 const CHierarchicalResults::TNode*
-CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
-                                 const TStoredStringPtr& influencerValue) const {
+CHierarchicalResults::influencer(const TOptionalStr& influencerName,
+                                 const TOptionalStr& influencerValue) const {
     auto i = m_PivotNodes.find({influencerName, influencerValue});
     return i != m_PivotNodes.end() ? &i->second : nullptr;
 }
@@ -545,15 +542,14 @@ CHierarchicalResults::newLeaf(const TResultSpec& simpleSearch,
     return m_Nodes.back();
 }
 
-CHierarchicalResults::TNode&
-CHierarchicalResults::newPivot(TStoredStringPtrStoredStringPtrPr key) {
+CHierarchicalResults::TNode& CHierarchicalResults::newPivot(TOptionalStrOptionalStrPr key) {
     TNode& result = m_PivotNodes[key];
     result.s_Spec.s_PersonFieldName = key.first;
     result.s_Spec.s_PersonFieldValue = key.second;
     return result;
 }
 
-CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TStoredStringPtr& key) {
+CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TOptionalStr& key) {
     TNode& result = m_PivotRootNodes[key];
     result.s_Spec.s_PersonFieldName = key;
     result.s_Spec.s_PersonFieldValue = std::nullopt;

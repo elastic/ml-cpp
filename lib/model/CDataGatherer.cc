@@ -16,7 +16,6 @@
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -255,7 +254,7 @@ const std::string& CDataGatherer::partitionFieldName() const {
 }
 
 const std::string& CDataGatherer::partitionFieldValue() const {
-    return m_PartitionFieldValue ? *m_PartitionFieldValue : EMPTY_STRING;
+    return m_PartitionFieldValue;
 }
 
 const CSearchKey& CDataGatherer::searchKey() const {
@@ -364,10 +363,6 @@ const std::string& CDataGatherer::personName(std::size_t pid) const {
     return this->personName(pid, DEFAULT_PERSON_NAME);
 }
 
-const core::CStoredStringPtr& CDataGatherer::personNamePtr(std::size_t pid) const {
-    return m_PeopleRegistry.namePtr(pid);
-}
-
 const std::string& CDataGatherer::personName(std::size_t pid, const std::string& fallback) const {
     return m_PeopleRegistry.name(pid, fallback);
 }
@@ -440,10 +435,6 @@ const std::string& CDataGatherer::attributeName(std::size_t cid) const {
 const std::string& CDataGatherer::attributeName(std::size_t cid,
                                                 const std::string& fallback) const {
     return m_AttributesRegistry.name(cid, fallback);
-}
-
-const core::CStoredStringPtr& CDataGatherer::attributeNamePtr(std::size_t cid) const {
-    return m_AttributesRegistry.namePtr(cid);
 }
 
 void CDataGatherer::recycleAttributes(const TSizeVec& attributesToRemove) {
@@ -548,7 +539,7 @@ const CDataGatherer::TSizeSizePrUInt64UMap& CDataGatherer::bucketCounts(core_t::
     return m_BucketGatherer->bucketCounts(time);
 }
 
-const CDataGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec&
+const CDataGatherer::TSizeSizePrOptionalStrPrUInt64UMapVec&
 CDataGatherer::influencerCounts(core_t::TTime time) const {
     return m_BucketGatherer->influencerCounts(time);
 }

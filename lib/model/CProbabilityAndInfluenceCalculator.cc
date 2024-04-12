@@ -12,7 +12,6 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <core/CLogger.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CModel.h>
@@ -42,12 +41,12 @@ using TStrCRefDouble1VecDouble1VecPrPr =
     CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr;
 using TStrCRefDouble1VecDouble1VecPrPrVec =
     CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec;
-using TStoredStringPtrStoredStringPtrPr =
-    CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStr = std::optional<std::string>;
+using TOptionalStrOptionalStrPr = CProbabilityAndInfluenceCalculator::TOptionalStrOptionalStrPr;
+using TOptionalStrOptionalStrPrDoublePr =
+    CProbabilityAndInfluenceCalculator::TOptionalStrOptionalStrPrDoublePr;
+using TOptionalStrOptionalStrPrDoublePrVec =
+    CProbabilityAndInfluenceCalculator::TOptionalStrOptionalStrPrDoublePrVec;
 using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 using TProbabilityCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
@@ -330,9 +329,9 @@ public:
 //! of the records in \p value with distinct values of \p influenceName.
 //! \param[out] result Filled in with the influences of \p value.
 template<typename INFLUENCER_VALUES>
-void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
+void doComputeIndicatorInfluences(const TOptionalStr& influencerName,
                                   const INFLUENCER_VALUES& influencerValues,
-                                  TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+                                  TOptionalStrOptionalStrPrDoublePrVec& result) {
     result.reserve(influencerValues.size());
     for (const auto& influencerValue : influencerValues) {
         result.emplace_back(std::make_pair(influencerName, influencerValue.first), 1.0);
@@ -370,11 +369,11 @@ void doComputeInfluences(model_t::EFeature feature,
                          const TTime2Vec1Vec& time,
                          const TDouble2Vec& value,
                          double count,
-                         const core::CStoredStringPtr& influencerName,
+                         const TOptionalStr& influencerName,
                          const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
                          double cutoff,
                          bool includeCutoff,
-                         TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+                         TOptionalStrOptionalStrPrDoublePrVec& result) {
     auto description = [&influencerName](const std::string& v) {
         return std::make_pair(influencerName, v);
     };
@@ -474,11 +473,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
                                   const TTime2Vec& time,
                                   const TDouble2Vec& value,
                                   const TDouble2Vec& count,
-                                  const core::CStoredStringPtr& influencerName,
+                                  const TOptionalStr& influencerName,
                                   const TStrCRefDouble1VecDouble1VecPrPrVec& influencerValues,
                                   double cutoff,
                                   bool includeCutoff,
-                                  TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+                                  TOptionalStrOptionalStrPrDoublePrVec& result) {
     auto description = [&influencerName](const std::string& v) {
         return std::make_pair(influencerName, v);
     };
@@ -630,7 +629,7 @@ void CProbabilityAndInfluenceCalculator::add(const CProbabilityAndInfluenceCalcu
     }
 }
 
-bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CStoredStringPtr& attribute,
+bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const TOptionalStr& attribute,
                                                                  std::size_t cid,
                                                                  SParams& params,
                                                                  CAnnotatedProbabilityBuilder& builder,
@@ -641,7 +640,7 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CSt
                              params.s_ElapsedTime, params.s_ComputeProbabilityParams,
                              params.s_Time, params.s_Value, params.s_Probability,
                              params.s_Tail, type, mostAnomalousCorrelate, weight)) {
-        static const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
+        static const TOptionalStr1Vec NO_CORRELATED_ATTRIBUTES;
         static const TSizeDoublePr1Vec NO_CORRELATES;
         builder.addAttributeProbability(cid, attribute, params.s_Probability,
                                         model_t::CResultType::E_Unconditional,
@@ -652,19 +651,18 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CSt
     return false;
 }
 
-bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
-    const core::CStoredStringPtr& attribute,
-    std::size_t cid,
-    SCorrelateParams& params,
-    CAnnotatedProbabilityBuilder& builder,
-    double weight) {
+bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const TOptionalStr& attribute,
+                                                                 std::size_t cid,
+                                                                 SCorrelateParams& params,
+                                                                 CAnnotatedProbabilityBuilder& builder,
+                                                                 double weight) {
     model_t::CResultType type;
     params.s_MostAnomalousCorrelate.clear();
     if (this->addProbability(params.s_Feature, cid, *params.s_Model, params.s_ElapsedTime,
                              params.s_ComputeProbabilityParams, params.s_Times,
                              params.s_Values, params.s_Probability, params.s_Tail,
                              type, params.s_MostAnomalousCorrelate, weight)) {
-        TStoredStringPtr1Vec correlatedLabels_;
+        TOptionalStr1Vec correlatedLabels_;
         TSizeDoublePr1Vec correlated_;
         if (!params.s_MostAnomalousCorrelate.empty()) {
             std::size_t i = params.s_MostAnomalousCorrelate[0];
@@ -785,7 +783,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     double logp = std::log(std::max(params.s_Probability,
                                     maths::common::CTools::smallestProbability()));
 
-    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
+    params.s_InfluencerName = influencerName;
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5 / std::max(-logp, 1.0);
     params.s_IncludeCutoff = true;
@@ -824,7 +822,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     double logp = std::log(std::max(params.s_Probability,
                                     maths::common::CTools::smallestProbability()));
 
-    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
+    params.s_InfluencerName = influencerName;
     params.s_InfluencerValues = influencerValues[params.s_MostAnomalousCorrelate[0]];
     params.s_Cutoff = 0.5 / std::max(-logp, 1.0);
     params.s_IncludeCutoff = true;
@@ -887,9 +885,8 @@ bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& mult
     return true;
 }
 
-bool CProbabilityAndInfluenceCalculator::calculate(
-    double& probability,
-    TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const {
+bool CProbabilityAndInfluenceCalculator::calculate(double& probability,
+                                                   TOptionalStrOptionalStrPrDoublePrVec& influences) const {
     if (!m_Probability.calculate(probability)) {
         return false;
     }

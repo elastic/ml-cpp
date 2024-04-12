@@ -14,7 +14,6 @@
 
 #include <core/CNonCopyable.h>
 #include <core/CSmallVector.h>
-#include <core/CStoredStringPtr.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
@@ -47,13 +46,11 @@ public:
     using TOptionalUInt64 = std::optional<std::uint64_t>;
 
     // Influencers
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPr =
-        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr =
-        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
+    using TOptionalStrOptionalStrPr = std::pair<TOptionalStr, TOptionalStr>;
+    using TOptionalStrOptionalStrPrDoublePr = std::pair<TOptionalStrOptionalStrPr, double>;
+    using TOptionalStrOptionalStrPrDoublePrVec = std::vector<TOptionalStrOptionalStrPrDoublePr>;
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
@@ -82,7 +79,7 @@ public:
                  double probability,
                  const TOptionalUInt64& currentRate,
                  const std::string& metricValueField,
-                 const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
+                 const TOptionalStrOptionalStrPrDoublePrVec& influences,
                  bool useNull,
                  bool metric,
                  int identifier,
@@ -107,7 +104,7 @@ public:
                  double probability,
                  double multiBucketImpact,
                  const std::string& metricValueField,
-                 const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
+                 const TOptionalStrOptionalStrPrDoublePrVec& influences,
                  bool useNull,
                  bool metric,
                  int identifier,
@@ -142,7 +139,7 @@ public:
         double s_NormalizedAnomalyScore;
         double s_Probability;
         double s_MultiBucketImpact;
-        const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
+        const TOptionalStrOptionalStrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
         TAnomalyScoreExplanation s_AnomalyScoreExplanation;

@@ -13,7 +13,6 @@
 #define INCLUDED_ml_model_CSearchKey_h
 
 #include <core/CHashing.h>
-#include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
 #include <model/FunctionTypes.h>
@@ -72,7 +71,8 @@ namespace model {
 class MODEL_EXPORT CSearchKey {
 public:
     using TStrVec = std::vector<std::string>;
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
 
     //! The type of a search key which mixes in the partition field
     //! value.
@@ -194,7 +194,7 @@ public:
     const std::string& partitionFieldName() const;
 
     //! Get the influence field names.
-    const TStoredStringPtrVec& influenceFieldNames() const;
+    const TOptionalStrVec& influenceFieldNames() const;
 
     //! Get a hash of the contents of this key.
     uint64_t hash() const;
@@ -204,11 +204,11 @@ private:
     function_t::EFunction m_Function;
     bool m_UseNull;
     model_t::EExcludeFrequent m_ExcludeFrequent;
-    core::CStoredStringPtr m_FieldName;
-    core::CStoredStringPtr m_ByFieldName;
-    core::CStoredStringPtr m_OverFieldName;
-    core::CStoredStringPtr m_PartitionFieldName;
-    TStoredStringPtrVec m_InfluenceFieldNames;
+    TOptionalStr m_FieldName;
+    TOptionalStr m_ByFieldName;
+    TOptionalStr m_OverFieldName;
+    TOptionalStr m_PartitionFieldName;
+    TOptionalStrVec m_InfluenceFieldNames;
 
     //! Used for efficient comparison.
     mutable uint64_t m_Hash;

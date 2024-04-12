@@ -17,7 +17,6 @@
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -112,13 +111,13 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
             }
             m_ExcludeFrequent = static_cast<model_t::EExcludeFrequent>(excludeFrequent);
         } else if (name == FIELD_NAME_TAG) {
-            m_FieldName = core::CStoredStringPtr(traverser.value());
+            m_FieldName = traverser.value();
         } else if (name == BY_FIELD_NAME_TAG) {
-            m_ByFieldName = core::CStoredStringPtr(traverser.value());
+            m_ByFieldName = traverser.value();
         } else if (name == OVER_FIELD_NAME_TAG) {
-            m_OverFieldName = core::CStoredStringPtr(traverser.value());
+            m_OverFieldName = traverser.value();
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            m_PartitionFieldName = core::CStoredStringPtr(traverser.value());
+            m_PartitionFieldName = traverser.value();
         } else if (name == INFLUENCE_FIELD_NAME_TAG) {
             m_InfluenceFieldNames.emplace_back(traverser.value());
         }
@@ -334,7 +333,7 @@ const std::string& CSearchKey::partitionFieldName() const {
     return *m_PartitionFieldName;
 }
 
-const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames() const {
+const CSearchKey::TOptionalStrVec& CSearchKey::influenceFieldNames() const {
     return m_InfluenceFieldNames;
 }
 

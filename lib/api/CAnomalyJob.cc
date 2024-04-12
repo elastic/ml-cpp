@@ -22,7 +22,6 @@
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 #include <core/UnwrapRef.h>

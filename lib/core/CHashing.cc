@@ -14,7 +14,6 @@
 #include <core/CFastMutex.h>
 #include <core/CLogger.h>
 #include <core/CScopedFastLock.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 
 #include <boost/config.hpp>

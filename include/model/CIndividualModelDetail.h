@@ -12,8 +12,6 @@
 #ifndef INCLUDED_ml_model_CIndividualModelDetail_h
 #define INCLUDED_ml_model_CIndividualModelDetail_h
 
-#include <core/CStoredStringPtr.h>
-
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModel.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -102,8 +100,7 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
                                                    const INFLUENCES& influences,
                                                    CProbabilityAndInfluenceCalculator& pJoint,
                                                    CAnnotatedProbabilityBuilder& builder) const {
-    if (!pJoint.addAttributeProbability(core::CStoredStringPtr(EMPTY_STRING),
-                                        model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+    if (!pJoint.addAttributeProbability(EMPTY_STRING, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                                         params, builder)) {
         LOG_ERROR(<< "Failed to compute P(" << params.describe()
                   << ", person = " << this->personName(pid) << ")");

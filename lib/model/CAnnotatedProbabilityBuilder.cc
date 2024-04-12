@@ -70,14 +70,13 @@ void CAnnotatedProbabilityBuilder::multiBucketImpact(double multiBucketImpact) {
     m_Result.s_MultiBucketImpact = multiBucketImpact;
 }
 
-void CAnnotatedProbabilityBuilder::addAttributeProbability(
-    std::size_t cid,
-    const core::CStoredStringPtr& attribute,
-    double pGivenAttribute_,
-    model_t::CResultType type,
-    model_t::EFeature feature,
-    const TStoredStringPtr1Vec& correlatedAttributes,
-    const TSizeDoublePr1Vec& correlated) {
+void CAnnotatedProbabilityBuilder::addAttributeProbability(std::size_t cid,
+                                                           const TOptionalStr& attribute,
+                                                           double pGivenAttribute_,
+                                                           model_t::CResultType type,
+                                                           model_t::EFeature feature,
+                                                           const TOptionalStr1Vec& correlatedAttributes,
+                                                           const TSizeDoublePr1Vec& correlated) {
     type.set(m_Result.s_ResultType.asInterimOrFinal());
     SAttributeProbability pGivenAttribute(cid, attribute, pGivenAttribute_, type,
                                           feature, correlatedAttributes, correlated);

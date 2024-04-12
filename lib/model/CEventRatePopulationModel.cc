@@ -609,7 +609,8 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
 
     LOG_TRACE(<< "computeProbability(" << gatherer.personName(pid) << ")");
 
-    using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStr1Vec = core::CSmallVector<TOptionalStr, 1>;
     using TSizeProbabilityAndInfluenceUMap =
         boost::unordered_map<std::size_t, CProbabilityAndInfluenceCalculator>;
     using TDoubleFeaturePr = std::pair<double, model_t::EFeature>;
@@ -618,7 +619,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     using TSizeDoubleFeaturePrMinAccumulatorUMap =
         boost::unordered_map<std::size_t, TDoubleFeaturePrMinAccumulator>;
 
-    static const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
+    static const TOptionalStr1Vec NO_CORRELATED_ATTRIBUTES;
     static const TSizeDoublePr1Vec NO_CORRELATES;
 
     partitioningFields.add(gatherer.attributeFieldName(), EMPTY_STRING);
@@ -759,7 +760,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
             double p;
             pPersonAndAttribute.calculate(p);
             resultBuilder.addAttributeProbability(
-                cid, gatherer.attributeNamePtr(cid), p, model_t::CResultType::E_Unconditional,
+                cid, gatherer.attributeName(cid), p, model_t::CResultType::E_Unconditional,
                 (feature->second)[0].second, NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
         }
     }

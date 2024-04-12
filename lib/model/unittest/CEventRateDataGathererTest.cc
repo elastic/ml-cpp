@@ -14,7 +14,6 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 
@@ -55,9 +54,8 @@ using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
 using TFeatureSizeSizePrFeatureDataPrVecPr =
     std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
 using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
-using TSizeSizePrStoredStringPtrPr = CBucketGatherer::TSizeSizePrStoredStringPtrPr;
-using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
-    CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+using TSizeSizePrOptionalStrPr = CBucketGatherer::TSizeSizePrOptionalStrPr;
+using TSizeSizePrOptionalStrPrUInt64UMapVec = CBucketGatherer::TSizeSizePrOptionalStrPrUInt64UMapVec;
 using TTimeVec = std::vector<core_t::TTime>;
 using TStrCPtrVec = CBucketGatherer::TStrCPtrVec;
 
@@ -1512,14 +1510,15 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerBucketStatistics, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
 
     // Test the SUniqueStringFeatureData struct
     {
         // Check adding values with no influences gives the correct count
         // for distinct_count
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
+        TOptionalStrVec influencers;
 
         {
             SEventRateFeatureData featureData(0);
@@ -1554,8 +1553,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         // Check we can add influencers now - just 1
         // First with a non-present value
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
-        influencers.push_back(core::CStoredStringPtr());
+        TOptionalStrVec influencers;
+        influencers.emplace_back();
 
         data.insert("str1", influencers);
         {
@@ -1564,7 +1563,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("1, [[]]"), featureData.print());
         }
 
-        influencers.back() = core::CStoredStringPtr("inf1");
+        influencers.back() = "inf1";
         data.insert("str1", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1577,10 +1576,10 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         data.insert("str2", influencers);
         data.insert("str2", influencers);
         data.insert("str2", influencers);
-        influencers.back() = core::CStoredStringPtr("inf2");
+        influencers.back() = "inf2";
         data.insert("str1", influencers);
         data.insert("str3", influencers);
-        influencers.back() = core::CStoredStringPtr("inf3");
+        influencers.back() = "inf3";
         data.insert("str3", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1598,9 +1597,9 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
     {
         // Check we can add more than one influencer
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
-        influencers.push_back(core::CStoredStringPtr());
-        influencers.push_back(core::CStoredStringPtr());
+        TOptionalStrVec influencers;
+        influencers.emplace_back();
+        influencers.emplace_back();
 
         data.insert("str1", influencers);
         data.insert("str2", influencers);
@@ -1611,7 +1610,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("2, [[], []]"), featureData.print());
         }
 
-        influencers[0] = core::CStoredStringPtr("inf1");
+        influencers[0] = "inf1";
         data.insert("str1", influencers);
         data.insert("str2", influencers);
         {
@@ -1620,11 +1619,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"),
                                 featureData.print());
         }
-        influencers[1] = core::CStoredStringPtr("inf_v2");
+        influencers[1] = "inf_v2";
 
         data.insert("str2", influencers);
-        influencers[0] = core::CStoredStringPtr("inf2");
-        influencers[1] = core::CStoredStringPtr("inf_v3");
+        influencers[0] = "inf2";
+        influencers[1] = "inf_v3";
         data.insert("str3", influencers);
         data.insert("str1", influencers);
         data.insert("str3", influencers);
@@ -1644,7 +1643,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         // Now test info_content - compressed strings
         // Check adding values with no influences gives the correct count
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
+        TOptionalStrVec influencers;
 
         {
             SEventRateFeatureData featureData(0);
@@ -1683,8 +1682,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         // Check we can add influencers now - just 1
         // First with a non-present value
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
-        influencers.push_back(core::CStoredStringPtr());
+        TOptionalStrVec influencers;
+        influencers.emplace_back();
 
         data.insert("str1", influencers);
         {
@@ -1693,7 +1692,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("12, [[]]"), featureData.print());
         }
 
-        influencers.back() = core::CStoredStringPtr("inf1");
+        influencers.back() = "inf1";
         data.insert("str1", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1706,10 +1705,10 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
         data.insert("str2", influencers);
         data.insert("str2", influencers);
         data.insert("str2", influencers);
-        influencers.back() = core::CStoredStringPtr("inf2");
+        influencers.back() = "inf2";
         data.insert("str1", influencers);
         data.insert("str3", influencers);
-        influencers.back() = core::CStoredStringPtr("inf3");
+        influencers.back() = "inf3";
         data.insert("str3", influencers);
         {
             SEventRateFeatureData featureData(0);
@@ -1726,9 +1725,9 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
     {
         // Check we can add more than one influencer
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec influencers;
-        influencers.push_back(core::CStoredStringPtr());
-        influencers.push_back(core::CStoredStringPtr());
+        TOptionalStrVec influencers;
+        influencers.emplace_back();
+        influencers.emplace_back();
 
         data.insert("str1", influencers);
         data.insert("str2", influencers);
@@ -1739,7 +1738,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("16, [[], []]"), featureData.print());
         }
 
-        influencers[0] = core::CStoredStringPtr("inf1");
+        influencers[0] = "inf1";
         data.insert("str1", influencers);
         data.insert("str2", influencers);
         {
@@ -1748,11 +1747,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             BOOST_REQUIRE_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"),
                                 featureData.print());
         }
-        influencers[1] = core::CStoredStringPtr("inf_v2");
+        influencers[1] = "inf_v2";
 
         data.insert("str2", influencers);
-        influencers[0] = core::CStoredStringPtr("inf2");
-        influencers[1] = core::CStoredStringPtr("inf_v3");
+        influencers[0] = "inf2";
+        influencers[1] = "inf_v3";
         data.insert("str3", influencers);
         data.insert("str1", influencers);
         data.insert("str3", influencers);

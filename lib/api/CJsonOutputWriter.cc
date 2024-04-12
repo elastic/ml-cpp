@@ -688,7 +688,7 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     }
 }
 
-void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
+void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec& influenceResults,
                                       TDocumentWeakPtr weakDoc) {
     if (influenceResults.empty()) {
         return;

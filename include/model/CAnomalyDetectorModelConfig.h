@@ -324,8 +324,7 @@ public:
             const std::string& personFieldName = std::string(),
             const std::string& attributeFieldName = std::string(),
             const std::string& valueFieldName = std::string(),
-            const CSearchKey::TStoredStringPtrVec& influenceFieldNames =
-                CSearchKey::TStoredStringPtrVec()) const;
+            const CSearchKey::TOptionalStrVec& influenceFieldNames = CSearchKey::TOptionalStrVec()) const;
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);

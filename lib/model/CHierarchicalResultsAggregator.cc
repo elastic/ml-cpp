@@ -36,12 +36,10 @@ namespace ml {
 namespace model {
 namespace {
 
-using TStoredStringPtr = CHierarchicalResults::TStoredStringPtr;
-using TStoredStringPtrStoredStringPtrPr = CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStr = CHierarchicalResults::TOptionalStr;
+using TOptionalStrOptionalStrPr = CHierarchicalResults::TOptionalStrOptionalStrPr;
+using TOptionalStrOptionalStrPrDoublePr = CHierarchicalResults::TOptionalStrOptionalStrPrDoublePr;
+using TOptionalStrOptionalStrPrDoublePrVec = CHierarchicalResults::TOptionalStrOptionalStrPrDoublePrVec;
 
 //! \brief Creates new detector equalizers.
 class CDetectorEqualizerFactory {
@@ -52,12 +50,12 @@ public:
 };
 
 //! Compute the probability of \p influence.
-bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
-                          const TStoredStringPtr& influencerName,
-                          const TStoredStringPtr& influencerValue,
+bool influenceProbability(const TOptionalStrOptionalStrPrDoublePrVec& influences,
+                          const TOptionalStr& influencerName,
+                          const TOptionalStr& influencerValue,
                           double p,
                           double& result) {
-    TStoredStringPtrStoredStringPtrPr influence(influencerName, influencerValue);
+    TOptionalStrOptionalStrPr influence(influencerName, influencerValue);
 
     std::size_t k{static_cast<std::size_t>(
         std::lower_bound(influences.begin(), influences.end(), influence,

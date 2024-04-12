@@ -14,7 +14,6 @@
 #include <core/CLogger.h>
 #include <core/CMemoryDef.h>
 #include <core/CPersistUtils.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/COrderings.h>
@@ -56,11 +55,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
 
 const std::string& CDynamicStringIdRegistry::name(std::size_t id,
                                                   const std::string& fallback) const {
-    return id >= m_Names.size() ? fallback : *m_Names[id];
-}
-
-const core::CStoredStringPtr& CDynamicStringIdRegistry::namePtr(std::size_t id) const {
-    return m_Names[id];
+    return id >= m_Names.size() ? fallback : m_Names[id];
 }
 
 bool CDynamicStringIdRegistry::id(const std::string& name, std::size_t& result) const {
@@ -129,7 +124,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
         ++core::CProgramCounters::counter(m_AddedCounter);
     } else if (id == newId) {
         LOG_TRACE(<< "Recycling " << id << " for " << m_NameType << " " << name);
-        m_Names[id] = core::CStoredStringPtr(name);
+        m_Names[id] = name;
         if (m_FreeUids.empty()) {
             LOG_ERROR(<< "Unexpectedly missing free " << m_NameType << " entry for " << id);
         } else {
@@ -149,7 +144,7 @@ void CDynamicStringIdRegistry::removeNames(std::size_t lowestNameToRemove) {
     }
 
     for (std::size_t id = lowestNameToRemove; id < numberNames; ++id) {
-        m_Uids.erase(m_Dictionary.word(*m_Names[id]));
+        m_Uids.erase(m_Dictionary.word(m_Names[id]));
     }
     m_Names.erase(m_Names.begin() + lowestNameToRemove, m_Names.end());
 }
@@ -163,10 +158,10 @@ void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove,
             continue;
         }
         m_FreeUids.push_back(id);
-        m_Uids.erase(m_Dictionary.word(*m_Names[id]));
-        m_Names[id] = core::CStoredStringPtr(defaultName);
+        m_Uids.erase(m_Dictionary.word(m_Names[id]));
+        m_Names[id] = defaultName;
     }
-    std::sort(m_FreeUids.begin(), m_FreeUids.end(), std::greater<std::size_t>());
+    std::sort(m_FreeUids.begin(), m_FreeUids.end(), std::greater<>());
     m_FreeUids.erase(std::unique(m_FreeUids.begin(), m_FreeUids.end()),
                      m_FreeUids.end());
 }
@@ -216,7 +211,7 @@ std::uint64_t CDynamicStringIdRegistry::checksum() const {
     people.reserve(m_Names.size());
     for (std::size_t pid = 0; pid < m_Names.size(); ++pid) {
         if (this->isIdActive(pid)) {
-            people.emplace_back(*m_Names[pid]);
+            people.emplace_back(m_Names[pid]);
         }
     }
     std::sort(people.begin(), people.end(), maths::common::COrderings::SReferenceLess());
@@ -246,7 +241,7 @@ void CDynamicStringIdRegistry::acceptPersistInserter(core::CStatePersistInserter
     // Explicity save all shared strings, on the understanding that any other
     // owners will also save their copies
     for (std::size_t i = 0; i < m_Names.size(); i++) {
-        inserter.insertValue(NAMES_TAG, *m_Names[i]);
+        inserter.insertValue(NAMES_TAG, m_Names[i]);
     }
     core::CPersistUtils::persist(FREE_NAMES_TAG, m_FreeUids, inserter);
     core::CPersistUtils::persist(RECYCLED_NAMES_TAG, m_RecycledUids, inserter);
@@ -276,7 +271,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
             LOG_TRACE(<< "Restore ignoring free " << m_NameType << " name "
                       << *m_Names[id] << " = id " << id);
         } else {
-            m_Uids[m_Dictionary.word(*m_Names[id])] = id;
+            m_Uids[m_Dictionary.word(m_Names[id])] = id;
         }
     }
 

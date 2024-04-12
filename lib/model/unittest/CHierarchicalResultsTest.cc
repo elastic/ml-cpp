@@ -14,7 +14,6 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 #include <maths/common/COrderingsSimultaneousSort.h>
@@ -60,11 +59,10 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TAttributeProbabilityVec = model::CHierarchicalResults::TAttributeProbabilityVec;
-using TStoredStringPtrStoredStringPtrPr = model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStrOptionalStrPr = model::CHierarchicalResults::TOptionalStrOptionalStrPr;
+using TOptionalStrOptionalStrPrDoublePr = model::CHierarchicalResults::TOptionalStrOptionalStrPrDoublePr;
+using TOptionalStrOptionalStrPrDoublePrVec =
+    model::CHierarchicalResults::TOptionalStrOptionalStrPrDoublePrVec;
 using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
@@ -1164,23 +1162,23 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
-    core::CStoredStringPtr i2("i2");
-    core::CStoredStringPtr i1("i1");
-    core::CStoredStringPtr I("I");
+    std::string i2("i2");
+    std::string i1("i1");
+    std::string I("I");
 
     // Test by.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
 
         model::CHierarchicalResults results;
         results.addModelResult(1, false, FUNC, function, EMPTY_STRING, EMPTY_STRING,
@@ -1211,24 +1209,24 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     // Test complex.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
         model::SAnnotatedProbability annotatedProbability4(0.03);
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 0.8));
+        annotatedProbability4.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
+        annotatedProbability4.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 0.8));
         model::SAnnotatedProbability annotatedProbability5(0.56);
-        annotatedProbability5.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.8));
+        annotatedProbability5.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.8));
 
         model::CHierarchicalResults results;
         results.addModelResult(1, true, FUNC, function, PNF1, pn11, PF1, p11,
@@ -1267,8 +1265,8 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     // Test high probability records are written due to low probability influencer
     {
         model::SAnnotatedProbability annotatedProbability1Low(0.06);
-        annotatedProbability1Low.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability1Low.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
         model::SAnnotatedProbability annotatedProbability1High(0.8);
         model::SAnnotatedProbability annotatedProbability11 = annotatedProbability1Low;
         model::SAnnotatedProbability annotatedProbability12 = annotatedProbability1High;
@@ -1277,11 +1275,11 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         model::SAnnotatedProbability annotatedProbability15 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability16 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability2(0.001);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
 
         model::CHierarchicalResults results;
-        results.addInfluencer(*I);
+        results.addInfluencer(I);
         results.addModelResult(1, false, FUNC, function, PNF1, pn11, PF1, p11,
                                EMPTY_STRING, annotatedProbability11);
         results.addModelResult(1, false, FUNC, function, PNF1, pn11, PF1, p12,

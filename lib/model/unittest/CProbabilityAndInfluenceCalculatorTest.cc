@@ -10,7 +10,6 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CStoredStringPtr.h>
 #include <core/Constants.h>
 
 #include <maths/common/CMultivariateNormalConjugate.h>
@@ -69,8 +68,8 @@ using TStrCRefDouble1VecDouble1VecPrPr =
     model::CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr;
 using TStrCRefDouble1VecDouble1VecPrPrVec =
     model::CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    model::CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStrOptionalStrPrDoublePrVec =
+    model::CProbabilityAndInfluenceCalculator::TOptionalStrOptionalStrPrDoublePrVec;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 
 TDouble1VecDoublePr make_pair(double first, double second) {
@@ -161,7 +160,7 @@ void computeInfluences(CALCULATOR& calculator,
                        const TTail2Vec& tail,
                        const std::string& influencerName,
                        const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+                       TOptionalStrOptionalStrPrDoublePrVec& result) {
     TDouble2Vec varianceScale;
     model.seasonalWeight(0.0, time, varianceScale);
     maths_t::TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
@@ -176,7 +175,7 @@ void computeInfluences(CALCULATOR& calculator,
     params.s_ComputeProbabilityParams.addWeights(weight);
     params.s_Probability = probability;
     params.s_Tail = tail;
-    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
+    params.s_InfluencerName = influencerName;
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5;
     calculator.computeInfluences(params);
@@ -194,7 +193,7 @@ void computeInfluences(CALCULATOR& calculator,
                        const TTail2Vec& tail,
                        const std::string& influencerName,
                        const TStrCRefDouble1VecDouble1VecPrPrVec& influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
+                       TOptionalStrOptionalStrPrDoublePrVec& result) {
     model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     TTime2Vec times_(&times[0], &times[2]);
     TDouble2Vec values_(&values[0], &values[2]);
@@ -211,7 +210,7 @@ void computeInfluences(CALCULATOR& calculator,
     params.s_Probability = probability;
     params.s_Tail = tail;
     params.s_MostAnomalousCorrelate.push_back(0);
-    params.s_InfluencerName = core::CStoredStringPtr(influencerName);
+    params.s_InfluencerName = influencerName;
     params.s_InfluencerValues = influencerValues;
     params.s_Cutoff = 0.5;
     calculator.computeInfluences(params);
@@ -223,7 +222,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
                                      core_t::TTime time_,
                                      const TDoubleVecVec& values,
                                      const TStrCRefDouble1VecDoublePrPrVecVec& influencerValues,
-                                     TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) {
+                                     TOptionalStrOptionalStrPrDoublePrVec& influences) {
     model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
 
     model::CProbabilityAndInfluenceCalculator calculator(0.3);
@@ -314,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
             {TStrCRef(i2), make_pair(11.0, 1.0)},
             {TStrCRef(i3), make_pair(15.0, 1.0)}};
 
-        TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        TOptionalStrOptionalStrPrDoublePrVec influences;
         computeInfluences(calculator, model_t::E_IndividualLowCountsByBucketAndPerson,
                           model, 0 /*time*/, 15.0 /*value*/, 1.0 /*count*/,
                           0.001 /*probability*/, {maths_t::E_RightTail}, I,
@@ -349,7 +348,7 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
         influencerValues.emplace_back(TStrCRef(i2), make_pair(11.0, 11.0, 1.0, 1.0));
         influencerValues.emplace_back(TStrCRef(i3), make_pair(15.0, 15.0, 1.0, 1.0));
 
-        TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        TOptionalStrOptionalStrPrDoublePrVec influences;
         computeInfluences(calculator, model_t::E_IndividualLowCountsByBucketAndPerson,
                           model, times, values, counts, 0.1 /*probability*/,
                           TTail2Vec(2, maths_t::E_RightTail), I,
@@ -390,7 +389,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             TStrCRefDouble1VecDoublePrPrVec influencerValues{
                 {TStrCRef(i1), make_pair(10.0, 1.0)}};
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualCountByBucketAndPerson,
                               model, 0 /*time*/, 20.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
@@ -422,7 +421,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                 {TStrCRef(i2), make_pair(1.0, 1.0)},
                 {TStrCRef(i3), make_pair(18.0, 1.0)}};
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualCountByBucketAndPerson,
                               model, 0 /*time*/, 20.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
@@ -471,7 +470,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                                    TDouble2Vec{120.0}, model, p, tail);
                 LOG_DEBUG(<< "  p = " << p << ", tail = " << tail);
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualCountByBucketAndPerson,
                                   model, time, 120.0 /*value*/, 1.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
@@ -521,7 +520,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
             influencerValues.push_back({TStrCRef(i1), make_pair(15.0, 15.0, 1.0, 1.0)});
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualCountByBucketAndPerson,
                               model, times, values, counts, 0.5 * (lb + ub),
                               tail, I, influencerValues, influences);
@@ -562,7 +561,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             influencerValues.push_back({TStrCRef(i2), make_pair(1.0, 1.0, 1.0, 1.0)});
             influencerValues.push_back({TStrCRef(i3), make_pair(18.0, 8.0, 1.0, 1.0)});
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualCountByBucketAndPerson,
                               model, times, values, counts, 0.5 * (lb + ub),
                               tail, I, influencerValues, influences);
@@ -647,7 +646,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                 double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 LOG_DEBUG(<< "  p = " << 0.5*(lb+ub) << ", tail = " << tail);
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 TDecompositionCPtr1Vec trends;
                 for (TDecompositionPtrVecCItr itr = trend.begin(); itr != trend.end(); ++itr)
                 {
@@ -701,7 +700,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
             TStrCRefDouble1VecDoublePrPrVec influencerValues{
                 {TStrCRef(i1), make_pair(5.0, 1.0)}};
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                               model, 0 /*time*/, 5.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
@@ -737,7 +736,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                     {TStrCRef(i2), make_pair(10.0, 7.0)},
                     {TStrCRef(i3), make_pair(10.0, 8.0)}};
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                                   model, 0 /*time*/, 12.5 /*value*/, 20.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
@@ -758,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                     {TStrCRef(i1), make_pair(15.0, 5.0)},
                     {TStrCRef(i2), make_pair(15.0, 6.0)}};
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                                   model, 0 /*time*/, 15.0 /*value*/, 11.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
@@ -778,7 +777,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                     {TStrCRef(i1), make_pair(5.0, 5.0)},
                     {TStrCRef(i2), make_pair(5.0, 6.0)}};
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                                   model, 0 /*time*/, 5.0 /*value*/, 11.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
@@ -799,7 +798,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                     {TStrCRef(i2), make_pair(11.0, 20.0)},
                     {TStrCRef(i3), make_pair(5.0, 11.0)}};
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                                   model, 0 /*time*/, 8.0 /*value*/, 40.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
@@ -851,7 +850,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
             influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(
                 TStrCRef(i1), make_pair(5.0, 5.0, 1.0, 1.0)));
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualMeanByPerson,
                               model, times, values, counts, 0.5 * (lb + ub),
                               tail, I, influencerValues, influences);
@@ -903,7 +902,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair( 9.0,  9.0, 7.0, 3.5)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i3), make_pair(10.0, 10.0, 8.0, 4.0)));
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, TDecompositionCPtr1Vec(), *prior,
                                   times, values, weights, counts,
@@ -936,7 +935,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(10.0, 15.0, 2.0, 5.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(12.0, 15.0, 2.0, 6.0)));
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, TDecompositionCPtr1Vec(), *prior,
                                   times, values, weight, counts,
@@ -968,7 +967,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(5.0, 5.0, 5.0, 5.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(5.0, 5.0, 6.0, 5.0)));
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, TDecompositionCPtr1Vec(), *prior,
                                   times, values, weight, counts,
@@ -1001,7 +1000,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(11.5, 11.0, 20.0, 4.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i3), make_pair( 4.5,  9.0, 11.0, 4.0)));
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, TDecompositionCPtr1Vec(), *prior,
                                   times, values, weight, counts,
@@ -1049,7 +1048,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
             TStrCRefDouble1VecDoublePrPrVec influencerValues{
                 {TStrCRef(i1), make_pair(5.0, 1.0)}};
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualUniqueCountByBucketAndPerson,
                               model, now /*time*/, 5.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
@@ -1081,7 +1080,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                 {TStrCRef(i2), make_pair(6.0, 1.0)},
                 {TStrCRef(i3), make_pair(6.0, 1.0)}};
 
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             computeInfluences(calculator, model_t::E_IndividualUniqueCountByBucketAndPerson,
                               model, now /*time*/, 6.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
@@ -1130,7 +1129,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                                    model, p, tail);
                 LOG_DEBUG(<< "  p = " << p << ", tail = " << tail);
 
-                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+                TOptionalStrOptionalStrPrDoublePrVec influences;
                 computeInfluences(calculator, model_t::E_IndividualHighUniqueCountByBucketAndPerson,
                                   model, time, 60.0 /*value*/, 1.0 /*count*/, p,
                                   tail, I, influencerValues, influences);
@@ -1187,7 +1186,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //            TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
     //            influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(5.0, 10.0, 1.0, 1.0)));
     //
-    //            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    //            TOptionalStrOptionalStrPrDoublePrVec influences;
     //            computeInfluences(calculator,
     //                              model_t::E_IndividualUniqueCountByBucketAndPerson, TDecompositionCPtr1Vec(), *prior,
     //                              times, values, weight, counts,
@@ -1240,7 +1239,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //            influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(10.0, 6.0, 1.0, 1.0)));
     //            influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i3), make_pair( 9.0, 6.0, 1.0, 1.0)));
     //
-    //            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    //            TOptionalStrOptionalStrPrDoublePrVec influences;
     //            computeInfluences(calculator,
     //                              model_t::E_IndividualUniqueCountByBucketAndPerson, TDecompositionCPtr1Vec(), *prior,
     //                              times, values, weight, counts,
@@ -1331,7 +1330,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
     //                LOG_DEBUG(<< "  p = " << 0.5*(lb+ub) << ", tail = " << tail);
     //
-    //                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    //                TOptionalStrOptionalStrPrDoublePrVec influences;
     //                TDecompositionCPtr1Vec trends;
     //                for (TDecompositionPtrVecCItr itr = trend.begin(); itr != trend.end(); ++itr)
     //                {
@@ -1372,7 +1371,7 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
             {TStrCRef(i2), make_pair(1.0, 1.0)},
             {TStrCRef(i3), make_pair(1.0, 1.0)}};
 
-        TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        TOptionalStrOptionalStrPrDoublePrVec influences;
         computeInfluences(calculator, model_t::E_IndividualIndicatorOfBucketPerson,
                           model, 0 /*time*/, 1.0 /*value*/, 1.0 /*count*/, 0.1 /*probability*/,
                           {maths_t::E_RightTail}, I, influencerValues, influences);
@@ -1403,7 +1402,7 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
         influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(
             TStrCRef(i3), make_pair(1.0, 1.0, 1.0, 1.0)));
 
-        TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        TOptionalStrOptionalStrPrDoublePrVec influences;
         computeInfluences(calculator, model_t::E_IndividualIndicatorOfBucketPerson,
                           model, times, values, counts, 0.1 /*probability*/,
                           TTail2Vec(2, maths_t::E_RightTail), I,
@@ -1514,7 +1513,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
         pExtreme.add(0.02);
 
         double probability;
-        TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        TOptionalStrOptionalStrPrDoublePrVec influences;
         BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
         double pj, pe;
@@ -1543,7 +1542,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
              {{TStrCRef(i2), make_pair(9.0, 14.0, 1.0)}},
              {{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
         for (std::size_t i = 0; i < features.size(); ++i) {
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << influences);
@@ -1571,7 +1570,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
              {{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
 
         for (std::size_t i = 0; i < features.size(); ++i) {
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << influences);
@@ -1604,7 +1603,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
               {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}}}};
 
         {
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(model_t::E_IndividualMeanByPerson,
                                             univariateModel, now, values[0],
                                             influencerValues[0], influences);
@@ -1614,7 +1613,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.75, influences[0].second, 0.05);
         }
         {
-            TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+            TOptionalStrOptionalStrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(model_t::E_IndividualMeanLatLongByPerson,
                                             multivariateModel, now, values[1],
                                             influencerValues[1], influences);
