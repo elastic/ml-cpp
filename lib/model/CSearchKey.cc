@@ -58,19 +58,15 @@ CSearchKey::CSearchKey(int detectorIndex,
                        function_t::EFunction function,
                        bool useNull,
                        model_t::EExcludeFrequent excludeFrequent,
-                       const std::string& fieldName,
-                       const std::string& byFieldName,
-                       const std::string& overFieldName,
-                       const std::string& partitionFieldName,
-                       const TStrVec& influenceFieldNames)
+                       std::string fieldName,
+                       std::string byFieldName,
+                       std::string overFieldName,
+                       std::string partitionFieldName,
+                       TStrVec influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
-      m_ExcludeFrequent(excludeFrequent), m_FieldName(fieldName),
-      m_ByFieldName(byFieldName), m_OverFieldName(overFieldName),
-      m_PartitionFieldName(partitionFieldName), m_Hash(0) {
-    for (const std::string& influenceFieldName : influenceFieldNames) {
-        m_InfluenceFieldNames.emplace_back(influenceFieldName);
-    }
-}
+      m_ExcludeFrequent(excludeFrequent), m_FieldName(std::move(fieldName)),
+      m_ByFieldName(std::move(byFieldName)), m_OverFieldName(std::move(overFieldName)),
+      m_PartitionFieldName(std::move(partitionFieldName)), m_InfluenceFieldNames(std::move(influenceFieldNames)), m_Hash(0) {}
 
 CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
     : m_DetectorIndex(0), m_Function(function_t::E_IndividualCount),
@@ -144,8 +140,8 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     inserter.insertValue(BY_FIELD_NAME_TAG, *m_ByFieldName);
     inserter.insertValue(OVER_FIELD_NAME_TAG, *m_OverFieldName);
     inserter.insertValue(PARTITION_FIELD_NAME_TAG, *m_PartitionFieldName);
-    for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
-        inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, *m_InfluenceFieldNames[i]);
+    for (const std::string& influenceFieldName : m_InfluenceFieldNames) {
+        inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, influenceFieldName);
     }
 }
 
@@ -208,8 +204,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             return false;
                         }
                         for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
-                            comp = m_InfluenceFieldNames[i]->compare(
-                                *rhs.m_InfluenceFieldNames[i]);
+                            comp = m_InfluenceFieldNames[i].compare(rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {
                                 return comp < 0;
                             }
@@ -333,7 +328,7 @@ const std::string& CSearchKey::partitionFieldName() const {
     return *m_PartitionFieldName;
 }
 
-const CSearchKey::TOptionalStrVec& CSearchKey::influenceFieldNames() const {
+const CSearchKey::TStrVec& CSearchKey::influenceFieldNames() const {
     return m_InfluenceFieldNames;
 }
 
@@ -367,7 +362,7 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
         if (i > 0) {
             strm << ',';
         }
-        strm << *key.m_InfluenceFieldNames[i];
+        strm << key.m_InfluenceFieldNames[i];
     }
 
     return strm;

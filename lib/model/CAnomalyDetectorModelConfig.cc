@@ -521,7 +521,7 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
                                      const std::string& overFieldName,
                                      const std::string& byFieldName,
                                      const std::string& valueFieldName,
-                                     const CSearchKey::TOptionalStrVec& influenceFieldNames) const {
+                                     const CSearchKey::TStrVec& influenceFieldNames) const {
     const TFeatureVec& features = function_t::features(function);
 
     // Simple state machine to deduce the factory type from
@@ -626,8 +626,8 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
     result->detectorIndex(detectorIndex);
     TStrVec influences;
     influences.reserve(influenceFieldNames.size());
-    for (const auto& influenceFieldName : influenceFieldNames) {
-        influences.push_back(*influenceFieldName);
+    for (const std::string& influenceFieldName : influenceFieldNames) {
+        influences.push_back(influenceFieldName);
     }
     result->fieldNames(partitionFieldName, overFieldName, byFieldName,
                        valueFieldName, influences);

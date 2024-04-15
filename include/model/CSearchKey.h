@@ -72,7 +72,6 @@ class MODEL_EXPORT CSearchKey {
 public:
     using TStrVec = std::vector<std::string>;
     using TOptionalStr = std::optional<std::string>;
-    using TOptionalStrVec = std::vector<TOptionalStr>;
 
     //! The type of a search key which mixes in the partition field
     //! value.
@@ -105,11 +104,11 @@ public:
                         function_t::EFunction function = function_t::E_IndividualCount,
                         bool useNull = false,
                         model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-                        const std::string& fieldName = EMPTY_STRING,
-                        const std::string& byFieldName = EMPTY_STRING,
-                        const std::string& overFieldName = EMPTY_STRING,
-                        const std::string& partitionFieldName = EMPTY_STRING,
-                        const TStrVec& influenceFieldNames = TStrVec());
+                        std::string fieldName = EMPTY_STRING,
+                        std::string byFieldName = EMPTY_STRING,
+                        std::string overFieldName = EMPTY_STRING,
+                        std::string partitionFieldName = EMPTY_STRING,
+                        TStrVec influenceFieldNames = TStrVec());
 
     //! Create the key from part of an state document.
     //!
@@ -194,7 +193,7 @@ public:
     const std::string& partitionFieldName() const;
 
     //! Get the influence field names.
-    const TOptionalStrVec& influenceFieldNames() const;
+    const TStrVec& influenceFieldNames() const;
 
     //! Get a hash of the contents of this key.
     uint64_t hash() const;
@@ -208,7 +207,7 @@ private:
     TOptionalStr m_ByFieldName;
     TOptionalStr m_OverFieldName;
     TOptionalStr m_PartitionFieldName;
-    TOptionalStrVec m_InfluenceFieldNames;
+    TStrVec m_InfluenceFieldNames;
 
     //! Used for efficient comparison.
     mutable uint64_t m_Hash;
