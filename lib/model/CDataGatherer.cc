@@ -570,6 +570,7 @@ void CDataGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& 
 
 std::size_t CDataGatherer::memoryUsage() const {
     std::size_t mem = core::memory::dynamicSize(m_Features);
+    mem += core::memory::dynamicSize(m_PartitionFieldValue);
     mem += core::memory::dynamicSize(m_PeopleRegistry);
     mem += core::memory::dynamicSize(m_AttributesRegistry);
     mem += core::memory::dynamicSize(m_SampleCounts);
