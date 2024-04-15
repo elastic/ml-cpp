@@ -65,8 +65,11 @@ CSearchKey::CSearchKey(int detectorIndex,
                        TStrVec influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
       m_ExcludeFrequent(excludeFrequent), m_FieldName(std::move(fieldName)),
-      m_ByFieldName(std::move(byFieldName)), m_OverFieldName(std::move(overFieldName)),
-      m_PartitionFieldName(std::move(partitionFieldName)), m_InfluenceFieldNames(std::move(influenceFieldNames)), m_Hash(0) {}
+      m_ByFieldName(std::move(byFieldName)),
+      m_OverFieldName(std::move(overFieldName)),
+      m_PartitionFieldName(std::move(partitionFieldName)),
+      m_InfluenceFieldNames(std::move(influenceFieldNames)), m_Hash(0) {
+}
 
 CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
     : m_DetectorIndex(0), m_Function(function_t::E_IndividualCount),
@@ -204,7 +207,8 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             return false;
                         }
                         for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
-                            comp = m_InfluenceFieldNames[i].compare(rhs.m_InfluenceFieldNames[i]);
+                            comp = m_InfluenceFieldNames[i].compare(
+                                rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {
                                 return comp < 0;
                             }
