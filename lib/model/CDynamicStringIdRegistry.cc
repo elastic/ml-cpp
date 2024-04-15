@@ -269,7 +269,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
         if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<>())) {
             LOG_TRACE(<< "Restore ignoring free " << m_NameType << " name "
-                      << *m_Names[id] << " = id " << id);
+                      << m_Names[id] << " = id " << id);
         } else {
             m_Uids[m_Dictionary.word(m_Names[id])] = id;
         }
