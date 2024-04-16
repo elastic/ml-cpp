@@ -21,13 +21,6 @@
 #include <sstream>
 #include <string>
 
-namespace boost::json {
-
-std::ostream& operator<<(std::ostream& os, const json::value& doc) {
-    return os << json::serialize(doc);
-}
-}
-
 namespace ml {
 namespace torch {
 
