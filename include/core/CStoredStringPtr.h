@@ -73,7 +73,6 @@ public:
     explicit CStoredStringPtr(std::string&& str);
 
 private:
-
     TOptionalStr m_String;
 
     friend CORE_EXPORT std::size_t hash_value(const CStoredStringPtr&);

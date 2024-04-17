@@ -133,7 +133,8 @@ void CSearchKey::checkRestoredInvariants() const {
     VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, core::CStoredStringPtr::NULL_STRING);
     VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, core::CStoredStringPtr::NULL_STRING);
     VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, core::CStoredStringPtr::NULL_STRING);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, core::CStoredStringPtr::NULL_STRING);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==,
+                                     core::CStoredStringPtr::NULL_STRING);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
