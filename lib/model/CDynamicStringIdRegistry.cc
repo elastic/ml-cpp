@@ -272,8 +272,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     // reuse. We mustn't add these to the ID maps.
 
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
-        if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id,
-                               std::greater<>())) {
+        if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<>())) {
             LOG_TRACE(<< "Restore ignoring free " << m_NameType << " name "
                       << *m_Names[id] << " = id " << id);
         } else {

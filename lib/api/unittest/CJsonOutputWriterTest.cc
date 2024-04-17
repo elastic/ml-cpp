@@ -13,8 +13,8 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
 #include <core/CScopedBoostJsonPoolAllocator.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CSmallVector.h>
+#include <core/CStoredStringPtr.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CAnomalyDetector.h>
@@ -1592,25 +1592,20 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field1 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::core::CStoredStringPtr(user),
-                ml::core::CStoredStringPtr(dave));
+                ml::core::CStoredStringPtr(user), ml::core::CStoredStringPtr(dave));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field2 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::core::CStoredStringPtr(user),
-                ml::core::CStoredStringPtr(cat));
+                ml::core::CStoredStringPtr(user), ml::core::CStoredStringPtr(cat));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field3 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::core::CStoredStringPtr(user),
-                ml::core::CStoredStringPtr(jo));
+                ml::core::CStoredStringPtr(user), ml::core::CStoredStringPtr(jo));
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField1 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::core::CStoredStringPtr(host),
-                ml::core::CStoredStringPtr(localhost));
+                ml::core::CStoredStringPtr(host), ml::core::CStoredStringPtr(localhost));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField2 =
             ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::core::CStoredStringPtr(host),
-                ml::core::CStoredStringPtr(webserver));
+                ml::core::CStoredStringPtr(host), ml::core::CStoredStringPtr(webserver));
 
         influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
             field1, 0.4));
