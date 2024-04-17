@@ -26,6 +26,7 @@ ml_add_library(MlCore SHARED
   CCompressOStream.cc
   CCompressedDictionary.cc
   CCondition.cc
+  CContainerPrinter.cc
   CCrashHandler.cc
   CCsvLineParser.cc
   CDataAdder.cc

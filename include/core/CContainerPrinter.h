@@ -205,7 +205,7 @@ std::ostream& stream(boost::log::basic_record_ostream<CHAR_T>& stream) {
 //! is primarily intended for testing and debugging.
 class CORE_EXPORT CContainerPrinter : private CNonInstantiatable {
 private:
-    inline static const std::string NULL_STR = "\"null\"";
+    static const std::string NULL_STR;
     static constexpr std::size_t SIZE_OF_ELEMENT{20};
 
     //! Print a container element for debug.

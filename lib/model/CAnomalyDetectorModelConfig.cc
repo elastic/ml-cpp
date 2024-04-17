@@ -626,7 +626,7 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
     result->detectorIndex(detectorIndex);
     TStrVec influences;
     influences.reserve(influenceFieldNames.size());
-    for (const std::string& influenceFieldName : influenceFieldNames) {
+    for (const auto& influenceFieldName : influenceFieldNames) {
         influences.push_back(influenceFieldName);
     }
     result->fieldNames(partitionFieldName, overFieldName, byFieldName,

@@ -83,13 +83,11 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrOptionalStrPrUInt64U
     for (auto i = map.begin(); i != map.end(); ++i) {
         ordered.push_back(i);
     }
-    std::sort(ordered.begin(), ordered.end(),
-              [](TSizeSizePrOptionalStrPrUInt64UMapCItr lhs,
-                 TSizeSizePrOptionalStrPrUInt64UMapCItr rhs) {
-                  return maths::common::COrderings::lexicographicalCompare(
-                      lhs->first.first, lhs->first.second, lhs->second,
-                      rhs->first.first, rhs->first.second, rhs->second);
-              });
+    std::sort(ordered.begin(), ordered.end(), [](auto lhs, auto rhs) {
+        return maths::common::COrderings::lexicographicalCompare(
+            lhs->first.first, lhs->first.second, lhs->second, rhs->first.first,
+            rhs->first.second, rhs->second);
+    });
 
     if (ordered.empty()) {
         inserter.insertValue(EMPTY_MAP_TAG, "");
