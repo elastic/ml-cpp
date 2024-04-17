@@ -335,8 +335,7 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
                                   TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     result.reserve(influencerValues.size());
     for (const auto& influencerValue : influencerValues) {
-        result.emplace_back(
-            std::make_pair(influencerName, influencerValue.first), 1.0);
+        result.emplace_back(std::make_pair(influencerName, influencerValue.first), 1.0);
     }
 }
 

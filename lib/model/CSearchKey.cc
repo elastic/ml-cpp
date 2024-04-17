@@ -65,13 +65,9 @@ CSearchKey::CSearchKey(int detectorIndex,
                        const std::string& partitionFieldName,
                        const TStrVec& influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
-      m_ExcludeFrequent(excludeFrequent),
-      m_FieldName(fieldName),
-      m_ByFieldName(byFieldName),
-      m_OverFieldName(overFieldName),
-      m_PartitionFieldName(partitionFieldName),
-      m_Hash(0)
-    {
+      m_ExcludeFrequent(excludeFrequent), m_FieldName(fieldName),
+      m_ByFieldName(byFieldName), m_OverFieldName(overFieldName),
+      m_PartitionFieldName(partitionFieldName), m_Hash(0) {
     for (const std::string& influenceFieldName : influenceFieldNames) {
         m_InfluenceFieldNames.emplace_back(influenceFieldName);
     }

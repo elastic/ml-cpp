@@ -70,8 +70,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualCount) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualCount);
 
-    builder.addAttributeProbability(0, EMPTY_STRING, 0.68,
-                                    model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.68, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualCountByBucketAndPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
@@ -87,8 +86,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationCount) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 3, function_t::E_PopulationCount);
 
-    builder.addAttributeProbability(0, EMPTY_STRING, 0.09,
-                                    model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.09, model_t::CResultType::E_Unconditional,
                                     model_t::E_PopulationCountByBucketPersonAndAttribute,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.addAttributeProbability(1, C1, 0.05, model_t::CResultType::E_Unconditional,
@@ -119,8 +117,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualRare) {
     SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualRare);
 
-    builder.addAttributeProbability(0, EMPTY_STRING, 0.68,
-                                    model_t::CResultType::E_Unconditional,
+    builder.addAttributeProbability(0, EMPTY_STRING, 0.68, model_t::CResultType::E_Unconditional,
                                     model_t::E_IndividualIndicatorOfBucketPerson,
                                     NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
     builder.build();
