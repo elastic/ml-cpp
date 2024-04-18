@@ -117,8 +117,13 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         }
         if (levelNormalizer != nullptr) {
             if (levelNormalizer->canNormalize()) {
+                using TOptionalStr = std::optional<std::string>;
+                TOptionalStr partitionNameOpt(partitionName);
+                TOptionalStr partitionValueOpt(partitionValue);
+                TOptionalStr personNameOpt(personName);
+                TOptionalStr personValueOpt(personValue);
                 model::CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
-                    partitionName, partitionValue, personName, personValue};
+                    partitionNameOpt, partitionValueOpt, personNameOpt, personValueOpt};
                 if (levelNormalizer->normalize(scope, score) == false) {
                     LOG_ERROR(<< "Failed to normalize score " << score << " at level \""
                               << level << "\" using scope " << scope.print());
