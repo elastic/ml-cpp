@@ -101,10 +101,8 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        : maths::common::CTools::anomalyScore(node.probability());
 
     CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
-        node.s_Spec.s_PartitionFieldName.value_or(""),
-        node.s_Spec.s_PartitionFieldValue.value_or(""),
-        node.s_Spec.s_PersonFieldName.value_or(""),
-        node.s_Spec.s_PersonFieldValue.value_or("")};
+        node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue,
+        node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue};
 
     switch (m_Job) {
     case E_RefreshSettings:

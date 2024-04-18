@@ -1601,8 +1601,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             };
         auto scope = [](const model::CHierarchicalResultsVisitor::TNode* node) {
             return model::CAnomalyScore::CNormalizer::CMaximumScoreScope{
-                *node->s_Spec.s_PartitionFieldName, *node->s_Spec.s_PartitionFieldValue,
-                *node->s_Spec.s_PersonFieldName, *node->s_Spec.s_PersonFieldValue};
+                node->s_Spec.s_PartitionFieldName, node->s_Spec.s_PartitionFieldValue,
+                node->s_Spec.s_PersonFieldName, node->s_Spec.s_PersonFieldValue};
         };
 
         for (const auto& leaf : extract.leafNodes()) {
