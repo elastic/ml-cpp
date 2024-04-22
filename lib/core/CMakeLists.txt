@@ -112,7 +112,7 @@ ml_add_library(MlCore SHARED
   )
 
 if (WIN32)
-  target_link_libraries(MlCore PUBLIC AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
+  target_link_libraries(MlCore PUBLIC -ignore:4217 AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/date_time_zonespec.csv DESTINATION ${ML_RESOURCES_DIR})
 endif()
 
