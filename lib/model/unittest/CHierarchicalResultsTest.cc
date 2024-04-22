@@ -59,6 +59,7 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TAttributeProbabilityVec = model::CHierarchicalResults::TAttributeProbabilityVec;
+using TOptionalStr = std::optional<std::string>;
 using TOptionalStrOptionalStrPr = model::CHierarchicalResults::TOptionalStrOptionalStrPr;
 using TOptionalStrOptionalStrPrDoublePr = model::CHierarchicalResults::TOptionalStrOptionalStrPrDoublePr;
 using TOptionalStrOptionalStrPrDoublePrVec =
@@ -66,6 +67,7 @@ using TOptionalStrOptionalStrPrDoublePrVec =
 using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
+const TOptionalStr EMPTY_OPTIONAL_STR;
 
 //! \brief Checks that we visit the nodes in decreasing depth order.
 class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
@@ -1706,9 +1708,16 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                            ? 0.0
                            : maths::common::CTools::anomalyScore(probability);
 
+        TOptionalStr personFieldName = "bucket_time";
         expectedNormalizers.find(std::string("r"))->second->isForMembersOfPopulation(false);
-        expectedNormalizers.find(std::string("r"))->second->updateQuantiles({"", "", "", ""}, score);
-        expectedNormalizers.find(std::string("r"))->second->normalize({"", "", "bucket_time", ""}, score);
+        expectedNormalizers.find(std::string("r"))
+            ->second->updateQuantiles({EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR,
+                                       EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR},
+                                      score);
+        expectedNormalizers.find(std::string("r"))
+            ->second->normalize({EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR,
+                                 personFieldName, EMPTY_OPTIONAL_STR},
+                                score);
         LOG_TRACE(<< "* root *");
         LOG_TRACE(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
         LOG_TRACE(<< "normalized         = " << score);

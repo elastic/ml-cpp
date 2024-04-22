@@ -43,6 +43,9 @@ using namespace ml;
 namespace {
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
+using TOptionalStr = std::optional<std::string>;
+
+TOptionalStr EMPTY = "";
 }
 
 BOOST_AUTO_TEST_CASE(testComputeScores) {
@@ -223,11 +226,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
 
     double totalError = 0.0;
     double numberSamples = 0.0;
+    TOptionalStr personFieldName = "bucket_time";
 
     TDoubleMSet scores;
     for (std::size_t i = 0; i < samples.size(); ++i) {
         scores.insert(samples[i]);
-        normalizer.updateQuantiles({"", "", "bucket_time", ""}, samples[i]);
+        normalizer.updateQuantiles({EMPTY, EMPTY, personFieldName, EMPTY}, samples[i]);
 
         auto itr = scores.upper_bound(samples[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
@@ -291,13 +295,20 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
 
     double totalError = 0.0;
     double numberSamples = 0.0;
+    TOptionalStr partitionFieldName = "airline";
+    TOptionalStr partitionFieldValue1 = "AAL";
+    TOptionalStr partitionFieldValue2 = "KLM";
+    TOptionalStr partitionFieldValue3 = "JAL";
 
     TDoubleMSet scores;
     for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
         scores.insert(samplesAAL[i]);
-        normalizer.updateQuantiles({"airline", "AAL", "", ""}, samplesAAL[i]);
-        normalizer.updateQuantiles({"airline", "KLM", "", ""}, samplesAAL[i]);
-        normalizer.updateQuantiles({"airline", "JAL", "", ""}, samplesAAL[i]);
+        normalizer.updateQuantiles(
+            {partitionFieldName, partitionFieldValue1, EMPTY, EMPTY}, samplesAAL[i]);
+        normalizer.updateQuantiles(
+            {partitionFieldName, partitionFieldValue2, EMPTY, EMPTY}, samplesAAL[i]);
+        normalizer.updateQuantiles(
+            {partitionFieldName, partitionFieldValue3, EMPTY, EMPTY}, samplesAAL[i]);
 
         auto itr = scores.upper_bound(samplesAAL[i]);
         double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr)) /
@@ -363,11 +374,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     TDoubleSizeMap maxScores;
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
+        normalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, samples[i]);
     }
+    TOptionalStr personFieldName = "bucket_time";
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double sample = samples[i];
-        normalizer.normalize({"", "", "bucket_time", ""}, sample);
+        normalizer.normalize({EMPTY, EMPTY, personFieldName, EMPTY}, sample);
         LOG_TRACE(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
 
         //raw << " " << samples[i];
@@ -434,9 +446,15 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     model::CAnomalyScore::CNormalizer normalizer(config);
     normalizer.isForMembersOfPopulation(false);
 
+    TOptionalStr personFieldName = "airline";
+    TOptionalStr personFieldValue1 = "AAL";
+    TOptionalStr personFieldValue2 = "KLM";
+
     for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
-        normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
-        normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
+        normalizer.updateQuantiles(
+            {EMPTY, EMPTY, personFieldName, personFieldValue1}, samplesAAL[i]);
+        normalizer.updateQuantiles(
+            {EMPTY, EMPTY, personFieldName, personFieldValue2}, samplesKLM[i]);
     }
 
     TDoubleVec actualAALScores;
@@ -445,8 +463,8 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
         double sampleKLM = samplesKLM[anomalyTimes[i]];
         LOG_DEBUG(<< "sampleAAL = " << sampleAAL);
         LOG_DEBUG(<< "sampleKLM = " << sampleKLM);
-        normalizer.normalize({"", "", "airline", "AAL"}, sampleAAL);
-        normalizer.normalize({"", "", "airline", "KLM"}, sampleKLM);
+        normalizer.normalize({EMPTY, EMPTY, personFieldName, personFieldValue1}, sampleAAL);
+        normalizer.normalize({EMPTY, EMPTY, personFieldName, personFieldValue2}, sampleKLM);
         actualAALScores.push_back(sampleAAL);
     }
     std::sort(actualAALScores.begin(), actualAALScores.end());
@@ -485,13 +503,14 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     normalizer.isForMembersOfPopulation(false);
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
+        normalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, samples[i]);
     }
 
+    TOptionalStr personFieldName = "bucket_time";
     TDoubleVec scores;
     for (std::size_t i = 0; i < std::size(anomalyTimes); ++i) {
         double sample = samples[anomalyTimes[i]];
-        normalizer.normalize({"", "", "bucket_time", ""}, sample);
+        normalizer.normalize({EMPTY, EMPTY, personFieldName, EMPTY}, sample);
         scores.push_back(sample);
     }
     std::sort(scores.begin(), scores.end());
@@ -525,6 +544,8 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
         std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
+    TOptionalStr personFieldName = "bucket_time";
+
     for (std::size_t i = 0; i < std::size(nonZeroCounts); ++i) {
         LOG_DEBUG(<< "non-zero count = " << nonZeroCounts[i]);
 
@@ -545,13 +566,13 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         normalizer.isForMembersOfPopulation(false);
 
         for (std::size_t j = 0; j < samples.size(); ++j) {
-            normalizer.updateQuantiles({"", "", "", ""}, samples[j]);
+            normalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, samples[j]);
         }
 
         TDoubleVec maxScores;
         for (std::size_t j = 0; j < std::size(anomalyTimes); ++j) {
             double sample = samples[anomalyTimes[j]];
-            normalizer.normalize({"", "", "bucket_time", ""}, sample);
+            normalizer.normalize({EMPTY, EMPTY, personFieldName, EMPTY}, sample);
             maxScores.push_back(sample);
         }
         LOG_DEBUG(<< "maxScores = " << maxScores);
@@ -568,6 +589,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
 
     const std::size_t n = 5000;
 
+    TOptionalStr personFieldName = "bucket_time";
     TDoubleVec allScores;
     rng.generateUniformSamples(0.0, 50.0, n, allScores);
 
@@ -582,13 +604,13 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
         normalizer.isForMembersOfPopulation(false);
 
         for (std::size_t j = 0; j < i; ++j) {
-            normalizer.updateQuantiles({"", "", "", ""}, scores[j]);
+            normalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, scores[j]);
         }
 
         TDoubleVec normalizedScores(scores);
         for (std::size_t j = 0; j < i; ++j) {
-            BOOST_TEST_REQUIRE(normalizer.normalize({"", "", "bucket_time", ""},
-                                                    normalizedScores[j]));
+            BOOST_TEST_REQUIRE(normalizer.normalize(
+                {EMPTY, EMPTY, personFieldName, EMPTY}, normalizedScores[j]));
         }
 
         maths::common::COrderings::simultaneousSort(scores, normalizedScores);
@@ -625,21 +647,29 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
         samplesAAL[anomalyTimesKLM[i]] += anomaliesKLM[i];
     }
 
+    TOptionalStr personFieldName = "airline";
+    TOptionalStr personFieldValue1 = "AAL";
+    TOptionalStr personFieldValue2 = "KLM";
+
     model::CAnomalyDetectorModelConfig config =
         model::CAnomalyDetectorModelConfig::defaultConfig(1800);
     model::CAnomalyScore::CNormalizer normalizer(config);
     normalizer.isForMembersOfPopulation(false);
 
     for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
-        normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
-        normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
+        normalizer.updateQuantiles(
+            {EMPTY, EMPTY, personFieldName, personFieldValue1}, samplesAAL[i]);
+        normalizer.updateQuantiles(
+            {EMPTY, EMPTY, personFieldName, personFieldValue2}, samplesKLM[i]);
     }
 
     double maxScoreAAL;
-    BOOST_TEST_REQUIRE(normalizer.maxScore({"", "", "airline", "AAL"}, maxScoreAAL));
+    BOOST_TEST_REQUIRE(normalizer.maxScore(
+        {EMPTY, EMPTY, personFieldName, personFieldValue1}, maxScoreAAL));
 
     double maxScoreKLM;
-    BOOST_TEST_REQUIRE(normalizer.maxScore({"", "", "airline", "KLM"}, maxScoreKLM));
+    BOOST_TEST_REQUIRE(normalizer.maxScore(
+        {EMPTY, EMPTY, personFieldName, personFieldValue2}, maxScoreKLM));
 
     LOG_DEBUG(<< "maxScoreAAL = " << maxScoreAAL);
     LOG_DEBUG(<< "maxScoreKLM = " << maxScoreKLM);
@@ -685,8 +715,8 @@ BOOST_AUTO_TEST_CASE(testNoiseForDifferentBucketLengths) {
                 double maxScore{0.0};
                 for (auto p : probabilities) {
                     double score{maths::common::CTools::anomalyScore(p)};
-                    normalizer.updateQuantiles({"", "", "", ""}, score);
-                    normalizer.normalize({"", "", "", ""}, score);
+                    normalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, score);
+                    normalizer.normalize({EMPTY, EMPTY, EMPTY, EMPTY}, score);
                     normalizer.propagateForwardByTime(1.0);
                     maxScore = std::max(maxScore, score);
                 }
@@ -737,9 +767,10 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     model::CAnomalyScore::CNormalizer origNormalizer(config);
     origNormalizer.isForMembersOfPopulation(true);
 
+    TOptionalStr personFieldName = "bucket_time";
     for (auto& sample : samples) {
-        origNormalizer.updateQuantiles({"", "", "", ""}, sample);
-        origNormalizer.normalize({"", "", "bucket_time", ""}, sample);
+        origNormalizer.updateQuantiles({EMPTY, EMPTY, EMPTY, EMPTY}, sample);
+        origNormalizer.normalize({EMPTY, EMPTY, personFieldName, EMPTY}, sample);
     }
     std::ostringstream ss;
     {

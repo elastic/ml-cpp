@@ -874,12 +874,13 @@ bool CAnomalyScore::CNormalizer::maxScore(const CMaximumScoreScope& scope,
 }
 
 CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
-    const TOptionalStr& partitionFieldName,
-    const TOptionalStr& partitionFieldValue,
-    const TOptionalStr& personFieldName,
-    const TOptionalStr& personFieldValue)
-    : m_PartitionFieldName{partitionFieldName}, m_PartitionFieldValue{partitionFieldValue},
-      m_PersonFieldName{personFieldName}, m_PersonFieldValue{personFieldValue} {
+    TOptionalStrCRef partitionFieldName,
+    TOptionalStrCRef partitionFieldValue,
+    TOptionalStrCRef personFieldName,
+    TOptionalStrCRef personFieldValue)
+    : m_PartitionFieldName{std::move(partitionFieldName)}, m_PartitionFieldValue{std::move(
+                                                               partitionFieldValue)},
+      m_PersonFieldName{std::move(personFieldName)}, m_PersonFieldValue{std::move(personFieldValue)} {
 }
 
 CAnomalyScore::CNormalizer::TWord

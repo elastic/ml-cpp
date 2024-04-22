@@ -102,6 +102,7 @@ public:
     public:
         using TOptionalBool = std::optional<bool>;
         using TOptionalStr = std::optional<std::string>;
+        using TOptionalStrCRef = std::reference_wrapper<const TOptionalStr>;
         using TMaxValueAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
@@ -110,10 +111,10 @@ public:
         //! maintain a maximum score for each distinct scope.
         class MODEL_EXPORT CMaximumScoreScope {
         public:
-            CMaximumScoreScope(const TOptionalStr& partitionFieldName,
-                               const TOptionalStr& partitionFieldValue,
-                               const TOptionalStr& personFieldName,
-                               const TOptionalStr& personFieldValue);
+            CMaximumScoreScope(TOptionalStrCRef partitionFieldName,
+                               TOptionalStrCRef partitionFieldValue,
+                               TOptionalStrCRef personFieldName,
+                               TOptionalStrCRef personFieldValue);
 
             //! Get the maximum score map key for the scope.
             TWord key(TOptionalBool isPopulationAnalysis, const TDictionary& dictionary) const;
@@ -122,8 +123,6 @@ public:
             std::string print() const;
 
         private:
-            using TOptionalStrCRef = std::reference_wrapper<const TOptionalStr>;
-
             TOptionalStrCRef m_PartitionFieldName;
             TOptionalStrCRef m_PartitionFieldValue;
             TOptionalStrCRef m_PersonFieldName;
