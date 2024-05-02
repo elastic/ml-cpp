@@ -580,9 +580,10 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
         return false;
     }
 
-    using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStr1Vec = core::CSmallVector<TOptionalStr, 1>;
 
-    static const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
+    static const TOptionalStr1Vec NO_CORRELATED_ATTRIBUTES;
     static const TSizeDoublePr1Vec NO_CORRELATES;
 
     partitioningFields.add(gatherer.attributeFieldName(), EMPTY_STRING);
@@ -664,7 +665,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                         }
                     }
                     resultBuilder.addAttributeProbability(
-                        cid, gatherer.attributeNamePtr(cid), params.s_Probability,
+                        cid, gatherer.attributeName(cid), params.s_Probability,
                         model_t::CResultType::E_Unconditional, feature,
                         NO_CORRELATED_ATTRIBUTES, NO_CORRELATES);
                 } else {

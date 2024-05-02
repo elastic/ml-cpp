@@ -874,12 +874,13 @@ bool CAnomalyScore::CNormalizer::maxScore(const CMaximumScoreScope& scope,
 }
 
 CAnomalyScore::CNormalizer::CMaximumScoreScope::CMaximumScoreScope(
-    const std::string& partitionFieldName,
-    const std::string& partitionFieldValue,
-    const std::string& personFieldName,
-    const std::string& personFieldValue)
-    : m_PartitionFieldName{partitionFieldName}, m_PartitionFieldValue{partitionFieldValue},
-      m_PersonFieldName{personFieldName}, m_PersonFieldValue{personFieldValue} {
+    TOptionalStrCRef partitionFieldName,
+    TOptionalStrCRef partitionFieldValue,
+    TOptionalStrCRef personFieldName,
+    TOptionalStrCRef personFieldValue)
+    : m_PartitionFieldName{std::move(partitionFieldName)}, m_PartitionFieldValue{std::move(
+                                                               partitionFieldValue)},
+      m_PersonFieldName{std::move(personFieldName)}, m_PersonFieldValue{std::move(personFieldValue)} {
 }
 
 CAnomalyScore::CNormalizer::TWord
@@ -895,17 +896,21 @@ CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAn
     // The influencer named 'bucket_time' corresponds to the root level
     // normalizer for which we have keyed the maximum score on a blank
     // personName.
-    const std::string& personFieldName = (m_PersonFieldName.get() == TIME_INFLUENCER)
-                                             ? EMPTY_STRING
-                                             : m_PersonFieldName.get();
+    const TOptionalStr& personFieldName = (m_PersonFieldName.get() == TIME_INFLUENCER)
+                                              ? EMPTY_STRING
+                                              : m_PersonFieldName.get();
 
-    return dictionary.word(m_PartitionFieldName, m_PartitionFieldValue,
-                           personFieldName, m_PersonFieldValue);
+    return dictionary.word(m_PartitionFieldName.get().value_or(""),
+                           m_PartitionFieldValue.get().value_or(""),
+                           personFieldName.value_or(""),
+                           m_PersonFieldValue.get().value_or(""));
 }
 
 std::string CAnomalyScore::CNormalizer::CMaximumScoreScope::print() const {
-    return "\"" + m_PartitionFieldName.get() + "_" + m_PartitionFieldValue.get() +
-           "_" + m_PersonFieldName.get() + "_" + m_PersonFieldValue.get() + "\"";
+    return "\"" + m_PartitionFieldName.get().value_or("") + "_" +
+           m_PartitionFieldValue.get().value_or("") + "_" +
+           m_PersonFieldName.get().value_or("") + "_" +
+           m_PersonFieldValue.get().value_or("") + "\"";
 }
 
 void CAnomalyScore::CNormalizer::CMaxScore::add(double score) {

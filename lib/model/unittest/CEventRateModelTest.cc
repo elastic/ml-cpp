@@ -689,7 +689,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                     p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -787,7 +787,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                     p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -892,7 +892,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
                 pid, time, time + bucketLength, partitioningFields, 1, p));
             std::string correlated;
             if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] &&
                 p.s_AttributeProbabilities[0].s_Type.isUnconditional() == false) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
@@ -1241,7 +1241,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1250,8 +1250,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
 
             double count = 0.0;
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(
-                    SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("inf1")), gatherer);
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "inf1"), gatherer);
                 count += 1.0;
             }
 
@@ -1297,7 +1296,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1359,7 +1358,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1422,7 +1421,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1484,7 +1483,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1557,15 +1556,14 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         core_t::TTime bucketStartTime = startTime;
         core_t::TTime bucketEndTime = startTime + bucketLength;
         for (std::size_t i = 0, j = 0; bucketStartTime < endTime;
              bucketStartTime += bucketLength, bucketEndTime += bucketLength, ++j) {
 
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(
-                    SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("p")), gatherer);
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "p"), gatherer);
             }
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
@@ -1601,7 +1599,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, "v"));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         auto* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1615,7 +1613,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1624,8 +1622,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
 
             double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("inf1"),
-                                          TOptionalStr(uniqueValue)),
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "inf1", uniqueValue),
                                  gatherer);
                 count += 1.0;
             }
@@ -1635,10 +1632,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 for (std::size_t k = 0; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
-                    this->addArrival(SMessage(eventTimes[i - 1], "p", {}, {},
-                                              TOptionalStr("inf1"),
-                                              TOptionalStr(ss.str())),
-                                     gatherer);
+                    this->addArrival(
+                        SMessage(eventTimes[i - 1], "p", {}, {}, "inf1", ss.str()), gatherer);
                 }
             }
 
@@ -1670,7 +1665,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, "v"));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         auto* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1684,7 +1679,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1693,8 +1688,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
 
             double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("inf1"),
-                                          TOptionalStr(uniqueValue)),
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "inf1", uniqueValue),
                                  gatherer);
                 count += 1.0;
             }
@@ -1707,13 +1701,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                     CEventData d = makeEventData(eventTimes[i - 1], 0, {}, ss.str());
                     if (k % 2 == 0) {
                         this->addArrival(SMessage(eventTimes[i - 1], "p", {},
-                                                  {}, TOptionalStr("inf1"),
-                                                  TOptionalStr(ss.str())),
+                                                  {}, "inf1", ss.str()),
                                          gatherer);
                     } else {
                         this->addArrival(SMessage(eventTimes[i - 1], "p", {},
-                                                  {}, TOptionalStr("inf2"),
-                                                  TOptionalStr(ss.str())),
+                                                  {}, "inf2", ss.str()),
                                          gatherer);
                     }
                 }
@@ -1751,7 +1743,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, "v"));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         auto* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1765,7 +1757,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1774,8 +1766,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
 
             double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("inf1"),
-                                          TOptionalStr(uniqueValue)),
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "inf1", uniqueValue),
                                  gatherer);
                 count += 1.0;
             }
@@ -1787,13 +1778,11 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                     ss << uniqueValue << "_" << k;
                     if (k == 1) {
                         this->addArrival(SMessage(eventTimes[i - 1], "p", {},
-                                                  {}, TOptionalStr("inf2"),
-                                                  TOptionalStr(ss.str())),
+                                                  {}, "inf2", ss.str()),
                                          gatherer);
                     } else {
                         this->addArrival(SMessage(eventTimes[i - 1], "p", {},
-                                                  {}, TOptionalStr("inf1"),
-                                                  TOptionalStr(ss.str())),
+                                                  {}, "inf1", ss.str()),
                                          gatherer);
                     }
                 }
@@ -1828,7 +1817,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 2, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 2, "v"));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         auto* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1842,7 +1831,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
                   << ", # events = " << eventTimes.size());
 
-        SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+        SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
         std::size_t i{0};
         std::size_t j{0};
         for (core_t::TTime bucketStartTime = startTime;
@@ -1851,10 +1840,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
 
             double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
-                this->addArrival(
-                    SMessage(eventTimes[i], "p", {}, {}, TOptionalStr("inf1"),
-                             TOptionalStr("inf1"), TOptionalStr(uniqueValue)),
-                    gatherer);
+                this->addArrival(SMessage(eventTimes[i], "p", {}, {}, "inf1", "inf1", uniqueValue),
+                                 gatherer);
                 count += 1.0;
             }
             if (i == eventTimes.size()) {
@@ -1875,8 +1862,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                     LOG_DEBUG(<< "Inf2 = " << inf2);
                     LOG_DEBUG(<< "Value = " << ss1.str());
                     this->addArrival(SMessage(eventTimes[i - 1], "p", {}, {},
-                                              TOptionalStr(inf1), TOptionalStr(inf2),
-                                              TOptionalStr(ss1.str())),
+                                              inf1, inf2, ss1.str()),
                                      gatherer);
                 }
             }
@@ -1929,33 +1915,24 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     auto* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
     BOOST_TEST_REQUIRE(model);
 
-    SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
+    SAnnotatedProbability::TOptionalStrOptionalStrPrDoublePrVec lastInfluencersResult;
 
     core_t::TTime time{startTime};
 
     for (/**/; time < startTime + 50 * bucketLength; time += bucketLength) {
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p1", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p2", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p3", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p4", {}, {}, TOptionalStr("inf1")), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p1", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p2", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p3", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p4", {}, {}, "inf1"), gatherer);
         model->sample(time, time + bucketLength, m_ResourceMonitor);
     }
 
     {
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p1", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p2", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p3", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p4", {}, {}, TOptionalStr("inf1")), gatherer);
-        this->addArrival(
-            SMessage(time + bucketLength / 2, "p5", {}, {}, TOptionalStr("inf2")), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p1", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p2", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p3", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p4", {}, {}, "inf1"), gatherer);
+        this->addArrival(SMessage(time + bucketLength / 2, "p5", {}, {}, "inf2"), gatherer);
     }
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -2126,27 +2103,21 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |1|1|1|X|X|1|
     // p2: |1|1|0|X|X|0|
-    this->addArrival(SMessage(100, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(100, "p1", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
-    this->addArrival(SMessage(100, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(100, "p2", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
     modelSkipGap->sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(200, "p1", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
-    this->addArrival(SMessage(200, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(200, "p2", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
     modelSkipGap->sample(200, 300, m_ResourceMonitor);
-    this->addArrival(SMessage(300, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(300, "p1", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
     modelSkipGap->sample(300, 400, m_ResourceMonitor);
     modelSkipGap->skipSampling(600);
-    this->addArrival(SMessage(600, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(600, "p1", {}, {}, std::nullopt, std::nullopt, "1"),
                      gathererSkipGap);
     modelSkipGap->sample(600, 700, m_ResourceMonitor);
 
@@ -2159,50 +2130,29 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |1,"",null|1|1|null|null|1|
     // p2: |1,""|1|0|null|null|0|
-    this->addArrival(SMessage(100, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
+    this->addArrival(SMessage(100, "p1", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
+    this->addArrival(SMessage(100, "p1", {}, {}, std::nullopt, std::nullopt, ""), gathererExNull);
+    this->addArrival(SMessage(100, "p1", {}, {}, std::nullopt, std::nullopt, "null"),
                      gathererExNull);
-    this->addArrival(SMessage(100, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("null")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("")),
-                     gathererExNull);
+    this->addArrival(SMessage(100, "p2", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
+    this->addArrival(SMessage(100, "p2", {}, {}, std::nullopt, std::nullopt, ""), gathererExNull);
     modelExNullGap->sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
-                     gathererExNull);
-    this->addArrival(SMessage(200, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(200, "p1", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
+    this->addArrival(SMessage(200, "p2", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
     modelExNullGap->sample(200, 300, m_ResourceMonitor);
-    this->addArrival(SMessage(300, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(300, "p1", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
     modelExNullGap->sample(300, 400, m_ResourceMonitor);
-    this->addArrival(SMessage(400, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("null")),
+    this->addArrival(SMessage(400, "p1", {}, {}, std::nullopt, std::nullopt, "null"),
                      gathererExNull);
-    this->addArrival(SMessage(400, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("null")),
+    this->addArrival(SMessage(400, "p2", {}, {}, std::nullopt, std::nullopt, "null"),
                      gathererExNull);
     modelExNullGap->sample(400, 500, m_ResourceMonitor);
-    this->addArrival(SMessage(500, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("null")),
+    this->addArrival(SMessage(500, "p1", {}, {}, std::nullopt, std::nullopt, "null"),
                      gathererExNull);
-    this->addArrival(SMessage(500, "p2", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("null")),
+    this->addArrival(SMessage(500, "p2", {}, {}, std::nullopt, std::nullopt, "null"),
                      gathererExNull);
     modelExNullGap->sample(500, 600, m_ResourceMonitor);
-    this->addArrival(SMessage(600, "p1", {}, {}, TOptionalStr(), TOptionalStr(),
-                              TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(600, "p1", {}, {}, std::nullopt, std::nullopt, "1"), gathererExNull);
     modelExNullGap->sample(600, 700, m_ResourceMonitor);
 
     // Check priors are the same
@@ -2471,15 +2421,15 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
         rng.generateUniformSamples(0.0, 1.0, 1, zeroCountProbability);
         for (std::size_t i = 0; i < samples[0]; ++i) {
             if (zeroCountProbability[0] < 0.2) {
-                this->addArrival(SMessage(now, "p1", {}, {}, TOptionalStr(),
-                                          TOptionalStr(), TOptionalStr(summaryCountZero)),
+                this->addArrival(SMessage(now, "p1", {}, {}, std::nullopt,
+                                          std::nullopt, summaryCountZero),
                                  gathererWithZeros);
             } else {
-                this->addArrival(SMessage(now, "p1", {}, {}, TOptionalStr(),
-                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                this->addArrival(SMessage(now, "p1", {}, {}, std::nullopt,
+                                          std::nullopt, summaryCountOne),
                                  gathererWithZeros);
-                this->addArrival(SMessage(now, "p1", {}, {}, TOptionalStr(),
-                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                this->addArrival(SMessage(now, "p1", {}, {}, std::nullopt,
+                                          std::nullopt, summaryCountOne),
                                  gathererNoZeros);
             }
         }

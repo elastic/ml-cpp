@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
         std::size_t s_ExpectedByMemoryUsageRelativeErrorDivisor;
         std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
-    } testParams[]{{600, 500, 6000, 290, 33, 25, 30},
+    } testParams[]{{600, 500, 6000, 290, 33, 25, 25},
                    {3600, 500, 5500, 280, 27, 25, 20},
                    {172800, 150, 850, 110, 6, 5, 3}};
 
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_OverFields > testParam.s_ExpectedOverFields);
-            BOOST_TEST_REQUIRE(used.s_OverFields < 7100);
+            BOOST_TEST_REQUIRE(used.s_OverFields < 8700);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
                 memoryLimit * core::constants::BYTES_IN_MEGABYTES /

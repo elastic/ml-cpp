@@ -14,7 +14,6 @@
 
 #include <core/CCompressedDictionary.h>
 #include <core/CMemoryUsage.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/CBucketGatherer.h>
@@ -41,18 +40,19 @@ public:
     using TWord = TDictionary1::CWord;
     using TWordSet = TDictionary1::TWordSet;
     using TWordStringUMap = TDictionary1::TWordTUMap<std::string>;
-    using TStoredStringPtrWordSetUMap = boost::unordered_map<core::CStoredStringPtr, TWordSet>;
-    using TStoredStringPtrWordSetUMapVec = std::vector<TStoredStringPtrWordSetUMap>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrWordSetUMap = boost::unordered_map<TOptionalStr, TWordSet>;
+    using TOptionalStrWordSetUMapVec = std::vector<TOptionalStrWordSetUMap>;
     using TStrCRef = SEventRateFeatureData::TStrCRef;
     using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
     using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
     using TStrCRefDouble1VecDoublePrPr = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr;
     using TStrCRefDouble1VecDoublePrPrVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec;
-    using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
+    using TOptionalStrVec = CBucketGatherer::TOptionalStrVec;
 
 public:
     //! Add a string into the collection
-    void insert(const std::string& value, const TStoredStringPtrVec& influences);
+    void insert(const std::string& value, const TOptionalStrVec& influences);
 
     //! Fill in a FeatureData structure with the influence strings and counts
     void populateDistinctCountFeatureData(SEventRateFeatureData& featureData) const;
@@ -81,7 +81,7 @@ public:
 private:
     TDictionary1 m_Dictionary1;
     TWordStringUMap m_UniqueStrings;
-    TStoredStringPtrWordSetUMapVec m_InfluencerUniqueStrings;
+    TOptionalStrWordSetUMapVec m_InfluencerUniqueStrings;
 };
 
 //! \brief Event rate data gathering class.
@@ -438,7 +438,7 @@ private:
                   const CEventData::TDouble1VecArray& values,
                   std::size_t count,
                   const CEventData::TOptionalStr& stringValue,
-                  const TStoredStringPtrVec& influences) override;
+                  const TOptionalStrVec& influences) override;
 
     //! Start a new bucket.
     void startNewBucket(core_t::TTime time, bool skipUpdates) override;

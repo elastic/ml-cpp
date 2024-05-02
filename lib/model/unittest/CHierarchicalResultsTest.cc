@@ -36,7 +36,6 @@
 #include <model/CLimits.h>
 #include <model/CModelDetailsView.h>
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -60,14 +59,15 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TAttributeProbabilityVec = model::CHierarchicalResults::TAttributeProbabilityVec;
-using TStoredStringPtrStoredStringPtrPr = model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStr = std::optional<std::string>;
+using TOptionalStrOptionalStrPr = model::CHierarchicalResults::TOptionalStrOptionalStrPr;
+using TOptionalStrOptionalStrPrDoublePr = model::CHierarchicalResults::TOptionalStrOptionalStrPrDoublePr;
+using TOptionalStrOptionalStrPrDoublePrVec =
+    model::CHierarchicalResults::TOptionalStrOptionalStrPrDoublePrVec;
 using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
+const TOptionalStr EMPTY_OPTIONAL_STR;
 
 //! \brief Checks that we visit the nodes in decreasing depth order.
 class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
@@ -300,10 +300,10 @@ public:
     class CFactory {
     public:
         SNodeProbabilities make(const model::CHierarchicalResults::TNode& node, bool) const {
-            return SNodeProbabilities(*node.s_Spec.s_PartitionFieldName + ' ' +
-                                      *node.s_Spec.s_PersonFieldName + ' ' +
-                                      *node.s_Spec.s_FunctionName + ' ' +
-                                      *node.s_Spec.s_ValueFieldName);
+            return SNodeProbabilities(node.s_Spec.s_PartitionFieldName.value_or("") + ' ' +
+                                      node.s_Spec.s_PersonFieldName.value_or("") + ' ' +
+                                      node.s_Spec.s_FunctionName.value_or("") + ' ' +
+                                      node.s_Spec.s_ValueFieldName.value_or(""));
         }
     };
 
@@ -747,9 +747,14 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue
 
     // partitioned node
     BOOST_REQUIRE_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
-    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(
+        EMPTY_STRING,
+        extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                        extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName.value_or(""));
+    BOOST_REQUIRE_EQUAL(
+        EMPTY_STRING,
+        extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
 
     // partition nodes
     BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
@@ -809,7 +814,8 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(0, extract.partitionNodes().size());
         BOOST_REQUIRE_EQUAL(1, extract.personNodes().size());
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
     }
     {
@@ -837,15 +843,18 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.leafNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[1]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.leafNodes()[2]->s_Children.size());
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_FunctionName.value_or(""));
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(3, extract.personNodes()[0]->s_Children.size());
     }
     {
@@ -872,7 +881,8 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
@@ -900,10 +910,12 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(0, extract.partitionNodes().size());
         BOOST_REQUIRE_EQUAL(2, extract.personNodes().size());
         BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[1]->s_Spec.s_FunctionName.value_or(""));
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(2, extract.personNodes()[1]->s_Children.size());
@@ -936,7 +948,9 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
 
         BOOST_REQUIRE_EQUAL(1, extract.partitionedNodes().size());
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(
+            EMPTY_STRING,
+            extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(4, extract.partitionedNodes()[0]->s_Children.size());
 
         BOOST_REQUIRE_EQUAL(4, extract.partitionNodes().size());
@@ -944,7 +958,9 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
         BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(
+            EMPTY_STRING,
+            extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
         BOOST_REQUIRE_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
         BOOST_REQUIRE_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
@@ -959,10 +975,12 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
         BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[0]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING,
+                            extract.personNodes()[3]->s_Spec.s_PersonFieldValue.value_or(""));
         BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[0]->s_Children.size());
         BOOST_REQUIRE_EQUAL(0, extract.personNodes()[1]->s_Children.size());
@@ -1146,23 +1164,23 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
-    core::CStoredStringPtr i2(model::CStringStore::influencers().get("i2"));
-    core::CStoredStringPtr i1(model::CStringStore::influencers().get("i1"));
-    core::CStoredStringPtr I(model::CStringStore::influencers().get("I"));
+    std::string i2("i2");
+    std::string i1("i1");
+    std::string I("I");
 
     // Test by.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
 
         model::CHierarchicalResults results;
         results.addModelResult(1, false, FUNC, function, EMPTY_STRING, EMPTY_STRING,
@@ -1193,24 +1211,24 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     // Test complex.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
         model::SAnnotatedProbability annotatedProbability4(0.03);
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 0.8));
+        annotatedProbability4.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.6));
+        annotatedProbability4.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 0.8));
         model::SAnnotatedProbability annotatedProbability5(0.56);
-        annotatedProbability5.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.8));
+        annotatedProbability5.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 0.8));
 
         model::CHierarchicalResults results;
         results.addModelResult(1, true, FUNC, function, PNF1, pn11, PF1, p11,
@@ -1249,8 +1267,8 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
     // Test high probability records are written due to low probability influencer
     {
         model::SAnnotatedProbability annotatedProbability1Low(0.06);
-        annotatedProbability1Low.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability1Low.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i1), 1.0));
         model::SAnnotatedProbability annotatedProbability1High(0.8);
         model::SAnnotatedProbability annotatedProbability11 = annotatedProbability1Low;
         model::SAnnotatedProbability annotatedProbability12 = annotatedProbability1High;
@@ -1259,11 +1277,11 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         model::SAnnotatedProbability annotatedProbability15 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability16 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability2(0.001);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TOptionalStrOptionalStrPrDoublePr(TOptionalStrOptionalStrPr(I, i2), 1.0));
 
         model::CHierarchicalResults results;
-        results.addInfluencer(*I);
+        results.addInfluencer(I);
         results.addModelResult(1, false, FUNC, function, PNF1, pn11, PF1, p11,
                                EMPTY_STRING, annotatedProbability11);
         results.addModelResult(1, false, FUNC, function, PNF1, pn11, PF1, p12,
@@ -1585,8 +1603,8 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             };
         auto scope = [](const model::CHierarchicalResultsVisitor::TNode* node) {
             return model::CAnomalyScore::CNormalizer::CMaximumScoreScope{
-                *node->s_Spec.s_PartitionFieldName, *node->s_Spec.s_PartitionFieldValue,
-                *node->s_Spec.s_PersonFieldName, *node->s_Spec.s_PersonFieldValue};
+                node->s_Spec.s_PartitionFieldName, node->s_Spec.s_PartitionFieldValue,
+                node->s_Spec.s_PersonFieldName, node->s_Spec.s_PersonFieldValue};
         };
 
         for (const auto& leaf : extract.leafNodes()) {
@@ -1690,9 +1708,16 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                            ? 0.0
                            : maths::common::CTools::anomalyScore(probability);
 
+        TOptionalStr personFieldName = "bucket_time";
         expectedNormalizers.find(std::string("r"))->second->isForMembersOfPopulation(false);
-        expectedNormalizers.find(std::string("r"))->second->updateQuantiles({"", "", "", ""}, score);
-        expectedNormalizers.find(std::string("r"))->second->normalize({"", "", "bucket_time", ""}, score);
+        expectedNormalizers.find(std::string("r"))
+            ->second->updateQuantiles({EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR,
+                                       EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR},
+                                      score);
+        expectedNormalizers.find(std::string("r"))
+            ->second->normalize({EMPTY_OPTIONAL_STR, EMPTY_OPTIONAL_STR,
+                                 personFieldName, EMPTY_OPTIONAL_STR},
+                                score);
         LOG_TRACE(<< "* root *");
         LOG_TRACE(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
         LOG_TRACE(<< "normalized         = " << score);

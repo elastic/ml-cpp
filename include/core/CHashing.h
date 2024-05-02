@@ -17,12 +17,12 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace ml {
 namespace core {
-class CStoredStringPtr;
 
 //! \brief Hashing functionality.
 //!
@@ -381,6 +381,7 @@ public:
         //! See CMemory.
         static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
+        using TOptionalStr = std::optional<const std::string>;
 
     public:
         explicit CMurmurHash2String(std::size_t seed = 0x5bd1e995)
@@ -390,7 +391,7 @@ public:
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const;
+        std::size_t operator()(const TOptionalStr& key) const;
 
     private:
         std::size_t m_Seed;
@@ -406,6 +407,7 @@ public:
         //! See CMemory.
         static constexpr bool dynamicSizeAlwaysZero() { return true; }
         using TStrCRef = std::reference_wrapper<const std::string>;
+        using TOptionalStr = std::optional<const std::string>;
 
     public:
         explicit CSafeMurmurHash2String64(std::uint64_t seed = 0x5bd1e995)
@@ -415,7 +417,7 @@ public:
         std::size_t operator()(TStrCRef key) const {
             return this->operator()(key.get());
         }
-        std::size_t operator()(const CStoredStringPtr& key) const;
+        std::size_t operator()(const TOptionalStr& key) const;
 
     private:
         std::uint64_t m_Seed;

@@ -12,8 +12,6 @@
 #ifndef INCLUDED_ml_model_CProbabilityAndInfluenceCalculator_h
 #define INCLUDED_ml_model_CProbabilityAndInfluenceCalculator_h
 
-#include <core/CStoredStringPtr.h>
-
 #include <maths/common/CModel.h>
 
 #include <model/CModelTools.h>
@@ -78,14 +76,12 @@ public:
         boost::unordered_map<maths::common::SModelProbabilityResult::EFeatureProbabilityLabel, double>;
     using TFeatureProbabilityLabelProbabilityAggregatorUMap =
         boost::unordered_map<maths::common::SModelProbabilityResult::EFeatureProbabilityLabel, CModelTools::CProbabilityAggregator>;
-    using TStoredStringPtrStoredStringPtrPr =
-        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr =
-        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
-    using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrOptionalStrPr = std::pair<TOptionalStr, TOptionalStr>;
+    using TOptionalStrOptionalStrPrVec = std::vector<TOptionalStrOptionalStrPr>;
+    using TOptionalStrOptionalStrPrDoublePr = std::pair<TOptionalStrOptionalStrPr, double>;
+    using TOptionalStrOptionalStrPrDoublePrVec = std::vector<TOptionalStrOptionalStrPrDoublePr>;
+    using TOptionalStr1Vec = core::CSmallVector<TOptionalStr, 1>;
     using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
 
     //! \brief Wraps up the parameters to the influence calculation.
@@ -114,7 +110,7 @@ public:
         //! The tail that the s_Value is in.
         TTail2Vec s_Tail;
         //! The name of the field for which to compute and influences.
-        core::CStoredStringPtr s_InfluencerName;
+        TOptionalStr s_InfluencerName;
         //! The influencer field values, and corresponding feature
         //! value and count of measurements in the restrictions of
         //! records to those influencer field values.
@@ -126,7 +122,7 @@ public:
         //! If true then add in influences greater than the cutoff.
         bool s_IncludeCutoff;
         //! Filled in with the influences of s_Value if any.
-        TStoredStringPtrStoredStringPtrPrDoublePrVec s_Influences;
+        TOptionalStrOptionalStrPrDoublePrVec s_Influences;
     };
 
     //! \brief Wraps up the parameters to the influence calculation
@@ -153,7 +149,7 @@ public:
         //! time series.
         TSize2Vec1Vec s_Variables;
         //! The correlated time series labels.
-        TStoredStringPtr1Vec s_CorrelatedLabels;
+        TOptionalStr1Vec s_CorrelatedLabels;
         //! The correlated time series identifiers.
         TSize1Vec s_Correlated;
         //! The parameters needed to compute probabilities.
@@ -165,7 +161,7 @@ public:
         //! The index of the most anomalous correlate.
         TSize1Vec s_MostAnomalousCorrelate;
         //! The name of the field for which to compute and influences.
-        core::CStoredStringPtr s_InfluencerName;
+        TOptionalStr s_InfluencerName;
         //! The influencer field values, and corresponding feature
         //! value and count of measurements in the restrictions of
         //! records to those influencer field values.
@@ -177,7 +173,7 @@ public:
         //! If true then add in influences greater than the cutoff.
         bool s_IncludeCutoff;
         //! Filled in with the influences of s_Values if any.
-        TStoredStringPtrStoredStringPtrPrDoublePrVec s_Influences;
+        TOptionalStrOptionalStrPrDoublePrVec s_Influences;
     };
 
 public:
@@ -218,7 +214,7 @@ public:
     //! \p value is added to this builder if it can be computed.
     //! \param[in] weight The weight to use when updating the aggregate
     //! probabilities.
-    bool addAttributeProbability(const core::CStoredStringPtr& attribute,
+    bool addAttributeProbability(const TOptionalStr& attribute,
                                  std::size_t cid,
                                  SParams& params,
                                  CAnnotatedProbabilityBuilder& builder,
@@ -226,7 +222,7 @@ public:
 
     //! Add an attribute probability for \p values of the correlates
     //! of the univariate feature \p feature.
-    bool addAttributeProbability(const core::CStoredStringPtr& attribute,
+    bool addAttributeProbability(const TOptionalStr& attribute,
                                  std::size_t cid,
                                  SCorrelateParams& params,
                                  CAnnotatedProbabilityBuilder& builder,
@@ -310,8 +306,7 @@ public:
     //! of all values added via addProbability.
     //! \param[out] influences Filled in with all influences of the
     //! overall probability.
-    bool calculate(double& probability,
-                   TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
+    bool calculate(double& probability, TOptionalStrOptionalStrPrDoublePrVec& influences) const;
 
     //! Calculate a measure of the impact of both the single bucket and multi
     //! bucket probabilities on the make up of the overall probability.
@@ -357,11 +352,11 @@ private:
     CModelTools::CProbabilityCache* m_ProbabilityCache;
 
     //! The influence probability calculator.
-    CModelTools::TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap m_InfluencerProbabilities;
+    CModelTools::TOptionalStrOptionalStrPrProbabilityAggregatorUMap m_InfluencerProbabilities;
 
     //! Placeholder for the influence weights so that it isn't
     //! allocated in a loop.
-    TStoredStringPtrStoredStringPtrPrDoublePrVec m_Influences;
+    TOptionalStrOptionalStrPrDoublePrVec m_Influences;
 
     TAnomalyScoreExplanation m_AnomalyScoreExplanation;
 };

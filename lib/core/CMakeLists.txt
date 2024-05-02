@@ -84,7 +84,6 @@ ml_add_library(MlCore SHARED
   CStateRestoreTraverser.cc
   CStaticThreadPool.cc
   CStopWatch.cc
-  CStoredStringPtr.cc
   CStrCaseCmp.cc
   CStrFTime.cc
   CStrPTime.cc

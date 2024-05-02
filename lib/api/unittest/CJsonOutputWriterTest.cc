@@ -19,8 +19,6 @@
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
-#include <model/CStringStore.h>
-#include <model/ModelTypes.h>
 
 #include <api/CGlobalCategoryId.h>
 #include <api/CJsonOutputWriter.h>
@@ -61,7 +59,7 @@ void testBucketWriteHelper(bool isInterim) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         {
             ml::api::CHierarchicalResultsWriter::SResults result11(
@@ -528,7 +526,7 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         {
             // 1st bucket
@@ -865,8 +863,8 @@ createInfluencerNode(const std::string& personName,
                      double probability,
                      double normalisedAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
-    spec.s_PersonFieldValue = ml::model::CStringStore::names().get(personValue);
+    spec.s_PersonFieldName = personName;
+    spec.s_PersonFieldValue = personValue;
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -882,7 +880,7 @@ createBucketInfluencerNode(const std::string& personName,
                            double normalisedAnomalyScore,
                            double rawAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
+    spec.s_PersonFieldName = personName;
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -912,7 +910,7 @@ void testThroughputHelper(bool useScopedAllocator) {
     std::string function("mean");
     std::string functionDescription("mean(responsetime)");
     std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
     ml::api::CHierarchicalResultsWriter::SResults result11(
         false, false, partitionFieldName, partitionFieldValue, overFieldName,
@@ -1010,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
     std::string fieldName("location");
     std::string function("lat_long");
     std::string functionDescription("lat_long(location)");
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
     std::string emptyString;
     // The output writer won't close the JSON structures until is is destroyed
     {
@@ -1130,7 +1128,7 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
     std::string function("mean");
     std::string functionDescription("mean(responsetime)");
     std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
     {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
@@ -1467,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         std::string fund("function_description");
         std::string fn("field_name");
         std::string emptyStr;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
         ml::api::CHierarchicalResultsWriter::SResults result(
             ml::api::CHierarchicalResultsWriter::E_Result, pfn, pfv, bfn, bfv,
             emptyStr, 0, fun, fund, 42.0, 79, TDouble1Vec(1, 6953.0),
@@ -1580,7 +1578,7 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         std::string user("user");
         std::string dave("dave");
@@ -1590,40 +1588,20 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         std::string localhost("localhost");
         std::string webserver("web-server");
 
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(dave));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(cat));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field3 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(jo));
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field1(user, dave);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field2(user, cat);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field3(user, jo);
 
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(localhost));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(webserver));
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr hostField1(host, localhost);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr hostField2(host, webserver);
 
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field1, 0.4));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field2, 1.0));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            hostField1, 0.7));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field3, 0.1));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            hostField2, 0.8));
+        influences.emplace_back(field1, 0.4);
+        influences.emplace_back(field2, 1.0);
+        influences.emplace_back(hostField1, 0.7);
+        influences.emplace_back(field3, 0.1);
+        influences.emplace_back(hostField2, 0.8);
 
-        // The output writer won't close the JSON structures until is is destroyed
+        // The output writer won't close the JSON structures until it is destroyed
 
         ml::api::CHierarchicalResultsWriter::SResults result(
             ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
@@ -1911,7 +1889,7 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
@@ -1989,7 +1967,7 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
         std::string function("rare");
         std::string functionDescription("rare");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
         ml::api::CHierarchicalResultsWriter::TAnomalyScoreExplanation anomalyScoreExplanation;
 
         {

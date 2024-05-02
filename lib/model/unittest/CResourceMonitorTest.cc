@@ -19,7 +19,6 @@
 #include <model/CHierarchicalResults.h>
 #include <model/CLimits.h>
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 #include <model/CTokenListDataCategorizer.h>
 
 #include <boost/test/unit_test.hpp>
@@ -33,12 +32,7 @@ using namespace model;
 
 class CTestFixture {
 public:
-    CTestFixture() {
-        // Other test suites also use the string store, and it will mess up the
-        // tests in this suite if the string store is not empty when they start
-        CStringStore::names().clearEverythingTestOnly();
-        CStringStore::influencers().clearEverythingTestOnly();
-    }
+    CTestFixture() {}
 
     void reportCallback(const CResourceMonitor::SModelSizeStats& modelSizeStats) {
         m_ReportedModelSizeStats = modelSizeStats;
@@ -119,9 +113,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
     std::size_t mem = core::memory::dynamicSize(&categorizer) +
                       core::memory::dynamicSize(&detector1) +
-                      core::memory::dynamicSize(&detector2) +
-                      CStringStore::names().memoryUsage() +
-                      CStringStore::influencers().memoryUsage();
+                      core::memory::dynamicSize(&detector2);
 
     {
         // Test default constructor
@@ -176,7 +168,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
         BOOST_REQUIRE_EQUAL(0, mon.m_Resources.size());
         BOOST_REQUIRE_EQUAL(0, mon.m_MonitoredResourceCurrentMemory);
-        BOOST_TEST_REQUIRE(mon.m_PreviousTotal > 0); // because it includes string store memory
+        BOOST_REQUIRE_EQUAL(0, mon.m_PreviousTotal);
 
         mon.registerComponent(categorizer);
         BOOST_REQUIRE_EQUAL(1, mon.m_Resources.size());

@@ -176,7 +176,7 @@ protected:
         }
 
         if (pivot && this->isRoot(node)) {
-            TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
+            TWord word = ms_Dictionary.word(node.s_Spec.s_PersonFieldName.value_or(""));
             TWordTypePrVecItr i = element(m_InfluencerBucketSet, word);
             if (i == m_InfluencerBucketSet.end() || i->first != word) {
                 i = m_InfluencerBucketSet.emplace(i, word, factory.make(node, pivot));
@@ -185,7 +185,7 @@ protected:
             return;
         }
         if (pivot && !this->isRoot(node)) {
-            TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
+            TWord word = ms_Dictionary.word(node.s_Spec.s_PersonFieldName.value_or(""));
             TWordTypePrVecItr i = element(m_InfluencerSet, word);
             if (i == m_InfluencerSet.end() || i->first != word) {
                 i = m_InfluencerSet.emplace(i, word, factory.make(node, pivot));
@@ -195,9 +195,11 @@ protected:
         }
 
         if (this->isLeaf(node)) {
-            TWord word = ms_Dictionary.word(
-                *node.s_Spec.s_PartitionFieldName, *node.s_Spec.s_PersonFieldName,
-                *node.s_Spec.s_FunctionName, *node.s_Spec.s_ValueFieldName);
+            TWord word =
+                ms_Dictionary.word(node.s_Spec.s_PartitionFieldName.value_or(""),
+                                   node.s_Spec.s_PersonFieldName.value_or(""),
+                                   node.s_Spec.s_FunctionName.value_or(""),
+                                   node.s_Spec.s_ValueFieldName.value_or(""));
             TWordTypePrVecItr i = element(m_LeafSet, word);
             if (i == m_LeafSet.end() || i->first != word) {
                 i = m_LeafSet.emplace(i, word, factory.make(node, pivot));
@@ -205,8 +207,9 @@ protected:
             result.push_back(&i->second);
         }
         if (this->isPerson(node)) {
-            TWord word = ms_Dictionary.word(*node.s_Spec.s_PartitionFieldName,
-                                            *node.s_Spec.s_PersonFieldName);
+            TWord word =
+                ms_Dictionary.word(node.s_Spec.s_PartitionFieldName.value_or(""),
+                                   node.s_Spec.s_PersonFieldName.value_or(""));
             TWordTypePrVecItr i = element(m_PersonSet, word);
             if (i == m_PersonSet.end() || i->first != word) {
                 i = m_PersonSet.emplace(i, word, factory.make(node, pivot));
@@ -214,7 +217,7 @@ protected:
             result.push_back(&i->second);
         }
         if (this->isPartition(node)) {
-            TWord word = ms_Dictionary.word(*node.s_Spec.s_PartitionFieldName);
+            TWord word = ms_Dictionary.word(node.s_Spec.s_PartitionFieldName.value_or(""));
 
             TWordTypePrVecItr i = element(m_PartitionSet, word);
             if (i == m_PartitionSet.end() || i->first != word) {

@@ -254,7 +254,7 @@ private:
                   const CEventData::TDouble1VecArray& values,
                   std::size_t count,
                   const CEventData::TOptionalStr& stringValue,
-                  const TStoredStringPtrVec& influences) override;
+                  const TOptionalStrVec& influences) override;
 
     //! Start a new bucket.
     void startNewBucket(core_t::TTime time, bool skipUpdates) override;

@@ -14,7 +14,6 @@
 
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/CBucketGatherer.h>
@@ -115,11 +114,10 @@ public:
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64UMapQueue = CBucketQueue<TSizeSizePrUInt64UMap>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
-        std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
-        CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+    using TSizeSizePrOptionalStrPrUInt64UMap = CBucketGatherer::TSizeSizePrOptionalStrPrUInt64UMap;
+    using TSizeSizePrOptionalStrPrUInt64UMapVec = std::vector<TSizeSizePrOptionalStrPrUInt64UMap>;
+    using TSizeSizePrOptionalStrPrUInt64UMapVecQueue =
+        CBucketQueue<TSizeSizePrOptionalStrPrUInt64UMapVec>;
     using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
     using TBucketGathererPtr = std::unique_ptr<CBucketGatherer>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
@@ -405,12 +403,6 @@ public:
     //! Get the name of the person identified by \p pid if they exist.
     //!
     //! \param[in] pid The unique identifier of the person of interest.
-    //! \return The person name if they exist and a fallback otherwise.
-    const core::CStoredStringPtr& personNamePtr(std::size_t pid) const;
-
-    //! Get the name of the person identified by \p pid if they exist.
-    //!
-    //! \param[in] pid The unique identifier of the person of interest.
     //! \param[in] fallback The fall back name.
     //! \return The person name if they exist and \p fallback otherwise.
     const std::string& personName(std::size_t pid, const std::string& fallback) const;
@@ -473,12 +465,6 @@ public:
     //! \param[in] cid The unique identifier of the attribute of interest.
     //! \return The attribute name if it exists anda fallback otherwise.
     const std::string& attributeName(std::size_t cid) const;
-
-    //! Get the name of the attribute identified by \p pid if they exist.
-    //!
-    //! \param[in] cid The unique identifier of the attribute of interest.
-    //! \return The attribute name if they exist and a fallback otherwise.
-    const core::CStoredStringPtr& attributeNamePtr(std::size_t cid) const;
 
     //! Get the name of the attribute identified by \p cid if they exist.
     //!
@@ -572,7 +558,7 @@ public:
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrOptionalStrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -740,7 +726,7 @@ private:
     TSearchKeyCRef m_SearchKey;
 
     //! The value of the partition field for this detector.
-    core::CStoredStringPtr m_PartitionFieldValue;
+    std::string m_PartitionFieldValue;
 
     //! A registry where person names are mapped to unique IDs.
     CDynamicStringIdRegistry m_PeopleRegistry;

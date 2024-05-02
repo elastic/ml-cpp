@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.14.0
+
+=== Bug Fixes
+
+* Remove ineffective optimizations for duplicate strings. (See {ml-pull}2652[#2652], issue: {ml-issue}2130[#2130].)
+
 == {es} version 8.13.0
 
 === Enhancements

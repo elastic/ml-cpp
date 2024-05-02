@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_common_COrderings_h
 
 #include <core/CNonInstantiatable.h>
-#include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
 #include <maths/common/ImportExport.h>
@@ -159,11 +158,6 @@ public:
             return SDerefLess::less(lhs, rhs);
         }
 
-        inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) const {
-            return SDerefLess::less(lhs.get(), rhs.get());
-        }
-
         template<typename T>
         inline bool operator()(const std::shared_ptr<T>& lhs,
                                const std::shared_ptr<T>& rhs) const {
@@ -183,7 +177,7 @@ public:
         }
     };
 
-    //! \brief Wrapper around various less than comparisons.
+    //! \brief Wrapper around various greater than comparisons.
     struct MATHS_COMMON_EXPORT SGreater {
         template<typename U, typename V, std::enable_if_t<!std::is_pointer_v<U> || !std::is_pointer_v<V>>* = nullptr>
         inline bool operator()(const U& lhs, const V& rhs) const {
@@ -198,11 +192,6 @@ public:
         template<typename T>
         inline bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const {
             return SDerefGreater::greater(lhs, rhs);
-        }
-
-        inline bool operator()(const core::CStoredStringPtr& lhs,
-                               const core::CStoredStringPtr& rhs) const {
-            return SDerefGreater::greater(lhs.get(), rhs.get());
         }
 
         template<typename T>

@@ -15,7 +15,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModel.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
-#include <model/CStringStore.h>
 
 #include <boost/unordered_set.hpp>
 
@@ -101,8 +100,7 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
                                                    const INFLUENCES& influences,
                                                    CProbabilityAndInfluenceCalculator& pJoint,
                                                    CAnnotatedProbabilityBuilder& builder) const {
-    if (!pJoint.addAttributeProbability(CStringStore::names().get(EMPTY_STRING),
-                                        model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+    if (!pJoint.addAttributeProbability(EMPTY_STRING, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                                         params, builder)) {
         LOG_ERROR(<< "Failed to compute P(" << params.describe()
                   << ", person = " << this->personName(pid) << ")");
