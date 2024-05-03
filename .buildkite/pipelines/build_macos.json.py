@@ -45,6 +45,10 @@ def main(args):
               "queue": "ml-aarch64-macstadium"
             },
             "commands": [
+              "system_profiler SPHardwareDataType",
+              "sysctl  hw",
+              "uname -a",
+              "sw_vers",
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
               ".buildkite/scripts/steps/build_and_test.sh"
             ],
