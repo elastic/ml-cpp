@@ -42,7 +42,8 @@ def main(args):
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
             "timeout_in_minutes": "240",
             "agents": {
-              "queue": "ml-aarch64-macstadium"
+              "provider": "orka",
+              "imagePrefix": "generic-13-ventura-arm"
             },
             "commands": [
               "system_profiler SPHardwareDataType",
