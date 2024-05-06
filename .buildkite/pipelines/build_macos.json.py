@@ -43,7 +43,7 @@ def main(args):
             "timeout_in_minutes": "240",
             "agents": {
               "provider": "orka",
-              "imagePrefix": "generic-13-ventura-arm"
+              "image": "ml-dependency-builder-ventura"
             },
             "commands": [
               "system_profiler SPHardwareDataType",
