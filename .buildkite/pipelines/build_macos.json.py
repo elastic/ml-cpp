@@ -46,6 +46,7 @@ def main(args):
               "imagePrefix": "ml-macos-13-arm"
             },
             "commands": [
+              "env",
               "system_profiler SPHardwareDataType",
               "sysctl  hw",
               "uname -a",
