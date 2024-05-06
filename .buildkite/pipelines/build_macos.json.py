@@ -43,7 +43,7 @@ def main(args):
             "timeout_in_minutes": "240",
             "agents": {
               "provider": "orka",
-              "image": "ml-macos-13-arm-base.orkasi"
+              "imagePrefix": "ml-macos-13-arm"
             },
             "commands": [
               "system_profiler SPHardwareDataType",
