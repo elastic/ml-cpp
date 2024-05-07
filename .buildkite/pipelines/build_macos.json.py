@@ -58,6 +58,8 @@ def main(args):
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
               "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
+              "HOMEBREW_PREFIX": "/opt/homebrew",
+              "PATH": "$HOMEBREW_PREFIX/bin:$PATH",
               "PATH": "$JAVA_HOME/bin:$PATH",
               "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
