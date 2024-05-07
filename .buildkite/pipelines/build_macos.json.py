@@ -57,6 +57,7 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
+              "TMPDIR": "/tmp",
               "HOMEBREW_PREFIX": "/opt/homebrew",
               "PATH": "/opt/homebrew/bin:$PATH",
               "ML_DEBUG": "0",
