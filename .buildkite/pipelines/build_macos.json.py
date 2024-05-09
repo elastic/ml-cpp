@@ -43,7 +43,7 @@ def main(args):
             "timeout_in_minutes": "240",
             "agents": {
               "provider": "orka",
-              "imagePrefix": "ml-macos-12-arm"
+              "image": "ml-macos-12-arm-001.orkasi"
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
@@ -55,8 +55,6 @@ def main(args):
               "TMPDIR": "/tmp",
               "HOMEBREW_PREFIX": "/opt/homebrew",
               "PATH": "/opt/homebrew/bin:$PATH",
-              "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
-              "PATH": "$JAVA_HOME/bin:$PATH",
               "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
