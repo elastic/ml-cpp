@@ -43,6 +43,3 @@ echo "Extracting dependencies from $ARCHIVE"
 cd "$DEST" && tar -jmxf "$TMPDIR/$ARCHIVE"
 echo "Cleaning up dependency archive"
 rm -f "$TMPDIR/$ARCHIVE"
-
-curl -v -L https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-macos-universal.tar.gz | tar xvzf - --strip-components 1 -C /Applications
-ln -s /Applications/CMake.app/Contents/bin/cmake /usr/local/bin/cmake
