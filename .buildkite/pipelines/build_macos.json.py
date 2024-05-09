@@ -42,7 +42,8 @@ def main(args):
             "label": f"Build & test :cpp: for MacOS-{arch}-{build_type} :macos:",
             "timeout_in_minutes": "240",
             "agents": {
-              "queue": "ml-aarch64-macstadium"
+              "provider": "orka",
+              "imagePrefix": "ml-macos-12-arm"
             },
             "commands": [
               f'if [[ "{args.action}" == "debug" ]]; then export ML_DEBUG=1; fi',
@@ -51,6 +52,9 @@ def main(args):
             "depends_on": "check_style",
             "key": f"build_test_macos-{arch}-{build_type}",
             "env": {
+              "TMPDIR": "/tmp",
+              "HOMEBREW_PREFIX": "/opt/homebrew",
+              "PATH": "/opt/homebrew/bin:$PATH",
               "JAVA_HOME": "/var/lib/jenkins/.java/zulu11",
               "PATH": "$JAVA_HOME/bin:$PATH",
               "ML_DEBUG": "0",
