@@ -43,7 +43,7 @@ def main(args):
             "timeout_in_minutes": "240",
             "agents": {
               "provider": "orka",
-              "image": "ml-macos-12-arm-001.orkasi"
+              "image": "ml-macos-12-arm-003.orkasi"
             },
             "commands": [
               "env",
