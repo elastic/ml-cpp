@@ -4,22 +4,18 @@ export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
 MACHINE_TYPE=$(uname -m)
 
+PYTHON3_URL=https://www.python.org/ftp/python/3.10.8/python-3.10.8-macos11.pkg
+PYTHON3_FILE=python-3.10.8-macos11.pkg
+
+GCLOUD_SDK_URL=https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-408.0.1-darwin-x86_64.tar.gz
+GCLOUD_SDK_FILE=google-cloud-cli.tar.gz
+
 if [ ${MACHINE_TYPE} == "x86_64" ]; then
     echo "Running on x86_64"
 
-    PYTHON3_URL=https://www.python.org/ftp/python/3.10.8/python-3.10.8-macos11.pkg
-    PYTHON3_FILE=python-3.10.8-macos11.pkg
-
-    GCLOUD_SDK_URL=https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-408.0.1-darwin-x86_64.tar.gz
-    GCLOUD_SDK_FILE=google-cloud-cli.tar.gz
 elif [ ${MACHINE_TYPE} == "arm64" ]; then
     echo "Running on arm64"
 
-    PYTHON3_URL=https://www.python.org/ftp/python/3.10.8/python-3.10.8-macos11.pkg
-    PYTHON3_FILE=python-3.10.8-macos11.pkg
-
-    GCLOUD_SDK_URL=https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-408.0.1-darwin-arm.tar.gz
-    GCLOUD_SDK_FILE=google-cloud-cli.tar.gz
 else
     echo "Unknown architecture: ${MACHINE_TYPE}"
     exit 1
