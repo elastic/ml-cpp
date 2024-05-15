@@ -80,7 +80,7 @@ if ! [[ "$HARDWARE_ARCH" = aarch64 && -z "$CPP_CROSS_COMPILE" ]] ; then
 else
   if [[ `uname` = "Darwin" && "$HARDWARE_ARCH" = "aarch64" ]]; then
      # For macOS, build directly on the machine
-     ${REPO_ROOT}/dev-tools/download_macos_deps.sh
+     sudo -E ${REPO_ROOT}/dev-tools/download_macos_deps.sh
      if [ "$RUN_TESTS" = false ] ; then
          TASKS="clean buildZip buildZipSymbols"
      else
