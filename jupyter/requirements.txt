@@ -22,3 +22,4 @@ seaborn             ==0.11.1
 tornado             >=6.3.3 # not directly required, pinned by Snyk to avoid a vulnerability
 jupyter-server      >=2.7.2 # not directly required, pinned by Snyk to avoid a vulnerability
 pillow              >=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.32.0 # not directly required, pinned by Snyk to avoid a vulnerability
