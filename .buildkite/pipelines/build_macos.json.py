@@ -55,7 +55,6 @@ def main(args):
               "TMPDIR": "/tmp",
               "HOMEBREW_PREFIX": "/opt/homebrew",
               "PATH": "/opt/homebrew/bin:$PATH",
-              "ML_DEBUG": "0",
               "CPP_CROSS_COMPILE": "",
               "CMAKE_FLAGS": "-DCMAKE_TOOLCHAIN_FILE=cmake/darwin-aarch64.cmake",
               "RUN_TESTS": "true",
