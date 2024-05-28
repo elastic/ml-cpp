@@ -60,6 +60,9 @@
 
 int main(int argc, char** argv) {
 
+    char c;
+    std::cin >> c;
+
     // Register the set of counters in which this program is interested
     const ml::counter_t::TCounterTypeSet counters{
         ml::counter_t::E_TSADNumberNewPeopleNotAllowed,

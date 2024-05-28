@@ -333,13 +333,13 @@ private:
     //! The documents in this vector will reference memory owned by
     //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
     //! so that it's destroyed first when the destructor runs.)
-    TDocumentWeakPtrVec m_NestedDocs;
+    TDocumentWeakPtrVec m_NestedDocs; // XXX
 
     //! Bucket data waiting to be written.  The map is keyed on bucket time.
     //! The documents in this map will reference memory owned by
     //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
     //! so that it's destroyed first when the destructor runs.)
-    TTimeBucketDataMap m_BucketDataByTime;
+    TTimeBucketDataMap m_BucketDataByTime; // XXX
 };
 }
 }
