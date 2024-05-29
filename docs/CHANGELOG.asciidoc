@@ -33,6 +33,7 @@
 === Bug Fixes
 
 * Remove ineffective optimizations for duplicate strings. (See {ml-pull}2652[#2652], issue: {ml-issue}2130[#2130].)
+* Use custom Boost.JSON resource allocator. (See {ml-pull}2674[#2674].)
 
 == {es} version 8.13.0
 
