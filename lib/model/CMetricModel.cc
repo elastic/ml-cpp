@@ -285,8 +285,10 @@ void CMetricModel::sample(core_t::TTime startTime,
                           << ", scaled interval = " << scaledInterval);
 
                 values.resize(samples.size());
-                trendWeights.resize(samples.size(), maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                priorWeights.resize(samples.size(), maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                trendWeights.resize(samples.size(),
+                                    maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                priorWeights.resize(samples.size(),
+                                    maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 for (std::size_t i = 0; i < samples.size(); ++i) {
                     core_t::TTime ithSampleTime = samples[i].time();
                     TDouble2Vec ithSampleValue(samples[i].value(dimension));

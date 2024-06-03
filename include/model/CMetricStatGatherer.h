@@ -73,11 +73,9 @@ public:
     using TStrStatUMap = boost::unordered_map<std::string, STAT>;
 
 public:
-    explicit CStrStatUMapSerializer(const STAT& initial)
-        : m_Initial(initial) {}
+    explicit CStrStatUMapSerializer(const STAT& initial) : m_Initial(initial) {}
 
-    void operator()(const TStrStatUMap& map,
-                    core::CStatePersistInserter& inserter) const {
+    void operator()(const TStrStatUMap& map, core::CStatePersistInserter& inserter) const {
         using TStrCRef = std::reference_wrapper<const std::string>;
         using TStatCRef = std::reference_wrapper<const STAT>;
         using TStrCRefStatCRefPr = std::pair<TStrCRef, TStatCRef>;
@@ -94,8 +92,7 @@ public:
         }
     }
 
-    bool operator()(TStrStatUMap& map,
-                    core::CStateRestoreTraverser& traverser) const {
+    bool operator()(TStrStatUMap& map, core::CStateRestoreTraverser& traverser) const {
         std::string key;
         do {
             const std::string& name{traverser.name()};
@@ -112,8 +109,7 @@ private:
 };
 
 template<typename STAT>
-using TStrStatUMapQueue =
-    CBucketQueue<boost::unordered_map<std::string, STAT>>;
+using TStrStatUMapQueue = CBucketQueue<boost::unordered_map<std::string, STAT>>;
 template<typename STAT>
 using TStrStatUMapQueueSerializer =
     typename TStrStatUMapQueue<STAT>::template CSerializer<CStrStatUMapSerializer<STAT>>;
@@ -262,8 +258,7 @@ public:
 private:
     using TBaseStat = typename STAT::TStat;
     using TStatQueue = CBucketQueue<STAT>;
-    using TStrBaseStatUMap =
-        boost::unordered_map<std::string, TBaseStat>;
+    using TStrBaseStatUMap = boost::unordered_map<std::string, TBaseStat>;
     using TStrBaseStatUMapQueue = CBucketQueue<TStrBaseStatUMap>;
     using TStrBaseStatUMapQueueVec = std::vector<TStrBaseStatUMapQueue>;
     using TStrVec = std::vector<std::string>;
@@ -334,10 +329,7 @@ public:
     //! \param[in] time The time of \p value.
     //! \param[in] value The measurement value.
     //! \param[in] influences The influencing field values which label \p value.
-    void add(core_t::TTime time,
-             const TDouble1Vec& value,
-             unsigned int count,
-             const TStrVec& influences) {
+    void add(core_t::TTime time, const TDouble1Vec& value, unsigned int count, const TStrVec& influences) {
         core_t::TTime bucketTime{time % m_BucketStats.bucketLength()};
         m_Classifier.add(FEATURE, value, count);
         m_BucketStats.get(time).add(bucketTime, value, count);
@@ -382,8 +374,7 @@ public:
             });
         }
         TStrStatUMapQueueSerializer influencerSerializer{
-            TStrBaseStatUMap(1),
-            CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
+            TStrBaseStatUMap(1), CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
         for (const auto& stats : m_InfluencerBucketStats) {
             inserter.insertLevel(INFLUENCER_BUCKET_STATS_TAG, [&](auto& inserter_) {
                 influencerSerializer(stats, inserter_);
@@ -395,8 +386,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         using namespace metric_stat_gatherer_detail;
         TStrStatUMapQueueSerializer influencerSerializer{
-            TStrBaseStatUMap(1),
-            CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
+            TStrBaseStatUMap(1), CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
         std::size_t i{0};
         do {
             const std::string& name{traverser.name()};

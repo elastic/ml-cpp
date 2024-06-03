@@ -257,7 +257,8 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const TTimeVec BUCKET_LENGTHS{120, 180, 240, 300};
-    static const TTimeTimePrVec ANOMALOUS_INTERVALS{{1360576852, 1360578629}, {1360617335, 1360617481}};
+    static const TTimeTimePrVec ANOMALOUS_INTERVALS{{1360576852, 1360578629},
+                                                    {1360617335, 1360617481}};
 
     for (auto bucketLength : BUCKET_LENGTHS) {
         model::CAnomalyDetectorModelConfig modelConfig =

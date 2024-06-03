@@ -1105,5 +1105,4 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
 }
