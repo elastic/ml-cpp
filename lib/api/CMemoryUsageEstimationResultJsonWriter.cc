@@ -28,12 +28,12 @@ CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(c
 
 void CMemoryUsageEstimationResultJsonWriter::write(const std::string& expectedMemoryWithoutDisk,
                                                    const std::string& expectedMemoryWithDisk) {
-    m_Writer.StartObject();
-    m_Writer.Key(EXPECTED_MEMORY_WITHOUT_DISK);
-    m_Writer.String(expectedMemoryWithoutDisk);
-    m_Writer.Key(EXPECTED_MEMORY_WITH_DISK);
-    m_Writer.String(expectedMemoryWithDisk);
-    m_Writer.EndObject();
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(EXPECTED_MEMORY_WITHOUT_DISK);
+    m_Writer.onString(expectedMemoryWithoutDisk);
+    m_Writer.onKey(EXPECTED_MEMORY_WITH_DISK);
+    m_Writer.onString(expectedMemoryWithDisk);
+    m_Writer.onObjectEnd();
     m_Writer.flush();
 }
 }

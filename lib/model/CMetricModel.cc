@@ -660,8 +660,7 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     for (std::size_t i = 0; i < correlates.size(); ++i) {
         TSize2Vec variables(pid == correlates[i][0] ? TSize2Vec{0, 1} : TSize2Vec{1, 0});
-        params.s_CorrelatedLabels[i] =
-            gatherer.personNamePtr(correlates[i][variables[1]]);
+        params.s_CorrelatedLabels[i] = gatherer.personName(correlates[i][variables[1]]);
         params.s_Correlated[i] = correlates[i][variables[1]];
         params.s_Variables[i] = variables;
         const maths::common::CModel* models[]{

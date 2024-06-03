@@ -36,8 +36,6 @@
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 #include <test/CRandomNumbers.h>
 
-#include <rapidjson/prettywriter.h>
-
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
@@ -104,17 +102,18 @@ TStrVec splitOnNull(std::stringstream&& tokenStream) {
     return results;
 }
 
-rapidjson::Document treeToJsonDocument(const maths::analytics::CBoostedTree& tree) {
+json::object treeToJsonDocument(const maths::analytics::CBoostedTree& tree) {
     std::stringstream persistStream;
     {
         core::CJsonStatePersistInserter inserter(persistStream);
         tree.acceptPersistInserter(inserter);
         persistStream.flush();
     }
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(persistStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-    return results;
+    json::error_code ec;
+    json::value results = json::parse(persistStream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_object());
+    return results.as_object();
 }
 
 auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t dependentVariable) {
@@ -216,16 +215,25 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     // Compare hyperparameters.
 
-    rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
-    const auto& expectedHyperparameters = expectedResults["hyperparameters"];
+    json::object expectedResults{treeToJsonDocument(*expectedTree)};
+    const json::object& expectedHyperparameters =
+        expectedResults.at("hyperparameters").as_object();
 
-    rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
+    json::object actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters = actualResults["hyperparameters"];
 
     for (const auto& key : maths::analytics::CBoostedTreeHyperparameters::names()) {
-        if (expectedHyperparameters.HasMember(key)) {
-            double expected{std::stod(expectedHyperparameters[key]["value"].GetString())};
-            double actual{std::stod(actualHyperparameters[key]["value"].GetString())};
+        if (expectedHyperparameters.contains(key)) {
+            double expected{std::stod(expectedHyperparameters.at(key)
+                                          .as_object()
+                                          .at("value")
+                                          .as_string()
+                                          .c_str())};
+            double actual{std::stod(actualHyperparameters.at(key)
+                                        .as_object()
+                                        .at("value")
+                                        .as_string()
+                                        .c_str())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
@@ -298,26 +306,34 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthLimit().value() == softTreeDepthLimit);
     BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthTolerance().value() == softTreeDepthTolerance);
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("phase_progress")) {
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
-            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
+            BOOST_TEST_REQUIRE(result.contains("progress_percent") == false);
+        } else if (result.contains("phase_progress")) {
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
+            BOOST_TEST_REQUIRE(result.contains("row_results") == false);
+            progressCompleted =
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -337,58 +353,74 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                                   double& lossGap,
                                   std::ostream& incrementalTrainingState) {
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(resultsJson));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(resultsJson, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     std::stringstream inferenceModelStream;
-    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-        inferenceModelStreamWrapper};
+    core::CStreamWriter inferenceModelWriter{inferenceModelStream};
 
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        incrementalTrainingStateWrapper};
+    core::CStreamWriter dataSummarizationWriter{incrementalTrainingState};
 
+    LOG_DEBUG(<< "Results size: " << results.as_array().size() << ", " << results);
     // Read the state used to initialize incremental training.
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("compressed_inference_model")) {
+    int i{0};
+    for (const auto& result_ : results.as_array()) {
+        LOG_DEBUG(<< "result_[" << i << "]: " << result_);
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("compressed_inference_model")) {
             inferenceModelWriter.write(result);
             LOG_DEBUG(<< "Inference Model definition found");
-        } else if (result.HasMember("compressed_data_summarization")) {
+        } else if (result.contains("compressed_data_summarization")) {
             dataSummarizationWriter.write(result);
             LOG_DEBUG(<< "Data summarization found");
-        } else if (result.HasMember("model_metadata")) {
+        } else if (result.contains("model_metadata")) {
             LOG_DEBUG(<< "Metadata found");
-            for (const auto& item : result["model_metadata"]["hyperparameters"].GetArray()) {
-                if (std::strcmp(item["name"].GetString(), "alpha") == 0) {
-                    alpha = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "lambda") == 0) {
-                    lambda = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "gamma") == 0) {
-                    gamma = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "soft_tree_depth_limit") == 0) {
-                    softTreeDepthLimit = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(),
-                                       "soft_tree_depth_tolerance") == 0) {
-                    softTreeDepthTolerance = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "eta") == 0) {
-                    eta = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(),
-                                       "eta_growth_rate_per_tree") == 0) {
-                    etaGrowthRatePerTree = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "downsample_factor") == 0) {
-                    downsampleFactor = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "feature_bag_fraction") == 0) {
-                    featureBagFraction = item["value"].GetDouble();
+            for (const auto& item :
+                 result_.at_pointer("/model_metadata/hyperparameters").as_array()) {
+                LOG_DEBUG(<< "/model_metadata/hyperparameters: " << item);
+                if (item.at("name").as_string() == "alpha") {
+                    alpha = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "lambda") {
+                    lambda = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "gamma") {
+                    gamma = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "soft_tree_depth_limit") {
+                    softTreeDepthLimit = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "soft_tree_depth_tolerance") {
+                    softTreeDepthTolerance = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "eta") {
+                    eta = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "eta_growth_rate_per_tree") {
+                    etaGrowthRatePerTree = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "downsample_factor") {
+                    downsampleFactor = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
+                } else if (item.at("name").as_string() == "feature_bag_fraction") {
+                    featureBagFraction = item.at("value").to_number<double>(ec);
+                    BOOST_REQUIRE(ec.failed() == false);
                 }
             }
-            if (result["model_metadata"].HasMember("train_properties") &&
-                result["model_metadata"]["train_properties"].HasMember("loss_gap")) {
-                lossGap =
-                    result["model_metadata"]["train_properties"]["loss_gap"].GetDouble();
+            if (result.at("model_metadata").as_object().contains("train_properties") &&
+                result_.at_pointer("/model_metadata/train_properties")
+                    .as_object()
+                    .contains("loss_gap")) {
+                lossGap = result_
+                              .at_pointer("/model_metadata/train_properties/loss_gap")
+                              .to_number<double>(ec);
+                BOOST_REQUIRE(ec.failed() == false);
             }
         }
+        ++i;
     }
     incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
 }
@@ -396,25 +428,24 @@ void readIncrementalTrainingState(const std::string& resultsJson,
 void readIncrementalTrainingState(const std::string& resultsJson,
                                   std::ostream& incrementalTrainingState) {
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(resultsJson));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    //    std::string str = "[{\"analytics_memory_usage\":{\"job_id\":\"testJob\",\"timestamp\":1704805891956,\"peak_usage_bytes\":4032,\"status\":\"ok\"}}\n,{\"analytics_memory_usage\":{\"job_id\":\"testJob\",\"timestamp\":1704805893487,\"peak_usage_bytes\":4272,\"status\":\"ok\"}}\n,{\"phase_progress\":{\"phase\":\"feature_selection\",\"progress_percent\":0}}\n,{\"phase_progress\":{\"phase\":\"feature_selection\",\"progress_percent\":1}}\n,{\"analytics_memory_usage\":{\"job_id\":\"testJob\",\"timestamp\":1704805893525,\"peak_usage_bytes\":4752,\"status\":\"ok\"}}\n,{\"analytics_memory_usage\":{\"job_id\":\"testJob\",\"timestamp\":1704805893526,\"peak_usage_bytes\":9092,\"status\":\"ok\"}}\n,{\"phase_progress\":{\"phase\":\"feature_selection\",\"progress_percent\":100}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":0}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":1}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":4}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":5}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":8}}\n,{\"phase_progress\":{\"phase\":\"coarse_parameter_search\",\"progress_percent\":100}}\n,{\"phase_progress\":{\"phase\":\"fine_tuning_parameters\",\"progress_percent\":100}}\n,{\"analytics_memory_usage\":{\"job_id\":\"testJob\",\"timestamp\":1704805923077,\"peak_usage_bytes\":235303,\"status\":\"ok\"},\"regression_stats\":{\"job_id\":\"testJob\",\"timestamp\":1704805923077,\"iteration\":0,\"hyperparameters\":{\"eta\":0.3805847,\"alpha\":7.102547,\"soft_tree_depth_limit\":9.228819,\"soft_tree_depth_tolerance\":0.15,\"gamma\":0.02713613,\"lambda\":0.7970777,\"downsample_factor\":0.3423561,\"num_folds\":0,\"max_trees\":10,\"feature_bag_fraction\":0.4,\"eta_growth_rate_per_tree\":1.190292,\"max_attempts_to_add_tree\":0,\"num_splits_per_feature\":0,\"max_optimization_rounds_per_hyperparameter\":2},\"validation_loss\":{\"loss_type\":\"mse\",\"fold_values\":[]},\"timing_stats\":{\"elapsed_time\":0,\"iteration_time\":0}}}\n,{\"phase_progress\":{\"phase\":\"final_training\",\"progress_percent\":100}}\n,{\"phase_progress\":{\"phase\":\"final_training\",\"progress_percent\":100}}\n,{\"model_size_info\":{\"preprocessors\":[],\"trained_model_size\":{\"ensemble_model_size\":{\"feature_name_lengths\":[2,2,2,2],\"tree_sizes\":[{\"num_nodes\":0,\"num_leaves\":1},{\"num_nodes\":8,\"num_leaves\":9},{\"num_nodes\":10,\"num_leaves\":11},{\"num_nodes\":10,\"num_leaves\":11},{\"num_nodes\":6,\"num_leaves\":7},{\"num_nodes\":6,\"num_leaves\":7},{\"num_nodes\":8,\"num_leaves\":9},{\"num_nodes\":7,\"num_leaves\":8},{\"num_nodes\":9,\"num_leaves\":10},{\"num_nodes\":4,\"num_leaves\":5},{\"num_nodes\":7,\"num_leaves\":8}],\"num_output_processor_weights\":11,\"num_operations\":46}}}}\n,{\"compressed_inference_model\":{\"doc_num\":0,\"definition\":\"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\",\"eos\":true}}\n,{\"compressed_inference_model\":{\"doc_num\":0,\"definition\":\"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\",\"eos\":true}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-4.978199,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.1856499,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.1454616,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-4.460028,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":1.643608,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":11.66935,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.449406,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.651949,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.431112,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":5.957064,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.531394,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":1.916028,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-3.202722,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":4.401132,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":3.176036,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-3.262762,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":9.79813,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.4056594,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-2.103299,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":4.711451,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.600036,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-10.10891,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":5.268023,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.372826,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-2.329821,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-6.211882,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":3.840094,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":2.392636,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-4.116221,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.06490951,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-7.632752,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-6.97257,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.283581,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":1.867715,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.77209,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-11.01916,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.6186131,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":3.61408,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":4.495405,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-4.042377,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":2.327649,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":1.776945,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.152582,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":4.170098,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.701755,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":5.661319,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":0.8796449,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":5.454208,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-5.780083,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.8118424,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":8.506525,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.9182748,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":0.7343156,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-6.68997,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":11.22411,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.840355,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":8.387185,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-6.993784,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":5.391653,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-3.177985,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-7.313002,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.248203,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-4.542601,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":0.9235312,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-6.91104,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-0.902207,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-3.477778,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":-1.264715,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":6.052814,\"is_training\":true}}}}\n,{\"row_results\":{\"checksum\":0,\"results\":{\"ml\":{\"target_prediction\":3.770232,\"is_training\":true}}}}\n,{\"model_metadata\":{\"total_feature_importance\":[],\"hyperparameters\":[{\"name\":\"soft_tree_depth_tolerance\",\"value\":0.15,\"absolute_importance\":0.06414481,\"relative_importance\":0.6031168,\"supplied\":false},{\"name\":\"lambda\",\"value\":0.9963471,\"absolute_importance\":0.03006686,\"relative_importance\":0.2827014,\"supplied\":false},{\"name\":\"eta\",\"value\":0.3805847,\"absolute_importance\":0.01167569,\"relative_importance\":0.1097798,\"supplied\":false},{\"name\":\"gamma\",\"value\":0.03392016,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false},{\"name\":\"soft_tree_depth_limit\",\"value\":9.228819,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false},{\"name\":\"downsample_factor\",\"value\":0.3423561,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false},{\"name\":\"alpha\",\"value\":8.878184,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false},{\"name\":\"eta_growth_rate_per_tree\",\"value\":1.190292,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false},{\"name\":\"max_trees\",\"value\":10,\"supplied\":true},{\"name\":\"feature_bag_fraction\",\"value\":0.4,\"absolute_importance\":0,\"relative_importance\":0,\"supplied\":false}],\"train_properties\":{\"num_train_rows\":70,\"loss_gap\":3.44645,\"trained_model_memory_usage\":0},\"data_summarization\":{\"num_rows\":7}}}\n,{\"compressed_data_summarization\":{\"doc_num\":0,\"data_summarization\":\"H4sIAAAAAAAA/3VS7arbMAz9v8fw78ZYH7asvkopIaTZJdCmo00vG6XvPtm57TqWQWIi+eicIyl3N91ObX8+3k7T1W3jxi3f7dSdBkvsXA/OklgOKgfbMXeXj2F2+xd6vLZ9Nw8f58vYd0cr+94dr8PmP6fVDVN/PozTx7Udp8PYV6n7K1vV3XbRfiUNOfx02/DYrCBxBQmrSFpB4iqSV5C0hvyax79ofrz36rZ3Jz5awTv0c+jn86XcjYdhmsf5V/u8K8k3yh+3uX0OfOF3f1k8jb2lgns8HraZP/t4Fn12x1ud9G6/eXvM4qGbu5J32aeQNRJnI27IM+QsAMki9hQCiZAsAZHGJGXuTfBJBBmVov0UO7sNknJiLPYa8EIRQsBS2BQa4wyiFiUvSRkBFhzGGMV4K0nwmlQwAceKxExKDEUQfVTmAJmrFclmJGCxHD0qZ5WQK0ejxUkiZqgcLEGRinJj0hqyKUAlBCIoUAvIC4tiMveVI3sOAvaWP0fMPkZKmha1oGryud4gW9MaCj2gDxADcFo4yOfAIrGqZQ8SM2WWKq0siJpKY+Ctwyi5jj/5iDY0zUsv4hWIKXKqYlGRc/gyDGYfNeuyDFIw4VyNlNXY2gjFnOwf334DxRlEGfEDAAA=\",\"eos\":true}}\n]";
+
+    json::value results = json::parse(resultsJson, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
 
     std::stringstream inferenceModelStream;
-    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-        inferenceModelStreamWrapper};
+    core::CStreamWriter inferenceModelWriter{inferenceModelStream};
 
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        incrementalTrainingStateWrapper};
+    core::CStreamWriter dataSummarizationWriter{incrementalTrainingState};
 
     // Read the state used to initialize incremental training.
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("compressed_inference_model")) {
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("compressed_inference_model")) {
             inferenceModelWriter.write(result);
             LOG_DEBUG(<< "Inference Model definition found");
-        } else if (result.HasMember("compressed_data_summarization")) {
+        } else if (result.contains("compressed_data_summarization")) {
             dataSummarizationWriter.write(result);
             LOG_DEBUG(<< "Data summarization found");
         }
@@ -426,14 +457,17 @@ void readPredictions(const std::string& resultsJson,
                      const std::string& targetPredictionName,
                      TDoubleVec& predictions) {
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(resultsJson));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(resultsJson, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            predictions.emplace_back(
-                result["row_results"]["results"]["ml"][targetPredictionName].GetDouble());
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
+            predictions.emplace_back(result_
+                                         .at_pointer("/row_results/results/ml/" + targetPredictionName)
+                                         .to_number<double>());
         }
     }
 }
@@ -563,21 +597,26 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
 
     // Verify memory status change. Initially we should be ok, but hit the hard
     // limit during training.
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
+
     bool memoryStatusOk{false};
     bool memoryStatusHardLimit{false};
     bool memoryReestimateAvailable{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("analytics_memory_usage")) {
-            std::string status{result["analytics_memory_usage"]["status"].GetString()};
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("analytics_memory_usage")) {
+            std::string status{
+                result_.at_pointer("/analytics_memory_usage/status").as_string()};
             if (status == "ok") {
                 memoryStatusOk = true;
             } else if (status == "hard_limit") {
                 memoryStatusHardLimit = true;
-                if (result["analytics_memory_usage"].HasMember("memory_reestimate_bytes") &&
-                    result["analytics_memory_usage"]["memory_reestimate_bytes"].GetInt() > 0) {
+                if (result_.at_pointer("/analytics_memory_usage").as_object().contains("memory_reestimate_bytes") &&
+                    result_.at_pointer("/analytics_memory_usage/memory_reestimate_bytes")
+                            .to_number<std::int64_t>() > 0) {
                     memoryReestimateAvailable = true;
                 }
             }
@@ -614,26 +653,34 @@ BOOST_AUTO_TEST_CASE(testRegressionTraining) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
     std::uint64_t duration{watch.stop()};
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
-        } else if (result.HasMember("phase_progress")) {
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
-            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
+            BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
+        } else if (result.contains("phase_progress")) {
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
+            BOOST_TEST_REQUIRE(result.contains("row_results") == false);
+            progressCompleted =
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -715,22 +762,26 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithRowsMissingTargetValue) {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     std::size_t numberResults{0};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            std::size_t index(result["row_results"]["checksum"].GetUint64());
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
+            std::size_t index(
+                result_.at_pointer("/row_results/checksum").to_number<std::size_t>(ec));
+            BOOST_REQUIRE(ec.failed() == false);
             double expected{target(feature[index])};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected,
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>(),
                 0.2 * expected);
             BOOST_REQUIRE_EQUAL(
                 index < 40,
-                result["row_results"]["results"]["ml"]["is_training"].GetBool());
+                result_.at_pointer("/row_results/results/ml/is_training").as_bool());
             ++numberResults;
         }
     }
@@ -947,7 +998,10 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
     for (std::size_t i = 0; i < predictExamples; ++i) {
-        BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
+        std::string expected{std::to_string(i) + ": " +
+                             std::to_string(expectedPredictions[i])};
+        std::string actual{std::to_string(i) + ": " + std::to_string(actualPredictions[i])};
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
@@ -1072,16 +1126,18 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
     analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(outputStream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     // Read the predictions.
     TDoubleVec predictions;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             predictions.emplace_back(
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+                result_.at_pointer("/row_results/results/ml/target_prediction").to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -1170,38 +1226,57 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
     std::uint64_t duration{watch.stop()};
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             std::string actualPrediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+                result_.at_pointer("/row_results/results/ml/target_prediction").as_string()};
             BOOST_REQUIRE_EQUAL(*expectedPrediction, actualPrediction);
             // Check the prediction values match the first entry in the top-classes.
             BOOST_REQUIRE_EQUAL(
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString(),
-                result["row_results"]["results"]["ml"]["top_classes"][0]["class_name"]
-                    .GetString());
+                result_.at_pointer("/row_results/results/ml/target_prediction").as_string(),
+                result_.at_pointer("/row_results/results/ml/top_classes")
+                    .as_array()[0]
+                    .as_object()
+                    .at("class_name")
+                    .as_string());
             BOOST_REQUIRE_EQUAL(
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble(),
-                result["row_results"]["results"]["ml"]["top_classes"][0]["class_probability"]
-                    .GetDouble());
+                result_
+                    .at_pointer("/row_results/results/ml/prediction_probability")
+                    .to_number<double>(),
+                result_.at_pointer("/row_results/results/ml/top_classes")
+                    .as_array()[0]
+                    .as_object()
+                    .at("class_probability")
+                    .to_number<double>());
             BOOST_REQUIRE_EQUAL(
-                result["row_results"]["results"]["ml"]["prediction_score"].GetDouble(),
-                result["row_results"]["results"]["ml"]["top_classes"][0]["class_score"]
-                    .GetDouble());
+                result_.at_pointer("/row_results/results/ml/prediction_score").to_number<double>(),
+                result_.at_pointer("/row_results/results/ml/top_classes")
+                    .as_array()[0]
+                    .as_object()
+                    .at("class_score")
+                    .to_number<double>());
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
-        } else if (result.HasMember("phase_progress")) {
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
-            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
+            BOOST_TEST_REQUIRE(result.contains("phase_progress") == false);
+        } else if (result.contains("phase_progress")) {
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() >=
+                0);
+            BOOST_TEST_REQUIRE(
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() <=
+                100);
+            BOOST_TEST_REQUIRE(result.contains("row_results") == false);
+            progressCompleted =
+                result_.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>() ==
+                100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -1257,19 +1332,21 @@ BOOST_AUTO_TEST_CASE(testClassificationImbalancedClasses) {
         fieldNames, fieldValues, analyzer, weights, regressors, actuals);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     TStrSizeUMap correct;
     TStrSizeUMap counts;
 
     auto actual = actuals.begin();
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(actual != actuals.end());
             std::string prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+                result_.at_pointer("/row_results/results/ml/target_prediction").as_string()};
 
             if (*actual == prediction) {
                 ++correct[*actual];
@@ -1340,16 +1417,19 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
         }
     });
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     auto expectedPrediction = expectedPredictions.begin();
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
+    for (const auto& result_ : results.as_array()) {
+        BOOST_TEST_REQUIRE(result_.is_object());
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             std::string prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+                result_.at_pointer("/row_results/results/ml/target_prediction").as_string()};
             BOOST_TEST_REQUIRE(*expectedPrediction == prediction);
             ++expectedPrediction;
         }
@@ -1479,16 +1559,19 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
     analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(outputStream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     // Read the predictions.
     TDoubleVec predictions;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            predictions.emplace_back(
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble());
+    for (const auto& result_ : results.as_array()) {
+        const json::object& result = result_.as_object();
+        if (result.contains("row_results")) {
+            predictions.emplace_back(result_
+                                         .at_pointer("/row_results/results/ml/prediction_probability")
+                                         .to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -1764,16 +1847,18 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
     analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(outputStream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
     // Read the predictions.
     TDoubleVec predictions;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            predictions.emplace_back(
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble());
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("row_results")) {
+            predictions.emplace_back(result
+                                         .at_pointer("/row_results/results/ml/prediction_probability")
+                                         .to_number<double>());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
@@ -2071,24 +2156,23 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, 300);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
-    int featureSelectionLastProgress{0};
-    int coarseParameterSearchLastProgress{0};
-    int fineTuneParametersLastProgress{0};
-    int finalTrainLastProgress{0};
+    std::int64_t featureSelectionLastProgress{0};
+    std::int64_t coarseParameterSearchLastProgress{0};
+    std::int64_t fineTuneParametersLastProgress{0};
+    std::int64_t finalTrainLastProgress{0};
 
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("phase_progress")) {
-            rapidjson::StringBuffer sb;
-            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-            result["phase_progress"].Accept(writer);
-            LOG_DEBUG(<< sb.GetString());
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("phase_progress")) {
+            LOG_DEBUG(<< result.as_object().at("phase_progress"));
 
-            std::string phase{result["phase_progress"]["phase"].GetString()};
-            int progress{result["phase_progress"]["progress_percent"].GetInt()};
+            std::string phase{result.at_pointer("/phase_progress/phase").as_string()};
+            std::int64_t progress{
+                result.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>()};
             if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
@@ -2169,25 +2253,24 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, restoredAnalyzer, 400);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    json::error_code ec;
+    json::value results = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
-    int featureSelectionLastProgress{0};
-    int coarseParameterSearchLastProgress{0};
-    int fineTuneParametersFirstProgress{100};
-    int fineTuneParametersLastProgress{0};
-    int finalTrainLastProgress{0};
+    std::int64_t coarseParameterSearchLastProgress{0};
+    std::int64_t fineTuneParametersFirstProgress{100};
+    std::int64_t featureSelectionLastProgress{0};
+    std::int64_t fineTuneParametersLastProgress{0};
+    std::int64_t finalTrainLastProgress{0};
 
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("phase_progress")) {
-            rapidjson::StringBuffer sb;
-            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-            result["phase_progress"].Accept(writer);
-            LOG_DEBUG(<< sb.GetString());
+    for (const auto& result : results.as_array()) {
+        if (result.as_object().contains("phase_progress")) {
+            LOG_DEBUG(<< result.at("phase_progress"));
 
-            std::string phase{result["phase_progress"]["phase"].GetString()};
-            int progress{result["phase_progress"]["progress_percent"].GetInt()};
+            std::string phase{result.at_pointer("/phase_progress/phase").as_string()};
+            std::int64_t progress{
+                result.at_pointer("/phase_progress/progress_percent").to_number<std::int64_t>()};
             if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {

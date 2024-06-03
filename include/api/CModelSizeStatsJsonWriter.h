@@ -19,7 +19,7 @@
 
 namespace ml {
 namespace core {
-class CRapidJsonConcurrentLineWriter;
+class CBoostJsonConcurrentLineWriter;
 }
 namespace model {
 struct SCategorizerStats;
@@ -40,7 +40,7 @@ public:
     //! Writes the model size stats in the \p results in JSON format.
     static void write(const std::string& jobId,
                       const model::CResourceMonitor::SModelSizeStats& results,
-                      core::CRapidJsonConcurrentLineWriter& writer);
+                      core::CBoostJsonConcurrentLineWriter& writer);
 
     //! Writes the categorizer stats in JSON format.
     static void writeCategorizerStats(const std::string& jobId,
@@ -48,7 +48,7 @@ public:
                                       const std::string& partitionFieldValue,
                                       const model::SCategorizerStats& categorizerStats,
                                       const TOptionalTime& timestamp,
-                                      core::CRapidJsonConcurrentLineWriter& writer);
+                                      core::CBoostJsonConcurrentLineWriter& writer);
 
 private:
     //! Writes fields common to both model size stats and categorizer stats in
@@ -56,7 +56,7 @@ private:
     static void writeCommonFields(const std::string& jobId,
                                   const model::SCategorizerStats& categorizerStats,
                                   const TOptionalTime& timestamp,
-                                  core::CRapidJsonConcurrentLineWriter& writer);
+                                  core::CBoostJsonConcurrentLineWriter& writer);
 };
 }
 }

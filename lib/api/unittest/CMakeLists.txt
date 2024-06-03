@@ -56,7 +56,6 @@ set (SRCS
   CSingleFieldDataCategorizerTest.cc
   CSingleStreamDataAdderTest.cc
   CStateRestoreStreamFilterTest.cc
-  CStringStoreTest.cc
   CTestAnomalyJob.cc
   CTestFieldDataCategorizer.cc
   )
@@ -71,5 +70,8 @@ set(ML_LINK_LIBRARIES
   MlApi
   MlTest
   )
+
+# Valijson must only be used in test cases, never in production code
+include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/3rd_party/valijson/include)
 
 ml_add_test_executable(api ${SRCS})

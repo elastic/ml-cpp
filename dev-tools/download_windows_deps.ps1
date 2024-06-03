@@ -9,9 +9,11 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2016-10.zip"
+$Archive="usr-x86_64-windows-2016-12.zip"
 $Destination="C:\"
-if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc142-mt-x64-1_83.dll")) {
+# If PyTorch is not version 2.1.2 then we need the latest download
+if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h") -Or
+    !(Select-String -Path "$Destination\usr\local\include\pytorch\torch\csrc\api\include\torch\version.h" -Pattern "2.1.2" -Quiet)) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://storage.googleapis.com/elastic-ml-public/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"

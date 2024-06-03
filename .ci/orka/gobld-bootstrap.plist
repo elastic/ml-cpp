@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PATH</key>
+      <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:</string>
+    </dict>
+    <key>Label</key>
+    <string>co.elastic.gobld-bootstrap</string>
+    <key>Program</key>
+    <string>/usr/local/bin/gobld-bootstrap.sh</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+    <key>SessionCreate</key>
+    <true/>
+    <key>LaunchOnlyOnce</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/gobld-bootstrap.stdout</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/gobld-bootstrap.stderr</string>
+    <key>UserName</key>
+    <string>admin</string>
+    <key>GroupName</key>
+    <string>staff</string>
+    <key>InitGroups</key>
+    <true/>
+  </dict>
+</plist>

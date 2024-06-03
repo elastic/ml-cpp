@@ -53,7 +53,7 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
     //! Write a compressed and chunked JSON data summarisation.
-    void addCompressedToJsonStream(TRapidJsonWriter& writer) const override;
+    void addCompressedToJsonStream(TBoostJsonWriter& writer) const override;
 
 private:
     core::CPackedBitVector m_RowMask;

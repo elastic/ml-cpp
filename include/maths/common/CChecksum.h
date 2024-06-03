@@ -29,9 +29,6 @@
 #include <utility>
 
 namespace ml {
-namespace core {
-class CStoredStringPtr;
-}
 namespace maths {
 namespace common {
 namespace checksum_detail {
@@ -109,9 +106,6 @@ public:
 
     //! Checksum a string.
     static std::uint64_t dispatch(std::uint64_t seed, const std::string& target);
-
-    //! Checksum a stored string pointer.
-    static std::uint64_t dispatch(std::uint64_t seed, const core::CStoredStringPtr& target);
 
     //! Checksum a reference_wrapper.
     template<typename T>

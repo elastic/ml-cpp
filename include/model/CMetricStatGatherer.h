@@ -19,7 +19,6 @@
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
@@ -37,7 +36,6 @@
 #include <model/CFeatureData.h>
 #include <model/CMetricMultivariateStatistic.h>
 #include <model/CMetricStatShims.h>
-#include <model/CStringStore.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -70,15 +68,15 @@ extern const std::string MAP_VALUE_TAG;
 
 //! \brief Manages persistence of influence bucket statistics.
 template<typename STAT>
-class CStoredStringPtrStatUMapSerializer {
+class CStrStatUMapSerializer {
 public:
-    using TStoredStringPtrStatUMap = boost::unordered_map<core::CStoredStringPtr, STAT>;
+    using TStrStatUMap = boost::unordered_map<std::string, STAT>;
 
 public:
-    explicit CStoredStringPtrStatUMapSerializer(const STAT& initial)
+    explicit CStrStatUMapSerializer(const STAT& initial)
         : m_Initial(initial) {}
 
-    void operator()(const TStoredStringPtrStatUMap& map,
+    void operator()(const TStrStatUMap& map,
                     core::CStatePersistInserter& inserter) const {
         using TStrCRef = std::reference_wrapper<const std::string>;
         using TStatCRef = std::reference_wrapper<const STAT>;
@@ -96,7 +94,7 @@ public:
         }
     }
 
-    bool operator()(TStoredStringPtrStatUMap& map,
+    bool operator()(TStrStatUMap& map,
                     core::CStateRestoreTraverser& traverser) const {
         std::string key;
         do {
@@ -104,8 +102,7 @@ public:
             RESTORE_NO_ERROR(MAP_KEY_TAG, key = traverser.value())
             RESTORE(MAP_VALUE_TAG,
                     metric_stat_shims::restore(
-                        traverser, map.insert({CStringStore::influencers().get(key), m_Initial})
-                                       .first->second))
+                        traverser, map.emplace(key, m_Initial).first->second))
         } while (traverser.next());
         return true;
     }
@@ -115,11 +112,11 @@ private:
 };
 
 template<typename STAT>
-using TStoredStringPtrStatUMapQueue =
-    CBucketQueue<boost::unordered_map<core::CStoredStringPtr, STAT>>;
+using TStrStatUMapQueue =
+    CBucketQueue<boost::unordered_map<std::string, STAT>>;
 template<typename STAT>
-using TStoredStringPtrStatUMapQueueSerializer =
-    typename TStoredStringPtrStatUMapQueue<STAT>::template CSerializer<CStoredStringPtrStatUMapSerializer<STAT>>;
+using TStrStatUMapQueueSerializer =
+    typename TStrStatUMapQueue<STAT>::template CSerializer<CStrStatUMapSerializer<STAT>>;
 
 class CMidTime {
 public:
@@ -265,13 +262,13 @@ public:
 private:
     using TBaseStat = typename STAT::TStat;
     using TStatQueue = CBucketQueue<STAT>;
-    using TStoredStringPtrBaseStatUMap =
-        boost::unordered_map<core::CStoredStringPtr, TBaseStat>;
-    using TStoredStringPtrBaseStatUMapQueue = CBucketQueue<TStoredStringPtrBaseStatUMap>;
-    using TStoredStringPtrBaseStatUMapQueueVec = std::vector<TStoredStringPtrBaseStatUMapQueue>;
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    using TStoredStringPtrStatUMapQueueSerializer =
-        metric_stat_gatherer_detail::TStoredStringPtrStatUMapQueueSerializer<TBaseStat>;
+    using TStrBaseStatUMap =
+        boost::unordered_map<std::string, TBaseStat>;
+    using TStrBaseStatUMapQueue = CBucketQueue<TStrBaseStatUMap>;
+    using TStrBaseStatUMapQueueVec = std::vector<TStrBaseStatUMapQueue>;
+    using TStrVec = std::vector<std::string>;
+    using TStrStatUMapQueueSerializer =
+        metric_stat_gatherer_detail::TStrStatUMapQueueSerializer<TBaseStat>;
 
 public:
     CMetricStatGatherer(std::size_t latencyBuckets,
@@ -340,7 +337,7 @@ public:
     void add(core_t::TTime time,
              const TDouble1Vec& value,
              unsigned int count,
-             const TStoredStringPtrVec& influences) {
+             const TStrVec& influences) {
         core_t::TTime bucketTime{time % m_BucketStats.bucketLength()};
         m_Classifier.add(FEATURE, value, count);
         m_BucketStats.get(time).add(bucketTime, value, count);
@@ -359,7 +356,7 @@ public:
     void startNewBucket(core_t::TTime time) {
         m_BucketStats.push(STAT{m_BucketStats.bucketLength(), m_BaseStat}, time);
         for (auto& stat : m_InfluencerBucketStats) {
-            stat.push(TStoredStringPtrBaseStatUMap(1), time);
+            stat.push(TStrBaseStatUMap(1), time);
         }
     }
 
@@ -384,9 +381,9 @@ public:
                 m_BucketStats.acceptPersistInserter(inserter_);
             });
         }
-        TStoredStringPtrStatUMapQueueSerializer influencerSerializer{
-            TStoredStringPtrBaseStatUMap(1),
-            CStoredStringPtrStatUMapSerializer<TBaseStat>(m_BaseStat)};
+        TStrStatUMapQueueSerializer influencerSerializer{
+            TStrBaseStatUMap(1),
+            CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
         for (const auto& stats : m_InfluencerBucketStats) {
             inserter.insertLevel(INFLUENCER_BUCKET_STATS_TAG, [&](auto& inserter_) {
                 influencerSerializer(stats, inserter_);
@@ -397,9 +394,9 @@ public:
     //! Create from part of a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         using namespace metric_stat_gatherer_detail;
-        TStoredStringPtrStatUMapQueueSerializer influencerSerializer{
-            TStoredStringPtrBaseStatUMap(1),
-            CStoredStringPtrStatUMapSerializer<TBaseStat>(m_BaseStat)};
+        TStrStatUMapQueueSerializer influencerSerializer{
+            TStrBaseStatUMap(1),
+            CStrStatUMapSerializer<TBaseStat>(m_BaseStat)};
         std::size_t i{0};
         do {
             const std::string& name{traverser.name()};
@@ -466,7 +463,7 @@ private:
     TStatQueue m_BucketStats;
 
     //! The stat for each influencing field value and bucket within the latency window.
-    TStoredStringPtrBaseStatUMapQueueVec m_InfluencerBucketStats;
+    TStrBaseStatUMapQueueVec m_InfluencerBucketStats;
 };
 
 template<typename STAT, model_t::EFeature FEATURE>

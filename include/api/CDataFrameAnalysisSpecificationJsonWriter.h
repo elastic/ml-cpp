@@ -12,8 +12,9 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CNonInstantiatable.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CStreamWriter.h>
 
 #include <api/ImportExport.h>
 
@@ -28,7 +29,7 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisSpecificationJsonWriter : private core::CNonInstantiatable {
 public:
     using TStrVec = std::vector<std::string>;
-    using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TBoostJsonLineWriter = core::CStreamWriter;
 
 public:
     //! Writes the data frame analysis specification in JSON format.
@@ -43,8 +44,8 @@ public:
                       const TStrVec& categoricalFields,
                       bool diskUsageAllowed,
                       const std::string& analysisName,
-                      const rapidjson::Document& analysisParametersDocument,
-                      TRapidJsonLineWriter& writer);
+                      const json::value& analysisParametersDocument,
+                      TBoostJsonLineWriter& writer);
 
     //! Writes the data frame analysis specification in JSON format.
     static void write(const std::string& jobId,
@@ -59,7 +60,7 @@ public:
                       bool diskUsageAllowed,
                       const std::string& analysisName,
                       const std::string& analysisParameters,
-                      TRapidJsonLineWriter& writer);
+                      TBoostJsonLineWriter& writer);
 
     //! Returns a string with the data frame analysis specification in JSON format.
     static std::string jsonString(const std::string& jobId,

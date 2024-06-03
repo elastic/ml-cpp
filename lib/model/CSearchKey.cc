@@ -22,8 +22,6 @@
 
 #include <maths/common/CChecksum.h>
 
-#include <model/CStringStore.h>
-
 #include <algorithm>
 #include <functional>
 #include <ostream>
@@ -64,17 +62,13 @@ CSearchKey::CSearchKey(int detectorIndex,
                        std::string byFieldName,
                        std::string overFieldName,
                        std::string partitionFieldName,
-                       const TStrVec& influenceFieldNames)
+                       TStrVec influenceFieldNames)
     : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
-      m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
-    m_FieldName = CStringStore::names().get(fieldName);
-    m_ByFieldName = CStringStore::names().get(byFieldName);
-    m_OverFieldName = CStringStore::names().get(overFieldName);
-    m_PartitionFieldName = CStringStore::names().get(partitionFieldName);
-    for (TStrVec::const_iterator i = influenceFieldNames.begin();
-         i != influenceFieldNames.end(); ++i) {
-        m_InfluenceFieldNames.push_back(CStringStore::influencers().get(*i));
-    }
+      m_ExcludeFrequent(excludeFrequent), m_FieldName(std::move(fieldName)),
+      m_ByFieldName(std::move(byFieldName)),
+      m_OverFieldName(std::move(overFieldName)),
+      m_PartitionFieldName(std::move(partitionFieldName)),
+      m_InfluenceFieldNames(std::move(influenceFieldNames)), m_Hash(0) {
 }
 
 CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
@@ -116,16 +110,15 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
             }
             m_ExcludeFrequent = static_cast<model_t::EExcludeFrequent>(excludeFrequent);
         } else if (name == FIELD_NAME_TAG) {
-            m_FieldName = CStringStore::names().get(traverser.value());
+            m_FieldName = traverser.value();
         } else if (name == BY_FIELD_NAME_TAG) {
-            m_ByFieldName = CStringStore::names().get(traverser.value());
+            m_ByFieldName = traverser.value();
         } else if (name == OVER_FIELD_NAME_TAG) {
-            m_OverFieldName = CStringStore::names().get(traverser.value());
+            m_OverFieldName = traverser.value();
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            m_PartitionFieldName = CStringStore::names().get(traverser.value());
+            m_PartitionFieldName = traverser.value();
         } else if (name == INFLUENCE_FIELD_NAME_TAG) {
-            m_InfluenceFieldNames.push_back(
-                CStringStore::influencers().get(traverser.value()));
+            m_InfluenceFieldNames.emplace_back(traverser.value());
         }
     } while (traverser.next());
 
@@ -135,10 +128,10 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
 }
 
 void CSearchKey::checkRestoredInvariants() const {
-    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, nullptr);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, nullptr);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, nullptr);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, std::nullopt);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, std::nullopt);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -150,8 +143,8 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     inserter.insertValue(BY_FIELD_NAME_TAG, *m_ByFieldName);
     inserter.insertValue(OVER_FIELD_NAME_TAG, *m_OverFieldName);
     inserter.insertValue(PARTITION_FIELD_NAME_TAG, *m_PartitionFieldName);
-    for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
-        inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, *m_InfluenceFieldNames[i]);
+    for (const std::string& influenceFieldName : m_InfluenceFieldNames) {
+        inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, influenceFieldName);
     }
 }
 
@@ -169,27 +162,19 @@ void CSearchKey::swap(CSearchKey& other) noexcept {
 }
 
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
-    using TStrEqualTo = std::equal_to<std::string>;
-
     return this->hash() == rhs.hash() && m_DetectorIndex == rhs.m_DetectorIndex &&
            m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
            m_ExcludeFrequent == rhs.m_ExcludeFrequent &&
            m_FieldName == rhs.m_FieldName && m_ByFieldName == rhs.m_ByFieldName &&
            m_OverFieldName == rhs.m_OverFieldName &&
            m_PartitionFieldName == rhs.m_PartitionFieldName &&
-           m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
-           // Compare dereferenced strings rather than pointers as there's a
-           // (small) possibility that the string store will not always return
-           // the same pointer for the same string
-           && std::equal(m_InfluenceFieldNames.begin(), m_InfluenceFieldNames.end(),
-                         rhs.m_InfluenceFieldNames.begin(),
-                         core::CFunctional::SDereference<TStrEqualTo>());
+           m_InfluenceFieldNames == rhs.m_InfluenceFieldNames;
 }
 
 bool CSearchKey::operator<(const CSearchKey& rhs) const {
     // We rely on simple count to come before other detectors when we sort
     if (this->isSimpleCount() != rhs.isSimpleCount()) {
-        return this->isSimpleCount() ? true : false;
+        return this->isSimpleCount();
     }
 
     if (this->hash() == rhs.hash()) {
@@ -222,8 +207,8 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             return false;
                         }
                         for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
-                            comp = m_InfluenceFieldNames[i]->compare(
-                                *rhs.m_InfluenceFieldNames[i]);
+                            comp = m_InfluenceFieldNames[i].compare(
+                                rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {
                                 return comp < 0;
                             }
@@ -347,7 +332,7 @@ const std::string& CSearchKey::partitionFieldName() const {
     return *m_PartitionFieldName;
 }
 
-const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames() const {
+const CSearchKey::TStrVec& CSearchKey::influenceFieldNames() const {
     return m_InfluenceFieldNames;
 }
 
@@ -381,7 +366,7 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
         if (i > 0) {
             strm << ',';
         }
-        strm << *key.m_InfluenceFieldNames[i];
+        strm << key.m_InfluenceFieldNames[i];
     }
 
     return strm;

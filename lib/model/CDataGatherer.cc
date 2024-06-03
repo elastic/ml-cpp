@@ -25,7 +25,6 @@
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
 #include <model/CSearchKey.h>
-#include <model/CStringStore.h>
 
 #include <algorithm>
 
@@ -157,7 +156,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
     : m_GathererType(gathererType),
       m_Features(detail::sanitize(features, gathererType)),
       m_SummaryMode(summaryMode), m_Params(modelParams), m_SearchKey(key),
-      m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
+      m_PartitionFieldValue(partitionFieldValue),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -185,9 +184,8 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
                              const TStrVec& influenceFieldNames,
                              const CSearchKey& key,
                              core::CStateRestoreTraverser& traverser)
-    : m_GathererType(gathererType), m_SummaryMode(summaryMode),
-      m_Params(modelParams), m_SearchKey(key),
-      m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
+    : m_GathererType(gathererType), m_SummaryMode(summaryMode), m_Params(modelParams),
+      m_SearchKey(key), m_PartitionFieldValue(partitionFieldValue),
       m_PeopleRegistry(PERSON,
                        counter_t::E_TSADNumberNewPeople,
                        counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -251,7 +249,7 @@ const std::string& CDataGatherer::partitionFieldName() const {
 }
 
 const std::string& CDataGatherer::partitionFieldValue() const {
-    return *m_PartitionFieldValue;
+    return m_PartitionFieldValue;
 }
 
 const CSearchKey& CDataGatherer::searchKey() const {
@@ -360,10 +358,6 @@ const std::string& CDataGatherer::personName(std::size_t pid) const {
     return this->personName(pid, DEFAULT_PERSON_NAME);
 }
 
-const core::CStoredStringPtr& CDataGatherer::personNamePtr(std::size_t pid) const {
-    return m_PeopleRegistry.namePtr(pid);
-}
-
 const std::string& CDataGatherer::personName(std::size_t pid, const std::string& fallback) const {
     return m_PeopleRegistry.name(pid, fallback);
 }
@@ -428,10 +422,6 @@ const std::string& CDataGatherer::attributeName(std::size_t cid) const {
 const std::string& CDataGatherer::attributeName(std::size_t cid,
                                                 const std::string& fallback) const {
     return m_AttributesRegistry.name(cid, fallback);
-}
-
-const core::CStoredStringPtr& CDataGatherer::attributeNamePtr(std::size_t cid) const {
-    return m_AttributesRegistry.namePtr(cid);
 }
 
 void CDataGatherer::recycleAttributes(const TSizeVec& attributesToRemove) {
@@ -500,7 +490,7 @@ const CDataGatherer::TSizeSizePrUInt64UMap& CDataGatherer::bucketCounts(core_t::
     return m_BucketGatherer->bucketCounts(time);
 }
 
-const CDataGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec&
+const CDataGatherer::TSizeSizePrOptionalStrPrUInt64UMapVec&
 CDataGatherer::influencerCounts(core_t::TTime time) const {
     return m_BucketGatherer->influencerCounts(time);
 }
@@ -527,6 +517,7 @@ void CDataGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& 
 
 std::size_t CDataGatherer::memoryUsage() const {
     std::size_t mem = core::memory::dynamicSize(m_Features);
+    mem += core::memory::dynamicSize(m_PartitionFieldValue);
     mem += core::memory::dynamicSize(m_PeopleRegistry);
     mem += core::memory::dynamicSize(m_AttributesRegistry);
     mem += core::memory::dynamicSize(m_BucketGatherer);

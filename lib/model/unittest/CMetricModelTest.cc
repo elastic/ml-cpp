@@ -470,9 +470,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             maths::common::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
             maths::common::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
             for (std::size_t j = 0; j < samples.size(); ++j) {
-                this->addArrival(SMessage(time, "p", samples[j], {},
-                                          TOptionalStr(influencerValues[j])),
-                                 gatherer);
+                this->addArrival(
+                    SMessage(time, "p", samples[j], {}, influencerValues[j]), gatherer);
                 min.add(TDoubleStrPr(samples[j], influencerValues[j]));
                 max.add(TDoubleStrPr(samples[j], influencerValues[j]));
             }
@@ -967,25 +966,15 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |(1, 42.0)|(1, 1.0)|(1, 1.0)|X|X|(1, 42.0)|
     // p2: |(1, 42.)|(0, 0.0)|(0, 0.0)|X|X|(0, 0.0)|
-    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererSkipGap);
-    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererSkipGap);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, "i1", std::nullopt, "1"), gathererSkipGap);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, "i2", std::nullopt, "1"), gathererSkipGap);
     modelSkipGap.sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", 1.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererSkipGap);
+    this->addArrival(SMessage(200, "p1", 1.0, {}, "i1", std::nullopt, "1"), gathererSkipGap);
     modelSkipGap.sample(200, 300, m_ResourceMonitor);
-    this->addArrival(SMessage(300, "p1", 1.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererSkipGap);
+    this->addArrival(SMessage(300, "p1", 1.0, {}, "i1", std::nullopt, "1"), gathererSkipGap);
     modelSkipGap.sample(300, 400, m_ResourceMonitor);
     modelSkipGap.skipSampling(600);
-    this->addArrival(SMessage(600, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererSkipGap);
+    this->addArrival(SMessage(600, "p1", 42.0, {}, "i1", std::nullopt, "1"), gathererSkipGap);
     modelSkipGap.sample(600, 700, m_ResourceMonitor);
 
     CModelFactory::TDataGathererPtr gathererExNull(factory.makeDataGatherer(startTime));
@@ -996,47 +985,23 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |(1, 42.0), ("", 42.0), (null, 42.0)|(1, 1.0)|(1, 1.0)|(null, 100.0)|(null, 100.0)|(1, 42.0)|
     // p2: |(1, 42.0), ("", 42.0)|(0, 0.0)|(0, 0.0)|(null, 100.0)|(null, 100.0)|(0, 0.0)|
-    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("null")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererExNull);
-    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
-                              TOptionalStr(), TOptionalStr("")),
-                     gathererExNull);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, "i1", std::nullopt, "1"), gathererExNull);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, "i1", std::nullopt, ""), gathererExNull);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, "i1", std::nullopt, "null"), gathererExNull);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, "i2", std::nullopt, "1"), gathererExNull);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, "i2", std::nullopt, ""), gathererExNull);
     modelExNullGap.sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", 1.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(200, "p1", 1.0, {}, "i1", std::nullopt, "1"), gathererExNull);
     modelExNullGap.sample(200, 300, m_ResourceMonitor);
-    this->addArrival(SMessage(300, "p1", 1.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(300, "p1", 1.0, {}, "i1", std::nullopt, "1"), gathererExNull);
     modelExNullGap.sample(300, 400, m_ResourceMonitor);
-    this->addArrival(SMessage(400, "p1", 100.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("null")),
-                     gathererExNull);
-    this->addArrival(SMessage(400, "p2", 100.0, {}, TOptionalStr("i2"),
-                              TOptionalStr(), TOptionalStr("null")),
-                     gathererExNull);
+    this->addArrival(SMessage(400, "p1", 100.0, {}, "i1", std::nullopt, "null"), gathererExNull);
+    this->addArrival(SMessage(400, "p2", 100.0, {}, "i2", std::nullopt, "null"), gathererExNull);
     modelExNullGap.sample(400, 500, m_ResourceMonitor);
-    this->addArrival(SMessage(500, "p1", 100.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("null")),
-                     gathererExNull);
-    this->addArrival(SMessage(500, "p2", 100.0, {}, TOptionalStr("i2"),
-                              TOptionalStr(), TOptionalStr("null")),
-                     gathererExNull);
+    this->addArrival(SMessage(500, "p1", 100.0, {}, "i1", std::nullopt, "null"), gathererExNull);
+    this->addArrival(SMessage(500, "p2", 100.0, {}, "i2", std::nullopt, "null"), gathererExNull);
     modelExNullGap.sample(500, 600, m_ResourceMonitor);
-    this->addArrival(SMessage(600, "p1", 42.0, {}, TOptionalStr("i1"),
-                              TOptionalStr(), TOptionalStr("1")),
-                     gathererExNull);
+    this->addArrival(SMessage(600, "p1", 42.0, {}, "i1", std::nullopt, "1"), gathererExNull);
     modelExNullGap.sample(600, 700, m_ResourceMonitor);
 
     BOOST_REQUIRE_EQUAL(
@@ -1201,26 +1166,26 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, 3, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
+            this->addArrival(SMessage(now, "p1", 1.0, {}, "i1"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
+            this->addArrival(SMessage(now, "p2", 1.0, {}, "i2"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
+            this->addArrival(SMessage(now, "p3", 1.0, {}, "i3"), gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 35; ++i) {
-        this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
+        this->addArrival(SMessage(now, "p1", 1.0, {}, "i1"), gatherer);
     }
     for (std::size_t i = 0; i < 1; ++i) {
-        this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
+        this->addArrival(SMessage(now, "p2", 1.0, {}, "i2"), gatherer);
     }
     for (std::size_t i = 0; i < 100; ++i) {
-        this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
+        this->addArrival(SMessage(now, "p3", 1.0, {}, "i3"), gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1295,26 +1260,26 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
     while (now < endTime) {
         rng.generateUniformSamples(80.0, 100.0, 1, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
+            this->addArrival(SMessage(now, "p1", 1.0, {}, "i1"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i) {
-            this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
+            this->addArrival(SMessage(now, "p2", 1.0, {}, "i2"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i) {
-            this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
+            this->addArrival(SMessage(now, "p3", 1.0, {}, "i3"), gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 9; ++i) {
-        this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
+        this->addArrival(SMessage(now, "p1", 1.0, {}, "i1"), gatherer);
     }
     for (std::size_t i = 0; i < 10; ++i) {
-        this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
+        this->addArrival(SMessage(now, "p2", 1.0, {}, "i2"), gatherer);
     }
     for (std::size_t i = 0; i < 8; ++i) {
-        this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
+        this->addArrival(SMessage(now, "p3", 1.0, {}, "i3"), gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1477,15 +1442,12 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
             double value = values[0];
             rng.generateUniformSamples(0.0, 1.0, 1, values);
             if (values[0] < 0.05) {
-                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
-                                          TOptionalStr(), TOptionalStr(summaryCountZero)),
+                this->addArrival(SMessage(now, "p1", value, {}, "i1", std::nullopt, summaryCountZero),
                                  gathererWithZeros);
             } else {
-                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
-                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                this->addArrival(SMessage(now, "p1", value, {}, "i1", std::nullopt, summaryCountOne),
                                  gathererWithZeros);
-                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
-                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                this->addArrival(SMessage(now, "p1", value, {}, "i1", std::nullopt, summaryCountOne),
                                  gathererNoZeros);
             }
         }

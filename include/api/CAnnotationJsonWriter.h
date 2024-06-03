@@ -11,13 +11,13 @@
 #ifndef INCLUDED_ml_api_CAnnotationJsonWriter_h
 #define INCLUDED_ml_api_CAnnotationJsonWriter_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonConcurrentLineWriter.h>
 
 #include <api/ImportExport.h>
 
-#include <rapidjson/document.h>
-
 #include <string>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -44,11 +44,11 @@ public:
 private:
     void populateAnnotationObject(const std::string& jobId,
                                   const model::CAnnotation& annotation,
-                                  rapidjson::Value& obj);
+                                  json::object& obj);
 
 private:
     //! JSON line writer
-    core::CRapidJsonConcurrentLineWriter m_Writer;
+    core::CBoostJsonConcurrentLineWriter m_Writer;
 };
 }
 }

@@ -13,7 +13,6 @@
 #define INCLUDED_ml_model_CAnnotatedProbability_h
 
 #include <core/CSmallVector.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CModel.h>
 
@@ -37,15 +36,16 @@ struct MODEL_EXPORT SAttributeProbability {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-    using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStr1Vec = core::CSmallVector<TOptionalStr, 1>;
 
     SAttributeProbability();
     SAttributeProbability(std::size_t cid,
-                          const core::CStoredStringPtr& attribute,
+                          const TOptionalStr& attribute,
                           double probability,
                           model_t::CResultType type,
                           model_t::EFeature feature,
-                          const TStoredStringPtr1Vec& correlatedAttributes,
+                          const TOptionalStr1Vec& correlatedAttributes,
                           const TSizeDoublePr1Vec& correlated);
 
     //! Total ordering of attribute probabilities by probability
@@ -61,7 +61,7 @@ struct MODEL_EXPORT SAttributeProbability {
     //! The attribute identifier.
     std::size_t s_Cid;
     //! The attribute.
-    core::CStoredStringPtr s_Attribute;
+    TOptionalStr s_Attribute;
     //! The attribute probability.
     double s_Probability;
     //! The type of result (see CResultType for details).
@@ -69,7 +69,7 @@ struct MODEL_EXPORT SAttributeProbability {
     //! The most unusual feature of the attribute.
     model_t::EFeature s_Feature;
     //! The correlated attributes.
-    TStoredStringPtr1Vec s_CorrelatedAttributes;
+    TOptionalStr1Vec s_CorrelatedAttributes;
     //! The correlated attribute identifiers (if any).
     TSizeDoublePr1Vec s_Correlated;
     //! The current bucket value of the attribute (cached from the model).
@@ -87,12 +87,10 @@ struct MODEL_EXPORT SAttributeProbability {
 //! and so on.
 struct MODEL_EXPORT SAnnotatedProbability {
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TStoredStringPtrStoredStringPtrPr =
-        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr =
-        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrOptionalStrPr = std::pair<TOptionalStr, TOptionalStr>;
+    using TOptionalStrOptionalStrPrDoublePr = std::pair<TOptionalStrOptionalStrPr, double>;
+    using TOptionalStrOptionalStrPrDoublePrVec = std::vector<TOptionalStrOptionalStrPrDoublePr>;
     using TOptionalDouble = std::optional<double>;
     using TOptionalUInt64 = std::optional<std::uint64_t>;
     using TAnomalyScoreExplanation = maths::common::SAnomalyScoreExplanation;
@@ -123,7 +121,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     TAttributeProbability1Vec s_AttributeProbabilities;
 
     //! The field values which influence this probability.
-    TStoredStringPtrStoredStringPtrPrDoublePrVec s_Influences;
+    TOptionalStrOptionalStrPrDoublePrVec s_Influences;
 
     //! The result type (interim or final)
     //!

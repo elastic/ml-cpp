@@ -11,12 +11,12 @@
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/CProgramCounters.h>
-#include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
@@ -34,10 +34,10 @@
 #include <api/CRetrainableModelJsonReader.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <limits>
-
+namespace json = boost::json;
 namespace ml {
 namespace api {
 namespace {
@@ -197,8 +197,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto maxNumberNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
-        m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
-                                    m_CustomProcessors.GetAllocator());
+        m_CustomProcessors = *parameters[FEATURE_PROCESSORS].jsonObject();
     }
 
     if (std::any_of(alpha.begin(), alpha.end(), [](double x) { return x < 0.0; })) {
@@ -420,7 +419,7 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
 }
 
 void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder& builder) const {
-    if (m_CustomProcessors.IsNull() == false) {
+    if (m_CustomProcessors.is_null() == false) {
         builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(m_CustomProcessors));
     }
     this->boostedTree().accept(builder);
@@ -460,17 +459,20 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     case api_t::E_Encode:
         m_BoostedTree = m_BoostedTreeFactory->buildForEncode(frame, dependentVariableColumn);
         break;
-    case api_t::E_Train:
+    case api_t::E_Train: {
+        auto restoreSearcher = this->spec().restoreSearcher();
+        auto boostedTree = (restoreSearcher == nullptr)
+                               ? nullptr
+                               : this->restoreBoostedTree(frame, dependentVariableColumn,
+                                                          restoreSearcher);
         m_BoostedTree = [&] {
-            auto boostedTree = this->restoreBoostedTree(
-                frame, dependentVariableColumn, this->spec().restoreSearcher());
             return boostedTree != nullptr
                        ? std::move(boostedTree)
                        : m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }();
         m_BoostedTree->train();
         m_BoostedTree->predict();
-        break;
+    } break;
     case api_t::E_Update:
         m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();
@@ -503,17 +505,20 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                 break;
             }
             *frameAndDirectory = this->makeDataFrame();
-            auto dataSummarizationRestorer = [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
-                                                core::CDataFrame& frame) {
-                return CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(
-                    std::move(inputStream), frame);
-            };
+
             auto bestForestRestorer =
                 [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
                    const CRetrainableModelJsonReader::TStrSizeUMap& encodingsIndices) {
                     return CRetrainableModelJsonReader::bestForestFromCompressedJsonStream(
                         std::move(inputStream), encodingsIndices);
                 };
+
+            auto dataSummarizationRestorer = [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
+                                                core::CDataFrame& frame) {
+                return CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(
+                    std::move(inputStream), frame);
+            };
+
             auto& frame = frameAndDirectory->first;
             auto result = std::make_unique<maths::analytics::CBoostedTreeFactory>(
                 maths::analytics::CBoostedTreeFactory::constructFromDefinition(

@@ -11,12 +11,14 @@
 
 #include <core/CPatternSet.h>
 
+#include <core/CBoostJsonParser.h>
 #include <core/CLogger.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-
 #include <algorithm>
+
+#include <boost/json.hpp>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace core {
@@ -71,26 +73,28 @@ bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec suffixPatterns;
     TStrVec containsPatterns;
 
-    rapidjson::Document doc;
-    if (doc.Parse<0>(json.c_str()).HasParseError()) {
-        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " +
-                         std::string(rapidjson::GetParseError_En(doc.GetParseError())));
+    json::value doc;
+    bool ok = CBoostJsonParser::parse(json, doc);
+    if (ok == false) {
+        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: " + json);
         return false;
     }
 
-    if (!doc.IsArray()) {
+    if (!doc.is_array()) {
         LOG_ERROR(<< "Could not parse pattern set from non-array JSON object: " << json);
         return false;
     }
 
-    for (unsigned int i = 0; i < doc.Size(); ++i) {
-        if (!doc[i].IsString()) {
+    const json::array& arr = doc.as_array();
+
+    for (unsigned int i = 0; i < arr.size(); ++i) {
+        if (!arr[i].is_string()) {
             LOG_ERROR(<< "Could not parse pattern set: unexpected non-string item in JSON: "
                       << json);
             this->clear();
             return false;
         }
-        std::string pattern = doc[i].GetString();
+        std::string pattern = json::value_to<std::string>(arr[i]);
         std::size_t length = pattern.length();
         if (length == 0) {
             continue;

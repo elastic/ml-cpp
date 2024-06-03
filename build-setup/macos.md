@@ -16,7 +16,7 @@ For example, you might create a `.bashrc` file in your home directory containing
 
 ```
 umask 0002
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home
 export PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.10
 export PATH=$JAVA_HOME/bin:$PYTHONHOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using cmake - adjust depending on the location of your Git clone
@@ -50,13 +50,10 @@ The above environment variables only need to be set when building tools on macOS
 
 The first major piece of development software to install is Apple's development environment, Xcode, which can be downloaded from <https://developer.apple.com/download/> . You will need to register as a developer with Apple. Alternatively, you can get the latest version of Xcode from the App Store.
 
-For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Therefore you must be running macOS High Sierra (10.13) or above to build the Machine Learning C++ code. The binary download of Python 3.10 requires macOS Big Sur or above, so to follow the instructions in this page to the letter you'll need macOS Big Sur (11) or above.
-
-- If you are using High Sierra, you must install Xcode 10.1.x
-- If you are using Mojave, you must install Xcode 11.3.x
-- If you are using Catalina, you must install Xcode 12.4.x
 - If you are using Big Sur, you must install Xcode 13.2.x
-- If you are using Monterey or Ventura, you must install Xcode 14.2.x or above
+- If you are using Monterey, you must install Xcode 14.2.x
+- If you are using Ventura, you must install Xcode 15.2.x
+- If you are using Sonoma, you must install Xcode 15.2.x or above
 
 Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
@@ -130,7 +127,7 @@ Download the graphical installer for Python 3.10.9 from <https://www.python.org/
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 1.13.1
+### PyTorch 2.1.2
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -141,7 +138,7 @@ sudo /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3.10 install inst
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.13.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -158,6 +155,18 @@ external processes.
 Edit `tools/setup_helpers/cmake.py` and add `"DNNL_TARGET_ARCH"` to the list
 of environment variables that get passed through to CMake (around line 215).
 
+For compilation on Apple silicon Macs edit `third_party/ideep/include/ideep/utils.hpp`
+and add:
+
+```c++
+inline void to_bytes(bytestring& bytes, const unsigned long arg) {
+  auto as_cstring = reinterpret_cast<const char*>(&arg);
+  bytes.append(as_cstring, sizeof(unsigned long));
+}
+```
+
+at around line 189. This is necessary to resolve a template specialization issue.
+
 Build as follows:
 
 ```
@@ -171,7 +180,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=1.13.1
+export PYTORCH_BUILD_VERSION=2.1.2
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10 setup.py install
 ```

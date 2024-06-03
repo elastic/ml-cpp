@@ -48,8 +48,10 @@ def main():
     if config.build_linux:
         build_linux = pipeline_steps.generate_step_template("Linux", config.action)
         pipeline_steps.append(build_linux)
-    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests runner pipeline",
-                                                       ".buildkite/pipelines/run_es_tests.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests x86_64 runner pipeline",
+                                                       ".buildkite/pipelines/run_es_tests_x86_64.yml.sh"))
+    pipeline_steps.append(pipeline_steps.generate_step("Upload ES tests aarch64 runner pipeline",
+                                                       ".buildkite/pipelines/run_es_tests_aarch64.yml.sh"))
     if config.run_qa_tests:
         pipeline_steps.append(pipeline_steps.generate_step("Upload QA tests runner pipeline",
                                                            ".buildkite/pipelines/run_qa_tests.yml.sh"))

@@ -25,7 +25,7 @@
 namespace ml {
 namespace core {
 class CDataFrame;
-class CRapidJsonConcurrentLineWriter;
+class CBoostJsonConcurrentLineWriter;
 }
 namespace maths {
 namespace analytics {

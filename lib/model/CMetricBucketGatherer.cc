@@ -74,7 +74,7 @@ using TCategorySizePr = CMetricBucketGatherer::TCategorySizePr;
 using TCategorySizePrAnyMap = CMetricBucketGatherer::TCategorySizePrAnyMap;
 using TCategorySizePrAnyMapItr = CMetricBucketGatherer::TCategorySizePrAnyMapItr;
 using TCategorySizePrAnyMapCItr = CMetricBucketGatherer::TCategorySizePrAnyMapCItr;
-using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
+using TOptionalStrVec = CBucketGatherer::TOptionalStrVec;
 
 template<typename T>
 using TSizeTUMap = boost::unordered_map<std::size_t, T>;
@@ -752,7 +752,7 @@ struct SAddValue {
         core_t::TTime s_Time;
         const CEventData::TDouble1VecArray* s_Values;
         unsigned int s_Count;
-        const TStoredStringPtrVec* s_Influences;
+        const TOptionalStrVec* s_Influences;
     };
 
     template<typename T>
@@ -1029,12 +1029,11 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
     // The code below just ignores missing/invalid values. This
     // doesn't necessarily stop us processing the record by other
-    // models so we don't return false.
+    // models, so we don't return false.
 
     std::size_t i = m_BeginInfluencingFields;
     for (/**/; i < m_BeginValueFields; ++i) {
-        result.addInfluence(fieldValues[i] != nullptr ? TOptionalStr(*fieldValues[i])
-                                                      : TOptionalStr());
+        result.addInfluence(fieldValues[i] ? TOptionalStr(*fieldValues[i]) : std::nullopt);
     }
     if (m_DataGatherer.summaryMode() != model_t::E_None) {
         CEventData::TDouble1VecArraySizePr statistics;
@@ -1302,7 +1301,7 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
                                      const CEventData::TDouble1VecArray& values,
                                      std::size_t count,
                                      const CEventData::TOptionalStr& /*stringValue*/,
-                                     const TStoredStringPtrVec& influences) {
+                                     const TOptionalStrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
 

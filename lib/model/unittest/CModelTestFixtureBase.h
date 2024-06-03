@@ -167,7 +167,7 @@ protected:
     std::size_t addPerson(const std::string& p,
                           const ml::model::CModelFactory::TDataGathererPtr& gatherer,
                           std::size_t numInfluencers = 0,
-                          TOptionalStr value = TOptionalStr());
+                          TOptionalStr value = std::nullopt);
 
     std::string valueAsString(const TDouble1Vec& value);
 
@@ -208,8 +208,8 @@ protected:
     ml::model::CEventData makeEventData(ml::core_t::TTime time,
                                         std::size_t pid,
                                         TDouble1Vec value = TDoubleVec(1, 0.0),
-                                        const TOptionalStr& influence = TOptionalStr(),
-                                        const TOptionalStr& stringValue = TOptionalStr());
+                                        const TOptionalStr& influence = std::nullopt,
+                                        const TOptionalStr& stringValue = std::nullopt);
 
     using TKeyCompareFunc =
         std::function<void(ml::model::CSearchKey expectedKey, ml::model::CSearchKey actualKey)>;

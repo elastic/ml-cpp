@@ -13,7 +13,6 @@
 #define INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
 
 #include <core/CNonCopyable.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/CBasicStatistics.h>
 
@@ -40,7 +39,8 @@ public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-    using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStr1Vec = core::CSmallVector<TOptionalStr, 1>;
 
 public:
     explicit CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability);
@@ -55,11 +55,11 @@ public:
     SAnnotatedProbability::TAnomalyScoreExplanation& anomalyScoreExplanation();
     void multiBucketImpact(double multiBucketImpact);
     void addAttributeProbability(std::size_t cid,
-                                 const core::CStoredStringPtr& attribute,
+                                 const TOptionalStr& attribute,
                                  double pGivenAttribute,
                                  model_t::CResultType type,
                                  model_t::EFeature feature,
-                                 const TStoredStringPtr1Vec& correlatedAttributes,
+                                 const TOptionalStr1Vec& correlatedAttributes,
                                  const TSizeDoublePr1Vec& correlated);
     void build();
 

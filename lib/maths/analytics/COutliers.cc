@@ -1100,19 +1100,19 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
                                                    std::size_t dimension) {
     using TLof = CLof<TAnnotatedPoint<POINT>, common::CKdTree<TAnnotatedPoint<POINT>>>;
 
-    auto methodSize = [=](std::size_t k, std::size_t numberPoints, std::size_t dimension) {
+    auto methodSize = [=](std::size_t k, std::size_t numberPoints, std::size_t dimension_) {
 
         k = params.s_NumberNeighbours > 0 ? params.s_NumberNeighbours : k;
 
         if (params.s_Method == E_Ensemble) {
             // On average half of models use CLof.
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, dimension) /
+                                                   k, numberPoints, dimension_) /
                    2;
         }
         if (params.s_Method == E_Lof) {
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, dimension);
+                                                   k, numberPoints, dimension_);
         }
         return std::size_t{0};
     };

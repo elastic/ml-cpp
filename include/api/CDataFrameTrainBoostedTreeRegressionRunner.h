@@ -18,7 +18,9 @@
 #include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <boost/json.hpp>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace api {
@@ -51,7 +53,7 @@ public:
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer) const override;
+                     core::CBoostJsonConcurrentLineWriter& writer) const override;
 
     //! \return A serialisable definition of the trained regression model.
     TInferenceModelDefinitionUPtr
@@ -84,7 +86,7 @@ private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
                          TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters,
+                         const json::value& jsonParameters,
                          TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
 };
 }

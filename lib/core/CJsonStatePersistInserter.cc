@@ -17,35 +17,35 @@ namespace core {
 
 CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream& outputStream)
     : m_WriteStream(outputStream), m_Writer(m_WriteStream) {
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
 }
 
 CJsonStatePersistInserter::~CJsonStatePersistInserter() {
-    m_Writer.EndObject();
-    m_WriteStream.Flush();
+    m_Writer.onObjectEnd();
+    m_WriteStream.flush();
 }
 
 void CJsonStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
-    m_Writer.String(name);
-    m_Writer.String(value);
+    m_Writer.onKey(name);
+    m_Writer.onString(value);
 }
 
 void CJsonStatePersistInserter::insertInteger(const std::string& name, size_t value) {
-    m_Writer.String(name);
-    m_Writer.Uint64(value);
+    m_Writer.onKey(name);
+    m_Writer.onUint64(value);
 }
 
 void CJsonStatePersistInserter::flush() {
-    m_WriteStream.Flush();
+    m_WriteStream.flush();
 }
 
 void CJsonStatePersistInserter::newLevel(const std::string& name) {
-    m_Writer.String(name);
-    m_Writer.StartObject();
+    m_Writer.onKey(name);
+    m_Writer.onObjectBegin();
 }
 
 void CJsonStatePersistInserter::endLevel() {
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 }
 }
 }

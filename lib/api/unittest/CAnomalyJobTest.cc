@@ -29,9 +29,8 @@
 
 #include "CTestAnomalyJob.h"
 
-#include <rapidjson/document.h>
-
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <cstdio>
@@ -39,7 +38,8 @@
 #include <map>
 #include <sstream>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::ConstMemberIterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(json::array::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(json::object::const_iterator)
 
 BOOST_AUTO_TEST_SUITE(CAnomalyJobTest)
 
@@ -117,8 +117,9 @@ public:
             }
             std::size_t pid;
             const ml::model::CDataGatherer& gatherer = node.s_Model->dataGatherer();
-            if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
-                LOG_ERROR(<< "No identifier for '" << *node.s_Spec.s_PersonFieldValue << "'");
+            if (!gatherer.personId(node.s_Spec.s_PersonFieldValue.value_or(""), pid)) {
+                LOG_ERROR(<< "No identifier for '"
+                          << node.s_Spec.s_PersonFieldValue.value_or("") << "'");
                 return;
             }
             for (std::size_t i = 0;
@@ -155,15 +156,16 @@ private:
 
 size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST_REQUIRE(!doc.HasParseError());
-    BOOST_TEST_REQUIRE(doc.IsArray());
+    json::error_code ec;
+    json::value results = json::parse(output, ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(results.is_array());
 
-    const rapidjson::Value& allRecords = doc.GetArray();
-    for (const auto& r : allRecords.GetArray()) {
-        rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
-        if (recordsIt != r.GetObject().MemberEnd()) {
+    const json::array& allRecords = results.as_array();
+    for (const auto& r : allRecords) {
+        BOOST_TEST_REQUIRE(r.is_object());
+        json::object::const_iterator recordsIt = r.as_object().find(key);
+        if (recordsIt != r.as_object().end()) {
             ++count;
         }
     }
@@ -471,24 +473,24 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
             }
         }
 
-        rapidjson::Document doc;
-        doc.Parse<rapidjson::kParseDefaultFlags>(outputStrm.str());
-        BOOST_TEST_REQUIRE(!doc.HasParseError());
-        BOOST_TEST_REQUIRE(doc.IsArray());
+        json::error_code ec;
+        json::value results = json::parse(outputStrm.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(results.is_array());
 
-        const rapidjson::Value& allRecords = doc.GetArray();
+        const json::array& allRecords = results.as_array();
         bool foundRecord = false;
-        for (auto& r : allRecords.GetArray()) {
-            rapidjson::Value::ConstMemberIterator recordsIt =
-                r.GetObject().FindMember("records");
-            if (recordsIt != r.GetObject().MemberEnd()) {
-                auto& recordsArray = recordsIt->value.GetArray()[0];
-                rapidjson::Value::ConstMemberIterator actualIt =
-                    recordsArray.FindMember("actual");
-                BOOST_TEST_REQUIRE(actualIt != recordsArray.MemberEnd());
-                const rapidjson::Value::ConstArray& values = actualIt->value.GetArray();
+        for (auto& r : allRecords) {
+            BOOST_TEST_REQUIRE(r.is_object());
+            json::object::const_iterator recordsIt = r.as_object().find("records");
+            if (recordsIt != r.as_object().end()) {
+                auto& recordsArray = recordsIt->value().as_array().at(0);
+                const json::value* actualIt = recordsArray.as_object().if_contains("actual");
+                BOOST_TEST_REQUIRE(actualIt != nullptr);
+                const json::array& values = actualIt->as_array();
 
-                BOOST_REQUIRE_EQUAL(102.0, values[0].GetDouble());
+                LOG_DEBUG(<< "values: " << values);
+                BOOST_REQUIRE_EQUAL(102.0, values[0].to_number<double>());
                 foundRecord = true;
             }
         }
@@ -521,24 +523,22 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
             }
         }
 
-        rapidjson::Document doc2;
-        doc2.Parse<rapidjson::kParseDefaultFlags>(outputStrm2.str());
-        BOOST_TEST_REQUIRE(!doc2.HasParseError());
-        BOOST_TEST_REQUIRE(doc2.IsArray());
+        json::value doc2_ = json::parse(outputStrm2.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
+        BOOST_TEST_REQUIRE(doc2_.is_array());
 
-        const rapidjson::Value& allRecords2 = doc2.GetArray();
+        const json::value& allRecords2 = doc2_.as_array();
         foundRecord = false;
-        for (auto& r : allRecords2.GetArray()) {
-            rapidjson::Value::ConstMemberIterator recordsIt =
-                r.GetObject().FindMember("records");
-            if (recordsIt != r.GetObject().MemberEnd()) {
-                auto& recordsArray = recordsIt->value.GetArray()[0];
-                rapidjson::Value::ConstMemberIterator actualIt =
-                    recordsArray.FindMember("actual");
-                BOOST_TEST_REQUIRE(actualIt != recordsArray.MemberEnd());
-                const rapidjson::Value::ConstArray& values = actualIt->value.GetArray();
+        for (auto& r : allRecords2.as_array()) {
+            json::object::const_iterator recordsIt = r.as_object().find("records");
+            if (recordsIt != r.as_object().end()) {
+                auto& recordsArray = recordsIt->value().as_array().at(0);
+                json::object::const_iterator actualIt =
+                    recordsArray.as_object().find("actual");
+                BOOST_TEST_REQUIRE(actualIt != recordsArray.as_object().end());
+                const json::array& values = actualIt->value().as_array();
 
-                BOOST_REQUIRE_EQUAL(101.0, values[0].GetDouble());
+                BOOST_REQUIRE_EQUAL(101.0, values[0].to_number<double>());
                 foundRecord = true;
             }
         }

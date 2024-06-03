@@ -28,7 +28,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CResourceMonitor.h>
-#include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 
 #include <boost/unordered_set.hpp>
@@ -61,7 +60,7 @@ using TSizeSizePrMeanAccumulatorUMapQueue = CBucketQueue<TSizeSizePrMeanAccumula
 using TCategoryAnyMap = CEventRateBucketGatherer::TCategoryAnyMap;
 using TSizeSizePrStrDataUMap = boost::unordered_map<TSizeSizePr, CUniqueStringFeatureData>;
 using TSizeSizePrStrDataUMapQueue = CBucketQueue<TSizeSizePrStrDataUMap>;
-using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
+using TOptionalStrVec = CBucketGatherer::TOptionalStrVec;
 
 // We use short field names to reduce the state size
 const std::string BASE_TAG("a");
@@ -554,7 +553,7 @@ struct SAddValue {
                     std::size_t /*count*/,
                     const CEventData::TDouble1VecArray& /*values*/,
                     const CEventData::TOptionalStr& /*uniqueStrings*/,
-                    const TStoredStringPtrVec& /*influences*/) const {
+                    const TOptionalStrVec& /*influences*/) const {
         attributePeople[cid].insert(pid);
     }
     void operator()(TSizeSizePrStrDataUMapQueue& personAttributeUniqueCounts,
@@ -564,7 +563,7 @@ struct SAddValue {
                     std::size_t /*count*/,
                     const CEventData::TDouble1VecArray& /*values*/,
                     const CEventData::TOptionalStr& uniqueString,
-                    const TStoredStringPtrVec& influences) const {
+                    const TOptionalStrVec& influences) const {
         if (!uniqueString) {
             return;
         }
@@ -584,7 +583,7 @@ struct SAddValue {
                     std::size_t count,
                     const CEventData::TDouble1VecArray& values,
                     const CEventData::TOptionalStr& /*uniqueStrings*/,
-                    const TStoredStringPtrVec& /*influences*/) const {
+                    const TOptionalStrVec& /*influences*/) const {
         if (time > arrivalTimes.latestBucketEnd()) {
             LOG_ERROR(<< "No queue item for time " << time << ", end of latest bucket "
                       << arrivalTimes.latestBucketEnd() << ", bucket length "
@@ -657,11 +656,11 @@ bool restoreUniqueStrings(core::CStateRestoreTraverser& traverser,
 }
 
 //! Persist influencer collections of unique strings.
-void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TStoredStringPtrWordSetUMap& map,
+void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TOptionalStrWordSetUMap& map,
                                     core::CStatePersistInserter& inserter) {
     if (!map.empty()) {
         // Order the map keys to ensure consistent persistence
-        TStoredStringPtrVec keys;
+        TOptionalStrVec keys;
         keys.reserve(map.size());
         for (const auto& influence : map) {
             keys.push_back(influence.first);
@@ -679,7 +678,7 @@ void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TStoredStrin
 
 //! Restore influencer collections of unique strings.
 bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
-                                    CUniqueStringFeatureData::TStoredStringPtrWordSetUMap& data) {
+                                    CUniqueStringFeatureData::TOptionalStrWordSetUMap& data) {
     std::string key;
     do {
         const std::string& name = traverser.name();
@@ -699,7 +698,7 @@ bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
                 }
             }
             if (i == data.end()) {
-                data[CStringStore::influencers().get(key)].insert(value);
+                data[key].insert(value);
             }
         }
     } while (traverser.next());
@@ -863,8 +862,7 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
     }
 
     for (std::size_t i = m_DataGatherer.isPopulation() ? 2 : 1; i < m_BeginValueField; ++i) {
-        result.addInfluence(fieldValues[i] != nullptr ? TOptionalStr(*fieldValues[i])
-                                                      : TOptionalStr());
+        result.addInfluence(fieldValues[i] ? TOptionalStr(*fieldValues[i]) : std::nullopt);
     }
 
     if (m_BeginValueField != m_BeginSummaryFields) {
@@ -1483,7 +1481,7 @@ void CEventRateBucketGatherer::addValue(std::size_t pid,
                                         const CEventData::TDouble1VecArray& values,
                                         std::size_t count,
                                         const CEventData::TOptionalStr& stringValue,
-                                        const TStoredStringPtrVec& influences) {
+                                        const TOptionalStrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
     applyFunc(m_FeatureData, [&, addValue = SAddValue{} ](auto& data) {
@@ -1604,8 +1602,7 @@ void CEventRateBucketGatherer::initializeFeatureData() {
 
 void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
                                                    TSizeFeatureDataPrVec& result) const {
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencers =
-        this->influencerCounts(time);
+    const TSizeSizePrOptionalStrPrUInt64UMapVec& influencers = this->influencerCounts(time);
     if (influencers.empty()) {
         return;
     }
@@ -1625,7 +1622,7 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
                 continue;
             }
             k->second.s_InfluenceValues[i].emplace_back(
-                TStrCRef(*CDataGatherer::extractData(influence.first)),
+                TStrCRef(CDataGatherer::extractData(influence.first)),
                 TDouble1VecDoublePr(TDouble1Vec{static_cast<double>(influence.second)}, 1.0));
         }
     }
@@ -1633,8 +1630,7 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
 
 void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
                                                    TSizeSizePrFeatureDataPrVec& result) const {
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencers =
-        this->influencerCounts(time);
+    const TSizeSizePrOptionalStrPrUInt64UMapVec& influencers = this->influencerCounts(time);
     if (influencers.empty()) {
         return;
     }
@@ -1657,7 +1653,7 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
                 continue;
             }
             k->second.s_InfluenceValues[i].emplace_back(
-                TStrCRef(*CDataGatherer::extractData(influence.first)),
+                TStrCRef(CDataGatherer::extractData(influence.first)),
                 TDouble1VecDoublePr(TDouble1Vec{static_cast<double>(influence.second)}, 1.0));
         }
     }
@@ -1666,7 +1662,7 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
 ////// CUniqueStringFeatureData //////
 
 void CUniqueStringFeatureData::insert(const std::string& value,
-                                      const TStoredStringPtrVec& influences) {
+                                      const TOptionalStrVec& influences) {
     TWord valueHash = m_Dictionary1.word(value);
     m_UniqueStrings.emplace(valueHash, value);
     if (influences.size() > m_InfluencerUniqueStrings.size()) {
@@ -1773,7 +1769,7 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
                                                      std::ref(m_UniqueStrings))))
         RESTORE_SETUP_TEARDOWN(
             INFLUENCER_UNIQUE_STRINGS_TAG,
-            m_InfluencerUniqueStrings.push_back(TStoredStringPtrWordSetUMap()),
+            m_InfluencerUniqueStrings.push_back(TOptionalStrWordSetUMap()),
             traverser.traverseSubLevel(
                 std::bind(&restoreInfluencerUniqueStrings, std::placeholders::_1,
                           std::ref(m_InfluencerUniqueStrings.back()))),

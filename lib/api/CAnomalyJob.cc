@@ -18,7 +18,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidXmlStatePersistInserter.h>
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
@@ -36,7 +36,6 @@
 #include <model/CModelFactory.h>
 #include <model/CSearchKey.h>
 #include <model/CSimpleCountDetector.h>
-#include <model/CStringStore.h>
 
 #include <api/CAnnotationJsonWriter.h>
 #include <api/CAnomalyJobConfig.h>
@@ -475,7 +474,8 @@ void CAnomalyJob::updateConfig(const std::string& config) {
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
-    m_JobConfig.analysisConfig().reparseDetectorsFromStoredConfig();
+    const std::string& analysisConfig = m_JobConfig.analysisConfig().getAnalysisConfig();
+    m_JobConfig.analysisConfig().reparseDetectorsFromStoredConfig(analysisConfig);
 }
 
 void CAnomalyJob::advanceTime(const std::string& time_) {
@@ -726,7 +726,6 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     // Prune models based on memory resource limits
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
-    model::CStringStore::tidyUpNotThreadSafe();
 }
 
 void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
@@ -779,7 +778,7 @@ void CAnomalyJob::writeOutResults(bool interim,
                   << " / " << results.root()->s_NormalizedAnomalyScore
                   << ", count " << results.resultCount() << " at " << bucketTime);
 
-        using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
+        using TScopedAllocator = core::CScopedBoostJsonPoolAllocator<CJsonOutputWriter>;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 

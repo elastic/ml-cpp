@@ -12,13 +12,16 @@
 #ifndef INCLUDED_ml_torch_CResultWriter_h
 #define INCLUDED_ml_torch_CResultWriter_h
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonLineWriter.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CStringBufWriter.h>
 
 #include <c10/util/BFloat16.h>
-#include <rapidjson/stringbuffer.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
+
+#include <boost/json.hpp>
 
 #include <cstdint>
 #include <iosfwd>
@@ -47,9 +50,10 @@ class CThreadSettings;
 //! building the invariant portion of results to be cached and later
 //! spliced into a complete response.
 //!
-class CResultWriter {
+using TStringBufWriter = ml::core::CStringBufWriter;
+class CResultWriter : public TStringBufWriter {
 public:
-    using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TBoostJsonLineWriter = core::CBoostJsonLineWriter<std::string>;
 
 public:
     explicit CResultWriter(std::ostream& strmOut);
@@ -59,16 +63,17 @@ public:
     CResultWriter& operator=(const CResultWriter&) = delete;
 
     //! Write an error directly to the output stream.
-    void writeError(const std::string& requestId, const std::string& message);
+    void writeError(const std::string_view& requestId, const std::string& message);
 
     //! Write thread settings to the output stream.
-    void writeThreadSettings(const std::string& requestId, const CThreadSettings& threadSettings);
+    void writeThreadSettings(const std::string_view& requestId,
+                             const CThreadSettings& threadSettings);
 
     //! Write a simple acknowledgement to the output stream.
-    void writeSimpleAck(const std::string& requestId);
+    void writeSimpleAck(const std::string_view& requestId);
 
     //! Write memory usage information to the output stream.
-    void writeProcessStats(const std::string& requestId,
+    void writeProcessStats(const std::string_view& requestId,
                            const std::size_t residentSetSize,
                            const std::size_t maxResidentSetSize);
 
@@ -82,7 +87,7 @@ public:
 
     //! Write the prediction portion of an inference result.
     template<std::size_t N>
-    void writePrediction(const ::torch::Tensor& prediction, TRapidJsonLineWriter& jsonWriter) {
+    void writePrediction(const ::torch::Tensor& prediction, TStringBufWriter& jsonWriter) {
 
         // Creating the accessor will throw if the tensor does not have exactly
         // N dimensions. Do this before writing any output so the error message
@@ -132,56 +137,58 @@ private:
 private:
     //! Create the invariant portion of an error result, suitable for
     //! caching and later splicing into a full result.
-    static void writeInnerError(const std::string& message, TRapidJsonLineWriter& jsonWriter);
+    //core::CBoostJsonConcurrentLineWriter
+    //    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
+    static void writeInnerError(const std::string& message, TStringBufWriter& jsonWriter);
 
     //! Write a one dimensional tensor.
     template<typename T>
     void writeTensor(const ::torch::TensorAccessor<T, 1UL>& accessor,
-                     TRapidJsonLineWriter& jsonWriter) {
-        jsonWriter.StartArray();
+                     TStringBufWriter& jsonWriter) {
+        jsonWriter.onArrayBegin();
         for (int i = 0; i < accessor.size(0); ++i) {
-            jsonWriter.Double(static_cast<double>(accessor[i]));
+            jsonWriter.onDouble(static_cast<double>(accessor[i]));
         }
-        jsonWriter.EndArray();
+        jsonWriter.onArrayEnd();
     }
 
     //! Write an N dimensional tensor for N > 1.
     template<typename T, std::size_t N_DIMS>
     void writeTensor(const ::torch::TensorAccessor<T, N_DIMS>& accessor,
-                     TRapidJsonLineWriter& jsonWriter) {
-        jsonWriter.StartArray();
+                     TStringBufWriter& jsonWriter) {
+        jsonWriter.onArrayBegin();
         for (int i = 0; i < accessor.size(0); ++i) {
             this->writeTensor(accessor[i], jsonWriter);
         }
-        jsonWriter.EndArray();
+        jsonWriter.onArrayEnd();
     }
 
     //! Write a 3D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 3UL>& accessor,
-                               TRapidJsonLineWriter& jsonWriter) {
+                               TStringBufWriter& jsonWriter) {
 
-        jsonWriter.Key(RESULT);
-        jsonWriter.StartObject();
-        jsonWriter.Key(INFERENCE);
+        jsonWriter.onKey(RESULT);
+        jsonWriter.onObjectBegin();
+        jsonWriter.onKey(INFERENCE);
         this->writeTensor(accessor, jsonWriter);
-        jsonWriter.EndObject();
+        jsonWriter.onObjectEnd();
     }
 
     //! Write a 2D inference result
     template<typename T>
     void writeInferenceResults(const ::torch::TensorAccessor<T, 2UL>& accessor,
-                               TRapidJsonLineWriter& jsonWriter) {
+                               TStringBufWriter& jsonWriter) {
 
-        jsonWriter.Key(RESULT);
-        jsonWriter.StartObject();
-        jsonWriter.Key(INFERENCE);
+        jsonWriter.onKey(RESULT);
+        jsonWriter.onObjectBegin();
+        jsonWriter.onKey(INFERENCE);
         // The Java side requires a 3D array, so wrap the 2D result in an
         // extra outer array.
-        jsonWriter.StartArray();
+        jsonWriter.onArrayBegin();
         this->writeTensor(accessor, jsonWriter);
-        jsonWriter.EndArray();
-        jsonWriter.EndObject();
+        jsonWriter.onArrayEnd();
+        jsonWriter.onObjectEnd();
     }
 
 private:

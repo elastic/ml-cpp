@@ -51,7 +51,6 @@ set (SRCS
   CResourceMonitorTest.cc
   CRuleConditionTest.cc
   CSearchKeyTest.cc
-  CStringStoreTest.cc
   CTokenListCategoryTest.cc
   CTokenListDataCategorizerBaseTest.cc
   CTokenListDataCategorizerTest.cc

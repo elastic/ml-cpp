@@ -27,7 +27,7 @@
 
 namespace ml {
 namespace test {
-using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+using TJsonLineWriter = core::CStreamWriter;
 
 CDataFrameAnalysisSpecificationFactory::CDataFrameAnalysisSpecificationFactory()
     : m_MissingString{core::CDataFrame::DEFAULT_MISSING_STRING} {
@@ -253,8 +253,8 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(const rapidjson::Value& value) {
-    m_CustomProcessors.CopyFrom(value, m_CustomProcessors.GetAllocator());
+CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(const json::value& value) {
+    m_CustomProcessors = value;
     return *this;
 }
 
@@ -266,30 +266,29 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double l
 
 std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
-    rapidjson::StringBuffer parameters;
-    TRapidJsonLineWriter writer;
-    writer.Reset(parameters);
+    std::ostringstream os;
+    TJsonLineWriter writer(os);
 
-    writer.StartObject();
+    writer.onObjectBegin();
     if (m_Method != "") {
-        writer.Key(api::CDataFrameOutliersRunner::METHOD);
-        writer.String(m_Method);
+        writer.onKey(api::CDataFrameOutliersRunner::METHOD);
+        writer.onString(m_Method);
     }
     if (m_NumberNeighbours > 0) {
-        writer.Key(api::CDataFrameOutliersRunner::N_NEIGHBORS);
-        writer.Uint64(m_NumberNeighbours);
+        writer.onKey(api::CDataFrameOutliersRunner::N_NEIGHBORS);
+        writer.onUint64(m_NumberNeighbours);
     }
     if (m_ComputeFeatureInfluence == false) {
-        writer.Key(api::CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE);
-        writer.Bool(m_ComputeFeatureInfluence);
+        writer.onKey(api::CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE);
+        writer.onBool(m_ComputeFeatureInfluence);
     } else {
-        writer.Key(api::CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD);
-        writer.Double(0.0);
+        writer.onKey(api::CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD);
+        writer.onDouble(0.0);
     }
-    writer.EndObject();
-    writer.Flush();
+    writer.onObjectEnd();
+    writer.flush();
 
-    return parameters.GetString();
+    return os.str();
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
@@ -317,162 +316,161 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     using TClassificationRunner = api::CDataFrameTrainBoostedTreeClassifierRunner;
     using TRegressionRunner = api::CDataFrameTrainBoostedTreeRegressionRunner;
 
-    rapidjson::StringBuffer parameters;
-    TRapidJsonLineWriter writer;
-    writer.Reset(parameters);
+    std::ostringstream os;
+    TJsonLineWriter writer(os);
 
-    writer.StartObject();
-    writer.Key(TRunner::DEPENDENT_VARIABLE_NAME);
-    writer.String(dependentVariable);
+    writer.onObjectBegin();
+    writer.onKey(TRunner::DEPENDENT_VARIABLE_NAME);
+    writer.onString(dependentVariable);
     if (m_Alpha >= 0.0) {
-        writer.Key(TRunner::ALPHA);
-        writer.StartArray();
-        writer.Double(m_Alpha);
-        writer.EndArray();
+        writer.onKey(TRunner::ALPHA);
+        writer.onArrayBegin();
+        writer.onDouble(m_Alpha);
+        writer.onArrayEnd();
     }
     if (m_Lambda >= 0.0) {
-        writer.Key(TRunner::LAMBDA);
-        writer.StartArray();
-        writer.Double(m_Lambda);
-        writer.EndArray();
+        writer.onKey(TRunner::LAMBDA);
+        writer.onArrayBegin();
+        writer.onDouble(m_Lambda);
+        writer.onArrayEnd();
     }
     if (m_Gamma >= 0.0) {
-        writer.Key(TRunner::GAMMA);
-        writer.StartArray();
-        writer.Double(m_Gamma);
-        writer.EndArray();
+        writer.onKey(TRunner::GAMMA);
+        writer.onArrayBegin();
+        writer.onDouble(m_Gamma);
+        writer.onArrayEnd();
     }
     if (m_SoftTreeDepthLimit >= 0.0) {
-        writer.Key(TRunner::SOFT_TREE_DEPTH_LIMIT);
-        writer.StartArray();
-        writer.Double(m_SoftTreeDepthLimit);
-        writer.EndArray();
+        writer.onKey(TRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.onArrayBegin();
+        writer.onDouble(m_SoftTreeDepthLimit);
+        writer.onArrayEnd();
     }
     if (m_SoftTreeDepthTolerance >= 0.0) {
-        writer.Key(TRunner::SOFT_TREE_DEPTH_TOLERANCE);
-        writer.StartArray();
-        writer.Double(m_SoftTreeDepthTolerance);
-        writer.EndArray();
+        writer.onKey(TRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.onArrayBegin();
+        writer.onDouble(m_SoftTreeDepthTolerance);
+        writer.onArrayEnd();
     }
     if (m_Eta > 0.0) {
-        writer.Key(TRunner::ETA);
-        writer.StartArray();
-        writer.Double(m_Eta);
-        writer.EndArray();
+        writer.onKey(TRunner::ETA);
+        writer.onArrayBegin();
+        writer.onDouble(m_Eta);
+        writer.onArrayEnd();
     }
     if (m_EtaGrowthRatePerTree > 0.0) {
-        writer.Key(TRunner::ETA_GROWTH_RATE_PER_TREE);
-        writer.StartArray();
-        writer.Double(m_EtaGrowthRatePerTree);
-        writer.EndArray();
+        writer.onKey(TRunner::ETA_GROWTH_RATE_PER_TREE);
+        writer.onArrayBegin();
+        writer.onDouble(m_EtaGrowthRatePerTree);
+        writer.onArrayEnd();
     }
     if (m_DownsampleFactor > 0.0) {
-        writer.Key(TRunner::DOWNSAMPLE_FACTOR);
-        writer.StartArray();
-        writer.Double(m_DownsampleFactor);
-        writer.EndArray();
+        writer.onKey(TRunner::DOWNSAMPLE_FACTOR);
+        writer.onArrayBegin();
+        writer.onDouble(m_DownsampleFactor);
+        writer.onArrayEnd();
     }
     if (m_MaximumNumberTrees > 0) {
-        writer.Key(TRunner::MAX_TREES);
-        writer.Uint64(m_MaximumNumberTrees);
+        writer.onKey(TRunner::MAX_TREES);
+        writer.onUint64(m_MaximumNumberTrees);
     }
     if (m_FeatureBagFraction > 0.0) {
-        writer.Key(TRunner::FEATURE_BAG_FRACTION);
-        writer.StartArray();
-        writer.Double(m_FeatureBagFraction);
-        writer.EndArray();
+        writer.onKey(TRunner::FEATURE_BAG_FRACTION);
+        writer.onArrayBegin();
+        writer.onDouble(m_FeatureBagFraction);
+        writer.onArrayEnd();
     }
     if (m_NumberRoundsPerHyperparameter > 0) {
-        writer.Key(TRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
-        writer.Uint64(m_NumberRoundsPerHyperparameter);
+        writer.onKey(TRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
+        writer.onUint64(m_NumberRoundsPerHyperparameter);
     }
     if (m_BayesianOptimisationRestarts > 0) {
-        writer.Key(TRunner::BAYESIAN_OPTIMISATION_RESTARTS);
-        writer.Uint64(m_BayesianOptimisationRestarts);
+        writer.onKey(TRunner::BAYESIAN_OPTIMISATION_RESTARTS);
+        writer.onUint64(m_BayesianOptimisationRestarts);
     }
     if (m_NumberTopShapValues > 0) {
-        writer.Key(TRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
-        writer.Uint64(m_NumberTopShapValues);
+        writer.onKey(TRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
+        writer.onUint64(m_NumberTopShapValues);
     }
     if (m_PredictionFieldName.empty() == false) {
-        writer.Key(TRunner::PREDICTION_FIELD_NAME);
-        writer.String(m_PredictionFieldName);
+        writer.onKey(TRunner::PREDICTION_FIELD_NAME);
+        writer.onString(m_PredictionFieldName);
     }
-    if (m_CustomProcessors.IsNull() == false) {
-        writer.Key(TRunner::FEATURE_PROCESSORS);
+    if (m_CustomProcessors.is_null() == false) {
+        writer.onKey(TRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
     }
     if (m_EarlyStoppingEnabled == false) {
-        writer.Key(TRunner::EARLY_STOPPING_ENABLED);
-        writer.Bool(m_EarlyStoppingEnabled);
+        writer.onKey(TRunner::EARLY_STOPPING_ENABLED);
+        writer.onBool(m_EarlyStoppingEnabled);
     }
     if (m_DataSummarizationFraction > 0.0) {
-        writer.Key(TRunner::DATA_SUMMARIZATION_FRACTION);
-        writer.Double(m_DataSummarizationFraction);
+        writer.onKey(TRunner::DATA_SUMMARIZATION_FRACTION);
+        writer.onDouble(m_DataSummarizationFraction);
     }
     if (m_PreviousTrainLossGap > 0.0) {
-        writer.Key(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
-        writer.Double(m_PreviousTrainLossGap);
+        writer.onKey(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
+        writer.onDouble(m_PreviousTrainLossGap);
     }
     if (m_PreviousTrainNumberRows > 0) {
-        writer.Key(TRunner::PREVIOUS_TRAIN_NUM_ROWS);
-        writer.Uint64(m_PreviousTrainNumberRows);
+        writer.onKey(TRunner::PREVIOUS_TRAIN_NUM_ROWS);
+        writer.onUint64(m_PreviousTrainNumberRows);
     }
 
-    writer.Key(TRunner::TASK);
+    writer.onKey(TRunner::TASK);
     switch (m_Task) {
     case TTask::E_Encode:
-        writer.String(TRunner::TASK_ENCODE);
+        writer.onString(TRunner::TASK_ENCODE);
         break;
     case TTask::E_Train:
-        writer.String(TRunner::TASK_TRAIN);
+        writer.onString(TRunner::TASK_TRAIN);
         break;
     case TTask::E_Update:
-        writer.String(TRunner::TASK_UPDATE);
+        writer.onString(TRunner::TASK_UPDATE);
         break;
     case TTask::E_Predict:
-        writer.String(TRunner::TASK_PREDICT);
+        writer.onString(TRunner::TASK_PREDICT);
         break;
     }
 
     if (analysis == classification()) {
-        writer.Key(TClassificationRunner::NUM_CLASSES);
-        writer.Uint64(m_NumberClasses);
-        writer.Key(TClassificationRunner::NUM_TOP_CLASSES);
-        writer.Uint64(m_NumberTopClasses);
+        writer.onKey(TClassificationRunner::NUM_CLASSES);
+        writer.onUint64(m_NumberClasses);
+        writer.onKey(TClassificationRunner::NUM_TOP_CLASSES);
+        writer.onUint64(m_NumberTopClasses);
         if (m_PredictionFieldType.empty() == false) {
-            writer.Key(TClassificationRunner::PREDICTION_FIELD_TYPE);
-            writer.String(m_PredictionFieldType);
+            writer.onKey(TClassificationRunner::PREDICTION_FIELD_TYPE);
+            writer.onString(m_PredictionFieldType);
         }
         if (m_ClassificationWeights.empty() == false) {
-            writer.Key(TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE);
-            writer.String(
+            writer.onKey(TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE);
+            writer.onString(
                 TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::analytics::CDataFramePredictiveModel::E_Custom]);
-            writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS);
-            writer.StartArray();
+            writer.onKey(TClassificationRunner::CLASSIFICATION_WEIGHTS);
+            writer.onArrayBegin();
             for (const auto& weight : m_ClassificationWeights) {
-                writer.StartObject();
-                writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS_CLASS);
-                writer.String(weight.first);
-                writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS_WEIGHT);
-                writer.Double(weight.second);
-                writer.EndObject();
+                writer.onObjectBegin();
+                writer.onKey(TClassificationRunner::CLASSIFICATION_WEIGHTS_CLASS);
+                writer.onString(weight.first);
+                writer.onKey(TClassificationRunner::CLASSIFICATION_WEIGHTS_WEIGHT);
+                writer.onDouble(weight.second);
+                writer.onObjectEnd();
             }
-            writer.EndArray();
+            writer.onArrayEnd();
         }
     }
     if (analysis == regression()) {
         if (m_RegressionLossFunction) {
-            writer.Key(TRegressionRunner::LOSS_FUNCTION);
+            writer.onKey(TRegressionRunner::LOSS_FUNCTION);
             switch (*m_RegressionLossFunction) {
             case TLossFunctionType::E_MsleRegression:
-                writer.String(TRegressionRunner::MSLE);
+                writer.onString(TRegressionRunner::MSLE);
                 break;
             case TLossFunctionType::E_MseRegression:
-                writer.String(TRegressionRunner::MSE);
+                writer.onString(TRegressionRunner::MSE);
                 break;
             case TLossFunctionType::E_HuberRegression:
-                writer.String(TRegressionRunner::PSEUDO_HUBER);
+                writer.onString(TRegressionRunner::PSEUDO_HUBER);
                 break;
             case TLossFunctionType::E_BinaryClassification:
             case TLossFunctionType::E_MulticlassClassification:
@@ -481,14 +479,14 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
             }
         }
         if (m_RegressionLossFunctionParameter != std::nullopt) {
-            writer.Key(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
-            writer.Double(*m_RegressionLossFunctionParameter);
+            writer.onKey(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
+            writer.onDouble(*m_RegressionLossFunctionParameter);
         }
     }
 
-    writer.EndObject();
+    writer.onObjectEnd();
 
-    return parameters.GetString();
+    return os.str();
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
@@ -506,7 +504,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
         m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
         this->predictionParams(analysis, dependentVariable))};
 
-    LOG_TRACE(<< "spec =\n" << spec);
+    LOG_DEBUG(<< "spec =\n" << spec);
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(

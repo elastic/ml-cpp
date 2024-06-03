@@ -14,7 +14,7 @@
 
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <boost/json.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -24,11 +24,13 @@
 #include <thread>
 #include <vector>
 
+namespace json = boost::json;
+
 namespace ml {
 namespace core {
 class CDataFrame;
 class CPackedBitVector;
-class CRapidJsonConcurrentLineWriter;
+class CBoostJsonConcurrentLineWriter;
 class CStatePersistInserter;
 class CTemporaryDirectory;
 namespace data_frame_detail {
@@ -142,7 +144,7 @@ public:
     //! \param[in,out] writer The stream to which to write the extra columns.
     virtual void writeOneRow(const core::CDataFrame& frame,
                              const TRowRef& row,
-                             core::CRapidJsonConcurrentLineWriter& writer) const = 0;
+                             core::CBoostJsonConcurrentLineWriter& writer) const = 0;
 
     //! Validate if \p frame is suitable for running the analysis on.
     virtual bool validate(const core::CDataFrame& frame) const = 0;
@@ -241,7 +243,7 @@ public:
     //! is suitable for the analysis together with the directory handle, if it
     //! is stored on disk, and written to this parameter.
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& jsonParameters,
+                     const json::value& jsonParameters,
                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
@@ -250,7 +252,7 @@ private:
              TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const = 0;
     virtual TRunnerUPtr
     makeImpl(const CDataFrameAnalysisSpecification& spec,
-             const rapidjson::Value& jsonParameters,
+             const json::value& jsonParameters,
              TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const = 0;
 };
 }

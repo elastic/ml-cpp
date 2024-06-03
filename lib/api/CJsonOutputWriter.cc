@@ -111,10 +111,10 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
         LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return 0.0;
     }
-    return (*docPtr)[field].GetDouble();
+    return (*docPtr)[field].to_number<double>();
 }
 
-//! Sort rapidjson documents by the probability lowest to highest
+//! Sort json documents by the probability lowest to highest
 class CProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
@@ -126,7 +126,7 @@ public:
 
 const CProbabilityLess PROBABILITY_LESS = CProbabilityLess();
 
-//! Sort rapidjson documents by detector name first then probability lowest to highest
+//! Sort json documents by detector name first then probability lowest to highest
 class CDetectorThenProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
@@ -212,7 +212,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
         return true;
     }
 
-    TDocumentWeakPtr newDoc;
+    std::weak_ptr<json::object> newDoc;
     if (!results.s_IsOverallResult) {
         newDoc = m_Writer.makeStorableDoc();
         this->addPopulationCauseFields(results, newDoc);
@@ -383,9 +383,9 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         std::sort(bucketData.s_DocumentsToWrite.begin(),
                   bucketData.s_DocumentsToWrite.end(), DETECTOR_PROBABILITY_LESS);
 
-        m_Writer.StartObject();
-        m_Writer.Key(RECORDS);
-        m_Writer.StartArray();
+        m_Writer.onObjectBegin();
+        m_Writer.onKey(RECORDS);
+        m_Writer.onArrayBegin();
 
         // Iterate over the different detectors that we have results for
         for (TDocumentWeakPtrIntPrVecItr detectorIter =
@@ -410,15 +410,15 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             }
             m_Writer.write(*docPtr);
         }
-        m_Writer.EndArray();
-        m_Writer.EndObject();
+        m_Writer.onArrayEnd();
+        m_Writer.onObjectEnd();
     }
 
     // Write influencers
     if (!bucketData.s_InfluencerDocuments.empty()) {
-        m_Writer.StartObject();
-        m_Writer.Key(INFLUENCERS);
-        m_Writer.StartArray();
+        m_Writer.onObjectBegin();
+        m_Writer.onKey(INFLUENCERS);
+        m_Writer.onArrayBegin();
         for (TDocumentWeakPtrVecItr influencerIter =
                  bucketData.s_InfluencerDocuments.begin();
              influencerIter != bucketData.s_InfluencerDocuments.end(); ++influencerIter) {
@@ -437,37 +437,37 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketData.s_BucketSpan, *docPtr);
             m_Writer.write(*docPtr);
         }
-        m_Writer.EndArray();
-        m_Writer.EndObject();
+        m_Writer.onArrayEnd();
+        m_Writer.onObjectEnd();
     }
 
     // Write bucket at the end, as some of its values need to iterate over records, etc.
-    m_Writer.StartObject();
-    m_Writer.Key(BUCKET);
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(BUCKET);
 
-    m_Writer.StartObject();
-    m_Writer.Key(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.Key(TIMESTAMP);
-    m_Writer.Time(bucketTime);
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(JOB_ID);
+    m_Writer.onString(m_JobId);
+    m_Writer.onKey(TIMESTAMP);
+    m_Writer.onTime(bucketTime);
 
-    m_Writer.Key(ANOMALY_SCORE);
-    m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
-    m_Writer.Key(INITIAL_SCORE);
-    m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
-    m_Writer.Key(EVENT_COUNT);
-    m_Writer.Uint64(bucketData.s_InputEventCount);
+    m_Writer.onKey(ANOMALY_SCORE);
+    m_Writer.onDouble(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
+    m_Writer.onKey(INITIAL_SCORE);
+    m_Writer.onDouble(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
+    m_Writer.onKey(EVENT_COUNT);
+    m_Writer.onUint64(bucketData.s_InputEventCount);
     if (isInterim) {
-        m_Writer.Key(IS_INTERIM);
-        m_Writer.Bool(isInterim);
+        m_Writer.onKey(IS_INTERIM);
+        m_Writer.onBool(isInterim);
     }
-    m_Writer.Key(BUCKET_SPAN);
-    m_Writer.Int64(bucketData.s_BucketSpan);
+    m_Writer.onKey(BUCKET_SPAN);
+    m_Writer.onInt64(bucketData.s_BucketSpan);
 
     if (!bucketData.s_BucketInfluencerDocuments.empty()) {
         // Write the array of influencers
-        m_Writer.Key(BUCKET_INFLUENCERS);
-        m_Writer.StartArray();
+        m_Writer.onKey(BUCKET_INFLUENCERS);
+        m_Writer.onArrayBegin();
         for (TDocumentWeakPtrVecItr influencerIter =
                  bucketData.s_BucketInfluencerDocuments.begin();
              influencerIter != bucketData.s_BucketInfluencerDocuments.end();
@@ -487,23 +487,23 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             }
             m_Writer.write(*docPtr);
         }
-        m_Writer.EndArray();
+        m_Writer.onArrayEnd();
     }
 
-    m_Writer.Key(PROCESSING_TIME);
-    m_Writer.Uint64(bucketProcessingTime);
+    m_Writer.onKey(PROCESSING_TIME);
+    m_Writer.onUint64(bucketProcessingTime);
 
     if (bucketData.s_ScheduledEventDescriptions.empty() == false) {
-        m_Writer.Key(SCHEDULED_EVENTS);
-        m_Writer.StartArray();
+        m_Writer.onKey(SCHEDULED_EVENTS);
+        m_Writer.onArrayBegin();
         for (const auto& it : bucketData.s_ScheduledEventDescriptions) {
-            m_Writer.String(it);
+            m_Writer.onString(it);
         }
-        m_Writer.EndArray();
+        m_Writer.onArrayEnd();
     }
 
-    m_Writer.EndObject();
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
+    m_Writer.onObjectEnd();
 }
 
 void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults& results,
@@ -521,7 +521,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
+    json::object anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
 
@@ -550,7 +550,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
     if (results.s_FunctionName ==
         CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
-        rapidjson::Value geoResults = m_Writer.makeObject();
+        json::object geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
@@ -607,7 +607,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
 
     // Add nested causes
     if (m_NestedDocs.size() > 0) {
-        rapidjson::Value causeArray = m_Writer.makeArray(m_NestedDocs.size());
+        json::value causeArray = m_Writer.makeArray(m_NestedDocs.size());
         for (std::size_t index = 0; index < m_NestedDocs.size(); ++index) {
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
@@ -615,7 +615,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
                 LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
-            rapidjson::Value& docAsValue = *nDocPtr;
+            json::object& docAsValue = *nDocPtr;
 
             m_Writer.pushBack(docAsValue, causeArray);
         }
@@ -669,7 +669,7 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
     if (results.s_FunctionName ==
         CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
-        rapidjson::Value geoResults = m_Writer.makeObject();
+        json::object geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
@@ -688,7 +688,7 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     }
 }
 
-void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
+void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec& influenceResults,
                                       TDocumentWeakPtr weakDoc) {
     if (influenceResults.empty()) {
         return;
@@ -730,19 +730,18 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
         std::sort(iter->second.second.begin(), iter->second.second.end(), INFLUENCE_LESS);
     }
 
-    rapidjson::Value influencesDoc = m_Writer.makeArray(influences.size());
+    json::value influencesDoc = m_Writer.makeArray(influences.size());
 
     for (TStrCharPtrCharPtrDoublePrVecPrUMapIter iter = influences.begin();
          iter != influences.end(); ++iter) {
-        rapidjson::Value influenceDoc(rapidjson::kObjectType);
+        json::object influenceDoc;
 
-        rapidjson::Value values = m_Writer.makeArray(influences.size());
+        json::array values = m_Writer.makeArray(influences.size());
         for (TCharPtrDoublePrVecIter arrayIter = iter->second.second.begin();
              arrayIter != iter->second.second.end(); ++arrayIter) {
             m_Writer.pushBack(arrayIter->first, values);
         }
-
-        m_Writer.addMember(INFLUENCER_FIELD_NAME, iter->second.first, influenceDoc);
+        m_Writer.addMember(INFLUENCER_FIELD_NAME, json::value(iter->second.first), influenceDoc);
         m_Writer.addMember(INFLUENCER_FIELD_VALUES, values, influenceDoc);
         m_Writer.pushBack(influenceDoc, influencesDoc);
     }
@@ -767,7 +766,7 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
 
-    rapidjson::Value anomalyScoreExplanation = m_Writer.makeObject();
+    json::object anomalyScoreExplanation = m_Writer.makeObject();
     this->writeAnomalyScoreExplanationObject(results, anomalyScoreExplanation);
     m_Writer.addMember(ANOMALY_SCORE_EXPLANATION, anomalyScoreExplanation, *docPtr);
 
@@ -836,12 +835,12 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     std::string quantilesState;
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
-    m_Writer.StartObject();
-    m_Writer.Key(QUANTILES);
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(QUANTILES);
     // No need to copy the strings as the doc is written straight away
     CModelSnapshotJsonWriter::writeQuantileState(
         m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 
     persistTime = core::CTimeUtils::now();
     LOG_TRACE(<< "Wrote quantiles state at " << persistTime);
@@ -856,9 +855,9 @@ void CJsonOutputWriter::popAllocator() {
 }
 
 void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& results) {
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 
     LOG_TRACE(<< "Wrote memory usage results");
 }
@@ -867,29 +866,29 @@ void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldN
                                               const std::string& partitionFieldValue,
                                               const model::SCategorizerStats& categorizerStats,
                                               const TOptionalTime& timestamp) {
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
     CModelSizeStatsJsonWriter::writeCategorizerStats(m_JobId, partitionFieldName,
                                                      partitionFieldValue, categorizerStats,
                                                      timestamp, m_Writer);
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
                                          core_t::TTime lastFinalizedBucketEnd,
                                          bool refreshRequired) {
-    m_Writer.StartObject();
-    m_Writer.Key(FLUSH);
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(FLUSH);
+    m_Writer.onObjectBegin();
 
-    m_Writer.Key(ID);
-    m_Writer.String(flushId);
-    m_Writer.Key(LAST_FINALIZED_BUCKET_END);
-    m_Writer.Time(lastFinalizedBucketEnd);
-    m_Writer.Key(REFRESH_REQUIRED);
-    m_Writer.Bool(refreshRequired);
+    m_Writer.onKey(ID);
+    m_Writer.onString(flushId);
+    m_Writer.onKey(LAST_FINALIZED_BUCKET_END);
+    m_Writer.onTime(lastFinalizedBucketEnd);
+    m_Writer.onKey(REFRESH_REQUIRED);
+    m_Writer.onBool(refreshRequired);
 
-    m_Writer.EndObject();
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
+    m_Writer.onObjectEnd();
 
     // this shouldn't hang in buffers, so flush
     m_Writer.flush();
@@ -905,42 +904,42 @@ void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFiel
                                                 const TStrFSet& examples,
                                                 std::size_t numMatches,
                                                 const TGlobalCategoryIdVec& usurpedCategories) {
-    m_Writer.StartObject();
-    m_Writer.Key(CATEGORY_DEFINITION);
-    m_Writer.StartObject();
-    m_Writer.Key(JOB_ID);
-    m_Writer.String(m_JobId);
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(CATEGORY_DEFINITION);
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(JOB_ID);
+    m_Writer.onString(m_JobId);
     if (partitionFieldName.empty() == false) {
-        m_Writer.Key(PARTITION_FIELD_NAME);
-        m_Writer.String(partitionFieldName);
-        m_Writer.Key(PARTITION_FIELD_VALUE);
-        m_Writer.String(partitionFieldValue);
+        m_Writer.onKey(PARTITION_FIELD_NAME);
+        m_Writer.onString(partitionFieldName);
+        m_Writer.onKey(PARTITION_FIELD_VALUE);
+        m_Writer.onString(partitionFieldValue);
     }
-    m_Writer.Key(CATEGORY_ID);
-    m_Writer.Int(categoryId.globalId());
-    m_Writer.Key(TERMS);
-    m_Writer.String(terms);
-    m_Writer.Key(REGEX);
-    m_Writer.String(regex);
-    m_Writer.Key(MAX_MATCHING_LENGTH);
-    m_Writer.Uint64(maxMatchingFieldLength);
-    m_Writer.Key(EXAMPLES);
-    m_Writer.StartArray();
+    m_Writer.onKey(CATEGORY_ID);
+    m_Writer.onInt(categoryId.globalId());
+    m_Writer.onKey(TERMS);
+    m_Writer.onString(terms);
+    m_Writer.onKey(REGEX);
+    m_Writer.onString(regex);
+    m_Writer.onKey(MAX_MATCHING_LENGTH);
+    m_Writer.onUint64(maxMatchingFieldLength);
+    m_Writer.onKey(EXAMPLES);
+    m_Writer.onArrayBegin();
     for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
-        m_Writer.String(example);
+        m_Writer.onString(example);
     }
-    m_Writer.EndArray();
-    m_Writer.Key(NUM_MATCHES);
-    m_Writer.Uint64(numMatches);
-    m_Writer.Key(PREFERRED_TO_CATEGORIES);
-    m_Writer.StartArray();
+    m_Writer.onArrayEnd();
+    m_Writer.onKey(NUM_MATCHES);
+    m_Writer.onUint64(numMatches);
+    m_Writer.onKey(PREFERRED_TO_CATEGORIES);
+    m_Writer.onArrayBegin();
     for (const auto& globalCategoryId : usurpedCategories) {
-        m_Writer.Int(globalCategoryId.globalId());
+        m_Writer.onInt(globalCategoryId.globalId());
     }
-    m_Writer.EndArray();
-    m_Writer.EndObject();
-    m_Writer.EndObject();
+    m_Writer.onArrayEnd();
+    m_Writer.onObjectEnd();
+    m_Writer.onObjectEnd();
 }
 
 CJsonOutputWriter::SBucketData::SBucketData()
@@ -951,7 +950,7 @@ CJsonOutputWriter::SBucketData::SBucketData()
 
 void CJsonOutputWriter::writeAnomalyScoreExplanationObject(
     const CHierarchicalResultsWriter::TResults& results,
-    rapidjson::Value& anomalyScoreExplanation) {
+    json::object& anomalyScoreExplanation) {
     switch (results.s_AnomalyScoreExplanation.s_AnomalyType) {
     case TAnomalyScoreExplanation::E_DIP:
         m_Writer.addStringFieldCopyToObj(ANOMALY_TYPE, ANOMALY_TYPE_DIP, anomalyScoreExplanation);

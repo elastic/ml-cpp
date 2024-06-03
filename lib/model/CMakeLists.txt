@@ -74,7 +74,6 @@ ml_add_library(MlModel SHARED
   CSample.cc
   CSearchKey.cc
   CSimpleCountDetector.cc
-  CStringStore.cc
   CTokenListCategory.cc
   CTokenListDataCategorizerBase.cc
   CTokenListReverseSearchCreator.cc

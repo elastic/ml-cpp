@@ -39,45 +39,45 @@ CModelSnapshotJsonWriter::CModelSnapshotJsonWriter(const std::string& jobId,
 }
 
 void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
-    m_Writer.StartObject();
-    m_Writer.Key(MODEL_SNAPSHOT);
-    m_Writer.StartObject();
+    m_Writer.onObjectBegin();
+    m_Writer.onKey(MODEL_SNAPSHOT);
+    m_Writer.onObjectBegin();
 
-    m_Writer.Key(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.Key(MIN_VERSION);
-    m_Writer.String(report.s_MinVersion);
-    m_Writer.Key(SNAPSHOT_ID);
-    m_Writer.String(report.s_SnapshotId);
+    m_Writer.onKey(JOB_ID);
+    m_Writer.onString(m_JobId);
+    m_Writer.onKey(MIN_VERSION);
+    m_Writer.onString(report.s_MinVersion);
+    m_Writer.onKey(SNAPSHOT_ID);
+    m_Writer.onString(report.s_SnapshotId);
 
-    m_Writer.Key(SNAPSHOT_DOC_COUNT);
-    m_Writer.Uint64(report.s_NumDocs);
+    m_Writer.onKey(SNAPSHOT_DOC_COUNT);
+    m_Writer.onUint64(report.s_NumDocs);
 
-    m_Writer.Key(TIMESTAMP);
-    m_Writer.Time(report.s_SnapshotTimestamp);
+    m_Writer.onKey(TIMESTAMP);
+    m_Writer.onTime(report.s_SnapshotTimestamp);
 
-    m_Writer.Key(DESCRIPTION);
-    m_Writer.String(report.s_Description);
+    m_Writer.onKey(DESCRIPTION);
+    m_Writer.onString(report.s_Description);
 
     CModelSizeStatsJsonWriter::write(m_JobId, report.s_ModelSizeStats, m_Writer);
 
     if (report.s_LatestRecordTime > 0) {
-        m_Writer.Key(LATEST_RECORD_TIME);
-        m_Writer.Time(report.s_LatestRecordTime);
+        m_Writer.onKey(LATEST_RECORD_TIME);
+        m_Writer.onTime(report.s_LatestRecordTime);
     }
     if (report.s_LatestFinalResultTime > 0) {
-        m_Writer.Key(LATEST_RESULT_TIME);
-        m_Writer.Time(report.s_LatestFinalResultTime);
+        m_Writer.onKey(LATEST_RESULT_TIME);
+        m_Writer.onTime(report.s_LatestFinalResultTime);
     }
 
     // write normalizerState here
-    m_Writer.Key(QUANTILES);
+    m_Writer.onKey(QUANTILES);
 
     writeQuantileState(m_JobId, report.s_NormalizerState,
                        report.s_LatestFinalResultTime, m_Writer);
 
-    m_Writer.EndObject();
-    m_Writer.EndObject();
+    m_Writer.onObjectEnd();
+    m_Writer.onObjectEnd();
 
     m_Writer.flush();
 
@@ -89,15 +89,15 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport& report) {
 void CModelSnapshotJsonWriter::writeQuantileState(const std::string& jobId,
                                                   const std::string& state,
                                                   core_t::TTime time,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) {
-    writer.StartObject();
-    writer.Key(JOB_ID);
-    writer.String(jobId);
-    writer.Key(QUANTILE_STATE);
-    writer.String(state);
-    writer.Key(TIMESTAMP);
-    writer.Time(time);
-    writer.EndObject();
+                                                  core::CBoostJsonConcurrentLineWriter& writer) {
+    writer.onObjectBegin();
+    writer.onKey(JOB_ID);
+    writer.onString(jobId);
+    writer.onKey(QUANTILE_STATE);
+    writer.onString(state);
+    writer.onKey(TIMESTAMP);
+    writer.onTime(time);
+    writer.onObjectEnd();
 }
 }
 }

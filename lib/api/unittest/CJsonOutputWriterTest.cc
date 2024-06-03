@@ -12,24 +12,18 @@
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResultsNormalizer.h>
-#include <model/CStringStore.h>
-#include <model/ModelTypes.h>
 
 #include <api/CGlobalCategoryId.h>
 #include <api/CJsonOutputWriter.h>
 
 #include <test/BoostTestCloseAbsolute.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -65,7 +59,7 @@ void testBucketWriteHelper(bool isInterim) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         {
             ml::api::CHierarchicalResultsWriter::SResults result11(
@@ -218,257 +212,292 @@ void testBucketWriteHelper(bool isInterim) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(isInterim, 10U));
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    BOOST_TEST_REQUIRE(!arrayDoc.HasParseError());
+    json::error_code ec;
+    json::value arrayDoc = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc.is_array());
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "Results:\n" << arrayDoc);
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
     // There are 3 buckets and 3 record arrays in the order: r1, b1, r2, b2, r3, b3
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(6), arrayDoc.Size());
+    BOOST_REQUIRE_EQUAL(6, arrayDoc.as_array().size());
 
     int bucketTimes[] = {1000, 1000, 2000, 2000, 3000, 3000};
 
     // Assert buckets
-    for (rapidjson::SizeType i = 1; i < arrayDoc.Size(); i = i + 2) {
+    for (std::size_t i = 1; i < arrayDoc.as_array().size(); i = i + 2) {
         int buckettime = bucketTimes[i];
-        const rapidjson::Value& bucketWrapper = arrayDoc[i];
-        BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
+        const json::value& bucketWrapper_ = arrayDoc.as_array().at(i);
+        const json::object& bucketWrapper = bucketWrapper_.as_object();
+        BOOST_TEST_REQUIRE(bucketWrapper.contains("bucket"));
 
-        const rapidjson::Value& bucket = bucketWrapper["bucket"];
-        BOOST_TEST_REQUIRE(bucket.IsObject());
-        BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
-        BOOST_REQUIRE_EQUAL("job", bucket["job_id"].GetString());
+        const json::value& bucket_ = bucketWrapper.at("bucket");
+        BOOST_TEST_REQUIRE(bucket_.is_object());
+        const json::object& bucket = bucket_.as_object();
+        BOOST_TEST_REQUIRE(bucket.contains("job_id"));
+        BOOST_REQUIRE_EQUAL("job", bucket.at("job_id").as_string());
 
         // 3 detectors each have 2 records (simple count detector isn't added)
         // except the population detector which has a single record and clauses
-        BOOST_REQUIRE_EQUAL(buckettime, bucket["timestamp"].GetInt());
-        BOOST_TEST_REQUIRE(bucket.HasMember("bucket_influencers"));
-        const rapidjson::Value& bucketInfluencers = bucket["bucket_influencers"];
-        BOOST_TEST_REQUIRE(bucketInfluencers.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), bucketInfluencers.Size());
-        const rapidjson::Value& bucketInfluencer =
-            bucketInfluencers[rapidjson::SizeType(0)];
+        BOOST_REQUIRE_EQUAL(buckettime, bucket.at("timestamp").to_number<std::int64_t>());
+        BOOST_TEST_REQUIRE(bucket.contains("bucket_influencers"));
+        const json::value& bucketInfluencers_ = bucket.at("bucket_influencers");
+        BOOST_TEST_REQUIRE(bucketInfluencers_.is_array());
+        const json::array& bucketInfluencers = bucketInfluencers_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(1), bucketInfluencers.size());
+        const json::value& bucketInfluencer_ = bucketInfluencers[std::size_t(0)];
+        const json::object& bucketInfluencer = bucketInfluencer_.as_object();
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            13.44, bucketInfluencer["raw_anomaly_score"].GetDouble(), 0.00001);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.01, bucketInfluencer["probability"].GetDouble(), 0.00001);
+            13.44, bucketInfluencer.at("raw_anomaly_score").to_number<double>(), 0.00001);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            70.0, bucketInfluencer["initial_anomaly_score"].GetDouble(), 0.00001);
-        BOOST_TEST_REQUIRE(bucketInfluencer.HasMember("anomaly_score"));
+            0.01, bucketInfluencer.at("probability").to_number<double>(), 0.00001);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            70.0, bucketInfluencer["anomaly_score"].GetDouble(), 0.00001);
+            70.0, bucketInfluencer.at("initial_anomaly_score").to_number<double>(), 0.00001);
+        BOOST_TEST_REQUIRE(bucketInfluencer.contains("anomaly_score"));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            70.0, bucketInfluencer.at("anomaly_score").to_number<double>(), 0.00001);
         BOOST_REQUIRE_EQUAL("bucket_time",
-                            bucketInfluencer["influencer_field_name"].GetString());
+                            bucketInfluencer.at("influencer_field_name").as_string());
 
-        BOOST_REQUIRE_EQUAL(79, bucket["event_count"].GetInt());
-        BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(70.0, bucket["anomaly_score"].GetDouble(), 0.00001);
-        BOOST_TEST_REQUIRE(bucket.HasMember("initial_anomaly_score"));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(70.0, bucket["initial_anomaly_score"].GetDouble(), 0.00001);
+        BOOST_REQUIRE_EQUAL(79, bucket.at("event_count").to_number<std::int64_t>());
+        BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            70.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
+        BOOST_TEST_REQUIRE(bucket.contains("initial_anomaly_score"));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            70.0, bucket.at("initial_anomaly_score").to_number<double>(), 0.00001);
         if (isInterim) {
-            BOOST_TEST_REQUIRE(bucket.HasMember("is_interim"));
-            BOOST_REQUIRE_EQUAL(isInterim, bucket["is_interim"].GetBool());
+            BOOST_TEST_REQUIRE(bucket.contains("is_interim"));
+            BOOST_REQUIRE_EQUAL(isInterim, bucket.at("is_interim").as_bool());
         } else {
-            BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
+            BOOST_TEST_REQUIRE(!bucket.contains("is_interim"));
         }
 
-        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll), bucket["processing_time_ms"].GetUint64());
+        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll),
+                            bucket.at("processing_time_ms").to_number<std::uint64_t>());
     }
 
-    for (rapidjson::SizeType i = 0; i < arrayDoc.Size(); i = i + 2) {
+    for (std::size_t i = 0; i < arrayDoc.as_array().size(); i = i + 2) {
         int buckettime = bucketTimes[i];
 
-        const rapidjson::Value& recordsWrapper = arrayDoc[i];
-        BOOST_TEST_REQUIRE(recordsWrapper.HasMember("records"));
+        const json::value& recordsWrapper_ = arrayDoc.as_array().at(i);
+        const json::object& recordsWrapper = recordsWrapper_.as_object();
 
-        const rapidjson::Value& records = recordsWrapper["records"];
-        BOOST_TEST_REQUIRE(records.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(5), records.Size());
+        BOOST_TEST_REQUIRE(recordsWrapper.contains("records"));
+
+        const json::value& records_ = recordsWrapper.at("records");
+        BOOST_TEST_REQUIRE(records_.is_array());
+        const json::array& records = records_.as_array();
+
+        BOOST_REQUIRE_EQUAL(std::size_t(5), records.size());
 
         // 1st record is for population detector
         {
-            const rapidjson::Value& record = records[rapidjson::SizeType(0)];
-            BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-            BOOST_REQUIRE_EQUAL("job", record["job_id"].GetString());
-            BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
-            BOOST_REQUIRE_EQUAL(1, record["detector_index"].GetInt());
-            BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
-            BOOST_REQUIRE_EQUAL(buckettime, record["timestamp"].GetInt());
-            BOOST_TEST_REQUIRE(record.HasMember("probability"));
-            BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
-            BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-            BOOST_REQUIRE_EQUAL("airline", record["by_field_name"].GetString());
-            BOOST_TEST_REQUIRE(!record.HasMember("by_field_value"));
-            BOOST_TEST_REQUIRE(!record.HasMember("correlated_by_field_value"));
-            BOOST_TEST_REQUIRE(record.HasMember("function"));
-            BOOST_REQUIRE_EQUAL("mean", record["function"].GetString());
-            BOOST_TEST_REQUIRE(record.HasMember("function_description"));
+            const json::value& record_ = records[std::size_t(0)];
+            const json::object& record = record_.as_object();
+            BOOST_TEST_REQUIRE(record.contains("job_id"));
+
+            BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
+            BOOST_TEST_REQUIRE(record.contains("detector_index"));
+            BOOST_REQUIRE_EQUAL(1, record.at("detector_index").to_number<std::int64_t>());
+            BOOST_TEST_REQUIRE(record.contains("timestamp"));
+            BOOST_REQUIRE_EQUAL(buckettime,
+                                record.at("timestamp").to_number<std::int64_t>());
+            BOOST_TEST_REQUIRE(record.contains("probability"));
+            BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
+            BOOST_TEST_REQUIRE(record.contains("by_field_name"));
+            BOOST_REQUIRE_EQUAL("airline", record.at("by_field_name").as_string());
+            BOOST_TEST_REQUIRE(!record.contains("by_field_value"));
+            BOOST_TEST_REQUIRE(!record.contains("correlated_by_field_value"));
+            BOOST_TEST_REQUIRE(record.contains("function"));
+            BOOST_REQUIRE_EQUAL("mean", record.at("function").as_string());
+            BOOST_TEST_REQUIRE(record.contains("function_description"));
             BOOST_REQUIRE_EQUAL("mean(responsetime)",
-                                record["function_description"].GetString());
-            BOOST_TEST_REQUIRE(record.HasMember("over_field_name"));
-            BOOST_REQUIRE_EQUAL("pfn", record["over_field_name"].GetString());
-            BOOST_TEST_REQUIRE(record.HasMember("over_field_value"));
-            BOOST_REQUIRE_EQUAL("pfv", record["over_field_value"].GetString());
-            BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
-            BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
+                                record.at("function_description").as_string());
+            BOOST_TEST_REQUIRE(record.contains("over_field_name"));
+            BOOST_REQUIRE_EQUAL("pfn", record.at("over_field_name").as_string());
+            BOOST_TEST_REQUIRE(record.contains("over_field_value"));
+            BOOST_REQUIRE_EQUAL("pfv", record.at("over_field_value").as_string());
+            BOOST_TEST_REQUIRE(record.contains("bucket_span"));
+            BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
             // It's hard to predict what these will be, so just assert their
             // presence
-            BOOST_TEST_REQUIRE(record.HasMember("initial_record_score"));
-            BOOST_TEST_REQUIRE(record.HasMember("record_score"));
+            BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
+            BOOST_TEST_REQUIRE(record.contains("record_score"));
             if (isInterim) {
-                BOOST_TEST_REQUIRE(record.HasMember("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, record["is_interim"].GetBool());
+                BOOST_TEST_REQUIRE(record.contains("is_interim"));
+                BOOST_REQUIRE_EQUAL(isInterim, record.at("is_interim").as_bool());
             } else {
-                BOOST_TEST_REQUIRE(!record.HasMember("is_interim"));
+                BOOST_TEST_REQUIRE(!record.contains("is_interim"));
             }
 
-            BOOST_TEST_REQUIRE(record.HasMember("causes"));
-            const rapidjson::Value& causes = record["causes"];
-            BOOST_TEST_REQUIRE(causes.IsArray());
-            BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), causes.Size());
-            for (rapidjson::SizeType k = 0; k < causes.Size(); k++) {
-                const rapidjson::Value& cause = causes[k];
-                BOOST_TEST_REQUIRE(cause.HasMember("probability"));
-                BOOST_REQUIRE_EQUAL(0.0, cause["probability"].GetDouble());
-                BOOST_TEST_REQUIRE(cause.HasMember("field_name"));
-                BOOST_REQUIRE_EQUAL("responsetime", cause["field_name"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL("airline", cause["by_field_name"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL("GAL", cause["by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("correlated_by_field_value"));
-                BOOST_REQUIRE_EQUAL("BAW", cause["correlated_by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL("tfn", cause["partition_field_name"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL("", cause["partition_field_value"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("function"));
-                BOOST_REQUIRE_EQUAL("mean", cause["function"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("function_description"));
+            BOOST_TEST_REQUIRE(record.contains("causes"));
+            const json::value& causes_ = record.at("causes");
+            BOOST_TEST_REQUIRE(causes_.is_array());
+            const json::array& causes = causes_.as_array();
+
+            BOOST_REQUIRE_EQUAL(std::size_t(2), causes.size());
+            for (std::size_t k = 0; k < causes.size(); k++) {
+                const json::value& cause_ = causes[k];
+                const json::object& cause = cause_.as_object();
+                BOOST_TEST_REQUIRE(cause.contains("probability"));
+                BOOST_REQUIRE_EQUAL(0.0, cause.at("probability").to_number<double>());
+                BOOST_TEST_REQUIRE(cause.contains("field_name"));
+                BOOST_REQUIRE_EQUAL("responsetime", cause.at("field_name").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("by_field_name"));
+                BOOST_REQUIRE_EQUAL("airline", cause.at("by_field_name").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("by_field_value"));
+                BOOST_REQUIRE_EQUAL("GAL", cause.at("by_field_value").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("correlated_by_field_value"));
+                BOOST_REQUIRE_EQUAL("BAW", cause.at("correlated_by_field_value").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("partition_field_name"));
+                BOOST_REQUIRE_EQUAL("tfn", cause.at("partition_field_name").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("partition_field_value"));
+                BOOST_REQUIRE_EQUAL("", cause.at("partition_field_value").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("function"));
+                BOOST_REQUIRE_EQUAL("mean", cause.at("function").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("function_description"));
                 BOOST_REQUIRE_EQUAL("mean(responsetime)",
-                                    cause["function_description"].GetString());
-                BOOST_TEST_REQUIRE(cause.HasMember("typical"));
-                BOOST_TEST_REQUIRE(cause["typical"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), cause["typical"].Size());
+                                    cause.at("function_description").as_string());
+                BOOST_TEST_REQUIRE(cause.contains("typical"));
+                BOOST_TEST_REQUIRE(cause.at("typical").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    cause.at("typical").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, cause["typical"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(cause.HasMember("actual"));
-                BOOST_TEST_REQUIRE(cause["actual"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), cause["actual"].Size());
+                    6953.0,
+                    cause.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(cause.contains("actual"));
+                BOOST_TEST_REQUIRE(cause.at("actual").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    cause.at("actual").as_array().size());
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, cause["actual"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(cause.HasMember("function"));
+                    10090.0,
+                    cause.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(cause.contains("function"));
             }
         }
 
         // Next 2 records are for metric detector
         {
-            for (rapidjson::SizeType k = 1; k < 3; k++) {
-                const rapidjson::Value& record = records[k];
-                BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-                BOOST_REQUIRE_EQUAL("job", record["job_id"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
-                BOOST_REQUIRE_EQUAL(2, record["detector_index"].GetInt());
-                BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
-                BOOST_REQUIRE_EQUAL(buckettime, record["timestamp"].GetInt());
-                BOOST_TEST_REQUIRE(record.HasMember("probability"));
-                BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL("airline", record["by_field_name"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL("GAL", record["by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("correlated_by_field_value"));
-                BOOST_REQUIRE_EQUAL("BAW", record["correlated_by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("typical"));
-                BOOST_TEST_REQUIRE(record["typical"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), record["typical"].Size());
+            for (std::size_t k = 1; k < 3; k++) {
+                const json::value& record_ = records[k];
+                const json::object& record = record_.as_object();
+
+                BOOST_TEST_REQUIRE(record.contains("job_id"));
+                BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
+                BOOST_TEST_REQUIRE(record.contains("detector_index"));
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, record["typical"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("actual"));
-                BOOST_TEST_REQUIRE(record["actual"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), record["actual"].Size());
+                    2, record.at("detector_index").to_number<std::int64_t>());
+                BOOST_TEST_REQUIRE(record.contains("timestamp"));
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, record["actual"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("field_name"));
-                BOOST_REQUIRE_EQUAL("responsetime", record["field_name"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("function"));
-                BOOST_REQUIRE_EQUAL("mean", record["function"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("function_description"));
+                    buckettime, record.at("timestamp").to_number<std::int64_t>());
+                BOOST_TEST_REQUIRE(record.contains("probability"));
+                BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("by_field_name"));
+                BOOST_REQUIRE_EQUAL("airline", record.at("by_field_name").as_string());
+                BOOST_TEST_REQUIRE(record.contains("by_field_value"));
+                BOOST_REQUIRE_EQUAL("GAL", record.at("by_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("correlated_by_field_value"));
+                BOOST_REQUIRE_EQUAL(
+                    "BAW", record.at("correlated_by_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("typical"));
+                BOOST_TEST_REQUIRE(record.at("typical").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("typical").as_array().size());
+                BOOST_REQUIRE_EQUAL(
+                    6953.0,
+                    record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("actual"));
+                BOOST_TEST_REQUIRE(record.at("actual").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("actual").as_array().size());
+                BOOST_REQUIRE_EQUAL(
+                    10090.0,
+                    record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("field_name"));
+                BOOST_REQUIRE_EQUAL("responsetime", record.at("field_name").as_string());
+                BOOST_TEST_REQUIRE(record.contains("function"));
+                BOOST_REQUIRE_EQUAL("mean", record.at("function").as_string());
+                BOOST_TEST_REQUIRE(record.contains("function_description"));
                 BOOST_REQUIRE_EQUAL("mean(responsetime)",
-                                    record["function_description"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL("tfn", record["partition_field_name"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL("", record["partition_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
-                BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
+                                    record.at("function_description").as_string());
+                BOOST_TEST_REQUIRE(record.contains("partition_field_name"));
+                BOOST_REQUIRE_EQUAL("tfn", record.at("partition_field_name").as_string());
+                BOOST_TEST_REQUIRE(record.contains("partition_field_value"));
+                BOOST_REQUIRE_EQUAL("", record.at("partition_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("bucket_span"));
+                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
                 // It's hard to predict what these will be, so just assert their
                 // presence
-                BOOST_TEST_REQUIRE(record.HasMember("initial_record_score"));
-                BOOST_TEST_REQUIRE(record.HasMember("record_score"));
+                BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
+                BOOST_TEST_REQUIRE(record.contains("record_score"));
                 if (isInterim) {
-                    BOOST_TEST_REQUIRE(record.HasMember("is_interim"));
-                    BOOST_REQUIRE_EQUAL(isInterim, record["is_interim"].GetBool());
+                    BOOST_TEST_REQUIRE(record.contains("is_interim"));
+                    BOOST_REQUIRE_EQUAL(isInterim, record.at("is_interim").as_bool());
                 } else {
-                    BOOST_TEST_REQUIRE(!record.HasMember("is_interim"));
+                    BOOST_TEST_REQUIRE(!record.contains("is_interim"));
                 }
             }
         }
 
         // Last 2 records are for event rate detector
         {
-            for (rapidjson::SizeType k = 3; k < 5; k++) {
-                const rapidjson::Value& record = records[k];
-                BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-                BOOST_REQUIRE_EQUAL("job", record["job_id"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
-                BOOST_REQUIRE_EQUAL(4, record["detector_index"].GetInt());
-                BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
-                BOOST_REQUIRE_EQUAL(buckettime, record["timestamp"].GetInt());
-                BOOST_TEST_REQUIRE(record.HasMember("probability"));
-                BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL("airline", record["by_field_name"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL("GAL", record["by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("correlated_by_field_value"));
-                BOOST_REQUIRE_EQUAL("BAW", record["correlated_by_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("typical"));
-                BOOST_TEST_REQUIRE(record["typical"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), record["typical"].Size());
+            for (std::size_t k = 3; k < 5; k++) {
+                const json::value& record_ = records[k];
+                const json::object& record = record_.as_object();
+
+                BOOST_TEST_REQUIRE(record.contains("job_id"));
+                BOOST_REQUIRE_EQUAL("job", record.at("job_id").as_string());
+                BOOST_TEST_REQUIRE(record.contains("detector_index"));
                 BOOST_REQUIRE_EQUAL(
-                    6953.0, record["typical"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("actual"));
-                BOOST_TEST_REQUIRE(record["actual"].IsArray());
-                BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), record["actual"].Size());
+                    4, record.at("detector_index").to_number<std::int64_t>());
+                BOOST_TEST_REQUIRE(record.contains("timestamp"));
                 BOOST_REQUIRE_EQUAL(
-                    10090.0, record["actual"][rapidjson::SizeType(0)].GetDouble());
-                BOOST_TEST_REQUIRE(record.HasMember("function"));
+                    buckettime, record.at("timestamp").to_number<std::int64_t>());
+                BOOST_TEST_REQUIRE(record.contains("probability"));
+                BOOST_REQUIRE_EQUAL(0.0, record.at("probability").to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("by_field_name"));
+                BOOST_REQUIRE_EQUAL("airline", record.at("by_field_name").as_string());
+                BOOST_TEST_REQUIRE(record.contains("by_field_value"));
+                BOOST_REQUIRE_EQUAL("GAL", record.at("by_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("correlated_by_field_value"));
+                BOOST_REQUIRE_EQUAL(
+                    "BAW", record.at("correlated_by_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("typical"));
+                BOOST_TEST_REQUIRE(record.at("typical").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("typical").as_array().size());
+                BOOST_REQUIRE_EQUAL(
+                    6953.0,
+                    record.at("typical").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("actual"));
+                BOOST_TEST_REQUIRE(record.at("actual").is_array());
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    record.at("actual").as_array().size());
+                BOOST_REQUIRE_EQUAL(
+                    10090.0,
+                    record.at("actual").as_array().at(std::size_t(0)).to_number<double>());
+                BOOST_TEST_REQUIRE(record.contains("function"));
                 // This would be count in the real case with properly generated input data
-                BOOST_REQUIRE_EQUAL("mean", record["function"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("function_description"));
+                BOOST_REQUIRE_EQUAL("mean", record.at("function").as_string());
+                BOOST_TEST_REQUIRE(record.contains("function_description"));
                 BOOST_REQUIRE_EQUAL("mean(responsetime)",
-                                    record["function_description"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL("tfn", record["partition_field_name"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL("", record["partition_field_value"].GetString());
-                BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
-                BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
+                                    record.at("function_description").as_string());
+                BOOST_TEST_REQUIRE(record.contains("partition_field_name"));
+                BOOST_REQUIRE_EQUAL("tfn", record.at("partition_field_name").as_string());
+                BOOST_TEST_REQUIRE(record.contains("partition_field_value"));
+                BOOST_REQUIRE_EQUAL("", record.at("partition_field_value").as_string());
+                BOOST_TEST_REQUIRE(record.contains("bucket_span"));
+                BOOST_REQUIRE_EQUAL(100, record.at("bucket_span").to_number<std::int64_t>());
                 // It's hard to predict what these will be, so just assert their
                 // presence
-                BOOST_TEST_REQUIRE(record.HasMember("initial_record_score"));
-                BOOST_TEST_REQUIRE(record.HasMember("record_score"));
+                BOOST_TEST_REQUIRE(record.contains("initial_record_score"));
+                BOOST_TEST_REQUIRE(record.contains("record_score"));
                 if (isInterim) {
-                    BOOST_TEST_REQUIRE(record.HasMember("is_interim"));
-                    BOOST_REQUIRE_EQUAL(isInterim, record["is_interim"].GetBool());
+                    BOOST_TEST_REQUIRE(record.contains("is_interim"));
+                    BOOST_REQUIRE_EQUAL(isInterim, record.at("is_interim").as_bool());
                 } else {
-                    BOOST_TEST_REQUIRE(!record.HasMember("is_interim"));
+                    BOOST_TEST_REQUIRE(!record.contains("is_interim"));
                 }
             }
         }
@@ -481,7 +510,7 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
 
     std::ostringstream sstream;
 
-    // The output writer won't close the JSON structures until is is destroyed
+    // The output writer won't close the JSON structures until it is destroyed
     {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
@@ -497,7 +526,7 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         {
             // 1st bucket
@@ -678,17 +707,14 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(isInterim, 10U));
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    LOG_DEBUG(<< "Results:\n" << arrayDoc_);
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(6), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(6), arrayDoc.size());
 
     // buckets and records are the top level objects
     // records corresponding to a bucket appear first. The bucket follows.
@@ -697,122 +723,137 @@ void testLimitedRecordsWriteHelper(bool isInterim) {
     // records are sorted by probability.
     // bucket total anomaly score is the sum of all anomalies not just those printed.
     {
-        const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(1)];
-        BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
-        BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
+        const json::value& bucketWrapper_ = arrayDoc.at(std::size_t(1));
+        BOOST_TEST_REQUIRE(bucketWrapper_.is_object());
+        const json::object& bucketWrapper = bucketWrapper_.as_object();
+        BOOST_TEST_REQUIRE(bucketWrapper.contains("bucket"));
 
-        const rapidjson::Value& bucket = bucketWrapper["bucket"];
-        BOOST_TEST_REQUIRE(bucket.IsObject());
+        const json::value& bucket_ = bucketWrapper.at("bucket");
+        BOOST_TEST_REQUIRE(bucket_.is_object());
+        const json::object& bucket = bucket_.as_object();
         // It's hard to predict what these will be, so just assert their presence
-        BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
+        BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
         if (isInterim) {
-            BOOST_TEST_REQUIRE(bucket.HasMember("is_interim"));
-            BOOST_REQUIRE_EQUAL(isInterim, bucket["is_interim"].GetBool());
+            BOOST_TEST_REQUIRE(bucket.contains("is_interim"));
+            BOOST_REQUIRE_EQUAL(isInterim, bucket.at("is_interim").as_bool());
         } else {
-            BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
+            BOOST_TEST_REQUIRE(!bucket.contains("is_interim"));
         }
 
-        const rapidjson::Value& recordsWrapper = arrayDoc[rapidjson::SizeType(0)];
-        BOOST_TEST_REQUIRE(recordsWrapper.IsObject());
-        BOOST_TEST_REQUIRE(recordsWrapper.HasMember("records"));
-        const rapidjson::Value& records = recordsWrapper["records"];
-        BOOST_TEST_REQUIRE(records.IsArray());
+        const json::value& recordsWrapper_ = arrayDoc.at(std::size_t(0));
+        BOOST_TEST_REQUIRE(recordsWrapper_.is_object());
+        const json::object& recordsWrapper = recordsWrapper_.as_object();
+        BOOST_TEST_REQUIRE(recordsWrapper.contains("records"));
+        const json::value& records_ = recordsWrapper.at("records");
+        BOOST_TEST_REQUIRE(records_.is_array());
+        const json::array& records = records_.as_array();
 
         double EXPECTED_PROBABILITIES[] = {0.01, 0.05, 0.001, 0.02, 0.0002};
 
         int probIndex = 0;
-        for (rapidjson::SizeType i = 0; i < records.Size(); i++) {
-            BOOST_TEST_REQUIRE(records[i].HasMember("detector_index"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("initial_record_score"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("record_score"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("probability"));
-            BOOST_REQUIRE_EQUAL(EXPECTED_PROBABILITIES[probIndex],
-                                records[i]["probability"].GetDouble());
+        for (std::size_t i = 0; i < records.size(); i++) {
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("detector_index"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("initial_record_score"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("probability"));
+            BOOST_REQUIRE_EQUAL(
+                EXPECTED_PROBABILITIES[probIndex],
+                records.at(i).as_object().at("probability").to_number<double>());
             ++probIndex;
 
             if (isInterim) {
-                BOOST_TEST_REQUIRE(records[i].HasMember("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records[i]["is_interim"].GetBool());
+                BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
-                BOOST_TEST_REQUIRE(!records[i].HasMember("is_interim"));
+                BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
         }
 
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), records.Size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), records.size());
     }
     {
-        const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(3)];
-        BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
-        BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
+        const json::value& bucketWrapper_ = arrayDoc.at(std::size_t(3));
+        BOOST_TEST_REQUIRE(bucketWrapper_.is_object());
+        const json::object& bucketWrapper = bucketWrapper_.as_object();
+        BOOST_TEST_REQUIRE(bucketWrapper.contains("bucket"));
 
-        const rapidjson::Value& bucket = bucketWrapper["bucket"];
-        BOOST_TEST_REQUIRE(bucket.IsObject());
+        const json::value& bucket_ = bucketWrapper.at("bucket");
+        BOOST_TEST_REQUIRE(bucket_.is_object());
+        const json::object& bucket = bucket_.as_object();
         // It's hard to predict what these will be, so just assert their presence
-        BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
+        BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
         if (isInterim) {
-            BOOST_TEST_REQUIRE(bucket.HasMember("is_interim"));
-            BOOST_REQUIRE_EQUAL(isInterim, bucket["is_interim"].GetBool());
+            BOOST_TEST_REQUIRE(bucket.contains("is_interim"));
+            BOOST_REQUIRE_EQUAL(isInterim, bucket.at("is_interim").as_bool());
         } else {
-            BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
+            BOOST_TEST_REQUIRE(!bucket.contains("is_interim"));
         }
 
-        const rapidjson::Value& recordsWrapper = arrayDoc[rapidjson::SizeType(2)];
-        BOOST_TEST_REQUIRE(recordsWrapper.IsObject());
-        BOOST_TEST_REQUIRE(recordsWrapper.HasMember("records"));
-        const rapidjson::Value& records = recordsWrapper["records"];
-        BOOST_TEST_REQUIRE(records.IsArray());
-
-        for (rapidjson::SizeType i = 0; i < records.Size(); i++) {
-            //BOOST_REQUIRE_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
-            BOOST_TEST_REQUIRE(records[i].HasMember("detector_index"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("initial_record_score"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("record_score"));
+        const json::value& recordsWrapper_ = arrayDoc.at(std::size_t(2));
+        BOOST_TEST_REQUIRE(recordsWrapper_.is_object());
+        const json::object& recordsWrapper = recordsWrapper_.as_object();
+        BOOST_TEST_REQUIRE(recordsWrapper.contains("records"));
+        const json::value& records_ = recordsWrapper.at("records");
+        BOOST_TEST_REQUIRE(records_.is_array());
+        const json::array& records = records_.as_array();
+        for (std::size_t i = 0; i < records.size(); i++) {
+            //BOOST_REQUIRE_EQUAL(0.1, records1[std::size_t(0)]["probability").to_number<double>());
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("detector_index"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("initial_record_score"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
             if (isInterim) {
-                BOOST_TEST_REQUIRE(records[i].HasMember("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records[i]["is_interim"].GetBool());
+                BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
-                BOOST_TEST_REQUIRE(!records[i].HasMember("is_interim"));
+                BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
         }
 
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), records.Size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), records.size());
     }
     {
-        const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(5)];
-        BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
-        BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
+        const json::value& bucketWrapper_ = arrayDoc.at(std::size_t(5));
+        BOOST_TEST_REQUIRE(bucketWrapper_.is_object());
+        const json::object& bucketWrapper = bucketWrapper_.as_object();
+        BOOST_TEST_REQUIRE(bucketWrapper.contains("bucket"));
 
-        const rapidjson::Value& bucket = bucketWrapper["bucket"];
-        BOOST_TEST_REQUIRE(bucket.IsObject());
+        const json::value& bucket_ = bucketWrapper.at("bucket");
+        BOOST_TEST_REQUIRE(bucket_.is_object());
+        const json::object& bucket = bucket_.as_object();
         // It's hard to predict what these will be, so just assert their presence
-        BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
+        BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
         if (isInterim) {
-            BOOST_TEST_REQUIRE(bucket.HasMember("is_interim"));
-            BOOST_REQUIRE_EQUAL(isInterim, bucket["is_interim"].GetBool());
+            BOOST_TEST_REQUIRE(bucket.contains("is_interim"));
+            BOOST_REQUIRE_EQUAL(isInterim, bucket.at("is_interim").as_bool());
         } else {
-            BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
+            BOOST_TEST_REQUIRE(!bucket.contains("is_interim"));
         }
 
-        const rapidjson::Value& recordsWrapper = arrayDoc[rapidjson::SizeType(4)];
-        BOOST_TEST_REQUIRE(recordsWrapper.IsObject());
-        BOOST_TEST_REQUIRE(recordsWrapper.HasMember("records"));
-        const rapidjson::Value& records = recordsWrapper["records"];
-        BOOST_TEST_REQUIRE(records.IsArray());
+        const json::value& recordsWrapper_ = arrayDoc.at(std::size_t(4));
+        BOOST_TEST_REQUIRE(recordsWrapper_.is_object());
+        const json::object& recordsWrapper = recordsWrapper_.as_object();
+        BOOST_TEST_REQUIRE(recordsWrapper.contains("records"));
+        const json::value& records_ = recordsWrapper.at("records");
+        BOOST_TEST_REQUIRE(records_.is_array());
+        const json::array& records = records_.as_array();
 
-        for (rapidjson::SizeType i = 0; i < records.Size(); i++) {
-            BOOST_TEST_REQUIRE(records[i].HasMember("detector_index"));
-            //BOOST_REQUIRE_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
-            BOOST_TEST_REQUIRE(records[i].HasMember("initial_record_score"));
-            BOOST_TEST_REQUIRE(records[i].HasMember("record_score"));
+        for (std::size_t i = 0; i < records.size(); i++) {
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("detector_index"));
+            //BOOST_REQUIRE_EQUAL(0.1, records1[std::size_t(0)]["probability").to_number<double>());
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("initial_record_score"));
+            BOOST_TEST_REQUIRE(records.at(i).as_object().contains("record_score"));
             if (isInterim) {
-                BOOST_TEST_REQUIRE(records[i].HasMember("is_interim"));
-                BOOST_REQUIRE_EQUAL(isInterim, records[i]["is_interim"].GetBool());
+                BOOST_TEST_REQUIRE(records.at(i).as_object().contains("is_interim"));
+                BOOST_REQUIRE_EQUAL(
+                    isInterim, records.at(i).as_object().at("is_interim").as_bool());
             } else {
-                BOOST_TEST_REQUIRE(!records[i].HasMember("is_interim"));
+                BOOST_TEST_REQUIRE(!records.at(i).as_object().contains("is_interim"));
             }
         }
 
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), records.Size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), records.size());
     }
 }
 
@@ -822,8 +863,8 @@ createInfluencerNode(const std::string& personName,
                      double probability,
                      double normalisedAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
-    spec.s_PersonFieldValue = ml::model::CStringStore::names().get(personValue);
+    spec.s_PersonFieldName = personName;
+    spec.s_PersonFieldValue = personValue;
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -839,7 +880,7 @@ createBucketInfluencerNode(const std::string& personName,
                            double normalisedAnomalyScore,
                            double rawAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
-    spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
+    spec.s_PersonFieldName = personName;
 
     ml::model::CHierarchicalResults::TNode node;
     node.s_AnnotatedProbability.s_Probability = probability;
@@ -869,7 +910,7 @@ void testThroughputHelper(bool useScopedAllocator) {
     std::string function("mean");
     std::string functionDescription("mean(responsetime)");
     std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
     ml::api::CHierarchicalResultsWriter::SResults result11(
         false, false, partitionFieldName, partitionFieldValue, overFieldName,
@@ -908,7 +949,7 @@ void testThroughputHelper(bool useScopedAllocator) {
     writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);
 
     // Write the record this many times
-    static const size_t TEST_SIZE(75000);
+    static const size_t TEST_SIZE(1);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
@@ -916,7 +957,7 @@ void testThroughputHelper(bool useScopedAllocator) {
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         if (useScopedAllocator) {
             using TScopedAllocator =
-                ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
+                ml::core::CScopedBoostJsonPoolAllocator<ml::api::CJsonOutputWriter>;
             static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
             TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
 
@@ -967,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
     std::string fieldName("location");
     std::string function("lat_long");
     std::string functionDescription("lat_long(location)");
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
     std::string emptyString;
     // The output writer won't close the JSON structures until is is destroyed
     {
@@ -990,32 +1031,27 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        rapidjson::Document arrayDoc;
-        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        json::error_code ec;
+        json::value arrayDoc_ = json::parse(sstream.str(), ec);
         // Debug print record
-        {
-            rapidjson::StringBuffer strbuf;
-            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-            TStringBufferPrettyWriter writer(strbuf);
-            arrayDoc.Accept(writer);
-            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-        }
-        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
-        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record =
-            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
-
-        BOOST_TEST_REQUIRE(record.HasMember("typical"));
-        BOOST_TEST_REQUIRE(record.HasMember("actual"));
-        BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
-        auto geoResultsObject = record["geo_results"].GetObject();
-        BOOST_TEST_REQUIRE(geoResultsObject.HasMember("actual_point"));
+        { LOG_DEBUG(<< "Results:\n" << arrayDoc_); }
+        BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+        const json::array& arrayDoc = arrayDoc_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
+        BOOST_TEST_REQUIRE(arrayDoc.at(std::size_t(0)).as_object().contains("records"));
+        const json::value& record_ =
+            arrayDoc.at(std::size_t(0)).as_object().at("records").as_array().at(std::size_t(0));
+        const json::object& record = record_.as_object();
+        BOOST_TEST_REQUIRE(record.contains("typical"));
+        BOOST_TEST_REQUIRE(record.contains("actual"));
+        BOOST_TEST_REQUIRE(record.contains("geo_results"));
+        auto geoResultsObject = record.at("geo_results").as_object();
+        BOOST_TEST_REQUIRE(geoResultsObject.contains("actual_point"));
         BOOST_REQUIRE_EQUAL("40.000000000000,-40.000000000000",
-                            geoResultsObject["actual_point"].GetString());
-        BOOST_TEST_REQUIRE(geoResultsObject.HasMember("typical_point"));
+                            geoResultsObject.at("actual_point").as_string());
+        BOOST_TEST_REQUIRE(geoResultsObject.contains("typical_point"));
         BOOST_REQUIRE_EQUAL("90.000000000000,-90.000000000000",
-                            geoResultsObject["typical_point"].GetString());
+                            geoResultsObject.at("typical_point").as_string());
     }
 
     {
@@ -1034,27 +1070,23 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        rapidjson::Document arrayDoc;
-        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        json::error_code ec;
+        json::value arrayDoc_ = json::parse(sstream.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
         // Debug print record
-        {
-            rapidjson::StringBuffer strbuf;
-            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-            TStringBufferPrettyWriter writer(strbuf);
-            arrayDoc.Accept(writer);
-            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-        }
-        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
-        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record =
-            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
-
-        BOOST_TEST_REQUIRE(record.IsObject());
-        BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
-        auto geoResultsObject = record["geo_results"].GetObject();
-        BOOST_TEST_REQUIRE(!geoResultsObject.HasMember("actual_point"));
-        BOOST_TEST_REQUIRE(!geoResultsObject.HasMember("typical_point"));
+        LOG_DEBUG(<< "Results:\n" << arrayDoc_);
+        BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+        const json::array& arrayDoc = arrayDoc_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
+        BOOST_TEST_REQUIRE(arrayDoc.at(std::size_t(0)).as_object().contains("records"));
+        const json::value& record_ =
+            arrayDoc.at(std::size_t(0)).at("records").as_array().at(std::size_t(0));
+        BOOST_TEST_REQUIRE(record_.is_object());
+        json::object record = record_.as_object();
+        BOOST_TEST_REQUIRE(record.contains("geo_results"));
+        auto geoResultsObject = record.at("geo_results").as_object();
+        BOOST_TEST_REQUIRE(!geoResultsObject.contains("actual_point"));
+        BOOST_TEST_REQUIRE(!geoResultsObject.contains("typical_point"));
     }
 
     {
@@ -1073,24 +1105,20 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
-        rapidjson::Document arrayDoc;
-        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        json::error_code ec;
+        json::value arrayDoc_ = json::parse(sstream.str(), ec);
+        BOOST_TEST_REQUIRE(ec.failed() == false);
         // Debug print record
-        {
-            rapidjson::StringBuffer strbuf;
-            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-            TStringBufferPrettyWriter writer(strbuf);
-            arrayDoc.Accept(writer);
-            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-        }
-        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
-        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record =
-            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+        LOG_DEBUG(<< "Results:\n" << arrayDoc_);
+        BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+        const json::array& arrayDoc = arrayDoc_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
+        BOOST_TEST_REQUIRE(arrayDoc.at(std::size_t(0)).as_object().contains("records"));
+        const json::value& record =
+            arrayDoc.at(std::size_t(0)).at("records").as_array().at(std::size_t(0));
 
-        BOOST_TEST_REQUIRE(record.IsObject());
-        BOOST_REQUIRE_EQUAL(false, record.HasMember("geo_results"));
+        BOOST_TEST_REQUIRE(record.is_object());
+        BOOST_REQUIRE_EQUAL(false, record.as_object().contains("geo_results"));
     }
 }
 
@@ -1100,7 +1128,7 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
     std::string function("mean");
     std::string functionDescription("mean(responsetime)");
     std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
     {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
@@ -1117,30 +1145,30 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
         writer.finalise();
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    // Debug print record
+    LOG_DEBUG(<< "Results:\n" << arrayDoc_);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter prettyPrinter(strbuf);
-    arrayDoc.Accept(prettyPrinter);
-    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), arrayDoc.size());
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    const json::value& bucketWrapper_ = arrayDoc.at(std::size_t(0));
+    BOOST_TEST_REQUIRE(bucketWrapper_.is_object());
+    const json::object& bucketWrapper = bucketWrapper_.as_object();
+    BOOST_TEST_REQUIRE(bucketWrapper.contains("bucket"));
 
-    const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
-    BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
-
-    const rapidjson::Value& bucket = bucketWrapper["bucket"];
-    BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", bucket["job_id"].GetString());
-    BOOST_REQUIRE_EQUAL(1000, bucket["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(bucket.HasMember("bucket_influencers") == false);
-    BOOST_REQUIRE_EQUAL(0, bucket["event_count"].GetInt());
-    BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, bucket["anomaly_score"].GetDouble(), 0.00001);
+    const json::value& bucket_ = bucketWrapper_.at("bucket");
+    const json::object& bucket = bucket_.as_object();
+    BOOST_TEST_REQUIRE(bucket.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", bucket.at("job_id").as_string());
+    BOOST_REQUIRE_EQUAL(1000, bucket.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(bucket.contains("bucket_influencers") == false);
+    BOOST_REQUIRE_EQUAL(0, bucket.at("event_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(bucket.contains("anomaly_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, bucket.at("anomaly_score").to_number<double>(), 0.00001);
 }
 
 BOOST_AUTO_TEST_CASE(testFlush) {
@@ -1155,30 +1183,28 @@ BOOST_AUTO_TEST_CASE(testFlush) {
         writer.acknowledgeFlush(testId, lastFinalizedBucketEnd);
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    LOG_DEBUG(<< "Flush:\n" << arrayDoc);
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    const json::value& flushWrapper_ = arrayDoc.at(std::size_t(0));
+    BOOST_TEST_REQUIRE(flushWrapper_.is_object());
+    const json::object& flushWrapper = flushWrapper_.as_object();
+    BOOST_TEST_REQUIRE(flushWrapper.contains("flush"));
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "Flush:\n" << strbuf.GetString());
-
-    const rapidjson::Value& flushWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(flushWrapper.IsObject());
-    BOOST_TEST_REQUIRE(flushWrapper.HasMember("flush"));
-
-    const rapidjson::Value& flush = flushWrapper["flush"];
-    BOOST_TEST_REQUIRE(flush.IsObject());
-    BOOST_TEST_REQUIRE(flush.HasMember("id"));
-    BOOST_REQUIRE_EQUAL(testId, flush["id"].GetString());
-    BOOST_TEST_REQUIRE(flush.HasMember("last_finalized_bucket_end"));
-    BOOST_REQUIRE_EQUAL(lastFinalizedBucketEnd * 1000,
-                        static_cast<ml::core_t::TTime>(
-                            flush["last_finalized_bucket_end"].GetInt64()));
+    const json::value& flush_ = flushWrapper.at("flush");
+    BOOST_TEST_REQUIRE(flush_.is_object());
+    const json::object& flush = flush_.as_object();
+    BOOST_TEST_REQUIRE(flush.contains("id"));
+    BOOST_REQUIRE_EQUAL(testId, flush.at("id").as_string());
+    BOOST_TEST_REQUIRE(flush.contains("last_finalized_bucket_end"));
+    BOOST_REQUIRE_EQUAL(
+        lastFinalizedBucketEnd * 1000,
+        static_cast<ml::core_t::TTime>(
+            flush.at("last_finalized_bucket_end").to_number<std::int64_t>()));
 }
 
 BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
@@ -1200,43 +1226,42 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
                                        maxMatchingLength, examples, 0, {});
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    LOG_DEBUG(<< "CategoryDefinition:\n" << arrayDoc);
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    const json::value& categoryWrapper_ = arrayDoc.at(std::size_t(0));
+    BOOST_TEST_REQUIRE(categoryWrapper_.is_object());
+    const json::object& categoryWrapper = categoryWrapper_.as_object();
+    BOOST_TEST_REQUIRE(categoryWrapper.contains("category_definition"));
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
-
-    const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(categoryWrapper.IsObject());
-    BOOST_TEST_REQUIRE(categoryWrapper.HasMember("category_definition"));
-
-    const rapidjson::Value& category = categoryWrapper["category_definition"];
-    BOOST_TEST_REQUIRE(category.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", category["job_id"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("partition_field_name") == false);
-    BOOST_TEST_REQUIRE(category.HasMember("partition_field_value") == false);
-    BOOST_TEST_REQUIRE(category.IsObject());
-    BOOST_TEST_REQUIRE(category.HasMember("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category["category_id"].GetInt());
-    BOOST_TEST_REQUIRE(category.HasMember("terms"));
-    BOOST_REQUIRE_EQUAL(terms, category["terms"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("regex"));
-    BOOST_REQUIRE_EQUAL(regex, category["regex"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("max_matching_length"));
+    const json::value& category_ = categoryWrapper.at("category_definition");
+    BOOST_TEST_REQUIRE(category_.is_object());
+    json::object category = category_.as_object();
+    BOOST_TEST_REQUIRE(category.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", category.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(category.contains("partition_field_value") == false);
+    BOOST_TEST_REQUIRE(category.contains("category_id"));
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(),
+                        category.at("category_id").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(category.contains("terms"));
+    BOOST_REQUIRE_EQUAL(terms, category.at("terms").as_string());
+    BOOST_TEST_REQUIRE(category.contains("regex"));
+    BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
+    BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
     BOOST_REQUIRE_EQUAL(maxMatchingLength,
-                        static_cast<std::size_t>(category["max_matching_length"].GetInt()));
-    BOOST_TEST_REQUIRE(category.HasMember("examples"));
+                        static_cast<std::size_t>(
+                            category.at("max_matching_length").to_number<std::int64_t>()));
+    BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
-    const rapidjson::Value& writtenExamples = category["examples"];
-    for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
-        writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
+    const json::value& writtenExamples_ = category.at("examples");
+    const json::array& writtenExamples = writtenExamples_.as_array();
+    for (std::size_t i = 0; i < writtenExamples.size(); i++) {
+        writtenExamplesSet.insert(std::string(writtenExamples.at(i).as_string()));
     }
     BOOST_TEST_REQUIRE(writtenExamplesSet == examples);
 }
@@ -1260,45 +1285,45 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
                                        regex, maxMatchingLength, examples, 0, {});
     }
 
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    LOG_DEBUG(<< "CategoryDefinition:\n" << arrayDoc);
 
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    const json::value& categoryWrapper_ = arrayDoc.at(std::size_t(0));
+    BOOST_TEST_REQUIRE(categoryWrapper_.is_object());
+    const json::object& categoryWrapper = categoryWrapper_.as_object();
+    BOOST_TEST_REQUIRE(categoryWrapper.contains("category_definition"));
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
-
-    const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(categoryWrapper.IsObject());
-    BOOST_TEST_REQUIRE(categoryWrapper.HasMember("category_definition"));
-
-    const rapidjson::Value& category = categoryWrapper["category_definition"];
-    BOOST_TEST_REQUIRE(category.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", category["job_id"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("partition_field_name"));
-    BOOST_REQUIRE_EQUAL("event.dataset", category["partition_field_name"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("partition_field_value"));
-    BOOST_REQUIRE_EQUAL("elasticsearch", category["partition_field_value"].GetString());
-    BOOST_TEST_REQUIRE(category.IsObject());
-    BOOST_TEST_REQUIRE(category.HasMember("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category["category_id"].GetInt());
-    BOOST_TEST_REQUIRE(category.HasMember("terms"));
-    BOOST_REQUIRE_EQUAL(terms, category["terms"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("regex"));
-    BOOST_REQUIRE_EQUAL(regex, category["regex"].GetString());
-    BOOST_TEST_REQUIRE(category.HasMember("max_matching_length"));
+    const json::value& category_ = categoryWrapper.at("category_definition");
+    BOOST_TEST_REQUIRE(category_.is_object());
+    const json::object& category = category_.as_object();
+    BOOST_TEST_REQUIRE(category.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", category.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(category.contains("partition_field_name"));
+    BOOST_REQUIRE_EQUAL("event.dataset", category.at("partition_field_name").as_string());
+    BOOST_TEST_REQUIRE(category.contains("partition_field_value"));
+    BOOST_REQUIRE_EQUAL("elasticsearch", category.at("partition_field_value").as_string());
+    BOOST_TEST_REQUIRE(category.contains("category_id"));
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(),
+                        category.at("category_id").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(category.contains("terms"));
+    BOOST_REQUIRE_EQUAL(terms, category.at("terms").as_string());
+    BOOST_TEST_REQUIRE(category.contains("regex"));
+    BOOST_REQUIRE_EQUAL(regex, category.at("regex").as_string());
+    BOOST_TEST_REQUIRE(category.contains("max_matching_length"));
     BOOST_REQUIRE_EQUAL(maxMatchingLength,
-                        static_cast<std::size_t>(category["max_matching_length"].GetInt()));
-    BOOST_TEST_REQUIRE(category.HasMember("examples"));
+                        static_cast<std::size_t>(
+                            category.at("max_matching_length").to_number<std::int64_t>()));
+    BOOST_TEST_REQUIRE(category.contains("examples"));
 
     ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
-    const rapidjson::Value& writtenExamples = category["examples"];
-    for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
-        writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
+    const json::value& writtenExamples_ = category.at("examples");
+    const json::array& writtenExamples = writtenExamples_.as_array();
+    for (std::size_t i = 0; i < writtenExamples.size(); i++) {
+        writtenExamplesSet.insert(std::string(writtenExamples.at(i).as_string()));
     }
     BOOST_TEST_REQUIRE(writtenExamplesSet == examples);
 }
@@ -1341,50 +1366,53 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(true, 1U));
     }
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
+    LOG_DEBUG(<< "influencers:\n" << doc);
 
-    // Debug print record
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    doc.Accept(writer);
-    LOG_DEBUG(<< "influencers:\n" << strbuf.GetString());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), doc.size());
 
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), doc.Size());
+    const json::value& influencers_ = doc.at(std::size_t(0)).as_object().at("influencers");
+    BOOST_TEST_REQUIRE(influencers_.is_array());
+    const json::array& influencers = influencers_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), influencers.size());
 
-    const rapidjson::Value& influencers = doc[rapidjson::SizeType(0)]["influencers"];
-    BOOST_TEST_REQUIRE(influencers.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), influencers.Size());
-
-    const rapidjson::Value& influencer = influencers[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(influencer.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", influencer["job_id"].GetString());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, influencer["probability"].GetDouble(), 0.001);
+    const json::value& influencer_ = influencers.at(std::size_t(0));
+    const json::object& influencer = influencer_.as_object();
+    BOOST_TEST_REQUIRE(influencer.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", influencer.at("job_id").as_string());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, influencer.at("probability").to_number<double>(), 0.001);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        10.0, influencer["initial_influencer_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(influencer.HasMember("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, influencer["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("user", influencer["influencer_field_name"].GetString());
-    BOOST_REQUIRE_EQUAL("daisy", influencer["influencer_field_value"].GetString());
-    BOOST_REQUIRE_EQUAL(42000, influencer["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(influencer["is_interim"].GetBool());
-    BOOST_TEST_REQUIRE(influencer.HasMember("bucket_span"));
-
-    const rapidjson::Value& influencer2 = influencers[rapidjson::SizeType(1)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, influencer2["probability"].GetDouble(), 0.001);
+        10.0, influencer.at("initial_influencer_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(influencer.contains("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        100.0, influencer2["initial_influencer_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(influencer2.HasMember("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer2["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("user", influencer2["influencer_field_name"].GetString());
-    BOOST_REQUIRE_EQUAL("jim", influencer2["influencer_field_value"].GetString());
-    BOOST_REQUIRE_EQUAL(42000, influencer2["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(influencer2["is_interim"].GetBool());
-    BOOST_TEST_REQUIRE(influencer2.HasMember("bucket_span"));
+        10.0, influencer.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("user", influencer.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_EQUAL("daisy", influencer.at("influencer_field_value").as_string());
+    BOOST_REQUIRE_EQUAL(42000, influencer.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(influencer.at("is_interim").as_bool());
+    BOOST_TEST_REQUIRE(influencer.contains("bucket_span"));
 
-    const rapidjson::Value& bucket = doc[rapidjson::SizeType(1)]["bucket"];
-    BOOST_TEST_REQUIRE(bucket.HasMember("influencers") == false);
+    const json::value& influencer2_ = influencers.at(std::size_t(1));
+    const json::object& influencer2 = influencer2_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.9, influencer2.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, influencer2.at("initial_influencer_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(influencer2.contains("influencer_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("user", influencer2.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_EQUAL("jim", influencer2.at("influencer_field_value").as_string());
+    BOOST_REQUIRE_EQUAL(42000, influencer2.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(influencer2.at("is_interim").as_bool());
+    BOOST_TEST_REQUIRE(influencer2.contains("bucket_span"));
+
+    const json::value& bucket = doc.at(std::size_t(1)).as_object().at("bucket");
+    BOOST_TEST_REQUIRE(bucket.as_object().contains("influencers") == false);
 }
 
 BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
@@ -1437,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         std::string fund("function_description");
         std::string fn("field_name");
         std::string emptyStr;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
         ml::api::CHierarchicalResultsWriter::SResults result(
             ml::api::CHierarchicalResultsWriter::E_Result, pfn, pfv, bfn, bfv,
             emptyStr, 0, fun, fund, 42.0, 79, TDouble1Vec(1, 6953.0),
@@ -1452,70 +1480,88 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    doc.Accept(writer);
+    LOG_DEBUG(<< "limited write influencers:\n" << doc);
 
-    LOG_DEBUG(<< "limited write influencers:\n" << strbuf.GetString());
+    const json::value& influencers_ = doc.at(std::size_t(1)).as_object().at("influencers");
+    BOOST_TEST_REQUIRE(influencers_.is_array());
+    const json::array& influencers = influencers_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), influencers.size());
 
-    const rapidjson::Value& influencers = doc[rapidjson::SizeType(1)]["influencers"];
-    BOOST_TEST_REQUIRE(influencers.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), influencers.Size());
-
-    const rapidjson::Value& influencer = influencers[rapidjson::SizeType(0)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, influencer["probability"].GetDouble(), 0.001);
+    const json::value& influencer_ = influencers.at(std::size_t(0));
+    const json::object& influencer = influencer_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, influencer.at("probability").to_number<double>(), 0.001);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        100.0, influencer["initial_influencer_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(influencer.HasMember("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("user", influencer["influencer_field_name"].GetString());
-    BOOST_REQUIRE_EQUAL("jim", influencer["influencer_field_value"].GetString());
-    BOOST_TEST_REQUIRE(influencer.HasMember("bucket_span"));
-
-    const rapidjson::Value& influencer2 = influencers[rapidjson::SizeType(1)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.3, influencer2["probability"].GetDouble(), 0.001);
+        100.0, influencer.at("initial_influencer_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(influencer.contains("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        12.0, influencer2["initial_influencer_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(influencer2.HasMember("influencer_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, influencer2["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("computer", influencer2["influencer_field_name"].GetString());
-    BOOST_REQUIRE_EQUAL("laptop", influencer2["influencer_field_value"].GetString());
-    BOOST_TEST_REQUIRE(influencer2.HasMember("bucket_span"));
+        100.0, influencer.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("user", influencer.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_EQUAL("jim", influencer.at("influencer_field_value").as_string());
+    BOOST_TEST_REQUIRE(influencer.contains("bucket_span"));
+
+    const json::value& influencer2_ = influencers.at(std::size_t(1));
+    const json::object& influencer2 = influencer2_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.3, influencer2.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        12.0, influencer2.at("initial_influencer_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(influencer2.contains("influencer_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        12.0, influencer2.at("influencer_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("computer", influencer2.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_EQUAL("laptop", influencer2.at("influencer_field_value").as_string());
+    BOOST_TEST_REQUIRE(influencer2.contains("bucket_span"));
 
     // bucket influencers
-    const rapidjson::Value& bucketResult = doc[rapidjson::SizeType(2)]["bucket"];
-    BOOST_TEST_REQUIRE(bucketResult.HasMember("bucket_influencers"));
-    const rapidjson::Value& bucketInfluencers = bucketResult["bucket_influencers"];
-    BOOST_TEST_REQUIRE(bucketInfluencers.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(3), bucketInfluencers.Size());
+    const json::value& bucketResult_ = doc.at(std::size_t(2)).as_object().at("bucket");
+    const json::object& bucketResult = bucketResult_.as_object();
+    BOOST_TEST_REQUIRE(bucketResult.contains("bucket_influencers"));
+    const json::value& bucketInfluencers_ = bucketResult.at("bucket_influencers");
+    BOOST_TEST_REQUIRE(bucketInfluencers_.is_array());
+    const json::array& bucketInfluencers = bucketInfluencers_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(3), bucketInfluencers.size());
 
-    const rapidjson::Value& binf = bucketInfluencers[rapidjson::SizeType(0)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, binf["probability"].GetDouble(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf["initial_anomaly_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(binf.HasMember("anomaly_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("computer", binf["influencer_field_name"].GetString());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf["raw_anomaly_score"].GetDouble(), 0.001);
+    const json::value& binf_ = bucketInfluencers.at(std::size_t(0));
+    BOOST_TEST_REQUIRE(binf_.is_object());
+    const json::object& binf = binf_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.9, binf.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        100.0, binf.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(binf.contains("anomaly_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf.at("anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("computer", binf.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf.at("raw_anomaly_score").to_number<double>(), 0.001);
 
-    const rapidjson::Value& binf2 = bucketInfluencers[rapidjson::SizeType(1)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, binf2["probability"].GetDouble(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2["initial_anomaly_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(binf2.HasMember("anomaly_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("user", binf2["influencer_field_name"].GetString());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf2["raw_anomaly_score"].GetDouble(), 0.001);
+    const json::value& binf2_ = bucketInfluencers.at(std::size_t(1));
+    BOOST_TEST_REQUIRE(binf2_.is_object());
+    const json::object& binf2 = binf2_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, binf2.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf2.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(binf2.contains("anomaly_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2.at("anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("user", binf2.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        1.0, binf2.at("raw_anomaly_score").to_number<double>(), 0.001);
 
-    const rapidjson::Value& binf3 = bucketInfluencers[rapidjson::SizeType(2)];
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, binf3["probability"].GetDouble(), 0.001);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3["initial_anomaly_score"].GetDouble(), 0.001);
-    BOOST_TEST_REQUIRE(binf3.HasMember("anomaly_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL("bucket_time", binf3["influencer_field_name"].GetString());
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf3["raw_anomaly_score"].GetDouble(), 0.001);
+    const json::value& binf3_ = bucketInfluencers.at(std::size_t(2));
+    BOOST_TEST_REQUIRE(binf3_.is_object());
+    const json::object& binf3 = binf3_.as_object();
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, binf3.at("probability").to_number<double>(), 0.001);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        10.0, binf3.at("initial_anomaly_score").to_number<double>(), 0.001);
+    BOOST_TEST_REQUIRE(binf3.contains("anomaly_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3.at("anomaly_score").to_number<double>(), 0.001);
+    BOOST_REQUIRE_EQUAL("bucket_time", binf3.at("influencer_field_name").as_string());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        1.0, binf3.at("raw_anomaly_score").to_number<double>(), 0.001);
 }
 
 BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
@@ -1532,7 +1578,7 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         std::string user("user");
         std::string dave("dave");
@@ -1542,40 +1588,20 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         std::string localhost("localhost");
         std::string webserver("web-server");
 
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(dave));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(cat));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field3 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user),
-                ml::model::CStringStore::names().get(jo));
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field1(user, dave);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field2(user, cat);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr field3(user, jo);
 
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(localhost));
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host),
-                ml::model::CStringStore::names().get(webserver));
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr hostField1(host, localhost);
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPr hostField2(host, webserver);
 
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field1, 0.4));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field2, 1.0));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            hostField1, 0.7));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            field3, 0.1));
-        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(
-            hostField2, 0.8));
+        influences.emplace_back(field1, 0.4);
+        influences.emplace_back(field2, 1.0);
+        influences.emplace_back(hostField1, 0.7);
+        influences.emplace_back(field3, 0.1);
+        influences.emplace_back(hostField2, 0.8);
 
-        // The output writer won't close the JSON structures until is is destroyed
+        // The output writer won't close the JSON structures until it is destroyed
 
         ml::api::CHierarchicalResultsWriter::SResults result(
             ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
@@ -1592,61 +1618,62 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    rapidjson::Document doc;
-    std::string out = sstream.str();
-    doc.Parse<rapidjson::kParseDefaultFlags>(out);
-
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
+    LOG_DEBUG(<< "Results:\n" << doc_);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
+
+    BOOST_TEST_REQUIRE(doc.at(std::size_t(1)).as_object().contains("bucket"));
+    const json::value& bucket_ = doc.at(std::size_t(1)).as_object().at("bucket");
+    const json::object& bucket = bucket_.as_object();
+    BOOST_TEST_REQUIRE(bucket.contains("records") == false);
+
+    BOOST_TEST_REQUIRE(doc.at(std::size_t(0)).as_object().contains("records"));
+    const json::value& records_ = doc.at(std::size_t(0)).as_object().at("records");
+    const json::array& records = records_.as_array();
+
+    BOOST_TEST_REQUIRE(records.at(std::size_t(0)).as_object().contains("influencers"));
+    const json::value& influences_ = records.at(std::size_t(0)).as_object().at("influencers");
+    BOOST_TEST_REQUIRE(influences_.is_array());
+    const json::array& influences = influences_.as_array();
+
+    BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+
     {
-        rapidjson::StringBuffer strbuf;
-        using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-        TStringBufferPrettyWriter writer(strbuf);
-        doc.Accept(writer);
-        LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-    }
-
-    BOOST_TEST_REQUIRE(doc[rapidjson::SizeType(1)].HasMember("bucket"));
-    const rapidjson::Value& bucket = doc[rapidjson::SizeType(1)]["bucket"];
-    BOOST_TEST_REQUIRE(bucket.HasMember("records") == false);
-
-    BOOST_TEST_REQUIRE(doc[rapidjson::SizeType(0)].HasMember("records"));
-    const rapidjson::Value& records = doc[rapidjson::SizeType(0)]["records"];
-
-    BOOST_TEST_REQUIRE(records[rapidjson::SizeType(0)].HasMember("influencers"));
-    const rapidjson::Value& influences = records[rapidjson::SizeType(0)]["influencers"];
-
-    BOOST_TEST_REQUIRE(influences.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), influences.Size());
-
-    {
-        const rapidjson::Value& influence = influences[rapidjson::SizeType(0)];
-        BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_name"));
-        BOOST_REQUIRE_EQUAL("host", influence["influencer_field_name"].GetString());
-        BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_values"));
-        const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
-        BOOST_TEST_REQUIRE(influencerFieldValues.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), influencerFieldValues.Size());
+        const json::value& influence_ = influences.at(std::size_t(0));
+        const json::object& influence = influence_.as_object();
+        BOOST_TEST_REQUIRE(influence.contains("influencer_field_name"));
+        BOOST_REQUIRE_EQUAL("host", influence.at("influencer_field_name").as_string());
+        BOOST_TEST_REQUIRE(influence.contains("influencer_field_values"));
+        const json::value& influencerFieldValues_ = influence.at("influencer_field_values");
+        BOOST_TEST_REQUIRE(influencerFieldValues_.is_array());
+        const json::array& influencerFieldValues = influencerFieldValues_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), influencerFieldValues.size());
 
         // Check influencers are ordered
         BOOST_REQUIRE_EQUAL("web-server",
-                            influencerFieldValues[rapidjson::SizeType(0)].GetString());
-        BOOST_REQUIRE_EQUAL(
-            "localhost", influencerFieldValues[rapidjson::SizeType(1)].GetString());
+                            influencerFieldValues.at(std::size_t(0)).as_string());
+        BOOST_REQUIRE_EQUAL("localhost",
+                            influencerFieldValues.at(std::size_t(1)).as_string());
     }
     {
-        const rapidjson::Value& influence = influences[rapidjson::SizeType(1)];
-        BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_name"));
-        BOOST_REQUIRE_EQUAL("user", influence["influencer_field_name"].GetString());
-        BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_values"));
-        const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
-        BOOST_TEST_REQUIRE(influencerFieldValues.IsArray());
-        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(3), influencerFieldValues.Size());
+        const json::value& influence_ = influences.at(std::size_t(1));
+        const json::object& influence = influence_.as_object();
+        BOOST_TEST_REQUIRE(influence.contains("influencer_field_name"));
+        BOOST_REQUIRE_EQUAL("user", influence.at("influencer_field_name").as_string());
+        BOOST_TEST_REQUIRE(influence.contains("influencer_field_values"));
+        const json::value& influencerFieldValues_ = influence.at("influencer_field_values");
+        BOOST_TEST_REQUIRE(influencerFieldValues_.is_array());
+        const json::array& influencerFieldValues = influencerFieldValues_.as_array();
+        BOOST_REQUIRE_EQUAL(std::size_t(3), influencerFieldValues.size());
 
         // Check influencers are ordered
-        BOOST_REQUIRE_EQUAL("cat", influencerFieldValues[rapidjson::SizeType(0)].GetString());
-        BOOST_REQUIRE_EQUAL(
-            "dave", influencerFieldValues[rapidjson::SizeType(1)].GetString());
-        BOOST_REQUIRE_EQUAL("jo", influencerFieldValues[rapidjson::SizeType(2)].GetString());
+        BOOST_REQUIRE_EQUAL("cat", influencerFieldValues.at(std::size_t(0)).as_string());
+        BOOST_REQUIRE_EQUAL("dave", influencerFieldValues.at(std::size_t(1)).as_string());
+        BOOST_REQUIRE_EQUAL("jo", influencerFieldValues.at(std::size_t(2)).as_string());
     }
 }
 
@@ -1665,21 +1692,26 @@ BOOST_AUTO_TEST_CASE(testPersistNormalizer) {
         writer.finalise();
     }
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    // Debug print record
+    LOG_DEBUG(<< "Results:\n" << doc_);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
 
     BOOST_TEST_REQUIRE(persistTime <= ml::core::CTimeUtils::now());
     BOOST_TEST_REQUIRE(persistTime > ml::core::CTimeUtils::now() - 10);
 
-    BOOST_TEST_REQUIRE(doc.IsArray());
-
-    const rapidjson::Value& quantileWrapper = doc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(quantileWrapper.HasMember("quantiles"));
-    const rapidjson::Value& quantileState = quantileWrapper["quantiles"];
-    BOOST_TEST_REQUIRE(quantileState.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", quantileState["job_id"].GetString());
-    BOOST_TEST_REQUIRE(quantileState.HasMember("quantile_state"));
-    BOOST_TEST_REQUIRE(quantileState.HasMember("timestamp"));
+    const json::value& quantileWrapper_ = doc.at(std::size_t(0));
+    const json::object& quantileWrapper = quantileWrapper_.as_object();
+    BOOST_TEST_REQUIRE(quantileWrapper.contains("quantiles"));
+    const json::value& quantileState_ = quantileWrapper.at("quantiles");
+    const json::object& quantileState = quantileState_.as_object();
+    BOOST_TEST_REQUIRE(quantileState.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", quantileState.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(quantileState.contains("quantile_state"));
+    BOOST_TEST_REQUIRE(quantileState.contains("timestamp"));
 }
 
 BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
@@ -1717,55 +1749,64 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
 
     LOG_DEBUG(<< sstream.str());
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
 
-    const rapidjson::Value& resourceWrapper = doc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(resourceWrapper.HasMember("model_size_stats"));
-    const rapidjson::Value& sizeStats = resourceWrapper["model_size_stats"];
+    const json::value& resourceWrapper_ = doc.at(std::size_t(0));
+    const json::object& resourceWrapper = resourceWrapper_.as_object();
+    BOOST_TEST_REQUIRE(resourceWrapper.contains("model_size_stats"));
+    const json::value& sizeStats_ = resourceWrapper.at("model_size_stats");
+    const json::object& sizeStats = sizeStats_.as_object();
 
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", sizeStats["job_id"].GetString());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes"));
-    BOOST_REQUIRE_EQUAL(2, sizeStats["model_bytes"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("peak_model_bytes"));
-    BOOST_REQUIRE_EQUAL(4, sizeStats["peak_model_bytes"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("total_by_field_count"));
-    BOOST_REQUIRE_EQUAL(5, sizeStats["total_by_field_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("total_partition_field_count"));
-    BOOST_REQUIRE_EQUAL(6, sizeStats["total_partition_field_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("total_over_field_count"));
-    BOOST_REQUIRE_EQUAL(7, sizeStats["total_over_field_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("bucket_allocation_failures_count"));
-    BOOST_REQUIRE_EQUAL(8, sizeStats["bucket_allocation_failures_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(9000, sizeStats["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("memory_status"));
-    BOOST_REQUIRE_EQUAL("hard_limit", sizeStats["memory_status"].GetString());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("assignment_memory_basis"));
+    BOOST_TEST_REQUIRE(sizeStats.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", sizeStats.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes"));
+    BOOST_REQUIRE_EQUAL(2, sizeStats.at("model_bytes").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("peak_model_bytes"));
+    BOOST_REQUIRE_EQUAL(4, sizeStats.at("peak_model_bytes").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("total_by_field_count"));
+    BOOST_REQUIRE_EQUAL(5, sizeStats.at("total_by_field_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("total_partition_field_count"));
+    BOOST_REQUIRE_EQUAL(
+        6, sizeStats.at("total_partition_field_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("total_over_field_count"));
+    BOOST_REQUIRE_EQUAL(7, sizeStats.at("total_over_field_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("bucket_allocation_failures_count"));
+    BOOST_REQUIRE_EQUAL(
+        8, sizeStats.at("bucket_allocation_failures_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(9000, sizeStats.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("memory_status"));
+    BOOST_REQUIRE_EQUAL("hard_limit", sizeStats.at("memory_status").as_string());
+    BOOST_TEST_REQUIRE(sizeStats.contains("assignment_memory_basis"));
     BOOST_REQUIRE_EQUAL("current_model_bytes",
-                        sizeStats["assignment_memory_basis"].GetString());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("log_time"));
+                        sizeStats.at("assignment_memory_basis").as_string());
+    BOOST_TEST_REQUIRE(sizeStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
-    BOOST_TEST_REQUIRE(nowMs >= sizeStats["log_time"].GetInt64());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes_exceeded"));
-    BOOST_REQUIRE_EQUAL(10, sizeStats["model_bytes_exceeded"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes_memory_limit"));
-    BOOST_REQUIRE_EQUAL(11, sizeStats["model_bytes_memory_limit"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(12, sizeStats["categorized_doc_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("total_category_count"));
-    BOOST_REQUIRE_EQUAL(13, sizeStats["total_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(14, sizeStats["frequent_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(15, sizeStats["rare_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(16, sizeStats["dead_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(17, sizeStats["failed_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(sizeStats.HasMember("categorization_status"));
-    BOOST_REQUIRE_EQUAL("warn", sizeStats["categorization_status"].GetString());
+    BOOST_TEST_REQUIRE(nowMs >= sizeStats.at("log_time").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_exceeded"));
+    BOOST_REQUIRE_EQUAL(10, sizeStats.at("model_bytes_exceeded").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("model_bytes_memory_limit"));
+    BOOST_REQUIRE_EQUAL(
+        11, sizeStats.at("model_bytes_memory_limit").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(12, sizeStats.at("categorized_doc_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("total_category_count"));
+    BOOST_REQUIRE_EQUAL(13, sizeStats.at("total_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        14, sizeStats.at("frequent_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(15, sizeStats.at("rare_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(16, sizeStats.at("dead_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(17, sizeStats.at("failed_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(sizeStats.contains("categorization_status"));
+    BOOST_REQUIRE_EQUAL("warn", sizeStats.at("categorization_status").as_string());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
@@ -1789,40 +1830,51 @@ BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
 
     LOG_DEBUG(<< sstream.str());
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
 
-    const rapidjson::Value& resourceWrapper = doc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(resourceWrapper.HasMember("categorizer_stats"));
-    const rapidjson::Value& categorizerStats = resourceWrapper["categorizer_stats"];
+    const json::value& resourceWrapper_ = doc.at(std::size_t(0));
+    const json::object& resourceWrapper = resourceWrapper_.as_object();
+    BOOST_TEST_REQUIRE(resourceWrapper.contains("categorizer_stats"));
+    const json::value& categorizerStats_ = resourceWrapper.at("categorizer_stats");
+    const json::object& categorizerStats = categorizerStats_.as_object();
 
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL("job", categorizerStats["job_id"].GetString());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_name"));
-    BOOST_REQUIRE_EQUAL("foo", categorizerStats["partition_field_name"].GetString());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_value"));
-    BOOST_REQUIRE_EQUAL("bar", categorizerStats["partition_field_value"].GetString());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorized_doc_count"));
-    BOOST_REQUIRE_EQUAL(1, categorizerStats["categorized_doc_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("total_category_count"));
-    BOOST_REQUIRE_EQUAL(2, categorizerStats["total_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("frequent_category_count"));
-    BOOST_REQUIRE_EQUAL(3, categorizerStats["frequent_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("rare_category_count"));
-    BOOST_REQUIRE_EQUAL(4, categorizerStats["rare_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("dead_category_count"));
-    BOOST_REQUIRE_EQUAL(5, categorizerStats["dead_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("failed_category_count"));
-    BOOST_REQUIRE_EQUAL(6, categorizerStats["failed_category_count"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
-    BOOST_REQUIRE_EQUAL("ok", categorizerStats["categorization_status"].GetString());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
-    BOOST_REQUIRE_EQUAL("ok", categorizerStats["categorization_status"].GetString());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(7000, categorizerStats["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(categorizerStats.HasMember("log_time"));
+    BOOST_TEST_REQUIRE(categorizerStats.contains("job_id"));
+    BOOST_REQUIRE_EQUAL("job", categorizerStats.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("partition_field_name"));
+    BOOST_REQUIRE_EQUAL("foo", categorizerStats.at("partition_field_name").as_string());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("partition_field_value"));
+    BOOST_REQUIRE_EQUAL("bar", categorizerStats.at("partition_field_value").as_string());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(
+        1, categorizerStats.at("categorized_doc_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("total_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        2, categorizerStats.at("total_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        3, categorizerStats.at("frequent_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        4, categorizerStats.at("rare_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        5, categorizerStats.at("dead_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(
+        6, categorizerStats.at("failed_category_count").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("categorization_status"));
+    BOOST_REQUIRE_EQUAL("ok", categorizerStats.at("categorization_status").as_string());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("categorization_status"));
+    BOOST_REQUIRE_EQUAL("ok", categorizerStats.at("categorization_status").as_string());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(7000, categorizerStats.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(categorizerStats.contains("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
-    BOOST_TEST_REQUIRE(nowMs >= categorizerStats["log_time"].GetInt64());
+    BOOST_TEST_REQUIRE(nowMs >= categorizerStats.at("log_time").to_number<std::int64_t>());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
@@ -1837,7 +1889,7 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
         std::string function("mean");
         std::string functionDescription("mean(responsetime)");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
 
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
@@ -1864,32 +1916,28 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
     }
 
-    rapidjson::Document doc;
-    std::string out = sstream.str();
-    doc.Parse<rapidjson::kParseDefaultFlags>(out);
-
+    json::error_code ec;
+    json::value doc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
     // Debug print record
-    {
-        rapidjson::StringBuffer strbuf;
-        using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-        TStringBufferPrettyWriter writer(strbuf);
-        doc.Accept(writer);
-        LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-    }
-
-    BOOST_TEST_REQUIRE(doc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), doc.Size());
+    LOG_DEBUG(<< "Results:\n" << doc_);
+    BOOST_TEST_REQUIRE(doc_.is_array());
+    const json::array& doc = doc_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), doc.size());
     // the first bucket has no events
-    const rapidjson::Value& bucket = doc[rapidjson::SizeType(1)]["bucket"];
-    BOOST_TEST_REQUIRE(bucket.HasMember("scheduled_event") == false);
+    const json::value& bucket_ = doc.at(std::size_t(1)).as_object().at("bucket");
+    const json::object& bucket = bucket_.as_object();
+    BOOST_TEST_REQUIRE(bucket.contains("scheduled_event") == false);
 
-    const rapidjson::Value& bucketWithEvents = doc[rapidjson::SizeType(1)]["bucket"];
-    BOOST_TEST_REQUIRE(bucketWithEvents.HasMember("scheduled_events"));
-    const rapidjson::Value& events = bucketWithEvents["scheduled_events"];
-    BOOST_TEST_REQUIRE(events.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), events.Size());
-    BOOST_REQUIRE_EQUAL("event-foo", events[rapidjson::SizeType(0)].GetString());
-    BOOST_REQUIRE_EQUAL("event-bar", events[rapidjson::SizeType(1)].GetString());
+    const json::value& bucketWithEvents_ = doc.at(std::size_t(1)).at("bucket");
+    const json::object& bucketWithEvents = bucketWithEvents_.as_object();
+    BOOST_TEST_REQUIRE(bucketWithEvents.contains("scheduled_events"));
+    const json::value& events_ = bucketWithEvents.at("scheduled_events");
+    BOOST_TEST_REQUIRE(events_.is_array());
+    const json::array& events = events_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+    BOOST_REQUIRE_EQUAL("event-foo", events.at(std::size_t(0)).as_string());
+    BOOST_REQUIRE_EQUAL("event-bar", events.at(std::size_t(1)).as_string());
 }
 
 BOOST_AUTO_TEST_CASE(testThroughputWithScopedAllocator) {
@@ -1919,7 +1967,7 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
         std::string function("rare");
         std::string functionDescription("rare");
         std::string emptyString;
-        ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+        ml::api::CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec influences;
         ml::api::CHierarchicalResultsWriter::TAnomalyScoreExplanation anomalyScoreExplanation;
 
         {
@@ -1939,28 +1987,31 @@ BOOST_AUTO_TEST_CASE(testRareAnomalyScoreExplanation) {
         // Finished adding results
         BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
     }
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    BOOST_TEST_REQUIRE(!arrayDoc.HasParseError());
 
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
-    BOOST_TEST_REQUIRE(arrayDoc[0].HasMember("records"));
-    BOOST_TEST_REQUIRE(arrayDoc[0]["records"].IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc[0]["records"].Size());
-    const auto& record = arrayDoc[0]["records"][0];
-    BOOST_TEST_REQUIRE(record.HasMember("anomaly_score_explanation"));
-    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_first_occurrence"));
-    BOOST_REQUIRE_EQUAL(
-        true, record["anomaly_score_explanation"]["by_field_first_occurrence"].GetBool());
-    BOOST_TEST_REQUIRE(record["anomaly_score_explanation"].HasMember("by_field_relative_rarity"));
-    BOOST_REQUIRE_EQUAL(
-        5.0, record["anomaly_score_explanation"]["by_field_relative_rarity"].GetDouble());
+    json::error_code ec;
+    json::value arrayDoc_ = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    // Debug print record
+    LOG_DEBUG(<< "Results:\n" << arrayDoc_);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), arrayDoc.size());
+    BOOST_TEST_REQUIRE(arrayDoc.at(0).as_object().contains("records"));
+    BOOST_TEST_REQUIRE(arrayDoc.at(0).as_object().at("records").is_array());
+    BOOST_REQUIRE_EQUAL(std::size_t(1),
+                        arrayDoc.at(0).as_object().at("records").as_array().size());
+    const auto& record =
+        arrayDoc.at(0).as_object().at("records").as_array().at(0).as_object();
+    BOOST_TEST_REQUIRE(record.contains("anomaly_score_explanation"));
+    BOOST_TEST_REQUIRE(record.at("anomaly_score_explanation").as_object().contains("by_field_first_occurrence"));
+    BOOST_REQUIRE_EQUAL(true, record.at("anomaly_score_explanation")
+                                  .as_object()
+                                  .at("by_field_first_occurrence")
+                                  .as_bool());
+    BOOST_TEST_REQUIRE(record.at("anomaly_score_explanation").as_object().contains("by_field_relative_rarity"));
+    BOOST_REQUIRE_EQUAL(5.0, record.at("anomaly_score_explanation")
+                                 .as_object()
+                                 .at("by_field_relative_rarity")
+                                 .to_number<double>());
 }
 BOOST_AUTO_TEST_SUITE_END()

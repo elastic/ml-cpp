@@ -16,7 +16,6 @@
 #include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/CBucketQueue.h>
@@ -92,42 +91,40 @@ public:
     using TSizeSizePrUSetQueue = CBucketQueue<TSizeSizePrUSet>;
     using TTimeSizeSizePrUSetMap = std::map<core_t::TTime, TSizeSizePrUSet>;
     using TSizeSizePrUSetQueueCItr = TSizeSizePrUSetQueue::const_iterator;
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    using TSizeSizePrStoredStringPtrPr = std::pair<TSizeSizePr, core::CStoredStringPtr>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
+    using TSizeSizePrOptionalStrPr = std::pair<TSizeSizePr, std::string>;
 
     //! \brief Hashes a ((size_t, size_t), string*) pair.
-    struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
-        std::size_t operator()(const TSizeSizePrStoredStringPtrPr& key) const {
+    struct MODEL_EXPORT SSizeSizePrOptionalStrPrHash {
+        std::size_t operator()(const TSizeSizePrOptionalStrPr& key) const {
             std::uint64_t seed = core::CHashing::hashCombine(
                 static_cast<std::uint64_t>(key.first.first),
                 static_cast<std::uint64_t>(key.first.second));
-            return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
+            return core::CHashing::hashCombine(seed, s_Hasher(key.second));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
     };
 
     //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
-    struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
-        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs,
-                        const TSizeSizePrStoredStringPtrPr& rhs) const {
-            return lhs.first == rhs.first && *lhs.second == *rhs.second;
+    struct MODEL_EXPORT SSizeSizePrOptionalStrPrEqual {
+        bool operator()(const TSizeSizePrOptionalStrPr& lhs,
+                        const TSizeSizePrOptionalStrPr& rhs) const {
+            return lhs.first == rhs.first && lhs.second == rhs.second;
         }
     };
 
-    using TSizeSizePrStoredStringPtrPrUInt64UMap =
-        boost::unordered_map<TSizeSizePrStoredStringPtrPr, std::uint64_t, SSizeSizePrStoredStringPtrPrHash, SSizeSizePrStoredStringPtrPrEqual>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
-        TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapItr =
-        TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
-        std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
-        CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr =
-        TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator;
-    using TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap =
-        std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+    using TSizeSizePrOptionalStrPrUInt64UMap =
+        boost::unordered_map<TSizeSizePrOptionalStrPr, std::uint64_t, SSizeSizePrOptionalStrPrHash, SSizeSizePrOptionalStrPrEqual>;
+    using TSizeSizePrOptionalStrPrUInt64UMapCItr = TSizeSizePrOptionalStrPrUInt64UMap::const_iterator;
+    using TSizeSizePrOptionalStrPrUInt64UMapItr = TSizeSizePrOptionalStrPrUInt64UMap::iterator;
+    using TSizeSizePrOptionalStrPrUInt64UMapVec = std::vector<TSizeSizePrOptionalStrPrUInt64UMap>;
+    using TSizeSizePrOptionalStrPrUInt64UMapVecQueue =
+        CBucketQueue<TSizeSizePrOptionalStrPrUInt64UMapVec>;
+    using TSizeSizePrOptionalStrPrUInt64UMapVecCItr =
+        TSizeSizePrOptionalStrPrUInt64UMapVec::const_iterator;
+    using TTimeSizeSizePrOptionalStrPrUInt64UMapVecMap =
+        std::map<core_t::TTime, TSizeSizePrOptionalStrPrUInt64UMapVec>;
     using TSearchKeyCRef = std::reference_wrapper<const CSearchKey>;
     using TFeatureAnyPr = std::pair<model_t::EFeature, std::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
@@ -308,7 +305,7 @@ public:
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrOptionalStrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -421,7 +418,7 @@ private:
                           const CEventData::TDouble1VecArray& values,
                           std::size_t count,
                           const CEventData::TOptionalStr& stringValue,
-                          const TStoredStringPtrVec& influences) = 0;
+                          const TOptionalStrVec& influences) = 0;
 
     //! Handle the start of a new bucketing interval.
     virtual void startNewBucket(core_t::TTime time, bool skipUpdates) = 0;
@@ -449,7 +446,7 @@ private:
     TSizeSizePrUSetQueue m_PersonAttributeExplicitNulls;
 
     //! The influencing field value counts per person and/or attribute.
-    TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue m_InfluencerCounts;
+    TSizeSizePrOptionalStrPrUInt64UMapVecQueue m_InfluencerCounts;
 };
 }
 }

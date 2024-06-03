@@ -41,6 +41,7 @@ list(APPEND ML_C_FLAGS
 list(APPEND ML_CXX_FLAGS
   ${ML_C_FLAGS}
   "/TP"
+  "/Zc:lambda"
   "/Zc:rvalueCast"
   "/Zc:strictStrings"
   "/wd4127"

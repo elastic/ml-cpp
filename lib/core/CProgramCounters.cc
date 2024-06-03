@@ -11,14 +11,14 @@
 
 #include <core/CProgramCounters.h>
 
+#include <core/CBoostJsonConcurrentLineWriter.h>
+#include <core/CBoostJsonLineWriter.h>
+#include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
-#include <core/CRapidJsonLineWriter.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStreamWriter.h>
 #include <core/CStringUtils.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 
 #include <ostream>
 #include <string>
@@ -28,7 +28,7 @@ namespace core {
 
 namespace {
 
-using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
+using TGenericLineWriter = CStreamWriter;
 
 const std::string NAME_TYPE("name");
 const std::string DESCRIPTION_TYPE("description");
@@ -39,22 +39,22 @@ const std::string KEY_TAG("a");
 const std::string VALUE_TAG("b");
 
 //! Helper function to add a string/int pair to JSON writer
-void addStringInt(TGenericLineWriter& writer,
+void addStringInt(CBoostJsonConcurrentLineWriter& writer,
                   const std::string& name,
                   const std::string& description,
                   std::uint64_t counter) {
-    writer.StartObject();
+    writer.onObjectBegin();
 
-    writer.Key(NAME_TYPE);
-    writer.String(name);
+    writer.onKey(NAME_TYPE);
+    writer.onString(name);
 
-    writer.Key(DESCRIPTION_TYPE);
-    writer.String(description);
+    writer.onKey(DESCRIPTION_TYPE);
+    writer.onString(description);
 
-    writer.Key(COUNTER_TYPE);
-    writer.Uint64(counter);
+    writer.onKey(COUNTER_TYPE);
+    writer.onUint64(counter);
 
-    writer.EndObject();
+    writer.onObjectEnd();
 }
 }
 
@@ -195,10 +195,13 @@ void CProgramCounters::registerProgramCounterTypes(const counter_t::TCounterType
 }
 
 std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
-    rapidjson::OStreamWrapper writeStream(o);
-    TGenericLineWriter writer(writeStream);
+    //! Wrapped output stream
+    core::CJsonOutputStreamWrapper writeStream(o);
 
-    writer.StartArray();
+    //! JSON line writer
+    core::CBoostJsonConcurrentLineWriter writer(writeStream);
+
+    writer.onArrayBegin();
 
     // If the application has not specified a limited set of (counters using registerProgramCounterTypes) then print the entire set
     // Take care to print in definition order
@@ -221,8 +224,8 @@ std::ostream& operator<<(std::ostream& o, const CProgramCounters& counters) {
         }
     }
 
-    writer.EndArray();
-    writeStream.Flush();
+    writer.onArrayEnd();
+    writeStream.flush();
 
     return o;
 }

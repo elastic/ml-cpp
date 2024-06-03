@@ -20,6 +20,8 @@ ml_add_library(MlCore SHARED
   CBase64Filter.cc
   CBlockingCallCancellerThread.cc
   CBlockingCallCancellingTimer.cc
+  CBoostJsonConcurrentLineWriter.cc
+  CBoostJsonUnbufferedIStreamWrapper.cc
   CCTimeR.cc
   CCompressOStream.cc
   CCompressedDictionary.cc
@@ -61,8 +63,6 @@ ml_add_library(MlCore SHARED
   CProcessStats.cc
   CProgName.cc
   CProgramCounters.cc
-  CRapidJsonConcurrentLineWriter.cc
-  CRapidJsonUnbufferedIStreamWrapper.cc
   CRapidXmlParser.cc
   CRapidXmlStatePersistInserter.cc
   CRapidXmlStateRestoreTraverser.cc
@@ -84,7 +84,6 @@ ml_add_library(MlCore SHARED
   CStateRestoreTraverser.cc
   CStaticThreadPool.cc
   CStopWatch.cc
-  CStoredStringPtr.cc
   CStrCaseCmp.cc
   CStrFTime.cc
   CStrPTime.cc
@@ -112,7 +111,7 @@ ml_add_library(MlCore SHARED
   )
 
 if (WIN32)
-  target_link_libraries(MlCore PUBLIC AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
+  target_link_libraries(MlCore PUBLIC -ignore:4217 AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/date_time_zonespec.csv DESTINATION ${ML_RESOURCES_DIR})
 endif()
 

@@ -10,7 +10,7 @@
  */
 #include <api/CNdJsonOutputWriter.h>
 
-#include <core/CScopedRapidJsonPoolAllocator.h>
+#include <core/CScopedBoostJsonPoolAllocator.h>
 #include <core/CStringUtils.h>
 
 #include <ostream>
@@ -19,27 +19,25 @@ namespace ml {
 namespace api {
 
 CNdJsonOutputWriter::CNdJsonOutputWriter()
-    : m_OutStream{m_StringOutputBuf}, m_WriteStream{m_OutStream}, m_Writer{m_WriteStream} {
+    : m_OutStream{m_StringOutputBuf}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(TStrSet numericFields)
-    : m_NumericFields{std::move(numericFields)}, m_OutStream{m_StringOutputBuf},
-      m_WriteStream{m_OutStream}, m_Writer{m_WriteStream} {
+    : m_NumericFields{std::move(numericFields)}, m_OutStream{m_StringOutputBuf}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(std::ostream& strmOut)
-    : m_OutStream{strmOut}, m_WriteStream{m_OutStream}, m_Writer{m_WriteStream} {
+    : m_OutStream{strmOut}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::CNdJsonOutputWriter(TStrSet numericFields, std::ostream& strmOut)
-    : m_NumericFields{std::move(numericFields)}, m_OutStream{strmOut},
-      m_WriteStream{m_OutStream}, m_Writer{m_WriteStream} {
+    : m_NumericFields{std::move(numericFields)}, m_OutStream{strmOut}, m_Writer{m_OutStream} {
 }
 
 CNdJsonOutputWriter::~CNdJsonOutputWriter() {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
-    m_WriteStream.Flush();
+    m_OutStream.flush();
 }
 
 bool CNdJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
@@ -49,10 +47,10 @@ bool CNdJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
 
 bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
                                    const TStrStrUMap& overrideDataRowFields) {
-    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
+    using TScopedAllocator = core::CScopedBoostJsonPoolAllocator<TGenericLineWriter>;
     TScopedAllocator scopedAllocator{"CNdJsonOutputWriter::writeRow", m_Writer};
 
-    rapidjson::Document doc{m_Writer.makeDoc()};
+    json::object doc{m_Writer.makeDoc()};
 
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
@@ -72,15 +70,13 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
 
         this->writeField(name, value, doc);
     }
-
     m_Writer.write(doc);
-    m_Writer.Reset(m_WriteStream);
 
     return true;
 }
 
 std::string CNdJsonOutputWriter::internalString() const {
-    const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
+    m_OutStream.flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this
@@ -89,7 +85,7 @@ std::string CNdJsonOutputWriter::internalString() const {
 
 void CNdJsonOutputWriter::writeField(const std::string& name,
                                      const std::string& value,
-                                     rapidjson::Document& doc) const {
+                                     json::object& doc) const {
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue{0.0};
         if (core::CStringUtils::stringToType(value, numericValue) == false) {

@@ -17,7 +17,6 @@
 #include <maths/common/COrderings.h>
 
 #include <model/CMetricStatGatherer.h>
-#include <model/CStringStore.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 
@@ -117,14 +116,14 @@ BOOST_AUTO_TEST_CASE(testSumGatherer) {
             i, 1, time, 600, influencers.begin(), influencers.end()};
 
         gatherer.add(time + 30, {1.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 70, {3.1}, 2,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 122, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertFirstBucketStats(gatherer);
         BOOST_REQUIRE_EQUAL("[[(i11, ([4.4], 3)), (i12, ([1], 1))], [(i21, ([2.3], 2)), (i22, ([3.1], 2))]]",
@@ -132,14 +131,14 @@ BOOST_AUTO_TEST_CASE(testSumGatherer) {
 
         gatherer.startNewBucket(time + 600);
         gatherer.add(time + 630, {0.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 670, {2.1}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 722, {2.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertSecondBucketStats(gatherer);
         BOOST_REQUIRE_EQUAL("[[(i11, ([2.4], 2)), (i12, ([2], 1))], [(i21, ([2.3], 2)), (i22, ([2.1], 1))]]",
@@ -213,27 +212,27 @@ BOOST_AUTO_TEST_CASE(testMeanGatherer) {
             i, 1, time, 600, influencers.begin(), influencers.end()};
 
         gatherer.add(time + 30, {1.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 70, {3.1}, 2,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 122, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertFirstBucketStats(gatherer);
 
         gatherer.startNewBucket(time + 600);
         gatherer.add(time + 630, {0.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 670, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 722, {2.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertSecondBucketStats(gatherer);
         if (i == 2) {
@@ -303,27 +302,27 @@ BOOST_AUTO_TEST_CASE(testMinGatherer) {
             i, 1, time, 600, influencers.begin(), influencers.end()};
 
         gatherer.add(time + 30, {1.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 70, {3.1}, 2,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 122, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertFirstBucketStats(gatherer);
 
         gatherer.startNewBucket(time + 600);
         gatherer.add(time + 630, {0.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 670, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 722, {2.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertSecondBucketStats(gatherer);
         if (i == 2) {
@@ -393,27 +392,27 @@ BOOST_AUTO_TEST_CASE(testMaxGatherer) {
             i, 1, time, 600, influencers.begin(), influencers.end()};
 
         gatherer.add(time + 30, {1.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 70, {3.1}, 2,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 122, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertFirstBucketStats(gatherer);
 
         gatherer.startNewBucket(time + 600);
         gatherer.add(time + 630, {0.3}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i11"},
+                      std::string{"i21"}});
         gatherer.add(time + 670, {1.0}, 1,
-                     {model::CStringStore::influencers().get("i11"),
-                      model::CStringStore::influencers().get("i22")});
+                     {std::string{"i11"},
+                      std::string{"i22"}});
         gatherer.add(time + 722, {2.0}, 1,
-                     {model::CStringStore::influencers().get("i12"),
-                      model::CStringStore::influencers().get("i21")});
+                     {std::string{"i12"},
+                      std::string{"i21"}});
 
         assertSecondBucketStats(gatherer);
         if (i == 2) {

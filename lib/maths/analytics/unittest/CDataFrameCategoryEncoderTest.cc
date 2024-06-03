@@ -833,6 +833,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     inserter.insertLevel("top-level", [&](auto& inserter_) {
         encoder.acceptPersistInserter(inserter_);
     });
+    inserter.flush();
     persistTo.flush();
 
     LOG_DEBUG(<< "persisted " << persistTo.str());

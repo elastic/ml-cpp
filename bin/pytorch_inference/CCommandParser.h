@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_torch_CCommandParser_h
 #define INCLUDED_ml_torch_CCommandParser_h
 
-#include <rapidjson/document.h>
+#include <boost/json.hpp>
 
 #include <core/CCompressedLfuCache.h>
 
@@ -22,6 +22,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+namespace json = boost::json;
 
 namespace ml {
 namespace torch {
@@ -144,15 +146,15 @@ public:
     //! Controls the process behaviour.
     struct SControlMessage {
         EControlMessageType s_MessageType;
-        std::int32_t s_NumAllocations;
-        std::string s_RequestId;
+        std::int64_t s_NumAllocations;
+        std::string_view s_RequestId;
     };
 
     using TControlHandlerFunc =
         std::function<void(CRequestCacheInterface&, const SControlMessage&)>;
     using TRequestHandlerFunc = std::function<bool(CRequestCacheInterface&, SRequest)>;
     using TErrorHandlerFunc =
-        std::function<void(const std::string& requestId, const std::string& message)>;
+        std::function<void(const std::string_view& requestId, const std::string& message)>;
 
 public:
     static const std::string REQUEST_ID;
@@ -180,15 +182,16 @@ private:
     static const std::string VAR_ARG_PREFIX;
 
 private:
-    static EMessageType validateJson(const rapidjson::Document& doc,
+    static EMessageType validateJson(const json::object& doc,
                                      const TErrorHandlerFunc& errorHandler);
-    static EMessageType validateInferenceRequestJson(const rapidjson::Document& doc,
+    static EMessageType validateInferenceRequestJson(const json::object& doc,
                                                      const TErrorHandlerFunc& errorHandler);
-    static EMessageType validateControlMessageJson(const rapidjson::Document& doc,
+    static EMessageType validateControlMessageJson(const json::object& doc,
                                                    const TErrorHandlerFunc& errorHandler);
-    static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
-    static SRequest jsonToInferenceRequest(const rapidjson::Document& doc);
-    static SControlMessage jsonToControlMessage(const rapidjson::Document& doc);
+    static bool checkArrayContainsInts(const json::array& arr);
+    static SRequest jsonToInferenceRequest(const json::object& doc);
+    //! doc must outlive the returned \p SControlMessage or memory corruption will occur.
+    static SControlMessage jsonToControlMessage(const json::object& doc);
 
 private:
     std::istream& m_StrmIn;

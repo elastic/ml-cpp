@@ -15,11 +15,12 @@
 
 #include <api/CAnnotationJsonWriter.h>
 
-#include <rapidjson/document.h>
-
+#include <boost/json.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
+
+namespace json = boost::json;
 
 BOOST_AUTO_TEST_SUITE(CAnnotationJsonWriterTest)
 
@@ -43,37 +44,45 @@ BOOST_AUTO_TEST_CASE(testWrite) {
         writer.writeResult("job-id", annotation);
     }
 
-    rapidjson::Document doc;
-    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    BOOST_TEST_REQUIRE(doc.HasParseError() == false);
-    const rapidjson::Value& firstElement{doc[0]};
-    BOOST_TEST_REQUIRE(firstElement.HasMember("annotation"));
-    const rapidjson::Value& annotation{firstElement["annotation"]};
-    BOOST_TEST_REQUIRE(annotation.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string{"job-id"}, annotation["job_id"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(1000, annotation["timestamp"].GetInt64());
-    BOOST_TEST_REQUIRE(annotation.HasMember("detector_index"));
-    BOOST_REQUIRE_EQUAL(2, annotation["detector_index"].GetInt());
-    BOOST_TEST_REQUIRE(annotation.HasMember("partition_field_name"));
+    LOG_DEBUG(<< "annotation: " << sstream.str());
+    json::error_code ec;
+    json::value jv = json::parse(sstream.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(jv.is_array());
+    json::array doc = jv.as_array();
+    const json::value& firstElement_{doc[0]};
+    BOOST_TEST_REQUIRE(firstElement_.is_object());
+    const json::object& firstElement = firstElement_.as_object();
+    BOOST_TEST_REQUIRE(firstElement.contains("annotation"));
+    const json::value& annotation_{firstElement.at("annotation")};
+    BOOST_TEST_REQUIRE(annotation_.is_object());
+    const json::object& annotation = annotation_.as_object();
+    BOOST_TEST_REQUIRE(annotation.contains("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string{"job-id"}, annotation.at("job_id").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("timestamp"));
+    BOOST_REQUIRE_EQUAL(1000, annotation.at("timestamp").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(annotation.contains("detector_index"));
+    BOOST_REQUIRE_EQUAL(2, annotation.at("detector_index").to_number<std::int64_t>());
+    BOOST_TEST_REQUIRE(annotation.contains("partition_field_name"));
     BOOST_REQUIRE_EQUAL(std::string{"pName"},
-                        annotation["partition_field_name"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("partition_field_value"));
+                        annotation.at("partition_field_name").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("partition_field_value"));
     BOOST_REQUIRE_EQUAL(std::string{"pValue"},
-                        annotation["partition_field_value"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("over_field_name"));
-    BOOST_REQUIRE_EQUAL(std::string{"oName"}, annotation["over_field_name"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("over_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string{"oValue"}, annotation["over_field_value"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("by_field_name"));
-    BOOST_REQUIRE_EQUAL(std::string{"bName"}, annotation["by_field_name"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("by_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string{"bValue"}, annotation["by_field_value"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("annotation"));
+                        annotation.at("partition_field_value").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("over_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string{"oName"}, annotation.at("over_field_name").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("over_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string{"oValue"},
+                        annotation.at("over_field_value").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("by_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string{"bName"}, annotation.at("by_field_name").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("by_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string{"bValue"}, annotation.at("by_field_value").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("annotation"));
     BOOST_REQUIRE_EQUAL(std::string{"annotation text"},
-                        annotation["annotation"].GetString());
-    BOOST_TEST_REQUIRE(annotation.HasMember("event"));
-    BOOST_REQUIRE_EQUAL(std::string{"model_change"}, annotation["event"].GetString());
+                        annotation.at("annotation").as_string());
+    BOOST_TEST_REQUIRE(annotation.contains("event"));
+    BOOST_REQUIRE_EQUAL(std::string{"model_change"}, annotation.at("event").as_string());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

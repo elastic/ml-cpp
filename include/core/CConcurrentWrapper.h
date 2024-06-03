@@ -35,7 +35,7 @@ class CConcurrentWrapper final : private CNonCopyable {
 public:
     //! Wrap and return the wrapped object
     //!
-    //! The object has to wrapped once and only once, pass the reference around in your code.
+    //! The object has to be wrapped once and only once, pass the reference around in your code.
     //! This starts a background thread.
     explicit CConcurrentWrapper(T& resource,
                                 std::size_t queueCapacity = 100,

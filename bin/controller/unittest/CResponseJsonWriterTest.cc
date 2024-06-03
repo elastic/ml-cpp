@@ -26,11 +26,14 @@ BOOST_AUTO_TEST_CASE(testResponseWriter) {
         responseWriter.writeResponse(2, true, "reason c");
     }
 
-    BOOST_REQUIRE_EQUAL("[{\"id\":1,\"success\":true,\"reason\":\"reason a\"}\n"
-                        ",{\"id\":3,\"success\":false,\"reason\":\"reason b\"}\n"
-                        ",{\"id\":2,\"success\":true,\"reason\":\"reason c\"}\n"
-                        "]",
-                        responseStream.str());
+    std::string expected = "[{\"id\":1,\"success\":true,\"reason\":\"reason a\"}\n"
+                           ",{\"id\":3,\"success\":false,\"reason\":\"reason b\"}\n"
+                           ",{\"id\":2,\"success\":true,\"reason\":\"reason c\"}\n"
+                           "]";
+    std::string actual = responseStream.str();
+    LOG_INFO(<< "EXPECTED: " << expected);
+    LOG_INFO(<< "ACTUAL  : " << actual); // missing commas between records
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

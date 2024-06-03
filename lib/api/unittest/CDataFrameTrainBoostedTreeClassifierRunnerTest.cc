@@ -61,7 +61,7 @@ namespace {
 template<typename T>
 void testWriteOneRow(const std::string& dependentVariableField,
                      const std::string& predictionFieldType,
-                     T (rapidjson::Value::*extract)() const,
+                     T(extract)(const json::value&),
                      const std::vector<T>& expectedPredictions) {
     // Prepare input data frame.
     const std::string predictionField{dependentVariableField + "_prediction"};
@@ -91,9 +91,13 @@ void testWriteOneRow(const std::string& dependentVariableField,
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                     dependentVariableField);
 
-    rapidjson::Document jsonParameters;
-    jsonParameters.Parse(specFactory.predictionParams(
-        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField));
+    json::error_code ec;
+    json::value jsonParameters = json::parse(
+        specFactory.predictionParams(
+            test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField),
+        ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+
     api::CDataFrameTrainBoostedTreeClassifierRunnerFactory factory;
     auto placeholder = factory.make(*spec, jsonParameters);
     const auto& runner =
@@ -103,7 +107,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
     std::stringstream output;
     {
         core::CJsonOutputStreamWrapper outputStreamWrapper(output);
-        core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
+        core::CBoostJsonConcurrentLineWriter writer(outputStreamWrapper);
 
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             auto columnHoldingDependentVariable =
@@ -127,43 +131,44 @@ void testWriteOneRow(const std::string& dependentVariableField,
     }
 
     // Verify results.
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(output.str().c_str());
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_TEST_REQUIRE(arrayDoc.Size() == rows.size());
-    BOOST_TEST_REQUIRE(arrayDoc.Size() == expectedPredictions.size());
-    for (std::size_t i = 0; i < arrayDoc.Size(); ++i) {
+    json::value arrayDoc_ = json::parse(output.str(), ec);
+    BOOST_TEST_REQUIRE(ec.failed() == false);
+    BOOST_TEST_REQUIRE(arrayDoc_.is_array());
+    const json::array& arrayDoc = arrayDoc_.as_array();
+    BOOST_TEST_REQUIRE(arrayDoc.size() == rows.size());
+    BOOST_TEST_REQUIRE(arrayDoc.size() == expectedPredictions.size());
+    for (std::size_t i = 0; i < arrayDoc.size(); ++i) {
         BOOST_TEST_CONTEXT("Result for row " << i) {
-            const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(i)];
-            BOOST_TEST_REQUIRE(object.IsObject());
-            BOOST_TEST_REQUIRE(object.HasMember(predictionField));
-            BOOST_TEST_REQUIRE((object[predictionField].*extract)() ==
+            const json::value& object_ = arrayDoc[i];
+            BOOST_TEST_REQUIRE(object_.is_object());
+            const json::object& object = object_.as_object();
+            BOOST_TEST_REQUIRE(object.contains(predictionField));
+            BOOST_TEST_REQUIRE(extract(object.at(predictionField)) ==
                                expectedPredictions[i]);
-            BOOST_TEST_REQUIRE(object.HasMember("prediction_probability"));
-            BOOST_TEST_REQUIRE(object["prediction_probability"].GetDouble() > 0.5);
-            BOOST_TEST_REQUIRE(object.HasMember("is_training"));
-            BOOST_TEST_REQUIRE(object["is_training"].GetBool());
+            BOOST_TEST_REQUIRE(object.contains("prediction_probability"));
+            BOOST_TEST_REQUIRE(object.at("prediction_probability").to_number<double>() > 0.5);
+            BOOST_TEST_REQUIRE(object.contains("is_training"));
+            BOOST_TEST_REQUIRE(object.at("is_training").as_bool());
         }
     }
 }
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {
-    testWriteOneRow("x3", "int", &rapidjson::Value::GetInt, {1, 1, 1, 5, 5});
+    testWriteOneRow("x3", "int", &json::value_to<int>, {1, 1, 1, 5, 5});
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsBool) {
-    testWriteOneRow("x4", "bool", &rapidjson::Value::GetBool,
-                    {true, true, true, false, false});
+    testWriteOneRow("x4", "bool", &json::value_to<bool>, {true, true, true, false, false});
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsString) {
-    testWriteOneRow("x5", "string", &rapidjson::Value::GetString,
+    testWriteOneRow("x5", "string", &json::value_to<std::string>,
                     {"cat", "cat", "cat", "dog", "dog"});
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsMissing) {
-    testWriteOneRow("x5", "", &rapidjson::Value::GetString,
+    testWriteOneRow("x5", "", &json::value_to<std::string>,
                     {"cat", "cat", "cat", "dog", "dog"});
 }
 
