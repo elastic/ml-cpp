@@ -83,7 +83,7 @@ public:
         TStrCRefStatCRefPrVec ordered;
         ordered.reserve(map.size());
         for (const auto& stat : map) {
-            ordered.emplace_back(*stat.first, stat.second);
+            ordered.emplace_back(stat.first, stat.second);
         }
         std::sort(ordered.begin(), ordered.end(), maths::common::COrderings::SFirstLess{});
         for (const auto& stat : ordered) {
@@ -262,6 +262,8 @@ private:
     using TStrBaseStatUMapQueue = CBucketQueue<TStrBaseStatUMap>;
     using TStrBaseStatUMapQueueVec = std::vector<TStrBaseStatUMapQueue>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
     using TStrStatUMapQueueSerializer =
         metric_stat_gatherer_detail::TStrStatUMapQueueSerializer<TBaseStat>;
 
@@ -279,10 +281,8 @@ public:
                         STAT{bucketLength, metric_stat_shims::makeStat<TBaseStat>(dimension)}),
           m_InfluencerBucketStats(
               std::distance(beginInfluencers, endInfluencers),
-              TStoredStringPtrBaseStatUMapQueue(latencyBuckets,
-                                                bucketLength,
-                                                startTime,
-                                                TStoredStringPtrBaseStatUMap(1))) {}
+              TStrBaseStatUMapQueue(latencyBuckets, bucketLength, startTime, TStrBaseStatUMap(1))) {
+    }
 
     //! Get the dimension of the underlying statistic.
     std::size_t dimension() const { return m_BaseStat.dimension(); }
@@ -304,7 +304,7 @@ public:
                 influenceValues[i].reserve(influencerStats.size());
                 for (const auto & [ name, stat ] : influencerStats) {
                     influenceValues[i].emplace_back(
-                        TStrCRef(*name),
+                        TStrCRef(name),
                         std::make_pair(metric_stat_shims::influencerValue(stat),
                                        metric_stat_shims::count(stat)));
                 }
@@ -329,16 +329,19 @@ public:
     //! \param[in] time The time of \p value.
     //! \param[in] value The measurement value.
     //! \param[in] influences The influencing field values which label \p value.
-    void add(core_t::TTime time, const TDouble1Vec& value, unsigned int count, const TStrVec& influences) {
+    void add(core_t::TTime time,
+             const TDouble1Vec& value,
+             unsigned int count,
+             const TOptionalStrVec& influences) {
         core_t::TTime bucketTime{time % m_BucketStats.bucketLength()};
         m_Classifier.add(FEATURE, value, count);
         m_BucketStats.get(time).add(bucketTime, value, count);
         for (std::size_t i = 0; i < influences.size(); ++i) {
-            if (influences[i] != nullptr) {
+            if (influences[i] != std::nullopt) {
                 metric_stat_shims::add(value, count,
                                        m_InfluencerBucketStats[i]
                                            .get(time)
-                                           .emplace(influences[i], m_BaseStat)
+                                           .emplace(*influences[i], m_BaseStat)
                                            .first->second);
             }
         }
