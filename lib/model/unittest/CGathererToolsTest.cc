@@ -21,7 +21,7 @@ using namespace model;
 
 namespace {
 const CGathererTools::CSumGatherer::TStrVec EMPTY_STR_VEC;
-const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
+const CGathererTools::CSumGatherer::TOptionalStrVec EMPTY_STR_PTR_VEC;
 }
 
 BOOST_AUTO_TEST_CASE(testSumGathererIsRedundant) {

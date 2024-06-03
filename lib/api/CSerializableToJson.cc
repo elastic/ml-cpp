@@ -130,30 +130,26 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
         try {
-            json::value doc;
-            json::error_code ec;
-            json::stream_parser p;
-            std::string line;
+
             bool done{false};
             while (inputStream->eof() == false && done == false) {
                 if (inputStream->peek() == '\0') {
                     inputStream->get();
                     continue;
                 }
+                std::string line;
                 std::getline(*inputStream, line);
-                ec = core::CBoostJsonParser::parse(line.data(), line.length(), doc);
+                json::value doc;
+                json::error_code ec =
+                    core::CBoostJsonParser::parse(line.data(), line.length(), doc);
+
                 assertNoParseError(ec);
                 assertIsJsonObject(doc);
-                try {
-                    auto chunk = ifExists(compressedDocTag, getAsObjectFrom,
-                                          doc.as_object());
-                    buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
-                                 ifExists(payloadTag, getStringLengthFrom, chunk));
-                    done = chunk.contains(JSON_EOS_TAG);
-                } catch (const std::runtime_error& e) {
-                    LOG_WARN(<< "Caught exception: " << e.what());
-                    continue;
-                }
+
+                auto chunk = ifExists(compressedDocTag, getAsObjectFrom, doc.as_object());
+                buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
+                             ifExists(payloadTag, getStringLengthFrom, chunk));
+                done = chunk.contains(JSON_EOS_TAG);
             }
 
             consumeSpace(*inputStream);

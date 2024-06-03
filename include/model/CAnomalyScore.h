@@ -101,6 +101,8 @@ public:
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
         using TOptionalBool = std::optional<bool>;
+        using TOptionalStr = std::optional<std::string>;
+        using TOptionalStrCRef = std::reference_wrapper<const TOptionalStr>;
         using TMaxValueAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
@@ -109,10 +111,10 @@ public:
         //! maintain a maximum score for each distinct scope.
         class MODEL_EXPORT CMaximumScoreScope {
         public:
-            CMaximumScoreScope(const std::string& partitionFieldName,
-                               const std::string& partitionFieldValue,
-                               const std::string& personFieldName,
-                               const std::string& personFieldValue);
+            CMaximumScoreScope(TOptionalStrCRef partitionFieldName,
+                               TOptionalStrCRef partitionFieldValue,
+                               TOptionalStrCRef personFieldName,
+                               TOptionalStrCRef personFieldValue);
 
             //! Get the maximum score map key for the scope.
             TWord key(TOptionalBool isPopulationAnalysis, const TDictionary& dictionary) const;
@@ -121,13 +123,10 @@ public:
             std::string print() const;
 
         private:
-            using TStrCRef = std::reference_wrapper<const std::string>;
-
-        private:
-            TStrCRef m_PartitionFieldName;
-            TStrCRef m_PartitionFieldValue;
-            TStrCRef m_PersonFieldName;
-            TStrCRef m_PersonFieldValue;
+            TOptionalStrCRef m_PartitionFieldName;
+            TOptionalStrCRef m_PartitionFieldValue;
+            TOptionalStrCRef m_PersonFieldName;
+            TOptionalStrCRef m_PersonFieldValue;
         };
 
     public:

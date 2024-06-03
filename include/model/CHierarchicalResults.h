@@ -13,7 +13,6 @@
 #define INCLUDED_ml_model_CHierarchicalResults_h
 
 #include <core/CSmallVector.h>
-#include <core/CStoredStringPtr.h>
 
 #include <maths/common/COrderings.h>
 
@@ -41,13 +40,11 @@ class CLimits;
 
 namespace hierarchical_results_detail {
 
-using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-using TStoredStringPtrStoredStringPtrPr =
-    std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+using TOptionalStr = std::optional<std::string>;
+using TOptionalStrVec = std::vector<TOptionalStr>;
+using TOptionalStrOptionalStrPr = std::pair<TOptionalStr, TOptionalStr>;
+using TOptionalStrOptionalStrPrDoublePr = std::pair<TOptionalStrOptionalStrPr, double>;
+using TOptionalStrOptionalStrPrDoublePrVec = std::vector<TOptionalStrOptionalStrPrDoublePr>;
 using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 //! \brief The data fully describing a result node.
@@ -86,23 +83,23 @@ struct MODEL_EXPORT SResultSpec {
     //! True if the model was configured to use null values.
     bool s_UseNull;
     //! The name of the partitioning field.
-    core::CStoredStringPtr s_PartitionFieldName;
+    TOptionalStr s_PartitionFieldName;
     //! The value of the partitioning field.
-    core::CStoredStringPtr s_PartitionFieldValue;
+    TOptionalStr s_PartitionFieldValue;
     //! The person field name. This is the name of field identifying
     //! a person, i.e. the by field name if there is no over field
     //! and over field name otherwise.
-    core::CStoredStringPtr s_PersonFieldName;
+    TOptionalStr s_PersonFieldName;
     //! The value of the person field if applicable or an empty string
     //! otherwise
-    core::CStoredStringPtr s_PersonFieldValue;
+    TOptionalStr s_PersonFieldValue;
     //! The name of the field identifying the metric value if this is
     //! metric analysis and an empty string otherwise.
-    core::CStoredStringPtr s_ValueFieldName;
+    TOptionalStr s_ValueFieldName;
     //! The optional function. Only leaf nodes have populated functions.
-    core::CStoredStringPtr s_FunctionName;
+    TOptionalStr s_FunctionName;
     //! The "by" field name.
-    core::CStoredStringPtr s_ByFieldName;
+    TOptionalStr s_ByFieldName;
     //! The function identifier.
     function_t::EFunction s_Function;
     //! The list of scheduled event descriptions if any occured
@@ -236,21 +233,20 @@ public:
     using TDoubleVec = std::vector<double>;
     using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
     using TResultSpec = hierarchical_results_detail::SResultSpec;
-    using TStoredStringPtr = core::CStoredStringPtr;
-    using TStoredStringPtrStoredStringPtrPr =
-        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
-    using TStoredStringPtrStoredStringPtrPrDoublePr =
-        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrOptionalStrPr = hierarchical_results_detail::TOptionalStrOptionalStrPr;
+    using TOptionalStrOptionalStrPrDoublePr =
+        hierarchical_results_detail::TOptionalStrOptionalStrPrDoublePr;
+    using TOptionalStrOptionalStrPrDoublePrVec =
+        hierarchical_results_detail::TOptionalStrOptionalStrPrDoublePrVec;
     using TNode = hierarchical_results_detail::SNode;
     using TNodePtrSizeUMap = hierarchical_results_detail::SNode::TNodePtrSizeUMap;
     using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
     using TNodeDeque = std::deque<TNode>;
-    using TStoredStringPtrStoredStringPtrPrNodeMap =
-        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::common::COrderings::SLess>;
-    using TStoredStringPtrNodeMap =
-        std::map<TStoredStringPtr, TNode, maths::common::COrderings::SLess>;
+    using TOptionalStrOptionalStrPrNodeMap =
+        std::map<TOptionalStrOptionalStrPr, TNode, maths::common::COrderings::SLess>;
+    using TOptionalStrNodeMap =
+        std::map<TOptionalStr, TNode, maths::common::COrderings::SLess>;
 
 public:
     CHierarchicalResults();
@@ -331,8 +327,8 @@ public:
 
     //! Get the influencer identified by \p influencerName and
     //! \p influencerValue if one exists.
-    const TNode* influencer(const TStoredStringPtr& influencerName,
-                            const TStoredStringPtr& influencerValue) const;
+    const TNode* influencer(const TOptionalStr& influencerName,
+                            const TOptionalStr& influencerValue) const;
 
     //! Bottom up first visit the tree.
     void bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
@@ -374,10 +370,10 @@ private:
     TNode& newLeaf(const TResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability);
 
     //! Create or retrieve a pivot node for the \p key.
-    TNode& newPivot(TStoredStringPtrStoredStringPtrPr key);
+    TNode& newPivot(TOptionalStrOptionalStrPr key);
 
     //! Create or retrieve a pivot root node for the \p key.
-    TNode& newPivotRoot(const TStoredStringPtr& key);
+    TNode& newPivotRoot(const TOptionalStr& key);
 
     //! Post-order depth first visit the tree.
     void postorderDepthFirst(const TNode* node, CHierarchicalResultsVisitor& visitor) const;
@@ -387,10 +383,10 @@ private:
     TNodeDeque m_Nodes;
 
     //! Storage for the pivot nodes.
-    TStoredStringPtrStoredStringPtrPrNodeMap m_PivotNodes;
+    TOptionalStrOptionalStrPrNodeMap m_PivotNodes;
 
     //! Pivot root nodes.
-    TStoredStringPtrNodeMap m_PivotRootNodes;
+    TOptionalStrNodeMap m_PivotRootNodes;
 
     //! Is the result final or interim?
     //! This field is transient - does not get persisted because interim results

@@ -104,8 +104,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::model::CAnomalyDetectorModel& model,
                                           ml::model::SAnnotatedProbability& probability) {
     for (std::size_t i = 0; i < bucket.size(); ++i) {
-        this->addArrival(
-            SMessage(time, "p", bucket[i], {}, TOptionalStr(influencerValues[i])), gatherer);
+        this->addArrival(SMessage(time, "p", bucket[i], {}, influencerValues[i]), gatherer);
     }
     model.sample(time, time + bucketLength, m_ResourceMonitor);
     ml::model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
@@ -204,7 +203,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                 TDoubleStrPrVec attributes;
                 for (const auto& probability : annotatedProbability.s_AttributeProbabilities) {
                     attributes.emplace_back(probability.s_Probability,
-                                            *probability.s_Attribute);
+                                            probability.s_Attribute.value_or(""));
                 }
                 anomalies.add({annotatedProbability.s_Probability,
                                {bucket, person, attributes}});

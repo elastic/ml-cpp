@@ -306,7 +306,7 @@ private:
                              TDocumentWeakPtr weakDoc);
 
     //! Write the influence results.
-    void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
+    void addInfluences(const CHierarchicalResultsWriter::TOptionalStrOptionalStrPrDoublePrVec& influenceResults,
                        TDocumentWeakPtr weakDoc);
 
     //! Write anomaly score explanation object.

@@ -82,7 +82,7 @@ public:
             return;
         }
 
-        const std::string analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
+        const std::string& analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
         ml::core_t::TTime bucketTime = node.s_BucketStartTime;
         double anomalyFactor = node.s_RawAnomalyScore;
         LOG_DEBUG(<< analysisFieldValue << " bucket time " << bucketTime

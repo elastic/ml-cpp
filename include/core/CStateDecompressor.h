@@ -11,6 +11,7 @@
 #ifndef INCLUDED_ml_core_CStateDecompressor_h
 #define INCLUDED_ml_core_CStateDecompressor_h
 
+#include <core/BoostJsonConstants.h>
 #include <core/CBoostJsonUnbufferedIStreamWrapper.h>
 #include <core/CDataSearcher.h>
 #include <core/ImportExport.h>
@@ -94,20 +95,16 @@ public:
         struct SBaseBoostJsonHandler {
 
             //! The maximum number of elements allowed in an array
-            static constexpr std::size_t max_array_size =
-                std::numeric_limits<std::size_t>::max();
+            static constexpr std::size_t max_array_size = boost_json_constants::MAX_ARRAY_SIZE;
 
             //! The maximum number of elements allowed in an object
-            static constexpr std::size_t max_object_size =
-                std::numeric_limits<std::size_t>::max();
+            static constexpr std::size_t max_object_size = boost_json_constants::MAX_OBJECT_SIZE;
 
             //! The maximum number of characters allowed in a string
-            static constexpr std::size_t max_string_size =
-                std::numeric_limits<std::size_t>::max();
+            static constexpr std::size_t max_string_size = boost_json_constants::MAX_STRING_SIZE;
 
             //! The maximum number of characters allowed in a key
-            static constexpr std::size_t max_key_size =
-                std::numeric_limits<std::size_t>::max() - 1;
+            static constexpr std::size_t max_key_size = boost_json_constants::MAX_KEY_SIZE;
 
             //! Called once when the JSON parsing begins.
             //!
@@ -268,14 +265,6 @@ public:
         };
 
         struct SBoostJsonHandler final : public SBaseBoostJsonHandler {
-            constexpr static std::size_t max_object_size =
-                std::numeric_limits<std::size_t>::max();
-            constexpr static std::size_t max_array_size =
-                std::numeric_limits<std::size_t>::max();
-            constexpr static std::size_t max_key_size =
-                std::numeric_limits<std::size_t>::max();
-            constexpr static std::size_t max_string_size =
-                std::numeric_limits<std::size_t>::max();
 
             bool on_bool(bool b, json::error_code& ec);
             bool on_string(std::string_view s, std::size_t n, json::error_code& ec);

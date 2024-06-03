@@ -14,7 +14,6 @@
 
 #include <core/CMemoryUsage.h>
 #include <core/CSmallVector.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -223,14 +222,11 @@ public:
         using TSampleVecQueue = CBucketQueue<TSampleVec>;
         using TSampleVecQueueItr = TSampleVecQueue::iterator;
         using TSampleVecQueueCItr = TSampleVecQueue::const_iterator;
-        using TStoredStringPtrDoubleUMap =
-            boost::unordered_map<core::CStoredStringPtr, double>;
-        using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
-        using TStoredStringPtrDoubleUMapQueue = CBucketQueue<TStoredStringPtrDoubleUMap>;
-        using TStoredStringPtrDoubleUMapQueueCRItr =
-            TStoredStringPtrDoubleUMapQueue::const_reverse_iterator;
-        using TStoredStringPtrDoubleUMapQueueVec = std::vector<TStoredStringPtrDoubleUMapQueue>;
-        using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+        using TOptionalStrDoubleUMap = boost::unordered_map<TOptionalStr, double>;
+        using TOptionalStrDoubleUMapCItr = TOptionalStrDoubleUMap::const_iterator;
+        using TOptionalStrDoubleUMapQueue = CBucketQueue<TOptionalStrDoubleUMap>;
+        using TOptionalStrDoubleUMapQueueCRItr = TOptionalStrDoubleUMapQueue::const_reverse_iterator;
+        using TOptionalStrDoubleUMapQueueVec = std::vector<TOptionalStrDoubleUMapQueue>;
 
     public:
         CSumGatherer(const SModelParams& params,
@@ -261,7 +257,7 @@ public:
                  const TDouble1Vec& value,
                  unsigned int count,
                  unsigned int /*sampleCount*/,
-                 const TStoredStringPtrVec& influences) {
+                 const TOptionalStrVec& influences) {
             TSampleVec& sum = m_BucketSums.get(time);
             if (sum.empty()) {
                 core_t::TTime bucketLength = m_BucketSums.bucketLength();
@@ -274,7 +270,7 @@ public:
                 if (!influences[i]) {
                     continue;
                 }
-                TStoredStringPtrDoubleUMap& sums = m_InfluencerBucketSums[i].get(time);
+                TOptionalStrDoubleUMap& sums = m_InfluencerBucketSums[i].get(time);
                 sums[influences[i]] += value[0];
             }
         }
@@ -318,7 +314,7 @@ public:
 
         //! The sum for each influencing field value and bucket within
         //! the latency window.
-        TStoredStringPtrDoubleUMapQueueVec m_InfluencerBucketSums;
+        TOptionalStrDoubleUMapQueueVec m_InfluencerBucketSums;
     };
 };
 }

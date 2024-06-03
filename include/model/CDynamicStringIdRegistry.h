@@ -15,7 +15,6 @@
 #include <core/CCompressedDictionary.h>
 #include <core/CMemoryUsage.h>
 #include <core/CProgramCounters.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
 #include <model/ImportExport.h>
@@ -48,7 +47,6 @@ public:
     using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
     using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
 public:
     //! An identifier which will never be used for a real string.
@@ -80,12 +78,6 @@ public:
     //! \param[in] id The unique identifier of the name of interest.
     //! \return The name if \p exists or \p fallback otherwise.
     const std::string& name(std::size_t id, const std::string& fallback) const;
-
-    //! Get the name identified by \p id if it exists, as a shared pointer
-    //!
-    //! \param[in] id The unique identifier of the name of interest.
-    //! \return The name as a string pointer
-    const core::CStoredStringPtr& namePtr(size_t id) const;
 
     //! Get the unique identifier of a name if it exists.
     //!
@@ -168,7 +160,7 @@ private:
     TWordSizeUMap m_Uids;
 
     //! Holds the name of each unique identifier.
-    TStoredStringPtrVec m_Names;
+    TStrVec m_Names;
 
     //! A list of unique identifiers which are free to reuse.
     TSizeVec m_FreeUids;

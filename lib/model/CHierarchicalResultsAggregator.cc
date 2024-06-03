@@ -36,12 +36,10 @@ namespace ml {
 namespace model {
 namespace {
 
-using TStoredStringPtr = CHierarchicalResults::TStoredStringPtr;
-using TStoredStringPtrStoredStringPtrPr = CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TOptionalStr = CHierarchicalResults::TOptionalStr;
+using TOptionalStrOptionalStrPr = CHierarchicalResults::TOptionalStrOptionalStrPr;
+using TOptionalStrOptionalStrPrDoublePr = CHierarchicalResults::TOptionalStrOptionalStrPrDoublePr;
+using TOptionalStrOptionalStrPrDoublePrVec = CHierarchicalResults::TOptionalStrOptionalStrPrDoublePrVec;
 
 //! \brief Creates new detector equalizers.
 class CDetectorEqualizerFactory {
@@ -51,26 +49,20 @@ public:
     }
 };
 
-//! Check if the underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
-           const TStoredStringPtrStoredStringPtrPr& rhs) {
-    return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
-}
-
 //! Compute the probability of \p influence.
-bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
-                          const TStoredStringPtr& influencerName,
-                          const TStoredStringPtr& influencerValue,
+bool influenceProbability(const TOptionalStrOptionalStrPrDoublePrVec& influences,
+                          const TOptionalStr& influencerName,
+                          const TOptionalStr& influencerValue,
                           double p,
                           double& result) {
-    TStoredStringPtrStoredStringPtrPr influence(influencerName, influencerValue);
+    TOptionalStrOptionalStrPr influence(influencerName, influencerValue);
 
     std::size_t k{static_cast<std::size_t>(
         std::lower_bound(influences.begin(), influences.end(), influence,
                          maths::common::COrderings::SFirstLess()) -
         influences.begin())};
 
-    if (k < influences.size() && equal(influences[k].first, influence)) {
+    if (k < influences.size() && influences[k].first == influence) {
         result = influences[k].second == 1.0
                      ? p
                      : std::exp(influences[k].second * maths::common::CTools::fastLog(p));

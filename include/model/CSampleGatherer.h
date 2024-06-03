@@ -16,7 +16,6 @@
 #include <core/CMemoryUsage.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 
@@ -30,7 +29,6 @@
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
 #include <model/CSampleQueue.h>
-#include <model/CStringStore.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SModelParams.h>
@@ -72,12 +70,12 @@ public:
     using TSampleVec = typename TSampleQueue::TSampleVec;
     using TMetricPartialStatistic = CMetricPartialStatistic<STATISTIC>;
     using TStatBucketQueue = CBucketQueue<TMetricPartialStatistic>;
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    using TStoredStringPtrStatUMap =
-        boost::unordered_map<core::CStoredStringPtr, STATISTIC, core::CHashing::CMurmurHash2String>;
-    using TStoredStringPtrStatUMapBucketQueue = CBucketQueue<TStoredStringPtrStatUMap>;
-    using TStoredStringPtrStatUMapBucketQueueVec =
-        std::vector<TStoredStringPtrStatUMapBucketQueue>;
+    using TOptionalStr = std::optional<std::string>;
+    using TOptionalStrVec = std::vector<TOptionalStr>;
+    using TOptionalStrStatUMap =
+        boost::unordered_map<TOptionalStr, STATISTIC, core::CHashing::CMurmurHash2String>;
+    using TOptionalStrStatUMapBucketQueue = CBucketQueue<TOptionalStrStatUMap>;
+    using TOptionalStrStatUMapBucketQueueVec = std::vector<TOptionalStrStatUMapBucketQueue>;
 
 public:
     static const std::string CLASSIFIER_TAG;
@@ -104,10 +102,10 @@ public:
                         TMetricPartialStatistic(dimension)),
           m_InfluencerBucketStats(
               std::distance(beginInfluencers, endInfluencers),
-              TStoredStringPtrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
-                                                  bucketLength,
-                                                  startTime,
-                                                  TStoredStringPtrStatUMap(1))) {}
+              TOptionalStrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
+                                              bucketLength,
+                                              startTime,
+                                              TOptionalStrStatUMap(1))) {}
 
     //! \name Persistence
     //@{
@@ -131,9 +129,9 @@ public:
         for (const auto& stats : m_InfluencerBucketStats) {
             inserter.insertLevel(
                 INFLUENCER_BUCKET_STATS_TAG,
-                std::bind<void>(TStoredStringPtrStatUMapBucketQueueSerializer(
-                                    TStoredStringPtrStatUMap(1),
-                                    CStoredStringPtrStatUMapSerializer(m_Dimension)),
+                std::bind<void>(TOptionalStrStatUMapBucketQueueSerializer(
+                                    TOptionalStrStatUMap(1),
+                                    COptionalStrStatUMapSerializer(m_Dimension)),
                                 std::cref(stats), std::placeholders::_1));
         }
     }
@@ -158,9 +156,8 @@ public:
             RESTORE(INFLUENCER_BUCKET_STATS_TAG,
                     i < m_InfluencerBucketStats.size() &&
                         traverser.traverseSubLevel(std::bind<bool>(
-                            TStoredStringPtrStatUMapBucketQueueSerializer(
-                                TStoredStringPtrStatUMap(1),
-                                CStoredStringPtrStatUMapSerializer(m_Dimension)),
+                            TOptionalStrStatUMapBucketQueueSerializer(
+                                TOptionalStrStatUMap(1), COptionalStrStatUMapSerializer(m_Dimension)),
                             std::ref(m_InfluencerBucketStats[i++]), std::placeholders::_1)))
         } while (traverser.next());
         return true;
@@ -188,7 +185,7 @@ public:
                 TStrCRefDouble1VecDoublePrPrVecVec influenceValues(
                     m_InfluencerBucketStats.size());
                 for (std::size_t i = 0; i < m_InfluencerBucketStats.size(); ++i) {
-                    const TStoredStringPtrStatUMap& influencerStats =
+                    const TOptionalStrStatUMap& influencerStats =
                         m_InfluencerBucketStats[i].get(time);
                     influenceValues[i].reserve(influencerStats.size());
                     for (const auto& stat : influencerStats) {
@@ -237,7 +234,7 @@ public:
     inline void add(core_t::TTime time,
                     const TDouble1Vec& value,
                     unsigned int sampleCount,
-                    const TStoredStringPtrVec& influences) {
+                    const TOptionalStrVec& influences) {
         this->add(time, value, 1, sampleCount, influences);
     }
 
@@ -253,7 +250,7 @@ public:
              const TDouble1Vec& statistic,
              unsigned int count,
              unsigned int sampleCount,
-             const TStoredStringPtrVec& influences) {
+             const TOptionalStrVec& influences) {
         if (sampleCount > 0) {
             m_SampleStats.add(time, statistic, count, sampleCount);
         }
@@ -264,7 +261,7 @@ public:
             if (!influences[i]) {
                 continue;
             }
-            TStoredStringPtrStatUMap& stats = m_InfluencerBucketStats[i].get(time);
+            TOptionalStrStatUMap& stats = m_InfluencerBucketStats[i].get(time);
             auto j = stats
                          .emplace(influences[i],
                                   CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension))
@@ -277,7 +274,7 @@ public:
     void startNewBucket(core_t::TTime time) {
         m_BucketStats.push(TMetricPartialStatistic(m_Dimension), time);
         for (auto& stats : m_InfluencerBucketStats) {
-            stats.push(TStoredStringPtrStatUMap(1), time);
+            stats.push(TOptionalStrStatUMap(1), time);
         }
         m_Samples.clear();
     }
@@ -286,7 +283,7 @@ public:
     void resetBucket(core_t::TTime bucketStart) {
         m_BucketStats.get(bucketStart) = TMetricPartialStatistic(m_Dimension);
         for (auto& stats : m_InfluencerBucketStats) {
-            stats.get(bucketStart) = TStoredStringPtrStatUMap(1);
+            stats.get(bucketStart) = TOptionalStrStatUMap(1);
         }
         m_SampleStats.resetBucket(bucketStart);
     }
@@ -361,12 +358,12 @@ private:
         typename TStatBucketQueue::template CSerializer<SStatSerializer>;
 
     //! \brief Manages persistence of influence bucket statistics.
-    class CStoredStringPtrStatUMapSerializer {
+    class COptionalStrStatUMapSerializer {
     public:
-        CStoredStringPtrStatUMapSerializer(std::size_t dimension)
+        COptionalStrStatUMapSerializer(std::size_t dimension)
             : m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
-        void operator()(const TStoredStringPtrStatUMap& map,
+        void operator()(const TOptionalStrStatUMap& map,
                         core::CStatePersistInserter& inserter) const {
             using TStatCRef = std::reference_wrapper<const STATISTIC>;
             using TStrCRefStatCRefPr = std::pair<TStrCRef, TStatCRef>;
@@ -384,7 +381,7 @@ private:
             }
         }
 
-        bool operator()(TStoredStringPtrStatUMap& map,
+        bool operator()(TOptionalStrStatUMap& map,
                         core::CStateRestoreTraverser& traverser) const {
             std::string key;
             do {
@@ -392,8 +389,7 @@ private:
                 RESTORE_NO_ERROR(MAP_KEY_TAG, key = traverser.value())
                 RESTORE(MAP_VALUE_TAG,
                         CMetricStatisticWrappers::restore(
-                            traverser, map.insert({CStringStore::influencers().get(key), m_Initial})
-                                           .first->second))
+                            traverser, map.insert({key, m_Initial}).first->second))
             } while (traverser.next());
             return true;
         }
@@ -401,8 +397,8 @@ private:
     private:
         STATISTIC m_Initial;
     };
-    using TStoredStringPtrStatUMapBucketQueueSerializer =
-        typename TStoredStringPtrStatUMapBucketQueue::template CSerializer<CStoredStringPtrStatUMapSerializer>;
+    using TOptionalStrStatUMapBucketQueueSerializer =
+        typename TOptionalStrStatUMapBucketQueue::template CSerializer<COptionalStrStatUMapSerializer>;
 
 private:
     //! The dimension of the statistic being gathered.
@@ -421,7 +417,7 @@ private:
 
     //! The aggregation of the measurements received for each
     //! bucket and influencing field within latency window.
-    TStoredStringPtrStatUMapBucketQueueVec m_InfluencerBucketStats;
+    TOptionalStrStatUMapBucketQueueVec m_InfluencerBucketStats;
 
     //! The samples of the aggregate statistic in the current
     //! bucketing interval.
