@@ -266,6 +266,9 @@ private:
     //! \p allocatorName A unique identifier for the allocator
     void pushAllocator(const std::string& allocatorName);
 
+    //! release the allocator
+    void releaseAllocator(const std::string& allocatorName);
+
     //! revert to using the previous allocator for JSON output processing
     void popAllocator();
 
