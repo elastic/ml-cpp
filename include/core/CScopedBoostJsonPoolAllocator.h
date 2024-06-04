@@ -36,10 +36,10 @@ public:
         m_Writer.pushAllocator(allocatorName);
     }
 
-    ~CScopedBoostJsonPoolAllocator() { 
-        m_Writer.popAllocator(); 
+    ~CScopedBoostJsonPoolAllocator() {
+        m_Writer.popAllocator();
         m_Writer.releaseAllocator(m_AllocatorName);
-        }
+    }
 
 private:
     T& m_Writer;
