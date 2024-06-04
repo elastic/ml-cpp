@@ -238,6 +238,8 @@ public:
     //! from the CResourceMonitor via a callback
     void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
 
+    std::size_t getAllocatorMemUsage() const;
+
     //! Write categorizer stats
     void writeCategorizerStats(const std::string& partitionFieldName,
                                const std::string& partitionFieldValue,

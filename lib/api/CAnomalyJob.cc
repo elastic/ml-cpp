@@ -797,6 +797,9 @@ void CAnomalyJob::writeOutResults(bool interim,
             bucketTime, results.root()->s_AnnotatedProbability.s_Probability,
             results.root()->s_RawAnomalyScore, results.root()->s_NormalizedAnomalyScore);
 
+        core::CProgramCounters::counter(counter_t::E_TSADJsonMemoryAllocatorUsage) =
+            m_JsonOutputWriter.getAllocatorMemUsage();
+
         if (m_JsonOutputWriter.endOutputBatch(interim, processingTime) == false) {
             LOG_ERROR(<< "Problem writing anomaly output");
         }

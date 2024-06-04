@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <regex>
 #include <stack>
 
@@ -86,6 +87,19 @@ public:
     virtual ~CBoostJsonWriterBase() = default;
 
     void reset(OUTPUT_STREAM& os) { m_Os = &os; }
+
+    std::size_t getAllocatorMemUsage() const {
+        std::size_t allocatedBytes = std::accumulate(
+            m_AllocatorCache.begin(), m_AllocatorCache.end(), 0l,
+            [](std::size_t a, auto& b) {
+                LOG_TRACE(<< "Named allocator '" << b.first << "' has memory usage "
+                          << b.second->getAllocatedBytes());
+                return a + b.second->getAllocatedBytes();
+            });
+
+        LOG_TRACE(<< "Total allocator mem usage = " << allocatedBytes << " bytes");
+        return allocatedBytes;
+    }
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present

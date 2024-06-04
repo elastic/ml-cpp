@@ -484,7 +484,9 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_MonitoredResourceCurrentMemory + m_ExtraMemory;
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+           static_cast<size_t>(core::CProgramCounters::counter(
+               counter_t::E_TSADJsonMemoryAllocatorUsage));
 }
 
 } // model
