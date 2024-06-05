@@ -27,7 +27,8 @@ class custom_resource : public boost::container::pmr::memory_resource {
 public:
     custom_resource(std::size_t& allocatedBytes)
         : m_AllocatedBytes{allocatedBytes} {}
-    std::size_t allocatedBytes() const {return m_AllocatedBytes;}
+    std::size_t allocatedBytes() const { return m_AllocatedBytes; }
+
 private:
     void* do_allocate(std::size_t bytes, std::size_t /*align*/) override {
         m_AllocatedBytes += bytes;
@@ -86,7 +87,7 @@ public:
     //! \return reference to the underlying storage pointer
     json::storage_ptr& get() { return m_JsonStoragePointer; }
 
-    std::size_t getAllocatedBytes() const {return m_AllocatedBytes;}
+    std::size_t getAllocatedBytes() const { return m_AllocatedBytes; }
 
 private:
     std::size_t m_AllocatedBytes{0};
@@ -95,7 +96,8 @@ private:
     //! and timely allocation/de-allocations, see
     //! https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/allocators/storage_ptr.html#json.allocators.storage_ptr.user_defined_resource
     //! for more details.
-    json::storage_ptr m_JsonStoragePointer{json::make_shared_resource<custom_resource>(m_AllocatedBytes)};
+    json::storage_ptr m_JsonStoragePointer{
+        json::make_shared_resource<custom_resource>(m_AllocatedBytes)};
 
     //! Container used to persist boost::json documents
     TDocumentPtrVec m_JsonDocumentStore;

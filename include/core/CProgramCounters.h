@@ -354,7 +354,7 @@ private:
          {counter_t::E_TSADAssignmentMemoryBasis, "E_TSADAssignmentMemoryBasis",
           "Which option is being used to get model memory for node assignment?"},
          {counter_t::E_TSADJsonMemoryAllocatorUsage, "E_TSADJsonMemoryAllocatorUsage",
-         "The amount of memory in use by the JSON memory allocators."},
+          "The amount of memory in use by the JSON memory allocators."},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
           "The upfront estimate of the peak memory outlier detection would use"},
          {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},
