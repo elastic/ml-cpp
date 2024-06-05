@@ -238,7 +238,8 @@ public:
     //! from the CResourceMonitor via a callback
     void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
 
-    std::size_t getAllocatorMemUsage() const;
+    //! Return the number of bytes currently in use by the JSON memory allocators.
+    std::size_t getJsonMemoryAllocatorUsage() const;
 
     //! Write categorizer stats
     void writeCategorizerStats(const std::string& partitionFieldName,
