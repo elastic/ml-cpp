@@ -30,7 +30,7 @@
 
 == {es} version 8.14.1
 
-=== Bug Fixes
+=== Enhancements
 
 * Improve memory allocation management for JSON processing to reduce memory usage.
   (See {ml-pull}2676[#2676].)
