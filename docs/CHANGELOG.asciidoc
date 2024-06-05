@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.17.23
+
+=== Enhancements
+
+* Improve memory allocation management for JSON processing to reduce memory usage. 
+  (See {ml-pull}#2678[2678].)
+
 == {es} version 7.17.16
 
 === Enhancements
