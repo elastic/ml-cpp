@@ -38,7 +38,7 @@ public:
 
     ~CScopedBoostJsonPoolAllocator() {
         m_Writer.popAllocator();
-        m_Writer.releaseAllocator(m_AllocatorName);
+        m_Writer.removeAllocator(m_AllocatorName);
     }
 
 private:

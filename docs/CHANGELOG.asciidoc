@@ -33,7 +33,8 @@
 === Enhancements
 
 * Improve memory allocation management for JSON processing to reduce memory usage.
-  (See {ml-pull}2676[#2676].)
+  (See {ml-pull}2679[#2679].)
+
 
 == {es} version 8.14.0
 
