@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.15.0
+
+=== Bug Fixes
+
+* Fix "stack use after scope" memory error. (See {ml-pull}2673[#2673].)
+
 == {es} version 8.14.0
 
 === Bug Fixes
