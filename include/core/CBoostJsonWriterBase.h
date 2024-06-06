@@ -88,7 +88,7 @@ public:
 
     void reset(OUTPUT_STREAM& os) { m_Os = &os; }
 
-    std::size_t getAllocatorMemUsage() const {
+    std::size_t getJsonMemoryAllocatorUsage() const {
         std::size_t allocatedBytes = std::accumulate(
             m_AllocatorCache.begin(), m_AllocatorCache.end(), 0l,
             [](std::size_t a, auto& b) {
