@@ -89,16 +89,10 @@ public:
     void reset(OUTPUT_STREAM& os) { m_Os = &os; }
 
     std::size_t getJsonMemoryAllocatorUsage() const {
-        std::size_t allocatedBytes = std::accumulate(
-            m_AllocatorCache.begin(), m_AllocatorCache.end(), 0l,
-            [](std::size_t a, auto& b) {
-                LOG_TRACE(<< "Named allocator '" << b.first << "' has memory usage "
-                          << b.second->getAllocatedBytes());
-                return a + b.second->getAllocatedBytes();
-            });
-
-        LOG_TRACE(<< "Total allocator mem usage = " << allocatedBytes << " bytes");
-        return allocatedBytes;
+        return std::accumulate(m_AllocatorCache.begin(), m_AllocatorCache.end(),
+                               0l, [](std::size_t a, auto& b) {
+                                   return a + b.second->getAllocatedBytes();
+                               });
     }
 
     //! Push a named allocator on to the stack
