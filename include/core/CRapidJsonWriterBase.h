@@ -164,10 +164,10 @@ public:
 
     //! remove an allocator from the cache
     void removeAllocator(const std::string& allocatorName) {
-        if (m_AllocatorCache.find(allocatorName) != m_AllocatorCache.end()) {
-            TPoolAllocatorPtr allocator = m_AllocatorCache[allocatorName];
-            allocator.reset();
-            m_AllocatorCache.erase(allocatorName);
+        auto allocator = m_AllocatorCache.find(allocatorName);
+        if (allocator != m_AllocatorCache.end()) {
+            allocator->second.reset();
+            m_AllocatorCache.erase(allocator);
         }
     }
 
