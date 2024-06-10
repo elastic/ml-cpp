@@ -162,6 +162,15 @@ public:
         return allocator;
     }
 
+    //! remove an allocator from the cache
+    void removeAllocator(const std::string& allocatorName) {
+        auto allocator = m_AllocatorCache.find(allocatorName);
+        if (allocator != m_AllocatorCache.end()) {
+            allocator->second.reset();
+            m_AllocatorCache.erase(allocator);
+        }
+    }
+
     rapidjson::MemoryPoolAllocator<>& getRawAllocator() const {
         return this->getAllocator()->get();
     }
