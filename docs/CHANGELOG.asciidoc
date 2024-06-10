@@ -41,6 +41,13 @@
 
 * Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
 
+== {es} version 8.14.1
+
+=== Enhancements
+
+* Improve memory allocation management for JSON processing to reduce memory usage.
+  (See {ml-pull}2679[#2679].)
+
 == {es} version 8.14.0
 
 === Bug Fixes
