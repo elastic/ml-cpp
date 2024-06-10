@@ -850,6 +850,10 @@ void CJsonOutputWriter::pushAllocator(const std::string& allocatorName) {
     m_Writer.pushAllocator(allocatorName);
 }
 
+void CJsonOutputWriter::removeAllocator(const std::string& allocatorName) {
+    m_Writer.removeAllocator(allocatorName);
+}
+
 void CJsonOutputWriter::popAllocator() {
     m_Writer.popAllocator();
 }
