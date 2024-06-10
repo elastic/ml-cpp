@@ -36,6 +36,7 @@
 #include <torch/script.h>
 
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <optional>
 #include <string>
@@ -93,24 +94,21 @@ bool handleRequest(ml::torch::CCommandParser::CRequestCacheInterface& cache,
         // We time the combination of the cache lookup and (if necessary)
         // the inference.
         ml::core::CStopWatch stopWatch(true);
-        cache.lookup(
-            std::move(capturedRequest),
-            [&](auto request_) -> std::optional<std::string> {
-                try {
-                    torch::Tensor results = infer(module_, request_);
-                    return resultWriter.createInnerResult(results);
-                } catch (const c10::Error& e) {
-                    resultWriter.writeError(request_.s_RequestId, e.what());
-                    return std::nullopt;
-                } catch (std::runtime_error& e) {
-                    resultWriter.writeError(request_.s_RequestId, e.what());
-                    return std::nullopt;
-                }
-            },
-            [&](const auto& innerResponseJson_, bool isCacheHit) {
-                resultWriter.wrapAndWriteInnerResponse(
-                    innerResponseJson_, requestId, isCacheHit, stopWatch.stop());
-            });
+        cache.lookup(std::move(capturedRequest),
+                     [&](auto request_) -> std::optional<std::string> {
+                         try {
+                             torch::Tensor results = infer(module_, request_);
+                             return resultWriter.createInnerResult(results);
+                         } catch (std::exception& e) {
+                             resultWriter.writeError(request_.s_RequestId, e.what());
+                             return std::nullopt;
+                         }
+                     },
+                     [&](const auto& innerResponseJson_, bool isCacheHit) {
+                         resultWriter.wrapAndWriteInnerResponse(innerResponseJson_,
+                                                                requestId, isCacheHit,
+                                                                stopWatch.stop());
+                     });
     });
     return true;
 }

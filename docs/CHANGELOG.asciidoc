@@ -33,6 +33,13 @@
 === Bug Fixes
 
 * Fix "stack use after scope" memory error. (See {ml-pull}2673[#2673].)
+* Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
+
+== {es} version 8.14.1
+
+=== Bug Fixes
+
+* Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
 
 == {es} version 8.14.0
 
