@@ -24,8 +24,6 @@
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 #include <numeric>
 #include <regex>
@@ -140,6 +138,14 @@ public:
 
     boost::json::storage_ptr& getStoragePointer() const {
         return this->getAllocator()->get();
+    }
+
+    void removeAllocator(const std::string& allocatorName) {
+        auto allocator = m_AllocatorCache.find(allocatorName);
+        if (allocator != m_AllocatorCache.end()) {
+            allocator->second.reset();
+            m_AllocatorCache.erase(allocator);
+        }
     }
 
     bool isComplete() const {

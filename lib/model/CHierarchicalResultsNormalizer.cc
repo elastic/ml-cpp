@@ -379,9 +379,11 @@ bool CHierarchicalResultsNormalizer::isMemberOfPopulation(const TNode& node,
     // So the person field name and value in the lambda are set to the
     // values for this node.
 
+    // Initialise these string references here as they are used by the
+    // "test" lambda, in this scope, below.
+    const std::string& personName = node.s_Spec.s_PersonFieldName.value_or("");
+    const std::string& personValue = node.s_Spec.s_PersonFieldValue.value_or("");
     if (test == nullptr) {
-        const std::string& personName = node.s_Spec.s_PersonFieldName.value_or("");
-        const std::string& personValue = node.s_Spec.s_PersonFieldValue.value_or("");
         if (personName.empty() || personValue.empty()) {
             return false;
         }
