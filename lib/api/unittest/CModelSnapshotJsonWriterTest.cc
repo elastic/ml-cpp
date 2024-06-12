@@ -28,6 +28,7 @@ using namespace api;
 BOOST_AUTO_TEST_CASE(testWrite) {
     std::ostringstream sstream;
 
+    // clang-format off
     // The output writer won't close the JSON structures until is is destroyed
     {
         model::CResourceMonitor::SModelSizeStats modelSizeStats{
@@ -52,6 +53,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
              2,                                // dead categories
              8,                                // failed categories
              model_t::E_CategorizationStatusWarn}};
+        // clang-format on
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
             "6.3.0",
