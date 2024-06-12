@@ -394,6 +394,8 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
         resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailuresCount;
+    res.s_JsonMemoryAllocatorUsage = static_cast<std::size_t>(
+        core::CProgramCounters::counter(counter_t::E_TSADJsonMemoryAllocatorUsage));
     res.s_OverallCategorizerStats.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
 }
