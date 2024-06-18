@@ -858,6 +858,10 @@ void CJsonOutputWriter::popAllocator() {
     m_Writer.popAllocator();
 }
 
+std::size_t CJsonOutputWriter::getOutputMemoryAllocatorUsage() const {
+    return m_Writer.getOutputMemoryAllocatorUsage();
+}
+
 void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& results) {
     m_Writer.onObjectBegin();
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);

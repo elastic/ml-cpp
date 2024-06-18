@@ -113,6 +113,7 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
       m_Writer(outStream), m_NumRecordsWritten(0), m_CreateTime(createTime),
       m_StartTime(startTime), m_EndTime(endTime), m_ExpiryTime(expiryTime),
       m_MemoryUsage(memoryUsage) {
+    m_MemoryUsage += m_Writer.getOutputMemoryAllocatorUsage();
 }
 
 void CForecastDataSink::writeStats(const double progress,

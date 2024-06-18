@@ -394,6 +394,8 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
         resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailuresCount;
+    res.s_OutputMemoryAllocatorUsage = static_cast<std::size_t>(
+        core::CProgramCounters::counter(counter_t::E_TSADOutputMemoryAllocatorUsage));
     res.s_OverallCategorizerStats.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
 }
@@ -484,7 +486,9 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_MonitoredResourceCurrentMemory + m_ExtraMemory;
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
+           static_cast<size_t>(core::CProgramCounters::counter(
+               counter_t::E_TSADOutputMemoryAllocatorUsage));
 }
 
 } // model

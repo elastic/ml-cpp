@@ -109,6 +109,9 @@ enum ECounterTypes {
     //! Which option is being used to get model memory for node assignment?
     E_TSADAssignmentMemoryBasis = 29,
 
+    //! The memory currently used by the allocators to output JSON documents, in bytes.
+    E_TSADOutputMemoryAllocatorUsage = 30,
+
     // Data Frame Outlier Detection
 
     //! The estimated peak memory usage for outlier detection in bytes
@@ -143,7 +146,7 @@ enum ECounterTypes {
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 30
+    E_LastEnumCounter = 31
 };
 
 static constexpr std::size_t NUM_COUNTERS = static_cast<std::size_t>(E_LastEnumCounter);
@@ -350,6 +353,8 @@ private:
           "The number of old people or attributes pruned from the models"},
          {counter_t::E_TSADAssignmentMemoryBasis, "E_TSADAssignmentMemoryBasis",
           "Which option is being used to get model memory for node assignment?"},
+         {counter_t::E_TSADOutputMemoryAllocatorUsage, "E_TSADOutputMemoryAllocatorUsage",
+          "The amount of memory used to output JSON documents, in bytes."},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
           "The upfront estimate of the peak memory outlier detection would use"},
          {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},

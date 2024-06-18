@@ -40,6 +40,12 @@ SELECTED_BRANCH=main
 
 function pickCloneTarget {
 
+    if isCloneTargetValid "$GITHUB_PR_OWNER" "$GITHUB_PR_BRANCH" ; then
+        SELECTED_FORK="$GITHUB_PR_OWNER"
+        SELECTED_BRANCH="$GITHUB_PR_BRANCH"
+        return 0
+    fi
+
     if isCloneTargetValid "$PR_AUTHOR" "$PR_SOURCE_BRANCH" ; then
         SELECTED_FORK="$PR_AUTHOR"
         SELECTED_BRANCH="$PR_SOURCE_BRANCH"

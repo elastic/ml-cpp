@@ -25,6 +25,8 @@
 
 #include <cmath>
 #include <memory>
+#include <numeric>
+#include <regex>
 #include <stack>
 
 namespace json = boost::json;
@@ -83,6 +85,13 @@ public:
     virtual ~CBoostJsonWriterBase() = default;
 
     void reset(OUTPUT_STREAM& os) { m_Os = &os; }
+
+    std::size_t getOutputMemoryAllocatorUsage() const {
+        return std::accumulate(m_AllocatorCache.begin(), m_AllocatorCache.end(),
+                               0l, [](std::size_t a, auto& b) {
+                                   return a + b.second->getAllocatedBytes();
+                               });
+    }
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present

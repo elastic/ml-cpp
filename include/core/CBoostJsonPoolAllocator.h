@@ -20,14 +20,44 @@ namespace json = boost::json;
 
 namespace ml {
 namespace core {
+
+namespace {
+
+class custom_resource : public boost::container::pmr::memory_resource {
+public:
+    custom_resource(std::size_t& allocatedBytes)
+        : m_AllocatedBytes{allocatedBytes} {}
+    std::size_t allocatedBytes() const { return m_AllocatedBytes; }
+
+private:
+    void* do_allocate(std::size_t bytes, std::size_t /*align*/) override {
+        m_AllocatedBytes += bytes;
+        return ::operator new(bytes);
+    }
+
+    void do_deallocate(void* ptr, std::size_t bytes, std::size_t /*align*/) override {
+        m_AllocatedBytes -= bytes;
+        return ::operator delete(ptr);
+    }
+
+    bool do_is_equal(memory_resource const& other) const noexcept override {
+        // since the global allocation and de-allocation functions are used,
+        // any instance of a custom_resource can deallocate memory allocated
+        // by another instance of a logging_resource
+        return dynamic_cast<custom_resource const*>(&other) != nullptr;
+    }
+
+private:
+    std::size_t& m_AllocatedBytes;
+};
+}
 //! \brief
-//! A boost::json memory allocator using a fixed size buffer
+//! A custom boost::json memory allocator
 //!
 //! DESCRIPTION:\n
-//! Encapsulates a boost::json monotonic_resource optimized with a fixed size buffer, see https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/allocators/storage_ptr.html
+//! Encapsulates a custom boost::json memory_resource, see https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/allocators/storage_ptr.html
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Use a fixed size buffer for the allocator for performance reasons
 //!
 //! Retain documents created to ensure that the associated memory allocator exists for the documents
 //! lifetime
@@ -57,17 +87,17 @@ public:
     //! \return reference to the underlying storage pointer
     json::storage_ptr& get() { return m_JsonStoragePointer; }
 
-private:
-    //! Size of the fixed buffer to allocate for parsing JSON
-    static const size_t FIXED_BUFFER_SIZE = 4096;
+    std::size_t getAllocatedBytes() const { return m_AllocatedBytes; }
 
 private:
-    //! fixed size memory buffer used to optimize allocator performance
-    unsigned char m_FixedBuffer[FIXED_BUFFER_SIZE];
-
+    std::size_t m_AllocatedBytes{0};
     //! storage pointer to use for allocating boost::json objects
+    //! We use a custom resource allocator for more predictable
+    //! and timely allocation/de-allocations, see
+    //! https://www.boost.org/doc/libs/1_83_0/libs/json/doc/html/json/allocators/storage_ptr.html#json.allocators.storage_ptr.user_defined_resource
+    //! for more details.
     json::storage_ptr m_JsonStoragePointer{
-        json::make_shared_resource<json::monotonic_resource>(m_FixedBuffer)};
+        json::make_shared_resource<custom_resource>(m_AllocatedBytes)};
 
     //! Container used to persist boost::json documents
     TDocumentPtrVec m_JsonDocumentStore;
