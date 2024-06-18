@@ -45,7 +45,7 @@ const std::string LOG_TIME{"log_time"};
 const std::string CATEGORIZER_STATS{"categorizer_stats"};
 const std::string PARTITION_FIELD_NAME{"partition_field_name"};
 const std::string PARTITION_FIELD_VALUE{"partition_field_value"};
-const std::string JSON_MEMORY_ALLOCATOR_BYTES("json_memory_allocator_bytes");
+const std::string OUTPUT_MEMORY_ALLOCATOR_BYTES("output_memory_allocator_bytes");
 }
 
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
@@ -86,8 +86,8 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
         writer.onString(model_t::print(results.s_AssignmentMemoryBasis));
     }
 
-    writer.onKey(JSON_MEMORY_ALLOCATOR_BYTES);
-    writer.onUint64(results.s_JsonMemoryAllocatorUsage);
+    writer.onKey(OUTPUT_MEMORY_ALLOCATOR_BYTES);
+    writer.onUint64(results.s_OutputMemoryAllocatorUsage);
 
     CModelSizeStatsJsonWriter::writeCommonFields(
         jobId, results.s_OverallCategorizerStats, results.s_BucketStartTime, writer);

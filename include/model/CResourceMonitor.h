@@ -63,7 +63,7 @@ public:
         core_t::TTime s_BucketStartTime{0};
         std::size_t s_BytesExceeded{0};
         std::size_t s_BytesMemoryLimit{0};
-        std::size_t s_JsonMemoryAllocatorUsage{0};
+        std::size_t s_OutputMemoryAllocatorUsage{0};
         SCategorizerStats s_OverallCategorizerStats;
     };
 
