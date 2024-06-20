@@ -195,7 +195,7 @@ public:
                    const std::string& summaryCountField = EMPTY_STRING) {
         this->makeModelT<CEventRateModelFactory>(params, features, startTime,
                                                  model_t::E_EventRateOnline, m_Gatherer,
-                                                 m_Model, {}, summaryCountField);
+                                                 m_Model, summaryCountField);
 
         for (std::size_t i = 0; i < numberPeople; ++i) {
             BOOST_REQUIRE_EQUAL(
@@ -2095,7 +2095,7 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     CModelFactory::TModelPtr modelSkipGap_;
     this->makeModelT<CEventRateModelFactory>(params, features, startTime,
                                              model_t::E_EventRateOnline, gathererSkipGap,
-                                             modelSkipGap_, {}, summaryCountField);
+                                             modelSkipGap_, summaryCountField);
     auto* modelSkipGap = dynamic_cast<CEventRateModel*>(modelSkipGap_.get());
 
     // The idea here is to compare a model that has a gap skipped against a model
@@ -2125,7 +2125,7 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     CModelFactory::TModelPtr modelExNullGap_;
     this->makeModelT<CEventRateModelFactory>(params, features, startTime,
                                              model_t::E_EventRateOnline, gathererExNull,
-                                             modelExNullGap_, {}, summaryCountField);
+                                             modelExNullGap_, summaryCountField);
     auto* modelExNullGap = dynamic_cast<CEventRateModel*>(modelExNullGap_.get());
 
     // p1: |1,"",null|1|1|null|null|1|
@@ -2395,15 +2395,14 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     CModelFactory::TModelPtr modelWithZerosPtr;
     this->makeModelT<CEventRateModelFactory>(
         params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
-        model_t::E_EventRateOnline, gathererWithZeros, modelWithZerosPtr, {},
-        summaryCountField);
+        model_t::E_EventRateOnline, gathererWithZeros, modelWithZerosPtr, summaryCountField);
     CEventRateModel& modelWithZeros = static_cast<CEventRateModel&>(*modelWithZerosPtr);
 
     CModelFactory::TDataGathererPtr gathererNoZeros;
     CModelFactory::TModelPtr modelNoZerosPtr;
     this->makeModelT<CEventRateModelFactory>(
         params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
-        model_t::E_EventRateOnline, gathererNoZeros, modelNoZerosPtr, {}, summaryCountField);
+        model_t::E_EventRateOnline, gathererNoZeros, modelNoZerosPtr, summaryCountField);
     CEventRateModel& modelNoZeros = static_cast<CEventRateModel&>(*modelNoZerosPtr);
 
     // The idea here is to compare a model that has records with summary count of zero

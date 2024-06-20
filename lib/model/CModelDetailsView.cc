@@ -97,7 +97,7 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
                               time, seasonalWeight);
         maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
         maths_t::setCountVarianceScale(
-            TDouble2Vec(dimension, this->countVarianceScale(feature, byFieldId, time)), weights);
+            TDouble2Vec(dimension, this->countVarianceScale()), weights);
 
         TDouble1VecDouble1VecPr support(model_t::support(feature));
         TDouble2Vec supportLower(support.first);
@@ -223,9 +223,7 @@ const CAnomalyDetectorModel& CEventRateModelDetailsView::base() const {
     return *m_Model;
 }
 
-double CEventRateModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
-                                                      std::size_t /*byFieldId*/,
-                                                      core_t::TTime /*time*/) const {
+double CEventRateModelDetailsView::countVarianceScale() const {
     return 1.0;
 }
 
@@ -251,9 +249,7 @@ const CAnomalyDetectorModel& CEventRatePopulationModelDetailsView::base() const 
     return *m_Model;
 }
 
-double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
-                                                                std::size_t /*byFieldId*/,
-                                                                core_t::TTime /*time*/) const {
+double CEventRatePopulationModelDetailsView::countVarianceScale() const {
     return 1.0;
 }
 
@@ -277,16 +273,8 @@ const CAnomalyDetectorModel& CMetricModelDetailsView::base() const {
     return *m_Model;
 }
 
-double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
-                                                   std::size_t byFieldId,
-                                                   core_t::TTime time) const {
-    TOptionalUInt64 count = m_Model->currentBucketCount(byFieldId, time);
-    if (!count) {
-        return 1.0;
-    }
-    return model_t::varianceScale(feature,
-                                  m_Model->dataGatherer().effectiveSampleCount(byFieldId),
-                                  static_cast<double>(*count));
+double CMetricModelDetailsView::countVarianceScale() const {
+    return 1.0;
 }
 
 ////////// CMetricPopulationModelDetailsView Implementation //////////
@@ -310,16 +298,8 @@ const CAnomalyDetectorModel& CMetricPopulationModelDetailsView::base() const {
     return *m_Model;
 }
 
-double CMetricPopulationModelDetailsView::countVarianceScale(model_t::EFeature feature,
-                                                             std::size_t byFieldId,
-                                                             core_t::TTime time) const {
-    TOptionalUInt64 count = m_Model->currentBucketCount(byFieldId, time);
-    if (!count) {
-        return 1.0;
-    }
-    return model_t::varianceScale(feature,
-                                  m_Model->dataGatherer().effectiveSampleCount(byFieldId),
-                                  static_cast<double>(*count));
+double CMetricPopulationModelDetailsView::countVarianceScale() const {
+    return 1.0;
 }
 }
 }

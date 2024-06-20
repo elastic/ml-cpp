@@ -97,9 +97,7 @@ private:
     virtual const CAnomalyDetectorModel& base() const = 0;
 
     //! Get the count variance scale.
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const = 0;
+    virtual double countVarianceScale() const = 0;
 
     //! Returns true if the terms are empty or they contain the key.
     static bool contains(const TStrSet& terms, const std::string& key);
@@ -134,9 +132,7 @@ public:
 
 private:
     const CAnomalyDetectorModel& base() const override;
-    double countVarianceScale(model_t::EFeature feature,
-                              std::size_t byFieldId,
-                              core_t::TTime time) const override;
+    double countVarianceScale() const override;
 
 private:
     //! The model.
@@ -159,9 +155,7 @@ public:
 
 private:
     const CAnomalyDetectorModel& base() const override;
-    double countVarianceScale(model_t::EFeature feature,
-                              std::size_t byFieldId,
-                              core_t::TTime time) const override;
+    double countVarianceScale() const override;
 
 private:
     //! The model.
@@ -184,9 +178,7 @@ public:
 
 private:
     const CAnomalyDetectorModel& base() const override;
-    double countVarianceScale(model_t::EFeature feature,
-                              std::size_t byFieldId,
-                              core_t::TTime time) const override;
+    double countVarianceScale() const override;
 
 private:
     //! The model.
@@ -209,9 +201,7 @@ public:
 
 private:
     const CAnomalyDetectorModel& base() const override;
-    double countVarianceScale(model_t::EFeature feature,
-                              std::size_t byFieldId,
-                              core_t::TTime time) const override;
+    double countVarianceScale() const override;
 
 private:
     //! The model.

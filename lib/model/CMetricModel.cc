@@ -27,7 +27,6 @@
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
-#include <model/CGathererTools.h>
 #include <model/CIndividualModelDetail.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
@@ -206,7 +205,7 @@ void CMetricModel::sample(core_t::TTime startTime,
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
-        gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
+        gatherer.featureData(time, m_CurrentBucketStats.s_FeatureData);
 
         const TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
         TSizeTimeUMap lastBucketTimesMap;
@@ -233,7 +232,7 @@ void CMetricModel::sample(core_t::TTime startTime,
 
             for (const auto& data_ : data) {
                 std::size_t pid = data_.first;
-                const CGathererTools::TSampleVec& samples = data_.second.s_Samples;
+                const auto& samples = data_.second.s_Samples;
 
                 maths::common::CModel* model = this->model(feature, pid);
                 if (model == nullptr) {
@@ -261,14 +260,6 @@ void CMetricModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                const TOptionalSample& bucket = data_.second.s_BucketValue;
-                if (model_t::isSampled(feature) && bucket != std::nullopt) {
-                    values.assign(1, core::make_triple(
-                                         bucket->time(), TDouble2Vec(bucket->value(dimension)),
-                                         model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
-                    model->addBucketValue(values);
-                }
-
                 // For sparse data we reduce the impact of samples from empty buckets.
                 // In effect, we smoothly transition to modeling only values from non-empty
                 // buckets as the data becomes sparse.
@@ -277,12 +268,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
-                std::size_t n = samples.size();
-                double countWeight =
-                    (this->params().s_MaximumUpdatesPerBucket > 0.0 && n > 0
-                         ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
-                         : 1.0) *
-                    this->learnRate(feature) * initialCountWeight;
+                double countWeight = this->learnRate(feature) * initialCountWeight;
                 double outlierWeightDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
@@ -298,10 +284,12 @@ void CMetricModel::sample(core_t::TTime startTime,
                           << ", scaled count weight = " << scaledCountWeight
                           << ", scaled interval = " << scaledInterval);
 
-                values.resize(n);
-                trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                priorWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                for (std::size_t i = 0; i < n; ++i) {
+                values.resize(samples.size());
+                trendWeights.resize(samples.size(),
+                                    maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                priorWeights.resize(samples.size(),
+                                    maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                for (std::size_t i = 0; i < samples.size(); ++i) {
                     core_t::TTime ithSampleTime = samples[i].time();
                     TDouble2Vec ithSampleValue(samples[i].value(dimension));
                     double countVarianceScale = samples[i].varianceScale();
@@ -344,9 +332,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     })
                     .memoryCircuitBreaker(circuitBreaker);
 
-                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
-                    gatherer.resetSampleCount(pid);
-                }
+                model->addSamples(params, values);
             }
         }
 
@@ -553,7 +539,7 @@ void CMetricModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& 
     // Stop collecting for these people and add them to the free list.
     gatherer.recyclePeople(people);
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
-        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(),
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime,
                              m_CurrentBucketStats.s_FeatureData);
     }
 

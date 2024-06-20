@@ -30,6 +30,13 @@
 
 == {es} version 8.15.0
 
+=== Enhancements
+
+* Improve memory allocation management for JSON processing to reduce memory usage.
+  (See {ml-pull}2679[#2679].)
+* Improve variance estimation for anomaly detection when record counts 
+  suddenly drop. (See {ml-pull}2677[#2677].)
+
 === Bug Fixes
 
 * Fix "stack use after scope" memory error. (See {ml-pull}2673[#2673].)
@@ -40,13 +47,6 @@
 === Bug Fixes
 
 * Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
-
-== {es} version 8.14.1
-
-=== Enhancements
-
-* Improve memory allocation management for JSON processing to reduce memory usage.
-  (See {ml-pull}2679[#2679].)
 
 == {es} version 8.14.0
 
