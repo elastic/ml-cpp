@@ -1574,15 +1574,16 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs1.second.first[0], i1ExpectedVariance, 0.0001);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs1.second.first[1], i1ExpectedMean, 0.0001);
 
-            // The order of ivs2 and ivs3 seems to be backwards...
-            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs2 = ivs[1][1];
+            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs2 = ivs[1][0];
+            LOG_DEBUG(<< "Comparing inf2 " << inf2 << " and inf2.first.get() " << ivs2.first.get());
             BOOST_REQUIRE_EQUAL(inf2, ivs2.first.get());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, ivs2.second.second, 0.0001);
             BOOST_REQUIRE_EQUAL(2, ivs2.second.first.size());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs2.second.first[0], i2ExpectedVariance, 0.0001);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs2.second.first[1], i2ExpectedMean, 0.0001);
 
-            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs3 = ivs[1][0];
+            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs3 = ivs[1][1];
+            LOG_DEBUG(<< "Comparing inf2 " << inf3 << " and inf2.first.get() " << ivs3.first.get());
             BOOST_REQUIRE_EQUAL(inf3, ivs3.first.get());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, ivs3.second.second, 0.0001);
             BOOST_REQUIRE_EQUAL(2, ivs3.second.first.size());
