@@ -24,9 +24,8 @@
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <memory>
+#include <numeric>
 #include <regex>
 #include <stack>
 
@@ -87,6 +86,13 @@ public:
 
     void reset(OUTPUT_STREAM& os) { m_Os = &os; }
 
+    std::size_t getOutputMemoryAllocatorUsage() const {
+        return std::accumulate(m_AllocatorCache.begin(), m_AllocatorCache.end(),
+                               0l, [](std::size_t a, auto& b) {
+                                   return a + b.second->getAllocatedBytes();
+                               });
+    }
+
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
     void pushAllocator(const std::string& allocatorName) {
@@ -132,6 +138,14 @@ public:
 
     boost::json::storage_ptr& getStoragePointer() const {
         return this->getAllocator()->get();
+    }
+
+    void removeAllocator(const std::string& allocatorName) {
+        auto allocator = m_AllocatorCache.find(allocatorName);
+        if (allocator != m_AllocatorCache.end()) {
+            allocator->second.reset();
+            m_AllocatorCache.erase(allocator);
+        }
     }
 
     bool isComplete() const {

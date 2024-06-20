@@ -238,6 +238,9 @@ public:
     //! from the CResourceMonitor via a callback
     void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
 
+    //! Return the number of bytes currently used to output JSON documents. .
+    std::size_t getOutputMemoryAllocatorUsage() const;
+
     //! Write categorizer stats
     void writeCategorizerStats(const std::string& partitionFieldName,
                                const std::string& partitionFieldValue,
@@ -272,6 +275,9 @@ private:
     //! use a new allocator for JSON output processing
     //! \p allocatorName A unique identifier for the allocator
     void pushAllocator(const std::string& allocatorName);
+
+    //! remove allocator from cache
+    void removeAllocator(const std::string& allocatorName);
 
     //! revert to using the previous allocator for JSON output processing
     void popAllocator();

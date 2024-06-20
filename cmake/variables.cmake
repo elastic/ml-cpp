@@ -155,17 +155,27 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND ML_COMPILE_DEFINITIONS BOOST_ALL_NO_LIB)
 endif()
 
-# Dictate which flags to use for "Release" and "Debug" builds
+# Dictate which flags to use for "Release", "RelWithDebinfo", "Debug" and "Sanitizer" builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi /O2 /D NDEBUG /D EXCLUDE_TRACE_LOGGING /Qfast_transcendentals /Qvec-report:1")
   set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /RTC1")
+  set(CMAKE_CXX_FLAGS_SANITIZER "/fsanitize=address /Zi" CACHE STRING
+          "Flags used by the C++ compiler during sanitizer builds."
+          FORCE)
+  set(CMAKE_EXE_LINKER_FLAGS_SANITIZER "")
+  set(CMAKE_SHARED_LINKER_FLAGS_SANITIZER "")
+  set(CMAKE_CONFIGURATION_TYPES "Release;RelWithDebinfo;Debug;Sanitizer")
+
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG -DEXCLUDE_TRACE_LOGGING -Wdisabled-optimization -D_FORTIFY_SOURCE=2")
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
+  set(CMAKE_CXX_FLAGS_SANITIZER "-fsanitize=address -g -fno-omit-frame-pointer" CACHE STRING
+          "Flags used by the C++ compiler during sanitizer builds."
+          FORCE)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")

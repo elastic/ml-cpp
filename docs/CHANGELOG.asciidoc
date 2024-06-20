@@ -28,11 +28,32 @@
 
 //=== Regressions
 
+== {es} version 8.15.0
+
+=== Bug Fixes
+
+* Fix "stack use after scope" memory error. (See {ml-pull}2673[#2673].)
+* Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
+
+== {es} version 8.14.1
+
+=== Bug Fixes
+
+* Handle any exception thrown by inference. (See {ml-pull}2680[#2680].)
+
+== {es} version 8.14.1
+
+=== Enhancements
+
+* Improve memory allocation management for JSON processing to reduce memory usage.
+  (See {ml-pull}2679[#2679].)
+
 == {es} version 8.14.0
 
 === Bug Fixes
 
 * Remove ineffective optimizations for duplicate strings. (See {ml-pull}2652[#2652], issue: {ml-issue}2130[#2130].)
+* Use custom Boost.JSON resource allocator. (See {ml-pull}2674[#2674].)
 
 == {es} version 8.13.0
 
