@@ -25,3 +25,5 @@ set(ML_LINK_LIBRARIES
 ml_add_executable(autodetect
   CCmdLineParser.cc
   )
+
+ml_codesign(autodetect)

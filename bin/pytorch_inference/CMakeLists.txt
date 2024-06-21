@@ -29,3 +29,4 @@ ml_add_executable(pytorch_inference
   CThreadSettings.cc
   )
 
+ml_codesign(pytorch_inference)
