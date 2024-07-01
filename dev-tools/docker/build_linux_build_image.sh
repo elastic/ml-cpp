@@ -43,7 +43,14 @@ cd `dirname $0`
 . ./prefetch_docker_image.sh
 CONTEXT=linux_image
 prefetch_docker_base_image $CONTEXT/Dockerfile
-docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
+if [ $# -gt 0 ]; then
+  VERSION=pytorch_latest
+  echo "VERSION = $VERSION"
+  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION --build-arg pytorch_branch=main $CONTEXT
+else
+  echo "VERSION = $VERSION"
+  docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
+fi
 # Get a username and password for this by visiting
 # https://docker-auth.elastic.co and allowing it to authenticate against your
 # GitHub account

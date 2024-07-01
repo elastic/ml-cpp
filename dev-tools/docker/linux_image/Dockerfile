@@ -149,13 +149,19 @@ gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
+ARG pytorch_branch=v2.1.2
+
+ENV PYTORCH_BRANCH=${pytorch_branch}
+ENV PYTORCH_BUILD_VERSION=""
+
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v2.1.2 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=${PYTORCH_BRANCH} https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  [ "$PYTORCH_BRANCH" != "main" ] && PYTORCH_BUILD_VERSION=$(expr "$PYTORCH_BRANCH" : 'v\(.*\)') && \
   export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
@@ -165,7 +171,7 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=2.1.2 && \
+  export PYTORCH_BUILD_VERSION && \
   export PYTORCH_BUILD_NUMBER=1 && \
   export MAX_JOBS=10 && \
   /usr/local/bin/python3.10 setup.py install && \
