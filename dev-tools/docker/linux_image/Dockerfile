@@ -15,6 +15,12 @@ FROM centos:7 AS builder
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
+
+RUN \
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+RUN yum repolist enabled
+
 # Make sure OS packages are up to date and required packages are installed
 # libffi is required for building Python
 RUN \
