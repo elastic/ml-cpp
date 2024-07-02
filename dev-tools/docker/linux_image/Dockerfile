@@ -25,7 +25,7 @@ RUN yum repolist enabled
 # libffi is required for building Python
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make texinfo unzip wget which xz zip zlib-devel file
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
